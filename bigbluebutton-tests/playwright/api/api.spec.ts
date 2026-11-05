@@ -184,6 +184,11 @@ test.describe.parallel('API', () => {
       const join = new APIJoin(browser, context);
       await join.testMaxParticipants(page, testInfo, request);
     });
+
+    test('getJoinUrlRoundTripKeepsSpacedValues', async ({ browser, context, page, request }, testInfo) => {
+      const join = new APIJoin(browser, context);
+      await join.testGetJoinUrlRoundTrip(page, testInfo, request);
+    });
   });
 
   // Each feature is disabled on create and the matching GraphQL request is

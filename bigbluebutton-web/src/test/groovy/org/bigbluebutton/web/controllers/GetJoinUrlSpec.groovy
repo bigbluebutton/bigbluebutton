@@ -148,6 +148,43 @@ class GetJoinUrlSpec extends Specification implements ControllerUnitTest<ApiCont
     !checksumVerifies(tampered)
   }
 
+  def "Values are encoded once, so the meeting ID and name decode back intact"() {
+    given: "a viewer session whose meeting ID and name carry spaces"
+    registerUserSession(controller.ROLE_ATTENDEE)
+
+    when: "a join URL is requested"
+    requestJoinUrl()
+
+    then: "a servlet container decodes both back to the originals, and the URL verifies"
+    def url = responseJoinUrl()
+    queryOf(url).get("meetingID") == EXTERNAL_MEETING_ID
+    queryOf(url).get("fullName") == "Test User"
+    checksumVerifies(url)
+  }
+
+  @Unroll
+  def "With supportedChecksumAlgorithms=#algorithms the URL is signed with #expected"() {
+    given: "a server that accepts only the given algorithms"
+    validationService.setSupportedChecksumAlgorithms(algorithms)
+    registerUserSession(controller.ROLE_ATTENDEE)
+
+    when: "a join URL is requested"
+    requestJoinUrl()
+
+    then: "the checksum has the length of the strongest accepted algorithm and verifies on this server"
+    def url = responseJoinUrl()
+    queryOf(url).get("checksum").length() == length
+    checksumVerifies(url)
+
+    where:
+    algorithms                  | expected | length
+    "sha1,sha256,sha384,sha512" | "sha512" | 128
+    "sha1,sha256"               | "sha256" | 64
+    "sha256"                    | "sha256" | 64
+    "sha1"                      | "sha1"   | 40
+    " sha1 , sha384 "           | "sha384" | 96
+  }
+
   /***********************************
    * USERDATA GATE
    ***********************************/
