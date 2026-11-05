@@ -522,10 +522,13 @@ export class Recording extends MultiUsers {
   async swapContent() {
     await this.playbackPage.hasElement(playbackElements.title, 'should display the playback title');
     const titleLocator = this.playbackPage.page.locator(playbackElements.title);
+    // The webcams video is left out too: the frames of a recording without webcams depend on
+    // the server (deployments render them on different backgrounds), not on the layout.
+    const webcamsLocator = this.playbackPage.page.locator(playbackElements.webcamsVideo);
     await expect(this.playbackPage.page, 'top content area should be visible').toHaveScreenshot(
       'default-content-disposition.png',
       {
-        mask: [titleLocator],
+        mask: [titleLocator, webcamsLocator],
       },
     );
 
@@ -534,7 +537,7 @@ export class Recording extends MultiUsers {
       this.playbackPage.page,
       'bottom content area should be visible after swapping content',
     ).toHaveScreenshot('swapped-content-disposition.png', {
-      mask: [titleLocator],
+      mask: [titleLocator, webcamsLocator],
     });
   }
 
@@ -581,13 +584,14 @@ export class Recording extends MultiUsers {
   async playPause() {
     await this.playbackPage.waitForSelector(playbackElements.title);
     const titleLocator = this.playbackPage.page.locator(playbackElements.title);
+    const webcamsLocator = this.playbackPage.page.locator(playbackElements.webcamsVideo);
 
     // Assert that progress bar width is 0 at the start
     const progressBarLocator = this.playbackPage.page.locator(playbackElements.progressBar);
     const progressBarInitialWidth = await progressBarLocator.evaluate((el: HTMLDivElement) => el.offsetWidth);
     expect(progressBarInitialWidth, 'progress bar width should be 0 at the start').toEqual(0);
     await expect(this.playbackPage.page, 'placeholder BBB icon should be visible').toHaveScreenshot('placeholder.png', {
-      mask: [titleLocator],
+      mask: [titleLocator, webcamsLocator],
     });
 
     const playPauseButtonLocator = this.playbackPage.page.locator(playbackElements.playPauseButton);
@@ -600,7 +604,7 @@ export class Recording extends MultiUsers {
       timeout: ELEMENT_WAIT_TIME,
     });
     await expect(this.playbackPage.page, 'first slide should be visible').toHaveScreenshot('first-slide.png', {
-      mask: [titleLocator],
+      mask: [titleLocator, webcamsLocator],
     });
 
     // Resume playback to the next slide
@@ -610,7 +614,7 @@ export class Recording extends MultiUsers {
 
     expect(progressBarResumed, 'progress bar width should not be 0 after resuming playback').not.toEqual(0);
     await expect(this.playbackPage.page, 'second slide should be visible').toHaveScreenshot('slide-changed.png', {
-      mask: [titleLocator],
+      mask: [titleLocator, webcamsLocator],
     });
 
     // Pause playback and verify the frame does not advance over time
@@ -651,13 +655,14 @@ export class Recording extends MultiUsers {
   async seekBarForwardBackward() {
     await this.playbackPage.waitForSelector(playbackElements.title);
     const titleLocator = this.playbackPage.page.locator(playbackElements.title);
+    const webcamsLocator = this.playbackPage.page.locator(playbackElements.webcamsVideo);
 
     // Assert that progress bar width is 0 at the start
     const progressBarLocator = this.playbackPage.page.locator(playbackElements.progressBar);
     const progressBarInitialWidth = await progressBarLocator.evaluate((el: HTMLDivElement) => el.offsetWidth);
     expect(progressBarInitialWidth, 'progress bar width should be 0 at the start').toEqual(0);
     await expect(this.playbackPage.page, 'placeholder BBB icon should be visible').toHaveScreenshot('placeholder.png', {
-      mask: [titleLocator],
+      mask: [titleLocator, webcamsLocator],
     });
 
     // play video and seek forward
@@ -674,7 +679,7 @@ export class Recording extends MultiUsers {
       this.playbackPage.page,
       'second slide should be visible when seeking forward till the end',
     ).toHaveScreenshot('seek-forward.png', {
-      mask: [titleLocator],
+      mask: [titleLocator, webcamsLocator],
     });
 
     // seek backward
@@ -688,7 +693,7 @@ export class Recording extends MultiUsers {
     await expect(this.playbackPage.page, 'first slide should be visible when seeking backward').toHaveScreenshot(
       'seek-backward.png',
       {
-        mask: [titleLocator],
+        mask: [titleLocator, webcamsLocator],
       },
     );
   }
