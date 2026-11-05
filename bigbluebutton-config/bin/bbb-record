@@ -116,16 +116,16 @@ disabled_formats() {
    local disabled_formats
 
    # Same parsing as BigBlueButton::Events.disabled_recording_formats
-   disabled_formats=$(xmlstarlet sel -t -v /recording/metadata/@bbb-disable-recording-formats "$events" 2>/dev/null)
+   disabled_formats=$(xmlstarlet sel -T -t -v /recording/metadata/@bbb-disable-recording-formats "$events" 2>/dev/null)
    case $? in
       0) ;;
       1) return 0 ;; # the xpath matched nothing: the meeting opted out of nothing
       *) return 1 ;;
    esac
 
-   disabled_formats=${disabled_formats//[\[\]]} # delete [ and ]
-   disabled_formats=${disabled_formats//,/ }    # replace commas with spaces
-   disabled_formats=${disabled_formats,,}       # convert to lowercase
+   disabled_formats=${disabled_formats//[\[\]]}     # delete [ and ]
+   disabled_formats=${disabled_formats//[,$'\r']/ } # replace commas and CRs with spaces
+   disabled_formats=${disabled_formats,,}           # convert to lowercase
    echo "$disabled_formats"
 }
 
