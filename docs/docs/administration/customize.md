@@ -1907,7 +1907,7 @@ If you are using LiveKit as audio gateway, use [bbb-livekit-stt](https://github.
 
 #### Advanced Filtering (WASM audio processing)
 
-BigBlueButton 4.0 ships with an optional WASM-based audio processor that runs on top of the microphone stream. It is exposed to users as the **"Advanced Filtering"** option in the Settings > Audio tab, and offers an alternative to the browser's built-in audio processing ("Standard Filtering"), isolating the speaker's voice and eliminating background noise. Users who want no processing at all — for example when sharing music, where noise suppression and automatic gain control would be undesirable — can select "Original Audio" in the same tab.
+BigBlueButton 4.0 ships with an optional WASM-based audio processor that runs on top of the microphone stream. It is exposed to users as the **"Advanced Filtering"** option in the Settings > Audio tab, and offers an alternative to the browser's built-in audio processing ("Standard Filtering"), isolating the foreground voice while retaining a minimal ambience. With the `bbba` provider it is also exposed as the **"Voice Isolation"** option, which runs the same processor at full filtering intensity to separate the voice from background noise completely. Users who want no processing at all — for example when sharing music, where noise suppression and automatic gain control would be undesirable — can select "Original Audio" in the same tab.
 
 It is **disabled by default**. To make it available to users, set `enabled: true` under `public.media.audio.audioWasmProcessing` in `/etc/bigbluebutton/bbb-html5.yml`:
 
@@ -1923,16 +1923,24 @@ public:
       #   constraints: browser-level audio constraints applied ON TOP of WASM processing.
       #                Providers can force their own value for a given constraint,
       #                overriding whatever is configured here.
+      #   intensity: how aggressively the provider filters, 0-100. Only the
+      #              'bbba' provider has such a knob; it is ignored by any
+      #              provider that does not. Applied to every processor as it
+      #              is created, so it also covers the audio settings echo
+      #              test. Applies to Advanced Filtering only: Voice Isolation
+      #              always runs at 100. Unset falls back to the provider's
+      #              own default.
       audioWasmProcessing:
         enabled: true
         provider: bbba
+        intensity: 95
         constraints:
           echoCancellation: true
           autoGainControl: true
           noiseSuppression: true
 ```
 
-The audio-processing mode pre-selected for new users is controlled by `public.app.defaultSettings.audio.processingMode` (`advanced` selects the WASM processor; the client falls back to `standard` when WASM processing is disabled or the browser does not support it). Restart BigBlueButton with `sudo bbb-conf --restart` after changing the configuration.
+The audio-processing mode pre-selected for new users is controlled by `public.app.defaultSettings.audio.processingMode` (`advanced` and `voiceIsolation` select the WASM processor; the client falls back to `standard` when WASM processing is disabled or the browser does not support it, and from `voiceIsolation` to `advanced` with a provider other than `bbba`). Restart BigBlueButton with `sudo bbb-conf --restart` after changing the configuration.
 
 #### Configure guest policy
 

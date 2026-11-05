@@ -1540,12 +1540,12 @@ Note :
 
 1. Open the "Audio" tab of the Settings.
 
-    - You should see the "Microphone audio processing" options "Standard Filtering" (selected by default) and "Original Audio", plus "Advanced Filtering" when it is enabled on the server (disabled with "Not supported by your browser." where the browser cannot run it)
+    - You should see the "Microphone audio processing" options "Standard Filtering" (selected by default) and "Original Audio", plus "Advanced Filtering" and "Voice Isolation" when they are enabled on the server (disabled with "Not supported by your browser." where the browser cannot run them; "Voice Isolation" also needs the `bbba` provider, the default)
 
 2. Join audio with microphone, choose another option and click Save to Validate your new Settings.
 
     - Your microphone should stay connected and keep its mute state
-    - Other users should hear the difference: "Standard Filtering" and "Advanced Filtering" reduce background noise, "Original Audio" transmits your sound without any processing
+    - Other users should hear the difference: "Standard Filtering" and "Advanced Filtering" reduce background noise, "Voice Isolation" removes it, "Original Audio" transmits your sound without any processing
 
 ### Notifications
 
