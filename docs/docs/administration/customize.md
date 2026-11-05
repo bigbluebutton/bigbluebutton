@@ -950,6 +950,12 @@ It's also important to note that, alongside the PIN requirement, there are basic
 
 LiveKit is the default audio bridge in BigBlueButton 4.0. For meetings that use the LiveKit audio bridge, telephone dial-in is handled by `livekit-sip`.
 
+:::warning[Dial-in callers bypass the guest lobby]
+With the LiveKit audio bridge, dial-in callers do not go through the guest lobby, even when the guest policy is `ASK_MODERATOR`. The caller joins the meeting right after entering the conference PIN, and moderators cannot approve or deny them first. This differs from the FreeSWITCH audio bridge, which holds dial-in callers in the lobby like web guests.
+
+If your deployment relies on the guest lobby to control who joins by phone, use the FreeSWITCH audio bridge for those meetings. Set `audioBridge=bbb-webrtc-sfu` per meeting on `/create`, or server-wide in `/etc/bigbluebutton/bbb-web.properties`, and set up dial-in as described in [Add a phone number to the conference bridge](#add-a-phone-number-to-the-conference-bridge). See [issue 26282](https://github.com/bigbluebutton/bigbluebutton/issues/26282) for guest lobby support on the LiveKit bridge.
+:::
+
 The dial-in flow is: the caller reaches a **SIP call gateway** (a FreeSWITCH — either BigBlueButton's bundled one or an external one) that answers the call and prompts for the conference PIN; the gateway then bridges the authenticated call into `livekit-sip`, which joins the LiveKit room as a SIP participant.
 
 LiveKit dial-in is opt-in. Enable the LiveKit SIP controller in `/etc/bigbluebutton/bbb-webrtc-sfu/production.yml`:
@@ -1104,7 +1110,7 @@ If DTMF passes through to FreeSWITCH during the PIN prompt but does not reach `l
 
 ##### Limitations
 
-- The guest lobby is bypassed for SIP dial-in callers.
+The guest lobby is bypassed for SIP dial-in callers. See [the Media section of the BigBlueButton 4.0 new features](/new-features.md#media) for details.
 
 #### Turn on the "comfort noise" when no one is speaking
 
