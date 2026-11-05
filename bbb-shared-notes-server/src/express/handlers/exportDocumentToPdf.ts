@@ -147,7 +147,9 @@ export async function exportHtmlToPdf(
     const execTimeoutMs = (timeout * 1000) + 5000; // (script timeout + 5s buffer)
     const { stdout, stderr } = await execAsync(command, {
       maxBuffer: 10 * 1024 * 1024, // 10MB buffer
-      timeout: execTimeoutMs
+      timeout: execTimeoutMs,
+      // The sandbox only exposes BBB_BLOCKNOTE_DIR, so point it at the configured workDir
+      env: { ...process.env, BBB_BLOCKNOTE_DIR: workDir },
     });
 
     if (stdout) {

@@ -5,7 +5,8 @@
 # Usage:  run-in-systemd.sh <timeout-seconds> <command> [args …]
 #
 # Environment variables (override as needed creating a file at /etc/bigbluebutton/bbb-shared-notes-server.env):
-#   BBB_BLOCKNOTE_DIR   Extra directory that must stay writable (default: /tmp/shared-notes-dropbox/)
+#   BBB_BLOCKNOTE_DIR   Extra directory that must stay writable (default: /tmp/shared-notes-dropbox/);
+#                       bbb-shared-notes-server sets it to its commandExecution.workDir
 #   BBB_BLOCKNOTE_CONVERSION_MEMORY_HIGH        Soft memory limit in bytes or systemd size suffix (default: 512M)
 #   BBB_BLOCKNOTE_CONVERSION_MEMORY_MAX         Hard memory limit (default: 640M)
 
