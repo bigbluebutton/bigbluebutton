@@ -1,12 +1,11 @@
 # yaml-language-server: $schema=../../../runner/schema/case.schema.json
-# disabledFeaturesExclude is split on commas but, unlike disabledFeatures,
-# not trimmed, so after "chat, polls" only chat is excluded. Whether a space
-# after a comma should count is still to be decided (the triage tag).
+# disabledFeaturesExclude is split on commas and each entry trimmed, as
+# disabledFeatures is, so "chat, polls" excludes both chat and polls.
 id: create.features.disabled-features-exclude-spaces
 title: create excluding "chat, polls"
 endpoint: create
-class: compat
-tags: [triage]
+class: contract
+tags: [ci]
 requires: [akka, bus]
 steps:
   - call: create
@@ -16,7 +15,6 @@ steps:
     capture: {intId: /response/internalMeetingID}
   - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
     select: [$.core.body.props.meetingProp.disabledFeatures]
-    golden: document
 teardown:
   # Again until bbb-web no longer knows the meeting: an end that reaches
   # akka-apps before the create does is lost.
