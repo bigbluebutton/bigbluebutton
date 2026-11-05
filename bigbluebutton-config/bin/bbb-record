@@ -301,11 +301,8 @@ mark_for_republish() {
       fi
    done
 
-   # An explicit single-format request that republished nothing is a failure,
-   # not a silent no-op. Sweeping every meeting stays best-effort.
-   if [ -n "$FMT" ] && [ "$republished" = 0 ]; then
-      return 1
-   fi
+   # Fail when nothing was republished
+   [ "$republished" = 1 ]
 }
 
 need_root() {
