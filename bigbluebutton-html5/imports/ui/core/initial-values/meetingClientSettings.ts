@@ -175,6 +175,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           minUtteranceLength: 1,
         },
       },
+      showShortcutsInTooltips: true,
       shortcuts: {
         openOptions: {
           accesskey: 'O',
