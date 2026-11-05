@@ -270,10 +270,6 @@ mark_for_republish() {
 
    # Restrict to a single format when --format was given
    if [ -n "$FMT" ]; then
-      if ! format_allowed "$MEETING_ID" "$FMT"; then
-         echo "Nothing was removed for $MEETING_ID."
-         return 1
-      fi
       republish_types=$FMT
       echo "Marking for republish $MEETING_ID (format: $FMT)"
    else
