@@ -481,7 +481,7 @@ To ensure that your modifications are not lost when a new version of the package
 
 #### Validating client settings overrides
 
-When you override the HTML5 client settings - via `/etc/bigbluebutton/bbb-html5.yml`, or per meeting via the `clientSettingsOverride` / `clientSettingsOverrideJsonUrl` create parameters - keys that do not exist in the base `settings.yml` (typos, obsolete parameters, or values placed at the wrong level in the structure) are merged in but never read by the client, so they are silently ignored.
+When you override the HTML5 client settings - via `/etc/bigbluebutton/bbb-html5.yml`, or per meeting via the `clientSettingsOverrideJsonUrl` create parameter or the `clientSettingsOverride` POST module - keys that do not exist in the base `settings.yml` (typos, obsolete parameters, or values placed at the wrong level in the structure) are merged in but never read by the client, so they are silently ignored.
 
 BigBlueButton logs a `WARN` in `bbb-apps-akka` for each such key so the problem is visible. The warning is non-blocking: the value is still applied.
 
@@ -950,6 +950,12 @@ It's also important to note that, alongside the PIN requirement, there are basic
 
 LiveKit is the default audio bridge in BigBlueButton 4.0. For meetings that use the LiveKit audio bridge, telephone dial-in is handled by `livekit-sip`.
 
+:::warning[Dial-in callers bypass the guest lobby]
+With the LiveKit audio bridge, dial-in callers do not go through the guest lobby, even when the guest policy is `ASK_MODERATOR`. The caller joins the meeting right after entering the conference PIN, and moderators cannot approve or deny them first. This differs from the FreeSWITCH audio bridge, which holds dial-in callers in the lobby like web guests.
+
+If your deployment relies on the guest lobby to control who joins by phone, use the FreeSWITCH audio bridge for those meetings. Set `audioBridge=bbb-webrtc-sfu` per meeting on `/create`, or server-wide in `/etc/bigbluebutton/bbb-web.properties`, and set up dial-in as described in [Add a phone number to the conference bridge](#add-a-phone-number-to-the-conference-bridge). See [issue 26282](https://github.com/bigbluebutton/bigbluebutton/issues/26282) for guest lobby support on the LiveKit bridge.
+:::
+
 The dial-in flow is: the caller reaches a **SIP call gateway** (a FreeSWITCH — either BigBlueButton's bundled one or an external one) that answers the call and prompts for the conference PIN; the gateway then bridges the authenticated call into `livekit-sip`, which joins the LiveKit room as a SIP participant.
 
 LiveKit dial-in is opt-in. Enable the LiveKit SIP controller in `/etc/bigbluebutton/bbb-webrtc-sfu/production.yml`:
@@ -1104,7 +1110,7 @@ If DTMF passes through to FreeSWITCH during the PIN prompt but does not reach `l
 
 ##### Limitations
 
-- The guest lobby is bypassed for SIP dial-in callers.
+The guest lobby is bypassed for SIP dial-in callers. See [the Media section of the BigBlueButton 4.0 new features](/new-features.md#media) for details.
 
 #### Turn on the "comfort noise" when no one is speaking
 
@@ -1210,11 +1216,13 @@ maxFileSizeUpload=30000000
 
 You will have to additionally increase the size for the HTML5 client, edit `/usr/share/bigbluebutton/html5-client/private/config/settings.yml` or `/etc/bigbluebutton/bbb-html5.yml` (recommended) and modify `uploadSizeMax`.
 
+To show presenters the limits on the upload panel, also set `public.presentation.fileUploadConstraintsHint: true` in the same file. The hint displays `uploadSizeMax` and `uploadPagesMax` from `public.presentation.mirroredFromBBBCore`, so keep `uploadPagesMax` in step with `maxNumPages`; it does not follow a meeting's `maxNumPages` `create` parameter.
+
 Restart BigBlueButton with `sudo bbb-conf --restart`. You should now be able to upload larger presentations within the new limit.
 
 #### Limit the number of presentations per API request
 
-By default, BigBlueButton processes at most **10** presentations per `create` or `insertDocument` API call. If a single request references more presentations than this limit, BigBlueButton processes the first `maxPresentationsPerRequest` presentations (in the order they appear in the request) and ignores the rest, logging a warning for each request that exceeds the limit. The API response still has the `returncode` `SUCCESS`, and adds the `messageKey` `documentsDropped`, with a `message` saying how many presentations were accepted.
+By default, BigBlueButton processes at most **10** presentations per `create` or `insertDocument` API call. If a single request references more presentations than this limit, BigBlueButton processes `maxPresentationsPerRequest` of them and ignores the rest, logging a warning for each request that exceeds the limit. The presentation that will be shown first is always kept, and the remaining slots go to the other presentations in the order they appear in the request. All presentation URLs are checked before the limit is applied, so a malformed URL fails the request with the `messageKey` `invalidPresentationUrl` even when its presentation would have been ignored. The API response still has the `returncode` `SUCCESS`, and adds the `messageKey` `documentsDropped`, with a `message` saying how many presentations were accepted.
 
 To change this limit, add an overwrite rule in `/etc/bigbluebutton/bbb-web.properties` and set the `maxPresentationsPerRequest` value:
 
@@ -2033,7 +2041,7 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 
 #### `/create` parameters without a `bigbluebutton.properties` counterpart
 
-Some `/create` parameters set per-meeting state but have no default in `bigbluebutton.properties`. Examples include `name`, `meetingID`, `parentMeetingID`/`sequence`/`freeJoin`/`isBreakout` (breakout-only), `bannerText`/`bannerColor`, `moderatorOnlyMessage`, `notifyRecordingAppend`, `meta_*` metadata, `logo`, `multiUserWhiteboardEnabled`, presentation-upload parameters (`preUploadedPresentation*`, `presentationUploadExternalUrl`, `presentationUploadExternalDescription`), `sharedNotesInitialContentJsonUrl`, `disabledFeaturesExclude`, `clientSettingsOverride` / `clientSettingsOverrideJsonUrl`, and `pluginManifestsFetchUrl`. See [Create API parameters](/development/api/#get-post-create) for the complete list and descriptions.
+Some `/create` parameters set per-meeting state but have no default in `bigbluebutton.properties`. Examples include `name`, `meetingID`, `parentMeetingID`/`sequence`/`freeJoin`/`isBreakout` (breakout-only), `bannerText`/`bannerColor`, `moderatorOnlyMessage`, `notifyRecordingAppend`, `meta_*` metadata, `logo`, `multiUserWhiteboardEnabled`, presentation-upload parameters (`preUploadedPresentation*`, `presentationUploadExternalUrl`, `presentationUploadExternalDescription`), `sharedNotesInitialContentJsonUrl`, `disabledFeaturesExclude`, `clientSettingsOverrideJsonUrl` (and the `clientSettingsOverride` POST module), and `pluginManifestsFetchUrl`. See [Create API parameters](/development/api/#get-post-create) for the complete list and descriptions.
 
 
 #### Passing user metadata to the client on join

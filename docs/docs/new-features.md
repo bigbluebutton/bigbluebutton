@@ -128,6 +128,12 @@ A chat message that contains only emoji (up to three emoji, whitespace ignored) 
 
 The Learning Dashboard is no longer disabled in breakout rooms: each breakout gets its own dashboard, tracking activity the same way the parent meeting does (an inherited `disabledFeatures=learningDashboard` still turns it off). A breakout's dashboard data is also kept until the *parent* meeting ends - previously cleanup was anchored to the breakout's own end - so instructors can review breakout activity for as long as the main room is running (plus `learningDashboardCleanupDelayInMinutes`).
 
+#### Equations and diagrams in shared notes
+
+Shared notes can now hold **LaTeX equations** and **Mermaid diagrams**. Type `/` and pick *Block Equation*, *Inline Equation* or *Diagram* (or convert a block from the block type menu), then edit the source in the popup that opens; equations are typeset with KaTeX and diagrams drawn with Mermaid, live for every participant.
+
+In the exports and in the recording's notes, equations keep their LaTeX source: they are rendered in the HTML and PDF exports and written as `$...$` and `$$...$$` in the Markdown export. Diagrams are exported as their Mermaid source in a code block. Markdown imported into the notes, or passed in `sharedNotesInitialContentMarkdown`, turns ` ```mermaid ` fences into diagrams; `$$` blocks stay as text.
+
 <!-- ### Analytics -->
 
 ### Behind the scenes
@@ -145,6 +151,21 @@ The client now has first-class handling for **bot users** (joined with `bot=true
 Strings that were previously emitted as English constants from the server (Akka) — for example some chat/notification messages — are now resolved to i18n keys on the frontend, improving localization coverage.
 
 ### Media
+
+:::warning[Breaking change in 4.0.0: dial-in callers bypass the guest lobby]
+Since BigBlueButton 4.0.0, phone dial-in callers on the LiveKit audio bridge (the
+default) do not go through the guest lobby. This is true even when the guest policy is
+`ASK_MODERATOR`: the caller joins the meeting right after entering the conference PIN,
+and moderators cannot approve or deny them first. The FreeSWITCH audio bridge, the
+default in 3.0 and earlier, holds dial-in callers in the lobby, like web guests.
+
+If your deployment relies on the guest lobby to control who joins by phone, use the
+FreeSWITCH audio bridge for those meetings. Set `audioBridge=bbb-webrtc-sfu` as a
+`/create` parameter, or server-wide in `/etc/bigbluebutton/bbb-web.properties`, and set
+up dial-in with the [FreeSWITCH steps](/administration/customize#add-a-phone-number-to-the-conference-bridge),
+as in 3.0. See [issue 26282](https://github.com/bigbluebutton/bigbluebutton/issues/26282)
+for guest lobby support on the LiveKit bridge.
+:::
 
 #### LiveKit is the default media framework
 
@@ -213,7 +234,7 @@ lists.
 
 #### Last-N audio for the LiveKit bridge (experimental)
 
-Added in BigBlueButton 4.0.1 and off by default. On the LiveKit audio bridge every client receives the microphone of every unmuted user, so a meeting with many open microphones means as many audio tracks per client and a renegotiation for each one. With `public.media.livekit.selectiveSubscription.lastN.enabled: true`, each client instead ranks the microphones by who is speaking, the presenter, pinned users, recent speech and moderators, plays at most `audibleSize` of them (default `3`) and keeps `standbySize` (default `12`) subscribed but paused, so a new speaker is switched in without a renegotiation. A microphone that has just been unmuted counts as speaking, so its first words are not lost. Viewers who cannot see the user list because of the lock settings are not told about other users' voice activity, so their client keeps every microphone subscribed. When enabled, Last-N replaces `audioSubscriptionPoolSize`.
+Added in BigBlueButton 4.0.1 and off by default. On the LiveKit audio bridge every client receives the microphone of every unmuted user, so a meeting with many open microphones means as many audio tracks per client and a renegotiation for each one. With `public.media.livekit.selectiveSubscription.lastN.enabled: true`, each client instead ranks the microphones by who is speaking, the presenter, pinned users, recent speech and moderators, plays at most `audibleSize` of them (default `3`) and keeps `standbySize` (default `12`) subscribed but paused, so a new speaker is switched in without a renegotiation. A microphone that has just been unmuted counts as speaking, so its first words are not lost, but it gives way to a user heard talking. Viewers who cannot see the user list because of the lock settings are not told about other users' voice activity, so their client keeps every microphone subscribed. When enabled, Last-N replaces `audioSubscriptionPoolSize`.
 
 
 ### Upgraded components

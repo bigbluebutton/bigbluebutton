@@ -40,28 +40,28 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
     await rectangle.drawShape(e.wbRectangleShape, 'rectangle');
   });
 
-  test('Draw ellipse', async ({ browser, context, page }, testInfo) => {
+  test('Draw ellipse', { tag: '@nightly' }, async ({ browser, context, page }, testInfo) => {
     const ellipse = new DrawShape(browser, context);
     await ellipse.initModPage(page, { testInfo });
     await ellipse.initUserPage(context, { testInfo });
     await ellipse.drawShape(e.wbEllipseShape, 'ellipse');
   });
 
-  test('Draw triangle', async ({ browser, context, page }, testInfo) => {
+  test('Draw triangle', { tag: '@nightly' }, async ({ browser, context, page }, testInfo) => {
     const triangle = new DrawShape(browser, context);
     await triangle.initModPage(page, { testInfo });
     await triangle.initUserPage(context, { testInfo });
     await triangle.drawShape(e.wbTriangleShape, 'triangle');
   });
 
-  test('Draw line', async ({ browser, context, page }, testInfo) => {
+  test('Draw line', { tag: '@nightly' }, async ({ browser, context, page }, testInfo) => {
     const line = new DrawShape(browser, context);
     await line.initModPage(page, { testInfo });
     await line.initUserPage(context, { testInfo });
     await line.drawShape(e.wbLineShape, 'line', e.wbDrawnLine);
   });
 
-  test('Draw arrow', async ({ browser, context, page }, testInfo) => {
+  test('Draw arrow', { tag: '@nightly' }, async ({ browser, context, page }, testInfo) => {
     const arrow = new DrawShape(browser, context);
     await arrow.initModPage(page, { testInfo });
     await arrow.initUserPage(context, { testInfo });
@@ -114,21 +114,21 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
       await changeColor.changingColor();
     });
 
-    test('Fill drawing', async ({ browser, context, page }, testInfo) => {
+    test('Fill drawing', { tag: '@nightly' }, async ({ browser, context, page }, testInfo) => {
       const fillDrawing = new ChangeStyles(browser, context);
       await fillDrawing.initModPage(page, { testInfo });
       await fillDrawing.initUserPage(context, { testInfo });
       await fillDrawing.fillDrawing();
     });
 
-    test('Dash drawing', async ({ browser, context, page }, testInfo) => {
+    test('Dash drawing', { tag: '@nightly' }, async ({ browser, context, page }, testInfo) => {
       const dashDrawing = new ChangeStyles(browser, context);
       await dashDrawing.initModPage(page, { testInfo });
       await dashDrawing.initUserPage(context, { testInfo });
       await dashDrawing.dashDrawing();
     });
 
-    test('Size drawing', async ({ browser, context, page }, testInfo) => {
+    test('Size drawing', { tag: '@nightly' }, async ({ browser, context, page }, testInfo) => {
       const sizeDrawing = new ChangeStyles(browser, context);
       await sizeDrawing.initModPage(page, { testInfo });
       await sizeDrawing.initUserPage(context, { testInfo });
@@ -207,42 +207,62 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
     await slidePosition.preservesEachSlidesLastPosition();
   });
 
-  test('Fit-to-width position survives a slide-change remount', async ({ browser, context, page }, testInfo) => {
-    linkIssue(25866);
-    const slidePosition = new SlidePosition(browser, context);
-    await slidePosition.initPages(page, testInfo);
-    await slidePosition.restoresFitToWidthPageAfterRemount();
-  });
-
-  test('Slide position restoration is independent of decode timing', async ({ browser, context, page }, testInfo) => {
-    linkIssue(25866);
-    const slidePosition = new SlidePosition(browser, context);
-    await slidePosition.initPages(page, testInfo);
-    await slidePosition.preservesEachSlidesLastPosition({ slowDecode: true });
-  });
-
-  test.describe('Reduced motion', () => {
-    test('Presenter and viewer restore the same per-slide position', async ({ browser, context, page }, testInfo) => {
+  test(
+    'Fit-to-width position survives a slide-change remount',
+    { tag: '@nightly' },
+    async ({ browser, context, page }, testInfo) => {
       linkIssue(25866);
       const slidePosition = new SlidePosition(browser, context);
       await slidePosition.initPages(page, testInfo);
-      await slidePosition.preservesEachSlidesLastPosition({ reducedMotion: true });
-    });
+      await slidePosition.restoresFitToWidthPageAfterRemount();
+    },
+  );
+
+  test(
+    'Slide position restoration is independent of decode timing',
+    { tag: '@nightly' },
+    async ({ browser, context, page }, testInfo) => {
+      linkIssue(25866);
+      const slidePosition = new SlidePosition(browser, context);
+      await slidePosition.initPages(page, testInfo);
+      await slidePosition.preservesEachSlidesLastPosition({ slowDecode: true });
+    },
+  );
+
+  test.describe('Reduced motion', () => {
+    test(
+      'Presenter and viewer restore the same per-slide position',
+      { tag: '@nightly' },
+      async ({ browser, context, page }, testInfo) => {
+        linkIssue(25866);
+        const slidePosition = new SlidePosition(browser, context);
+        await slidePosition.initPages(page, testInfo);
+        await slidePosition.preservesEachSlidesLastPosition({ reducedMotion: true });
+      },
+    );
   });
 
-  test('Different per-slide zooms restore exact camera positions', async ({ browser, context, page }, testInfo) => {
-    linkIssue(25866);
-    const slidePosition = new SlidePosition(browser, context);
-    await slidePosition.initPages(page, testInfo);
-    await slidePosition.restoresPositionsAcrossDifferentZooms();
-  });
+  test(
+    'Different per-slide zooms restore exact camera positions',
+    { tag: '@nightly' },
+    async ({ browser, context, page }, testInfo) => {
+      linkIssue(25866);
+      const slidePosition = new SlidePosition(browser, context);
+      await slidePosition.initPages(page, testInfo);
+      await slidePosition.restoresPositionsAcrossDifferentZooms();
+    },
+  );
 
-  test('Toolbar-zoomed slide is restored after a fit-to-width slide', async ({ browser, context, page }, testInfo) => {
-    linkIssue(25866);
-    const slidePosition = new SlidePosition(browser, context);
-    await slidePosition.initPages(page, testInfo);
-    await slidePosition.restoresToolbarZoomAfterFitToWidthChange();
-  });
+  test(
+    'Toolbar-zoomed slide is restored after a fit-to-width slide',
+    { tag: '@nightly' },
+    async ({ browser, context, page }, testInfo) => {
+      linkIssue(25866);
+      const slidePosition = new SlidePosition(browser, context);
+      await slidePosition.initPages(page, testInfo);
+      await slidePosition.restoresToolbarZoomAfterFitToWidthChange();
+    },
+  );
 
   test('Fit-to-width slide keeps its toolbar zoom across a round trip', async ({
     browser,
@@ -275,17 +295,21 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
     await runResizeTest('cameraResync', browser, context, page, testInfo);
   });
 
-  test('Camera re-sync visual regression after container resize', async ({ browser, context, page }, testInfo) => {
-    await runResizeTest('cameraResyncVisual', browser, context, page, testInfo);
-  });
+  test(
+    'Camera re-sync visual regression after container resize',
+    { tag: '@nightly' },
+    async ({ browser, context, page }, testInfo) => {
+      await runResizeTest('cameraResyncVisual', browser, context, page, testInfo);
+    },
+  );
 
-  test('Camera re-sync visual regression after resize with canvas zoom', async ({
-    browser,
-    context,
-    page,
-  }, testInfo) => {
-    await runResizeTest('cameraResyncZoomedVisual', browser, context, page, testInfo);
-  });
+  test(
+    'Camera re-sync visual regression after resize with canvas zoom',
+    { tag: '@nightly' },
+    async ({ browser, context, page }, testInfo) => {
+      await runResizeTest('cameraResyncZoomedVisual', browser, context, page, testInfo);
+    },
+  );
 
   test('Camera zoom is preserved after minimizing and restoring the presentation', async ({
     browser,
@@ -309,28 +333,36 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
       await touchPinchZoom.pinchStaysWithinZoomRange();
     });
 
-    test('Slow presenter pinch ends with viewers on the same view', async ({ browser, context }, testInfo) => {
-      linkIssue(26079);
-      const touchPinchZoom = new TouchPinchZoom(browser, context);
-      await touchPinchZoom.initTouchPages(testInfo);
-      await touchPinchZoom.slowPinchReachesViewer();
-    });
+    test(
+      'Slow presenter pinch ends with viewers on the same view',
+      { tag: '@nightly' },
+      async ({ browser, context }, testInfo) => {
+        linkIssue(26079);
+        const touchPinchZoom = new TouchPinchZoom(browser, context);
+        await touchPinchZoom.initTouchPages(testInfo);
+        await touchPinchZoom.slowPinchReachesViewer();
+      },
+    );
 
-    test('Presenter pinch zoom does not flicker', async ({ browser, context }, testInfo) => {
+    test('Presenter pinch zoom does not flicker', { tag: '@nightly' }, async ({ browser, context }, testInfo) => {
       linkIssue(26079);
       const touchPinchZoom = new TouchPinchZoom(browser, context);
       await touchPinchZoom.initTouchPages(testInfo);
       await touchPinchZoom.pinchZoomsInOneDirection();
     });
 
-    test('Two fingers at the same point leave the camera alone', async ({ browser, context }, testInfo) => {
-      linkIssue(26079);
-      const touchPinchZoom = new TouchPinchZoom(browser, context);
-      await touchPinchZoom.initTouchPages(testInfo);
-      await touchPinchZoom.fingersAtTheSamePointLeaveTheCameraAlone();
-    });
+    test(
+      'Two fingers at the same point leave the camera alone',
+      { tag: '@nightly' },
+      async ({ browser, context }, testInfo) => {
+        linkIssue(26079);
+        const touchPinchZoom = new TouchPinchZoom(browser, context);
+        await touchPinchZoom.initTouchPages(testInfo);
+        await touchPinchZoom.fingersAtTheSamePointLeaveTheCameraAlone();
+      },
+    );
 
-    test('Presenter two-finger pan reaches viewers', async ({ browser, context }, testInfo) => {
+    test('Presenter two-finger pan reaches viewers', { tag: '@nightly' }, async ({ browser, context }, testInfo) => {
       linkIssue(26079);
       const touchPinchZoom = new TouchPinchZoom(browser, context);
       await touchPinchZoom.initTouchPages(testInfo);

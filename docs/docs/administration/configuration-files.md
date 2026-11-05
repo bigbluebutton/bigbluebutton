@@ -121,6 +121,17 @@ The HTML5 client is a static bundle served by nginx, so it has no service of its
 
 To assist with monitoring and debugging, the HTML5 client can send its logs to the BigBlueButton server via the `logger` function. Here's an example of its use:
 
+```javascript
+import logger from '/imports/startup/client/logger';
+
+logger.info({
+  logCode: 'app_component_componentdidmount',
+  extraInfo: { meetingId, meetingName },
+}, 'User joined main room');
+```
+
+The first argument holds structured fields added to the log entry: `logCode` identifies the entry and `extraInfo` carries any additional data. The second argument is the message. Use `logger.debug`, `logger.info`, `logger.warn` or `logger.error` to choose the log level.
+
 The client logger has two targets, `console` and `external`, configured under `public.clientLog` in `/etc/bigbluebutton/bbb-html5.yml`. Each target has its own settings:
 
 | Name   | Target | Accepted Values                  | Description                                                                                             |
@@ -132,6 +143,7 @@ The client logger has two targets, `console` and `external`, configured under `p
 | method | external | "POST", "PUT"                  | HTTP method used to send the logs.                                                                      |
 | throttleInterval | external | milliseconds         | How often buffered log entries are sent.                                                                |
 | flushOnClose | external | true / false             | Send the remaining entries when the page is closed.                                                     |
+| logTag | external | string                         | When not empty, added to every log entry as `logTag`.                                                   |
 
 The default values are:
 
@@ -151,15 +163,16 @@ clientLog:
       method: POST,
       throttleInterval: 400,
       flushOnClose: true,
+      logTag: '',
     }
 ```
 
 Notice that the `external` option is disabled by default - you can enable it on your own server after a few configuration changes.
 
-When enabling the `external` logging output, the BigBlueButton client will POST the log events to the URL endpoint provided by `url`. To create an associated endpoint on the BigBlueButton server for the POST request, create a file `/etc/bigbluebutton/nginx/html5-client-log.nginx` with the following contents:
+When enabling the `external` logging output, the BigBlueButton client will POST the log events to the URL endpoint provided by `url`. `LOG_HOST` in the default value is a placeholder that nothing replaces, so set `public.clientLog.external.url` to your server's address, for example `https://bbb.example.com/html5log`. To create an associated endpoint on the BigBlueButton server for the POST request, create a file `/etc/bigbluebutton/nginx/html5-client-log.nginx` with the following contents. Its `location` must match the path in `url` exactly, including case:
 
 ```nginx
-location /html5Log {
+location /html5log {
     access_log /var/log/nginx/html5-client.log postdata;
     echo_read_request_body;
 }
@@ -197,16 +210,35 @@ You can follow the logs on the server with the command
 $ tail -f /var/log/nginx/html5-client.log | sed -u -e 's/\\x22/"/g' -e 's/\\x5C/\\/g'
 ```
 
-Here's a sample log entry
+Here's the log entry the example above produces:
 
 ```json
-      "requesterUserId":"w_klfavdlkumj8",
-      "fullname":"Ios",
-      "confname":"Demo Meeting",
-      "externUserID":"w_klfavdlkumj8"
+{
+   "name":"clientLogger",
+   "level":30,
+   "logCode":"app_component_componentdidmount",
+   "extraInfo":{
+      "meetingId":"b1f6e9c84d0a7f35e2c6a9d1047b38f5ce21a6d4-1793665760000",
+      "meetingName":"Demo Meeting"
    },
-   "url":"https://demo.bigbluebutton.org/html5client/users",
-   "userAgent":"Mozilla/5.0 (iPad; CPU OS 11_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/11.0 Mobile/15E148 Safari/604.1",
+   "levelName":"info",
+   "msg":"User joined main room",
+   "time":"2026-11-03T00:29:28.069Z",
+   "src":"e.value (https://bbb.example.com/html5client/bundle.0123456789abcdef0123.js:2:3043034)",
+   "v":1,
+   "userInfo":{
+      "meetingId":"b1f6e9c84d0a7f35e2c6a9d1047b38f5ce21a6d4-1793665760000",
+      "requesterUserId":"w_klfavdlkumj8",
+      "fullname":"Demo User",
+      "confname":"Demo Meeting",
+      "externUserID":"w_klfavdlkumj8",
+      "logoutUrl":"https://bbb.example.com",
+      "sessionToken":"abcdefgh12345678",
+      "clientSessionUUID":"00000000-0000-4000-8000-000000000000"
+   },
+   "clientBuild":"20261103T002928",
+   "url":"https://bbb.example.com/html5client/",
+   "userAgent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.7390.37 Safari/537.36",
    "count":1
 }
 ```

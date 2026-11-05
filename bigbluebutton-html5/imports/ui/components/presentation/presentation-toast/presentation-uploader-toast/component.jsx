@@ -6,6 +6,7 @@ import { defineMessages } from 'react-intl';
 import { usePreviousValue } from '/imports/ui/hooks/usePreviousValue';
 import { notify } from '/imports/ui/services/notification';
 import Session from '/imports/ui/services/storage/in-memory';
+import getSizeWithUnit from '/imports/utils/getSizeWithUnit';
 
 const EXPORT_STATUSES = {
   RUNNING: 'RUNNING',
@@ -81,6 +82,10 @@ const intlMessages = defineMessages({
   INVALID_MIME_TYPE: {
     id: 'app.presentationUploder.conversion.invalidMimeType',
     description: 'warns user that the file\'s mime type is not supported or it doesn\'t match the extension',
+  },
+  PAGE_COUNT_FAILED: {
+    id: 'app.presentationUploder.conversion.pageCountFailed',
+    description: 'warns the user that the number of pages of the file could not be determined',
   },
   PAGE_COUNT_EXCEEDED: {
     id: 'app.presentationUploder.conversion.pageCountExceeded',
@@ -184,15 +189,6 @@ const intlMessages = defineMessages({
   },
 });
 
-function getSizeWithUnit(size) {
-  // If the size in MB is negligible (0.00), switch to kB for better precision
-  const mbString = (size / 1000000).toFixed(2);
-  const kbString = (size / 1000).toFixed(2);
-  return (mbString === '0.00' || mbString === '0,00')
-    ? `${kbString} kB`
-    : `${mbString} MB`;
-}
-
 function renderPresentationItemStatus(item, intl) {
   if ((('progress' in item) && item.progress === 0) || (('upload' in item) && item.upload.progress === 0 && !item.upload.error)) {
     return intl.formatMessage(intlMessages.fileToUpload);
@@ -218,7 +214,7 @@ function renderPresentationItemStatus(item, intl) {
 
   if (('uploadErrorMsgKey' in item) && item.uploadErrorMsgKey) {
     const errorMessage = intlMessages[item.uploadErrorMsgKey]
-      || intlMessages.genericConversionStatus;
+      || intlMessages.genericError;
 
     switch (item.uploadErrorMsgKey) {
       case 'CONVERSION_TIMEOUT':

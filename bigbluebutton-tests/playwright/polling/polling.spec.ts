@@ -85,7 +85,7 @@ test.describe.parallel('Polling', { tag: '@ci' }, () => {
       await polling.oneOptionAnswer();
     });
 
-    test('Multiple Choices - Two question marks', async () => {
+    test('Multiple Choices - Two question marks', { tag: '@nightly' }, async () => {
       await polling.twoQuestionMarks();
     });
 
@@ -93,7 +93,7 @@ test.describe.parallel('Polling', { tag: '@ci' }, () => {
       await polling.trueFalse();
     });
 
-    test('Yes/No', async () => {
+    test('Yes/No', { tag: '@nightly' }, async () => {
       await polling.yesNo();
     });
 
@@ -105,7 +105,7 @@ test.describe.parallel('Polling', { tag: '@ci' }, () => {
       await polling.parentheticalQuestionLetterPoll();
     });
 
-    test('Parenthetical question preserved - typed response - issue 25320', async () => {
+    test('Parenthetical question preserved - typed response - issue 25320', { tag: '@nightly' }, async () => {
       await polling.parentheticalQuestionTypedResponse();
     });
 
@@ -113,7 +113,7 @@ test.describe.parallel('Polling', { tag: '@ci' }, () => {
       await polling.pollAnywhereSlide();
     });
 
-    test('Hiding poll - white box', async () => {
+    test('Hiding poll - white box', { tag: '@nightly' }, async () => {
       await polling.whiteBox();
     });
   });
