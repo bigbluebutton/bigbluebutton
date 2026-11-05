@@ -290,7 +290,8 @@ A format with no `process:formatname` step would have its existing output
 removed and never republished, so `bbb-record` refuses it and changes nothing.
 
 A format the meeting opted out of with `meta_bbb-disable-recording-formats` is
-also refused, so that a rebuild cannot undo the opt-out.
+also refused, so that a rebuild cannot undo the opt-out. A meeting without
+recording marks is refused too: rebuild it without `--format` to process it.
 
 `--format` also works with `--rebuildall` and `--republish`.
 

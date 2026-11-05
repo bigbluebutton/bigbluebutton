@@ -213,6 +213,12 @@ mark_for_rebuild() {
   # Single-format rebuild: re-process and re-publish only the requested format,
   # leaving the sanity step and every other format's output untouched.
   if [ -n "$FMT" ]; then
+     # The daily cron deletes meetings without recording marks; a full rebuild
+     # clears that state, a single-format one doesn't.
+     if [[ -e $STATUS/archived/$MEETING_ID.norecord ]]; then
+        echo "$MEETING_ID has no recording marks, rebuild it without --format to process it."
+        return 1
+     fi
      if ! format_allowed "$MEETING_ID" "$FMT"; then
         echo "Nothing was removed for $MEETING_ID."
         return 1
