@@ -1,7 +1,9 @@
 # yaml-language-server: $schema=../../../runner/schema/case.schema.json
 # A join that settles on no role is refused with the messageKey
 # "Params required", and answered with XML even though the request didn't ask
-# for it: this error never redirects. Nobody is registered.
+# for it: this error never redirects. Nobody is registered. join.tsx says
+# a join that fails redirects to errorRedirectUrl, or else to the logout
+# URL, so this is compat.
 id: join.role.rejected
 title: join with ${scenario} is refused
 endpoint: join
