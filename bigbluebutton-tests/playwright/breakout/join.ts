@@ -821,6 +821,15 @@ export class Join extends Create {
 
   // Starts the recording as the moderator of the given meeting
   protected static async startRecording(moderatorPage: Page, description = 'the moderator should start the recording') {
+    // Under LiveKit a page that closed the audio modal is joining audio muted, and the "You have joined the
+    // audio conference" toast of that join lands over the recording indicator. Wait for the audio controls
+    // to settle first: out of audio with the join button enabled, or in audio.
+    const audioControls = moderatorPage.page.locator(
+      `${e.joinAudio}:enabled, ${e.audioDropdownMenu}, ${e.muteMicButton}, ${e.unmuteMicButton}`,
+    );
+    await expect(audioControls.first(), 'the audio controls should settle before the recording starts').toBeVisible({
+      timeout: ELEMENT_WAIT_LONGER_TIME,
+    });
     // toasts of a freshly joined meeting cover the recording indicator
     await moderatorPage.closeAllToastNotifications();
     await moderatorPage.waitAndClick(e.recordingIndicator);
