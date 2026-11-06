@@ -250,8 +250,8 @@ export const useVideoPreview = ({
     // freshly captured stream is only attached once its capture has settled; a
     // stream that was already running (e.g. the shared camera) is attached now.
     const capturedAt = freshCaptureTimes.current.get(stream);
-    const settleWait = deviceInfo.isIos && capturedAt
-      ? capturedAt + IOS_CAPTURE_SETTLE_TIME - Date.now()
+    const settleWait = deviceInfo.isIos && capturedAt !== undefined
+      ? capturedAt + IOS_CAPTURE_SETTLE_TIME - performance.now()
       : 0;
     if (settleWait > 0) {
       previewAttachTimer.current = setTimeout(() => {
@@ -567,7 +567,7 @@ export const useVideoPreview = ({
       const isAlreadyCaptured = !!deviceId && PreviewService.hasStream(deviceId);
       // The return of doGUM is an instance of BBBVideoStream (a thin wrapper over a MediaStream)
       bbbVideoStream = await PreviewService.doGUM(deviceId, profile);
-      if (!isAlreadyCaptured) freshCaptureTimes.current.set(bbbVideoStream, Date.now());
+      if (!isAlreadyCaptured) freshCaptureTimes.current.set(bbbVideoStream, performance.now());
       if (isSuperseded()) {
         terminateCameraStream(bbbVideoStream);
         endCameraLoad();
