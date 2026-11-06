@@ -3,6 +3,6 @@
 include "/usr/share/bbb-apps-akka/conf/application.conf"
 
 services {
-  bbbWebAPI="https://localhost:8443/bigbluebutton/api"
-  sharedSecret="@SALT@"
+  bbbWebAPI="https://localhost:8443/bigbluebutton/api", bbbWebAPI=${?BBB_WEB_API}
+  sharedSecret="@SALT@", sharedSecret=${?SHARED_SECRET}
 }

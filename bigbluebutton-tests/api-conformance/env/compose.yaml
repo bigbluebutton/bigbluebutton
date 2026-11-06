@@ -11,6 +11,7 @@ x-build: &build
   additional_contexts:
     debs: ${DEBS_DIR:-./.state/debs}
     config: ../../../bigbluebutton-config
+    bbbconfig: ../../../build/packages-template/bbb-config
     html5config: ../../../bigbluebutton-html5/private/config
     runner: ../runner
 

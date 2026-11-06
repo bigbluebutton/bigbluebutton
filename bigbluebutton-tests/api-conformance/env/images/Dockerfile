@@ -195,6 +195,9 @@ RUN --mount=type=bind,from=debs,target=/debs \
  && ln -s /etc/nginx/sites-available/hasura-loadbalancer.conf /etc/nginx/sites-enabled/hasura-loadbalancer.conf \
  && rm -rf /tmp/web /tmp/middleware
 COPY --from=config assets/ /var/www/bigbluebutton-default/assets/
+# The named upstreams the packages' locations proxy to, which bbb-config
+# installs on a packaged server.
+COPY --from=bbbconfig bbb-upstreams.conf /etc/nginx/conf.d/bbb-upstreams.conf
 COPY nginx/bigbluebutton.conf /etc/nginx/sites-enabled/bigbluebutton
 CMD ["nginx", "-g", "daemon off;"]
 HEALTHCHECK --interval=2s --timeout=5s --start-period=30s \
