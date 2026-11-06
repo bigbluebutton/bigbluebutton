@@ -138,22 +138,14 @@ const CrowdActionButtons: React.FC = () => {
           />
         </Styled.ActionButtonWrapper>
         {isReactionsEnabled && (
-          <Styled.ActionButtonWrapper>
-            <Styled.ActionButtonLabel>
-              {intl.formatMessage(intlMessages.clearAllReactionsLabel)}
-            </Styled.ActionButtonLabel>
-            {/* @ts-ignore - button is js component */}
-            <Styled.ActionButton
-              hideLabel
-              label={intl.formatMessage(intlMessages.clearAllReactionsDescription)}
-              tooltipLabel={intl.formatMessage(intlMessages.clearAllReactionsDescription)}
-              icon="clear_status"
-              size="lg"
-              data-test="clearAllReactions"
-              onClick={clearReactions}
-              disabled={isClearingReactions}
-            />
-          </Styled.ActionButtonWrapper>
+          // @ts-ignore - button is js component
+          <Styled.ClearReactionsButton
+            label={intl.formatMessage(intlMessages.clearAllReactionsLabel)}
+            tooltipLabel={intl.formatMessage(intlMessages.clearAllReactionsDescription)}
+            data-test="clearAllReactions"
+            onClick={clearReactions}
+            disabled={isClearingReactions}
+          />
         )}
       </Styled.ActionButtonsWrapper>
     </>
