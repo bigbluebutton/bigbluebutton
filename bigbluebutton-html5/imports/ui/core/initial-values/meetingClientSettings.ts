@@ -60,6 +60,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       enableTalkingIndicator: true,
       enableCameraBrightness: true,
       mirrorOwnWebcam: false,
+      useUserColorForAvatars: false,
       viewersInWebcam: 8,
       allowLogout: true,
       allowFullscreen: true,
