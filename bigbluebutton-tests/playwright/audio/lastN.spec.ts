@@ -1,6 +1,10 @@
 import { isLiveKit } from '../core/livekit';
 import { test } from '../core/setup/fixtures';
+import { canStartAudioContext } from '../options/audioProcessingMode';
 import { LastN, UNMUTE_CASE_SPEECH_HOLD_MS } from './lastN';
+
+const NO_AUDIO_CONTEXT =
+  'The switchable microphone is a WebAudio source; headless Firefox without an audio output device cannot start an AudioContext';
 
 // Last-N audio (public.media.livekit.selectiveSubscription.lastN): a listener
 // plays at most audibleSize microphones and keeps at most standbySize
@@ -20,13 +24,25 @@ test.describe('Audio Last-N', { tag: ['@ci', '@media'] }, () => {
     await lastN.expectSwitchWithoutResubscribe();
   });
 
-  test('hands the audible slot to a standby speaker who starts talking', async ({ browser, context }, testInfo) => {
+  test('hands the audible slot to a standby speaker who starts talking', async ({
+    browser,
+    browserName,
+    context,
+    page,
+  }, testInfo) => {
+    test.skip(browserName === 'firefox' && !(await canStartAudioContext(page)), NO_AUDIO_CONTEXT);
     const lastN = new LastN(browser, context);
     await lastN.initListenerAndSpeakers(testInfo, 1, 2, { switchableMicrophones: true });
     await lastN.expectSpeechSwitchWithoutResubscribe();
   });
 
-  test('gives the audible slot to a speaker who unmutes, until one talks', async ({ browser, context }, testInfo) => {
+  test('gives the audible slot to a speaker who unmutes, until one talks', async ({
+    browser,
+    browserName,
+    context,
+    page,
+  }, testInfo) => {
+    test.skip(browserName === 'firefox' && !(await canStartAudioContext(page)), NO_AUDIO_CONTEXT);
     const lastN = new LastN(browser, context);
     await lastN.initListenerAndSpeakers(testInfo, 1, 2, {
       switchableMicrophones: true,

@@ -3,11 +3,16 @@ import { isLegacy, isLiveKit } from '../core/livekit';
 import { refuseMedia } from '../core/mediaPermissions';
 import { trackPeerConnections } from '../core/rtcStatsProbe';
 import { test } from '../core/setup/fixtures';
+import { canStartAudioContext } from '../options/audioProcessingMode';
 import { constants as c } from '../parameters/constants';
 import { Audio } from './audio';
-import { E2E_ECHO_TEST_SETTINGS_OVERRIDE } from './util';
+import { countAudioOutputDevices, E2E_ECHO_TEST_SETTINGS_OVERRIDE } from './util';
 
 const UNMUTE_WITH_CONSENT = `${c.allowModsToUnmuteUsers}&requireUserConsentBeforeUnmuting=true`;
+const NO_SECOND_AUDIO_OUTPUT =
+  'Firefox has no fake audio outputs, and this host has fewer than two real ones to switch between';
+const NO_AUDIO_CONTEXT =
+  'The volume meter reads the microphone through an AudioContext; headless Firefox without an audio output device cannot start one';
 
 test.describe.parallel('Audio', { tag: ['@ci', '@media'] }, () => {
   let audio: Audio;
@@ -29,15 +34,17 @@ test.describe.parallel('Audio', { tag: ['@ci', '@media'] }, () => {
   });
 
   test('Change audio input and keep it connected', async ({ browserName }) => {
-    test.skip(browserName === 'firefox', 'Firefox does not support fake audio to simulate de audio.');
+    test.skip(browserName === 'firefox', 'Firefox fake media has one audio input, so there is none to switch to');
     await audio.changeAudioInput();
   });
 
-  test('Change audio output', async () => {
+  test('Change audio output', async ({ browserName }) => {
+    test.skip(browserName === 'firefox' && (await countAudioOutputDevices(audio.userPage)) < 2, NO_SECOND_AUDIO_OUTPUT);
     await audio.changeAudioOutput();
   });
 
-  test('Echo test shows the microphone volume', async () => {
+  test('Echo test shows the microphone volume', async ({ browserName, page }) => {
+    test.skip(browserName === 'firefox' && !(await canStartAudioContext(page)), NO_AUDIO_CONTEXT);
     await audio.echoTestShowsVolume();
   });
 

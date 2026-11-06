@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test';
 
-import { linkIssue } from '../core/helpers';
+import { linkIssue, skipScreenshotOnlyTestOutsideChromium } from '../core/helpers';
 import { Page } from '../core/page';
 import { test } from '../core/setup/fixtures';
 import { constants as c } from '../parameters/constants';
@@ -37,6 +37,7 @@ test.describe.parallel('Recording', { tag: '@ci' }, () => {
   });
 
   test('Swap content', async ({ browser, context, page }) => {
+    skipScreenshotOnlyTestOutsideChromium();
     const recording = new Recording(browser, context);
     recording.playbackPage = new Page(browser, page);
     await recording.swapContent();

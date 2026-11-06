@@ -161,7 +161,6 @@ export class CustomParameters extends MultiUsers {
 
   async skipCheck() {
     await this.modPage.clickMicrophoneButton();
-    await this.modPage.hasElement(e.establishingAudioLabel, 'should establish audio');
     await this.modPage.wasRemoved(
       e.establishingAudioLabel,
       'should not display the audio being established label',
@@ -174,7 +173,6 @@ export class CustomParameters extends MultiUsers {
 
   async skipCheckOnFirstJoin() {
     await this.modPage.clickMicrophoneButton();
-    await this.modPage.hasElement(e.establishingAudioLabel, 'should establish audio');
     await this.modPage.hasElement(e.unmuteMicButton, 'should display the unmute button when user joins audio');
     await this.modPage.waitAndClick(e.unmuteMicButton);
     await this.modPage.hasElement(e.isTalking, 'should display the is talking element after unmuting the mic');

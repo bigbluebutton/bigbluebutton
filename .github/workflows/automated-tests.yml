@@ -531,10 +531,9 @@ jobs:
           ACTIONS_RUNNER_DEBUG: true
           BBB_URL: https://bbb-ci.test/bigbluebutton/
           BBB_SECRET: bbbci
-        # patch playwright's firefox so that it uses the system's root certificate authority
-        run: |
-          find $HOME/.cache/ms-playwright -name libnssckbi.so -exec rm {} \; -exec ln -s /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-trust.so {} \;
-          npm run test-firefox-ci -- --shard=${{ env.shard }}
+          # names the output file, so the blob reporter does not clear blob-report/ and the Chromium step's report survives for the failure upload
+          PLAYWRIGHT_BLOB_OUTPUT_FILE: blob-report/report-firefox-${{ matrix.shard }}.zip
+        run: npm run test-firefox-ci -- --shard=${{ env.shard }}
       - if: failure()
         name: Upload blob report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v6
