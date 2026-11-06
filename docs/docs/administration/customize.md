@@ -663,7 +663,7 @@ public:
                 users: 100
 ```
 
-In the example above, `paginationToggleEnabled: false` hides the "Video pagination" switch in Settings, so no user can turn pagination off. To keep the switch for moderators only, leave `paginationToggleEnabled: true` and set `paginationToggleModeratorOnly: true`:
+In the example above, `paginationToggleEnabled: false` hides the "Video pagination" switch in Settings, so no user can turn pagination off. To let only moderators change it, leave `paginationToggleEnabled: true` and set `paginationToggleModeratorOnly: true`:
 
 ```
 public:
@@ -673,9 +673,9 @@ public:
             paginationToggleModeratorOnly: true
 ```
 
-A user who cannot see the switch always gets the default from `public.app.defaultSettings.application.paginationEnabled`, even if they changed it earlier (for example, before being demoted from moderator).
+Viewers still see the switch, disabled and showing the default from `public.app.defaultSettings.application.paginationEnabled`, with a tooltip saying only moderators can change it. They always get that default, even if they changed it earlier (for example, before being demoted from moderator).
 
-The switch only shows when the user's page size is above `0`. With the default `desktopPageSizes.moderator: 0`, moderators on desktop see every webcam and get no switch; set a moderator page size to give it to them.
+The switch shows whatever the user's page size is, but it only has an effect when that page size is above `0`. With the default `desktopPageSizes.moderator: 0`, moderators on desktop see every webcam whichever way the switch is set; set a moderator page size for it to apply to them.
 
 #### Use custom images for virtual background
 
