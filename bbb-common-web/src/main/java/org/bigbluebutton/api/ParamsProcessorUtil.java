@@ -84,6 +84,7 @@ public class ParamsProcessorUtil {
     private Boolean useDefaultWebcamBackground = false;
     private String defaultWebcamBackgroundURL;
     private String defaultGuestPolicy;
+    private static final String RETIRED_GUEST_POLICY_ALWAYS_ACCEPT_AUTH = "ALWAYS_ACCEPT_AUTH";
     private Boolean authenticatedGuest;
     private Boolean defaultAllowPromoteGuestToModerator;
     private Long waitingGuestUsersTimeout;
@@ -893,8 +894,16 @@ public class ParamsProcessorUtil {
 
         String guestPolicy = defaultGuestPolicy;
         if (!StringUtils.isEmpty(params.get(ApiParams.GUEST_POLICY))) {
-        	guestPolicy = params.get(ApiParams.GUEST_POLICY);
-		    }
+            String requestedGuestPolicy = params.get(ApiParams.GUEST_POLICY);
+            if (GuestPolicy.isValid(requestedGuestPolicy)) {
+                guestPolicy = requestedGuestPolicy;
+            } else if (RETIRED_GUEST_POLICY_ALWAYS_ACCEPT_AUTH.equals(requestedGuestPolicy)) {
+                log.warn("Param [guestPolicy] value ALWAYS_ACCEPT_AUTH is no longer supported, using ASK_MODERATOR for meeting=[{}]", internalMeetingId);
+                guestPolicy = GuestPolicy.ASK_MODERATOR;
+            } else {
+                log.warn("Invalid param [guestPolicy] for meeting=[{}], using {}", internalMeetingId, guestPolicy);
+            }
+        }
 
         Boolean allowPromoteGuestToModerator = defaultAllowPromoteGuestToModerator;
         if (!StringUtils.isEmpty(params.get(ApiParams.ALLOW_PROMOTE_GUEST_TO_MODERATOR))) {
@@ -1629,7 +1638,15 @@ public class ParamsProcessorUtil {
     }
 
 	public void setDefaultGuestPolicy(String guestPolicy) {
-		this.defaultGuestPolicy =  guestPolicy;
+		if (GuestPolicy.isValid(guestPolicy)) {
+			this.defaultGuestPolicy = guestPolicy;
+		} else if (RETIRED_GUEST_POLICY_ALWAYS_ACCEPT_AUTH.equals(guestPolicy)) {
+			log.warn("defaultGuestPolicy value ALWAYS_ACCEPT_AUTH is no longer supported, using ASK_MODERATOR");
+			this.defaultGuestPolicy = GuestPolicy.ASK_MODERATOR;
+		} else {
+			log.warn("Invalid defaultGuestPolicy [{}], using {}", guestPolicy, GuestPolicy.ALWAYS_ACCEPT);
+			this.defaultGuestPolicy = GuestPolicy.ALWAYS_ACCEPT;
+		}
 	}
 
 	public void setAuthenticatedGuest(Boolean value) {
