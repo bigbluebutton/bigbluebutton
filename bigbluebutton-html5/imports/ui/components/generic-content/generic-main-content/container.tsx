@@ -1,4 +1,4 @@
-import React, { useContext, useRef } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 
 import {
@@ -17,6 +17,8 @@ import { GenericContentType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/exten
 import GenericMainContent from './component';
 import { ACTIONS, PRESENTATION_AREA } from '/imports/ui/components/layout/enums';
 import getDifferenceBetweenLists from '../utils';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import useEjectPresentationAreaContent from '/imports/ui/core/hooks/useEjectPresentationAreaContent';
 import { GenericContentMainAreaContainerProps } from '../types';
 
 const GenericContentMainAreaContainer: React.FC<GenericContentMainAreaContainerProps> = (
@@ -29,6 +31,9 @@ const GenericContentMainAreaContainer: React.FC<GenericContentMainAreaContainerP
     pluginsExtensibleAreasAggregatedState,
   } = useContext(PluginsContext);
   const layoutContextDispatch: DispatcherFunction = layoutDispatch();
+  const { data: currentUser } = useCurrentUser((u) => ({ presenter: u.presenter }));
+  const ejectPresentationAreaContent = useEjectPresentationAreaContent();
+  const previousMainAreaIds = useRef<string[]>([]);
   let genericContainerContentExtensibleArea = [] as PluginSdk.GenericContentMainArea[];
 
   if (pluginsExtensibleAreasAggregatedState.genericContentItems) {
@@ -68,6 +73,16 @@ const GenericContentMainAreaContainer: React.FC<GenericContentMainAreaContainerP
       });
     }
   }
+
+  const mainAreaIds = genericContainerContentExtensibleArea.map((g) => g.id);
+  const mainAreaIdsKey = mainAreaIds.join(',');
+
+  // New plugin content ejects core content, like core features do among themselves
+  useEffect(() => {
+    const hasNewContent = mainAreaIds.some((id) => !previousMainAreaIds.current.includes(id));
+    previousMainAreaIds.current = mainAreaIds;
+    if (hasNewContent && currentUser?.presenter) ejectPresentationAreaContent('pluginContent');
+  }, [mainAreaIdsKey]);
 
   const genericContentLayoutInformation: GenericContentMainAreaFromLayout = layoutSelectOutput(
     (i: Output) => i.genericMainContent,

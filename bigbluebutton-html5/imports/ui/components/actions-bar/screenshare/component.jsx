@@ -5,7 +5,6 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import browserInfo from '/imports/utils/browserInfo';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
-import { useMutation } from '@apollo/client';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Styled from './styles';
 import ScreenshareBridgeService from '/imports/api/screenshare/client/bridge/service';
@@ -18,7 +17,7 @@ import {
 import { SCREENSHARING_ERRORS } from '/imports/api/screenshare/client/bridge/errors';
 import Button from '/imports/ui/components/common/button/component';
 import { listItemBgHover } from '/imports/ui/stylesheets/styled-components/palette';
-import { EXTERNAL_VIDEO_STOP } from '../../external-video-player/mutations';
+import useEjectPresentationAreaContent from '/imports/ui/core/hooks/useEjectPresentationAreaContent';
 import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 
 const { isMobile } = deviceInfo;
@@ -153,7 +152,7 @@ const ScreenshareButton = ({
 }) => {
   // eslint-disable-next-line max-len
   const TROUBLESHOOTING_URLS = window.meetingClientSettings.public.media.screenshareTroubleshootingLinks;
-  const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
+  const ejectPresentationAreaContent = useEjectPresentationAreaContent();
   const isCameraAsContentBroadcasting = useIsCameraAsContentBroadcasting();
 
   const {
@@ -254,8 +253,12 @@ const ScreenshareButton = ({
                     if (isSafari && !ScreenshareBridgeService.HAS_DISPLAY_MEDIA) {
                       openScreenshareUnavailableModal();
                     } else {
-                      // eslint-disable-next-line max-len
-                      shareScreen(isCameraAsContentBroadcasting, stopExternalVideoShare, amIPresenter, handleFailure);
+                      shareScreen(
+                        isCameraAsContentBroadcasting,
+                        () => ejectPresentationAreaContent('screenshare'),
+                        amIPresenter,
+                        handleFailure,
+                      );
                     }
                   }}
                 id={amIBroadcasting ? 'unshare-screen-button' : 'share-screen-button'}
