@@ -31,6 +31,10 @@ import {
   CustomBackground,
 } from './types';
 
+// How long a camera capture takes to settle on iOS before its preview can be shown
+// (see displayPreview)
+const IOS_CAPTURE_SETTLE_TIME = 1500; // ms
+
 const intlMessages: { [key: string]: { id: string; description?: string } } = defineMessages({
   permissionError: {
     id: 'app.video.permissionError',
@@ -137,6 +141,10 @@ export const useVideoPreview = ({
   // Bumped by every getCameraStream call so a slower, superseded call knows it lost the race
   const cameraStreamRequestId = useRef(0);
   const cameraLoadCount = useRef(0);
+  // When each freshly captured stream was opened, and the pending delayed attach
+  // of the preview (see displayPreview)
+  const freshCaptureTimes = useRef(new WeakMap<BBBVideoStream, number>());
+  const previewAttachTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Read by the async camera flows, which may outlive the render that started them
   const isCameraDisabled = useRef(cameraDisabled);
   isCameraDisabled.current = cameraDisabled;
@@ -197,10 +205,18 @@ export const useVideoPreview = ({
     if (onStreamChange) onStreamChange(bbbVideoStream);
   }, [handleLocalStreamInactive, onStreamChange]);
 
+  const clearPreviewAttachTimer = useCallback(() => {
+    if (previewAttachTimer.current) {
+      clearTimeout(previewAttachTimer.current);
+      previewAttachTimer.current = null;
+    }
+  }, []);
+
   const cleanupStreamAndVideo = useCallback(() => {
+    clearPreviewAttachTimer();
     setCurrentVideoStream(null);
     if (videoRef.current) videoRef.current.srcObject = null;
-  }, [setCurrentVideoStream]);
+  }, [setCurrentVideoStream, clearPreviewAttachTimer]);
 
   const terminateCameraStream = useCallback((stream: BBBVideoStream | null) => {
     if (stream) {
@@ -224,10 +240,29 @@ export const useVideoPreview = ({
   }, []);
 
   const displayPreview = useCallback(() => {
-    if (currentVideoStream.current && videoRef.current) {
-      videoRef.current.srcObject = currentVideoStream.current.mediaStream;
+    clearPreviewAttachTimer();
+    const stream = currentVideoStream.current;
+    if (!stream || !videoRef.current) return;
+
+    // iOS WebKit stops painting a <video> fed with a camera capture that is still
+    // starting up: the image shows for a moment and the element stays blank,
+    // although frames keep arriving, until something recomposites it. So on iOS a
+    // freshly captured stream is only attached once its capture has settled; a
+    // stream that was already running (e.g. the shared camera) is attached now.
+    const capturedAt = freshCaptureTimes.current.get(stream);
+    const settleWait = deviceInfo.isIos && capturedAt
+      ? capturedAt + IOS_CAPTURE_SETTLE_TIME - Date.now()
+      : 0;
+    if (settleWait > 0) {
+      previewAttachTimer.current = setTimeout(() => {
+        previewAttachTimer.current = null;
+        displayPreview();
+      }, settleWait);
+      return;
     }
-  }, []);
+
+    videoRef.current.srcObject = stream.mediaStream;
+  }, [clearPreviewAttachTimer]);
 
   const handleVirtualBgError = useCallback((error: Error, type: string, name?: string) => {
     logger.error({
@@ -527,8 +562,12 @@ export const useVideoPreview = ({
     let bbbVideoStream;
     let finalDeviceId: string | null = null;
     try {
+      // doGUM hands back the stored stream of an already shared camera instead of
+      // opening it again
+      const isAlreadyCaptured = !!deviceId && PreviewService.hasStream(deviceId);
       // The return of doGUM is an instance of BBBVideoStream (a thin wrapper over a MediaStream)
       bbbVideoStream = await PreviewService.doGUM(deviceId, profile);
+      if (!isAlreadyCaptured) freshCaptureTimes.current.set(bbbVideoStream, Date.now());
       if (isSuperseded()) {
         terminateCameraStream(bbbVideoStream);
         endCameraLoad();
