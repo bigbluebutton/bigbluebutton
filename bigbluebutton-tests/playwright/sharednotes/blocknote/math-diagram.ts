@@ -79,6 +79,7 @@ async function insertBlockEquation(testPage: Page, slot: string): Promise<void> 
 }
 
 async function typeInlineEquation(testPage: Page, source: string): Promise<void> {
+  await expect(testPage.page.locator(e.blockNoteOpenInlineEquation)).toBeVisible();
   await testPage.page.keyboard.type(source);
   await testPage.page.keyboard.press('Escape');
   await testPage.page.keyboard.press('End');
