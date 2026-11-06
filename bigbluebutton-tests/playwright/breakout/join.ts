@@ -892,8 +892,8 @@ export class Join extends Create {
     const roomModTab = await this.joinFirstBreakoutRoomAsModerator();
     const roomModPage = new Page(this.browser, roomModTab, this.modPage.testInfo);
     await Create.openLockViewersPermissions(roomModTab);
-    await Create.setCheckboxChecked(roomModTab, e.lockPublicChat, false);
-    await Create.setCheckboxChecked(roomModTab, e.lockShareWebcam, false);
+    await Create.setPermissionAllowed(roomModTab, e.lockPublicChat, false);
+    await Create.setPermissionAllowed(roomModTab, e.lockShareWebcam, false);
     await roomModPage.waitAndClick(e.applyLockSettings);
     await roomModPage.wasRemoved(e.applyLockSettings, 'should close the lock viewers modal once applied');
 
