@@ -499,6 +499,7 @@ export interface Poll {
 
 export interface Captions {
   background: string
+  maxTextLength: number
   font: Font
   lines: number
   time: number
