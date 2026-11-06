@@ -2,25 +2,27 @@ import styled from 'styled-components';
 import Button from '/imports/ui/components/common/button/component';
 import {
   appsGalleryOutlineColor,
+  colorGray,
   colorGrayDark,
   colorGrayUserListToolbar,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   fontSizeBase,
+  fontSizeMedium,
   textFontWeight,
 } from '/imports/ui/stylesheets/styled-components/typography';
+import { $2xlPadding, barsPadding } from '/imports/ui/stylesheets/styled-components/general';
 import { ActionButtonProps } from './types';
 
 const ActionButtonsWrapper = styled.div<{ $isMinWidth?: boolean }>`
-  display: flex;
-  flex-direction: ${({ $isMinWidth }) => ($isMinWidth ? 'column' : 'row')};
-  padding: 0rem 0.8rem 0.8rem 0.8rem;
-  align-items: ${({ $isMinWidth }) => ($isMinWidth ? 'stretch' : 'flex-end')};
-  gap: 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(${({ $isMinWidth }) => ($isMinWidth ? 1 : 2)}, minmax(0, 1fr));
+  padding: ${$2xlPadding} ${barsPadding};
+  align-items: end;
+  gap: 0.5rem 1.5rem;
 `;
 
 const ActionButtonWrapper = styled.div`
-  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -50,9 +52,31 @@ const ActionButton = styled<ActionButtonProps>(Button)`
   background: ${colorGrayUserListToolbar};
 `;
 
+// @ts-ignore - Button is JSX element
+const ClearReactionsButton = styled(Button)`
+  grid-column: 1 / -1;
+  padding: ${$2xlPadding} 0.2rem;
+  border: none;
+  font-size: ${fontSizeMedium};
+  font-weight: ${textFontWeight};
+  line-height: 1.5;
+  text-align: center;
+  white-space: normal;
+
+  &,
+  &:hover,
+  &:focus,
+  &:active {
+    color: ${colorGray};
+    background: transparent;
+    text-decoration: underline;
+  }
+`;
+
 export default {
   ActionButtonsWrapper,
   ActionButtonWrapper,
   ActionButtonLabel,
   ActionButton,
+  ClearReactionsButton,
 };
