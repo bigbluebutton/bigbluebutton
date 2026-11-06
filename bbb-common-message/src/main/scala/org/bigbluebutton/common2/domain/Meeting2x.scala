@@ -56,6 +56,7 @@ case class UsersProp(
     userCameraCap:                Int,
     guestPolicy:                  String,
     meetingLayout:                String,
+    hideUsersWithoutCamera:       Boolean,
     allowModsToUnmuteUsers:       Boolean,
     requireUserConsentBeforeUnmuting:     Boolean,
     allowModsToEjectCameras:      Boolean,

@@ -115,6 +115,7 @@ public class Meeting {
 	private Boolean allowRequestsWithoutSession = false;
 	private Boolean allowModsToEjectCameras = false;
 	private Boolean allowModsToRequestCameraShare = false;
+	private Boolean hideUsersWithoutCamera = false;
 	private Boolean meetingKeepEvents;
 	private String presentationUploadExternalDescription;
 	private String presentationUploadExternalUrl;
@@ -818,6 +819,14 @@ public class Meeting {
 
   public Boolean getAllowModsToRequestCameraShare() {
     return allowModsToRequestCameraShare;
+  }
+
+  public void setHideUsersWithoutCamera(Boolean value) {
+    hideUsersWithoutCamera = value;
+  }
+
+  public Boolean getHideUsersWithoutCamera() {
+    return hideUsersWithoutCamera;
   }
 
 	public void userJoined(User user) {
