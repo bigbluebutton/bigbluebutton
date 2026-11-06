@@ -416,6 +416,7 @@ export const elements = {
   blockNoteSlashMenuItem: '.bn-suggestion-menu .bn-suggestion-menu-item',
   blockNoteMathBlock: '#bn-notes-scroll-container [data-content-type="mathBlock"]',
   blockNoteDiagram: '#bn-notes-scroll-container [data-content-type="diagram"]',
+  blockNoteSelectedPreview: '#bn-notes-scroll-container .bn-preview-with-source-popup.ProseMirror-selectednode',
   notesConnectionError: '[data-test="notesError"]',
   notesRetryButton: 'button[data-test="notesRetryButton"]',
 

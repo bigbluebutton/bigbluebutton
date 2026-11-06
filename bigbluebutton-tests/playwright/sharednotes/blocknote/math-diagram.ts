@@ -26,6 +26,7 @@ async function typeSlots(testPage: Page, slots: string[]): Promise<void> {
 async function insertFromSlashMenu(testPage: Page, slot: string, title: string): Promise<void> {
   const editor = getBlockNoteEditorLocator(testPage);
   await editor.locator('.bn-block-content', { hasText: slot }).click();
+  await expect(testPage.page.locator(e.blockNoteSelectedPreview)).toHaveCount(0);
   await testPage.page.keyboard.press('End');
   await testPage.page.keyboard.press('Shift+Home');
   await testPage.page.keyboard.press('Backspace');
@@ -216,6 +217,7 @@ export class MathDiagramSharedNotes extends MultiUsers {
     // a pause first, so undo keeps the edit as a step of its own
     await this.modPage.page.waitForTimeout(1500);
     await editor.locator('.bn-block-content', { hasText: 'Notes' }).click();
+    await expect(this.modPage.page.locator(e.blockNoteSelectedPreview)).toHaveCount(0);
     await this.modPage.page.keyboard.press('End');
     await this.modPage.page.keyboard.type(' before the switch');
     await expect(editor).toContainText('Notes before the switch');
