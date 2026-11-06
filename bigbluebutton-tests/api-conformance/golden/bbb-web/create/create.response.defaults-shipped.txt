@@ -92,6 +92,7 @@ $.core.body.props.systemProps.html5PluginSdkVersion "<version>"
 $.core.body.props.systemProps.loginUrl ""
 $.core.body.props.systemProps.logoutUrl "${baseUrl}"
 $.core.body.props.usersProp.allowModsToEjectCameras false
+$.core.body.props.usersProp.allowModsToRequestCameraShare false
 $.core.body.props.usersProp.allowModsToUnmuteUsers false
 $.core.body.props.usersProp.allowPromoteGuestToModerator false
 $.core.body.props.usersProp.authenticatedGuest true

@@ -4,6 +4,7 @@ target bbb-web
 
 == step 2: bus MeetingCreatedEvtMsg select $.core.body.props.usersProp
 $.core.body.props.usersProp.allowModsToEjectCameras true
+$.core.body.props.usersProp.allowModsToRequestCameraShare false
 $.core.body.props.usersProp.allowModsToUnmuteUsers false
 $.core.body.props.usersProp.allowPromoteGuestToModerator false
 $.core.body.props.usersProp.authenticatedGuest true
