@@ -2,11 +2,13 @@ import { expect } from '@playwright/test';
 
 import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
+import { isLiveKit } from '../core/livekit';
 import { allowMedia } from '../core/mediaPermissions';
 import { expectAudioReceived } from '../core/rtcStatsProbe';
 import { MultiUsers } from '../user/multiusers';
 import { awayIndicatorLocator, hasUserListMicState, isTalkingLocator, setAway } from '../user/util';
 import { remoteWebcamContentCheck } from '../webcam/util';
+import { getLocalMicState, holdNextMicrophonePublication } from './liveKitProbe';
 import {
   areRemoteAudioElementsPlaying,
   connectMicrophone,
@@ -20,6 +22,10 @@ import {
 // Long enough for an unmute that should not happen to reach the server and show as talking.
 const IGNORED_KEY_HOLD_TIME = 3000;
 const DECLINED_UNMUTE_WAIT = 3000;
+// The button can still show the initial muted state immediately after keyup.
+// Let delayed unmute responses and track publication reach the client first.
+const PUSH_TO_TALK_RELEASE_WAIT = 3000;
+const AUDIO_REJOIN_SETTLE_TIME = 3000;
 
 export class Audio extends MultiUsers {
   async muteButtonCooldown() {
@@ -208,7 +214,10 @@ export class Audio extends MultiUsers {
     if (listenOnlyMode) await this.modPage.clickMicrophoneButton();
     await this.modPage.waitAndClick(e.joinEchoTestButton);
     await this.modPage.wasRemoved(e.establishingAudioLabel, 'Audio should be established', ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.hasElement(e.unmuteMicButton, 'should be muted');
+    await this.modPage.hasElement(e.audioDropdownMenu, 'should be connected to audio again');
+    await this.modPage.page.waitForTimeout(AUDIO_REJOIN_SETTLE_TIME);
+    await this.modPage.hasElement(e.unmuteMicButton, 'should keep the microphone muted after rejoining audio');
+    await expect(isTalkingLocator(this.modPage, this.modPage.username)).toBeHidden();
   }
 
   async muteYourselfByTalkingIndicator() {
@@ -304,8 +313,101 @@ export class Audio extends MultiUsers {
     await releaseKeyboardFocus(this.modPage);
     await this.modPage.down('m');
     await this.modPage.hasElement(e.muteMicButton, 'should unmute with M once the chat input has no focus');
+    await expect(
+      isTalkingLocator(this.modPage, this.modPage.username),
+      'should show the moderator talking before releasing the control press',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
     await this.modPage.up('m');
     await this.modPage.hasElement(e.unmuteMicButton, 'should mute the microphone again when M is released');
+  }
+
+  private async expectMutedAfterPushToTalk() {
+    await this.modPage.page.waitForTimeout(PUSH_TO_TALK_RELEASE_WAIT);
+    await expect
+      .soft(this.modPage.page.locator(e.unmuteMicButton), 'should be muted after M is released')
+      .toBeVisible();
+    await expect
+      .soft(
+        isTalkingLocator(this.modPage, this.modPage.username),
+        'should not show the moderator talking after M is released',
+      )
+      .toBeHidden();
+    if (isLiveKit) {
+      expect
+        .soft((await getLocalMicState(this.modPage.page)).allMuted, 'should have no unmuted microphone track')
+        .toBe(true);
+    }
+  }
+
+  async pushToTalkShortTap() {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+
+    await joinMutedMicrophone(this.modPage);
+    await releaseKeyboardFocus(this.modPage);
+    const cdp = await this.modPage.page.context().newCDPSession(this.modPage.page);
+    try {
+      // keyboard.press waits for keydown to finish before sending keyup. On a
+      // busy client that can give the server time to confirm the unmute. Send
+      // both real browser events in order, without that intervening wait.
+      const key = { key: 'm', code: 'KeyM', windowsVirtualKeyCode: 77, nativeVirtualKeyCode: 77 };
+      await Promise.all([
+        cdp.send('Input.dispatchKeyEvent', { ...key, type: 'keyDown' }),
+        cdp.send('Input.dispatchKeyEvent', { ...key, type: 'keyUp' }),
+      ]);
+    } finally {
+      await cdp.detach();
+    }
+    await this.expectMutedAfterPushToTalk();
+  }
+
+  async pushToTalkReleaseDuringPublication(resumeBeforePublication = false) {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+
+    await joinMutedMicrophone(this.modPage);
+    await releaseKeyboardFocus(this.modPage);
+    const publication = await holdNextMicrophonePublication(this.modPage.page);
+    try {
+      await this.modPage.down('m');
+      await publication.waitUntilStarted();
+      await this.modPage.hasElement(e.muteMicButton, 'should confirm the unmute before M is released');
+      await this.modPage.up('m');
+      await this.modPage.hasElement(e.unmuteMicButton, 'should confirm the mute while publication is pending');
+      expect((await getLocalMicState(this.modPage.page)).micPublications, 'should still have no microphone track').toBe(
+        0,
+      );
+
+      if (resumeBeforePublication) {
+        // Push-to-talk ignores a new press for 800 ms after a release.
+        await this.modPage.page.waitForTimeout(1000);
+        await this.modPage.down('m');
+        await this.modPage.hasElement(e.muteMicButton, 'should confirm the latest unmute while publication is pending');
+      }
+
+      await publication.release();
+      await publication.waitUntilSettled();
+
+      if (resumeBeforePublication) {
+        await this.modPage.page.waitForTimeout(PUSH_TO_TALK_RELEASE_WAIT);
+        await this.modPage.hasElement(e.muteMicButton, 'should stay unmuted while the second M press is held');
+        await expect(isTalkingLocator(this.modPage, this.modPage.username)).toBeVisible();
+        const mic = await getLocalMicState(this.modPage.page);
+        expect(mic.micPublications, 'should publish the microphone for the latest unmute').toBeGreaterThan(0);
+        expect(mic.allMuted, 'should not apply the earlier mute to the latest publication').toBe(false);
+        await this.modPage.up('m');
+      }
+
+      await this.expectMutedAfterPushToTalk();
+
+      // A corrected late publication must not prevent a subsequent unmute.
+      await this.modPage.down('m');
+      await this.modPage.hasElement(e.muteMicButton, 'should allow a new push-to-talk after the publication settles');
+      await expect(isTalkingLocator(this.modPage, this.modPage.username)).toBeVisible();
+      await this.modPage.up('m');
+      await this.expectMutedAfterPushToTalk();
+    } finally {
+      await this.modPage.up('m');
+      await publication.release();
+    }
   }
 
   async setAwayWhileTalking() {
