@@ -1,0 +1,58 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# getMeetings lists every meeting with the fields getMeetingInfo gives. Two
+# meetings: one created with explicit values, one with defaults.
+id: getMeetings.list.meetings
+title: getMeetings lists the meetings and their fields
+endpoint: getMeetings
+class: contract
+tags: [ci]
+requires: [akka]
+steps:
+  - call: create
+    params:
+      meetingID: "${uid}-a"
+      name: Meetings A
+      record: "true"
+      duration: "30"
+      maxParticipants: "10"
+      dialNumber: 613-555-0100
+      attendeePW: ap
+      moderatorPW: mp
+      meta_Color: blue
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: create
+    params: {meetingID: "${uid}-b", name: Meetings B}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: getMeetings
+    # Until akka-apps has created both, so their startTime is set.
+    eventually:
+      within: 5s
+      every: 100ms
+      until:
+        xpath:
+          "/response/meetings/meeting[meetingID='${uid}-a']/startTime": {regex: '^[1-9][0-9]*$'}
+          "/response/meetings/meeting[meetingID='${uid}-b']/startTime": {regex: '^[1-9][0-9]*$'}
+    expect:
+      returncode: SUCCESS
+      xpath:
+        "/response/meetings/meeting[starts-with(meetingID, '${uid}')]": {count: 2}
+        "/response/meetings/meeting[meetingID='${uid}-a']/meetingName": Meetings A
+        "/response/meetings/meeting[meetingID='${uid}-a']/recording": "true"
+        "/response/meetings/meeting[meetingID='${uid}-a']/maxUsers": "10"
+        "/response/meetings/meeting[meetingID='${uid}-a']/metadata/color": blue
+        "/response/meetings/meeting[meetingID='${uid}-b']/meetingName": Meetings B
+        "/response/meetings/meeting[meetingID='${uid}-b']/recording": "false"
+        "/response/meetings/meeting[meetingID='${uid}-b']/running": "false"
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}-a"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}
+  - call: end
+    params: {meetingID: "${uid}-b"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

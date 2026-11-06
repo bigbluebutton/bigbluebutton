@@ -1,0 +1,14 @@
+#!/bin/sh
+# Creates /var/bigbluebutton as a packaged server has it after install
+# (bbb-config, bbb-record-core, bbb-web and bbb-learning-dashboard make
+# these), owned by bigbluebutton.
+set -eu
+d=/var/bigbluebutton
+mkdir -p "$d/recording/raw" "$d/recording/process" "$d/recording/publish" \
+	"$d/recording/status/recorded" "$d/recording/status/archived" "$d/recording/status/processed" \
+	"$d/recording/status/sanity" "$d/recording/status/published" "$d/recording/status/ended" \
+	"$d/published" "$d/deleted" "$d/unpublished" "$d/captions/inbox" "$d/events" "$d/basic_stats" \
+	"$d/configs" "$d/diagnostics" "$d/learning-dashboard"
+# Fixture recordings (fixtures/recordings/) will be copied in here.
+chown -R bigbluebutton:bigbluebutton "$d"
+chmod o+rx "$d"

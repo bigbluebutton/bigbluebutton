@@ -1,0 +1,8 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case join.checksum.rejected-wrong
+target bbb-web
+
+== step 1: call join
+status 302
+location ${baseUrl}?errors=[{"message":"<missing-checksum message>","key":"checksumError"}]
+body (redirect)

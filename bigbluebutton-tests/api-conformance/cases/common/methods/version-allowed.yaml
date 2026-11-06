@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# The version endpoint is served by the catch-all route, which maps every method.
+# GET and HEAD are in version/fields.yaml and version/head.yaml.
+id: version.method.allowed
+title: The version endpoint answers ${method}
+endpoint: version
+class: contract
+tags: [ci]
+variants:
+  - {id: post, vars: {method: POST}}
+  - {id: put, vars: {method: PUT}}
+  - {id: delete, vars: {method: DELETE}}
+steps:
+  - call: ""
+    method: "${method}"
+    expect: {returncode: SUCCESS, xpath: {/response/apiVersion: {exists: true}}}

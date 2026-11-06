@@ -448,6 +448,7 @@ class PresentationToolbar extends PureComponent {
 
     return (
       <Styled.PresentationToolbarWrapper
+        className="bbb-presentation-toolbar"
         id="presentationToolbarWrapper"
         ref={(ref) => { this.wrapper = ref; }}
         style={{ '--slide-width': `${toolbarWidth}px` }}
@@ -468,7 +469,7 @@ class PresentationToolbar extends PureComponent {
 
           <SmartMediaShareContainer {...{ intl, currentSlide }} />
         </Styled.QuickPollButtonWrapper>
-        <Styled.PresentationSlideControls>
+        <Styled.PresentationSlideControls className="bbb-presentation-toolbar__slide-controls">
           <Styled.PrevSlideButton
             role="button"
             aria-label={prevSlideAriaLabel}
@@ -520,7 +521,7 @@ class PresentationToolbar extends PureComponent {
             data-test="nextSlide"
           />
         </Styled.PresentationSlideControls>
-        <Styled.PresentationZoomControls>
+        <Styled.PresentationZoomControls className="bbb-presentation-toolbar__zoom-controls">
           {(showIWB) && (
           <Styled.InfiniteWhiteboardButton
             data-test={isInfiniteWhiteboard ? 'turnInfiniteWhiteboardOff' : 'turnInfiniteWhiteboardOn'}

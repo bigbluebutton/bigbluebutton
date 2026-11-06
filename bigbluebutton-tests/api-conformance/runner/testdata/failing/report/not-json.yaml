@@ -1,0 +1,10 @@
+id: getMeetings.report.not-json
+title: A response in the wrong format fails
+endpoint: getMeetings
+class: contract
+steps:
+  - call: getMeetings
+    expect:
+      format: json
+      jsonpath:
+        $.response.returncode: SUCCESS

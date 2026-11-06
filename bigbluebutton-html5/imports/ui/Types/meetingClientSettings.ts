@@ -63,11 +63,8 @@ export interface App {
   wakeLock: WakeLock
   allowDefaultLogoutUrl: boolean
   skipMeetingEnded: boolean
-  dynamicGuestPolicy: boolean
   enableGuestLobbyMessage: boolean
   showGuestLobbyWaitingQueuePosition: boolean
-  guestPolicyExtraAllowOptions: boolean
-  alwaysShowWaitingRoomUI: boolean
   enableLimitOfViewersInWebcam: boolean
   enableMultipleCameras: boolean
   enableCameraAsContent: boolean
@@ -128,6 +125,7 @@ export interface AudioCaptions {
   enabled: boolean
   mobile: boolean
   provider: string
+  speechProcessing: 'cloud' | 'local' | 'auto'
   showInSidebarNavigation: boolean
   microphoneAlert: MicrophoneAlert
   language: Language
@@ -185,7 +183,6 @@ export interface ReactionsButton {
 
 export interface EmojiRain {
   enabled: boolean
-  intervalEmojis: number
   numberOfEmojis: number
   emojiSize: number
 }
@@ -233,7 +230,7 @@ export interface Application {
 export interface Audio {
   inputDeviceId: string
   outputDeviceId: string
-  processingMode: 'advanced' | 'standard' | 'original'
+  processingMode: 'voiceIsolation' | 'advanced' | 'standard' | 'original'
 }
 
 export interface DataSaving {
@@ -443,6 +440,7 @@ export interface Threshold {
 
 export interface Pagination {
   paginationToggleEnabled: boolean
+  paginationToggleModeratorOnly?: boolean
   pageChangeDebounceTime: number
   desktopPageSizes: DesktopPageSizes
   mobilePageSizes: MobilePageSizes
@@ -676,10 +674,20 @@ export interface LiveKitAudioSettings {
   useLiveKitAudioState?: boolean
 }
 
+export type LastNAudioConfig = {
+  enabled: boolean;
+  audibleSize: number;
+  standbySize: number;
+  speechHoldMs: number;
+  minAudibleMs: number;
+  standbyGraceMs: number;
+};
+
 export type SelectiveSubscriptionConfig = {
   enabled: boolean;
   audioSubscriptionPoolSize: number;
   muteDebounceMs: number;
+  lastN?: LastNAudioConfig;
 };
 
 export interface LiveKitSettings {
@@ -700,6 +708,7 @@ export interface LiveKitSettings {
 export interface AudioWasmProcessingSettings {
   enabled: boolean
   provider?: 'bbba' | 'workadventureDtln'
+  intensity?: number
   // See: https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
   constraints?: Record<string, unknown>
 }
@@ -747,7 +756,6 @@ export interface Stats {
   loss: number[]
   rtt: number[]
   level: string[]
-  help: string
 }
 
 export interface LogMediaStats {

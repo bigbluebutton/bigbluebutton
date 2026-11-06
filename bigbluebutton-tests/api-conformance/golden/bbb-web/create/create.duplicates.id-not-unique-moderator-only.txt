@@ -1,0 +1,12 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.duplicates.id-not-unique-moderator-only
+target bbb-web
+
+== step 2: call create
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "FAILED"
+/response/messageKey "idNotUnique"
+/response/message "A meeting already exists with that meeting ID. Please use a different meeting ID."

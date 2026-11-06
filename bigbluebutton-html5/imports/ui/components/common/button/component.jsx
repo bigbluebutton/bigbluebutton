@@ -200,7 +200,7 @@ export default class Button extends BaseButton {
         ghost={ghost}
         circle={circle}
         block={block}
-        className={className}
+        className={cx('bbb-button', `bbb-button--${color}`, className)}
         iconRight={iconRight}
         loading={loading}
         hoverColor={hoverColor}
@@ -236,7 +236,14 @@ export default class Button extends BaseButton {
     return (
       <Styled.ButtonWrapper
         size={size}
-        className={cx(size, 'buttonWrapper', className)}
+        className={cx(
+          size,
+          'buttonWrapper',
+          'bbb-button',
+          'bbb-button--circle',
+          `bbb-button--${color}`,
+          className,
+        )}
         color={color}
         ghost={ghost}
         circle={circle}
@@ -249,6 +256,7 @@ export default class Button extends BaseButton {
         {this.renderButtonEmojiSibling()}
         {!iconRight ? null : this.renderLabel()}
         <Styled.ButtonSpan
+          className="bbb-button__icon"
           size={size}
           color={color}
           ghost={ghost}

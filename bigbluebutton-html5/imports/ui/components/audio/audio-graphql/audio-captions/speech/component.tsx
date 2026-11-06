@@ -16,8 +16,12 @@ import {
   getLocale,
   hasSpeechRecognitionSupport,
   isLocaleValid,
+  isOnDeviceTranscription,
   localeAsDefaultSelected,
   mostSimilarLanguage,
+  getOnDeviceLanguageStatus,
+  usesCloudFallback,
+  useOnDeviceLanguageStatus,
   setSpeechVoices,
   useFixedLocale,
 } from './service';
@@ -44,9 +48,14 @@ const intlMessages = defineMessages({
     id: 'app.audio.captions.speech.microphoneAlert.helpLabel',
     description: 'Label for the knowledge base link in the microphone alert toast',
   },
+  onDeviceNotReady: {
+    id: 'app.audio.captions.speech.onDevice.notReady',
+    description: 'Toast when transcription is on but its on-device language data is not downloaded',
+  },
 });
 
 const THROTTLE_TIMEOUT = 200;
+const NOT_READY_NOTIFICATION_DELAY = 1000;
 
 type SpeechRecognitionEvent = {
   resultIndex: number;
@@ -113,6 +122,7 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const harkInstanceRef = useRef<any>(null);
   const speakingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const onDeviceNotifiedRef = useRef(new Set<string>());
   const [setSpeechLocaleMutation] = useMutation(SET_SPEECH_LOCALE);
   const isAudioTranscriptionEnabled = useIsAudioTranscriptionEnabled();
   const fixedLocaleResult = useFixedLocale();
@@ -143,6 +153,17 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
     speechRecognition.interimResults = true;
 
     return speechRecognition;
+  };
+
+  // With local or auto the session is processLocally: it never falls back to a speech
+  // recognition service by itself (it fails instead). auto leaves a language the browser cannot
+  // transcribe on the device without processLocally, as with cloud
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const setSessionLocale = (speechRecognition: any, settedLocale: string) => {
+    /* eslint-disable no-param-reassign */
+    speechRecognition.lang = settedLocale;
+    if (isOnDeviceTranscription()) speechRecognition.processLocally = !usesCloudFallback(settedLocale);
+    /* eslint-enable no-param-reassign */
   };
 
   const initSpeechRecognition = () => {
@@ -320,7 +341,7 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
   const start = (settedLocale: string) => {
     if (speechRecognitionRef.current && isLocaleValid(settedLocale)) {
       logger.debug('Starting browser speech recognition for locale: ', settedLocale);
-      speechRecognitionRef.current.lang = settedLocale;
+      setSessionLocale(speechRecognitionRef.current, settedLocale);
 
       if (settedLocale !== localeRef.current) {
         localeRef.current = settedLocale;
@@ -330,6 +351,10 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
         logger.warn('Already starting return');
         return;
       }
+
+      // Never downloads the language pack by itself: an effect below starts once it is there
+      if (isOnDeviceTranscription() && !usesCloudFallback(settedLocale)
+        && getOnDeviceLanguageStatus(settedLocale) !== 'available') return;
 
       lastStartedAt.current = new Date().getTime();
       const track = getInputTrack(inputStreamRef.current);
@@ -359,7 +384,7 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
             unbindHandlers();
             speechRecognitionRef.current.abort();
             speechRecognitionRef.current = createSpeechRecognition();
-            speechRecognitionRef.current.lang = settedLocale;
+            setSessionLocale(speechRecognitionRef.current, settedLocale);
             bindHandlers();
             hadTrackRef.current = false;
           }
@@ -460,6 +485,36 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
     }
   }, [connected, muted, locale]);
 
+  const onDeviceStatus = useOnDeviceLanguageStatus(isOnDeviceTranscription() ? locale : '');
+
+  // With local or auto, starts when the language pack becomes available (e.g. downloaded
+  // from the transcription settings during the meeting), and tells the user when it is not
+  useEffect(() => {
+    if (!isOnDeviceTranscription() || !speechRecognitionRef.current || locale === '') return () => {};
+    if (!connected || muted) return () => {};
+
+    if (onDeviceStatus === 'available' || usesCloudFallback(locale)) {
+      start(locale);
+    } else if (onDeviceStatus && onDeviceStatus !== 'checking' && onDeviceStatus !== 'downloading'
+      && !onDeviceNotifiedRef.current.has(locale)) {
+      // Turning transcription on in the transcription panel starts the download: only tell the
+      // user when nothing is downloading it a moment later
+      const timeout = setTimeout(() => {
+        const status = getOnDeviceLanguageStatus(locale);
+        if (status === 'available' || status === 'downloading') return;
+        if (!connectedRef.current || mutedRef.current || onDeviceNotifiedRef.current.has(locale)) return;
+        onDeviceNotifiedRef.current.add(locale);
+        logger.warn({
+          logCode: 'captions_speech_recognition_language_pack_missing',
+          extraInfo: { locale, status },
+        }, 'Captions speech recognition is off: no on-device language pack for the locale');
+        notify(intl.formatMessage(intlMessages.onDeviceNotReady), 'warning', 'warning');
+      }, NOT_READY_NOTIFICATION_DELAY);
+      return () => clearTimeout(timeout);
+    }
+    return () => {};
+  }, [onDeviceStatus, connected, muted, locale]);
+
   useEffect(() => {
     const MICROPHONE_ALERT_CONFIG = window.meetingClientSettings.public.app.audioCaptions.microphoneAlert;
     const {
@@ -496,6 +551,9 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
       speakingTimerRef.current = setTimeout(() => {
         if (alertShownRef.current) return;
         if (lastTranscriptionAtRef.current >= speakingStartedAt) return;
+        // Not transcribing at all without the on-device language pack
+        if (isOnDeviceTranscription() && !usesCloudFallback(localeRef.current)
+          && getOnDeviceLanguageStatus(localeRef.current) !== 'available') return;
 
         alertShownRef.current = true;
         const message = intl.formatMessage(intlMessages.microphoneAlertMessage);

@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# fullName must be non-empty and at most 255 characters. A validation error
+# redirects to the server's default logout URL, with the error in the errors
+# query param. The meeting exists, so only fullName is wrong.
+id: join.validation.full-name
+title: join rejects a fullName of ${len} characters
+endpoint: join
+class: contract
+tags: [ci]
+requires: [akka]
+variants:
+  - {id: empty, vars: {len: 0, errors: '"message":"You must provide your name","key":"missingParamFullName"'}}
+  - {id: too-long, vars: {len: 256, errors: '"message":"Param fullName must not exceed 255 characters","key":"fullNameTooLong"'}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Join validation}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: join
+    params: {meetingID: "${uid}", fullName: '${repeat("a", len)}', role: viewer}
+    expect: {status: 302, redirect: {query: {errors: {contains: "${errors}"}}}}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

@@ -31,10 +31,20 @@ const isWasmProcessorSupported = () => getActiveProvider().isSupported();
 
 const loadWasmProcessorFiles = () => getActiveProvider().loadFiles();
 
-const createWasmProcessorStream = async (stream) => {
+// The provider seeds its own defaults as the plugin loads, so an admin's
+// configured intensity has to be re-applied to every processor that gets
+// built - not just the primary one - or a device switch, an echo test or an
+// audio rejoin silently reverts to the provider default.
+const createWasmProcessorStream = async (stream, { intensity } = {}) => {
   const {
     stream: outputStream, context, setEnabled, destroy, setParameter,
   } = await getActiveProvider().createProcessorStream(stream);
+
+  const { intensityParamIndex } = getActiveProvider();
+
+  if (typeof intensity === 'number' && typeof intensityParamIndex === 'number') {
+    setParameter?.(intensityParamIndex, intensity);
+  }
 
   processorRegistry.set(outputStream.id, {
     context,
@@ -79,12 +89,23 @@ const setWasmProcessorParameter = (index, value) => {
   activeProviderControl?.setParameter?.(index, value);
 };
 
+// Fallback for when the admin has configured no intensity of their own.
+// Undefined for a provider that exposes no such parameter.
+const getWasmProcessorDefaultIntensity = () => getActiveProvider().defaultIntensity;
+
+// Voice isolation is the provider driven at maximum intensity, so it is only
+// on offer where the provider exposes that knob - BBBA, not workadventureDtln.
+const isVoiceIsolationSupported = () => typeof getActiveProvider()
+  .intensityParamIndex === 'number';
+
 export {
   adoptWasmProcessor,
   createWasmProcessorStream,
   destroyWasmProcessor,
   getActiveProviderId,
   getProviderForcedMicrophoneConstraints,
+  getWasmProcessorDefaultIntensity,
+  isVoiceIsolationSupported,
   isWasmProcessorSupported,
   loadWasmProcessorFiles,
   setWasmProcessorEnabled,

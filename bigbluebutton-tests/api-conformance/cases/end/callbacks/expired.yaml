@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A meeting that ends by itself calls back its end callback URL, as one
+# ended with end does. Nobody joins and meetingExpireIfNoUserJoinedInMinutes
+# is 0, so akka-apps ends it at its first check, about 5 seconds after
+# create (create/expiry/not-joined.yaml).
+id: end.callbacks.expired
+title: A meeting that ends by itself calls back its end callback URL
+endpoint: end
+class: contract
+tags: [ci]
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Callback, meetingExpireIfNoUserJoinedInMinutes: "0", meta_endCallbackUrl: "${sinkUrl}/${uid}/ended"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingEndingEvtMsg, meetingId: "${intId}", within: 30s}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.reason: ENDED_WHEN_NOT_JOINED}
+  - sink: {key: "${uid}", within: 10s}
+    expect:
+      method: GET
+      path: /${uid}/ended
+      query: {meetingID: "${uid}", recordingmarks: "false"}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

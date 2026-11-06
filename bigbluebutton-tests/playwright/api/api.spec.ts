@@ -1,9 +1,14 @@
+import { expect } from '@playwright/test';
+
+import { CI } from '../core/constants';
 import { linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { API } from './api';
 import { APIBreakout } from './breakout';
+import { APICallbacks } from './callbacks';
 import { APIChecksum } from './checksum';
 import { APIDisabledFeatures } from './disabledFeatures';
+import { APIDocumentTypes } from './documentTypes';
 import { APIJoin } from './join';
 import { APILifecycle } from './lifecycle';
 
@@ -46,6 +51,15 @@ test.describe.parallel('API', () => {
     await API.testBbbWebSecurityHeaders();
   });
 
+  test('controllerHelpersNotReachable', { tag: '@ci' }, async () => {
+    linkIssue(26002);
+    await API.testControllerHelpersNotReachable();
+  });
+
+  test('controllerWithoutActionNotFound', { tag: '@ci' }, async () => {
+    await API.testControllerWithoutActionNotFound();
+  });
+
   test('joinInsideCrossOriginFrame', { tag: '@ci' }, async ({ page, browserName }) => {
     test.skip(
       browserName !== 'chromium',
@@ -56,6 +70,16 @@ test.describe.parallel('API', () => {
 
   test('overAThousandRequestParameters', { tag: '@ci' }, async () => {
     await API.testOverAThousandRequestParameters();
+  });
+
+  test('hiddenMethodOverrideIgnored', { tag: '@ci' }, async () => {
+    linkIssue(26002);
+    await API.testHiddenMethodOverrideIgnored();
+  });
+
+  test('svgDocumentNotAdded', { tag: '@ci' }, async ({ browser, context, page, request }, testInfo) => {
+    const documentTypes = new APIDocumentTypes(browser, context);
+    await documentTypes.testSvgDocumentNotAdded(page, testInfo, request);
   });
 
   test('breakoutWithoutParent', { tag: '@ci' }, async () => {
@@ -86,6 +110,43 @@ test.describe.parallel('API', () => {
     }
   });
 
+  test(
+    'apiCreatedBreakoutRoomEndsWithParent',
+    { tag: '@ci' },
+    async ({ browser, context, page, request }, testInfo) => {
+      const api = new APIBreakout(browser, context);
+      await api.testApiCreatedRoomEndsWithParent(page, testInfo, request);
+    },
+  );
+
+  test('nestedApiCreatedBreakoutRoomsEndWithParent', { tag: '@ci' }, async ({ request }) => {
+    await APIBreakout.testNestedApiCreatedRoomsEndWithParent(request);
+  });
+
+  test('reusedBreakoutRoomIdNotEndedByFormerParent', { tag: '@ci' }, async ({ request }) => {
+    await APIBreakout.testReusedRoomIdNotEndedByFormerParent(request);
+  });
+
+  test(
+    'emptiedApiCreatedBreakoutRoomEndsWithParent',
+    { tag: '@ci' },
+    async ({ browser, context, page, request }, testInfo) => {
+      const api = new APIBreakout(browser, context);
+      await api.testEmptiedApiCreatedRoomEndsWithParent(page, testInfo, request);
+    },
+  );
+
+  // Waits more than a minute for the parent to expire, so it runs nightly
+  test(
+    'apiCreatedBreakoutRoomEndsWhenParentExpires',
+    { tag: '@nightly' },
+    async ({ browser, context, page, request }, testInfo) => {
+      test.setTimeout(4 * 60 * 1000);
+      const api = new APIBreakout(browser, context);
+      await api.testApiCreatedRoomEndsWhenParentExpires(page, testInfo, request);
+    },
+  );
+
   test.describe('Checksum', { tag: '@ci' }, () => {
     test('checksumAlgorithmsAccepted', async ({ request }) => {
       await APIChecksum.testAlgorithmsAccepted(request);
@@ -112,6 +173,19 @@ test.describe.parallel('API', () => {
 
     test('createTwice', async ({ request }) => {
       await APILifecycle.testCreateTwice(request);
+    });
+  });
+
+  test.describe('Meeting ended callback', { tag: '@ci' }, () => {
+    test('meetingEndedUrlCarriesRecordingmarksAndMeetingID', async ({ request }) => {
+      linkIssue(25929);
+      const callsBack = await APICallbacks.serverCallsBackItsOwnHost(request);
+      if (CI) {
+        expect(callsBack, 'the meta_endCallbackUrl control callback should re-create the meeting').toBe(true);
+      } else {
+        test.skip(!callsBack, 'bbb-web does not accept a callback to its own host (fetchUrlAllowedLocalHosts)');
+      }
+      await APICallbacks.testMeetingEndedUrlCarriesRecordingmarksAndMeetingID(request);
     });
   });
 

@@ -1,0 +1,46 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A join param whose name starts with "userdata" and has exactly one
+# hyphen becomes customdata named after what follows the hyphen: on the
+# attendee in getMeetingInfo, and as userMetadata in akka-apps'
+# UserJoinedMeetingEvtMsg. userdata-color is kept as color; userdataX-y,
+# whose prefix is longer, is kept as y; userdata-a-b, with two hyphens, is
+# dropped. An attendee without userdata has an empty customdata element.
+id: join.customdata.names
+title: join's userdata params become the attendee's customdata
+endpoint: join
+class: contract
+tags: [ci, presence]
+requires: [akka, presence]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Users}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: moderator, userID: ann}}
+    golden: off
+  - presence: {action: join, as: vic, args: {meetingID: "${uid}", fullName: Vic, role: viewer, userID: vic, "userdata-color": red, "userdataX-y": kept, "userdata-a-b": dropped}}
+    golden: off
+    capture: {vicId: $.userId}
+  - bus: {name: UserJoinedMeetingEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.userMetadata]
+    expect: {jsonpath: {$.core.body.intId: "${vicId}", $.core.body.userMetadata.color: red, $.core.body.userMetadata.y: kept}}
+  # bbb-web learns of the joins from akka-apps a moment later.
+  - call: getMeetingInfo
+    params: {meetingID: "${uid}"}
+    eventually: {within: 10s, every: 200ms, until: {xpath: {/response/participantCount: "2"}}}
+    expect:
+      xpath:
+        "/response/attendees/attendee[userID='vic']/customdata/color": red
+        "/response/attendees/attendee[userID='vic']/customdata/y": kept
+        "/response/attendees/attendee[userID='vic']/customdata/*": {count: 2}
+        "/response/attendees/attendee[userID='ann']/customdata/*": {count: 0}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

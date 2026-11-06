@@ -720,7 +720,6 @@ class MeetingActor(
       case m: CaptionSubmitTranscriptPubMsg           => captionApp2x.handle(m, liveMeeting, msgBus)
 
       // Guests
-      case m: GetGuestsWaitingApprovalReqMsg          => handleGetGuestsWaitingApprovalReqMsg(m)
       case m: SetGuestPolicyCmdMsg =>
         handleSetGuestPolicyMsg(m)
         updateUserLastActivity(m.header.userId)
@@ -730,8 +729,6 @@ class MeetingActor(
       case m: GuestsWaitingApprovedMsg =>
         handleGuestsWaitingApprovedMsg(m)
         updateUserLastActivity(m.header.userId)
-      case m: GetGuestPolicyReqMsg               => handleGetGuestPolicyReqMsg(m)
-      case m: UpdatePositionInWaitingQueueReqMsg => handleUpdatePositionInWaitingQueueReqMsg(m)
       case m: SetPrivateGuestLobbyMessageCmdMsg =>
         handleSetPrivateGuestLobbyMessageCmdMsg(m)
         updateUserLastActivity(m.header.userId)
@@ -1035,7 +1032,7 @@ class MeetingActor(
           val diff = System.currentTimeMillis() - regUser.graphqlDisconnectedOn
           if (diff > liveMeeting.props.usersProp.waitingGuestUsersTimeout) {
             GuestsWaiting.remove(liveMeeting.guestsWaiting, regUser.id)
-            UsersApp.guestWaitingLeft(liveMeeting, regUser.id, outGW)
+            UsersApp.guestWaitingLeft(liveMeeting, regUser.id)
           }
         }
       }

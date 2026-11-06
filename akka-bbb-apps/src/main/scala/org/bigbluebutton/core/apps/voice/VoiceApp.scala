@@ -522,7 +522,7 @@ object VoiceApp extends SystemConfiguration {
       voiceUserId:  String,
     ): Unit = {
     val guest = GuestApprovedVO(voiceUserId, GuestStatus.DENY)
-      UsersApp.approveOrRejectGuest(liveMeeting, outGW, guest, SystemUser.ID)
+      UsersApp.approveOrRejectGuest(liveMeeting, guest, SystemUser.ID)
       val event = MsgBuilder.buildEjectUserFromVoiceConfSysMsg(liveMeeting.props.meetingProp.intId, liveMeeting.props.voiceProp.voiceConf, voiceUserId)
       outGW.send(event)
   }

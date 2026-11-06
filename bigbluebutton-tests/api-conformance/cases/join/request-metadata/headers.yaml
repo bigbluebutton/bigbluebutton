@@ -1,0 +1,45 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# join hands akka-apps the request's User-Agent, cut to 512 characters,
+# its Referer, cut to 1024, and the session token it issued. akka-apps
+# includes them in UserJoinedMeetingEvtMsg's joinRequestMetadata when the
+# user enters. Only those three are recorded.
+id: join.request-metadata.headers
+title: join passes the User-Agent, Referer and session token on to akka-apps, cut to length
+endpoint: join
+class: contract
+tags: [ci, presence]
+requires: [akka, presence]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Users}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: join
+    client: ann
+    params: {meetingID: "${uid}", fullName: Ann, role: moderator, redirect: "false"}
+    headers:
+      User-Agent: 'Mozilla/5.0 ${repeat("a", 600)}'
+      Referer: 'https://example.com/${repeat("r", 1100)}'
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {annToken: /response/session_token, annId: /response/user_id}
+  - presence: {action: join, as: ann, sessionToken: "${annToken}"}
+    golden: off
+  - bus: {name: UserJoinedMeetingEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.joinRequestMetadata.userAgent, $.core.body.joinRequestMetadata.referer, $.core.body.joinRequestMetadata.sessionToken]
+    expect:
+      jsonpath:
+        $.core.body.intId: "${annId}"
+        $.core.body.joinRequestMetadata.userAgent: 'Mozilla/5.0 ${repeat("a", 500)}'
+        $.core.body.joinRequestMetadata.referer: 'https://example.com/${repeat("r", 1004)}'
+        $.core.body.joinRequestMetadata.sessionToken: "${annToken}"
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

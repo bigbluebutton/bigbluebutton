@@ -139,6 +139,38 @@ object PresPresentationDAO {
   }
 
 
+  // As updateConversionStarted, but leaves uploadErrorMsgKey and uploadErrorDetailsJson untouched.
+  def updateConversionProgress(meetingId: String, presentation: PresentationInPod) = {
+    insertUploadTokenIfNotExists(meetingId, "", "", presentation.id, "", presentation.name)
+
+    DatabaseConnection.enqueue(
+      TableQuery[PresPresentationDbTableDef]
+        .filter(_.presentationId === presentation.id)
+        .map(p => (
+          p.name,
+          p.filenameConverted,
+          p.isDefault,
+          p.downloadable,
+          p.downloadFileExtension,
+          p.removable,
+          p.uploadInProgress,
+          p.uploadCompleted,
+          p.totalPages
+        ))
+        .update((
+          presentation.name,
+          presentation.filenameConverted,
+          presentation.default,
+          presentation.downloadable,
+          if (presentation.downloadFileExtension.isEmpty) None else Some(presentation.downloadFileExtension),
+          presentation.removable,
+          !presentation.uploadCompleted,
+          presentation.uploadCompleted,
+          presentation.numPages
+        ))
+    )
+  }
+
   def updatePages(presentation: PresentationInPod) = {
     DatabaseConnection.enqueue(
       TableQuery[PresPresentationDbTableDef]
@@ -226,6 +258,25 @@ object PresPresentationDAO {
         .filter(_.presentationId === presentationId)
         .map(p => p.downloadFileUri)
         .update(Some(downloadFileUri))
+    )
+  }
+
+  // As insertUploadTokenIfNotExists with an empty token followed by updateErrors, in one statement,
+  // so the row never appears without its reason.
+  def insertRejectedUpload(meetingId: String, userId: String, temporaryId: String, presentationId: String,
+                           filename: String, errorMsgKey: String,
+                           errorDetails: scala.collection.immutable.Map[String, String]) = {
+    val errorDetailsJson = errorDetails.toJson.compactPrint
+    DatabaseConnection.enqueue(
+      sqlu"""
+          insert into "pres_presentation"("meetingId","presentationId","uploadUserId","uploadTemporaryId","uploadToken","name",
+          "filenameConverted","isDefault","current","downloadable","removable","uploadCompletionNotified","uploadInProgress","uploadCompleted","totalPages",
+          "uploadErrorMsgKey","uploadErrorDetailsJson")
+          values (${meetingId}, ${presentationId}, ${userId}, ${temporaryId}, '', ${filename},
+          '', false, false, false, false, false, false, false, 0,
+          ${errorMsgKey}, cast(${errorDetailsJson} as jsonb))
+          on conflict do nothing
+          """
     )
   }
 

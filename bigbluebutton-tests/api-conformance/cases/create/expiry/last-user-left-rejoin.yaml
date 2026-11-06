@@ -1,0 +1,42 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A user who joins within meetingExpireWhenLastUserLeftInMinutes keeps the
+# meeting running. Without one, this meeting would end 60 to 70 seconds
+# after akka-apps removed the user who left (last-user-left-delay.yaml).
+id: create.expiry.last-user-left-rejoin
+title: A meeting keeps running when a user joins within meetingExpireWhenLastUserLeftInMinutes
+endpoint: create
+class: contract
+tags: [slow, presence]
+requires: [akka, presence]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Expiry, meetingExpireWhenLastUserLeftInMinutes: "1"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: MODERATOR}}
+    golden: off
+    capture: {annId: $.userId}
+  - presence: {action: leave, as: ann}
+    golden: off
+  # akka-apps removes Ann.
+  - bus: {name: UserLeftMeetingEvtMsg, meetingId: "${intId}", within: 25s}
+    golden: off
+    expect: {jsonpath: {$.core.body.intId: "${annId}"}}
+  - presence: {action: join, as: bob, args: {meetingID: "${uid}", fullName: Bob, role: VIEWER}}
+    golden: off
+  - bus: {name: MeetingEndingEvtMsg, meetingId: "${intId}", within: 85s}
+    expect: {absent: true}
+  - call: getMeetingInfo
+    params: {meetingID: "${uid}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

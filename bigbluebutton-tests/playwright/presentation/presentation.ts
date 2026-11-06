@@ -1,6 +1,12 @@
 import { expect } from '@playwright/test';
 
-import { CI, ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME, UPLOAD_PDF_WAIT_TIME } from '../core/constants';
+import {
+  CI,
+  ELEMENT_WAIT_EXTRA_LONG_TIME,
+  ELEMENT_WAIT_LONGER_TIME,
+  ELEMENT_WAIT_TIME,
+  UPLOAD_PDF_WAIT_TIME,
+} from '../core/constants';
 import { elements as e } from '../core/elements';
 import { checkNotificationText } from '../notifications/util';
 import { MultiUsers } from '../user/multiusers';
@@ -12,6 +18,7 @@ import {
   expectExternalVideoPlaying,
   expectSlidesEqualBetweenPages,
   EXTERNAL_VIDEO_URL,
+  fixtureFile,
   getCurrentPresentationHeight,
   getCurrentSlideAspectRatio,
   getCurrentSlideDarkPixelRatio,
@@ -69,46 +76,46 @@ export class Presentation extends MultiUsers {
     await blurActive();
     await this.modPage.press('ArrowRight');
     await this.modPage.page.waitForFunction(
-       ([whiteboardSelector, expectedSvg]) => {
-         const whiteboard = document.querySelector(whiteboardSelector);
-         return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
-       },
-       [e.whiteboard, '/svg/2'],
-       { timeout: ELEMENT_WAIT_LONGER_TIME },
-     );
+      ([whiteboardSelector, expectedSvg]) => {
+        const whiteboard = document.querySelector(whiteboardSelector);
+        return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
+      },
+      [e.whiteboard, '/svg/2'],
+      { timeout: ELEMENT_WAIT_LONGER_TIME },
+    );
 
     await blurActive();
     await this.modPage.press('ArrowLeft');
     await this.modPage.page.waitForFunction(
-       ([whiteboardSelector, expectedSvg]) => {
-         const whiteboard = document.querySelector(whiteboardSelector);
-         return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
-       },
-       [e.whiteboard, '/svg/1'],
-       { timeout: ELEMENT_WAIT_LONGER_TIME },
-     );
+      ([whiteboardSelector, expectedSvg]) => {
+        const whiteboard = document.querySelector(whiteboardSelector);
+        return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
+      },
+      [e.whiteboard, '/svg/1'],
+      { timeout: ELEMENT_WAIT_LONGER_TIME },
+    );
 
     await blurActive();
     await this.modPage.press('PageDown');
     await this.modPage.page.waitForFunction(
-       ([whiteboardSelector, expectedSvg]) => {
-         const whiteboard = document.querySelector(whiteboardSelector);
-         return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
-       },
-       [e.whiteboard, '/svg/2'],
-       { timeout: ELEMENT_WAIT_LONGER_TIME },
-     );
+      ([whiteboardSelector, expectedSvg]) => {
+        const whiteboard = document.querySelector(whiteboardSelector);
+        return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
+      },
+      [e.whiteboard, '/svg/2'],
+      { timeout: ELEMENT_WAIT_LONGER_TIME },
+    );
 
     await blurActive();
     await this.modPage.press('PageUp');
     await this.modPage.page.waitForFunction(
-       ([whiteboardSelector, expectedSvg]) => {
-         const whiteboard = document.querySelector(whiteboardSelector);
-         return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
-       },
-       [e.whiteboard, '/svg/1'],
-       { timeout: ELEMENT_WAIT_LONGER_TIME },
-     );
+      ([whiteboardSelector, expectedSvg]) => {
+        const whiteboard = document.querySelector(whiteboardSelector);
+        return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
+      },
+      [e.whiteboard, '/svg/1'],
+      { timeout: ELEMENT_WAIT_LONGER_TIME },
+    );
   }
 
   async shareCameraAsContent() {
@@ -769,7 +776,10 @@ export class Presentation extends MultiUsers {
     await this.modPage.waitAndClick(e.mediaAreaButton);
     await this.modPage.waitAndClick(e.managePresentations);
     await this.modPage.waitAndClick(e.removePresentation);
-    await this.modPage.hasElementDisabled(e.sharePresentationButton, 'should disable the share presentation button when there is no presentation');
+    await this.modPage.hasElementDisabled(
+      e.sharePresentationButton,
+      'should disable the share presentation button when there is no presentation',
+    );
 
     await this.modPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the moderator');
     await this.modPage.wasRemoved(
@@ -860,8 +870,8 @@ export class Presentation extends MultiUsers {
       2,
       'should display both default and uploaded presentation on the manage presentations modal',
     );
-    await this.modPage.waitAndClick(e.removePresentation);  // remove first presentation
-    await this.modPage.waitAndClick(e.removePresentation);  // remove second presentation
+    await this.modPage.waitAndClick(e.removePresentation); // remove first presentation
+    await this.modPage.waitAndClick(e.removePresentation); // remove second presentation
 
     await this.modPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the moderator');
     await this.modPage.wasRemoved(
@@ -1030,5 +1040,65 @@ export class Presentation extends MultiUsers {
   // One page over maxNumPages, assumed to be the default 200
   async tooManyPagesIsRefused() {
     await uploadRefusedPresentation(this.modPage, buildPdfWithPages(201), e.presentationPageCountExceededLabel);
+  }
+
+  private async openPresentationManager() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.mediaAreaButton);
+    await this.modPage.waitAndClick(e.managePresentations);
+    await this.modPage.hasElement(
+      e.presentationFileUpload,
+      'should display the presentation space for uploading a new file, when the manage presentations is opened',
+    );
+    await this.modPage.hasElement(
+      e.presentationThumbnails,
+      'should list the current presentation in the presentation manager',
+    );
+  }
+
+  // The spec sets uploadSizeMax to the size of the mask sample PDF, so that file sits exactly on the limit
+  async fileOverSizeLimitIsNotSent() {
+    const atTheLimit = fixtureFile(e.maskSamplePdf);
+    const limit = atTheLimit.buffer.length;
+    const overTheLimit = {
+      name: 'over-the-limit.pdf',
+      mimeType: 'application/pdf',
+      buffer: Buffer.alloc(limit + 1, 0x25),
+    };
+    let uploads = 0;
+    this.modPage.page.on('request', (request) => {
+      if (request.method() === 'POST' && request.url().endsWith('/upload')) uploads += 1;
+    });
+
+    await this.openPresentationManager();
+    const thumbnailsBefore = await this.modPage.getSelectorCount(e.presentationThumbnails);
+    await this.modPage.page.setInputFiles(e.presentationFileUpload, [atTheLimit, overTheLimit]);
+
+    await expect(
+      this.modPage.page.locator(e.smallToastMsg).filter({ hasText: overTheLimit.name }),
+      'should say why the file was refused',
+    ).toContainText(`${e.presentationTooLargeLabel} ${(limit / 1000).toFixed(2)} kB`);
+    // The uploads of a drop start together, so once the file at the limit is listed every POST of the drop is out
+    await this.modPage.waitUntilHaveCountSelector(e.presentationThumbnails, thumbnailsBefore + 1, UPLOAD_PDF_WAIT_TIME);
+    expect(uploads, 'should send only the file at the limit').toBe(1);
+    await expect(
+      this.modPage.page.locator(e.presentationNames).filter({ hasText: overTheLimit.name }),
+      'should not add the refused file to the presentations',
+    ).toHaveCount(0);
+  }
+
+  // The spec sets uploadSizeMax to 50 MB and uploadPagesMax to 7
+  async uploadConstraintsHintShowsLimits() {
+    await this.openPresentationManager();
+    await this.modPage.hasText(
+      e.uploadConstraintsHint,
+      'each file may not exceed 50 MB and 7 pages',
+      'should display both limits on the upload panel',
+    );
+  }
+
+  async uploadConstraintsHintIsHidden() {
+    await this.openPresentationManager();
+    await this.modPage.wasRemoved(e.uploadConstraintsHint, 'should not display the limits when the hint is off');
   }
 }

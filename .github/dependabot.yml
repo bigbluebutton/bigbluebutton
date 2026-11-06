@@ -1,0 +1,37 @@
+# Base images of the Dockerfiles, checked weekly; one pull request per base image across all
+# directories, new major versions left out
+version: 2
+updates:
+  - package-ecosystem: docker
+    directories:
+      - /akka-bbb-apps
+      - /bbb-common-message
+      - /bbb-common-web
+      - /bbb-export-annotations
+      - /bbb-graphql-actions
+      - /bbb-graphql-middleware
+      - /bbb-graphql-server
+      - /bbb-learning-dashboard
+      - /bbb-libreoffice/docker
+      - /bbb-shared-notes-server
+      - /bigbluebutton-html5
+      - /bigbluebutton-web
+      - /docker/bbb-playback
+      - /docker/bbb-webhooks
+      - /docker/bbb-webrtc-recorder
+      - /docker/bbb-webrtc-sfu
+      - /docker/java-base
+      - /docker/nginx
+      - /record-and-playback
+    target-branch: v4.1.x-develop
+    schedule:
+      interval: weekly
+    groups:
+      base-images:
+        group-by: dependency-name
+        patterns:
+          - "*"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - version-update:semver-major

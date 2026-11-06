@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# Metadata values are kept as they were given and escaped in XML answers:
+# getMeetingInfo and getMeetings show the same value, and akka-apps'
+# metadata props hold it as it was given. XML answers collapse runs of
+# spaces.
+id: create.metadata.values
+title: create with a metadata value holding ${scenario}
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus]
+variants:
+  - {id: xml-characters, vars: {scenario: XML special characters, value: "<x> & \"q\" 'a'"}}
+  - {id: spaces, vars: {scenario: runs of spaces, value: "  lead and   inner  "}, class: compat}
+  - {id: empty, vars: {scenario: nothing, value: ""}}
+  - {id: non-ascii, vars: {scenario: text outside ASCII, value: "Zoë 日本"}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Metadata, meta_note: "${value}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.props.metadataProp]
+  - call: getMeetingInfo
+    params: {meetingID: "${uid}"}
+    expect: {returncode: SUCCESS}
+  - call: getMeetings
+    expect: {returncode: SUCCESS}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

@@ -1,0 +1,41 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A user whose userID is already in the meeting doesn't count again
+# against maxParticipants: once the meeting is full, join still lets them
+# in, and so does akka-apps when they enter. bbb-web leaves them out of
+# its attendees (same-user-id-listed.yaml).
+id: join.max-participants.same-user-id
+title: A user whose userID is already in a full meeting joins it again
+endpoint: join
+class: contract
+tags: [ci, presence]
+requires: [akka, presence]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Max participants, maxParticipants: "1"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: moderator, userID: ann}}
+    golden: off
+  # bbb-web learns of the join from akka-apps a moment later.
+  - call: getMeetingInfo
+    params: {meetingID: "${uid}"}
+    golden: off
+    eventually: {within: 10s, every: 200ms, until: {xpath: {/response/participantCount: "1"}}}
+    expect: {xpath: {/response/participantCount: "1"}}
+  - call: join
+    client: ann2
+    params: {meetingID: "${uid}", fullName: Ann again, role: viewer, userID: ann, redirect: "false"}
+    expect: {returncode: SUCCESS, messageKey: successfullyJoined}
+    capture: {ann2Token: /response/session_token}
+  - presence: {action: join, as: ann2, sessionToken: "${ann2Token}"}
+    expect: {jsonpath: {$.joined: "true", $.extId: ann}}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}
