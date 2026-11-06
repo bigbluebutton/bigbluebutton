@@ -5,9 +5,9 @@ import {
   injectIntl,
   WrappedComponentProps,
 } from 'react-intl';
-import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
 import withShortcutHelper from '/imports/ui/services/shortcuts/withShortcutHelper';
+import { getAccessKeyModifier } from './service';
 import { useIsChatEnabled } from '/imports/ui/services/features';
 import { uniqueId } from '/imports/utils/string-utils';
 import Styled from './styles';
@@ -300,36 +300,11 @@ const ShortcutHelpComponent: React.FC<ShortcutHelpComponentProps> = ({
   intl,
   shortcuts,
 }) => {
-  const { browserName } = browserInfo;
-  const { isIos, isMacos } = deviceInfo;
+  const { isMacos } = deviceInfo;
   const [selectedTab, setSelectedTab] = React.useState(0);
   const isChatEnabled = useIsChatEnabled();
 
-  let accessMod: string | null = null;
-
-  // different browsers use different access modifier keys
-  // on different systems when using accessKey property.
-  // Overview how different browsers behave: https://www.w3schools.com/jsref/prop_html_accesskey.asp
-  switch (browserName) {
-    case 'Chrome':
-    case 'Microsoft Edge':
-      accessMod = 'Alt';
-      break;
-    case 'Firefox':
-      accessMod = 'Alt + Shift';
-      break;
-    default:
-      break;
-  }
-
-  // all Browsers on iOS are using Control + Alt as access modifier
-  if (isIos) {
-    accessMod = 'Control + Alt';
-  }
-  // all Browsers on MacOS are using Control + Option as access modifier
-  if (isMacos) {
-    accessMod = 'Control + Option';
-  }
+  const accessMod = getAccessKeyModifier();
 
   const generalShortcutItems = shortcuts.map((shortcut) => {
     if (!isChatEnabled && shortcut.descId.indexOf('Chat') !== -1) return null;

@@ -5,6 +5,9 @@ import KEYS from '/imports/utils/keys';
 import deviceInfo from '/imports/utils/deviceInfo';
 import Styled from '../styles';
 import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
+import useShortcutTooltip from '/imports/ui/core/hooks/useShortcutTooltip';
+import useSettings from '/imports/ui/services/settings/hooks/useSettings';
+import { SETTINGS } from '/imports/ui/services/settings/enums';
 import useMuteSoundAlert from '/imports/ui/core/hooks/useMuteSoundAlert';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import useToggleVoice from '../../../hooks/useToggleVoice';
@@ -32,6 +35,10 @@ const intlMessages = defineMessages({
   umuteAudioAndSetActive: {
     id: 'app.actionsBar.unmuteAndSetActiveLabel',
     description: 'unmute audio button label when user is away',
+  },
+  pushToTalk: {
+    id: 'app.shortcut-help.pushToTalk',
+    description: 'describes the push-to-talk shortcut',
   },
 });
 
@@ -70,12 +77,18 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
 
   const intl = useIntl();
   const toggleMuteShourtcut = useShortcut('toggleMute');
+  const withShortcut = useShortcutTooltip();
+  const { pushToTalkEnabled } = useSettings(SETTINGS.APPLICATION) as { pushToTalkEnabled?: boolean };
   const toggleVoice = useToggleVoice();
   const MUTED_ALERT_ENABLED = isMutedAlertEnabled();
 
   const unmuteAudioLabel = away ? intlMessages.umuteAudioAndSetActive : intlMessages.unmuteAudio;
   const label = muted ? intl.formatMessage(unmuteAudioLabel)
     : intl.formatMessage(intlMessages.muteAudio);
+  const pushToTalkHint = pushToTalkEnabled
+    ? `${intl.formatMessage(intlMessages.pushToTalk)}: M`
+    : undefined;
+  const tooltipLabel = withShortcut(label, toggleMuteShourtcut, pushToTalkHint);
   const Settings = getSettingsSingletonInstance();
   const animations = Settings?.application?.animations;
   const isKeyDown = useRef<boolean>(false);
@@ -177,6 +190,7 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
         disabled={disabled || isAudioLocked || (mediaInterrupted && muted)}
         hideLabel
         label={label}
+        tooltipLabel={tooltipLabel}
         aria-label={label}
         color={!muted && !mediaInterrupted ? 'primary' : 'default'}
         icon={muted ? 'mute' : 'unmute'}

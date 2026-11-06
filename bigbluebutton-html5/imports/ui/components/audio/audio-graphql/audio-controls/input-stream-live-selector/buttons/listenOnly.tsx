@@ -1,5 +1,6 @@
 import React from 'react';
 import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
+import useShortcutTooltip from '/imports/ui/core/hooks/useShortcutTooltip';
 import { defineMessages, useIntl } from 'react-intl';
 import Button from '/imports/ui/components/common/button/component';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -31,6 +32,7 @@ export const ListenOnly: React.FC<ListenOnlyProps> = ({
 }) => {
   const intl = useIntl();
   const leaveAudioShourtcut = useShortcut('leaveAudio');
+  const withShortcut = useShortcutTooltip();
   return (
     // eslint-disable-next-line jsx-a11y/no-access-key
     <Button
@@ -38,6 +40,9 @@ export const ListenOnly: React.FC<ListenOnlyProps> = ({
       label={actAsDeviceSelector
         ? intl.formatMessage(intlMessages.changeAudioDevice)
         : intl.formatMessage(intlMessages.leaveAudio)}
+      tooltipLabel={actAsDeviceSelector
+        ? undefined
+        : withShortcut(intl.formatMessage(intlMessages.leaveAudio), leaveAudioShourtcut)}
       accessKey={leaveAudioShourtcut}
       data-test="leaveListenOnly"
       hideLabel

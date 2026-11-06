@@ -6,6 +6,7 @@ import { MediaAreaProps } from './types';
 import Styled from './styles';
 import MediaSharingModal from '/imports/ui/components/actions-bar/media-area/media-sharing/component';
 import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
+import useShortcutTooltip from '/imports/ui/core/hooks/useShortcutTooltip';
 import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
 
@@ -46,6 +47,7 @@ const MediaArea = (props: MediaAreaProps) => {
 
   const [menuOpen, setMenuOpen] = useState(false);
   const openMediaArea = useShortcut('openActions');
+  const withShortcut = useShortcutTooltip();
   const previousRequestedPresenter = useRef<boolean | null>(null);
 
   useEffect(() => {
@@ -80,6 +82,7 @@ const MediaArea = (props: MediaAreaProps) => {
         data-test="mediaAreaButton"
         accessKey={openMediaArea}
         label={intl.formatMessage(intlMessages.mediaLabel)}
+        tooltipLabel={withShortcut(intl.formatMessage(intlMessages.mediaLabel), openMediaArea)}
         icon="media-area"
         color={menuOpen ? 'primary' : 'default'}
         size={deviceInfo.isMobile ? 'md' : 'lg'}
