@@ -2,6 +2,7 @@ import React from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import AudioManager from '/imports/ui/services/audio-manager';
 import { BBBToggle } from '@bigbluebutton/bbb-ui-components-react/Toggle';
+import { BBBTypography } from '@bigbluebutton/bbb-ui-components-react/Typography';
 import BaseMenu from '../base/component';
 import SubMenusStyle from '../styles';
 import Styled from './styles';
@@ -114,23 +115,27 @@ class NotificationMenu extends BaseMenu {
     return (
       <SubMenusStyle.Section>
         <SubMenusStyle.Group>
-          <SubMenusStyle.Title>
+          <BBBTypography variant="selected" as="h3">
             {intl.formatMessage(intlMessages.notificationSectionTitle)}
-          </SubMenusStyle.Title>
-          <SubMenusStyle.SubTitle>
+          </BBBTypography>
+          <BBBTypography as="h4">
             {intl.formatMessage(intlMessages.notificationSectionDesc)}
-          </SubMenusStyle.SubTitle>
+          </BBBTypography>
         </SubMenusStyle.Group>
 
         <SubMenusStyle.Group>
           <SubMenusStyle.Row aria-hidden>
             <SubMenusStyle.Col />
-            <Styled.ColHeading>
-              {intl.formatMessage(intlMessages.audioAlertLabel)}
-            </Styled.ColHeading>
-            <Styled.ColHeading>
-              {intl.formatMessage(intlMessages.pushAlertLabel)}
-            </Styled.ColHeading>
+            <Styled.ToggleCol>
+              <BBBTypography variant="selected" as="span">
+                {intl.formatMessage(intlMessages.audioAlertLabel)}
+              </BBBTypography>
+            </Styled.ToggleCol>
+            <Styled.ToggleCol>
+              <BBBTypography variant="selected" as="span">
+                {intl.formatMessage(intlMessages.pushAlertLabel)}
+              </BBBTypography>
+            </Styled.ToggleCol>
           </SubMenusStyle.Row>
 
           {isChatEnabled

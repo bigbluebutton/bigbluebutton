@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { BBBTypography } from '@bigbluebutton/bbb-ui-components-react/Typography';
 import { defineMessages, injectIntl } from 'react-intl';
 import SubMenusStyle from '../styles';
 import Styled from './styles';
@@ -76,9 +77,9 @@ class About extends Component {
     } = settings;
 
     return (
-      <SubMenusStyle.Section tabIndex="-1">
+      <SubMenusStyle.Sections tabIndex="-1">
         <SubMenusStyle.Section>
-          <SubMenusStyle.Title>{intl.formatMessage(intlMessages.title)}</SubMenusStyle.Title>
+          <BBBTypography variant="selected" as="h3">{intl.formatMessage(intlMessages.title)}</BBBTypography>
           <SubMenusStyle.Group>
             <Styled.Text>
               {`${intl.formatMessage(intlMessages.copyright)} ${copyright}`}
@@ -95,7 +96,7 @@ class About extends Component {
         </SubMenusStyle.Section>
 
         <SubMenusStyle.Section>
-          <SubMenusStyle.Title>{intl.formatMessage(intlMessages.helpTitle)}</SubMenusStyle.Title>
+          <BBBTypography variant="selected" as="h3">{intl.formatMessage(intlMessages.helpTitle)}</BBBTypography>
           <SubMenusStyle.Group>
             <Styled.Text>
               {intl.formatMessage(intlMessages.beforeLink)}
@@ -111,7 +112,7 @@ class About extends Component {
             </Styled.Text>
           </SubMenusStyle.Group>
         </SubMenusStyle.Section>
-      </SubMenusStyle.Section>
+      </SubMenusStyle.Sections>
     );
   }
 }

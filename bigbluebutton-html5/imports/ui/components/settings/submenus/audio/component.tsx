@@ -1,4 +1,5 @@
 import React from 'react';
+import { BBBTypography } from '@bigbluebutton/bbb-ui-components-react/Typography';
 import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
 import SubMenusStyle from '../styles';
@@ -240,12 +241,12 @@ class AudioMenu extends BaseMenu {
     return (
       <SubMenusStyle.Section>
         <SubMenusStyle.Group>
-          <Styled.AudioTitle id={AUDIO_SECTION_TITLE_ID}>
+          <BBBTypography variant="selected" as="h3" id={AUDIO_SECTION_TITLE_ID}>
             {intl.formatMessage(intlMessages.audioTabTitle)}
-          </Styled.AudioTitle>
-          <Styled.AudioSubtitle>
+          </BBBTypography>
+          <BBBTypography as="h4">
             {intl.formatMessage(intlMessages.audioTabSubtitle)}
-          </Styled.AudioSubtitle>
+          </BBBTypography>
         </SubMenusStyle.Group>
         {this.renderAudioFilters()}
       </SubMenusStyle.Section>

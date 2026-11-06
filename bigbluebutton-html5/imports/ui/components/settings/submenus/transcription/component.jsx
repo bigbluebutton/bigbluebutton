@@ -1,5 +1,6 @@
 import React from 'react';
 import { BBBToggle } from '@bigbluebutton/bbb-ui-components-react/Toggle';
+import { BBBTypography } from '@bigbluebutton/bbb-ui-components-react/Typography';
 import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
 import Styled from '../styles';
@@ -38,12 +39,12 @@ class Transcription extends BaseMenu {
     return (
       <Styled.Section>
         <Styled.Group>
-          <Styled.Title>
+          <BBBTypography variant="selected" as="h3">
             {intl.formatMessage(intlMessages.transcriptionLabel)}
-          </Styled.Title>
-          <Styled.SubTitle>
+          </BBBTypography>
+          <BBBTypography as="h4">
             {intl.formatMessage(intlMessages.transcriptionDesc)}
-          </Styled.SubTitle>
+          </BBBTypography>
         </Styled.Group>
         <Styled.Group>
           <BBBToggle

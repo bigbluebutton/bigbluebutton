@@ -1,6 +1,7 @@
 import React from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import { BBBToggle } from '@bigbluebutton/bbb-ui-components-react/Toggle';
+import { BBBTypography } from '@bigbluebutton/bbb-ui-components-react/Typography';
 import BaseMenu from '../base/component';
 import Styled from '../styles';
 
@@ -45,8 +46,8 @@ class DataSaving extends BaseMenu {
     return (
       <Styled.Section>
         <Styled.Group>
-          <Styled.Title>{intl.formatMessage(intlMessages.dataSavingLabel)}</Styled.Title>
-          <Styled.SubTitle>{intl.formatMessage(intlMessages.dataSavingDesc)}</Styled.SubTitle>
+          <BBBTypography variant="selected" as="h3">{intl.formatMessage(intlMessages.dataSavingLabel)}</BBBTypography>
+          <BBBTypography as="h4">{intl.formatMessage(intlMessages.dataSavingDesc)}</BBBTypography>
         </Styled.Group>
         <Styled.Group>
           {isVideoEnabled && (

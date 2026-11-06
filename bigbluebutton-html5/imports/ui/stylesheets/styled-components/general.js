@@ -73,6 +73,7 @@ const settingsModalWidth = '70rem';
 const confirmationButtonMinWidth = '8.5rem';
 const settingsItemGap = '0.7rem';
 const settingsSectionGap = '1.5rem';
+const settingsTitleGap = '1rem';
 const titlePositionLeft = '2.2rem';
 const userIndicatorsOffset = '-5px';
 const indicatorPadding = '.45rem'; // used to center presenter indicator icon in Chrome / Firefox / Edge
@@ -277,6 +278,7 @@ export {
   confirmationButtonMinWidth,
   settingsItemGap,
   settingsSectionGap,
+  settingsTitleGap,
   borderRadiusRounded,
   avatarBorderRadius,
   moderatorAvatarBorderRadius,

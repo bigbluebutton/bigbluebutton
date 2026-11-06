@@ -1,14 +1,15 @@
 import styled from 'styled-components';
+import { appsPanelTextColor } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 
 const Text = styled.p`
   margin: 0;
   font-size: ${fontSizeBase};
-  color: #333;
+  color: ${appsPanelTextColor};
 `;
 
 const Link = styled.a`
-  color: #333;
+  color: ${appsPanelTextColor};
 `;
 
 export default {

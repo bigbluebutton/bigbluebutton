@@ -1,5 +1,6 @@
 import React from 'react';
 import { BBBToggle } from '@bigbluebutton/bbb-ui-components-react/Toggle';
+import { BBBTypography } from '@bigbluebutton/bbb-ui-components-react/Typography';
 import Button from '/imports/ui/components/common/button/component';
 import SubMenusStyle from '../styles';
 import LocalesDropdown from '/imports/ui/components/common/locales-dropdown/component';
@@ -331,11 +332,11 @@ class ApplicationMenu extends BaseMenu {
     const isDarkThemeEnabled = window.meetingClientSettings.public.app.darkTheme.enabled;
 
     return (
-      <SubMenusStyle.Section>
+      <SubMenusStyle.Sections>
         <SubMenusStyle.Section>
-          <SubMenusStyle.Title>
+          <BBBTypography variant="selected" as="h3">
             {intl.formatMessage(intlMessages.applicationSectionTitle)}
-          </SubMenusStyle.Title>
+          </BBBTypography>
           <Styled.ToggleGroup>
             {this.renderToggle('animations', intlMessages.animationsLabel, 'animationsToggleBtn')}
             {this.renderToggle('pushToTalkEnabled', intlMessages.pushToTalkLabel, 'pushToTalkToggleBtn')}
@@ -353,19 +354,19 @@ class ApplicationMenu extends BaseMenu {
         </SubMenusStyle.Section>
 
         <SubMenusStyle.Section>
-          <SubMenusStyle.Title>
+          <BBBTypography variant="selected" as="h3">
             {intl.formatMessage(intlMessages.languageLabel)}
-          </SubMenusStyle.Title>
+          </BBBTypography>
           {this.renderLanguageSelector()}
         </SubMenusStyle.Section>
 
         <SubMenusStyle.Section>
-          <SubMenusStyle.Title>
+          <BBBTypography variant="selected" as="h3">
             {intl.formatMessage(intlMessages.fontSizeControlLabel)}
-          </SubMenusStyle.Title>
+          </BBBTypography>
           {this.renderFontSizeControl()}
         </SubMenusStyle.Section>
-      </SubMenusStyle.Section>
+      </SubMenusStyle.Sections>
     );
   }
 }

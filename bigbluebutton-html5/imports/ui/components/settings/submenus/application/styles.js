@@ -1,12 +1,12 @@
 import styled from 'styled-components';
-import { colorGrayLabel } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorBlack, colorGrayLabel } from '/imports/ui/stylesheets/styled-components/palette';
 import SpinnerStyles from '/imports/ui/components/common/loading-screen/styles';
 import SubMenusStyle from '/imports/ui/components/settings/submenus/styles';
 import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 
 const SpinnerOverlay = styled(SpinnerStyles.Spinner)`
   & > div {
-    background-color: black;
+    background-color: ${colorBlack};
   }
 `;
 
