@@ -1,6 +1,8 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { injectIntl } from 'react-intl';
+import MenuItem from '@mui/material/MenuItem';
+import { BBBSelect } from '@bigbluebutton/bbb-ui-components-react';
 
 const DEFAULT_VALUE = 'select';
 const DEFAULT_KEY = -1;
@@ -9,12 +11,14 @@ const propTypes = {
   allLocales: PropTypes.arrayOf(PropTypes.object).isRequired,
   value: PropTypes.string,
   handleChange: PropTypes.func.isRequired,
-  elementId: PropTypes.string.isRequired,
   selectMessage: PropTypes.string.isRequired,
+  ariaLabel: PropTypes.string.isRequired,
+  dataTest: PropTypes.string,
 };
 
 const defaultProps = {
   value: null,
+  dataTest: undefined,
 };
 
 class LocalesDropdown extends PureComponent {
@@ -47,22 +51,22 @@ class LocalesDropdown extends PureComponent {
 
   render() {
     const {
-      value, handleChange, elementId, selectMessage, ariaLabel, intl,
+      value, handleChange, selectMessage, ariaLabel, intl, dataTest,
     } = this.props;
     const defaultLocale = value || DEFAULT_VALUE;
 
     const availableLocales = this.filterLocaleVariations(value);
 
     return (
-      <select
-        id={elementId}
+      <BBBSelect
         onChange={handleChange}
         value={defaultLocale}
-        aria-label={ariaLabel||''}
+        ariaLabel={ariaLabel}
+        data-test={dataTest}
       >
-        <option disabled key={DEFAULT_KEY} value={DEFAULT_VALUE}>
+        <MenuItem disabled key={DEFAULT_KEY} value={DEFAULT_VALUE}>
           {selectMessage}
-        </option>
+        </MenuItem>
         {availableLocales.map((localeItem) => {
           const localizedName = localeItem.locale !== value && intl.formatMessage({
             id: `app.submenu.application.localeDropdown.${localeItem.locale}`,
@@ -70,12 +74,12 @@ class LocalesDropdown extends PureComponent {
           });
 
           return (
-            <option key={localeItem.locale} value={localeItem.locale} lang={localeItem.locale}>
+            <MenuItem key={localeItem.locale} value={localeItem.locale} lang={localeItem.locale}>
               {localeItem.name}{localizedName && localizedName !== '-' && ` - ${localizedName}`}
-            </option>
+            </MenuItem>
           );
         })}
-      </select>
+      </BBBSelect>
     );
   }
 }

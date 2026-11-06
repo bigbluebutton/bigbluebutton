@@ -343,7 +343,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
   const [freeJoin, setFreeJoin] = useState(allowUserChooseRoomByDefault);
   const [captureSlides, setCaptureSlides] = useState(captureWhiteboardByDefault);
   const [captureNotes, setCaptureNotes] = useState(captureSharedNotesByDefault);
-  const [record, setRecord] = useState(forceRecord || recordRoomByDefault || false);
+  const [record, setRecord] = useState(isBreakoutRecordable && (forceRecord || recordRoomByDefault || false));
   const [inviteMods, setInviteMods] = useState(inviteModsByDefault);
   const [leastOneUserIsValid, setLeastOneUserIsValid] = useState(false);
   const [roomPresentations, setRoomPresentations] = useState<RoomPresentations>([]);
@@ -468,7 +468,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
 
     createBreakoutRoom({
       variables: {
-        record,
+        record: isBreakoutRecordable && record,
         captureNotes,
         captureSlides,
         durationInSeconds: breakoutDuration,
@@ -481,7 +481,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
       layoutContextDispatch({ type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL, value: PANELS.BREAKOUT });
     });
   }, [
-    numberOfRooms, freeJoin, record, captureNotes,
+    numberOfRooms, freeJoin, record, isBreakoutRecordable, captureNotes,
     captureSlides, inviteMods, inheritLockSettings, roomPresentations,
   ]);
 
