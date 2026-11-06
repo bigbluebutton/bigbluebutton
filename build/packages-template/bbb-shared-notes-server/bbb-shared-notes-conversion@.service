@@ -1,0 +1,42 @@
+[Unit]
+Description=BigBlueButton shared notes PDF conversion
+CollectMode=inactive-or-failed
+
+# One instance per connection to bbb-shared-notes-conversion.socket: it reads the
+# HTML from the connection and writes the PDF back. Limits can be changed with
+# `systemctl edit bbb-shared-notes-conversion@.service`; keep RuntimeMaxSec equal
+# to commandExecution.timeout of bbb-shared-notes-server.
+[Service]
+# wkhtmltopdf cannot write the PDF to stdout, so it goes through the private /tmp
+ExecStart=/bin/sh -c 'wkhtmltopdf -q --disable-local-file-access --encoding utf-8 --dpi 96 --page-size A4 --margin-top 0mm --margin-bottom 0mm --margin-left 0mm --margin-right 0mm --print-media-type --background --no-header-line - /tmp/out.pdf >/dev/null; cat /tmp/out.pdf'
+StandardInput=socket
+StandardOutput=socket
+StandardError=journal
+Environment=HOME=/tmp
+RuntimeMaxSec=30
+MemoryHigh=512M
+MemoryMax=640M
+MemorySwapMax=0
+TasksMax=32
+
+DynamicUser=yes
+PrivateTmp=yes
+PrivateNetwork=yes
+RestrictAddressFamilies=none
+# Allowlist: these trees are empty except for what wkhtmltopdf needs to render.
+# TemporaryFileSystem=/ cannot be used: ProtectSystem=strict, implied by
+# DynamicUser, takes its place.
+ProtectHome=yes
+TemporaryFileSystem=/etc:ro /var:ro /run:ro /opt:ro /srv:ro /mnt:ro /media:ro /usr/local:ro /usr/share:ro
+BindReadOnlyPaths=/etc/fonts /etc/ld.so.cache -/etc/localtime -/var/cache/fontconfig /usr/share/fonts -/usr/share/fontconfig
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictNamespaces=yes
+RestrictRealtime=yes
+LockPersonality=yes
+SystemCallFilter=@system-service
+SystemCallArchitectures=native

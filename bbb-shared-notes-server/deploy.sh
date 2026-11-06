@@ -33,9 +33,6 @@ sudo cp -r config /usr/share/bbb-shared-notes-server/
 
 sudo cp -r node_modules /usr/share/bbb-shared-notes-server
 
-# Copy script to run commands through `system-run --user`
-sudo cp run-in-systemd.sh /usr/share/bbb-shared-notes-server
-
 # Set nginx location
 sudo cp ../build/packages-template/bbb-shared-notes-server/bbb-shared-notes-server.nginx /usr/share/bigbluebutton/nginx
 
@@ -60,7 +57,12 @@ sudo runuser -u postgres -- psql -U postgres -d $HASURA_DATABASE_NAME -q -f /usr
 # Set service
 # mkdir -p /usr/lib/systemd/system
 sudo cp ../build/packages-template/bbb-shared-notes-server/bbb-shared-notes-server.service /usr/lib/systemd/system
-sudo systemctl enable bbb-shared-notes-server.service
+sudo cp ../build/packages-template/bbb-shared-notes-server/bbb-shared-notes-conversion.socket /usr/lib/systemd/system
+sudo cp ../build/packages-template/bbb-shared-notes-server/bbb-shared-notes-conversion@.service /usr/lib/systemd/system
+# PDF conversion no longer goes through `systemd-run --user`
+sudo rm -f /etc/systemd/system/bbb-shared-notes-server.service.d/10-user-session.conf /usr/share/bbb-shared-notes-server/run-in-systemd.sh
 sudo systemctl daemon-reload
+sudo systemctl enable bbb-shared-notes-server.service
+sudo systemctl enable --now bbb-shared-notes-conversion.socket
 sudo systemctl restart nginx
 sudo systemctl restart bbb-shared-notes-server.service

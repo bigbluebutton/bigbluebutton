@@ -10,7 +10,8 @@ hocuspocusServer:
 
 commandExecution:
   workDir: /tmp/shared-notes-dropbox/
-  runnerScript: /usr/share/bbb-shared-notes-server/run-in-systemd.sh
+  # Socket of bbb-shared-notes-conversion.socket, which converts HTML to PDF
+  conversionSocket: /run/bbb-shared-notes-conversion.sock
   timeout: 30
 
 bbbWeb:
