@@ -32,6 +32,7 @@ const getWaitLayout = () => {
 };
 
 /**
+ * @param {boolean} isChatEnabled
  * @returns {string | null} PANELS.USERLIST, PANELS.CHAT, or null when no panel should open.
  */
 const getInitialSidebarContentPanel = (isChatEnabled) => {
