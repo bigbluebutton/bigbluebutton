@@ -16,7 +16,7 @@ const BackButton : React.FC<BackButtonProps> = ({ onClick, title }) => {
       {/* eslint-disable-next-line jsx-a11y/no-access-key */}
       <Styled.InputWrapper data-test="privateChatBackButton" accessKey={CLOSE_CHAT_AK}>
         <Styled.ArrowWrapper>
-          <ArrowBackIosNewIcon fontSize="small" sx={{ marginRight: '8px', backgroundColor: '#E3F2FD' }} />
+          <ArrowBackIosNewIcon fontSize="small" sx={{ marginRight: '8px' }} />
         </Styled.ArrowWrapper>
         <Typography variant="body2" fontWeight="bold" sx={{ paddingLeft: '1rem' }}>
           {title}

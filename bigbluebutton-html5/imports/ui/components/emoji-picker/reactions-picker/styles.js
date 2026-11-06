@@ -1,4 +1,7 @@
 import styled, { css } from 'styled-components';
+import {
+  colorSurfaceNeutral,
+} from '/imports/ui/stylesheets/styled-components/palette';
 
 const EmojiWrapper = styled.span`
   padding-top: 0.9em;
@@ -8,8 +11,8 @@ const EmojiWrapper = styled.span`
       border-radius:100%;
       outline-color: transparent;
       outline-style:solid;
-      box-shadow: 0 0 0 0.25em #eee;
-      background-color: #eee;
+      box-shadow: 0 0 0 0.25em ${colorSurfaceNeutral};
+      background-color: ${colorSurfaceNeutral};
       opacity: 0.75;
     }
   `}
@@ -25,8 +28,8 @@ const EmojiWrapper = styled.span`
     border-radius:100%;
     outline-color: transparent;
     outline-style:solid;
-    box-shadow: 0 0 0 0.25em #eee;
-    background-color: #eee;
+    box-shadow: 0 0 0 0.25em ${colorSurfaceNeutral};
+    background-color: ${colorSurfaceNeutral};
   `}
 `;
 

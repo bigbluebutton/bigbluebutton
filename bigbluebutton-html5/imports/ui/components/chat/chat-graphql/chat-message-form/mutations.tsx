@@ -2,11 +2,17 @@ import { gql } from '@apollo/client';
 
 // Define the GraphQL mutation
 export const CHAT_SEND_MESSAGE = gql`
-  mutation ChatSendMessage($chatId: String!, $chatMessageInMarkdownFormat: String!, $replyToMessageId: String) {
+  mutation ChatSendMessage(
+    $chatId: String!,
+    $chatMessageInMarkdownFormat: String!,
+    $replyToMessageId: String,
+    $metadata: json
+  ) {
     chatSendMessage(
       chatId: $chatId,
       chatMessageInMarkdownFormat: $chatMessageInMarkdownFormat,
-      replyToMessageId: $replyToMessageId
+      replyToMessageId: $replyToMessageId,
+      metadata: $metadata
     )
   }
 `;

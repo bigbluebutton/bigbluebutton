@@ -1,6 +1,8 @@
 package org.bigbluebutton.core.apps.breakout
 
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.api.UpdateBreakoutUserAccessInternalMsg
+import org.bigbluebutton.core.bus.BigBlueButtonEvent
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
@@ -25,12 +27,19 @@ trait RequestBreakoutJoinURLReqMsgHdlr extends RightsManagementTrait {
       } yield {
         if (requesterUser.role == Roles.MODERATOR_ROLE || room.freeJoin) {
 
+          eventBus.publish(BigBlueButtonEvent(room.id, UpdateBreakoutUserAccessInternalMsg(
+            liveMeeting.props.meetingProp.intId,
+            room.id,
+            requesterUser.intId + "-" + room.sequence,
+            revoked = false
+          )))
+
           BreakoutRoomUserDAO.insertBreakoutRoom(requesterUser.intId, room, liveMeeting)
 
           BreakoutHdlrHelpers.sendJoinURL(
             liveMeeting,
             outGW,
-            msg.body.userId,
+            requesterUser.intId,
             room.externalId,
             room.sequence.toString(),
             room.id

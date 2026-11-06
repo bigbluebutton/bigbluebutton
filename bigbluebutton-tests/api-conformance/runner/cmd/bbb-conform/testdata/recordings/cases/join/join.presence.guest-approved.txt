@@ -1,0 +1,68 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case join.presence.guest-approved
+target fake
+
+== step 1: call create
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "SUCCESS"
+/response/meetingID "${uid}"
+/response/internalMeetingID "<sha1(meetingID)>-<time>"
+/response/attendeePW "<random>"
+/response/moderatorPW "<random>"
+/response/createTime "<time>"
+/response/messageKey
+/response/message
+
+== step 2: presence join as mod
+$.ejectReasonCode null
+$.ejected null
+$.extId "w_<id>"
+$.guest false
+$.guestStatus "ALLOW"
+$.isModerator true
+$.joinErrorCode null
+$.joinErrorMessage null
+$.joined true
+$.loggedOut false
+$.name "Mod"
+$.role "MODERATOR"
+$.sessionToken "<token>"
+$.userId "w_<id>"
+
+== step 3: presence join as eve
+$.ejectReasonCode null
+$.ejected null
+$.extId "w_<id>"
+$.guest true
+$.guestStatus "WAIT"
+$.isModerator false
+$.joinErrorCode null
+$.joinErrorMessage null
+$.joined false
+$.loggedOut false
+$.name "Eve"
+$.role "VIEWER"
+$.sessionToken "<token>"
+$.userId "w_<id>"
+
+== step 4: graphql mutation Approve as mod
+$.data.guestUsersSubmitApprovalStatus true
+
+== step 5: presence join as eve
+$.ejectReasonCode null
+$.ejected null
+$.extId "w_<id>"
+$.guest true
+$.guestStatus "ALLOW"
+$.isModerator false
+$.joinErrorCode null
+$.joinErrorMessage null
+$.joined true
+$.loggedOut false
+$.name "Eve"
+$.role "VIEWER"
+$.sessionToken "<token>"
+$.userId "w_<id>"

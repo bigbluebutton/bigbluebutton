@@ -1,0 +1,13 @@
+<include>
+    <!--
+        The meeting's transparent listen-only bridge (bbb-webrtc-sfu @ FSConsumerBridge)
+        joins the conference with a caller-id name of GLOBAL_AUDIO_<voiceConf>. It only
+        extracts the conference mixed audio to redistribute to listen only/outbound channels.
+        This dialplan ensures that unidirectionality is enforced.
+    -->
+    <extension name="bbb_global_audio_listen_only" continue="true">
+      <condition field="${caller_id_name}" expression="^GLOBAL_AUDIO_" break="on-false">
+        <action application="set" data="conference_member_flags=mute"/>
+      </condition>
+    </extension>
+</include>

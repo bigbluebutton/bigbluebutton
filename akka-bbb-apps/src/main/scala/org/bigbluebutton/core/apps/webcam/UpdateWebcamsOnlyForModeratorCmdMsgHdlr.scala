@@ -4,10 +4,8 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.PermissionCheck
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.db.{ MeetingUsersPoliciesDAO, NotificationDAO }
-import org.bigbluebutton.core.models.{ RegisteredUsers, Roles, Users2x }
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core2.message.senders.MsgBuilder
-import org.bigbluebutton.core.graphql.GraphqlMiddleware
 
 trait UpdateWebcamsOnlyForModeratorCmdMsgHdlr {
   this: WebcamApp2x =>
@@ -81,15 +79,9 @@ trait UpdateWebcamsOnlyForModeratorCmdMsgHdlr {
 
             broadcastEvent(meetingId, msg.body.setBy, value)
 
-            //Refresh graphql session for all locked viewers
-            for {
-              user <- Users2x.findAll(liveMeeting.users2x)
-              if user.locked
-              if user.role == Roles.VIEWER_ROLE
-              regUser <- RegisteredUsers.findWithUserId(user.intId, liveMeeting.registeredUsers)
-            } yield {
-              GraphqlMiddleware.requestGraphqlReconnection(regUser.sessionToken, "webcamOnlyForMod_changed")
-            }
+            // No GraphQL reconnection is required here: the Hasura permission rule of
+            // v_user_camera reads webcamsOnlyForModerator from v_meeting_lockSettings,
+            // so the MeetingUsersPoliciesDAO update above already propagates the change.
           }
           case _ =>
         }

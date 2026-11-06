@@ -1,0 +1,11 @@
+/var/log/turnserver/*.log
+{
+	rotate 7
+	daily
+	missingok
+	notifempty
+	compress
+	postrotate
+		/bin/systemctl kill -s HUP coturn.service
+	endscript
+}

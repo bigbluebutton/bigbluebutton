@@ -15,17 +15,20 @@ export interface TestPublication {
 
 export interface TestRemotePublication extends TestPublication {
   isSubscribed: boolean;
+  isEnabled?: boolean;
   track?: { mediaStreamTrack?: MediaStreamTrack; receiver?: RTCRtpReceiver };
 }
 
 export interface TestRemoteParticipant {
   identity: string;
+  isSpeaking?: boolean;
   audioTrackPublications: Map<string, TestRemotePublication>;
 }
 
 export interface TestRoom {
   state: string;
   localParticipant: {
+    isSpeaking?: boolean;
     audioTrackPublications: Map<string, TestPublication>;
     setMicrophoneEnabled: (enabled: boolean) => Promise<unknown>;
     permissions?: { canPublish: boolean; canSubscribe: boolean };
@@ -86,6 +89,7 @@ export interface LocalMicState {
   allMuted: boolean;
   canPublish: boolean;
   canSubscribe: boolean;
+  trackSids: string[];
 }
 
 export const getLocalMicState = (page: PlaywrightPage): Promise<LocalMicState> =>
@@ -104,8 +108,61 @@ export const getLocalMicState = (page: PlaywrightPage): Promise<LocalMicState> =
       allMuted: pubs.length === 0 || pubs.every((pub) => pub.isMuted),
       canPublish: room.localParticipant.permissions?.canPublish ?? false,
       canSubscribe: room.localParticipant.permissions?.canSubscribe ?? false,
+      trackSids: pubs.map((pub) => pub.trackSid).filter((sid): sid is string => !!sid),
     };
   }, LK_NOT_EXPOSED_ERR_MSG);
+
+export interface MicContinuitySample {
+  atMs: number;
+  trackSids: string[];
+  micPublications: number;
+  allMuted: boolean;
+}
+
+// Samples the local mic publication continuously. The bug this guards against
+// is transient: a republish mutes the new track and a corrective unmute may win
+// the race. Sampling proves the invariant held throughout, not just at the end.
+export const startLocalMicWatch = (page: PlaywrightPage, intervalMs = 100): Promise<void> =>
+  page.evaluate((interval) => {
+    const w = window as TestWindow & {
+      bbbMicWatchSamples?: MicContinuitySample[];
+      bbbMicWatchTimer?: ReturnType<typeof setInterval>;
+    };
+
+    if (w.bbbMicWatchTimer) clearInterval(w.bbbMicWatchTimer);
+
+    w.bbbMicWatchSamples = [];
+
+    w.bbbMicWatchTimer = setInterval(() => {
+      const room = w.liveKitRoom;
+
+      if (!room) return;
+
+      const pubs = Array.from(room.localParticipant.audioTrackPublications.values()).filter(
+        (pub) => pub.source === 'microphone',
+      );
+
+      w.bbbMicWatchSamples?.push({
+        atMs: Date.now(),
+        trackSids: pubs.map((pub) => pub.trackSid).filter((sid): sid is string => !!sid),
+        micPublications: pubs.length,
+        allMuted: pubs.length === 0 || pubs.every((pub) => pub.isMuted),
+      });
+    }, interval);
+  }, intervalMs);
+
+export const stopLocalMicWatch = (page: PlaywrightPage): Promise<MicContinuitySample[]> =>
+  page.evaluate(() => {
+    const w = window as TestWindow & {
+      bbbMicWatchSamples?: MicContinuitySample[];
+      bbbMicWatchTimer?: ReturnType<typeof setInterval>;
+    };
+
+    if (w.bbbMicWatchTimer) clearInterval(w.bbbMicWatchTimer);
+    w.bbbMicWatchTimer = undefined;
+
+    return w.bbbMicWatchSamples ?? [];
+  });
 
 // Identities of LK users publishing an unmuted mic track. LiveKit identity == BBB intId for web users.
 export const getAudioPublisherIdentities = (page: PlaywrightPage): Promise<string[]> =>
@@ -128,8 +185,11 @@ export interface RemoteAudioState {
   micPublications: number;
   unmuted: number;
   subscribed: number;
+  // Subscribed and not paused with setEnabled(false).
+  enabled: number;
   liveTracks: number;
   packetsReceived: number;
+  trackSids: string[];
 }
 
 // What this page could hear from each remote participant. The distinctions matter:
@@ -169,8 +229,10 @@ export const getRemoteAudioStates = (page: PlaywrightPage): Promise<RemoteAudioS
           micPublications: mics.length,
           unmuted: mics.filter((pub) => !pub.isMuted).length,
           subscribed: mics.filter((pub) => pub.isSubscribed).length,
+          enabled: mics.filter((pub) => pub.isSubscribed && pub.isEnabled !== false).length,
           liveTracks: mics.filter((pub) => pub.track?.mediaStreamTrack?.readyState === 'live').length,
           packetsReceived,
+          trackSids: mics.map((pub) => pub.trackSid).filter((sid): sid is string => !!sid),
         };
       }),
     );

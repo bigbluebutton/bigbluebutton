@@ -421,6 +421,7 @@ Here are the following lists the possible WebRTC error messages that a user may 
 | **3004**       | Connection is unstable. Please check your internet connection   | GraphQL is connected but not receiving data, and RTT is critically high.               |
 | **3005**       | Data is loading slowly. Reconnection in progress                | GraphQL is connected and receiving data, but the Hasura PING signal is missing.        |
 | **3006**       | Some live data could not be loaded. Please refresh your client  | One or more GraphQL subscriptions returned an error.                                  |
+| **3007**       | Too much live data is open at once. Please refresh your client  | The server refused a subscription because the connection reached `max_connection_concurrent_subscriptions` in bbb-graphql-middleware. New data cannot load until the client reconnects. |
 
 #### Additional Notes
 
@@ -446,17 +447,18 @@ If the browser is older than the required version, the main client bundle is not
 
 BigBlueButton supports the following browsers and minimum versions:
 
-* Safari — 14 or newer
+* Safari — 14.1 or newer
 * Chrome — 87 or newer
 * Firefox — 80 or newer
 * Microsoft Edge — 85 or newer
 * MiuiBrowser — not supported
 
-For Safari versions between 14 and 15, a special compatibility bundle is automatically loaded to ensure proper functionality. All other supported browsers use the standard client bundle.
+For Safari 14.1 through 15.x, a special compatibility bundle is automatically loaded to ensure proper functionality. All other supported browsers use the standard client bundle.
 
 #### Notes
 
 * Any browser below the listed minimum version will display the unsupported browser banner and will not load the BigBlueButton client.
+* Every browser on iOS and iPadOS 14 runs on the system WebKit, so the Safari minimum applies to all of them: iOS or iPadOS 14.5 (Safari 14.1) or newer.
 * Browsers must support **WebRTC** for audio, video, and screen sharing to function properly. You can verify WebRTC support using [https://test.webrtc.org/](https://test.webrtc.org/).
 
 

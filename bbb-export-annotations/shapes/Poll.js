@@ -1,6 +1,21 @@
 import { Geo } from './Geo.js';
 
 /**
+ * Escapes XML metacharacters for SVG text interpolation.
+ * @param {*} value - The value to escape.
+ * @return {string} The escaped string.
+ */
+function escapeXml(value) {
+  return String(value).replace(/[<>&"']/g, (c) => ({
+    '<': '&lt;',
+    '>': '&gt;',
+    '&': '&amp;',
+    '"': '&quot;',
+    '\'': '&apos;',
+  }[c]));
+}
+
+/**
  * Creates an SVG poll shape from Tldraw v2 JSON data.
  *
  * @class Poll
@@ -132,11 +147,13 @@ export class Poll extends Geo {
 
       // emoji does not work for now, using HTML entity
       const checkmark = "&#10004;";
-      let displayText = (isQuiz && answers[i].isCorrectAnswer ? checkmark + ' ' : '') + label;
+      let labelText = label;
 
-      if (displayText.length > 20) {
-        displayText = displayText.slice(0, 20) + '...';
+      if (labelText.length > 20) {
+        labelText = labelText.slice(0, 20) + '...';
       }
+
+      const displayText = (isQuiz && answers[i].isCorrectAnswer ? checkmark + ' ' : '') + escapeXml(labelText);
 
       bars += `
         <rect x="${x}" y="${y}" width="${w}" height="${barHeight}" rx="4" ry="4" fill="${barColor}" />
@@ -155,7 +172,7 @@ export class Poll extends Geo {
     }).join('');
 
     const titleMarkup = titleLines.map((line, i) => {
-      return `<text x="${width / 2}" y="${20 + titleFontSize / 2 + i * titleFontSize}" font-size="${titleFontSize}" text-anchor="middle" fill="#000">${line}</text>`;
+      return `<text x="${width / 2}" y="${20 + titleFontSize / 2 + i * titleFontSize}" font-size="${titleFontSize}" text-anchor="middle" fill="#000">${escapeXml(line)}</text>`;
     }).join('');
 
     return `

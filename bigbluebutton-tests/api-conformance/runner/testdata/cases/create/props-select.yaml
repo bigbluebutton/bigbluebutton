@@ -1,0 +1,25 @@
+# A bus step's select records only the parts of the message it names, here
+# the voice props and a part the message lacks, which is recorded as absent.
+# expect and capture still see the whole message.
+id: create.props.selected
+title: Only the selected props are recorded
+endpoint: create
+class: contract
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Selected, muteOnStart: "true"}
+    golden: off
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.props.voiceProp, $.core.body.props.noSuchProp]
+    expect:
+      jsonpath:
+        $.core.body.props.meetingProp.name: Selected
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

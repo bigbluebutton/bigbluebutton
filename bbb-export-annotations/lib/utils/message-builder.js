@@ -1,5 +1,4 @@
-import fs from 'fs';
-const config = JSON.parse(fs.readFileSync('./config/settings.json', 'utf8'));
+import config from './config.js';
 
 const EXPORT_STATUSES = Object.freeze({
   COLLECTING: 'COLLECTING',

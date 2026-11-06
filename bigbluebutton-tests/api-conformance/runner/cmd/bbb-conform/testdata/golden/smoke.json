@@ -1,0 +1,907 @@
+{
+  "target": "fake",
+  "started": "2026-01-01T00:00:00Z",
+  "duration_ms": 0,
+  "counts": {
+    "total": 13,
+    "passed": 13,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "cases": [
+    {
+      "id": "create.smoke.lifecycle",
+      "title": "create, then getMeetingInfo, then end",
+      "endpoint": "create",
+      "class": "contract",
+      "area": "create",
+      "file": "../../testdata/smoke/create/lifecycle.yaml",
+      "line": 1,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 8,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/create?meetingID=uid-000&name=Smoke+test&checksum=2062c402c37c1c7106d7482782e5ac263e127dee02e48a8add93ec2f8a9fb657",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "326",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetingID>uid-000</meetingID><internalMeetingID>5ad06ac5d96e06b65e14f5a5ab9de09aae9d65b0-1760000000001</internalMeetingID><attendeePW>ap000001</attendeePW><moderatorPW>mp000001</moderatorPW><createTime>1760000000001</createTime><messageKey></messageKey><message></message></response>"
+          },
+          "assertions": [
+            {
+              "what": "returncode",
+              "expected": "\"SUCCESS\"",
+              "actual": "\"SUCCESS\"",
+              "ok": true
+            },
+            {
+              "what": "xpath /response/internalMeetingID",
+              "expected": "matching /^[0-9a-f]{40}-[0-9]+$/",
+              "actual": "\"5ad06ac5d96e06b65e14f5a5ab9de09aae9d65b0-1760000000001\"",
+              "ok": true
+            }
+          ],
+          "captured": {
+            "intId": "5ad06ac5d96e06b65e14f5a5ab9de09aae9d65b0-1760000000001"
+          }
+        },
+        {
+          "index": 1,
+          "kind": "call",
+          "line": 15,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/getMeetingInfo?meetingID=uid-000&checksum=c7a1738f79958d91bf0eafaf426249f4689bbc7394eb0c3c56db094313e357d6",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "296",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetingName>Smoke test</meetingName><meetingID>uid-000</meetingID><internalMeetingID>5ad06ac5d96e06b65e14f5a5ab9de09aae9d65b0-1760000000001</internalMeetingID><createTime>1760000000001</createTime><running>false</running><metadata></metadata></response>"
+          },
+          "assertions": [
+            {
+              "what": "returncode",
+              "expected": "\"SUCCESS\"",
+              "actual": "\"SUCCESS\"",
+              "ok": true
+            },
+            {
+              "what": "xpath /response/meetingName",
+              "expected": "\"Smoke test\"",
+              "actual": "\"Smoke test\"",
+              "ok": true
+            },
+            {
+              "what": "xpath /response/internalMeetingID",
+              "expected": "\"5ad06ac5d96e06b65e14f5a5ab9de09aae9d65b0-1760000000001\"",
+              "actual": "\"5ad06ac5d96e06b65e14f5a5ab9de09aae9d65b0-1760000000001\"",
+              "ok": true
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "kind": "call",
+          "line": 22,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-000&checksum=bdd289d668fa938489cc7aa361bb4c52287f87820d1d40a35611f0f8bee1f652",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "275",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><messageKey>sentEndMeetingRequest</messageKey><message>A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended.</message></response>"
+          },
+          "assertions": [
+            {
+              "what": "returncode",
+              "expected": "\"SUCCESS\"",
+              "actual": "\"SUCCESS\"",
+              "ok": true
+            },
+            {
+              "what": "messageKey",
+              "expected": "\"sentEndMeetingRequest\"",
+              "actual": "\"sentEndMeetingRequest\"",
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "teardown": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 28,
+          "status": "PASS",
+          "attempts": 0,
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-000&checksum=bdd289d668fa938489cc7aa361bb4c52287f87820d1d40a35611f0f8bee1f652",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "194",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>FAILED</returncode><messageKey>notFound</messageKey><message>We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?</message></response>"
+          }
+        }
+      ]
+    },
+    {
+      "id": "create.smoke.side-effects",
+      "title": "create and end show on the bus, in redis and on disk",
+      "endpoint": "create",
+      "class": "contract",
+      "area": "create",
+      "file": "../../testdata/smoke/create/side-effects.yaml",
+      "line": 2,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 8,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/create?meetingID=uid-001&name=Smoke+props&record=true&muteOnStart=true&meta_Smoke=yes&checksum=f33cc064501c590143f99b5125966b291cf83ac5e51a27752b719056cb579510",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "326",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetingID>uid-001</meetingID><internalMeetingID>883cdcfb2cea59445da842d0031984b344a4a932-1760000000002</internalMeetingID><attendeePW>ap000002</attendeePW><moderatorPW>mp000002</moderatorPW><createTime>1760000000002</createTime><messageKey></messageKey><message></message></response>"
+          },
+          "assertions": [
+            {
+              "what": "returncode",
+              "expected": "\"SUCCESS\"",
+              "actual": "\"SUCCESS\"",
+              "ok": true
+            }
+          ],
+          "captured": {
+            "intId": "883cdcfb2cea59445da842d0031984b344a4a932-1760000000002"
+          }
+        },
+        {
+          "index": 1,
+          "kind": "bus",
+          "line": 12,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "BUS",
+            "url": "http://fake.test/bus?meetingId=883cdcfb2cea59445da842d0031984b344a4a932-1760000000002&name=MeetingCreatedEvtMsg"
+          },
+          "document": "{\"channel\":\"from-akka-apps-redis-channel\",\"core\":{\"body\":{\"props\":{\"durationProps\":{\"createdDate\":\"Thu Oct 09 08:53:20 UTC 2025\",\"createdTime\":1760000000002,\"duration\":0},\"meetingProp\":{\"extId\":\"uid-001\",\"intId\":\"883cdcfb2cea59445da842d0031984b344a4a932-1760000000002\",\"isBreakout\":false,\"name\":\"Smoke props\"},\"metadataProp\":{\"metadata\":{\"smoke\":\"yes\"}},\"password\":{\"moderatorPass\":\"mp000002\",\"viewerPass\":\"ap000002\"},\"recordProp\":{\"keepEvents\":false,\"record\":true},\"voiceProp\":{\"dialNumber\":\"613-555-1234\",\"muteOnStart\":true,\"telVoice\":\"70002\",\"voiceConf\":\"70002\"}}},\"header\":{\"name\":\"MeetingCreatedEvtMsg\"}},\"envelope\":{\"name\":\"MeetingCreatedEvtMsg\",\"routing\":{\"sender\":\"bbb-apps-akka\"},\"timestamp\":1760000000002}}",
+          "assertions": [
+            {
+              "what": "bus MeetingCreatedEvtMsg",
+              "expected": "a message within 5s",
+              "actual": "one",
+              "ok": true
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "kind": "redis",
+          "line": 17,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "REDIS",
+            "url": "http://fake.test/redis?key=meeting%3Ainfo%3A883cdcfb2cea59445da842d0031984b344a4a932-1760000000002"
+          },
+          "document": "{\"key\":\"meeting:info:883cdcfb2cea59445da842d0031984b344a4a932-1760000000002\",\"type\":\"hash\",\"ttl\":-1,\"value\":{\"isBreakout\":\"false\",\"meetingId\":\"uid-001\",\"meetingName\":\"Smoke props\",\"smoke\":\"yes\"}}",
+          "assertions": [
+            {
+              "what": "redis meeting:info:883cdcfb2cea59445da842d0031984b344a4a932-1760000000002",
+              "expected": "present within 5s",
+              "actual": "a hash",
+              "ok": true
+            },
+            {
+              "what": "hash smoke",
+              "expected": "\"yes\"",
+              "actual": "\"yes\"",
+              "ok": true
+            },
+            {
+              "what": "hash meetingId",
+              "expected": "\"uid-001\"",
+              "actual": "\"uid-001\"",
+              "ok": true
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "kind": "call",
+          "line": 20,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-001&checksum=876b44210170af4978c14aeb31bd72f47d61d915d4b49484788b4c47dde10c89",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "275",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><messageKey>sentEndMeetingRequest</messageKey><message>A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended.</message></response>"
+          },
+          "assertions": [
+            {
+              "what": "returncode",
+              "expected": "\"SUCCESS\"",
+              "actual": "\"SUCCESS\"",
+              "ok": true
+            }
+          ]
+        },
+        {
+          "index": 4,
+          "kind": "fs",
+          "line": 23,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "FS",
+            "url": "http://fake.test/fs?path=recording%2Fstatus%2Frecorded%2F883cdcfb2cea59445da842d0031984b344a4a932-1760000000002.done"
+          },
+          "document": "{\"found\":true,\"path\":\"recording/status/recorded/883cdcfb2cea59445da842d0031984b344a4a932-1760000000002.done\"}",
+          "assertions": [
+            {
+              "what": "fs recording/status/recorded/883cdcfb2cea59445da842d0031984b344a4a932-1760000000002.done",
+              "expected": "a file within 5s",
+              "actual": "one",
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "teardown": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 28,
+          "status": "PASS",
+          "attempts": 0,
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-001&checksum=876b44210170af4978c14aeb31bd72f47d61d915d4b49484788b4c47dde10c89",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "194",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>FAILED</returncode><messageKey>notFound</messageKey><message>We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?</message></response>"
+          }
+        }
+      ]
+    },
+    {
+      "id": "getMeetingInfo.smoke.json-error",
+      "title": "Errors come back as JSON when the client asks for JSON",
+      "endpoint": "getMeetingInfo",
+      "class": "contract",
+      "area": "getMeetingInfo",
+      "file": "../../testdata/smoke/getMeetingInfo/json-error.yaml",
+      "line": 1,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 7,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/getMeetingInfo?meetingID=uid-002&checksum=08a1c1b2239d2d839b471c14c366e0c70af6262cd3732a18669653442acc8d49",
+            "headers": {
+              "Accept": "application/json",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "json",
+            "headers": {
+              "Content-Length": "121",
+              "Content-Type": "application/json"
+            },
+            "body": "{\"response\":{\"message\":\"We could not find a meeting with that meeting ID\",\"messageKey\":\"notFound\",\"returncode\":\"FAILED\"}}"
+          },
+          "assertions": [
+            {
+              "what": "format",
+              "expected": "json",
+              "actual": "json",
+              "ok": true
+            },
+            {
+              "what": "returncode",
+              "expected": "\"FAILED\"",
+              "actual": "\"FAILED\"",
+              "ok": true
+            },
+            {
+              "what": "messageKey",
+              "expected": "\"notFound\"",
+              "actual": "\"notFound\"",
+              "ok": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "getMeetings.smoke.checksum-accepted-sha1",
+      "title": "Every algorithm, upper-case hex and each placement are accepted",
+      "endpoint": "getMeetings",
+      "class": "contract",
+      "variant": "sha1",
+      "area": "getMeetings",
+      "file": "../../testdata/smoke/getMeetings/checksum-accepted.yaml",
+      "line": 1,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 15,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/getMeetings?a=1&b=2&checksum=947989e8bcec639546fa32860fb7d0242cfd73ed",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "155",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetings/><messageKey>noMeetings</messageKey><message>no meetings were found on this server</message></response>"
+          },
+          "assertions": [
+            {
+              "what": "returncode",
+              "expected": "\"SUCCESS\"",
+              "actual": "\"SUCCESS\"",
+              "ok": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "getMeetings.smoke.checksum-accepted-sha256",
+      "title": "Every algorithm, upper-case hex and each placement are accepted",
+      "endpoint": "getMeetings",
+      "class": "contract",
+      "variant": "sha256",
+      "area": "getMeetings",
+      "file": "../../testdata/smoke/getMeetings/checksum-accepted.yaml",
+      "line": 1,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 15,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/getMeetings?a=1&b=2&checksum=1047766ff8609e0c04acf4cce5fa28cb41c3c4ec6f4c55fe2d8fb7007a5236c5",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "155",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetings/><messageKey>noMeetings</messageKey><message>no meetings were found on this server</message></response>"
+          },
+          "assertions": [
+            {
+              "what": "returncode",
+              "expected": "\"SUCCESS\"",
+              "actual": "\"SUCCESS\"",
+              "ok": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "getMeetings.smoke.checksum-accepted-sha384",
+      "title": "Every algorithm, upper-case hex and each placement are accepted",
+      "endpoint": "getMeetings",
+      "class": "contract",
+      "variant": "sha384",
+      "area": "getMeetings",
+      "file": "../../testdata/smoke/getMeetings/checksum-accepted.yaml",
+      "line": 1,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 15,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/getMeetings?a=1&b=2&checksum=725cf2f64ea972fb0a0fadf6469402afcc07d7035eddaf792ede87ddca61e8864cbd8f5f06631cb4bd51a915ed8c3afb",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "155",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetings/><messageKey>noMeetings</messageKey><message>no meetings were found on this server</message></response>"
+          },
+          "assertions": [
+            {
+              "what": "returncode",
+              "expected": "\"SUCCESS\"",
+              "actual": "\"SUCCESS\"",
+              "ok": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "getMeetings.smoke.checksum-accepted-sha512",
+      "title": "Every algorithm, upper-case hex and each placement are accepted",
+      "endpoint": "getMeetings",
+      "class": "contract",
+      "variant": "sha512",
+      "area": "getMeetings",
+      "file": "../../testdata/smoke/getMeetings/checksum-accepted.yaml",
+      "line": 1,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 15,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/getMeetings?a=1&b=2&checksum=d3678631502555bb6f2d7b9ca7c39ad5bc1351a23a73bf86a664ec4a451eda1081915a5594e415ccb880c0940a84378d70b565cc16be33b6c6b03ea49be41dca",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "155",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetings/><messageKey>noMeetings</messageKey><message>no meetings were found on this server</message></response>"
+          },
+          "assertions": [
+            {
+              "what": "returncode",
+              "expected": "\"SUCCESS\"",
+              "actual": "\"SUCCESS\"",
+              "ok": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "getMeetings.smoke.checksum-accepted-uppercase",
+      "title": "Every algorithm, upper-case hex and each placement are accepted",
+      "endpoint": "getMeetings",
+      "class": "contract",
+      "variant": "uppercase",
+      "area": "getMeetings",
+      "file": "../../testdata/smoke/getMeetings/checksum-accepted.yaml",
+      "line": 1,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 15,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/getMeetings?a=1&b=2&checksum=1047766FF8609E0C04ACF4CCE5FA28CB41C3C4EC6F4C55FE2D8FB7007A5236C5",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "155",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetings/><messageKey>noMeetings</messageKey><message>no meetings were found on this server</message></response>"
+          },
+          "assertions": [
+            {
+              "what": "returncode",
+              "expected": "\"SUCCESS\"",
+              "actual": "\"SUCCESS\"",
+              "ok": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "getMeetings.smoke.checksum-accepted-first",
+      "title": "Every algorithm, upper-case hex and each placement are accepted",
+      "endpoint": "getMeetings",
+      "class": "contract",
+      "variant": "first",
+      "area": "getMeetings",
+      "file": "../../testdata/smoke/getMeetings/checksum-accepted.yaml",
+      "line": 1,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 15,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/getMeetings?checksum=1047766ff8609e0c04acf4cce5fa28cb41c3c4ec6f4c55fe2d8fb7007a5236c5&a=1&b=2",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "155",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetings/><messageKey>noMeetings</messageKey><message>no meetings were found on this server</message></response>"
+          },
+          "assertions": [
+            {
+              "what": "returncode",
+              "expected": "\"SUCCESS\"",
+              "actual": "\"SUCCESS\"",
+              "ok": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "getMeetings.smoke.checksum-accepted-middle",
+      "title": "Every algorithm, upper-case hex and each placement are accepted",
+      "endpoint": "getMeetings",
+      "class": "contract",
+      "variant": "middle",
+      "area": "getMeetings",
+      "file": "../../testdata/smoke/getMeetings/checksum-accepted.yaml",
+      "line": 1,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 15,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/getMeetings?a=1&checksum=1047766ff8609e0c04acf4cce5fa28cb41c3c4ec6f4c55fe2d8fb7007a5236c5&b=2",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "155",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetings/><messageKey>noMeetings</messageKey><message>no meetings were found on this server</message></response>"
+          },
+          "assertions": [
+            {
+              "what": "returncode",
+              "expected": "\"SUCCESS\"",
+              "actual": "\"SUCCESS\"",
+              "ok": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "getMeetings.smoke.checksum-rejected-wrong",
+      "title": "A wrong or duplicated checksum is a checksumError",
+      "endpoint": "getMeetings",
+      "class": "contract",
+      "variant": "wrong",
+      "area": "getMeetings",
+      "file": "../../testdata/smoke/getMeetings/checksum-rejected.yaml",
+      "line": 1,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 10,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/getMeetings?checksum=1af42d0ccfdb960caedd524edc52e712796e97e9236668e9ef27344120c35aa0",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "131",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>FAILED</returncode><messageKey>checksumError</messageKey><message>Checksums do not match</message></response>"
+          },
+          "assertions": [
+            {
+              "what": "returncode",
+              "expected": "\"FAILED\"",
+              "actual": "\"FAILED\"",
+              "ok": true
+            },
+            {
+              "what": "messageKey",
+              "expected": "\"checksumError\"",
+              "actual": "\"checksumError\"",
+              "ok": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "getMeetings.smoke.checksum-rejected-duplicate",
+      "title": "A wrong or duplicated checksum is a checksumError",
+      "endpoint": "getMeetings",
+      "class": "contract",
+      "variant": "duplicate",
+      "area": "getMeetings",
+      "file": "../../testdata/smoke/getMeetings/checksum-rejected.yaml",
+      "line": 1,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 10,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/getMeetings?checksum=1af42d0ccfdb960caedd524edc52e712796e97e9236668e9ef27344120c35aa2&checksum=1af42d0ccfdb960caedd524edc52e712796e97e9236668e9ef27344120c35aa2",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "131",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>FAILED</returncode><messageKey>checksumError</messageKey><message>Checksums do not match</message></response>"
+          },
+          "assertions": [
+            {
+              "what": "returncode",
+              "expected": "\"FAILED\"",
+              "actual": "\"FAILED\"",
+              "ok": true
+            },
+            {
+              "what": "messageKey",
+              "expected": "\"checksumError\"",
+              "actual": "\"checksumError\"",
+              "ok": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "version.smoke.fields",
+      "title": "The version endpoint answers without a checksum",
+      "endpoint": "version",
+      "class": "contract",
+      "area": "version",
+      "file": "../../testdata/smoke/version/fields.yaml",
+      "line": 1,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 7,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "128",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><version>2.0</version><apiVersion>2.0</apiVersion><bbbVersion></bbbVersion></response>"
+          },
+          "assertions": [
+            {
+              "what": "returncode",
+              "expected": "\"SUCCESS\"",
+              "actual": "\"SUCCESS\"",
+              "ok": true
+            },
+            {
+              "what": "xpath /response/version",
+              "expected": "present",
+              "actual": "\"2.0\"",
+              "ok": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

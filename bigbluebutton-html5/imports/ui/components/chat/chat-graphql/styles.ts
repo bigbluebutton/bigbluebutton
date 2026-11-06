@@ -4,7 +4,7 @@ import {
 } from '/imports/ui/components/sidebar-content/styles';
 import { contentSidebarPadding, smPaddingX, smPaddingY } from '/imports/ui/stylesheets/styled-components/general';
 import { CircularProgress } from '@mui/material';
-import { colorWhite, colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorPrimary, colorWhiteSurface } from '/imports/ui/stylesheets/styled-components/palette';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
 interface ChatProps {
@@ -13,7 +13,7 @@ interface ChatProps {
 }
 
 export const Chat = styled.div<ChatProps>`
-  background-color: ${colorWhite};
+  background-color: ${colorWhiteSurface};
   padding: ${smPaddingX};
   padding-bottom: ${smPaddingY};
   display: flex;

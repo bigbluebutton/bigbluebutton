@@ -1,0 +1,22 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# The recording calls validate the checksum in separate code
+# (ParamsProcessorUtil.isChecksumSame) from the other calls, so the matrix
+# runs here too.
+id: getRecordings.checksum.rejected
+title: getRecordings rejects a wrong, mis-signed or re-encoded checksum
+endpoint: getRecordings
+class: contract
+tags: [ci]
+defs:
+  base: &base {mode: valid, signCall: null}
+variants:
+  - {id: wrong, vars: {<<: *base, mode: bad}}
+  - {id: missing, vars: {<<: *base, mode: none}}
+  - {id: wrong-length, vars: {<<: *base, mode: wrong-length}}
+  - {id: reencode, vars: {<<: *base, mode: reencode}}
+  - {id: other-call, vars: {<<: *base, signCall: getMeetings}}
+steps:
+  - call: getRecordings
+    params: {meetingID: "x y"}
+    sign: {mode: "${mode}", call: "${signCall}"}
+    expect: {returncode: FAILED, messageKey: checksumError}

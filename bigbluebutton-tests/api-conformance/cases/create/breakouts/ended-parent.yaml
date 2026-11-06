@@ -1,0 +1,40 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# Once the parent meeting has ended and bbb-web has forgotten it, a breakout
+# room for it fails with parentMeetingDoesNotExist. The end waits until
+# akka-apps has created the parent: an end that reaches it earlier is lost.
+id: create.breakouts.ended-parent
+title: create a breakout room for a parent that ended
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Parent}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: end
+    params: {meetingID: "${uid}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: getMeetingInfo
+    params: {meetingID: "${uid}"}
+    golden: off
+    eventually: {within: 5s, every: 100ms, until: {messageKey: notFound}}
+    expect: {messageKey: notFound}
+  - call: create
+    params: {meetingID: "room-${uid}", name: Room, isBreakout: "true", parentMeetingID: "${uid}", sequence: "1"}
+    expect: {returncode: FAILED, messageKey: parentMeetingDoesNotExist}
+teardown:
+  - call: end
+    params: {meetingID: "room-${uid}"}
+    ignoreResult: true
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

@@ -19,6 +19,10 @@ import withFileReader from '/imports/ui/components/common/file-reader/component'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import {
+  appsGalleryOutlineColorSurface,
+  colorWhiteSurface,
+} from '/imports/ui/stylesheets/styled-components/palette';
 
 const { MIME_TYPES_ALLOWED, MAX_FILE_SIZE } = VirtualBgService;
 
@@ -162,32 +166,13 @@ const VirtualBgSelector = ({
 
       setCurrentVirtualBg({ type, name, uniqueId: customParams?.uniqueId });
 
-      if (!index || index < 0) return null;
+      if (index == null || index < 0) return null;
 
-      if (!shouldEnableBackgroundUpload(isCustomVirtualBackgroundsEnabled)) {
-        // eslint-disable-next-line react/no-find-dom-node
-        findDOMNode(inputElementsRef.current[index]).focus();
-      } else {
-        if (customParams) {
-          dispatch({
-            type: ACTIONS.UPDATE,
-            background: {
-              uniqueId: customParams.uniqueId,
-              lastActivityDate: Date.now(),
-            },
-          });
-        } else {
-          dispatch({
-            type: ACTIONS.UPDATE,
-            background: {
-              uniqueId: name,
-              lastActivityDate: Date.now(),
-            },
-          });
-        }
-        // eslint-disable-next-line react/no-find-dom-node
-        findDOMNode(inputElementsRef.current[0]).focus();
-      }
+      // Selecting a background doesn't change the list order (as in the profile
+      // settings), so give focus back to the clicked button, which loses it while
+      // disabled during the switch, without scrolling the list
+      // eslint-disable-next-line react/no-find-dom-node
+      findDOMNode(inputElementsRef.current[index])?.focus({ preventScroll: true });
 
       return null;
     });
@@ -297,7 +282,7 @@ const VirtualBgSelector = ({
 
     const renderDefaultButton = (imageName, index) => {
       const label = intl.formatMessage(intlMessages[imageName.split('.').shift()], {
-        index: index + 1,
+        index: IMAGE_NAMES.indexOf(imageName) + 1,
         background: intl.formatMessage(intlMessages.background),
       });
 
@@ -438,7 +423,11 @@ const VirtualBgSelector = ({
     );
 
     const renderSkeleton = () => (
-      <SkeletonTheme baseColor="#DCE4EC" direction={isRTL ? 'rtl' : 'ltr'}>
+      <SkeletonTheme
+        baseColor={appsGalleryOutlineColorSurface}
+        highlightColor={colorWhiteSurface}
+        direction={isRTL ? 'rtl' : 'ltr'}
+      >
         {new Array(SKELETON_COUNT).fill(null).map((_, index) => (
           // eslint-disable-next-line react/no-array-index-key
           <Styled.SkeletonWrapper key={`skeleton-${index}`}>

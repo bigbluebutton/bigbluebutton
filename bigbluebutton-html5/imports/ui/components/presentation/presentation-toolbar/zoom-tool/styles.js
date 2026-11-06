@@ -1,5 +1,8 @@
 import styled from 'styled-components';
 import {
+  appsGalleryOutlineColorSurface,
+  colorBlack,
+  colorControlBorder,
   colorOffWhite,
   toolbarButtonColor,
 } from '/imports/ui/stylesheets/styled-components/palette';
@@ -15,7 +18,7 @@ const IncreaseZoomButton = styled(Button)``;
 
 const ResetZoomButton = styled(Button)`
   text-align: center;
-  color: black;
+  color: ${colorBlack};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -35,7 +38,7 @@ const ResetZoomButton = styled(Button)`
     outline: transparent;
     outline-style: dotted;
     outline-width: ${borderSize};
-    background-color: #DCE4EC;
+    background-color: ${appsGalleryOutlineColorSurface};
     border-radius: 4px;
   }
 
@@ -45,7 +48,7 @@ const ResetZoomButton = styled(Button)`
 
   &:focus {
     outline-style: solid;
-    box-shadow: 0 0 0 1px #cdd6e0 !important;
+    box-shadow: 0 0 0 1px ${colorControlBorder} !important;
   }
 `;
 

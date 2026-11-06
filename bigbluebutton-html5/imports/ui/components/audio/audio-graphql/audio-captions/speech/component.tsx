@@ -16,13 +16,18 @@ import {
   getLocale,
   hasSpeechRecognitionSupport,
   isLocaleValid,
+  isOnDeviceTranscription,
   localeAsDefaultSelected,
   mostSimilarLanguage,
+  getOnDeviceLanguageStatus,
+  usesCloudFallback,
+  useOnDeviceLanguageStatus,
   setSpeechVoices,
   useFixedLocale,
 } from './service';
 import logger from '/imports/startup/client/logger';
 import AudioManager from '/imports/ui/services/audio-manager';
+import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import {
   isWebSpeechApi,
@@ -43,9 +48,14 @@ const intlMessages = defineMessages({
     id: 'app.audio.captions.speech.microphoneAlert.helpLabel',
     description: 'Label for the knowledge base link in the microphone alert toast',
   },
+  onDeviceNotReady: {
+    id: 'app.audio.captions.speech.onDevice.notReady',
+    description: 'Toast when transcription is on but its on-device language data is not downloaded',
+  },
 });
 
 const THROTTLE_TIMEOUT = 200;
+const NOT_READY_NOTIFICATION_DELAY = 1000;
 
 type SpeechRecognitionEvent = {
   resultIndex: number;
@@ -71,6 +81,15 @@ interface AudioCaptionsSpeechProps {
 const speechHasStarted = {
   started: false,
 };
+
+// Without a track the browser transcribes its own default microphone, which is not
+// necessarily the one in use in the meeting
+const getInputTrack = (stream: MediaStream | null): MediaStreamTrack | null => {
+  const track = stream?.getAudioTracks()[0];
+
+  // start() rejects a muted track just like an ended one
+  return track?.readyState === 'live' && !track.muted ? track : null;
+};
 const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
   locale,
   connected,
@@ -86,8 +105,16 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
   });
 
   const localeRef = useRef(locale);
+  // start() also runs from handlers and timers set up in earlier renders
+  const inputStreamRef = useRef(inputStream);
+  inputStreamRef.current = inputStream;
 
   const speechRecognitionRef = useRef<ReturnType<typeof SpeechRecognitionAPI>>(null);
+  const trackRef = useRef<MediaStreamTrack | null>(null);
+  const trackIdRef = useRef('');
+  const hadTrackRef = useRef(false);
+  const defaultDeviceLoggedRef = useRef(false);
+  const restartTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
   const prevIdRef = useRef('');
   const prevTranscriptRef = useRef('');
   const lastTranscriptionAtRef = useRef<number>(0);
@@ -95,6 +122,7 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const harkInstanceRef = useRef<any>(null);
   const speakingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const onDeviceNotifiedRef = useRef(new Set<string>());
   const [setSpeechLocaleMutation] = useMutation(SET_SPEECH_LOCALE);
   const isAudioTranscriptionEnabled = useIsAudioTranscriptionEnabled();
   const fixedLocaleResult = useFixedLocale();
@@ -118,6 +146,26 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
     }
   };
 
+  const createSpeechRecognition = () => {
+    const speechRecognition = new SpeechRecognitionAPI();
+
+    speechRecognition.continuous = true;
+    speechRecognition.interimResults = true;
+
+    return speechRecognition;
+  };
+
+  // With local or auto the session is processLocally: it never falls back to a speech
+  // recognition service by itself (it fails instead). auto leaves a language the browser cannot
+  // transcribe on the device without processLocally, as with cloud
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const setSessionLocale = (speechRecognition: any, settedLocale: string) => {
+    /* eslint-disable no-param-reassign */
+    speechRecognition.lang = settedLocale;
+    if (isOnDeviceTranscription()) speechRecognition.processLocally = !usesCloudFallback(settedLocale);
+    /* eslint-enable no-param-reassign */
+  };
+
   const initSpeechRecognition = () => {
     if (!isAudioTranscriptionEnabled) return null;
 
@@ -129,10 +177,7 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
     if (!hasSpeechRecognitionSupport()) return null;
 
     setSpeechVoices();
-    const speechRecognition = new SpeechRecognitionAPI();
-
-    speechRecognition.continuous = true;
-    speechRecognition.interimResults = true;
+    const speechRecognition = createSpeechRecognition();
 
     return speechRecognition;
   };
@@ -183,18 +228,25 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
     captionSubmitText(id, transcript, locale, true);
   };
 
+  const releaseTrack = () => {
+    trackRef.current?.stop();
+    trackRef.current = null;
+  };
+
   const onEnd = useCallback(() => {
     logger.debug({
       logCode: 'captions_speech_recognition_ended',
     }, 'Captions speech recognition ended by browser');
 
     speechHasStarted.started = false;
-    if (!mutedRef.current) {
+    releaseTrack();
+    if (connectedRef.current && !mutedRef.current) {
       logger.debug("Speech recognition ended by browser, but we're not muted. Restart it");
       const timeSinceLastStart = new Date().getTime() - lastStartedAt.current;
       if (timeSinceLastStart < 1000) {
-        setTimeout(() => {
-          start(localeRef.current);
+        clearTimeout(restartTimeoutRef.current);
+        restartTimeoutRef.current = setTimeout(() => {
+          if (connectedRef.current && !mutedRef.current) start(localeRef.current);
         }, 1000 - timeSinceLastStart);
       } else {
         start(localeRef.current);
@@ -202,7 +254,7 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
     }
   }, []);
   const onError = useCallback((event: SpeechRecognitionErrorEvent) => {
-    if (isLocaleChangeRef.current && event.error === 'aborted') return;
+    if (isRestartRef.current && event.error === 'aborted') return;
 
     // This error 'no-speech' is expected because speech recognition is set to automatically
     // restart whenever the browser stops it — tipically due to silence timeout. As a result,
@@ -274,10 +326,22 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
     }
   }, [localeRef]);
 
+  const bindHandlers = () => {
+    speechRecognitionRef.current.onend = () => onEnd();
+    speechRecognitionRef.current.onerror = (event: SpeechRecognitionErrorEvent) => onError(event);
+    speechRecognitionRef.current.onresult = (event: SpeechRecognitionEvent) => onResult(event);
+  };
+
+  const unbindHandlers = () => {
+    speechRecognitionRef.current.onend = null;
+    speechRecognitionRef.current.onerror = null;
+    speechRecognitionRef.current.onresult = null;
+  };
+
   const start = (settedLocale: string) => {
     if (speechRecognitionRef.current && isLocaleValid(settedLocale)) {
       logger.debug('Starting browser speech recognition for locale: ', settedLocale);
-      speechRecognitionRef.current.lang = settedLocale;
+      setSessionLocale(speechRecognitionRef.current, settedLocale);
 
       if (settedLocale !== localeRef.current) {
         localeRef.current = settedLocale;
@@ -288,13 +352,64 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
         return;
       }
 
+      // Never downloads the language pack by itself: an effect below starts once it is there
+      if (isOnDeviceTranscription() && !usesCloudFallback(settedLocale)
+        && getOnDeviceLanguageStatus(settedLocale) !== 'available') return;
+
       lastStartedAt.current = new Date().getTime();
+      const track = getInputTrack(inputStreamRef.current);
+      // A clone, as Chrome never ends a session whose track is stopped while it starts
+      let clone = track ? track.clone() : null;
       try {
         resultRef.current.id = generateId();
-        speechRecognitionRef.current.start();
+        if (clone) {
+          clone.enabled = true;
+          try {
+            // Browsers without MediaStreamTrack support in start() ignore the argument
+            speechRecognitionRef.current.start(clone);
+            hadTrackRef.current = true;
+            defaultDeviceLoggedRef.current = false;
+          } catch (error) {
+            clone.stop();
+            clone = null;
+            // Not about the track, e.g. the previous session is still ending
+            if (getInputTrack(inputStreamRef.current)) throw error;
+          }
+        }
+        if (!clone) {
+          // Once an instance had a track, Chrome goes on using that track for a start()
+          // without one, and never starts if it has ended: the default device needs an
+          // instance of its own
+          if (hadTrackRef.current) {
+            unbindHandlers();
+            speechRecognitionRef.current.abort();
+            speechRecognitionRef.current = createSpeechRecognition();
+            setSessionLocale(speechRecognitionRef.current, settedLocale);
+            bindHandlers();
+            hadTrackRef.current = false;
+          }
+          speechRecognitionRef.current.start();
+          // Not on every restart, the browser ends an idle session every few seconds
+          if (!defaultDeviceLoggedRef.current) {
+            const inputTrack = inputStreamRef.current?.getAudioTracks()[0];
+            logger.info({
+              logCode: 'captions_speech_recognition_default_device',
+              extraInfo: {
+                inputStream: MediaStreamUtils.getMediaStreamLogData(inputStreamRef.current),
+                trackReadyState: inputTrack?.readyState,
+                trackMuted: inputTrack?.muted,
+              },
+            }, 'Captions speech recognition started on the browser default microphone');
+            defaultDeviceLoggedRef.current = true;
+          }
+        }
+        releaseTrack();
+        trackRef.current = clone;
+        trackIdRef.current = clone && track ? track.id : '';
         speechHasStarted.started = true;
-        isLocaleChangeRef.current = false;
+        isRestartRef.current = false;
       } catch (event: unknown) {
+        clone?.stop();
         onError(event as SpeechRecognitionErrorEvent);
       }
     }
@@ -302,19 +417,29 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
 
   useEffect(() => {
     speechRecognitionRef.current = initSpeechRecognition();
+
+    return () => {
+      clearTimeout(restartTimeoutRef.current);
+
+      if (speechRecognitionRef.current) {
+        unbindHandlers();
+        stop();
+        speechRecognitionRef.current.abort();
+      }
+
+      speechHasStarted.started = false;
+      releaseTrack();
+    };
   }, []);
 
   useEffect(() => {
-    if (speechRecognitionRef.current) {
-      speechRecognitionRef.current.onend = () => onEnd();
-      speechRecognitionRef.current.onerror = (event: SpeechRecognitionErrorEvent) => onError(event);
-      speechRecognitionRef.current.onresult = (event: SpeechRecognitionEvent) => onResult(event);
-    }
+    if (speechRecognitionRef.current) bindHandlers();
   }, [speechRecognitionRef.current]);
 
-  const connectedRef = useRef(connected);
-  const mutedRef = useRef(muted);
-  const isLocaleChangeRef = useRef(false);
+  // Not the current values, so that mounting with audio already unmuted starts the recognition
+  const connectedRef = useRef(false);
+  const mutedRef = useRef(true);
+  const isRestartRef = useRef(false);
   const lastStartedAt = useRef<number>(0);
 
   useEffect(() => {
@@ -332,7 +457,7 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
 
       // Locale changed
       if (connectedRef.current && connected) {
-        isLocaleChangeRef.current = true;
+        isRestartRef.current = true;
         stop();
         localeRef.current = locale;
       }
@@ -359,6 +484,36 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
       mutedRef.current = muted;
     }
   }, [connected, muted, locale]);
+
+  const onDeviceStatus = useOnDeviceLanguageStatus(isOnDeviceTranscription() ? locale : '');
+
+  // With local or auto, starts when the language pack becomes available (e.g. downloaded
+  // from the transcription settings during the meeting), and tells the user when it is not
+  useEffect(() => {
+    if (!isOnDeviceTranscription() || !speechRecognitionRef.current || locale === '') return () => {};
+    if (!connected || muted) return () => {};
+
+    if (onDeviceStatus === 'available' || usesCloudFallback(locale)) {
+      start(locale);
+    } else if (onDeviceStatus && onDeviceStatus !== 'checking' && onDeviceStatus !== 'downloading'
+      && !onDeviceNotifiedRef.current.has(locale)) {
+      // Turning transcription on in the transcription panel starts the download: only tell the
+      // user when nothing is downloading it a moment later
+      const timeout = setTimeout(() => {
+        const status = getOnDeviceLanguageStatus(locale);
+        if (status === 'available' || status === 'downloading') return;
+        if (!connectedRef.current || mutedRef.current || onDeviceNotifiedRef.current.has(locale)) return;
+        onDeviceNotifiedRef.current.add(locale);
+        logger.warn({
+          logCode: 'captions_speech_recognition_language_pack_missing',
+          extraInfo: { locale, status },
+        }, 'Captions speech recognition is off: no on-device language pack for the locale');
+        notify(intl.formatMessage(intlMessages.onDeviceNotReady), 'warning', 'warning');
+      }, NOT_READY_NOTIFICATION_DELAY);
+      return () => clearTimeout(timeout);
+    }
+    return () => {};
+  }, [onDeviceStatus, connected, muted, locale]);
 
   useEffect(() => {
     const MICROPHONE_ALERT_CONFIG = window.meetingClientSettings.public.app.audioCaptions.microphoneAlert;
@@ -396,6 +551,9 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
       speakingTimerRef.current = setTimeout(() => {
         if (alertShownRef.current) return;
         if (lastTranscriptionAtRef.current >= speakingStartedAt) return;
+        // Not transcribing at all without the on-device language pack
+        if (isOnDeviceTranscription() && !usesCloudFallback(localeRef.current)
+          && getOnDeviceLanguageStatus(localeRef.current) !== 'available') return;
 
         alertShownRef.current = true;
         const message = intl.formatMessage(intlMessages.microphoneAlertMessage);
@@ -426,6 +584,22 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
       }
     };
   }, [connected, muted, inputStream, locale, isAudioTranscriptionEnabled]);
+
+  useEffect(() => {
+    const track = getInputTrack(inputStream);
+
+    // Microphone changed while transcribing, onEnd restarts on the current one
+    if (speechHasStarted.started && (track?.id ?? '') !== trackIdRef.current) {
+      logger.debug({
+        logCode: 'captions_speech_recognition_input_changed',
+        extraInfo: {
+          inputStream: MediaStreamUtils.getMediaStreamLogData(inputStream),
+        },
+      }, 'Captions speech recognition restarting on the changed input stream');
+      isRestartRef.current = true;
+      stop();
+    }
+  }, [inputStream]);
 
   return null;
 };

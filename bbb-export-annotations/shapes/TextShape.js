@@ -1,6 +1,8 @@
 import {Text, Tspan} from '@svgdotjs/svg.js';
 import {Shape} from './Shape.js';
 
+const XML_NAMESPACE = 'http://www.w3.org/XML/1998/namespace';
+
 /**
  * Draws the text shape on the SVG canvas, aligning and styling it
  * based on the provided properties.
@@ -43,7 +45,7 @@ export class TextShape extends Shape {
 
     const textGroup = this.shapeGroup;
     const textElement = new Text()
-        .attr({'xml:space': 'preserve'})
+        .attr('xml:space', 'preserve', XML_NAMESPACE)
         .move(x, y)
         .font({
           'family': this.fontFamily,

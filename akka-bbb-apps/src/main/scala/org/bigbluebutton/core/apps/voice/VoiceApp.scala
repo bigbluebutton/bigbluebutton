@@ -11,7 +11,7 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.running.{LiveMeeting, MeetingActor, OutMsgRouter}
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.apps.users.UsersApp
-import org.bigbluebutton.core.db.{MeetingVoiceDAO, UserDAO, UserVoiceDAO, UserStateDAO}
+import org.bigbluebutton.core.db.{MeetingVoiceDAO, UserDAO, UserVoiceDAO}
 import org.bigbluebutton.core.util.ColorPicker
 import org.bigbluebutton.core.util.TimeUtil
 
@@ -205,7 +205,8 @@ object VoiceApp extends SystemConfiguration {
           liveMeeting.props.voiceProp.voiceConf,
           mutedUser.intId,
           Some(mutedUser),
-          leftVoiceConf = false
+          leftVoiceConf = false,
+          hideUserList = MeetingStatus2x.getPermissions(liveMeeting.status).hideUserList
         )
         outGW.send(eventUserVoiceStatus)
       }
@@ -234,6 +235,27 @@ object VoiceApp extends SystemConfiguration {
             } else {
               // Update the user status to indicate they are still in the voice conference.
               VoiceUsers.setLastStatusUpdate(liveMeeting.voiceUsers, vu)
+            }
+
+            // Talking is edge-triggered (FS only emits start/stop-talking
+            // transitions), so a missed or overridden edge vent would
+            // desync until the next transition, which never comes if the
+            // member kept talking throughout. Reconcile talking state here
+            // as well.
+            for {
+              current <- VoiceUsers.findWithVoiceUserId(
+                liveMeeting.voiceUsers,
+                cvu.voiceUserId
+              )
+            } yield {
+              if (current.talking != cvu.talking) {
+                handleUserTalking(
+                  liveMeeting,
+                  outGW,
+                  cvu.voiceUserId,
+                  cvu.talking
+                )
+              }
             }
 
             // Purge voice users that don't have a matching user record
@@ -431,7 +453,8 @@ object VoiceApp extends SystemConfiguration {
       liveMeeting.props.voiceProp.voiceConf,
       voiceUserState.intId,
       Some(voiceUserState),
-      leftVoiceConf = false
+      leftVoiceConf = false,
+      hideUserList = MeetingStatus2x.getPermissions(liveMeeting.status).hideUserList
     )
     outGW.send(eventUserVoiceStatus)
 
@@ -464,7 +487,14 @@ object VoiceApp extends SystemConfiguration {
 
       // If the meeting is muted tell freeswitch to mute the new person
       // Dial-in users may skip this if dialInEnforceMuteOnStart=false (akka-apps config)
+      // Skip members that already joined muted (e.g. SFU's mute-on-start
+      // dialplans): the extra conference mute command is a no-op that FS may
+      // only execute when a held channel wakes up, and its stale mute-member
+      // event then races (and can override) a subsequent unmute.
+      // Dial-in is exempt: those channels are never held at creation, and
+      // for LiveKit SIP this is the only server-side mute hook.
       if (MeetingStatus2x.isMeetingMuted(liveMeeting.status)
+        && (!muted || isDialInUser)
         && (dialInEnforceMuteOnStart || !isDialInUser)) {
         val event = MsgBuilder.buildMuteUserInVoiceConfSysMsg(
           liveMeeting.props.meetingProp.intId,
@@ -531,7 +561,8 @@ object VoiceApp extends SystemConfiguration {
         liveMeeting.props.voiceProp.voiceConf,
         user.intId,
         None,
-        leftVoiceConf = true
+        leftVoiceConf = true,
+        hideUserList = MeetingStatus2x.getPermissions(liveMeeting.status).hideUserList
       )
       outGW.send(eventUserVoiceStatus)
 
@@ -798,7 +829,8 @@ object VoiceApp extends SystemConfiguration {
           liveMeeting.props.voiceProp.voiceConf,
           vu.intId,
           Some(vu),
-          leftVoiceConf = false
+          leftVoiceConf = false,
+          hideUserList = MeetingStatus2x.getPermissions(liveMeeting.status).hideUserList
         )
         outGW.send(eventUserVoiceStatus)
 
@@ -810,7 +842,6 @@ object VoiceApp extends SystemConfiguration {
     liveMeeting:  LiveMeeting,
     userId:       String,
   )(implicit context: ActorContext): Unit = {
-    val meetingId = liveMeeting.props.meetingProp.intId
     for {
       u <- VoiceUsers.findWithIntId(
         liveMeeting.voiceUsers,
@@ -818,7 +849,7 @@ object VoiceApp extends SystemConfiguration {
       )
       } yield {
         if (u.muted == true && !u.deafened) {
-          UserStateDAO.updateRequestedUnmuteByMod(meetingId, userId, true)
+          Users2x.setUserUnmuteRequested(liveMeeting.users2x, userId)
         }
       }
   }
@@ -989,7 +1020,8 @@ object VoiceApp extends SystemConfiguration {
         liveMeeting.props.voiceProp.voiceConf,
         talkingUser.intId,
         Some(talkingUser),
-        leftVoiceConf = false
+        leftVoiceConf = false,
+        hideUserList = MeetingStatus2x.getPermissions(liveMeeting.status).hideUserList
       )
       outGW.send(eventUserVoiceStatus)
 
@@ -1057,7 +1089,8 @@ object VoiceApp extends SystemConfiguration {
         liveMeeting.props.voiceProp.voiceConf,
         u.intId,
         Some(u),
-        leftVoiceConf = false
+        leftVoiceConf = false,
+        hideUserList = MeetingStatus2x.getPermissions(liveMeeting.status).hideUserList
       )
       outGW.send(eventUserVoiceStatus)
     }

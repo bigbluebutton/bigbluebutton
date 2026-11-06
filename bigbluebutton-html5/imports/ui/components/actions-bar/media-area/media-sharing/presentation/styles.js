@@ -95,6 +95,11 @@ const DropzoneLink = styled.span`
   text-decoration: underline;
 `;
 
+const ExtraHint = styled.div`
+  margin: 1rem 1.5rem 0;
+  font-weight: bold;
+`;
+
 const ExternalUpload = styled.div`
   background-color: ${colorOffWhite};
   border-radius: ${borderRadius};
@@ -209,6 +214,7 @@ export default {
   UploaderDropzone,
   DropzoneMessage,
   DropzoneLink,
+  ExtraHint,
   ExternalUpload,
   ExternalUploadTitle,
   ExternalUploadButton,

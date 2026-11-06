@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+id: getMeetings.checksum.disabled-alg
+title: With only sha256 enabled, a sha1 checksum is a checksumError
+endpoint: getMeetings
+class: contract
+tags: [disruptive]
+profile: checksum-sha256-only
+steps:
+  - call: getMeetings
+    sign: sha1
+    expect: {returncode: FAILED, messageKey: checksumError}
+  - call: getMeetings
+    sign: sha256
+    expect: {returncode: SUCCESS}

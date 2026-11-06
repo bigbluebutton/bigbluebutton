@@ -2,9 +2,9 @@
 
 TARGET=$(basename "$(pwd)")
 
-SERVER_VERSION=v1.9.12
-CLI_VERSION=2.13.2
-SIP_VERSION=v1.2.0
+SERVER_VERSION=v1.13.7
+CLI_VERSION=2.18.8
+SIP_VERSION=v1.17.0
 
 PACKAGE=$(echo "$TARGET" | cut -d'_' -f1)
 VERSION=$(echo "$TARGET" | cut -d'_' -f2)
@@ -58,6 +58,35 @@ fi
     export PATH="$GOBIN:$PATH"
 
     pushd "$LIVEKIT_DIR" > /dev/null
+
+    # START OF PSRPC PATCH
+    #
+    # LK's psrpc patch: this is a workaround for an issue found when upgrading
+    # to LK with psrpc versions >= v0.7.7. When running under FIFO, LK may take
+    # all available CPUs in specific but usual conditions such as meeting end,
+    # webrtc-recorder healthcheck disconnects etc. This was a thing before,
+    # but became way more likely in v0.7.7 due to a specific change in psrpc
+    # channel disconn loop.
+    # This is going to be reported in upstream and hopefully fixed there, but
+    # for now I'm patching this inline with a trigger to break the build on
+    # subsequent LK bumps so we remember to fix this upstream - prlanzarin
+    grep -qE '^[[:space:]]+github.com/livekit/psrpc v0\.7\.7$' go.mod || {
+        echo "livekit no longer requires psrpc v0.7.7, which the psrpc patch is made for. Fix it upstream." >&2
+        exit 1
+    }
+    psrpc_dir=$(go mod download -json github.com/livekit/psrpc@v0.7.7 | jq -er .Dir)
+    mkdir -p third_party
+    cp -r "$psrpc_dir" third_party/psrpc
+    chmod -R u+w third_party/psrpc
+    patch -d third_party/psrpc -p1 --forward --fuzz=0 -i "$BUILDDIR/closed-channel-loop_psrpc.patch"
+    patched=$(grep -rE '(requests|claims) = nil$' third_party/psrpc/pkg/server | wc -l)
+    [ "$patched" -eq 4 ] || {
+        echo "closed-channel-loop_psrpc.patch did not apply" >&2
+        exit 1
+    }
+    go mod edit -replace github.com/livekit/psrpc=./third_party/psrpc
+    # END OF PSRPC PATCH
+
     ./bootstrap.sh
     mage
     popd > /dev/null
@@ -100,7 +129,9 @@ else
     GOARCH=amd64
 fi
 
-CGO_ENABLED=1 GOOS=linux GOARCH="${GOARCH}" GO111MODULE=on go build -a -o livekit-sip ./cmd/livekit-sip
+CGO_ENABLED=1 GOOS=linux GOARCH="${GOARCH}" GO111MODULE=on go build -a \
+    -ldflags "-X github.com/livekit/sip/version.Version=${SIP_VERSION}" \
+    -o livekit-sip ./cmd/livekit-sip
 
 cp livekit-sip "$DESTDIR/usr/bin"
 popd > /dev/null

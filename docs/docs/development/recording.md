@@ -19,7 +19,7 @@ If you want to see the Record and Playback (RaP) feature in action, use Greenlig
 
 Like BigBlueButton sessions, the management of recordings should be handled by [third-party software](https://bigbluebutton.org/schools/integrations/). Third-party software consumes the [BigBlueButton API](/development/api) to accomplish that. As a user, you may want to use third-party software which sets the right value to the parameter "record". As a developer, you may want to use a (not official) library that implements the API calls in your preferred language or implement it by yourself.
 
-From a technical point of view, in the BigBlueButton API, when you pass the parameter `record=true` with [create](/development/api#create), BigBlueButton will create a session that has recording enabled. In this case, it will add a new button to the toolbar at the top of the window with a circle icon which a moderator in the session can use to indicate sections of the meeting to be recorded.
+From a technical point of view, in the BigBlueButton API, when you pass the parameter `record=true` with [create](/development/api#get-post-create), BigBlueButton will create a session that has recording enabled. In this case, it will add a new button to the toolbar at the top of the window with a circle icon which a moderator in the session can use to indicate sections of the meeting to be recorded.
 
 In a session with recording enabled, BigBlueButton will save the slides, chat, audio, desktop sharing (deskshare), whiteboard events, shared notes, captions, poll results, and webcams for later processing. This is the unique way to record a meeting, because it provides the ability for different workflows to create recordings with different properties, combining the media in unique ways.
 
@@ -44,7 +44,7 @@ BigBlueButton processes the recordings in the following order:
 
 The Capture phase involves enabling the BigBlueButton modules (chat, presentation, video, voice, etc.) to emit events over an event bus for capture on the BigBlueButton server. Components that generate media (webcam, voice, deskshare) must also store their data streams on the server.
 
-Whiteboard, cursor, chat and other events are stored on Redis. Webcam videos (.flv) and deskshare videos (.flv) are recorded by Red5. The audio conference file (.wav) is recorded by FreeSWITCH. Shared notes and captions are taken from Etherpad.
+Whiteboard, cursor, chat and other events are stored on Redis. Webcam videos (.flv) and deskshare videos (.flv) are recorded by Red5. The audio conference file (.wav) is recorded by FreeSWITCH. Shared notes are exported from bbb-shared-notes-server (BlockNote).
 
 ### Archive
 
@@ -107,7 +107,7 @@ Some Record and Playback phases store the media they handle in different directo
 - WEBCAM: `/var/lib/bbb-webrtc-recorder/recordings/<meetingid>`
 - SCREEN SHARING: `/var/lib/bbb-webrtc-recorder/screenshare/<meetingid>`
 - SLIDES: `/var/bigbluebutton/<meetingid>`
-- NOTES: `http://localhost:9002/p`
+- NOTES: `http://127.0.0.1:8787/loopback/api/documents`
 - EVENTS: `Redis`
 
 #### Archived files
@@ -162,8 +162,7 @@ Administration:
    --disable <workflow>                disable a recording workflow
    --tointernal <external meetingId>   get the internal meeting ids for the given external meetingId
    --toexternal <internal meetingId>   get the external meeting id for the given internal meetingId
-   --republish <internal meetingID>    republish the recording for meetingID.
-                                       (Only for Matterhorn Integration)
+   --republish [internal meetingID]    retry the publish step for meetingID (all recordings if omitted)
 ```
 
 #### Useful settings
@@ -363,17 +362,21 @@ English 102" meetingName="English 102
 
 #### Republish recordings
 
-Republish recordings.
+This option makes a recording go through the Publish phase again from its processed files, for example after you fix the cause of a failed publish.
 
 ```bash
 $ sudo bbb-record --republish 29173583cf1ca21508b2efd7db566090bbefb36a-1647630316965
 ```
 
+The processed files of a format, under `/var/bigbluebutton/recording/process/<format>/<meetingId>`, are removed once that format publishes successfully. For a recording that published correctly, `bbb-record` reports that the processed files do not exist; use `--rebuild` for it instead.
+
+Without a meeting ID, `bbb-record --republish` does this for every recording in your server.
+
 ### For Developers
 
 Here you will find more details about the Record and Playback scripts.
 
-The way to start a recorded session in BigBlueButton is setting the "record" parameter value to "true" in the [create API](/development/api#create) call, which usually is handled by third party software.
+The way to start a recorded session in BigBlueButton is setting the "record" parameter value to "true" in the [create API](/development/api#get-post-create) call, which usually is handled by third party software.
 
 #### Capture phase
 
@@ -655,6 +658,8 @@ You can deploy your changes by running `deploy.sh` and restarting the recording-
 systemctl restart bbb-rap-starter
 systemctl restart bbb-rap-resque-worker
 ```
+
+`deploy.sh` does not install the players for recordings made with BigBlueButton 0.81 and 0.9. If you need them on a development server, build and install the `bbb-playback-presentation-legacy` package (`build/setup.sh bbb-playback-presentation-legacy`), as described in [play recordings made with BigBlueButton 0.81 or 0.9](/administration/customize#play-recordings-made-with-bigbluebutton-081-or-09).
 
 #### Deploying other formats
 

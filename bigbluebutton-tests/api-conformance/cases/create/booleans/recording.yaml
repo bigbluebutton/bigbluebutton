@@ -1,0 +1,52 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# The boolean create params that set akka-apps' recording props
+# (recordProp), each with true and false, upper case, 1, yes and an empty
+# value. Only true, in any case, is true: 1 and yes read as false, and an
+# empty value keeps the configured default. All of recordProp is recorded,
+# so a param that moved another prop would show.
+id: create.booleans.recording
+title: create with ${param}=${value}
+endpoint: create
+class: compat
+tags: [ci]
+requires: [akka, bus]
+variants:
+  - {id: "auto-start-recording-true", vars: {param: autoStartRecording, value: "true"}, class: contract}
+  - {id: "auto-start-recording-false", vars: {param: autoStartRecording, value: "false"}, class: contract}
+  - {id: "auto-start-recording-upper-case", vars: {param: autoStartRecording, value: "TRUE"}}
+  - {id: "auto-start-recording-one", vars: {param: autoStartRecording, value: "1"}}
+  - {id: "auto-start-recording-yes", vars: {param: autoStartRecording, value: "yes"}}
+  - {id: "auto-start-recording-empty", vars: {param: autoStartRecording, value: ""}}
+  - {id: "allow-start-stop-recording-true", vars: {param: allowStartStopRecording, value: "true"}, class: contract}
+  - {id: "allow-start-stop-recording-false", vars: {param: allowStartStopRecording, value: "false"}, class: contract}
+  - {id: "allow-start-stop-recording-upper-case", vars: {param: allowStartStopRecording, value: "TRUE"}}
+  - {id: "allow-start-stop-recording-one", vars: {param: allowStartStopRecording, value: "1"}}
+  - {id: "allow-start-stop-recording-yes", vars: {param: allowStartStopRecording, value: "yes"}}
+  - {id: "allow-start-stop-recording-empty", vars: {param: allowStartStopRecording, value: ""}}
+  - {id: "record-full-duration-media-true", vars: {param: recordFullDurationMedia, value: "true"}, class: contract}
+  - {id: "record-full-duration-media-false", vars: {param: recordFullDurationMedia, value: "false"}, class: contract}
+  - {id: "record-full-duration-media-upper-case", vars: {param: recordFullDurationMedia, value: "TRUE"}}
+  - {id: "record-full-duration-media-one", vars: {param: recordFullDurationMedia, value: "1"}}
+  - {id: "record-full-duration-media-yes", vars: {param: recordFullDurationMedia, value: "yes"}}
+  - {id: "record-full-duration-media-empty", vars: {param: recordFullDurationMedia, value: ""}}
+  - {id: "meeting-keep-events-true", vars: {param: meetingKeepEvents, value: "true"}, class: contract}
+  - {id: "meeting-keep-events-false", vars: {param: meetingKeepEvents, value: "false"}, class: contract}
+  - {id: "meeting-keep-events-upper-case", vars: {param: meetingKeepEvents, value: "TRUE"}}
+  - {id: "meeting-keep-events-one", vars: {param: meetingKeepEvents, value: "1"}}
+  - {id: "meeting-keep-events-yes", vars: {param: meetingKeepEvents, value: "yes"}}
+  - {id: "meeting-keep-events-empty", vars: {param: meetingKeepEvents, value: ""}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Booleans, "${param}": "${value}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.props.recordProp]
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

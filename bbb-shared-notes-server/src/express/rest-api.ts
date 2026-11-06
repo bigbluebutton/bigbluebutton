@@ -8,6 +8,9 @@ import { exportDocumentToMarkdown } from "./handlers/exportDocumentToMarkdown";
 import { exportHtmlToPdf } from "./handlers/exportDocumentToPdf";
 import { exportDocumentToJson } from "./handlers/exportDocumentToJson";
 import { exportDocumentToYjs } from "./handlers/exportDocumentToYjs";
+import { mathToLatexText } from "../common/math";
+import { sanitizeFilenameSegment } from "../common/filename";
+import { decodeURLEncodedString } from "./utils";
 
 interface DocumentApi {
   get: RequestHandler;
@@ -26,11 +29,34 @@ const sendExportError = (
   );
 };
 
-const getExportFilename = (extension: string): string => {
-  const now = new Date();
+// Meeting names can be long; cap the sanitized segment so the whole filename
+// stays comfortably under the 255-byte filesystem limit (fixed overhead is ~35 chars).
+const MAX_MEETING_NAME_LENGTH = 200;
+
+const formatTimestamp = (date: Date): string => {
   const pad = (n: number) => String(n).padStart(2, '0');
-  const date = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
-  return `document_${date}.${extension}`;
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
+    + `_${pad(date.getHours())}-${pad(date.getMinutes())}`;
+};
+
+const sanitizeMeetingName = (name: string): string =>
+  sanitizeFilenameSegment(name).slice(0, MAX_MEETING_NAME_LENGTH);
+
+const getExportFilename = (
+  extension: string,
+  meetingName?: string,
+  meetingCreateTime?: string,
+): string => {
+  const parsedMeetingCreateTime = Number(meetingCreateTime);
+  const hasMeetingCreateTime = Number.isFinite(parsedMeetingCreateTime) && parsedMeetingCreateTime > 0;
+  const timestamp = formatTimestamp(new Date(hasMeetingCreateTime ? parsedMeetingCreateTime : Date.now()));
+
+  const sanitized = typeof meetingName === 'string' ? sanitizeMeetingName(meetingName) : '';
+  const hasName = /[a-z0-9]/i.test(sanitized);
+
+  return hasName
+    ? `${sanitized}_${timestamp}_Shared_Notes.${extension}`
+    : `Shared_Notes_${timestamp}.${extension}`;
 };
 
 const documentApi: DocumentApi = {
@@ -106,6 +132,18 @@ const documentApi: DocumentApi = {
       return sendExportError(response, 400, 'Invalid document name');
     }
 
+    const encodedMeetingName = request.headers['meeting-name'];
+    const meetingName = typeof encodedMeetingName === 'string'
+      ? decodeURLEncodedString(encodedMeetingName) || undefined
+      : undefined;
+    const meetingCreateTime = request.headers['meeting-create-time'];
+    const buildFilename = (extension: string): string =>
+      getExportFilename(
+        extension,
+        meetingName,
+        typeof meetingCreateTime === 'string' ? meetingCreateTime : undefined,
+      );
+
     try {
       switch (format) {
         case 'html': {
@@ -114,10 +152,11 @@ const documentApi: DocumentApi = {
 
           // Set response headers
           response.setHeader('Content-Type', 'text/html; charset=utf-8');
-          response.setHeader('Content-Disposition', `attachment; filename="${getExportFilename('html')}"`);
+          response.setHeader('Content-Disposition', `attachment; filename="${buildFilename('html')}"`);
 
-          // Send HTML
-          response.send(fullHtml);
+          // Send HTML. Recording playback reads <body> with a single-line
+          // pattern, so line breaks inside <pre> go out as character references.
+          response.send(fullHtml.replaceAll(/<pre\b[\s\S]*?<\/pre>/g, (pre) => pre.replaceAll('\n', '&#10;')));
           break;
         }
         case 'pdf': {
@@ -135,7 +174,7 @@ const documentApi: DocumentApi = {
 
           // Set response headers
           response.setHeader('Content-Type', 'application/pdf');
-          response.setHeader('Content-Disposition', `attachment; filename="${getExportFilename('pdf')}"`);
+          response.setHeader('Content-Disposition', `attachment; filename="${buildFilename('pdf')}"`);
           response.setHeader('Content-Length', pdfBuffer.length);
 
           logger.info('PDF generated successfully', { documentName });
@@ -147,7 +186,8 @@ const documentApi: DocumentApi = {
         case 'txt': {
           const fullHtmlToBeConvertedToPlainText = await exportDocumentToHtml(documentName);
           // Strip HTML tags to get plain text (emojis are preserved as Unicode characters)
-          const plainText = fullHtmlToBeConvertedToPlainText
+          // Math keeps its LaTeX source instead of the MathML layout text
+          const plainText = mathToLatexText(fullHtmlToBeConvertedToPlainText)
             .replaceAll(/<style(?=([^>]*))\1>(?:(?!<\/style>)[\s\S])*<\/style>/gi, '') // Remove style tags and content (ReDoS-safe)
             .replaceAll(/<script(?=([^>]*))\1>(?:(?!<\/script>)[\s\S])*<\/script>/gi, '') // Remove script tags and content (ReDoS-safe)
             .replaceAll(/<title(?=([^>]*))\1>(?:(?!<\/title>)[\s\S])*<\/title>/gi, '') // Remove title tags and content (ReDoS-safe)
@@ -167,7 +207,7 @@ const documentApi: DocumentApi = {
 
           // Set response headers
           response.setHeader('Content-Type', 'text/plain; charset=utf-8');
-          response.setHeader('Content-Disposition', `attachment; filename="${getExportFilename('txt')}"`);
+          response.setHeader('Content-Disposition', `attachment; filename="${buildFilename('txt')}"`);
 
           logger.info('TXT exported successfully', { documentName });
 
@@ -179,7 +219,7 @@ const documentApi: DocumentApi = {
           const jsonContent = await exportDocumentToJson(documentName);
 
           response.setHeader('Content-Type', 'application/json; charset=utf-8');
-          response.setHeader('Content-Disposition', `attachment; filename="${getExportFilename('json')}"`);
+          response.setHeader('Content-Disposition', `attachment; filename="${buildFilename('json')}"`);
 
           logger.info('JSON exported successfully', { documentName });
 
@@ -190,7 +230,7 @@ const documentApi: DocumentApi = {
           const yjsContent = await exportDocumentToYjs(documentName);
 
           response.setHeader('Content-Type', 'text/plain; charset=utf-8');
-          response.setHeader('Content-Disposition', `attachment; filename="${getExportFilename('yjs')}"`);
+          response.setHeader('Content-Disposition', `attachment; filename="${buildFilename('yjs')}"`);
 
           logger.info('YJS exported successfully', { documentName });
 
@@ -201,7 +241,7 @@ const documentApi: DocumentApi = {
           const markdownContent = await exportDocumentToMarkdown(documentName);
 
           response.setHeader('Content-Type', 'text/plain; charset=utf-8');
-          response.setHeader('Content-Disposition', `attachment; filename="${getExportFilename('md')}"`);
+          response.setHeader('Content-Disposition', `attachment; filename="${buildFilename('md')}"`);
 
           logger.info('Markdown exported successfully', { documentName });
 

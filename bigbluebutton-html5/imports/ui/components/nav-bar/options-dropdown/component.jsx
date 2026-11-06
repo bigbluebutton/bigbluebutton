@@ -310,6 +310,7 @@ class OptionsDropdown extends PureComponent {
           customStyles={!isMobile ? customStyles : null}
           trigger={(
             <Styled.DropdownButton
+              className="bbb-options-button"
               state={isDropdownOpen ? 'open' : 'closed'}
               label={intl.formatMessage(intlMessages.optionsLabel)}
               icon="more"
@@ -322,6 +323,7 @@ class OptionsDropdown extends PureComponent {
             />
           )}
           actions={this.renderMenuItems()}
+          overrideMobileStyles
           opts={{
             id: 'app-settings-dropdown-menu',
             keepMounted: true,

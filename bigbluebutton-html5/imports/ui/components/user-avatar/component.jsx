@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import cx from 'classnames';
+import useSettings from '/imports/ui/services/settings/hooks/useSettings';
+import { SETTINGS } from '/imports/ui/services/settings/enums';
 import Styled from './styles';
 import browserInfo from '/imports/utils/browserInfo';
 
@@ -33,8 +35,7 @@ const UserAvatar = ({
   avatar = '',
   isSkeleton = false,
 }) => {
-  const Settings = getSettingsSingletonInstance();
-  const { animations } = Settings.application;
+  const { animations } = useSettings(SETTINGS.APPLICATION);
 
   return (
     <>
@@ -48,7 +49,12 @@ const UserAvatar = ({
           presenter={presenter}
           you={you}
           viewer={!you && !moderator}
-          className={className}
+          className={cx('bbb-avatar', {
+            'bbb-avatar--moderator': moderator,
+            'bbb-avatar--presenter': presenter,
+            'bbb-avatar--you': you,
+            'bbb-avatar--talking': talking && !muted,
+          }, className)}
           isChrome={isChrome}
           isFirefox={isFirefox}
           isEdge={isEdge}

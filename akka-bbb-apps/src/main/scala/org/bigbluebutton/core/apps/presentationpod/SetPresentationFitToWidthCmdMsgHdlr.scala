@@ -20,7 +20,9 @@ trait SetPresentationFitToWidthCmdMsgHdlr extends RightsManagementTrait {
       val pageId = msg.body.pageId
       val fitToWidth = msg.body.fitToWidth;
 
-      PresPageDAO.updateFitToWidth(pageId, fitToWidth)
+      if (PresentationPodsApp.pageBelongsToMeeting(state, pageId)) {
+        PresPageDAO.updateFitToWidth(pageId, fitToWidth)
+      }
     }
     state
   }

@@ -1,14 +1,16 @@
 import styled, { css } from 'styled-components';
+import ButtonWrappers from '/imports/ui/components/common/button-wrapper/styles';
 import { borderRadiusRounded } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  colorPrimary,
+  colorBlueLighter,
+  colorDanger,
   colorGray,
   colorGrayLighter,
-  colorWhite,
   colorGrayUserListToolbar,
+  colorPrimary,
   colorText,
-  colorDanger,
-  colorBlueLighter,
+  colorWhite,
+  colorWhiteSurface,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 import {
@@ -16,7 +18,6 @@ import {
   Separator as BaseSeparator,
 } from '/imports/ui/components/sidebar-content/styles';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
-import Button from '/imports/ui/components/common/button/component';
 
 export const PanelContent = styled(BasePanelContent)`
   display: flex;
@@ -410,80 +411,7 @@ export const BottomBar = styled.div`
   border-top: 1px solid ${colorGrayLighter};
 `;
 
-interface BtnProps {
-  color?: string;
-  disabled?: boolean;
-  label: string;
-  onClick: React.MouseEventHandler;
-  role?: string;
-  size?: string;
-  icon?: string;
-}
-
-// @ts-ignore - Button is a JS component
-export const MegaphoneBtn = styled<BtnProps>(Button)`
-  background: ${colorPrimary};
-  border: none;
-  border-radius: 1rem;
-  padding: 1rem 1.5rem;
-  color: ${colorWhite};
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  font-size: 0.95rem;
-  font-weight: 600;
-
-  & > span {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-  }
-
-  & > span > i {
-    display: none;
-  }
-
-  &:hover {
-    opacity: 0.9;
-  }
-`;
-
-// @ts-ignore - Button is a JS component
-export const FinishBtn = styled<BtnProps>(Button)`
-  background: ${colorDanger};
-  border: none;
-  border-radius: 1rem;
-  padding: 1rem 1.5rem;
-  color: ${colorWhite};
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
-  min-width: 0;
-  font-size: 0.95rem;
-  font-weight: 600;
-
-  & > span {
-    color: ${colorWhite} !important;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  &:hover {
-    opacity: 0.9;
-    background: ${colorDanger};
-  }
-`;
+export const ButtonWrapper = ButtonWrappers.TruncatingButtonWrapper;
 
 export const MegaphoneChatArea = styled.div`
   padding: 0 1rem 0.5rem;
@@ -504,7 +432,7 @@ export const MegaphoneChatInput = styled.input`
   font-size: ${fontSizeBase};
   outline: none;
   color: ${colorText};
-  background: ${colorWhite};
+  background: ${colorWhiteSurface};
   transition: border-color 0.15s;
 
   &:focus {
@@ -570,8 +498,7 @@ export default {
   RoomCardUserItem,
   UserRemoveBtn,
   BottomBar,
-  MegaphoneBtn,
-  FinishBtn,
+  ButtonWrapper,
   MegaphoneChatArea,
   MegaphoneChatRow,
   MegaphoneChatInput,

@@ -34,4 +34,14 @@ select_permissions:
                   isModerator:
                     _eq: true
               - meetingId:
-                  _eq: X-Hasura-UserListNotLockedInMeeting
+                  _eq: X-Hasura-NotLockedInMeeting
+              - _exists:
+                  _table:
+                    name: v_meeting_lockSettings
+                    schema: public
+                  _where:
+                    _and:
+                      - meetingId:
+                          _eq: X-Hasura-MeetingId
+                      - hideUserList:
+                          _eq: false

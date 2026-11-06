@@ -56,6 +56,12 @@ trait RegisterUserReqMsgHdlr {
       }
     }
 
+    if (RegisteredUsers.isExtIdRevoked(liveMeeting.registeredUsers, msg.body.extUserId)) {
+      log.info("Ignoring register user request. meetingId=" + liveMeeting.props.meetingProp.intId
+        + " userId=" + msg.body.extUserId)
+      return
+    }
+
     val guestStatus = msg.body.guestStatus
 
     val regUser = RegisteredUsers.create(liveMeeting.props.meetingProp.intId, msg.body.intUserId, msg.body.extUserId,
