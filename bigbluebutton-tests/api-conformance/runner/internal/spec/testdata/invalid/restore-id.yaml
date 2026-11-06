@@ -1,0 +1,7 @@
+# want: 7: steps[0].restore.recordings[0]: '../published' does not match pattern
+id: getRecordings.x.y
+title: t
+endpoint: getRecordings
+class: contract
+steps:
+  - restore: {recordings: [../published]}

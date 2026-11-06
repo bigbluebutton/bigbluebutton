@@ -42,7 +42,7 @@ const minAttempt = 250 * time.Millisecond
 
 // Implemented lists the step types this runner can execute.
 var Implemented = map[spec.StepKind]bool{spec.KindCall: true, spec.KindWait: true, spec.KindPresence: true, spec.KindGraphQL: true,
-	spec.KindBus: true, spec.KindFS: true, spec.KindRedis: true, spec.KindSink: true}
+	spec.KindBus: true, spec.KindFS: true, spec.KindRedis: true, spec.KindSink: true, spec.KindRestore: true}
 
 // Runner runs cases against one target.
 type Runner struct {
@@ -86,6 +86,11 @@ type Runner struct {
 	tapDown      error
 	sinkDown     error
 	sinkHTTPDown error
+	// noTapRecordings says the tap answered without fixture recordings
+	// (bbb-conform tap --recordings), so it gives no recordings-fs;
+	// fixturesDown is why it couldn't put them back before the run.
+	noTapRecordings bool
+	fixturesDown    error
 }
 
 // Observed is one response, with what diff and record mode need about it.
@@ -218,7 +223,7 @@ func (r *Runner) skipReason(c *spec.Case) string {
 	}
 	var missing []string
 	for _, capName := range c.Requires {
-		if !r.Target.Has(capName) {
+		if !r.hasCap(capName) {
 			missing = append(missing, capName)
 		}
 	}
@@ -283,11 +288,21 @@ const profileTimeout = 15 * time.Minute
 // Results keep the order of cases.
 func (r *Runner) RunAll(ctx context.Context, cases []*spec.Case, parallel int) *report.Run {
 	run := &report.Run{Target: r.Target.Name, Started: time.Now()}
-	r.tapDown = nil
+	r.tapDown, r.noTapRecordings, r.fixturesDown = nil, false, nil
 	if r.Tap != nil && slices.ContainsFunc(cases, func(c *spec.Case) bool { return usesTap(c) && r.skipReason(c) == "" }) {
-		pctx, cancel := context.WithTimeout(ctx, 10*time.Second)
-		if _, err := r.Tap.Info(pctx); err != nil {
+		pctx, cancel := context.WithTimeout(ctx, 30*time.Second)
+		info, err := r.Tap.Info(pctx)
+		switch {
+		case err != nil:
 			r.tapDown = fmt.Errorf("the tap at %s didn't answer before the run: %w", r.Target.TapURL, err)
+		case info.RecordingCount == 0:
+			r.noTapRecordings = true
+		case slices.ContainsFunc(cases, func(c *spec.Case) bool { return usesFixtures(c) && r.skipReason(c) == "" }):
+			// Every run starts from the fixture tree, whatever an earlier
+			// one left behind.
+			if err := r.Tap.RestoreAll(pctx); err != nil {
+				r.fixturesDown = fmt.Errorf("the tap at %s didn't put its fixture recordings back before the run: %w", r.Target.TapURL, err)
+			}
 		}
 		cancel()
 	}
@@ -477,6 +492,10 @@ func (r *Runner) RunCase(ctx context.Context, c *spec.Case, uid string) *report.
 		res.Status, res.Reason = report.Error, r.Redactor.Redact(r.tapDown.Error())
 		return res
 	}
+	if r.fixturesDown != nil && usesFixtures(c) {
+		res.Status, res.Reason = report.Error, r.Redactor.Redact(r.fixturesDown.Error())
+		return res
+	}
 	if r.sinkDown != nil && usesSink(c) {
 		res.Status, res.Reason = report.Error, r.Redactor.Redact(r.sinkDown.Error())
 		return res
@@ -606,6 +625,8 @@ func (x *exec) step(ctx context.Context, phase string, i int, s spec.Step) repor
 		x.redis(ctx, phase, i, s, &sr)
 	case spec.KindSink:
 		x.sink(ctx, phase, i, s, &sr)
+	case spec.KindRestore:
+		x.restore(ctx, s, &sr)
 	default:
 		sr.Status, sr.Message = report.Skip, "unimplemented: "+string(s.Kind)
 	}

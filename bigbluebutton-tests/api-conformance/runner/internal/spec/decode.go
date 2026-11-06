@@ -167,7 +167,7 @@ func (d *decoder) decodeCase(root *yaml.Node, file, variantID string) *Case {
 		for i, st := range mapGet(root, "steps").Content {
 			s := c.Steps[i]
 			ignored := s.Call != nil && s.Call.IgnoreResult
-			if s.Kind != KindWait && !ignored && s.Golden != "document" && s.Golden != "off" {
+			if s.Kind != KindWait && s.Kind != KindRestore && !ignored && s.Golden != "document" && s.Golden != "off" {
 				d.f.errf(st, "steps[%d]: a triage case records what the server answers without comparing it: give the step golden: document", i)
 			}
 		}
@@ -226,6 +226,10 @@ func (d *decoder) step(n *yaml.Node, where string) Step {
 		s.Call, s.Expect = d.call(n, key, where)
 	case KindWait:
 		s.Wait = duration(mapGet(n, "wait"))
+	case KindRestore:
+		for _, id := range mapGet(mapGet(n, key), "recordings").Content {
+			s.Restore = append(s.Restore, id.Value)
+		}
 	case KindPresence:
 		s.Presence = d.presence(mapGet(n, key), where)
 		if e := mapGet(n, "expect"); e != nil {
@@ -996,7 +1000,7 @@ func (d *decoder) checkTemplate(n *yaml.Node, text, in string) {
 	for _, c := range t.Calls() {
 		fn, ok := tmpl.LookupFunc(c.Name)
 		if !ok {
-			d.f.errf(n, "%sunknown function %s (known: base64File, checksum, repeat, urlencode)", prefix, c.Name)
+			d.f.errf(n, "%sunknown function %s (known: base64File, checksum, match, repeat, urlencode)", prefix, c.Name)
 			continue
 		}
 		if len(c.Args) != fn.Arity {

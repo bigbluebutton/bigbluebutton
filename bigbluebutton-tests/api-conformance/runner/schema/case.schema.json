@@ -60,7 +60,7 @@
         {"required": ["call"]}, {"required": ["route"]}, {"required": ["url"]},
         {"required": ["wait"]}, {"required": ["presence"]}, {"required": ["graphql"]},
         {"required": ["bus"]}, {"required": ["fs"]}, {"required": ["redis"]},
-        {"required": ["sink"]}, {"required": ["env"]}
+        {"required": ["sink"]}, {"required": ["env"]}, {"required": ["restore"]}
       ],
       "allOf": [
         {"if": {"anyOf": [{"required": ["call"]}, {"required": ["route"]}, {"required": ["url"]}]}, "then": {"$ref": "#/$defs/callStep"}},
@@ -71,7 +71,8 @@
         {"if": {"required": ["fs"]}, "then": {"$ref": "#/$defs/fsStep"}},
         {"if": {"required": ["redis"]}, "then": {"$ref": "#/$defs/redisStep"}},
         {"if": {"required": ["sink"]}, "then": {"$ref": "#/$defs/sinkStep"}},
-        {"if": {"required": ["env"]}, "then": {"$ref": "#/$defs/envStep"}}
+        {"if": {"required": ["env"]}, "then": {"$ref": "#/$defs/envStep"}},
+        {"if": {"required": ["restore"]}, "then": {"$ref": "#/$defs/restoreStep"}}
       ]
     },
 
@@ -405,6 +406,28 @@
         "golden": {"$ref": "#/$defs/golden"}
       }
     },
+    "restoreStep": {
+      "description": "Puts fixture recordings back as fixtures/recordings has them, through the target's tap (bbb-conform tap --recordings): every copy bbb-web made goes, in any state, with the recording's caption files and captions-inbox uploads.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "restore": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["recordings"],
+          "properties": {
+            "recordings": {
+              "description": "Record IDs of fixture recordings.",
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {"type": "string", "pattern": "^[A-Za-z0-9_-]+$"}
+            }
+          }
+        }
+      }
+    },
+
     "envStep": {
       "type": "object",
       "additionalProperties": false,

@@ -1,0 +1,8 @@
+# want: 7: steps[0]: additional properties 'golden' not allowed
+id: getRecordings.x.y
+title: t
+endpoint: getRecordings
+class: contract
+steps:
+  - restore: {recordings: [rec-a]}
+    golden: off
