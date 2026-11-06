@@ -1,4 +1,4 @@
-# Images of BigBlueButton. Build them all with `docker buildx bake`; see docker/README.md.
+# Images of BigBlueButton. Build them all with `docker buildx bake -f docker-bake.hcl`; see docker/README.md.
 
 variable "BBB_IMAGE_REGISTRY" {
   default = "ghcr.io/bigbluebutton/bigbluebutton"
