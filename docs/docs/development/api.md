@@ -1685,7 +1685,7 @@ This is particularly useful for hybrid environments where multiple screens in th
 
 It also facilitates seamless user session transfers to another device. For example, a mobile device can scan a QR code displayed on a computer, instantly migrating the user’s session from one device to another.
 
-The caller must present the `sessionToken` of an existing, still-active session; the resulting `/join` URL carries a valid `checksum` and can then be opened directly by the browser.
+The caller must present the `sessionToken` of an existing, still-active session; the resulting `/join` URL carries a valid `checksum` and can then be opened directly by the browser. The checksum uses the strongest algorithm listed in `supportedChecksumAlgorithms`.
 
 **Resource URL:**
 

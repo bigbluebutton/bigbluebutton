@@ -24,7 +24,6 @@ import groovy.json.JsonBuilder
 import groovy.xml.MarkupBuilder
 import groovy.xml.XmlSlurper
 import org.apache.commons.codec.binary.Base64
-import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FilenameUtils
 import org.apache.commons.lang3.StringUtils
 import org.bigbluebutton.api.*
@@ -1380,8 +1379,8 @@ class ApiController {
       log.info(" --analytics-- data=" + logStr);
 
       String method = 'join'
-      String externalMeetingId = validationService.encodeString(meeting.getExternalId())
-      String fullName = validationService.encodeString(us.fullname)
+      String externalMeetingId = meeting.getExternalId()
+      String fullName = us.fullname
       LinkedHashMap<String, String> queryParameters = new LinkedHashMap<>();
       queryParameters.put("fullName", fullName);
       queryParameters.put("meetingID", externalMeetingId);
@@ -1431,7 +1430,7 @@ class ApiController {
         httpQueryString += ( queryParameters.isEmpty() ? "?" : "&" ) + validationService.encodeString(parameterName) + "=" + validationService.encodeString(queryParameters.get(parameterName));
       }
 
-      String checksum = DigestUtils.sha1Hex(method + httpQueryString + validationService.getSecuritySalt())
+      String checksum = validationService.calculateChecksum(method + httpQueryString + validationService.getSecuritySalt())
       String defaultServerUrl = paramsProcessorUtil.defaultServerUrl
 
       def builder = new JsonBuilder()
