@@ -123,8 +123,8 @@ Tags decide which tests run where:
 
 | Selection           | Tests                                                      | npm script                                               | Runs                                                                                                                        |
 | ------------------- | ---------------------------------------------------------- | -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| Pull request gate   | `@ci` minus the quarantine tags                            | `test-chromium-ci` (`test-chromium` without CI settings) | on every pull request, in 8 shards                                                                                          |
-| Legacy media bridge | the gate tests that are also `@media`, on `bbb-webrtc-sfu` | `test-chromium-media-ci`                                 | on every pull request                                                                                                       |
+| Pull request gate   | `@ci` minus the quarantine tags and `@nightly`             | `test-chromium-ci` (`test-chromium` without CI settings) | on every pull request, in 8 shards                                                                                          |
+| Legacy media bridge | the gate tests that are also `@media`, on `bbb-webrtc-sfu` | `test-chromium-media-ci`                                 | locally, with `MEDIA_BRIDGE=bbb-webrtc-sfu`; in CI every night, as the nightly's `media-bbb-webrtc-sfu` job                 |
 | Firefox gate        | the gate selection on Firefox                              | `test-firefox-ci`                                        | on pull requests labelled `test Firefox`; runs nothing while the Firefox project is commented out in `playwright.config.ts` |
 
 The quarantine tags are defined once, as `config.quarantine` in `package.json`; the npm scripts and the workflow read them from there. A quarantined test leaves the gate:
@@ -135,7 +135,7 @@ The quarantine tags are defined once, as `config.quarantine` in `package.json`; 
 - `@setting-required:<setting>` — needs a non-default server setting
 - `@only-headed` — cannot run headless (no test carries it at the moment)
 
-Tests tagged `@nightly` cover extended test sets or wait minutes for recording processing or timers, so they are not tagged `@ci` and the gates never select them; `npm run test-nightly` runs them on Chromium. The tests of recording formats other than presentation run only for the formats listed in `RECORDING_FORMATS` (e.g. `presentation,podcast,video,screenshare,notes`).
+Tests tagged `@nightly` cover extended test sets or wait minutes for recording processing or timers. The gates never select them, even inside a describe tagged `@ci`, so a `@ci` test moves to the nightly by taking the `@nightly` tag itself; `npm run test-nightly` runs them on Chromium. The Nightly tests workflow (`.github/workflows/nightly-tests.yml`) runs them every night, together with the whole non-quarantined suite on the default bridge and the gate's `@media` tests on `bbb-webrtc-sfu`, the selection of the former per-PR legacy media job. The tests of recording formats other than presentation run only for the formats listed in `RECORDING_FORMATS` (e.g. `presentation,podcast,video,screenshare,notes`).
 
 The initial whiteboard tool tests in `parameters/initialSelectedTool.spec.ts` keep seven representative cases in `@ci`: `draw`, `rectangle`, menu and non-string fallback, a restricted tool list, saved-shape reload, and viewer access. The remaining 42 cases use `@nightly`. Run the file without a tag filter to check all 49 cases:
 
@@ -189,7 +189,7 @@ npm run typecheck
 
 ### Pre-commit Hooks
 
-The project uses Husky to run formatting checks and type checking before commits. This ensures that all committed code follows the established style guidelines.
+The project uses Husky to run the formatting check, the linter and the type check (`npm run format:check && npm run lint && npm run typecheck`) before commits. This ensures that all committed code follows the established style guidelines. The workflow `.github/workflows/playwright-code-validation.yml` runs the same three checks on every pull request that changes this directory.
 
 ### Editor Integration
 
@@ -205,7 +205,7 @@ VSCode settings are provided in `.vscode/settings.json` for automatic formatting
 
 After opening a PR, the CI will run automated tests within your changes + target branch merged. When it finishes testing, generated files of the execution are exposed to be downloaded in the action run tab. the files / data is used mostly for exploring failures.
 
-In CI a failed test is retried once, and a test that passes on the retry does not fail the job. The jobs that run this suite (`install-and-run-bbb-tests` and the legacy media job) list each such test under "Passed only on retry" in the job's summary (the run's Summary page), with the error of its first attempt; check that list for tests your change may have made flaky. The plugin SDK job runs the SDK's own tests with Playwright's reporters and has no such list.
+In CI a failed test is retried once, and a test that passes on the retry does not fail the job. The `install-and-run-bbb-tests` job lists each such test under "Passed only on retry" in the job's summary (the run's Summary page), with the error of its first attempt; check that list for tests your change may have made flaky. The plugin SDK job runs the SDK's own tests with Playwright's reporters and has no such list.
 
 To check the test results locally:
 

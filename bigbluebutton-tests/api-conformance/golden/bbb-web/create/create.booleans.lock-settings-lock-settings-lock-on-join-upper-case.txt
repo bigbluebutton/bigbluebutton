@@ -1,0 +1,16 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.booleans.lock-settings-lock-settings-lock-on-join-upper-case
+target bbb-web
+
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.lockSettingsProps
+$.core.body.props.lockSettingsProps.disableCam false
+$.core.body.props.lockSettingsProps.disableMic false
+$.core.body.props.lockSettingsProps.disableNotes false
+$.core.body.props.lockSettingsProps.disablePrivateChat false
+$.core.body.props.lockSettingsProps.disablePublicChat false
+$.core.body.props.lockSettingsProps.hideUserList false
+$.core.body.props.lockSettingsProps.hideViewersAnnotation false
+$.core.body.props.lockSettingsProps.hideViewersCursor false
+$.core.body.props.lockSettingsProps.lockOnJoin true
+$.core.body.props.lockSettingsProps.lockOnJoinConfigurable false
+$.core.body.props.lockSettingsProps.presenterPolicy "requireApproval"

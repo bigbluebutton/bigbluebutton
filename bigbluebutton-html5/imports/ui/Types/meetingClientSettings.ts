@@ -68,11 +68,8 @@ export interface App {
   wakeLock: WakeLock
   allowDefaultLogoutUrl: boolean
   skipMeetingEnded: boolean
-  dynamicGuestPolicy: boolean
   enableGuestLobbyMessage: boolean
   showGuestLobbyWaitingQueuePosition: boolean
-  guestPolicyExtraAllowOptions: boolean
-  alwaysShowWaitingRoomUI: boolean
   enableLimitOfViewersInWebcam: boolean
   enableMultipleCameras: boolean
   enableCameraAsContent: boolean
@@ -194,7 +191,6 @@ export interface ReactionsButton {
 
 export interface EmojiRain {
   enabled: boolean
-  intervalEmojis: number
   numberOfEmojis: number
   emojiSize: number
 }
@@ -246,7 +242,7 @@ export interface Application {
 export interface Audio {
   inputDeviceId: string
   outputDeviceId: string
-  processingMode: 'advanced' | 'standard' | 'original'
+  processingMode: 'voiceIsolation' | 'advanced' | 'standard' | 'original'
 }
 
 export interface DataSaving {
@@ -756,6 +752,7 @@ export interface LiveKitSettings {
 export interface AudioWasmProcessingSettings {
   enabled: boolean
   provider?: 'bbba' | 'workadventureDtln'
+  intensity?: number
   // See: https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
   constraints?: Record<string, unknown>
 }
@@ -802,7 +799,6 @@ export interface Stats {
   notification: Notification
   loss: StatsThresholds
   rtt: StatsThresholds
-  help: string
 }
 
 export interface StatsThresholds {

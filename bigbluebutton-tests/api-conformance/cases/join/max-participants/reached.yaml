@@ -1,0 +1,38 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# Once as many users as maxParticipants are in the meeting, join refuses
+# another with maxParticipantsReached. bbb-web counts the users akka-apps
+# reports as joined, so the case waits until getMeetingInfo counts both.
+id: join.max-participants.reached
+title: join refuses a user once maxParticipants users are in the meeting
+endpoint: join
+class: contract
+tags: [ci, presence]
+requires: [akka, presence]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Max participants, maxParticipants: "2"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: moderator, userID: ann}}
+    golden: off
+  - presence: {action: join, as: vic, args: {meetingID: "${uid}", fullName: Vic, role: viewer, userID: vic}}
+    golden: off
+  # bbb-web learns of the joins from akka-apps a moment later.
+  - call: getMeetingInfo
+    params: {meetingID: "${uid}"}
+    golden: off
+    eventually: {within: 10s, every: 200ms, until: {xpath: {/response/participantCount: "2"}}}
+    expect: {xpath: {/response/participantCount: "2"}}
+  - call: join
+    params: {meetingID: "${uid}", fullName: Bob, role: viewer, redirect: "false"}
+    expect: {returncode: FAILED, messageKey: maxParticipantsReached}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

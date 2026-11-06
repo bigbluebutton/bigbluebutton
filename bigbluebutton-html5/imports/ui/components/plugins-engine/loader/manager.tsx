@@ -7,8 +7,7 @@ const PluginLoaderManager = (props: PluginLoaderManagerProps) => {
   const {
     uuid,
     containerRef,
-    setNumberOfLoadedPlugins,
-    setLastLoadedPlugin,
+    onPluginLoadSettled,
     pluginApi,
     loggerSettings,
     pluginConfig: plugin,
@@ -31,12 +30,16 @@ const PluginLoaderManager = (props: PluginLoaderManagerProps) => {
     containerRef.current?.appendChild(div);
 
     const script: HTMLScriptElement = document.createElement('script');
+    const loadStartedAt = performance.now();
     script.onload = () => {
-      setNumberOfLoadedPlugins((current) => current + 1);
-      setLastLoadedPlugin(script);
       logger.info({
         logCode: 'plugin_loaded',
+        extraInfo: {
+          pluginName: plugin.name,
+          loadTimeMs: Math.round(performance.now() - loadStartedAt),
+        },
       }, `Loaded plugin ${plugin.name}`);
+      onPluginLoadSettled(uuid, true);
     };
     script.onerror = () => {
       logger.error({
@@ -44,8 +47,10 @@ const PluginLoaderManager = (props: PluginLoaderManagerProps) => {
         extraInfo: {
           pluginName: plugin.name,
           pluginUrl: plugin.url,
+          loadTimeMs: Math.round(performance.now() - loadStartedAt),
         },
       }, `Error when loading plugin ${plugin.name}`);
+      onPluginLoadSettled(uuid, false);
     };
     script.src = plugin.url;
     script.setAttribute('uuid', div.id);

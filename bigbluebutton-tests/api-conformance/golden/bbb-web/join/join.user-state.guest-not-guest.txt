@@ -1,0 +1,8 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case join.user-state.guest-not-guest
+target bbb-web
+
+== step 4: graphql query Me as ann
+$.data.user_current[].authed false
+$.data.user_current[].guest false
+$.data.user_current[].guestStatus "ALLOW"

@@ -8,17 +8,30 @@ import { getRemoteAudioStates, type RemoteAudioState, type TestWindow } from './
 import { connectMicrophone } from './util';
 
 // Only the client reads the Last-N settings, so turning them on for the listener is enough.
-export const lastNSettingsOverrides = (audibleSize: number, standbySize: number): ClientSettingsOverrides => ({
+export const lastNSettingsOverrides = (
+  audibleSize: number,
+  standbySize: number,
+  speechHoldMs?: number,
+): ClientSettingsOverrides => ({
   public: {
     media: {
       livekit: {
         selectiveSubscription: {
-          lastN: { enabled: true, audibleSize, standbySize },
+          lastN: { enabled: true, audibleSize, standbySize, ...(speechHoldMs ? { speechHoldMs } : {}) },
         },
       },
     },
   },
 });
+
+// The listener's speechHoldMs. Long enough that SpeakerB's unmute still
+// counts as speech for over a second after LiveKit detects SpeakerA talking.
+// A talker who waits for that to end misses TAKEOVER_MS by far.
+export const UNMUTE_CASE_SPEECH_HOLD_MS = 3000;
+
+// Last-N re-ranks on the speaker update itself, so the talker should start
+// playing almost as soon as the listener sees them speaking.
+const TAKEOVER_MS = 500;
 
 // LiveKit sends 1 s of silence frames when a subscription is disabled; a
 // 2 s window after the tiers settle only counts real media.
@@ -38,11 +51,17 @@ type ProbeWindow = TestWindow & { bbbLastNSubscriptionLog?: SubscriptionChange[]
 
 type TalkWindow = Window & { bbbTestTalk?: (on: boolean) => void };
 
+type MicEvent = 'playing' | 'speaking';
+
+type MicLogWindow = TestWindow & { bbbLastNMicLog?: { identity: string; event: MicEvent; at: number }[] };
+
 interface SpeakerSetup {
   // Microphones that sound only while the test makes the speaker talk.
   switchableMicrophones?: boolean;
   // SpeakerB stays muted after joining audio.
   secondSpeakerMuted?: boolean;
+  // The listener's speechHoldMs; the client default when unset.
+  speechHoldMs?: number;
 }
 
 type EventedRoom = {
@@ -159,6 +178,60 @@ const talk = async (speaker: Page, on = true): Promise<void> => {
 const isReportedSpeaking = (page: PlaywrightPage, identity: string): Promise<boolean> =>
   page.evaluate((id) => (window as TestWindow).liveKitRoom?.remoteParticipants.get(id)?.isSpeaking ?? false, identity);
 
+// Logs when the page starts playing each remote microphone and when LiveKit
+// starts reporting each remote participant speaking, by the page's own clock.
+// Sampling in the page keeps the test's round trips out of the times.
+const startMicLog = (page: PlaywrightPage): Promise<void> =>
+  page.evaluate(() => {
+    const w = window as MicLogWindow;
+    const active = new Set<string>();
+
+    w.bbbLastNMicLog = [];
+    setInterval(() => {
+      w.liveKitRoom?.remoteParticipants.forEach((participant) => {
+        const states: [MicEvent, boolean][] = [
+          [
+            'playing',
+            Array.from(participant.audioTrackPublications.values()).some(
+              (pub) => pub.source === 'microphone' && pub.isSubscribed && pub.isEnabled !== false,
+            ),
+          ],
+          ['speaking', !!participant.isSpeaking],
+        ];
+
+        states.forEach(([event, on]) => {
+          const key = `${participant.identity}/${event}`;
+
+          if (on && !active.has(key)) w.bbbLastNMicLog?.push({ identity: participant.identity, event, at: Date.now() });
+          if (on) active.add(key);
+          else active.delete(key);
+        });
+      });
+    }, 10);
+  });
+
+// The first time startMicLog saw the event for the participant after a given time.
+const waitForMicEvent = async (
+  page: PlaywrightPage,
+  identity: string,
+  event: MicEvent,
+  message: string,
+  after = 0,
+): Promise<number> => {
+  const loggedAt = () =>
+    page.evaluate(
+      ([id, kind, since]) =>
+        ((window as MicLogWindow).bbbLastNMicLog ?? []).find(
+          (entry) => entry.identity === id && entry.event === kind && entry.at > since,
+        )?.at,
+      [identity, event, after] as const,
+    );
+
+  await expect.poll(loggedAt, { message, timeout: ELEMENT_WAIT_TIME }).toBeDefined();
+
+  return (await loggedAt()) ?? 0;
+};
+
 // Remote identities whose microphone delivered new packets between two samples.
 const receivingIdentities = async (page: PlaywrightPage, windowMs: number): Promise<string[]> => {
   const before = await getRemoteAudioStates(page);
@@ -184,7 +257,7 @@ export class LastN extends MultiUsers {
     testInfo: TestInfo,
     audibleSize: number,
     standbySize: number,
-    { switchableMicrophones = false, secondSpeakerMuted = false }: SpeakerSetup = {},
+    { switchableMicrophones = false, secondSpeakerMuted = false, speechHoldMs }: SpeakerSetup = {},
   ) {
     await this.context.addInitScript(() => {
       (window as TestWindow).BBB_EXPOSE_LIVEKIT_ROOM = true;
@@ -193,7 +266,7 @@ export class LastN extends MultiUsers {
     await this.initModPage(await this.context.newPage(), {
       testInfo,
       fullName: 'Listener',
-      clientSettingsOverrides: lastNSettingsOverrides(audibleSize, standbySize),
+      clientSettingsOverrides: lastNSettingsOverrides(audibleSize, standbySize, speechHoldMs),
     });
     await this.initUserPage(this.context, { testInfo, fullName: 'SpeakerA' });
     await this.initUserPage2(this.context, { testInfo, fullName: 'SpeakerB' });
@@ -375,8 +448,9 @@ export class LastN extends MultiUsers {
 
   // SpeakerA is unmuted, silent and audible; SpeakerB is muted. An unmute is
   // the first sign that SpeakerB is about to talk, so it alone must give them
-  // the slot, before any speech on their microphone.
-  async expectUnmuteTakesAudibleSlot() {
+  // the slot. SpeakerB may never talk, so SpeakerA must get it back as soon
+  // as SpeakerA talks.
+  async expectUnmuteTakesAudibleSlot(speechHoldMs: number) {
     const silentSpeaker = this.userPage;
     const unmutingSpeaker = this.userPage2;
     const silentIdentity = await getLocalIdentity(silentSpeaker.page);
@@ -388,17 +462,41 @@ export class LastN extends MultiUsers {
         timeout: ELEMENT_WAIT_EXTRA_LONG_TIME,
       })
       .toBe(1);
+    // SpeakerA's own unmute counts as speech for speechHoldMs from about when
+    // it became audible. After that, SpeakerB's unmute is the only speech.
+    await this.modPage.page.waitForTimeout(speechHoldMs);
 
+    await startMicLog(this.modPage.page);
     await unmutingSpeaker.waitAndClick(e.unmuteMicButton);
     await unmutingSpeaker.hasElement(e.muteMicButton, 'the second speaker should be unmuted');
 
-    await expect
-      .poll(() => this.enabledCount(unmutingIdentity), {
-        message: 'the speaker who unmutes should become audible before talking',
-        timeout: ELEMENT_WAIT_TIME,
-      })
-      .toBe(1);
+    const unmuterPlayingAt = await waitForMicEvent(
+      this.modPage.page,
+      unmutingIdentity,
+      'playing',
+      'the speaker who unmutes should become audible before talking',
+    );
     expect(await this.enabledCount(silentIdentity), 'the silent speaker should give up the only slot').toBe(0);
     expect(await unmutingSpeaker.checkElement(e.isTalking), 'the second speaker should not have talked').toBe(false);
+
+    await talk(silentSpeaker);
+    const talkerReportedAt = await waitForMicEvent(
+      this.modPage.page,
+      silentIdentity,
+      'speaking',
+      'the listener should see the speaker who talks speaking',
+    );
+    const talkerPlayingAt = await waitForMicEvent(
+      this.modPage.page,
+      silentIdentity,
+      'playing',
+      'the speaker who talks should take the slot back',
+      unmuterPlayingAt,
+    );
+    expect(
+      talkerPlayingAt - talkerReportedAt,
+      'the speaker who talks should take the slot back once seen speaking, though the other one just unmuted',
+    ).toBeLessThan(TAKEOVER_MS);
+    expect(await this.enabledCount(unmutingIdentity), 'the speaker who only unmuted should go back to standby').toBe(0);
   }
 }

@@ -1,0 +1,30 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# By default a successful join redirects to the HTML5 client with the user's
+# session token, and starts an HTTP session whose cookie is Secure.
+id: join.response.redirect
+title: join redirects to the client with a session token
+endpoint: join
+class: contract
+tags: [ci]
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Join response}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: join
+    params: {meetingID: "${uid}", fullName: Ann, role: viewer}
+    expect:
+      status: 302
+      headers:
+        Set-Cookie: {regex: '(?i);\s*secure'}
+      redirect:
+        path: {regex: /html5client/}
+        query: {sessionToken: {exists: true}}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

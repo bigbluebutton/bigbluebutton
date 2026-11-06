@@ -1,0 +1,8 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case join.validation.ended-meeting
+target bbb-web
+
+== step 3: call join (document)
+status 302
+location ${baseUrl}?errors=[{"message":"You can not join a meeting that has already been forcibly ended","key":"meetingForciblyEnded"}]
+body (redirect)

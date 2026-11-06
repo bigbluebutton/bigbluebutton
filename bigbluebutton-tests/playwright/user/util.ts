@@ -38,8 +38,8 @@ export const LIVEKIT_AUDIO_STATE_OVERRIDE: ClientSettingsOverrides = {
   },
 };
 
-export function emojiRainSettingsOverride(enabled: boolean): ClientSettingsOverrides {
-  return { public: { app: { emojiRain: { enabled, numberOfEmojis: 5 } } } };
+export function emojiRainSettingsOverride(enabled: boolean, numberOfEmojis: number = 5): ClientSettingsOverrides {
+  return { public: { app: { emojiRain: { enabled, numberOfEmojis } } } };
 }
 
 // The server expires reactions, checking every 5 seconds, so only the meeting's clientSettingsOverride

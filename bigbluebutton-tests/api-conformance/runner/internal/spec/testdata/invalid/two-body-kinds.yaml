@@ -1,0 +1,8 @@
+# want: 8: steps[0].body: a body needs exactly one of xml, xmlFile, form, json, raw, multipart; found xml and raw
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+steps:
+  - call: create
+    body: {xml: <a/>, raw: x}

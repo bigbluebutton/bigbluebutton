@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# disabledFeatures is a comma-separated list, merged with the
+# disabledFeatures setting (chat and polls under alt-defaults). Entries are
+# trimmed and kept whatever they are, unknown or in another case; an entry
+# of only spaces becomes an empty one. The result is in akka-apps' meeting
+# props.
+id: create.features.disabled-features
+title: create with disabledFeatures=${value}${under}
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus]
+variants:
+  - {id: one, vars: {value: chat, under: ""}}
+  - {id: several, vars: {value: "chat,polls", under: ""}}
+  - {id: space-after-comma, vars: {value: "chat, polls", under: ""}}
+  - {id: blank-entry, vars: {value: "chat, ,polls", under: ""}, class: compat}
+  - {id: unknown, vars: {value: noSuchFeature, under: ""}, class: compat}
+  - {id: other-case, vars: {value: Chat, under: ""}, class: compat}
+  - {id: merged, vars: {value: "chat,learningDashboard", under: " (alt-defaults)"}, profile: alt-defaults, tags: [disruptive]}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Features, disabledFeatures: "${value}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.props.meetingProp.disabledFeatures]
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

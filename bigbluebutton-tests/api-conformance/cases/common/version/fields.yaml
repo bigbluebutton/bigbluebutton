@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+id: version.fields.xml
+title: The version endpoint answers XML without a checksum
+endpoint: version
+class: contract
+tags: [ci]
+steps:
+  - call: ""
+    expect:
+      returncode: SUCCESS
+      headers: {Cache-Control: no-cache, Content-Type: {contains: xml}}
+      xpath:
+        /response/version: {exists: true}
+        /response/apiVersion: {exists: true}
+        /response/bbbVersion: {count: 1}
+        /response/graphqlWebsocketUrl: {exists: true}
+        /response/graphqlApiUrl: {exists: true}
+        /response/html5PluginSdkVersion: {exists: true}
