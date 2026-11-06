@@ -1,25 +1,23 @@
 import styled from 'styled-components';
 import {
   borderSize,
-  borderSizeSmall,
   navigationSidebarListItemsWidth,
   navigationSidebarIconSize,
   navigationSidebarIconSizeSmallHeight,
-  navigationSidebarNotificationBadgeSize,
-  navigationSidebarNotificationBadgeFontSize,
-  navigationSidebarNotificationBadgeBottom,
-  navigationSidebarNotificationBadgeRight,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorGrayIcons,
   colorGrayLightest,
   colorPrimary,
   colorWhite,
-  colorWhiteBorder,
   itemFocusBorder,
   listItemBgHover,
-  notificationBadgeBg,
 } from '/imports/ui/stylesheets/styled-components/palette';
+import {
+  notificationBadgeAnchor,
+  notificationBadgeShape,
+  notificationBadgeText,
+} from '/imports/ui/components/common/notification-badge/styles';
 import { ListItemProps } from './types';
 
 const smallHeight = '(max-height: 40em)';
@@ -77,35 +75,17 @@ export const ListItem = styled.div<ListItemProps>`
   ${({ $hasNotification, $hasPrivateNotification }: ListItemProps) => $hasNotification && !$hasPrivateNotification && `
     &:after {
       content: '';
-      position: absolute;
-      border-radius: 50%;
-      width: ${navigationSidebarNotificationBadgeSize};
-      height: ${navigationSidebarNotificationBadgeSize};
-      bottom: ${navigationSidebarNotificationBadgeBottom};
-      right: ${navigationSidebarNotificationBadgeRight};
-      background-color: ${notificationBadgeBg};
-      border: ${borderSizeSmall} solid ${colorWhiteBorder};
+      ${notificationBadgeShape}
+      ${notificationBadgeAnchor}
     }
   `}
 
   ${({ $hasPrivateNotification }: ListItemProps) => $hasPrivateNotification && `
     &:after {
       content: '@';
-      position: absolute;
-      border-radius: 50%;
-      width: ${navigationSidebarNotificationBadgeSize};
-      height: ${navigationSidebarNotificationBadgeSize};
-      bottom: ${navigationSidebarNotificationBadgeBottom};
-      right: ${navigationSidebarNotificationBadgeRight};
-      background-color: ${notificationBadgeBg};
-      border: ${borderSizeSmall} solid ${colorWhiteBorder};
-      color: ${colorWhite};
-      font-size: ${navigationSidebarNotificationBadgeFontSize};
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      line-height: 1;
+      ${notificationBadgeShape}
+      ${notificationBadgeAnchor}
+      ${notificationBadgeText}
     }
   `}
 

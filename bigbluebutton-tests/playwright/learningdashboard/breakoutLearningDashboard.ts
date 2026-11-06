@@ -6,6 +6,10 @@ import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 import { DASHBOARD_UPDATE_TIME, rowFilter } from './util';
 
+// The dashboard title is "<product> - <dashboard name> - <meeting name>". The first two come from
+// locale strings that deployments rename, so only the meeting name identifies the room's dashboard.
+const ROOM_DASHBOARD_TITLE = / - Room 1$/;
+
 export class BreakoutLearningDashboard extends Join {
   // Each breakout room gets a dashboard of its own (new in 4.0), kept while the parent meeting runs.
   async breakoutRoomHasItsOwnDashboard() {
@@ -25,7 +29,7 @@ export class BreakoutLearningDashboard extends Join {
       this.context.waitForEvent('page'),
       breakoutModPage.waitAndClick(e.learningDashboardSidebarButton),
     ]);
-    await expect(dashboardTab, 'should open the dashboard of the breakout room').toHaveTitle(/Dashboard - Room 1$/);
+    await expect(dashboardTab, 'should open the dashboard of the breakout room').toHaveTitle(ROOM_DASHBOARD_TITLE);
     const dashboardPage = new Page(this.browser, dashboardTab, this.modPage.testInfo);
     const attendeeMessages = await rowFilter(dashboardPage, /Attendee/, e.messageLearningDashboard);
     await expect(attendeeMessages, 'should count the message the attendee sent in the breakout room').toHaveText(/1/, {
@@ -36,7 +40,7 @@ export class BreakoutLearningDashboard extends Join {
     await breakoutModPage.hasElement(e.meetingEndedModal, 'should end the breakout room', ELEMENT_WAIT_LONGER_TIME);
     await dashboardPage.reloadPage();
     await expect(dashboardTab, 'should still show the dashboard of the ended breakout room').toHaveTitle(
-      /Dashboard - Room 1$/,
+      ROOM_DASHBOARD_TITLE,
       { timeout: ELEMENT_WAIT_EXTRA_LONG_TIME },
     );
     await expect(attendeeMessages, 'should keep the breakout room activity while the parent meeting runs').toHaveText(

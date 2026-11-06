@@ -45,6 +45,7 @@ module BigBlueButton
 
       start_times = {}
       original_durations = {}
+      last_voice_file = nil
 
       # Add events for recording start/stop
       events.xpath('/recording/event[@module="VOICE" or @module="bbb-webrtc-sfu"]').each do |event|
@@ -58,6 +59,7 @@ module BigBlueButton
             :audios => [{ :filename => filename, :timestamp => 0 }]
           }
           start_times[filename] = timestamp
+          last_voice_file = filename
         when 'StopRecordingEvent'
           filename = event.at_xpath('filename').text
           filename = "#{audio_dir}/#{File.basename(filename)}"
@@ -102,6 +104,11 @@ module BigBlueButton
           audio_edl << edl_entry
           original_durations[filename] = timestamp - start_times[filename] if start_times.include?(filename)
         end
+      end
+
+      # The last voice file kept recording until the meeting ended if it was never stopped
+      if last_voice_file && !original_durations.include?(last_voice_file)
+        original_durations[last_voice_file] = final_timestamp - initial_timestamp - start_times[last_voice_file]
       end
 
       audio_edl.each do |edl_entry|

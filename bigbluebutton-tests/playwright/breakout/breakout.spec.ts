@@ -1,6 +1,7 @@
 import { RECORDING_PROCESSING_WAIT_TIME } from '../core/constants';
 import { linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
+import { REACH_BBB_WEB_SIZE_CHECK_OVERRIDE } from '../presentation/util';
 import { ClientSettingsOverride } from './clientSettingsOverride';
 import { Create } from './create';
 import { Join } from './join';
@@ -43,12 +44,16 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await create.dragDropUserInRoom();
     });
 
-    test('Rejected presentation does not enable the slide selection', async ({ browser, context, page }, testInfo) => {
-      linkIssue(25704);
-      const create = new Create(browser, context);
-      await create.initModPage(page, { testInfo });
-      await create.rejectedPresentationDoesNotEnableSlideSelection();
-    });
+    test(
+      'Rejected presentation does not enable the slide selection',
+      { tag: '@nightly' },
+      async ({ browser, context, page }, testInfo) => {
+        linkIssue(25704);
+        const create = new Create(browser, context);
+        await create.initModPage(page, { testInfo, clientSettingsOverrides: REACH_BBB_WEB_SIZE_CHECK_OVERRIDE });
+        await create.rejectedPresentationDoesNotEnableSlideSelection();
+      },
+    );
 
     // Assumes default.pdf exists and maxFileSizeUpload is the 30 MB default; overriding either fails this confusingly.
     test('Rejected presentation is not offered as a breakout room slide', async ({
@@ -58,11 +63,15 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
     }, testInfo) => {
       linkIssue(25704);
       const create = new Create(browser, context);
-      await create.initModPage(page, { testInfo });
+      await create.initModPage(page, { testInfo, clientSettingsOverrides: REACH_BBB_WEB_SIZE_CHECK_OVERRIDE });
       await create.rejectedPresentationIsNotOfferedAsBreakoutSlide();
     });
 
-    test('Inherit lock settings checkbox is visible and unchecked by default', async ({ browser, context, page }, testInfo) => {
+    test('Inherit lock settings checkbox is visible and unchecked by default', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
       const create = new Create(browser, context);
       await create.initPages(page, testInfo);
       await create.inheritLockSettingsCheckboxIsVisible();
@@ -84,53 +93,106 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await create.inheritLockSettingsCheckboxIsChecked();
     });
 
-    test('Lock Viewers option is visible in gear menu inside breakout room', async ({ browser, context, page }, testInfo) => {
+    test('Locked recording setting forces the record option on', async ({ browser, context, page }, testInfo) => {
+      const create = new Create(browser, context);
+      await create.initModPage(page, {
+        testInfo,
+        // the record option is only offered when the meeting allows breakout recording
+        createParameter: 'breakoutRoomsRecord=true',
+        clientSettingsOverrides: {
+          public: {
+            app: {
+              breakouts: {
+                offerRecordingForBreakouts: true,
+                recordRoomByDefault: false,
+                lockBreakoutRecordingSetting: true,
+              },
+            },
+          },
+        },
+      });
+      await create.lockedRecordingSettingForcesRecordOn();
+    });
+
+    test('Lock Viewers option is visible in gear menu inside breakout room', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
       const create = new Create(browser, context);
       await create.initPages(page, testInfo);
       await create.lockViewersVisibleInBreakoutGearMenu();
     });
 
-    test('Moderator can disable inherited lock settings in breakout room', async ({ browser, context, page }, testInfo) => {
-      const create = new Create(browser, context);
-      await create.initPages(page, testInfo);
-      await create.modCanDisableInheritedLockInBreakout();
-    });
+    test(
+      'Moderator can disable inherited lock settings in breakout room',
+      { tag: '@nightly' },
+      async ({ browser, context, page }, testInfo) => {
+        const create = new Create(browser, context);
+        await create.initPages(page, testInfo);
+        await create.modCanDisableInheritedLockInBreakout();
+      },
+    );
 
-    test('Moderator can apply lock settings in breakout room without inheritance', async ({ browser, context, page }, testInfo) => {
-      const create = new Create(browser, context);
-      await create.initPages(page, testInfo);
-      await create.modCanApplyLockSettingsInBreakout();
-    });
+    test(
+      'Moderator can apply lock settings in breakout room without inheritance',
+      { tag: '@nightly' },
+      async ({ browser, context, page }, testInfo) => {
+        const create = new Create(browser, context);
+        await create.initPages(page, testInfo);
+        await create.modCanApplyLockSettingsInBreakout();
+      },
+    );
 
-    test('Moderator can apply lock settings in breakout room with inheritance', async ({ browser, context, page }, testInfo) => {
-      const create = new Create(browser, context);
-      await create.initPages(page, testInfo);
-      await create.modCanApplyLockSettingsInBreakoutWithInheritance();
-    });
+    test(
+      'Moderator can apply lock settings in breakout room with inheritance',
+      { tag: '@nightly' },
+      async ({ browser, context, page }, testInfo) => {
+        const create = new Create(browser, context);
+        await create.initPages(page, testInfo);
+        await create.modCanApplyLockSettingsInBreakoutWithInheritance();
+      },
+    );
 
-    test('Lock settings are NOT propagated to breakout when checkbox is unchecked', async ({ browser, context, page }, testInfo) => {
+    test('Lock settings are NOT propagated to breakout when checkbox is unchecked', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
       const create = new Create(browser, context);
       await create.initPages(page, testInfo);
       await create.lockSettingsNotPropagatedByDefault();
     });
 
-    test('Lock settings ARE propagated to breakout when checkbox is checked', async ({ browser, context, page }, testInfo) => {
+    test('Lock settings ARE propagated to breakout when checkbox is checked', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
       const create = new Create(browser, context);
       await create.initPages(page, testInfo);
       await create.lockSettingsPropagatedWhenChecked();
     });
 
-    test('See other viewers webcams (webcamsOnlyForModerator) IS propagated to breakout when checkbox is checked', async ({ browser, context, page }, testInfo) => {
-      const create = new Create(browser, context);
-      await create.initPages(page, testInfo);
-      await create.webcamsOnlyForModeratorPropagatedWhenChecked();
-    });
+    test(
+      'See other viewers webcams (webcamsOnlyForModerator) IS propagated to breakout when checkbox is checked',
+      { tag: '@nightly' },
+      async ({ browser, context, page }, testInfo) => {
+        const create = new Create(browser, context);
+        await create.initPages(page, testInfo);
+        await create.webcamsOnlyForModeratorPropagatedWhenChecked();
+      },
+    );
 
-    test('See other viewers webcams (webcamsOnlyForModerator) is NOT propagated to breakout when checkbox is unchecked', async ({ browser, context, page }, testInfo) => {
-      const create = new Create(browser, context);
-      await create.initPages(page, testInfo);
-      await create.webcamsOnlyForModeratorNotPropagatedByDefault();
-    });
+    test(
+      'See other viewers webcams (webcamsOnlyForModerator) is NOT propagated to breakout when checkbox is unchecked',
+      { tag: '@nightly' },
+      async ({ browser, context, page }, testInfo) => {
+        const create = new Create(browser, context);
+        await create.initPages(page, testInfo);
+        await create.webcamsOnlyForModeratorNotPropagatedByDefault();
+      },
+    );
   });
 
   test.describe.parallel('After creating', () => {
@@ -175,12 +237,16 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await join.joinWithAudio();
     });
 
-    test('Join Breakout room with Audio and Video', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
-      const join = new Join(browser, context);
-      await join.initPages(page, testInfo);
-      await join.create();
-      await join.joinWithAudioAndVideo();
-    });
+    test(
+      'Join Breakout room with Audio and Video',
+      { tag: ['@media', '@nightly'] },
+      async ({ browser, context, page }, testInfo) => {
+        const join = new Join(browser, context);
+        await join.initPages(page, testInfo);
+        await join.create();
+        await join.joinWithAudioAndVideo();
+      },
+    );
 
     test('Message to all rooms', async ({ browser, context, page }, testInfo) => {
       const join = new Join(browser, context);
@@ -262,12 +328,16 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await join.exportBreakoutNotes();
     });
 
-    test('Export breakout room whiteboard annotations', async ({ browser, context, page }, testInfo) => {
-      const join = new Join(browser, context);
-      await join.initPages(page, testInfo);
-      await join.create(false, true);
-      await join.exportBreakoutWhiteboard();
-    });
+    test(
+      'Export breakout room whiteboard annotations',
+      { tag: '@nightly' },
+      async ({ browser, context, page }, testInfo) => {
+        const join = new Join(browser, context);
+        await join.initPages(page, testInfo);
+        await join.create(false, true);
+        await join.exportBreakoutWhiteboard();
+      },
+    );
 
     test('User can choose a room', async ({ browser, context, page }, testInfo) => {
       const join = new Join(browser, context);
@@ -276,11 +346,15 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await join.userCanChooseRoom();
     });
 
-    test('Breakout rooms can use different presentations', async ({ browser, context, page }, testInfo) => {
-      const join = new Join(browser, context);
-      await join.initPages(page, testInfo);
-      await join.breakoutWithDifferentPresentations();
-    });
+    test(
+      'Breakout rooms can use different presentations',
+      { tag: '@nightly' },
+      async ({ browser, context, page }, testInfo) => {
+        const join = new Join(browser, context);
+        await join.initPages(page, testInfo);
+        await join.breakoutWithDifferentPresentations();
+      },
+    );
 
     test('Call moderator from breakout room', async ({ browser, context, page }, testInfo) => {
       const join = new Join(browser, context);
@@ -316,7 +390,11 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
     });
 
     // https://github.com/bigbluebutton/bigbluebutton/issues/25138
-    test('Breakout room inherits client settings override from parent meeting', async ({ browser, context, page }, testInfo) => {
+    test('Breakout room inherits client settings override from parent meeting', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
       const override = new ClientSettingsOverride(browser, context);
       await override.testClientSettingsOverrideInheritedByBreakout(page, testInfo);
     });
@@ -349,5 +427,17 @@ test.describe.parallel('Breakout recording', { tag: '@nightly' }, () => {
     await join.initUserPage(context, { testInfo });
     await join.create(false, false, true);
     await join.recordInBreakoutRoom();
+  });
+});
+
+test.describe.parallel('Breakout infinite whiteboard', { tag: '@nightly' }, () => {
+  test('Disabled feature hides the button in the room', async ({ browser, context, page }, testInfo) => {
+    const override = new ClientSettingsOverride(browser, context);
+    await override.infiniteWhiteboardDisabledInRoom(page, testInfo);
+  });
+
+  test('Excluded feature keeps the button in the room', async ({ browser, context, page }, testInfo) => {
+    const override = new ClientSettingsOverride(browser, context);
+    await override.infiniteWhiteboardExcludedInRoom(page, testInfo);
   });
 });

@@ -1,0 +1,7 @@
+# Expected failures of bbb-web. `defect` cases assert the correct behaviour
+# that bbb-web gets wrong; each one gets an entry here, with the issue that
+# tracks it once there is one.
+target: bbb-web
+expected:
+  - id: getMeetings.checksum.missing-message
+    reason: "without a checksum, bbb-web says either that it is missing or that it doesn't match, at random"

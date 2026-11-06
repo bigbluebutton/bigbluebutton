@@ -1,0 +1,19 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A malformed meetingID also names no meeting, so it fails several checks at
+# once and bbb-web reports one of them. Which one is recorded, not compared:
+# the intended answer is still to be decided (the triage tag). The expect only
+# requires a meetingID error.
+id: getMeetingInfo.validation.meeting-id
+title: getMeetingInfo with ${scenario}
+endpoint: getMeetingInfo
+class: compat
+tags: [triage]
+variants:
+  - {id: missing, vars: {scenario: no meetingID, meetingID: null}}
+  - {id: empty, vars: {scenario: an empty meetingID, meetingID: ""}}
+  - {id: comma, vars: {scenario: a meetingID with a comma, meetingID: "z,z"}}
+steps:
+  - call: getMeetingInfo
+    params: {meetingID: "${meetingID}"}
+    golden: document
+    expect: {returncode: FAILED, messageKey: {regex: '^(notFound|missingParamMeetingID|emptyError|sizeError|validationError)$'}}

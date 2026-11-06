@@ -121,7 +121,12 @@ export const selectParticipantsToSubscribe = (
 
 export type LastNCandidate = {
   participantId: string;
+  // An unmute counts as speech here.
   lastSpokeAt?: number;
+  // Speech that LiveKit or BBB voice activity detected.
+  lastVoiceAt?: number;
+  // LiveKit or BBB voice activity reports them talking now.
+  talking: boolean;
   unmuted: boolean;
   presenter: boolean;
   pinned: boolean;
@@ -171,8 +176,12 @@ const LAST_N_SCORE = {
 };
 const LAST_N_RECENCY_SCALE_MS = 10000;
 
+const isWithinHold = (at: number | undefined, now: number, speechHoldMs: number): at is number => (
+  at !== undefined && now - at <= speechHoldMs
+);
+
 const isLastNSpeaking = (candidate: LastNCandidate, now: number, speechHoldMs: number): boolean => (
-  candidate.lastSpokeAt !== undefined && now - candidate.lastSpokeAt <= speechHoldMs
+  isWithinHold(candidate.lastSpokeAt, now, speechHoldMs)
 );
 
 const lastNBaseScore = (candidate: LastNCandidate, now: number, speechHoldMs: number): number => {
@@ -222,9 +231,9 @@ export const nextLastNDeadline = (
   const deadlines: number[] = [];
 
   candidates.forEach((candidate) => {
-    if (candidate.lastSpokeAt !== undefined && isLastNSpeaking(candidate, now, settings.speechHoldMs)) {
-      deadlines.push(candidate.lastSpokeAt + settings.speechHoldMs + 1);
-    }
+    [candidate.lastSpokeAt, candidate.lastVoiceAt].forEach((at) => {
+      if (isWithinHold(at, now, settings.speechHoldMs)) deadlines.push(at + settings.speechHoldMs + 1);
+    });
   });
   state.audibleSince.forEach((since) => {
     if (now - since < settings.minAudibleMs) deadlines.push(since + settings.minAudibleMs);
@@ -268,10 +277,22 @@ export const selectLastNTiers = (
   // A silent unmuted participant keeps its slot for minAudibleMs if no speaker
   // needs it. The remaining slots go by score, with a bonus for incumbents.
   const wasAudible = (candidate: LastNCandidate) => previous.audibleSince.has(candidate.participantId);
+  // Talkers go before those who only unmuted. An audible talker stays a
+  // talker for speechHoldMs after their voice stops, so a pause does not
+  // cost the slot. Only voice heard since they became audible extends this,
+  // so a standby speaker who has gone quiet ranks with the unmuters, not with
+  // the talkers.
+  const voiced = (candidate: LastNCandidate) => candidate.talking
+    || (isWithinHold(candidate.lastVoiceAt, now, settings.speechHoldMs)
+      && candidate.lastVoiceAt >= (previous.audibleSince.get(candidate.participantId) ?? Infinity));
+  const incumbentsFirst = (group: LastNCandidate[]) => [
+    ...rankLastN(group.filter((candidate) => wasAudible(candidate)), baseScore),
+    ...rankLastN(group.filter((candidate) => !wasAudible(candidate)), baseScore),
+  ];
   const unmutedSpeakers = candidates.filter((candidate) => candidate.unmuted && speaking(candidate));
   const speakers = [
-    ...rankLastN(unmutedSpeakers.filter((candidate) => wasAudible(candidate)), baseScore),
-    ...rankLastN(unmutedSpeakers.filter((candidate) => !wasAudible(candidate)), baseScore),
+    ...incumbentsFirst(unmutedSpeakers.filter((candidate) => voiced(candidate))),
+    ...incumbentsFirst(unmutedSpeakers.filter((candidate) => !voiced(candidate))),
   ].slice(0, audibleSize);
   const keptSilent = rankLastN(candidates.filter((candidate) => {
     const since = previous.audibleSince.get(candidate.participantId);

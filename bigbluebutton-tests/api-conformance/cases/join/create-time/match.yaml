@@ -1,0 +1,24 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A createTime equal to the meeting's, as create answered it, is accepted.
+id: join.create-time.match
+title: join with the meeting's createTime succeeds
+endpoint: join
+class: contract
+tags: [ci]
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Join createTime}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {createTime: /response/createTime}
+  - call: join
+    params: {meetingID: "${uid}", fullName: Ann, role: viewer, createTime: "${createTime}", redirect: "false"}
+    expect: {returncode: SUCCESS}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

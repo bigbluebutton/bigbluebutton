@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+id: getRecordings.checksum.accepted
+title: getRecordings (a recording call) accepts every algorithm, upper-case hex and any placement
+endpoint: getRecordings
+class: contract
+tags: [ci]
+defs:
+  base: &base {alg: sha256, mode: valid, pos: last}
+variants:
+  - {id: sha1, vars: {<<: *base, alg: sha1}}
+  - {id: sha256, vars: {<<: *base}}
+  - {id: sha384, vars: {<<: *base, alg: sha384}}
+  - {id: sha512, vars: {<<: *base, alg: sha512}}
+  - {id: uppercase, vars: {<<: *base, mode: uppercase}}
+  - {id: first, vars: {<<: *base, pos: first}}
+  - {id: middle, vars: {<<: *base, pos: middle}}
+steps:
+  - call: getRecordings
+    params: {a: "1", b: "2"}
+    sign: {alg: "${alg}", mode: "${mode}", position: "${pos}"}
+    expect: {returncode: SUCCESS}

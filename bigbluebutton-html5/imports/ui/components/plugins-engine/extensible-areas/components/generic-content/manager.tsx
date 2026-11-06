@@ -16,6 +16,8 @@ import { PluginsContext } from '../../../../components-data/plugin-context/conte
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import { shouldPinAppsGalleryItem } from '/imports/ui/components/apps-gallery/service';
+import { removeGenericContentBadge } from '/imports/ui/core/local-states/useGenericContentBadges';
+import { removeGenericContentMenuName } from '/imports/ui/core/local-states/useGenericContentMenuNames';
 
 const GenericContentPluginStateContainer = ((
   props: ExtensibleAreaComponentManagerProps,
@@ -52,8 +54,8 @@ const GenericContentPluginStateContainer = ((
     [],
   );
 
-  // Sidebar apps this plugin currently has registered in the layout context.
-  const registeredSidekickAppIdsRef = useRef<Set<string>>(new Set());
+  // Ids of the sidekick items this plugin currently has registered as sidebar apps.
+  const registeredSidekickItemIdsRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     if (pluginName === undefined) return;
@@ -75,14 +77,18 @@ const GenericContentPluginStateContainer = ((
 
     // Unregister only the sidekick apps that went away: unregistering one drops it from
     // the pinned apps, and registering it again would send it to the end of that list.
-    const sidekickAppIds = new Set(
-      genericContentSidekickArea.map((gci) => genericContentSidekickId(gci.id)),
-    );
-    registeredSidekickAppIdsRef.current.forEach((id) => {
-      if (sidekickAppIds.has(id)) return;
-      layoutContextDispatch({ type: ACTIONS.UNREGISTER_SIDEBAR_APP, id });
+    // The badge and menu name a plugin set for an app that went away go with it.
+    const sidekickItemIds = new Set(genericContentSidekickArea.map((gci) => gci.id));
+    registeredSidekickItemIdsRef.current.forEach((itemId) => {
+      if (sidekickItemIds.has(itemId)) return;
+      layoutContextDispatch({
+        type: ACTIONS.UNREGISTER_SIDEBAR_APP,
+        id: genericContentSidekickId(itemId),
+      });
+      removeGenericContentBadge(itemId);
+      removeGenericContentMenuName(itemId);
     });
-    registeredSidekickAppIdsRef.current = sidekickAppIds;
+    registeredSidekickItemIdsRef.current = sidekickItemIds;
 
     genericContentSidekickArea.forEach((genericContentItem) => {
       layoutContextDispatch({

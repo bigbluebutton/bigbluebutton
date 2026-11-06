@@ -319,6 +319,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
     breakoutRoomMinimum: MIN_BREAKOUT_ROOMS,
     sendInvitationToAssignedModeratorsByDefault: inviteModsByDefault,
     inheritLockSettingsByDefault,
+    lockBreakoutRecordingSetting,
   } = BREAKOUT_SETTINGS;
 
   const MAX_BREAKOUT_ROOMS = BREAKOUT_LIM > MIN_BREAKOUT_ROOMS ? BREAKOUT_LIM : MIN_BREAKOUT_ROOMS;
@@ -330,6 +331,9 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
     && isImportPresentationWithAnnotationsEnabled;
   const captureSharedNotesByDefault = BREAKOUT_SETTINGS.captureSharedNotesByDefault
     && isImportSharedNotesEnabled;
+  // lockBreakoutRecordingSetting takes the recording decision away from the moderator:
+  // the rooms are recorded whenever the meeting allows it (breakoutRoomsRecord)
+  const forceRecord = !!lockBreakoutRecordingSetting && isBreakoutRecordable;
 
   const [numberOfRooms, setNumberOfRooms] = useState(MIN_BREAKOUT_ROOMS);
   const [isDurationValid, setIsDurationValid] = useState(true);
@@ -339,7 +343,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
   const [freeJoin, setFreeJoin] = useState(allowUserChooseRoomByDefault);
   const [captureSlides, setCaptureSlides] = useState(captureWhiteboardByDefault);
   const [captureNotes, setCaptureNotes] = useState(captureSharedNotesByDefault);
-  const [record, setRecord] = useState(recordRoomByDefault || false);
+  const [record, setRecord] = useState(forceRecord || recordRoomByDefault || false);
   const [inviteMods, setInviteMods] = useState(inviteModsByDefault);
   const [leastOneUserIsValid, setLeastOneUserIsValid] = useState(false);
   const [roomPresentations, setRoomPresentations] = useState<RoomPresentations>([]);
@@ -347,6 +351,10 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
     () => (users.every((u) => u.isModerator) ? 'onlyModerators' : 'hasViewers'),
   );
   const [inheritLockSettings, setInheritLockSettings] = useState(inheritLockSettingsByDefault);
+
+  useEffect(() => {
+    if (forceRecord) setRecord(true);
+  }, [forceRecord]);
 
   const [createBreakoutRoom] = useMutation(BREAKOUT_ROOM_CREATE);
 
@@ -540,6 +548,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
       checked: record,
       onChange: () => setRecord(!record),
       allowed: isBreakoutRecordable && offerRecordingForBreakouts,
+      disabled: forceRecord,
     },
     {
       key: 'captureSlides',
@@ -572,7 +581,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
     },
   ], [freeJoin, record, captureSlides, captureNotes, inviteMods, inheritLockSettings,
     isBreakoutRecordable, isImportPresentationWithAnnotationsEnabled,
-    isImportSharedNotesEnabled, offerRecordingForBreakouts]);
+    isImportSharedNotesEnabled, offerRecordingForBreakouts, forceRecord]);
 
   return (
     <Styled.PanelContent>
@@ -648,6 +657,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
                 id={switchId}
                 checked={opt.checked}
                 onChange={opt.onChange}
+                disabled={(opt as { disabled?: boolean }).disabled}
                 size="small"
               />
               {opt.label}

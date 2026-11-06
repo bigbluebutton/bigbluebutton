@@ -1,0 +1,12 @@
+# want: 12: a sink step's header names can't be templates
+id: end.x.y
+title: t
+endpoint: end
+class: contract
+steps:
+  - call: getMeetings
+    capture: {hdr: /response/returncode}
+  - sink: {key: "${uid}", within: 1s}
+    expect:
+      headers:
+        "${hdr}": x

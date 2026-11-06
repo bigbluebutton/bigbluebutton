@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# An empty name fails several checks at once, and bbb-web reports one of
+# them. Which one is recorded, not compared: the intended answer is still to
+# be decided (the triage tag). The expect only requires a name error.
+id: create.validation.name-empty
+title: create with an empty meeting name
+endpoint: create
+class: compat
+tags: [triage]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: ""}
+    golden: document
+    expect: {returncode: FAILED, messageKey: {regex: '^(nullError|emptyError|sizeError)$'}}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

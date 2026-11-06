@@ -1,0 +1,12 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case getRecordings.checksum.accepted-sha1
+target bbb-web
+
+== step 1: call getRecordings
+status 200
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "SUCCESS"
+/response/recordings
+/response/messageKey "noRecordings"
+/response/message "There are no recordings for the meeting(s)."

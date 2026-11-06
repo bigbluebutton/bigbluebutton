@@ -1,0 +1,102 @@
+XFAIL create.smoke.lifecycle (0s)
+      create answers returnCode, and end isn't implemented (step 1 (line 8): recording status: expected 200, got 202)
+      line 8: recording status: expected 200, got 202
+      line 8: recording header Cache-Control: expected no-cache, got nothing
+      line 8: recording header Content-Type: expected text/xml;charset=utf-8, got application/xml
+      line 8: recording /response/returncode: expected "SUCCESS", got nothing
+      line 8: recording /response/moderatorPW: expected "<random>", got nothing
+      line 8: recording /response/returnCode: expected nothing, got "SUCCESS"
+      line 8: recording /response/moderatorPw: expected nothing, got "<random>"
+      line 8: returncode: expected "SUCCESS", got nothing
+      line 28: messageKey: expected "notFound", got a text response has no messageKey field
+      warning: teardown step 1 (line 28): eventually: not within 2s (N attempts): messageKey: expected "notFound", got a text response has no messageKey field
+XFAIL create.smoke.side-effects (0s)
+      create answers returnCode, and end isn't implemented (step 1 (line 8): recording status: expected 200, got 202)
+      line 8: recording status: expected 200, got 202
+      line 8: recording header Cache-Control: expected no-cache, got nothing
+      line 8: recording header Content-Type: expected text/xml;charset=utf-8, got application/xml
+      line 8: recording /response/returncode: expected "SUCCESS", got nothing
+      line 8: recording /response/moderatorPW: expected "<random>", got nothing
+      line 8: recording /response/returnCode: expected nothing, got "SUCCESS"
+      line 8: recording /response/moderatorPw: expected nothing, got "<random>"
+      line 8: returncode: expected "SUCCESS", got nothing
+      line 28: messageKey: expected "notFound", got a text response has no messageKey field
+      warning: teardown step 1 (line 28): eventually: not within 2s (N attempts): messageKey: expected "notFound", got a text response has no messageKey field
+XFAIL getMeetingInfo.smoke.json-error (0s)
+      errors are always XML (step 1 (line 7): recording status: expected 200, got 202)
+      line 7: recording status: expected 200, got 202
+      line 7: recording header Content-Type: expected application/json, got application/xml
+      line 7: recording body: expected json, got xml
+      line 7: recording $.response.message: expected "We could not find a meeting with that meeting ID", got nothing
+      line 7: recording $.response.messageKey: expected "notFound", got nothing
+      line 7: recording $.response.returncode: expected "FAILED", got nothing
+      line 7: recording /response/returncode: expected nothing, got "FAILED"
+      line 7: recording /response/messageKey: expected nothing, got "notFound"
+      line 7: recording /response/message: expected nothing, got "We could not find a meeting with that meeting ID"
+      line 7: format: expected json, got xml
+XFAIL getMeetings.smoke.checksum-accepted-sha1 (0s)
+      checksums are compared case-sensitively (step 1 (line 15): recording status: expected 200, got 202)
+      line 15: recording status: expected 200, got 202
+      line 15: recording header Cache-Control: expected no-cache, got nothing
+      line 15: recording header Content-Type: expected text/xml;charset=utf-8, got application/xml
+XFAIL getMeetings.smoke.checksum-accepted-sha256 (0s)
+      checksums are compared case-sensitively (step 1 (line 15): recording status: expected 200, got 202)
+      line 15: recording status: expected 200, got 202
+      line 15: recording header Cache-Control: expected no-cache, got nothing
+      line 15: recording header Content-Type: expected text/xml;charset=utf-8, got application/xml
+XFAIL getMeetings.smoke.checksum-accepted-sha384 (0s)
+      checksums are compared case-sensitively (step 1 (line 15): recording status: expected 200, got 202)
+      line 15: recording status: expected 200, got 202
+      line 15: recording header Cache-Control: expected no-cache, got nothing
+      line 15: recording header Content-Type: expected text/xml;charset=utf-8, got application/xml
+XFAIL getMeetings.smoke.checksum-accepted-sha512 (0s)
+      checksums are compared case-sensitively (step 1 (line 15): recording status: expected 200, got 202)
+      line 15: recording status: expected 200, got 202
+      line 15: recording header Cache-Control: expected no-cache, got nothing
+      line 15: recording header Content-Type: expected text/xml;charset=utf-8, got application/xml
+XFAIL getMeetings.smoke.checksum-accepted-uppercase (0s)
+      checksums are compared case-sensitively (step 1 (line 15): recording status: expected 200, got 202)
+      line 15: recording status: expected 200, got 202
+      line 15: recording header Cache-Control: expected no-cache, got nothing
+      line 15: recording header Content-Type: expected text/xml;charset=utf-8, got application/xml
+      line 15: recording /response/returncode: expected "SUCCESS", got "FAILED"
+      line 15: recording /response/meetings: expected (empty), got nothing
+      line 15: recording /response/messageKey: expected nothing, got "checksumError"
+      line 15: recording /response/message: expected nothing, got "Checksums do not match."
+      line 15: returncode: expected "SUCCESS", got "FAILED"
+XFAIL getMeetings.smoke.checksum-accepted-first (0s)
+      checksums are compared case-sensitively (step 1 (line 15): recording status: expected 200, got 202)
+      line 15: recording status: expected 200, got 202
+      line 15: recording header Cache-Control: expected no-cache, got nothing
+      line 15: recording header Content-Type: expected text/xml;charset=utf-8, got application/xml
+XFAIL getMeetings.smoke.checksum-accepted-middle (0s)
+      checksums are compared case-sensitively (step 1 (line 15): recording status: expected 200, got 202)
+      line 15: recording status: expected 200, got 202
+      line 15: recording header Cache-Control: expected no-cache, got nothing
+      line 15: recording header Content-Type: expected text/xml;charset=utf-8, got application/xml
+XFAIL getMeetings.smoke.checksum-rejected-wrong (0s)
+      checksums are compared case-sensitively (step 1 (line 10): recording status: expected 200, got 202)
+      line 10: recording status: expected 200, got 202
+      line 10: recording header Cache-Control: expected no-cache, got nothing
+      line 10: recording header Content-Type: expected text/xml;charset=utf-8, got application/xml
+      line 10: recording /response/message: expected "<missing-checksum message>", got "Checksums do not match."
+XFAIL getMeetings.smoke.checksum-rejected-duplicate (0s)
+      checksums are compared case-sensitively (step 1 (line 10): recording status: expected 200, got 202)
+      line 10: recording status: expected 200, got 202
+      line 10: recording header Cache-Control: expected no-cache, got nothing
+      line 10: recording header Content-Type: expected text/xml;charset=utf-8, got application/xml
+      line 10: recording /response/message: expected "<missing-checksum message>", got "Checksums do not match."
+XFAIL version.smoke.fields (0s)
+      the version endpoint isn't served (step 1 (line 7): recording status: expected 200, got 404)
+      line 7: recording status: expected 200, got 404
+      line 7: recording header Cache-Control: expected no-cache, got nothing
+      line 7: recording header Content-Type: expected text/xml;charset=utf-8, got text/plain; charset=utf-8
+      line 7: recording body: expected xml, got text 19 bytes, sha256 b16e15764b8b
+      line 7: recording /response/returncode: expected "SUCCESS", got nothing
+      line 7: recording /response/version: expected "2.0", got nothing
+      line 7: recording /response/apiVersion: expected "2.0", got nothing
+      line 7: recording /response/bbbVersion: expected (empty), got nothing
+      line 7: returncode: expected "SUCCESS", got a text response has no returncode field
+      line 7: xpath /response/version: expected present, got the response is not XML: xmlquery: invalid XML document
+
+13 case(s): 0 passed, 0 failed, 0 errors, 0 skipped, 13 expected failures (0s)

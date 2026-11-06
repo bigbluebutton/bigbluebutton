@@ -1,0 +1,6 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case join.user-state.logout-url-username
+target bbb-web
+
+== step 4: graphql query Me as ann (document)
+$.data.user_current[].logoutUrl "https://example.com/meeting"
