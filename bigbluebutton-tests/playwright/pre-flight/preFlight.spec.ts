@@ -45,6 +45,12 @@ test.describe.parallel('Pre-flight', { tag: '@ci' }, () => {
     await preFlight.changesSettingsBeforeJoining();
   });
 
+  test('Keeps the focused control clear of the pinned bar on a phone', async ({ browser, context, page }, testInfo) => {
+    const preFlight = new PreFlight(browser, context);
+    await preFlight.initModPage(page, { testInfo });
+    await preFlight.keepsFocusClearOfPinnedBar();
+  });
+
   test('Guest lobby within the pre-flight', async ({ browser, context, page }, testInfo) => {
     const preFlight = new PreFlight(browser, context);
     await preFlight.initModPage(page, { testInfo });
