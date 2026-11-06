@@ -95,7 +95,8 @@ test.describe.parallel('Screenshare', { tag: ['@ci', '@media'] }, () => {
     await screenshare.presentationStaysHiddenAfterSharingWithAnnotations();
   });
 
-  test('Start screenshare stops external video', async ({ browser, context, page }, testInfo) => {
+  test('Start screenshare stops external video', async ({ browser, browserName, context, page }, testInfo) => {
+    test.skip(browserName === 'firefox', 'Screenshare tests not able in Firefox browser without desktop');
     const screenshare = new ScreenShare(browser, context);
     await screenshare.initModPage(page, { testInfo });
     await screenshare.screenshareStopsExternalVideo();

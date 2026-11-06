@@ -1,3 +1,4 @@
+import { skipScreenshotOnlyTestOutsideChromium } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { constants as c } from '../parameters/constants';
 import { MULTI_FUNCTIONAL_MODE_SETTINGS, MultifunctionalMode } from './multifunctionalMode';
@@ -69,6 +70,7 @@ test.describe.parallel('Multifunctional Mode', { tag: '@ci' }, () => {
   });
 
   test('Auxiliary sidebar layout in RTL language', async ({ browser, context, page }, testInfo) => {
+    skipScreenshotOnlyTestOutsideChromium();
     const mfm = new MultifunctionalMode(browser, context);
     await mfm.initModPage(page, {
       joinParameter: c.overrideDefaultLocaleToRTL,

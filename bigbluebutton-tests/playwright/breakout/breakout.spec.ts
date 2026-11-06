@@ -215,7 +215,7 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       'Join Breakout room and share screen',
       { tag: '@media' },
       async ({ browser, context, page, browserName }, testInfo) => {
-        test.skip(browserName === 'firefox', 'Firefox is too heavy for this test, needs improvement.');
+        test.skip(browserName === 'firefox', 'Screenshare tests not able in Firefox browser without desktop');
         const join = new Join(browser, context);
         await join.initPages(page, testInfo);
         await join.create();

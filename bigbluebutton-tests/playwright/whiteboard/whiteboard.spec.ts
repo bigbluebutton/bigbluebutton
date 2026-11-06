@@ -1,7 +1,7 @@
 import type { Browser, BrowserContext, Page, TestInfo } from '@playwright/test';
 
 import { elements as e } from '../core/elements';
-import { linkIssue } from '../core/helpers';
+import { linkIssue, skipScreenshotOnlyTestOutsideChromium } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { ChangeStyles } from './changeStyles';
 import { DrawShape } from './drawShape';
@@ -29,10 +29,6 @@ async function runResizeTest(
 }
 
 test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
-  test.beforeEach(({ browserName }) => {
-    test.skip(browserName !== 'chromium', 'Drawing visual regression tests are enabled only for Chromium');
-  });
-
   test('Draw rectangle', async ({ browser, context, page }, testInfo) => {
     const rectangle = new DrawShape(browser, context);
     await rectangle.initModPage(page, { testInfo });
@@ -93,6 +89,7 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
   // from its baseline on every server - pan/camera behavior changed, needs rework
   test('Pan', { tag: '@need-update' }, async ({ browser, context, page }, testInfo) => {
     linkIssue(24367);
+    skipScreenshotOnlyTestOutsideChromium();
     const tools = new ShapeTools(browser, context);
     await tools.initModPage(page, { testInfo });
     await tools.initUserPage(context, { testInfo });
@@ -299,6 +296,7 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
     'Camera re-sync visual regression after container resize',
     { tag: '@nightly' },
     async ({ browser, context, page }, testInfo) => {
+      skipScreenshotOnlyTestOutsideChromium();
       await runResizeTest('cameraResyncVisual', browser, context, page, testInfo);
     },
   );
@@ -307,6 +305,7 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
     'Camera re-sync visual regression after resize with canvas zoom',
     { tag: '@nightly' },
     async ({ browser, context, page }, testInfo) => {
+      skipScreenshotOnlyTestOutsideChromium();
       await runResizeTest('cameraResyncZoomedVisual', browser, context, page, testInfo);
     },
   );

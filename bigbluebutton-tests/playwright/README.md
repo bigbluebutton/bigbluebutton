@@ -43,30 +43,39 @@ To run these tests with an existing BigBlueButton server, you need to find the s
 - A few tests provision per-meeting client settings server-side through the `clientSettingsOverride` create module (`createClientSettingsOverride` in `Page.init`). bbb-web ignores that module unless `allowOverrideClientSettingsOnCreateCall=true` is set in `/etc/bigbluebutton/bbb-web.properties` (then restart bbb-web); without it those tests fail at join with a message naming the setting. CI enables it in `.github/actions/install-bbb`.
 - Node 24 recommended: it is the version CI runs the suite with (see the root `.nvmrc`).
 
-Tests can be executed using `npx playwright test` or `npm test`. You can run all tests in each of 3 available browsers (`chromium`, `firefox`, `webkit`) (Note: ensure the browser you're interested in is enabled in `playwright.config.ts`) with one of the following commands:
-
-```bash
-npx playwright test
-```
-
-or
+`playwright.config.ts` defines two browser projects, `Chromium` and `Firefox` (`--project` matches them case-insensitively; WebKit is not enabled). Chromium is the main browser: the pull request gate runs on it, and `npm test` and the other `test:*` npm scripts run Chromium only:
 
 ```bash
 npm test
 ```
 
-_**NOTE**: Current support for BBB tests using `firefox` and `webkit` is limited. Expected that tests will fail even if the functionality is working correctly_
-
-You can also run a single test suite and limit the execution to only one browser:
+or
 
 ```bash
-npx playwright test chat --project="chromium"
+npx playwright test --project=chromium
+```
+
+A plain `npx playwright test` runs both browsers. To run Firefox only, call Playwright directly. Passing `--project=firefox` to an npm script adds Firefox to Chromium instead of replacing it:
+
+```bash
+npx playwright test --project=firefox
+```
+
+Firefox is not part of the pull request gate. In CI, a pull request labelled `test Firefox` also runs the Firefox gate selection (`npm run test-firefox-ci`), once the Chromium tests pass. On Firefox:
+
+- screenshot comparisons (`toHaveScreenshot()`) are skipped and the rest of each test runs: baselines are kept for Chromium only (the Firefox project sets `ignoreSnapshots`), and a test that is verified only through screenshots skips itself;
+- tests that need what headless Firefox cannot provide, such as screen sharing or mobile device emulation, skip themselves with the reason.
+
+You can also run a single test suite:
+
+```bash
+npm test chat
 ```
 
 or
 
 ```bash
-npm test chat -- --project="chromium" # or "firefox" for example
+npx playwright test chat --project=firefox
 ```
 
 #### 2.1. Additional commands
@@ -121,11 +130,11 @@ _You can check the official documentation [here](https://playwright.dev/docs/tes
 
 Tags decide which tests run where:
 
-| Selection           | Tests                                                      | npm script                                               | Runs                                                                                                                        |
-| ------------------- | ---------------------------------------------------------- | -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| Pull request gate   | `@ci` minus the quarantine tags and `@nightly`             | `test-chromium-ci` (`test-chromium` without CI settings) | on every pull request, in 8 shards                                                                                          |
-| Legacy media bridge | the gate tests that are also `@media`, on `bbb-webrtc-sfu` | `test-chromium-media-ci`                                 | locally, with `MEDIA_BRIDGE=bbb-webrtc-sfu`; in CI every night, as the nightly's `media-bbb-webrtc-sfu` job                 |
-| Firefox gate        | the gate selection on Firefox                              | `test-firefox-ci`                                        | on pull requests labelled `test Firefox`; runs nothing while the Firefox project is commented out in `playwright.config.ts` |
+| Selection           | Tests                                                      | npm script                                               | Runs                                                                                                        |
+| ------------------- | ---------------------------------------------------------- | -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Pull request gate   | `@ci` minus the quarantine tags and `@nightly`             | `test-chromium-ci` (`test-chromium` without CI settings) | on every pull request, in 8 shards                                                                          |
+| Legacy media bridge | the gate tests that are also `@media`, on `bbb-webrtc-sfu` | `test-chromium-media-ci`                                 | locally, with `MEDIA_BRIDGE=bbb-webrtc-sfu`; in CI every night, as the nightly's `media-bbb-webrtc-sfu` job |
+| Firefox gate        | the gate selection on Firefox                              | `test-firefox-ci`                                        | on pull requests labelled `test Firefox`, after the Chromium tests pass                                     |
 
 The quarantine tags are defined once, as `config.quarantine` in `package.json`; the npm scripts and the workflow read them from there. A quarantined test leaves the gate:
 
@@ -152,7 +161,7 @@ Instead pushing changes with `@flaky` flag addition into the BigBlueButton SDK r
 You can print the browser console log to standard output by setting the environment variable `CONSOLE`:
 
 ```bash
-CONSOLE= npm test chat -- --project=firefox
+CONSOLE= npm test chat
 ```
 
 `CONSOLE` can be blank (as in the example), or can be a comma-separated list of the following options:
