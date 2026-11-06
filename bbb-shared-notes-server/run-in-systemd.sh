@@ -5,7 +5,8 @@
 # Usage:  run-in-systemd.sh <timeout-seconds> <command> [args …]
 #
 # Environment variables (override as needed creating a file at /etc/bigbluebutton/bbb-shared-notes-server.env):
-#   BBB_BLOCKNOTE_DIR   Extra directory that must stay writable (default: /tmp/shared-notes-dropbox/)
+#   BBB_BLOCKNOTE_DIR   Extra directory that must stay writable (default: /tmp/shared-notes-dropbox/);
+#                       bbb-shared-notes-server sets it to its commandExecution.workDir
 #   BBB_BLOCKNOTE_CONVERSION_MEMORY_HIGH        Soft memory limit in bytes or systemd size suffix (default: 512M)
 #   BBB_BLOCKNOTE_CONVERSION_MEMORY_MAX         Hard memory limit (default: 640M)
 
@@ -27,6 +28,14 @@ fi
 : "${BBB_BLOCKNOTE_CONVERSION_MEMORY_HIGH:=512M}"
 : "${BBB_BLOCKNOTE_CONVERSION_MEMORY_MAX:=640M}"
 
+# Two properties keep wkhtmltopdf working where systemd applies this sandbox
+# to a user unit in full (e.g. unprivileged user namespaces allowed); where it
+# skips the sandbox they do nothing:
+# - BindPaths keeps the dropbox, a dir under /tmp by default, visible inside
+#   the private /tmp, without which the unit cannot start;
+# - IPAddressAllow lets loopback, the only interface PrivateNetwork leaves,
+#   through IPAddressDeny, which would otherwise drop the loopback traffic
+#   wkhtmltopdf waits on until the unit times out.
 systemd-run --user --pipe --wait --quiet                              \
   --unit=bbb-shared-notes-server-run-in-systemd-$$                    \
   --description="bbb-shared-notes-server run-in-systemd $*"           \
@@ -37,9 +46,11 @@ systemd-run --user --pipe --wait --quiet                              \
   --property=PrivateNetwork=true                                      \
   --property=WorkingDirectory="${BBB_BLOCKNOTE_DIR}"                  \
   --property=ReadWritePaths="${BBB_BLOCKNOTE_DIR}"                    \
+  --property=BindPaths="${BBB_BLOCKNOTE_DIR}"                         \
   --property=NoNewPrivileges=true                                     \
   --property=RestrictRealtime=true                                    \
   --property=IPAddressDeny=any                                        \
+  --property=IPAddressAllow=localhost                                 \
   --property=SystemCallFilter=~@mount                                 \
   --property=MemoryHigh="${BBB_BLOCKNOTE_CONVERSION_MEMORY_HIGH}"     \
   --property=MemoryMax="${BBB_BLOCKNOTE_CONVERSION_MEMORY_MAX}"       \
