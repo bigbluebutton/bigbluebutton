@@ -219,7 +219,7 @@ class MeetingActor(
 
   initLockSettings(liveMeeting, liveMeeting.props.lockSettingsProps)
 
-  initSharedNotes(liveMeeting)
+  // Shared notes are initialized on InitSharedNotesInternalMsg, sent by the parent after the subscribes.
   initTimer(liveMeeting)
 
   /** *****************************************************************/
@@ -309,6 +309,7 @@ class MeetingActor(
 
     //=======================================
     // internal messages
+    case msg: InitSharedNotesInternalMsg          => initSharedNotes(liveMeeting)
     case msg: MonitorNumberOfUsersInternalMsg     => handleMonitorNumberOfUsers(msg)
     case msg: MonitorGuestWaitPresenceInternalMsg => handleMonitorGuestWaitPresenceInternalMsg(msg)
     case msg: SetPresenterInDefaultPodInternalMsg => state = presentationPodsApp.handleSetPresenterInDefaultPodInternalMsg(msg, state, liveMeeting, msgBus)
