@@ -15,7 +15,7 @@ const SignalBars = styled.div`
 
   ${({ grayscale }) => grayscale && `
     & > div {
-      background-color: ${colorWhite};
+      background-color: currentColor;
     }
   `}
 
@@ -45,16 +45,16 @@ const SignalBars = styled.div`
 `;
 
 const Bar = styled.div`
-  width: 20%;
+  width: 25%;
   border-radius: .46875em;
 `;
 
 const FirstBar = styled(Bar)`
-  height: 25%;
+  height: 33%;
 `;
 
 const SecondBar = styled(Bar)`
-  height: 50%;
+  height: 66%;
 
   ${({ active }) => !active && `
     opacity: .5;
@@ -62,14 +62,6 @@ const SecondBar = styled(Bar)`
 `;
 
 const ThirdBar = styled(Bar)`
-  height: 75%;
-
-  ${({ active }) => !active && `
-    opacity: .5;
-  `}
-`;
-
-const FourthBar = styled(Bar)`
   height: 100%;
 
   ${({ active }) => !active && `
@@ -82,5 +74,4 @@ export default {
   FirstBar,
   SecondBar,
   ThirdBar,
-  FourthBar,
 };

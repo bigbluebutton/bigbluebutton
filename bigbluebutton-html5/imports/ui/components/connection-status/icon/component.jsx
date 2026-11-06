@@ -12,7 +12,7 @@ const STATS = {
     bars: 3,
   },
   normal: {
-    bars: 4,
+    bars: 3,
   },
 };
 
@@ -22,7 +22,6 @@ const Icon = ({ level, grayscale }) => (
       <Styled.FirstBar />
       <Styled.SecondBar active={STATS[level]?.bars >= 2} />
       <Styled.ThirdBar active={STATS[level]?.bars >= 3} />
-      <Styled.FourthBar active={STATS[level]?.bars >= 4} />
     </Styled.SignalBars>
   </>
 );
