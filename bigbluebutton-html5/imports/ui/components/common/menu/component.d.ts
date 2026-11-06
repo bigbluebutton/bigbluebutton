@@ -2,7 +2,8 @@ import React from 'react';
 import { MenuOptionItemType, MenuSeparatorItemType, MenuTextItemType } from './menuTypes';
 
 export type BBBMenuAction =
-  | (Omit<MenuOptionItemType, 'customStyles' | 'iconRight'> & {
+  | (Omit<MenuOptionItemType, 'customStyles' | 'iconRight' | 'label'> & {
+      label?: React.ReactNode;
       icon?: string;
       dividerTop?: boolean;
       iconRight?: string | null;
@@ -22,6 +23,13 @@ export interface BBBMenuProps {
   accessKey?: string;
   minContent?: boolean;
   overrideMobileStyles?: boolean;
+  customAnchorEl?: Element | null;
+  hasRoundedCorners?: boolean;
+  isHorizontal?: boolean;
+  isMobile?: boolean;
+  isEmoji?: boolean;
+  roundButtons?: boolean;
+  keepOpen?: boolean;
 }
 
 declare const BBBMenu: React.ComponentType<BBBMenuProps>;

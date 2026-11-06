@@ -1,9 +1,9 @@
 import React, { PureComponent } from 'react';
-import { defineMessages, injectIntl } from 'react-intl';
-import PropTypes from 'prop-types';
+import { defineMessages, injectIntl, IntlShape } from 'react-intl';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import EndMeetingConfirmationContainer from '/imports/ui/components/end-meeting-confirmation/container';
 import MobileAppModal from '/imports/ui/components/mobile-app-modal/mobile-app-modal-graphql/component';
-import BBBMenu from '/imports/ui/components/common/menu/component';
+import OverflowMenuButton from '/imports/ui/components/common/bar-overflow/overflow-menu-button/component';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import { colorDanger, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import { OptionsDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/options-dropdown-item/enums';
@@ -12,6 +12,7 @@ import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
 import Session from '/imports/ui/services/storage/in-memory';
 import { ModalRegistration } from '/imports/ui/core/singletons/modalController';
+import { OverflowMenuEntry } from '/imports/ui/components/common/bar-overflow/types';
 
 const intlMessages = defineMessages({
   optionsLabel: {
@@ -88,43 +89,44 @@ const intlMessages = defineMessages({
   },
 });
 
-const propTypes = {
-  intl: PropTypes.shape({
-    formatMessage: PropTypes.func.isRequired,
-  }).isRequired,
-  handleToggleFullscreen: PropTypes.func.isRequired,
-  noIOSFullscreen: PropTypes.bool,
-  amIModerator: PropTypes.bool,
-  shortcuts: PropTypes.string,
-  isBreakoutRoom: PropTypes.bool,
-  isConnected: PropTypes.bool.isRequired,
-  isDropdownOpen: PropTypes.bool,
-  audioCaptionsEnabled: PropTypes.bool,
-  audioCaptionsActive: PropTypes.bool.isRequired,
-  audioCaptionsSet: PropTypes.func.isRequired,
-  isMobile: PropTypes.bool.isRequired,
-  isDirectLeaveButtonEnabled: PropTypes.bool.isRequired,
-  optionsDropdownItems: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.string,
-    type: PropTypes.string,
-  })).isRequired,
-  userLeaveMeeting: PropTypes.func.isRequired,
-};
+interface OptionsDropdownProps {
+  intl: IntlShape;
+  handleToggleFullscreen: () => void;
+  noIOSFullscreen?: boolean;
+  amIModerator?: boolean;
+  shortcuts?: string;
+  isBreakoutRoom?: boolean;
+  isConnected: boolean;
+  isDropdownOpen?: boolean;
+  audioCaptionsEnabled?: boolean;
+  audioCaptionsActive: boolean;
+  audioCaptionsSet: (value: boolean) => void;
+  isMobile: boolean;
+  isRTL?: boolean;
+  isDirectLeaveButtonEnabled: boolean;
+  optionsDropdownItems: PluginSdk.OptionsDropdownInterface[];
+  userLeaveMeeting: () => void;
+  overflowEntries?: OverflowMenuEntry[];
+}
 
-const defaultProps = {
-  noIOSFullscreen: true,
-  amIModerator: false,
-  shortcuts: '',
-  isBreakoutRoom: false,
-  isDropdownOpen: false,
-  audioCaptionsEnabled: false,
-};
+interface OptionsDropdownState {
+  isFullscreen: boolean;
+}
 
 const { isSafari, isTabletApp } = browserInfo;
 const FULLSCREEN_CHANGE_EVENT = isSafari ? 'webkitfullscreenchange' : 'fullscreenchange';
 
-class OptionsDropdown extends PureComponent {
-  constructor(props) {
+class OptionsDropdown extends PureComponent<OptionsDropdownProps, OptionsDropdownState> {
+  private LOGOUT_CODE: string;
+
+  private menuItems!: OverflowMenuEntry[];
+
+  // Both are assigned by their ModalRegistration render prop, which runs before any menu click.
+  private setEndMeetingConfirmationModalIsOpen!: () => void;
+
+  private setMobileAppModalIsOpen!: () => void;
+
+  constructor(props: OptionsDropdownProps) {
     super(props);
 
     this.state = { isFullscreen: false };
@@ -151,10 +153,10 @@ class OptionsDropdown extends PureComponent {
     }
   }
 
-  getFullscreenItem(menuItems) {
+  getFullscreenItem(menuItems: OverflowMenuEntry[]) {
     const {
       intl,
-      noIOSFullscreen,
+      noIOSFullscreen = true,
       handleToggleFullscreen,
     } = this.props;
     const { isFullscreen } = this.state;
@@ -177,6 +179,7 @@ class OptionsDropdown extends PureComponent {
       menuItems.push(
         {
           key: 'list-item-fullscreen',
+          dataTest: 'optionsFullscreen',
           icon: fullscreenIcon,
           label: fullscreenLabel,
           description: fullscreenDesc,
@@ -195,7 +198,7 @@ class OptionsDropdown extends PureComponent {
 
   renderMenuItems() {
     const {
-      intl, amIModerator, isBreakoutRoom, isConnected, audioCaptionsEnabled,
+      intl, amIModerator = false, isBreakoutRoom = false, isConnected, audioCaptionsEnabled = false,
       audioCaptionsActive, audioCaptionsSet, isMobile, optionsDropdownItems,
       isDirectLeaveButtonEnabled,
     } = this.props;
@@ -223,7 +226,7 @@ class OptionsDropdown extends PureComponent {
           key: 'list-item-help',
           icon: 'popout_window',
           label: intl.formatMessage(intlMessages.openAppLabel),
-          onClick: () => this.setMobileAppModalIsOpen(true),
+          onClick: () => this.setMobileAppModalIsOpen(),
         },
       );
     }
@@ -241,15 +244,17 @@ class OptionsDropdown extends PureComponent {
 
     optionsDropdownItems.forEach((item) => {
       switch (item.type) {
-        case OptionsDropdownItemType.OPTION:
+        case OptionsDropdownItemType.OPTION: {
+          const option = item as PluginSdk.OptionsDropdownOption;
           this.menuItems.push({
-            key: item.id,
-            icon: item.icon,
-            onClick: item.onClick,
-            label: item.label,
-            dataTest: item.dataTest,
+            key: option.id,
+            icon: option.icon,
+            onClick: option.onClick,
+            label: option.label,
+            dataTest: option.dataTest,
           });
           break;
+        }
         case OptionsDropdownItemType.SEPARATOR:
           this.menuItems.push({ key: item.id, isSeparator: true, dataTest: item.dataTest });
           break;
@@ -259,7 +264,7 @@ class OptionsDropdown extends PureComponent {
     });
 
     if (isConnected && !isDirectLeaveButtonEnabled) {
-      const bottomItems = [{ key: 'list-item-separator', isSeparator: true }];
+      const bottomItems: OverflowMenuEntry[] = [{ key: 'list-item-separator', isSeparator: true }];
 
       if (allowLogoutSetting) {
         const leaveLabel = isBreakoutRoom
@@ -275,6 +280,7 @@ class OptionsDropdown extends PureComponent {
           icon: 'logout',
           label: intl.formatMessage(leaveLabel),
           description: intl.formatMessage(leaveDesc),
+          keepInMenu: true,
           onClick: () => this.leaveSession(),
         });
       }
@@ -287,6 +293,7 @@ class OptionsDropdown extends PureComponent {
           label: intl.formatMessage(intlMessages.endMeetingLabel),
           description: intl.formatMessage(intlMessages.endMeetingDesc),
           customStyles,
+          keepInMenu: true,
           onClick: () => this.setEndMeetingConfirmationModalIsOpen(),
         });
       }
@@ -299,32 +306,37 @@ class OptionsDropdown extends PureComponent {
 
   render() {
     const {
-      intl, shortcuts: OPEN_OPTIONS_AK, isDropdownOpen, isMobile, isRTL,
+      intl,
+      shortcuts: OPEN_OPTIONS_AK = '',
+      isDropdownOpen = false,
+      isMobile,
+      isRTL,
+      overflowEntries = [],
     } = this.props;
     const customStyles = { top: '1rem' };
+    const nativeEntries = this.renderMenuItems();
+    const entries = overflowEntries.length > 0
+      ? [...overflowEntries, { key: 'overflow-entries-separator', isSeparator: true }, ...nativeEntries]
+      : nativeEntries;
 
     return (
       <>
-        <BBBMenu
-          accessKey={OPEN_OPTIONS_AK}
+        <OverflowMenuButton
+          entries={entries}
+          trigger={{
+            label: intl.formatMessage(intlMessages.optionsLabel),
+            dataTest: 'optionsButton',
+            className: 'bbb-options-button',
+            size: 'md',
+            color: 'dark',
+            accessKey: OPEN_OPTIONS_AK,
+            component: Styled.DropdownButton,
+            state: isDropdownOpen ? 'open' : 'closed',
+            indicateActiveEntry: true,
+          }}
           customStyles={!isMobile ? customStyles : null}
-          trigger={(
-            <Styled.DropdownButton
-              className="bbb-options-button"
-              state={isDropdownOpen ? 'open' : 'closed'}
-              label={intl.formatMessage(intlMessages.optionsLabel)}
-              icon="more"
-              data-test="optionsButton"
-              color="dark"
-              size="md"
-              circle
-              hideLabel
-              onClick={() => null}
-            />
-          )}
-          actions={this.renderMenuItems()}
           overrideMobileStyles
-          opts={{
+          menuOpts={{
             id: 'app-settings-dropdown-menu',
             keepMounted: true,
             transitionDuration: 0,
@@ -355,13 +367,12 @@ class OptionsDropdown extends PureComponent {
         <ModalRegistration id="mobileAppModal" priority="low">
           {({
             isOpen,
-            id,
             open,
             close,
           }) => {
             this.setMobileAppModalIsOpen = isOpen ? close : open;
             return isOpen && (
-              <MobileAppModal onRequestClose={close} priority="low" isOpen={isOpen} id={id} setIsOpen={isOpen ? close : open} />
+              <MobileAppModal onRequestClose={close} priority="low" isOpen={isOpen} />
             );
           }}
         </ModalRegistration>
@@ -369,6 +380,5 @@ class OptionsDropdown extends PureComponent {
     );
   }
 }
-OptionsDropdown.propTypes = propTypes;
-OptionsDropdown.defaultProps = defaultProps;
+
 export default injectIntl(OptionsDropdown);

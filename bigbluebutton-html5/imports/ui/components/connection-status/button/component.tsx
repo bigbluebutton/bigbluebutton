@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import cx from 'classnames';
-import { defineMessages, injectIntl } from 'react-intl';
+import { defineMessages, injectIntl, IntlShape } from 'react-intl';
 import Button from '/imports/ui/components/common/button/component';
 import ConnectionStatusModalComponent from '/imports/ui/components/connection-status/modal/container';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
@@ -9,7 +9,9 @@ import { SETTINGS_TABS } from '/imports/ui/components/settings/enums';
 import Icon from '/imports/ui/components/connection-status/icon/component';
 import Styled from './styles';
 import { isMobile } from '/imports/utils/deviceInfo';
-import { ModalRegistration } from '/imports/ui/core/singletons/modalController';
+import { ModalRegistration, useModalRegistration } from '/imports/ui/core/singletons/modalController';
+import { RegisterBarPriorityEntries } from '/imports/ui/core/hooks/useBarPriorityEntries';
+import { MetricStatus } from '/imports/ui/core/graphql/singletons/connectionStatus';
 
 const intlMessages = defineMessages({
   label: {
@@ -22,7 +24,20 @@ const intlMessages = defineMessages({
   },
 });
 
-class ConnectionStatusButton extends PureComponent {
+interface ConnectionStatusButtonProps {
+  intl: IntlShape;
+  connected: boolean;
+  myCurrentStatus: string;
+}
+
+type ModalControls = ReturnType<typeof useModalRegistration>;
+
+class ConnectionStatusButton extends PureComponent<ConnectionStatusButtonProps> {
+  // Assigned by the connection status ModalRegistration render prop, which runs before any click.
+  private setModalIsOpen!: (value: boolean) => void;
+
+  private adjustYourSettingsModalControls?: ModalControls;
+
   static renderIcon(level = 'normal') {
     return (
       <Styled.IconWrapper>
@@ -43,10 +58,11 @@ class ConnectionStatusButton extends PureComponent {
           return (
             <SettingsMenuContainer
               selectedTab={SETTINGS_TABS.DATA_SAVING}
+              // eslint-disable-next-line react/jsx-props-no-spreading
               {...{
                 onRequestClose: () => adjustYourSettingsModal.close(),
                 priority: 'medium',
-                setIsOpen: (value) => {
+                setIsOpen: (value: boolean) => {
                   if (value) adjustYourSettingsModal.open();
                   else adjustYourSettingsModal.close();
                 },
@@ -63,6 +79,7 @@ class ConnectionStatusButton extends PureComponent {
     const {
       intl,
       connected,
+      myCurrentStatus,
     } = this.props;
 
     const ConnectionStatusModal = (
@@ -77,13 +94,14 @@ class ConnectionStatusButton extends PureComponent {
           if (!isOpen) return null;
           return (
             <ConnectionStatusModalComponent
+              // eslint-disable-next-line react/jsx-props-no-spreading
               {...{
                 isModalOpen: isOpen,
-                setModalIsOpen: (value) => {
+                setModalIsOpen: (value: boolean) => {
                   if (value) open();
                   else close();
                 },
-                setAdjustYourSettingsModalIsOpen: (value) => {
+                setAdjustYourSettingsModalIsOpen: (value: boolean) => {
                   if (this.adjustYourSettingsModalControls) {
                     if (value) this.adjustYourSettingsModalControls.open();
                     else this.adjustYourSettingsModalControls.close();
@@ -94,6 +112,24 @@ class ConnectionStatusButton extends PureComponent {
           );
         }}
       </ModalRegistration>
+    );
+
+    const overflowEntries = (
+      <RegisterBarPriorityEntries
+        bar="navBar"
+        id="connectionStatus"
+        entries={[{
+          key: 'connectionStatus',
+          label: intl.formatMessage(intlMessages.label),
+          icon: 'network',
+          disabled: !connected,
+          onClick: () => this.setModalIsOpen(true),
+          dataTest: 'connectionStatusOption',
+          // The button keeps 'warning' green, so only the levels it colors as degraded light the dot.
+          active: connected
+            && (myCurrentStatus === MetricStatus.Danger || myCurrentStatus === MetricStatus.Critical),
+        }]}
+      />
     );
 
     if (!connected) {
@@ -115,13 +151,10 @@ class ConnectionStatusButton extends PureComponent {
           />
           {ConnectionStatusModal}
           {this.renderAjustYourSettingsModal()}
+          {overflowEntries}
         </Styled.ButtonWrapper>
       );
     }
-
-    const {
-      myCurrentStatus,
-    } = this.props;
 
     let color;
     switch (myCurrentStatus) {
@@ -159,6 +192,7 @@ class ConnectionStatusButton extends PureComponent {
         />
         {ConnectionStatusModal}
         {this.renderAjustYourSettingsModal()}
+        {overflowEntries}
       </Styled.ButtonWrapper>
     );
   }
