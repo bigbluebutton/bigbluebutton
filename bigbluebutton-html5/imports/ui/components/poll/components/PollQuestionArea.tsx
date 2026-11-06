@@ -5,8 +5,6 @@ import DraggableTextArea from './DragAndDrop';
 import { pollTypes } from '../service';
 import Styled from '../styles';
 
-const QUESTION_MAX_INPUT_CHARS = 1200;
-
 const intlMessages = defineMessages({
   questionAndOptionsPlaceholder: {
     id: 'app.poll.questionAndoptions.label',
@@ -54,7 +52,13 @@ const PollQuestionArea: React.FC<PollQuestionAreaProps> = ({
   question,
 }) => {
   const POLL_SETTINGS = window.meetingClientSettings.public.poll;
-  const MAX_INPUT_CHARS = POLL_SETTINGS.maxTypedAnswerLength;
+  const MAX_QUESTION_CHARS = POLL_SETTINGS.maxQuestionLength;
+  // In custom input the textarea holds the question and the options, and the panel cuts
+  // each line to its own limit. The browser applies maxLength to pasted text before that
+  // cut, so the total leaves room for every line (one option over the maximum included,
+  // to keep its warning) at the question length: a long pasted line cannot drop the
+  // options that follow it.
+  const MAX_QUESTION_AND_OPTIONS_CHARS = (POLL_SETTINGS.maxCustom + 2) * (MAX_QUESTION_CHARS + 1);
   const intl = useIntl();
   const hasOptionError = (customInput && optList.length === 0 && error);
   const hasWarning = (customInput && warning);
@@ -65,9 +69,9 @@ const PollQuestionArea: React.FC<PollQuestionAreaProps> = ({
     ? intlMessages.questionLabel
     : intlMessages.optionalQuestionLabel;
   // Custom input swaps the library's textarea for the drag-and-drop one, which needs the
-  // two extra props to turn a dropped file into poll options.
+  // extra prop to turn a dropped file into poll options.
   const dragAndDropProps = customInput
-    ? { as: DraggableTextArea, MAX_INPUT_CHARS, handleTextareaChange }
+    ? { as: DraggableTextArea, handleTextareaChange }
     : {};
   return (
     <Styled.PollQuestionAreaWrapper>
@@ -91,7 +95,7 @@ const PollQuestionArea: React.FC<PollQuestionAreaProps> = ({
         }}
         rows={3}
         cols={35}
-        maxLength={QUESTION_MAX_INPUT_CHARS}
+        maxLength={customInput ? MAX_QUESTION_AND_OPTIONS_CHARS : MAX_QUESTION_CHARS}
         aria-label={intl.formatMessage(customInput ? questionsAndOptionsPlaceholder
           : questionPlaceholder)}
         placeholder={intl.formatMessage(customInput ? questionsAndOptionsPlaceholder

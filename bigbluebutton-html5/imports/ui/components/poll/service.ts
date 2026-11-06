@@ -3,7 +3,6 @@ import { escapeHtml } from '/imports/utils/string-utils';
 
 const POLL_AVATAR_COLOR = '#3B48A9';
 const MAX_POLL_RESULT_BARS = 10;
-const MAX_POLL_RESULT_KEY_LENGTH = 30;
 const POLL_BAR_CHAR = '\u220E';
 
 interface PollResultData {
@@ -140,18 +139,6 @@ const generatePossibleLabels = (alphabetCharacters: string[]) => {
   return possibleLabels;
 };
 
-const truncate = (text: string, length: number) => {
-  let resultText = text;
-  if (resultText.length < length) {
-    const diff = length - resultText.length;
-    const padding = ' '.repeat(diff);
-    resultText += padding;
-  } else if (resultText.length > length) {
-    resultText = `${resultText.substring(0, MAX_POLL_RESULT_KEY_LENGTH - 3)}...`;
-  }
-  return resultText;
-};
-
 const getPollResultsText = (isDefaultPoll: boolean, answers: PollResultData['answers'], numRespondents: number, intl: Intl) => {
   let responded = 0;
   let resultString = '';
@@ -168,10 +155,10 @@ const getPollResultsText = (isDefaultPoll: boolean, answers: PollResultData['ans
     )
     : false;
 
-  let longestKeyLength = answers.reduce(
+  // Every option is written in full, padded to the longest one so the results line up.
+  const longestKeyLength = answers.reduce(
     (acc, item) => (item.key.length > acc ? item.key.length : acc), 0,
   );
-  longestKeyLength = Math.min(longestKeyLength, MAX_POLL_RESULT_KEY_LENGTH);
 
   answers.map((item) => {
     responded += item.numVotes;
@@ -185,7 +172,7 @@ const getPollResultsText = (isDefaultPoll: boolean, answers: PollResultData['ans
       let translatedKey = pollAnswerIds[item.key.toLowerCase() as keyof typeof pollAnswerIds]
         ? intl.formatMessage(pollAnswerIds[item.key.toLowerCase() as keyof typeof pollAnswerIds])
         : item.key;
-      translatedKey = truncate(translatedKey, longestKeyLength);
+      translatedKey = translatedKey.padEnd(longestKeyLength);
       resultString += `${translatedKey}: ${item.numVotes || 0} ${pctBars}${POLL_BAR_CHAR} ${pctFotmatted}\n`;
     } else {
       if (isPollAnswerMatchFormat) {
@@ -193,9 +180,7 @@ const getPollResultsText = (isDefaultPoll: boolean, answers: PollResultData['ans
         const formattedAnswerValue = getFormattedAnswerValue(item.key);
         optionsString += `${pollAnswerMatchLabeledFormat[index]?.[0]}: ${formattedAnswerValue}\n`;
       } else {
-        let { key } = item;
-        key = truncate(key, longestKeyLength);
-        resultString += key;
+        resultString += item.key.padEnd(longestKeyLength);
       }
       resultString += `: ${item.numVotes || 0} ${pctBars}${POLL_BAR_CHAR} ${pctFotmatted}\n`;
     }
@@ -239,6 +224,17 @@ export const validateInput = (input: string) => {
   while (/^\s/.test(i)) i = i.substring(1);
   return i;
 };
+
+// In custom input the first line is the question and the others are options, each
+// cut to its own limit.
+export const limitQuestionAndOptionLines = (
+  input: string,
+  maxQuestionLength: number,
+  maxOptionLength: number,
+) => input
+  .split('\n')
+  .map((line, index) => line.substring(0, index === 0 ? maxQuestionLength : maxOptionLength))
+  .join('\n');
 
 export const getSplittedQuestionAndOptions = (questionAndOptions: string[] | string) => {
   const inputList = Array.isArray(questionAndOptions)
