@@ -4,6 +4,8 @@ name: "Nightly tests"
 #               @nightly and @stress, on the default media bridge; then the quarantined tests 3 times
 #               each, report-only, for a pass rate (except @only-headed, which cannot run headless, and
 #               @setting-required, which runs in the setting-* jobs)
+#   firefox-*   the chromium-* selection on Firefox, report-only: a failure shows in the summary, the
+#               report and a warning, but does not fail the run; no quarantined runs
 #   media-*     the gate's @media tests on the legacy bbb-webrtc-sfu bridge: the selection of the per-PR
 #               job install-and-run-legacy-media-tests, which ran until it moved here
 #   recording-* the @nightly tests with every recording format installed and enabled
@@ -22,7 +24,7 @@ name: "Nightly tests"
 #   - Packages: it builds nothing. It installs the all-bbb-artifacts artifact of an "Automated tests"
 #     run and tests the commit that run built: by default the newest push run on the branch below
 #     whose artifact has not expired; a manual run can name another run.
-#   - Runners: 8 ubuntu-24.04 jobs per run, each installing BigBlueButton (up to about 2 hours each).
+#   - Runners: 12 ubuntu-24.04 jobs per run, each installing BigBlueButton (up to about 2 hours each).
 #   - Permissions: actions: read, to find that run and download its artifact. No secrets.
 #   - Schedule: GitHub starts scheduled workflows only from the default branch, so the schedule takes
 #     effect once this file is on the default branch; it still tests the branch named below. It runs
@@ -122,6 +124,10 @@ jobs:
           - { group: chromium-livekit, project: chromium, bridge: livekit, shard: 2, shards: 4, quarantined: true }
           - { group: chromium-livekit, project: chromium, bridge: livekit, shard: 3, shards: 4, quarantined: true }
           - { group: chromium-livekit, project: chromium, bridge: livekit, shard: 4, shards: 4, quarantined: true }
+          - { group: firefox-livekit, project: firefox, bridge: livekit, shard: 1, shards: 4, report-only: true }
+          - { group: firefox-livekit, project: firefox, bridge: livekit, shard: 2, shards: 4, report-only: true }
+          - { group: firefox-livekit, project: firefox, bridge: livekit, shard: 3, shards: 4, report-only: true }
+          - { group: firefox-livekit, project: firefox, bridge: livekit, shard: 4, shards: 4, report-only: true }
           - { group: media-bbb-webrtc-sfu, project: chromium, bridge: bbb-webrtc-sfu, shard: 1, shards: 1, grep: "@media", exclude-tags: true }
           - { group: recording-livekit, project: chromium, bridge: livekit, shard: 1, shards: 1, grep: "@nightly" }
           - { group: stress, project: chromium, bridge: livekit, shard: 1, shards: 1, grep: "@stress" }
@@ -187,7 +193,7 @@ jobs:
           npx playwright install
           quarantine=$(jq -er .config.quarantine package.json)
           echo "QUARANTINE_TAGS=$quarantine" >> "$GITHUB_ENV"
-      - name: Run tests
+      - name: Run tests${{ matrix.report-only && ' (report only)' || '' }}
         working-directory: ./bigbluebutton-tests/playwright
         timeout-minutes: 150
         env:
@@ -197,6 +203,8 @@ jobs:
           EXCLUDE_TAGS: ${{ matrix.exclude-tags }}
           RECORDING_FORMATS: ${{ startsWith(matrix.group, 'recording-') && 'presentation,podcast,video,screenshare,notes' || '' }}
           PLAYWRIGHT_BLOB_OUTPUT_DIR: nightly-output/blob-tests
+          REPORT_ONLY: ${{ matrix.report-only }}
+          GROUP: ${{ matrix.group }}
         run: |
           args=(-c playwright.nightly.config.ts "--project=$PROJECT" "--shard=$SHARD")
           if [ -n "$GREP" ]; then
@@ -205,7 +213,11 @@ jobs:
           if [ -z "$GREP" ] || [ "$EXCLUDE_TAGS" = "true" ]; then
             args+=(--grep-invert "$QUARANTINE_TAGS|$EXCLUDED_TAGS")
           fi
-          npx playwright test "${args[@]}"
+          if [ "$REPORT_ONLY" != "true" ]; then
+            npx playwright test "${args[@]}"
+          elif ! npx playwright test "${args[@]}"; then
+            echo "::warning title=Report only::Some $GROUP tests failed; see the nightly-test-reports artifact"
+          fi
       - name: Run quarantined tests 3 times each (report only)
         if: ${{ matrix.quarantined && !cancelled() && steps.deps.outcome == 'success' }}
         working-directory: ./bigbluebutton-tests/playwright

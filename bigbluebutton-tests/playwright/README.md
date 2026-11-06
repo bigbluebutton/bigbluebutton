@@ -61,7 +61,7 @@ A plain `npx playwright test` runs both browsers. To run Firefox only, call Play
 npx playwright test --project=firefox
 ```
 
-Firefox is not part of the pull request gate. In CI, a pull request labelled `test Firefox` also runs the Firefox gate selection (`npm run test-firefox-ci`), once the Chromium tests pass. On Firefox:
+Firefox is not part of the pull request gate. The Nightly tests workflow runs the suite on Firefox every night, report-only (see 2.3), and a pull request labelled `test Firefox` also runs the Firefox gate selection (`npm run test-firefox-ci`), once the Chromium tests pass. On Firefox:
 
 - screenshot comparisons (`toHaveScreenshot()`) are skipped and the rest of each test runs: baselines are kept for Chromium only (the Firefox project sets `ignoreSnapshots`), and a test that is verified only through screenshots skips itself;
 - tests that need what headless Firefox cannot provide, such as screen sharing or mobile device emulation, skip themselves with the reason.
@@ -144,7 +144,7 @@ The quarantine tags are defined once, as `config.quarantine` in `package.json`; 
 - `@setting-required:<setting>` — needs a non-default server setting
 - `@only-headed` — cannot run headless (no test carries it at the moment)
 
-Tests tagged `@nightly` cover extended test sets or wait minutes for recording processing or timers. The gates never select them, even inside a describe tagged `@ci`, so a `@ci` test moves to the nightly by taking the `@nightly` tag itself; `npm run test-nightly` runs them on Chromium. The Nightly tests workflow (`.github/workflows/nightly-tests.yml`) runs them every night, together with the whole non-quarantined suite on the default bridge and the gate's `@media` tests on `bbb-webrtc-sfu`, the selection of the former per-PR legacy media job. The tests of recording formats other than presentation run only for the formats listed in `RECORDING_FORMATS` (e.g. `presentation,podcast,video,screenshare,notes`).
+Tests tagged `@nightly` cover extended test sets or wait minutes for recording processing or timers. The gates never select them, even inside a describe tagged `@ci`, so a `@ci` test moves to the nightly by taking the `@nightly` tag itself; `npm run test-nightly` runs them on Chromium. The Nightly tests workflow (`.github/workflows/nightly-tests.yml`) runs them every night, together with the whole non-quarantined suite on the default bridge, on Chromium and on Firefox, and the gate's `@media` tests on `bbb-webrtc-sfu`, the selection of the former per-PR legacy media job. The Firefox jobs are report-only: their failures show in the run's summary and reports, but do not fail the run. The tests of recording formats other than presentation run only for the formats listed in `RECORDING_FORMATS` (e.g. `presentation,podcast,video,screenshare,notes`).
 
 The initial whiteboard tool tests in `parameters/initialSelectedTool.spec.ts` keep seven representative cases in `@ci`: `draw`, `rectangle`, menu and non-string fallback, a restricted tool list, saved-shape reload, and viewer access. The remaining 42 cases use `@nightly`. Run the file without a tag filter to check all 49 cases:
 
