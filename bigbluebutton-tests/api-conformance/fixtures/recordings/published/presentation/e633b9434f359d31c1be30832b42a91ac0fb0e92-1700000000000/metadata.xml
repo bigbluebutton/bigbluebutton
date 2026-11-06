@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<recording>
+  <id>e633b9434f359d31c1be30832b42a91ac0fb0e92-1700000000000</id>
+  <state>published</state>
+  <published>true</published>
+  <start_time>1700000000000</start_time>
+  <end_time>1700001800000</end_time>
+  <participants>3</participants>
+  <meeting id="e633b9434f359d31c1be30832b42a91ac0fb0e92-1700000000000" externalId="conform-rec-a" name="Conform Recordings A" breakout="false"/>
+  <breakout/>
+  <breakoutRooms/>
+  <meta>
+    <conform-color>blue</conform-color>
+    <conform-size>large</conform-size>
+    <isBreakout>false</isBreakout>
+    <meetingId>conform-rec-a</meetingId>
+    <meetingName>Conform Recordings A</meetingName>
+  </meta>
+  <playback>
+    <format>presentation</format>
+    <link>https://localhost:8443/playback/presentation/2.3/e633b9434f359d31c1be30832b42a91ac0fb0e92-1700000000000</link>
+    <processing_time>6980</processing_time>
+    <duration>1795000</duration>
+    <extensions>
+      <preview>
+        <images>
+          <image width="176" height="136" alt="Welcome To BigBlueButton">https://localhost:8443/presentation/e633b9434f359d31c1be30832b42a91ac0fb0e92-1700000000000/presentation/536fccd5e43f9ffcf1a144479b058b899a335881-1700000000000/thumbnails/thumb-1.png</image>
+          <image width="176" height="136" alt="This slide left blank for whiteboard">https://localhost:8443/presentation/e633b9434f359d31c1be30832b42a91ac0fb0e92-1700000000000/presentation/536fccd5e43f9ffcf1a144479b058b899a335881-1700000000000/thumbnails/thumb-2.png</image>
+          <image width="176" height="136" alt="Second slide">https://localhost:8443/presentation/e633b9434f359d31c1be30832b42a91ac0fb0e92-1700000000000/presentation/536fccd5e43f9ffcf1a144479b058b899a335881-1700000000000/thumbnails/thumb-3.png</image>
+        </images>
+      </preview>
+    </extensions>
+    <size>1087707</size>
+  </playback>
+  <raw_size>839551</raw_size>
+  <data><format>conform-data</format><link>https://localhost:8443/conform-data/e633b9434f359d31c1be30832b42a91ac0fb0e92-1700000000000</link></data>
+</recording>

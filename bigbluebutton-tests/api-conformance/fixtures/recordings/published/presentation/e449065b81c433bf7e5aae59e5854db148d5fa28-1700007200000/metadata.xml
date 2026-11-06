@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<recording>
+  <id>e449065b81c433bf7e5aae59e5854db148d5fa28-1700007200000</id>
+  <state>published</state>
+  <published>true</published>
+  <start_time>1700007200000</start_time>
+  <end_time>1700007325000</end_time>
+  <participants>1</participants>
+  <meeting id="e449065b81c433bf7e5aae59e5854db148d5fa28-1700007200000" externalId="conform-rec-b" name="Conform Recordings B" breakout="false"/>
+  <breakout/>
+  <breakoutRooms/>
+  <meta>
+    <conform-color>red</conform-color>
+    <conform-tag>alpha-beta-gamma</conform-tag>
+    <isBreakout>false</isBreakout>
+    <meetingId>conform-rec-b</meetingId>
+    <meetingName>Conform Recordings B</meetingName>
+  </meta>
+  <playback>
+    <format>presentation</format>
+    <link>https://localhost:8443/playback/presentation/2.3/e449065b81c433bf7e5aae59e5854db148d5fa28-1700007200000</link>
+    <processing_time>6980</processing_time>
+    <duration>120000</duration>
+    <size>245760</size>
+  </playback>
+  <raw_size>102400</raw_size>
+</recording>
