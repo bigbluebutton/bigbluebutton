@@ -779,7 +779,6 @@ export interface Presentation {
   allowDownloadOriginal: boolean
   allowDownloadWithAnnotations: boolean
   allowSnapshotOfCurrentSlide: boolean
-  panZoomThrottle: number
   restoreOnUpdate: boolean
   uploadEndpoint: string
   fileUploadConstraintsHint: boolean
