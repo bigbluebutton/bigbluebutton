@@ -114,6 +114,20 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await create.lockedRecordingSettingForcesRecordOn();
     });
 
+    test('breakoutRoomsCaptureSlides and breakoutRoomsCaptureNotes pre-tick the capture options', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      linkIssue(26228);
+      const create = new Create(browser, context);
+      await create.initModPage(page, {
+        testInfo,
+        createParameter: 'breakoutRoomsCaptureSlides=true&breakoutRoomsCaptureNotes=true',
+      });
+      await create.captureOptionsFollowCreateParameters();
+    });
+
     test('Lock Viewers option is visible in gear menu inside breakout room', async ({
       browser,
       context,
@@ -397,6 +411,66 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
     }, testInfo) => {
       const override = new ClientSettingsOverride(browser, context);
       await override.testClientSettingsOverrideInheritedByBreakout(page, testInfo);
+    });
+
+    test('Captured whiteboard and shared notes are named after the create parameters', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      linkIssue(26228);
+      const slidesFilename = 'captured-slides';
+      const notesFilename = 'captured-notes';
+      const join = new Join(browser, context);
+      await join.initModPage(page, {
+        testInfo,
+        createParameter: [
+          'breakoutRoomsCaptureSlides=true',
+          'breakoutRoomsCaptureNotes=true',
+          `breakoutRoomsCaptureSlidesFilename=${slidesFilename}`,
+          `breakoutRoomsCaptureNotesFilename=${notesFilename}`,
+        ].join('&'),
+      });
+      await join.initUserPage(context, { testInfo });
+      await join.capturedFilesFollowCreateParameters(slidesFilename, notesFilename);
+    });
+
+    test('A capture option unticked by the moderator is not applied to the rooms', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      linkIssue(26228);
+      const join = new Join(browser, context);
+      await join.initModPage(page, {
+        testInfo,
+        createParameter: 'breakoutRoomsCaptureSlides=true&breakoutRoomsCaptureNotes=true',
+      });
+      await join.initUserPage(context, { testInfo });
+      await join.untickedCaptureOptionIsNotApplied();
+    });
+
+    test('Capture file names are numbered per room, also when one name is a prefix of the other', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      linkIssue(26228);
+      const notesFilename = 'cap';
+      const slidesFilename = 'cap-slide';
+      const join = new Join(browser, context);
+      await join.initModPage(page, {
+        testInfo,
+        createParameter: [
+          'breakoutRoomsCaptureSlides=true',
+          'breakoutRoomsCaptureNotes=true',
+          `breakoutRoomsCaptureNotesFilename=${notesFilename}`,
+          `breakoutRoomsCaptureSlidesFilename=${slidesFilename}`,
+        ].join('&'),
+      });
+      await join.initUserPage(context, { testInfo });
+      await join.initUserPage2(context, { testInfo });
+      await join.captureFilenamesAreNumberedPerRoom(notesFilename, slidesFilename);
     });
   });
 });

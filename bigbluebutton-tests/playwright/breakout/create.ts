@@ -559,4 +559,38 @@ export class Create extends MultiUsers {
       'should not offer the rejected presentation as a breakout room slide',
     ).toHaveCount(0);
   }
+
+  // breakoutRoomsCaptureSlides / breakoutRoomsCaptureNotes on the create call pre-tick the capture options
+  async captureOptionsFollowCreateParameters() {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+
+    await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 });
+    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+    await this.modPage.waitAndClick(e.moreOptionsToggle);
+    await expect(
+      this.modPage.page.locator(e.captureBreakoutWhiteboard),
+      'should pre-tick Save whiteboard when the meeting was created with breakoutRoomsCaptureSlides=true',
+    ).toBeChecked();
+    await expect(
+      this.modPage.page.locator(e.captureBreakoutSharedNotes),
+      'should pre-tick Save shared notes when the meeting was created with breakoutRoomsCaptureNotes=true',
+    ).toBeChecked();
+  }
+
+  // Creates the rooms with the capture options set to the given state, whatever they came up as
+  async createWithCaptureOptions(captureWhiteboard: boolean, captureNotes: boolean) {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+    if (!this?.userPage) throw new Error('userPage not initialized');
+
+    await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 });
+    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+    await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
+    await this.modPage.waitAndClick(e.moreOptionsToggle);
+    await Create.setCheckboxChecked(this.modPage.page, e.captureBreakoutWhiteboard, captureWhiteboard);
+    await Create.setCheckboxChecked(this.modPage.page, e.captureBreakoutSharedNotes, captureNotes);
+    await this.modPage.waitAndClick(e.createBreakoutRoomsButton, ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.hasElement(e.modalConfirmButton, 'should invite the attendee to join the breakout room');
+    await this.userPage.waitAndClick(e.modalDismissButton);
+    await this.modPage.setHeightWidthViewPortSize(); // reset to default size
+  }
 }

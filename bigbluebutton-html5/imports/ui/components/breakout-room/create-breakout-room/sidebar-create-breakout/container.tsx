@@ -90,6 +90,10 @@ const SidebarCreateBreakoutContainer: React.FC = () => {
       presentations={presentations.filter((p) => p && p.uploadCompleted)}
       currentPresentation={currentPresentation}
       isBreakoutRecordable={currentMeeting?.breakoutPolicies?.record ?? true}
+      meetingCapturesSlides={currentMeeting?.breakoutPolicies?.captureSlides ?? false}
+      meetingCapturesNotes={currentMeeting?.breakoutPolicies?.captureNotes ?? false}
+      meetingSlidesFilename={currentMeeting?.breakoutPolicies?.captureSlidesFilename ?? ''}
+      meetingNotesFilename={currentMeeting?.breakoutPolicies?.captureNotesFilename ?? ''}
       groups={meetingGroupData?.meeting_group ?? []}
       durationInSeconds={currentMeeting?.durationInSeconds ?? 0}
       createdTime={currentMeeting?.createdTime ?? 0}

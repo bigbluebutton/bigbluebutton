@@ -26,6 +26,25 @@ const SHORTEST_BREAKOUT_END_TIME = 90000;
 
 // the room's own meeting row: the choice it took from its parent and the feature that enforces it
 const ROOM_PRIVATE_CHAT = 'subscription { meeting { disabledFeatures breakoutPolicies { privateChatEnabled } } }';
+// the capture choice and file names the room was created with
+const ROOM_CAPTURE_POLICIES =
+  'subscription { meeting { breakoutPolicies { captureSlides captureNotes captureSlidesFilename captureNotesFilename } } }';
+interface RoomCapturePolicies {
+  breakoutPolicies: {
+    captureSlides: boolean;
+    captureNotes: boolean;
+    captureSlidesFilename: string;
+    captureNotesFilename: string;
+  };
+}
+const PRESENTATION_NAMES = 'subscription { pres_presentation { name uploadCompleted } }';
+interface PresentationName {
+  name: string;
+  uploadCompleted: boolean;
+}
+// Converting the captured whiteboard and notes back in the parent meeting takes a while
+const CAPTURED_FILES_WAIT_TIME = 90000;
+
 interface RoomPrivateChat {
   disabledFeatures: string[];
   breakoutPolicies: { privateChatEnabled: boolean };
@@ -914,5 +933,106 @@ export class Join extends Create {
       privateChatWithSecondAttendee,
       'should not offer the attendee a private chat with the other attendee in the breakout room',
     );
+  }
+
+  // The rooms are created with the capture options the meeting asked for, without touching them,
+  // and the captured files come back named after breakoutRoomsCapture*Filename.
+  async capturedFilesFollowCreateParameters(slidesFilename: string, notesFilename: string) {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+    if (!this?.userPage) throw new Error('userPage not initialized');
+
+    await this.create();
+    const breakoutUserPage = await this.joinRoom();
+    const [room] = await readRows<RoomCapturePolicies>(breakoutUserPage, ROOM_CAPTURE_POLICIES, 'meeting');
+    expect(room?.breakoutPolicies, 'the room should capture what the meeting asked for, with its file names').toEqual({
+      captureSlides: true,
+      captureNotes: true,
+      captureSlidesFilename: slidesFilename,
+      captureNotesFilename: notesFilename,
+    });
+
+    // there is only something to capture with an annotation and a notes revision
+    await breakoutUserPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await breakoutUserPage.waitAndClick(e.wbShapesButton);
+    await breakoutUserPage.waitAndClick(e.wbLineShape);
+    const wbBreakout = await breakoutUserPage.page.$(e.whiteboard);
+    const wbBox = await wbBreakout?.boundingBox();
+    if (!wbBox) throw Error('Failed to get the bounding box of whiteboard breakout element');
+    await breakoutUserPage.page.mouse.move(wbBox.x + 0.3 * wbBox.width, wbBox.y + 0.3 * wbBox.height);
+    await breakoutUserPage.page.mouse.down();
+    await breakoutUserPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
+    await breakoutUserPage.page.mouse.up();
+    await breakoutUserPage.waitAndClick(e.sharedNotesSidebarButton);
+    const notesLocator = getBlockNoteEditorLocator(breakoutUserPage);
+    await notesLocator.click(); // BlockNote needs focus before typing
+    await notesLocator.pressSequentially(e.message);
+    // making sure there's enough time for the drawing and the typing to reach the server
+    await breakoutUserPage.page.waitForTimeout(2000);
+
+    await this.modPage.closeAllToastNotifications();
+    await this.modPage.waitAndClick(e.finishBreakoutButton);
+    await expect
+      .poll(
+        async () =>
+          (await readRows<PresentationName>(this.modPage, PRESENTATION_NAMES, 'pres_presentation'))
+            .filter((presentation) => presentation.uploadCompleted)
+            .map((presentation) => presentation.name)
+            .sort(),
+        {
+          message: 'the captured files should be named after the create parameters',
+          timeout: CAPTURED_FILES_WAIT_TIME,
+        },
+      )
+      .toEqual(['default.pdf', `${notesFilename}.pdf`, `${slidesFilename}.pdf`].sort());
+  }
+
+  // The moderator can still switch a capture option off: the room records what the panel sent.
+  async untickedCaptureOptionIsNotApplied() {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+
+    await this.createWithCaptureOptions(false, true);
+    const breakoutUserPage = await this.joinRoom();
+    const [room] = await readRows<RoomCapturePolicies>(breakoutUserPage, ROOM_CAPTURE_POLICIES, 'meeting');
+    expect(
+      room?.breakoutPolicies?.captureSlides,
+      'the room should not capture the whiteboard the moderator unticked',
+    ).toBe(false);
+    expect(room?.breakoutPolicies?.captureNotes, 'the room should capture the shared notes left ticked').toBe(true);
+  }
+
+  // Each room of the batch gets its own capture file names: the first keeps the create parameter,
+  // the next ones are numbered, even when one parameter is a prefix of the other.
+  async captureFilenamesAreNumberedPerRoom(notesFilename: string, slidesFilename: string) {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+    if (!this?.userPage) throw new Error('userPage not initialized');
+    if (!this?.userPage2) throw new Error('userPage2 not initialized');
+
+    await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 });
+    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+    await this.modPage.waitForSelector(e.attendeeNotAssigned, ELEMENT_WAIT_EXTRA_LONG_TIME);
+    // the unassigned users are listed by name, so both attendees come before the moderator
+    await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
+    await this.modPage.hasText(e.breakoutBox1, this.userPage.username, 'should assign the attendee to the first room');
+    await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox2);
+    await this.modPage.hasText(
+      e.breakoutBox2,
+      this.userPage2.username,
+      'should assign the other attendee to the second room',
+    );
+    await this.modPage.waitAndClick(e.createBreakoutRoomsButton, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.setHeightWidthViewPortSize(); // reset to default size
+
+    const firstRoomPage = await this.joinRoomFromInvitation(this.userPage);
+    const secondRoomPage = await this.joinRoomFromInvitation(this.userPage2);
+    const [firstRoom] = await readRows<RoomCapturePolicies>(firstRoomPage, ROOM_CAPTURE_POLICIES, 'meeting');
+    const [secondRoom] = await readRows<RoomCapturePolicies>(secondRoomPage, ROOM_CAPTURE_POLICIES, 'meeting');
+    expect(firstRoom?.breakoutPolicies, 'the first room should keep the names of the create parameters').toMatchObject({
+      captureNotesFilename: notesFilename,
+      captureSlidesFilename: slidesFilename,
+    });
+    expect(secondRoom?.breakoutPolicies, 'the second room should get the next number of each name').toMatchObject({
+      captureNotesFilename: `${notesFilename}(2)`,
+      captureSlidesFilename: `${slidesFilename}(2)`,
+    });
   }
 }
