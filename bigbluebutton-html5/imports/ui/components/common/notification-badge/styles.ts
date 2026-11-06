@@ -9,6 +9,7 @@ import {
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorWhite,
+  colorWhiteBorder,
   notificationBadgeBg,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
@@ -17,7 +18,7 @@ const notificationBadgeShape = `
   height: ${navigationSidebarNotificationBadgeSize};
   border-radius: ${navigationSidebarNotificationBadgeSize};
   background-color: ${notificationBadgeBg};
-  border: ${borderSizeSmall} solid ${colorWhite};
+  border: ${borderSizeSmall} solid ${colorWhiteBorder};
 `;
 
 const notificationBadgeText = `
