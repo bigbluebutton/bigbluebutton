@@ -138,7 +138,11 @@ test.describe('Audio processing mode - browser without WASM support', { tag: '@c
 });
 
 test.describe('Audio processing mode - showAudioFilters', { tag: '@ci' }, () => {
-  test('leaves only the device test in the Audio tab when showAudioFilters is false', async ({ browser, context, page }, testInfo) => {
+  test('leaves only the device test in the Audio tab when showAudioFilters is false', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
     const audioProcessingMode = new AudioProcessingMode(browser, context);
     await audioProcessingMode.initModPage(page, {
       testInfo,
