@@ -1,4 +1,3 @@
-import ButtonWrappers from '/imports/ui/components/common/button-wrapper/styles';
 import styled from 'styled-components';
 import { styled as materialStyled } from '@mui/material/styles';
 import { Switch } from '@mui/material';
@@ -579,7 +578,9 @@ export const PresentationSelect = styled(Select)`
   }
 `;
 
-export const StartButtonWrapper = styled(ButtonWrappers.FullWidthButtonWrapper)`
+// Pinned to the panel's bottom. It is its own element because it carries the tooltip
+// that explains a disabled Start: a disabled BBButton ignores pointer events.
+export const StartButtonWrapper = styled.div`
   padding: 0.75rem 1rem;
   margin-top: auto;
 `;
