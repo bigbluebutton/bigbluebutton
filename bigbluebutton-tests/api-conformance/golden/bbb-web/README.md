@@ -48,7 +48,15 @@ there compares like with like.
   `end/end.callbacks.expired` were added, and `create.expiry.not-joined-*`
   and `end.callbacks.http-*`, whose steps changed, were re-recorded, from a
   stack started that day from packages whose build key still matched this
-  tree.
+  tree. On 2026-11-06 the recording cases were added: getRecordings
+  (`getRecordings/getRecordings.{filters,pagination,all,response}.*`, the
+  `all` ones partly under the no-fetch-all-recordings profile),
+  publishRecordings, deleteRecordings and updateRecordings (`*.errors.*`,
+  `*.state.*`, `*.meta.*`), getRecordingTextTracks and putRecordingTextTrack
+  (`*.errors.*`, `*.tracks.*`, `*.upload.*`) and the caption-file routes
+  (`textTrack/`). They were recorded from a fresh stack (`make reset`)
+  built from this tree that day, with the tap installing
+  `fixtures/recordings/`.
 
 ## Reviewing
 

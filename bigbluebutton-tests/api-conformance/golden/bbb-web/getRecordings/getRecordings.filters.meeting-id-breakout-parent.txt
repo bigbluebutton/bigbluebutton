@@ -1,0 +1,36 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case getRecordings.filters.meeting-id-breakout-parent
+target bbb-web
+
+== step 1: call getRecordings
+status 200
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "SUCCESS"
+/response/recordings/recording/recordID "<sha1(meetingID)>-<time>"
+/response/recordings/recording/meetingID "conform-rec-parent"
+/response/recordings/recording/internalMeetingID "<sha1(meetingID)>-<time>"
+/response/recordings/recording/name "Conform Recordings Parent"
+/response/recordings/recording/isBreakout "false"
+/response/recordings/recording/published "true"
+/response/recordings/recording/state "published"
+/response/recordings/recording/startTime "<time>"
+/response/recordings/recording/endTime "<time>"
+/response/recordings/recording/participants "3"
+/response/recordings/recording/rawSize "839551"
+/response/recordings/recording/metadata/conform-color "blue"
+/response/recordings/recording/metadata/isBreakout "false"
+/response/recordings/recording/metadata/meetingId "conform-rec-parent"
+/response/recordings/recording/metadata/meetingName "Conform Recordings Parent"
+/response/recordings/recording/breakout/parentId "unknown"
+/response/recordings/recording/breakout/sequence "0"
+/response/recordings/recording/breakout/freeJoin "false"
+/response/recordings/recording/breakoutRooms/breakoutRoom "<sha1(?)>-<time>"
+/response/recordings/recording/breakoutRooms/breakoutRoom "<sha1(?)>-<time>"
+/response/recordings/recording/size "1087707"
+/response/recordings/recording/playback/format/type "presentation"
+/response/recordings/recording/playback/format/url "${baseUrl}/playback/presentation/2.3/<sha1(meetingID)>-<time>"
+/response/recordings/recording/playback/format/processingTime "6980"
+/response/recordings/recording/playback/format/length "6"
+/response/recordings/recording/playback/format/size "1087707"
+/response/recordings/recording/data
