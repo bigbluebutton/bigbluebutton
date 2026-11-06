@@ -1,0 +1,44 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# What getMeetingInfo says about a meeting created with nothing but a name.
+# startTime is set once akka-apps has created the meeting, not at the first
+# join; endTime and hasBeenForciblyEnded only change as the meeting is
+# removed, so they are never seen set. Values from the server's defaults
+# (duration, maxUsers, dialNumber) are in the recording.
+id: getMeetingInfo.fields.defaults
+title: getMeetingInfo for a meeting created with defaults
+endpoint: getMeetingInfo
+class: contract
+tags: [ci]
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Meeting info}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: getMeetingInfo
+    params: {meetingID: "${uid}"}
+    eventually: {within: 5s, every: 100ms, until: {xpath: {/response/startTime: {regex: '^[1-9][0-9]*$'}}}}
+    expect:
+      returncode: SUCCESS
+      xpath:
+        /response/meetingName: Meeting info
+        /response/meetingID: "${uid}"
+        /response/attendeePW: {exists: true}
+        /response/moderatorPW: {exists: true}
+        /response/running: "false"
+        /response/hasUserJoined: "false"
+        /response/recording: "false"
+        /response/hasBeenForciblyEnded: "false"
+        /response/startTime: {regex: '^[1-9][0-9]*$'}
+        /response/endTime: "0"
+        /response/participantCount: "0"
+        /response/moderatorCount: "0"
+        /response/attendees/attendee: {count: 0}
+        /response/isBreakout: "false"
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

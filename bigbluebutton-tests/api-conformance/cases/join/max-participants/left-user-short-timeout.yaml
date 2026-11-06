@@ -1,0 +1,59 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# With usersTimeout at 5 seconds (the short-users-timeout profile), the
+# seat of a user who left frees up within 55 seconds of akka-apps removing
+# them, where the shipped 60 seconds holds it for at least a minute
+# (left-user.yaml). This shows bbb-web reads the setting. Once bbb-web's
+# cleanup is running it takes 5 to 20 seconds, but the cleanup first runs
+# a minute after bbb-web starts, and switching to the profile restarts
+# bbb-web just before this case, so here it is usually 20 to 50 seconds.
+# create.tsx doesn't say a user who left keeps a seat, so this is compat.
+id: join.max-participants.left-user-short-timeout
+title: A user who left frees their maxParticipants seat after a short usersTimeout (short-users-timeout)
+endpoint: join
+class: compat
+tags: [ci, presence, disruptive]
+requires: [akka, presence]
+profile: short-users-timeout
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Max participants, maxParticipants: "1", meetingExpireWhenLastUserLeftInMinutes: "10"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: MODERATOR}}
+    golden: off
+    capture: {annId: $.userId}
+  # bbb-web learns of the join from akka-apps a moment later, seconds
+  # after a restart.
+  - call: getMeetingInfo
+    params: {meetingID: "${uid}"}
+    golden: off
+    eventually: {within: 10s, every: 200ms, until: {xpath: {/response/participantCount: "1"}}}
+    expect: {xpath: {/response/participantCount: "1"}}
+  - call: join
+    params: {meetingID: "${uid}", fullName: Bob, role: viewer, redirect: "false"}
+    golden: off
+    expect: {returncode: FAILED, messageKey: maxParticipantsReached}
+  - presence: {action: leave, as: ann}
+    golden: off
+  # akka-apps removes Ann, and tells bbb-web she left.
+  - bus: {name: UserLeftMeetingEvtMsg, meetingId: "${intId}", within: 25s}
+    golden: off
+    expect: {jsonpath: {$.core.body.intId: "${annId}"}}
+  - call: join
+    params: {meetingID: "${uid}", fullName: Bob, role: viewer, redirect: "false"}
+    golden: off
+    expect: {returncode: FAILED, messageKey: maxParticipantsReached}
+  - call: join
+    params: {meetingID: "${uid}", fullName: Bob, role: viewer, redirect: "false"}
+    eventually: {within: 55s, every: 1s, until: {returncode: SUCCESS}}
+    expect: {returncode: SUCCESS, messageKey: successfullyJoined}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

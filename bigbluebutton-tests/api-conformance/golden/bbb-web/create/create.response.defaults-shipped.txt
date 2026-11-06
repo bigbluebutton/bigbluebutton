@@ -1,0 +1,116 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.response.defaults-shipped
+target bbb-web
+
+== step 1: call create
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "SUCCESS"
+/response/meetingID "${uid}"
+/response/internalMeetingID "<sha1(meetingID)>-<time>"
+/response/parentMeetingID "bbb-none"
+/response/attendeePW "<random>"
+/response/moderatorPW "<random>"
+/response/createTime "<time>"
+/response/voiceBridge "<random>"
+/response/dialNumber "613-555-1234"
+/response/createDate "<date>"
+/response/hasUserJoined "false"
+/response/duration "0"
+/response/hasBeenForciblyEnded "false"
+/response/messageKey
+/response/message
+
+== step 2: bus MeetingCreatedEvtMsg
+$.channel "from-akka-apps-redis-channel"
+$.core.body.props.breakoutProps.breakoutRooms []
+$.core.body.props.breakoutProps.captureNotes false
+$.core.body.props.breakoutProps.captureNotesFilename "%%CONFNAME%%"
+$.core.body.props.breakoutProps.captureSlides false
+$.core.body.props.breakoutProps.captureSlidesFilename "%%CONFNAME%%"
+$.core.body.props.breakoutProps.freeJoin false
+$.core.body.props.breakoutProps.parentId "bbb-none"
+$.core.body.props.breakoutProps.privateChatEnabled true
+$.core.body.props.breakoutProps.record false
+$.core.body.props.breakoutProps.sequence 0
+$.core.body.props.durationProps.createdDate "<date>"
+$.core.body.props.durationProps.createdTime "<time>"
+$.core.body.props.durationProps.duration 0
+$.core.body.props.durationProps.endWhenNoModerator false
+$.core.body.props.durationProps.endWhenNoModeratorDelayInMinutes 1
+$.core.body.props.durationProps.meetingExpireIfNoUserJoinedInMinutes 5
+$.core.body.props.durationProps.meetingExpireWhenLastUserLeftInMinutes 1
+$.core.body.props.durationProps.userActivitySignResponseDelayInMinutes 5
+$.core.body.props.durationProps.userInactivityInspectTimerInMinutes 0
+$.core.body.props.durationProps.userInactivityThresholdInMinutes 30
+$.core.body.props.groups []
+$.core.body.props.lockSettingsProps.disableCam false
+$.core.body.props.lockSettingsProps.disableMic false
+$.core.body.props.lockSettingsProps.disableNotes false
+$.core.body.props.lockSettingsProps.disablePrivateChat false
+$.core.body.props.lockSettingsProps.disablePublicChat false
+$.core.body.props.lockSettingsProps.hideUserList false
+$.core.body.props.lockSettingsProps.hideViewersAnnotation false
+$.core.body.props.lockSettingsProps.hideViewersCursor false
+$.core.body.props.lockSettingsProps.lockOnJoin true
+$.core.body.props.lockSettingsProps.lockOnJoinConfigurable false
+$.core.body.props.lockSettingsProps.presenterPolicy "requireApproval"
+$.core.body.props.meetingProp.audioBridge "livekit"
+$.core.body.props.meetingProp.cameraBridge "livekit"
+$.core.body.props.meetingProp.disabledFeatures []
+$.core.body.props.meetingProp.extId "${uid}"
+$.core.body.props.meetingProp.intId "<sha1(meetingID)>-<time>"
+$.core.body.props.meetingProp.isBreakout false
+$.core.body.props.meetingProp.maxPinnedCameras 3
+$.core.body.props.meetingProp.meetingCameraCap 0
+$.core.body.props.meetingProp.name "Defaults"
+$.core.body.props.meetingProp.notifyRecordingAppend ""
+$.core.body.props.meetingProp.notifyRecordingIsOn false
+$.core.body.props.meetingProp.presentationUploadExternalDescription ""
+$.core.body.props.meetingProp.presentationUploadExternalUrl ""
+$.core.body.props.meetingProp.screenShareBridge "livekit"
+$.core.body.props.meetingProp.sharedNotesInitialContentJson []
+$.core.body.props.meetingProp.sharedNotesInitialContentMarkdown ""
+$.core.body.props.metadataProp.metadata {}
+$.core.body.props.overrideClientSettings ""
+$.core.body.props.password.learningDashboardAccessToken "<token>"
+$.core.body.props.password.moderatorPass "<random>"
+$.core.body.props.password.viewerPass "<random>"
+$.core.body.props.pluginProp {}
+$.core.body.props.recordProp.allowStartStopRecording true
+$.core.body.props.recordProp.autoStartRecording false
+$.core.body.props.recordProp.keepEvents false
+$.core.body.props.recordProp.record false
+$.core.body.props.recordProp.recordFullDurationMedia false
+$.core.body.props.systemProps.bannerColor ""
+$.core.body.props.systemProps.bannerText ""
+$.core.body.props.systemProps.customDarkLogoURL ""
+$.core.body.props.systemProps.customLogoURL ""
+$.core.body.props.systemProps.html5PluginSdkVersion "<version>"
+$.core.body.props.systemProps.loginUrl ""
+$.core.body.props.systemProps.logoutUrl "${baseUrl}"
+$.core.body.props.usersProp.allowModsToEjectCameras false
+$.core.body.props.usersProp.allowModsToUnmuteUsers false
+$.core.body.props.usersProp.allowPromoteGuestToModerator false
+$.core.body.props.usersProp.authenticatedGuest true
+$.core.body.props.usersProp.guestPolicy "ALWAYS_ACCEPT"
+$.core.body.props.usersProp.maxUserConcurrentAccesses 3
+$.core.body.props.usersProp.maxUsers 0
+$.core.body.props.usersProp.meetingLayout "UNIFIED_LAYOUT"
+$.core.body.props.usersProp.multiUserWhiteboardEnabled false
+$.core.body.props.usersProp.requireUserConsentBeforeUnmuting false
+$.core.body.props.usersProp.userCameraCap 3
+$.core.body.props.usersProp.waitingGuestUsersTimeout 30000
+$.core.body.props.usersProp.webcamsOnlyForModerator false
+$.core.body.props.voiceProp.dialNumber "613-555-1234"
+$.core.body.props.voiceProp.muteOnStart true
+$.core.body.props.voiceProp.telVoice "<random>"
+$.core.body.props.voiceProp.voiceConf "<random>"
+$.core.body.props.welcomeProp.welcomeMsg "Welcome to <b>Defaults</b>!\n<br>\n<br>\nFor help on using BigBlueButton see these (short) <a href=\"https://bigbluebutton.org/teachers/tutorials/\" target=\"_blank\"><u>tutorial videos</u></a>.\n<br>\n<br>\nTo join the audio bridge click the speaker button. Use a headset to avoid causing background noise for others.\n<br>\n<br>\nThis server is running <a href=\"https://bigbluebutton.org/\" target=\"_blank\"><u>BigBlueButton</u></a>."
+$.core.body.props.welcomeProp.welcomeMsgForModerators ""
+$.core.header.name "MeetingCreatedEvtMsg"
+$.envelope.name "MeetingCreatedEvtMsg"
+$.envelope.routing.sender "bbb-apps-akka"
+$.envelope.timestamp "<time>"

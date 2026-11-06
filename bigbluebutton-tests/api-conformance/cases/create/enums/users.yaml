@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# guestPolicy and meetingLayout are stored as they were sent, in akka-apps'
+# user props: create checks neither, and doesn't change their case. A
+# guestPolicy bbb-web doesn't know denies viewers when they join; the join
+# guest cases cover that.
+id: create.enums.users
+title: create with ${param}=${value}
+endpoint: create
+class: compat
+tags: [ci]
+requires: [akka, bus]
+variants:
+  - {id: guest-policy-valid, vars: {param: guestPolicy, value: ASK_MODERATOR}, class: contract}
+  - {id: guest-policy-lower-case, vars: {param: guestPolicy, value: ask_moderator}}
+  - {id: guest-policy-unknown, vars: {param: guestPolicy, value: NO_SUCH_POLICY}}
+  - {id: meeting-layout-valid, vars: {param: meetingLayout, value: CUSTOM_LAYOUT}, class: contract}
+  - {id: meeting-layout-lower-case, vars: {param: meetingLayout, value: custom_layout}}
+  - {id: meeting-layout-unknown, vars: {param: meetingLayout, value: NO_SUCH_LAYOUT}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Enums, "${param}": "${value}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.props.usersProp.guestPolicy, $.core.body.props.usersProp.meetingLayout]
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

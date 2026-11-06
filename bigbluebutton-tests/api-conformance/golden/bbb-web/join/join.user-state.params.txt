@@ -1,0 +1,14 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case join.user-state.params
+target bbb-web
+
+== step 4: graphql query Me as vic
+$.data.user_current[].avatar "https://example.com/avatar.png"
+$.data.user_current[].bot false
+$.data.user_current[].enforceLayout "SMART_LAYOUT"
+$.data.user_current[].extId "vic"
+$.data.user_current[].firstName "Vic"
+$.data.user_current[].lastName "Tor"
+$.data.user_current[].name "Vic Tor"
+$.data.user_current[].role "VIEWER"
+$.data.user_current[].webcamBackground "https://example.com/background.jpg"

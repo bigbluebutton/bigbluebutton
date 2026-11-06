@@ -1,0 +1,12 @@
+#!/bin/sh
+# unpack PATTERN: unpacks the one deb in /debs that PATTERN matches into
+# $UNPACK_TO (default /), the files dpkg would install, without running the
+# package's install scripts.
+set -eu
+pattern=$1
+set -- /debs/$pattern
+if [ "$#" -ne 1 ] || [ ! -f "$1" ]; then
+	echo "unpack: want one deb matching $pattern in the debs context, found: $*" >&2
+	exit 1
+fi
+dpkg-deb -x "$1" "${UNPACK_TO:-/}"

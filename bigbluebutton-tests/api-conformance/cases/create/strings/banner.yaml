@@ -1,0 +1,27 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# bannerText and bannerColor reach akka-apps' system props as they were
+# given; without them both are empty.
+id: create.strings.banner
+title: create ${scenario} a banner
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus]
+variants:
+  - {id: given, vars: {scenario: with, text: Maintenance tonight, color: "#FF0000"}}
+  - {id: absent, vars: {scenario: without, text: null, color: null}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Strings, bannerText: "${text}", bannerColor: "${color}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.props.systemProps.bannerText, $.core.body.props.systemProps.bannerColor]
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}
