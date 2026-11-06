@@ -1,0 +1,49 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# join's params about the user reach akka-apps' user, as the user's own
+# user_current row shows: avatarURL as avatar, webcamBackgroundURL as
+# webcamBackground, firstName, lastName and enforceLayout as they are, and
+# userID as extId.
+id: join.user-state.params
+title: join's user params show in the user's user_current row
+endpoint: join
+class: contract
+tags: [ci, presence]
+requires: [akka, presence]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: User state}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - presence:
+      action: join
+      as: vic
+      args:
+        meetingID: "${uid}"
+        fullName: Vic Tor
+        role: viewer
+        userID: vic
+        avatarURL: "https://example.com/avatar.png"
+        webcamBackgroundURL: "https://example.com/background.jpg"
+        firstName: Vic
+        lastName: Tor
+        enforceLayout: SMART_LAYOUT
+    golden: off
+  - graphql: {as: vic, query: "query Me { user_current { extId name role avatar webcamBackground firstName lastName enforceLayout bot } }"}
+    expect:
+      jsonpath:
+        "$.data.user_current[0].extId": vic
+        "$.data.user_current[0].avatar": "https://example.com/avatar.png"
+        "$.data.user_current[0].webcamBackground": "https://example.com/background.jpg"
+        "$.data.user_current[0].firstName": Vic
+        "$.data.user_current[0].lastName": Tor
+        "$.data.user_current[0].enforceLayout": SMART_LAYOUT
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

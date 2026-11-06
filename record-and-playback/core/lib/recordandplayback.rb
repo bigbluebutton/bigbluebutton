@@ -84,9 +84,50 @@ module BigBlueButton
   def self.logger
     return @logger if @logger
 
-    logger = Journald::Logger.new('bbb-rap')
+    logger = system_logger('bbb-rap')
     logger.level = Logger::INFO
     @logger = logger
+  end
+
+  # Logger for a long-running recording service, tagged with +identifier+.
+  #
+  # systemd sets JOURNAL_STREAM for every unit whose stdout/stderr goes to the
+  # journal, so package installs log to journald. Without a journal (e.g. in a
+  # container) a Journald::Logger silently drops every line, so log to a synced
+  # stdout instead and let the runtime collect it.
+  def self.system_logger(identifier)
+    return Journald::Logger.new(identifier) if ENV.key?('JOURNAL_STREAM')
+
+    $stdout.sync = true
+    StdoutLogger.new($stdout, progname: identifier)
+  end
+
+  # Stdout logger with the journald-specific methods the recording scripts use.
+  class StdoutLogger < Logger
+    # Like Journald::Logger#tag: with a block the fields apply inside it only,
+    # without one they stay.
+    def tag(**fields)
+      saved = @tags
+      @tags = (saved || {}).merge(fields)
+      return unless block_given?
+
+      begin
+        yield
+      ensure
+        @tags = saved
+      end
+    end
+
+    def exception(exc)
+      error("#{exc.class}: #{exc.message}\n#{exc.backtrace&.join("\n")}")
+    end
+
+    private
+
+    def format_message(severity, time, progname, msg)
+      msg = "#{msg} #{@tags.map { |k, v| "#{k}=#{v}" }.join(' ')}" if @tags&.any?
+      super
+    end
   end
 
   def self.redis_publisher=(publisher)
@@ -145,15 +186,6 @@ module BigBlueButton
     BigBlueButton.logger.info "Downloading #{url} to #{output}"
 
     uri = URI.parse(url)
-    if ["http", "https", "ftp"].include? uri.scheme
-      response = Net::HTTP.start(uri.host, uri.port) {|http|
-        http.head(uri.request_uri)
-      }
-      unless response.is_a? Net::HTTPSuccess
-        raise "File not available: #{response.message}"
-      end
-    end
-
     if uri.scheme.nil?
       url = "file://" + url
       uri = URI.parse(url)
@@ -162,6 +194,8 @@ module BigBlueButton
     Net::HTTP.start(uri.host, uri.port) do |http|
       request = Net::HTTP::Get.new uri.request_uri
       http.request request do |response|
+        raise "File not available: #{response.code} #{response.message}" unless response.is_a? Net::HTTPSuccess
+
         open output, 'w' do |io|
           response.read_body do |chunk|
             io.write chunk
@@ -200,9 +234,7 @@ module BigBlueButton
 
       doc.at(parent_xpath) << node
 
-      xml_file = File.new(xml_filename, "w")
-      xml_file.write(doc.to_xml(:indent => 2))
-      xml_file.close
+      File.write(xml_filename, doc.to_xml(:indent => 2))
     end
   end
 
@@ -244,12 +276,29 @@ module BigBlueButton
     hasOverride = File.file?(filepathRecOverride)
     
     filepath = File.join(BigBlueButton.rap_scripts_path, 'bigbluebutton.yml')
-    @props = YAML::load(File.open(filepath))
+    @props = BigBlueButton.load_yaml(filepath)
     if (hasOverride)
-      recOverrideProps = YAML::load(File.open(filepathRecOverride))
+      recOverrideProps = BigBlueButton.load_yaml(filepathRecOverride, fallback: {})
       @props = @props.merge(recOverrideProps)
     end
     @props
+  end
+
+  # Reads a Java .properties file into a Hash with symbol keys.
+  #
+  # java_properties reads the file as UTF-8 and runs regexps over it, so a file
+  # in the .properties spec encoding (ISO-8859-1) aborts with "invalid byte
+  # sequence in UTF-8". Fall back to that encoding instead of failing.
+  def self.read_java_props(filepath)
+    require 'java_properties'
+
+    text = File.binread(filepath).force_encoding(Encoding::UTF_8)
+    unless text.valid_encoding?
+      BigBlueButton.logger.warn("#{filepath} is not valid UTF-8, reading it as ISO-8859-1")
+      text = text.force_encoding(Encoding::ISO_8859_1).encode(Encoding::UTF_8)
+    end
+
+    JavaProperties::Parser.parse(text)
   end
 
   def self.create_redis_publisher

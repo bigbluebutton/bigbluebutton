@@ -8,18 +8,23 @@ import (
 	"sync"
 	"time"
 
+	"bbb-graphql-middleware/config"
 	"bbb-graphql-middleware/internal/common"
 	streamingserver "bbb-graphql-middleware/internal/streaming_server"
 
 	"github.com/coder/websocket"
 )
 
-var streamingHandleByMiddlewarePatterns = [][]byte{
-	[]byte("\"query\":\"subscription getCursorCoordinatesStream"),
-	[]byte("\"query\":\"subscription getChatMessageStream"),
-	[]byte("\"query\":\"subscription getNotificationStream"),
-	[]byte("\"query\":\"subscription getUserVoiceStateStream"),
-}
+// Derived from the canonical list rather than hand-maintained, so a stream cannot be added to one
+// place and forgotten in the other.
+var streamingHandleByMiddlewarePatterns = func() [][]byte {
+	patterns := make([][]byte, 0, len(config.StreamingSubscriptionsManagedByMiddleware))
+	for _, operationName := range config.StreamingSubscriptionsManagedByMiddleware {
+		patterns = append(patterns, []byte("\"query\":\"subscription "+operationName))
+	}
+
+	return patterns
+}()
 
 func BrowserConnectionReader(
 	browserConnection *common.BrowserConnection,

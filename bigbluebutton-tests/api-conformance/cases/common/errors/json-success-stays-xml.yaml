@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+id: getMeetings.errors.json-success-stays-xml
+title: A successful response stays XML even with Accept application/json
+endpoint: getMeetings
+class: contract
+# Runs alone (serial): the answer lists the server's meetings, and bbb-web
+# cuts it short when the last one goes away while it lists them.
+tags: [ci, serial]
+steps:
+  - call: getMeetings
+    headers: {Accept: application/json}
+    expect: {returncode: SUCCESS, format: xml}

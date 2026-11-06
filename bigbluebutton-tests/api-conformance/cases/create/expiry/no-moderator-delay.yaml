@@ -1,0 +1,49 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# endWhenNoModeratorDelayInMinutes counts from when the last moderator
+# left, not from when akka-apps removed them, which is 10 to 20 seconds
+# later (no-moderator.yaml). With a delay of one minute, the meeting ends
+# at akka-apps' first audit (every 10 seconds) a minute or more after the
+# leave: normally 50 seconds after the removal, 40 when the removal came
+# a full 20 seconds after the leave. A viewer stays throughout.
+id: create.expiry.no-moderator-delay
+title: A meeting with endWhenNoModerator ends endWhenNoModeratorDelayInMinutes after its moderator left
+endpoint: create
+class: contract
+tags: [slow, presence]
+requires: [akka, presence]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Expiry, endWhenNoModerator: "true", endWhenNoModeratorDelayInMinutes: "1"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: MODERATOR}}
+    golden: off
+    capture: {annId: $.userId}
+  - presence: {action: join, as: vic, args: {meetingID: "${uid}", fullName: Vic, role: VIEWER}}
+    golden: off
+  - presence: {action: leave, as: ann}
+    golden: off
+  # akka-apps removes Ann.
+  - bus: {name: UserLeftMeetingEvtMsg, meetingId: "${intId}", within: 25s}
+    golden: off
+    expect: {jsonpath: {$.core.body.intId: "${annId}"}}
+  # Until 45 to 55 seconds after the leave.
+  - bus: {name: MeetingEndingEvtMsg, meetingId: "${intId}", within: 35s}
+    expect: {absent: true}
+  - bus: {name: MeetingEndingEvtMsg, meetingId: "${intId}", within: 30s}
+    expect:
+      jsonpath: {$.core.body.reason: ENDED_DUE_TO_NO_MODERATOR}
+  - call: getMeetingInfo
+    params: {meetingID: "${uid}"}
+    eventually: {within: 5s, every: 200ms, until: {messageKey: notFound}}
+    expect: {returncode: FAILED, messageKey: notFound}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

@@ -1,5 +1,33 @@
 import {ValidationError} from "../types/ValidationError";
 
+// Keep caption_<locale>.vtt within the 255-byte Linux filename limit.
+const MAX_LOCALE_LENGTH = 255 - 'caption_'.length - '.vtt'.length;
+const SAFE_LOCALE_CHARACTERS = /^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$/;
+
+const invalidLocaleMessage = `Locale must be a canonical BCP 47 language tag of at most ${MAX_LOCALE_LENGTH} characters`;
+
+export const throwErrorIfInvalidLocale = (locale: unknown) => {
+    if (typeof locale !== 'string'
+        || locale.length > MAX_LOCALE_LENGTH
+        || !SAFE_LOCALE_CHARACTERS.test(locale)) {
+        throw new ValidationError(invalidLocaleMessage, 400);
+    }
+
+    try {
+        const canonicalLocales = (Intl as unknown as {
+            getCanonicalLocales(value: string): string[];
+        }).getCanonicalLocales(locale);
+
+        if (canonicalLocales.length === 1 && canonicalLocales[0] === locale) {
+            return;
+        }
+    } catch (_error) {
+        // Fall through to the validation error below.
+    }
+
+    throw new ValidationError(invalidLocaleMessage, 400);
+};
+
 export const throwErrorIfNotModerator = (sessionVariables: Record<string, unknown>) => {
     if(sessionVariables['x-hasura-moderatorinmeeting'] == "") {
         throw new ValidationError('Permission Denied (not moderator).', 403);

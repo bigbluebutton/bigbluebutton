@@ -5,6 +5,7 @@ import React, {
   useCallback,
   memo,
 } from 'react';
+import cx from 'classnames';
 import { defineMessages, useIntl } from 'react-intl';
 import CustomLogo from './custom-logo/component';
 import getFromUserSettings from '/imports/ui/services/users-settings';
@@ -107,6 +108,9 @@ const SidebarNavigation = ({
         // restore sidebar expanded state if device is not mobile anymore
         setIsExpanded(true);
       }
+      if (!enableScrollBar) {
+        setEnableScrollBar(true);
+      }
       return;
     }
 
@@ -118,6 +122,20 @@ const SidebarNavigation = ({
       }
     }
   }, [isExpanded, isMobile, enableScrollBar]);
+
+  useEffect(() => {
+    // collapse the sidebar when the device becomes mobile (e.g. the window is
+    // resized across the breakpoint): mounting on mobile already starts collapsed,
+    // but without this the expanded rail carried over from desktop would overlay
+    // the sidebar content and the media area.
+    // Deliberately a separate effect depending on isMobile only, so it fires once
+    // per device type change. Folding it into the effect above (which re-runs on
+    // every isExpanded change) would collapse the rail right back each time the
+    // user taps the toggle to expand it on mobile, breaking the toggle.
+    if (isMobile) {
+      setIsExpanded(false);
+    }
+  }, [isMobile]);
 
   useEffect(() => {
     if (!isMobile) return;
@@ -162,6 +180,7 @@ const SidebarNavigation = ({
 
   return (
     <Styled.NavigationSidebarBackdrop
+      className={cx('bbb-navigation', { 'bbb-navigation--collapsed': !isExpanded })}
       isMobile={isMobile}
       isExpanded={isExpanded}
       style={{
@@ -175,6 +194,7 @@ const SidebarNavigation = ({
       animations={animations}
     >
       <Styled.NavigationSidebar
+        className="bbb-navigation__bar"
         isExpanded={isExpanded}
         data-test="navigationSidebarContainer"
         isMobile={isMobile}
@@ -199,6 +219,7 @@ const SidebarNavigation = ({
           />
         )}
         <Styled.NavigationSidebarListItemsContainer
+          className="bbb-navigation__list"
           ref={scrollRef}
           isMobile={isMobile}
           noVirtualScrollboxBackground={noVirtualScrollboxBackground}
@@ -211,13 +232,17 @@ const SidebarNavigation = ({
             {topButtons.map((buttonId) => renderButton(buttonId))}
           </Styled.Top>
 
-          {hasTopContent && hasCenterContent && <Styled.Separator />}
+          {hasTopContent && hasCenterContent && (
+            <Styled.Separator className="bbb-navigation__separator" />
+          )}
 
           <Styled.Center>
             {centerButtons.map((buttonId) => renderButton(buttonId))}
           </Styled.Center>
 
-          {hasCenterContent && hasBottomContent && <Styled.Separator />}
+          {hasCenterContent && hasBottomContent && (
+            <Styled.Separator className="bbb-navigation__separator" />
+          )}
 
           <Styled.Bottom>
             {bottomButtons.map((buttonId) => renderButton(buttonId))}

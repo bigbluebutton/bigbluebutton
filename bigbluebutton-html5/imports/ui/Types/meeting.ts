@@ -45,6 +45,7 @@ export interface MeetingRecordingPolicies {
 
 export interface UsersPolicies {
   allowModsToEjectCameras: boolean;
+  allowModsToRequestCameraShare: boolean;
   allowModsToUnmuteUsers: boolean;
   authenticatedGuest: boolean;
   allowPromoteGuestToModerator: boolean;
@@ -123,7 +124,6 @@ export interface ComponentsFlags {
   hasCurrentPresentation: boolean;
   hasSharedNotes: boolean;
   isSharedNotesPinned: boolean;
-  isEtherpadSharedNotes: boolean;
 }
 
 export interface Meeting {
@@ -141,6 +141,7 @@ export interface Meeting {
   meetingId: string;
   name: string;
   notifyRecordingIsOn: boolean;
+  notifyRecordingAppend: string;
   presentationUploadExternalDescription: string;
   presentationUploadExternalUrl: string;
   usersPolicies: UsersPolicies;

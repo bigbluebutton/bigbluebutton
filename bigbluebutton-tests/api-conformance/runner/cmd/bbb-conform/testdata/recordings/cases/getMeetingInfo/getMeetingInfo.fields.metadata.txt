@@ -1,0 +1,30 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case getMeetingInfo.fields.metadata
+target fake
+
+== step 1: call create
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "SUCCESS"
+/response/meetingID "${uid}"
+/response/internalMeetingID "<sha1(meetingID)>-<time>"
+/response/attendeePW "<random>"
+/response/moderatorPW "<random>"
+/response/createTime "<time>"
+/response/messageKey
+/response/message
+
+== step 2: call getMeetingInfo
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "SUCCESS"
+/response/meetingName "Meta"
+/response/meetingID "${uid}"
+/response/internalMeetingID "<sha1(meetingID)>-<time>"
+/response/createTime "<time>"
+/response/running "false"
+/response/metadata/color "blue"

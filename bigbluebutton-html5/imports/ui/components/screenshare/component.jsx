@@ -641,6 +641,7 @@ class ScreenshareComponent extends React.Component {
         {autoplayBlocked ? this.renderAutoplayOverlay() : null}
         <Styled.ScreenshareContainer
           switched={isPresenter ? switched : true}
+          fullscreen={fullscreenContext}
           key="screenshareContainer"
           ref={(ref) => {
             this.screenshareContainer = ref;

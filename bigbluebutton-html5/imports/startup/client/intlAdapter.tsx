@@ -16,6 +16,32 @@ import { ACTIONS } from '/imports/ui/components/layout/enums';
 const RTL_LANGUAGES = ['ar', 'dv', 'fa', 'he'];
 const LARGE_FONT_LANGUAGES = ['te', 'km'];
 
+export const applyLocaleToDocument = (locale: string) => {
+  const isRTL = RTL_LANGUAGES.includes(locale.substring(0, 2));
+  const { formattedLocale } = formatLocaleCode(locale);
+  document.documentElement.setAttribute('dir', isRTL ? 'rtl' : 'ltr');
+  document.documentElement.lang = formattedLocale;
+  return isRTL;
+};
+
+/**
+ * The locale to restore over the current one, if any: the one forced by the join
+ * (userdata) or the one the user saved in a previous session.
+ */
+export const getRestoredLocale = (currentLocale: string): string | null => {
+  const { bbb_override_default_locale } = localUserSettings();
+  if (typeof bbb_override_default_locale === 'string') return bbb_override_default_locale;
+
+  // @ts-ignore - JS code
+  const { locale } = getSettingsSingletonInstance().application;
+  if (typeof locale === 'string' && locale !== currentLocale) {
+    const { overrideLocale } = window.meetingClientSettings.public.app.defaultSettings.application;
+    return overrideLocale || locale;
+  }
+
+  return null;
+};
+
 interface IntlAdapterProps {
   children: React.ReactNode;
 }
@@ -46,30 +72,17 @@ const IntlAdapter: React.FC<IntlAdapterProps> = ({
   };
   const setUp = () => {
     if (currentLocale) {
-      const { language, formattedLocale } = formatLocaleCode(currentLocale);
+      const { language } = formatLocaleCode(currentLocale);
       // @ts-ignore - JS code
       Settings.application.locale = currentLocale;
-      if (RTL_LANGUAGES.includes(currentLocale.substring(0, 2))) {
-        // @ts-ignore - JS code
-        document.body.parentNode.setAttribute('dir', 'rtl');
-        // @ts-ignore - JS code
-        Settings.application.isRTL = true;
-        layoutContextDispatch({
-          type: ACTIONS.SET_IS_RTL,
-          value: true,
-        });
-      } else {
-        // @ts-ignore - JS code
-        document.body.parentNode.setAttribute('dir', 'ltr');
-        // @ts-ignore - JS code
-        Settings.application.isRTL = false;
-        layoutContextDispatch({
-          type: ACTIONS.SET_IS_RTL,
-          value: false,
-        });
-      }
+      const isRTL = applyLocaleToDocument(currentLocale);
+      // @ts-ignore - JS code
+      Settings.application.isRTL = isRTL;
+      layoutContextDispatch({
+        type: ACTIONS.SET_IS_RTL,
+        value: isRTL,
+      });
       Session.setItem('isLargeFont', LARGE_FONT_LANGUAGES.includes(currentLocale.substring(0, 2)));
-      document.getElementsByTagName('html')[0].lang = formattedLocale;
       document.body.classList.add(`lang-${language}`);
       Settings.save(setLocalSettings);
     }
@@ -79,18 +92,9 @@ const IntlAdapter: React.FC<IntlAdapterProps> = ({
       `${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.IntlLocaleUiDataNames.CURRENT_LOCALE}`,
       sendUiDataToPlugins,
     );
-    // @ts-ignore - JS code
-    const { locale } = Settings.application;
-    const clientSettings = window.meetingClientSettings.public.app.defaultSettings.application;
-    const { overrideLocale } = clientSettings;
-    const { bbb_override_default_locale } = localUserSettings();
-    if (typeof bbb_override_default_locale === 'string') {
-      setCurrentLocale(bbb_override_default_locale);
-    } else if (
-      typeof locale === 'string'
-      && locale !== currentLocale
-    ) {
-      setCurrentLocale(overrideLocale || locale);
+    const restoredLocale = getRestoredLocale(currentLocale);
+    if (restoredLocale) {
+      setCurrentLocale(restoredLocale);
     } else {
       setUp();
     }

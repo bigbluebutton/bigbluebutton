@@ -1,15 +1,23 @@
 import styled, { css } from 'styled-components';
-import Button from '/imports/ui/components/common/button/component';
 import {
-  colorDanger, colorWhite, colorGrayUserListToolbar, colorPrimary, appsGalleryOutlineColor,
-  colorText, colorGrayIcons, appsPanelTextColor,
+  BBButton, borderRadiusDefault, spacingSmall, spacingSmallMedium,
+} from '@bigbluebutton/bbb-ui-components-react';
+import {
+  appsGalleryOutlineColor,
+  appsPanelTextColor,
+  colorGrayIcons,
+  colorGrayUserListToolbar,
+  colorPrimary,
+  colorText,
+  colorTextSecondary,
+  colorWhiteSurface,
+  mediaSharingChipBg,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { lgBorderRadius } from '/imports/ui/stylesheets/styled-components/general';
 import { fontSizeBase, headingsFontWeight } from '/imports/ui/stylesheets/styled-components/typography';
 import ExpandCircleDownIcon from '@mui/icons-material/ExpandCircleDown';
 
 const MODAL_WIDTH = '26.25rem';
-const MODAL_WIDTH_REDUCED = '250px';
 
 // This overlay covers the entire viewport and is used to catch outside clicks.
 const Overlay = styled.div`
@@ -22,41 +30,14 @@ const Overlay = styled.div`
   z-index: 1000;
 `;
 
-// @ts-ignore - Button is JSX element
-const ConfirmationButton = styled(Button)`
-  display: flex;
-  width: 100%;
-  height: 3.5rem;
-  padding: 1rem;
-  justify-content: center;
-  align-items: center;
-  gap: 0.5rem;
-  flex: 1 0 0;
-  border-radius: ${lgBorderRadius};
-  font-size: 1rem;
-
-  ${({ color }) => color === 'danger' && `
-    border: 1px solid ${colorDanger};
-  `}
-
-  &:hover {
-    opacity: 0.8;
-  }
-
-  i {
-    font-size: 1.5rem;
-  }
-`;
-
 // Modal container positioned in the bottom right corner.
 const ModalContainer = styled.div<{
   isMobile: boolean,
   isRTL: boolean,
   actionsBarHeight: number,
-  reducedWidth?: boolean,
 }>`
   position: fixed;
-  background: ${colorWhite};
+  background: ${colorWhiteSurface};
   box-shadow: -4px 4px 8px 0px rgba(0, 0, 0, 0.25);
   display: flex;
   flex-direction: column;
@@ -65,13 +46,13 @@ const ModalContainer = styled.div<{
   border-radius: ${lgBorderRadius};
 
   ${({
-    isMobile, isRTL, reducedWidth,
+    isMobile, isRTL,
   }) => (isMobile ? `
     width: 70%;
     right: 6%;
     left: auto;
   ` : `
-    width: ${reducedWidth ? MODAL_WIDTH_REDUCED : MODAL_WIDTH};
+    width: ${MODAL_WIDTH};
     ${isRTL ? `
       left: 24px;
       right: auto;
@@ -190,30 +171,34 @@ const BecomePresenterViewContainer = styled.div`
   padding: 1rem;
   flex-direction: column;
   gap: 1rem;
+`;
 
-  ${ConfirmationButton} {
-    height: 2.5rem;
-    padding: 0.5rem;
-    border-radius: 0.5rem;
-    min-width: 8.5rem;
-  }
+// The take/request presenter button spans the popover, so it keeps one size
+// whatever the label. BBButton never wraps its label and some translations are
+// wider than the popover, so let them wrap instead of overflowing.
+const BecomePresenterButton = styled(BBButton)`
+  white-space: normal;
 `;
 
 const BecomePresenterText = styled.div`
   color: ${colorText};
 `;
 
+// Not a BBButton: the library's disabled style would make this status even
+// fainter. It takes BBButton's `sm` box instead, so the button keeps its size
+// when a request turns into a wait.
 const WaitingButton = styled.button<{ $animations?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 12px 24px;
-  border-radius: 8px;
+  gap: ${spacingSmall};
+  padding: ${spacingSmall} ${spacingSmallMedium};
+  border-radius: ${borderRadiusDefault};
   font-size: 1rem;
-  font-weight: 500;
-  background-color: #e0e0e0;
-  color: #666;
-  border: none;
+  font-weight: 600;
+  background-color: ${mediaSharingChipBg};
+  color: ${colorTextSecondary};
+  border: 1px solid transparent;
   cursor: not-allowed;
   opacity: 0.7;
 
@@ -235,7 +220,7 @@ const WaitingButton = styled.button<{ $animations?: boolean }>`
 
 export default {
   Overlay,
-  ConfirmationButton,
+  BecomePresenterButton,
   ModalContainer,
   HeaderContainer,
   ContentContainer,

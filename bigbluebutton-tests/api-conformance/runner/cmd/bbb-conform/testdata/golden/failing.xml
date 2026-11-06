@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="bbb-conform fake" tests="14" failures="5" errors="3" skipped="4" time="0.000">
+  <testsuite name="report" tests="14" failures="5" errors="3" skipped="4" time="0.000">
+    <testcase name="getMeetings.report.bad-position" classname="report" file="../../testdata/failing/report/bad-position.yaml" line="1" time="0.000">
+      <error message="step 1 (line 6): position middle needs at least two other params, got 1">step 1 (line 6): position middle needs at least two other params, got 1&#xA;</error>
+    </testcase>
+    <testcase name="getMeetings.report.capture-missing" classname="report" file="../../testdata/failing/report/capture-missing.yaml" line="1" time="0.000">
+      <failure message="step 1 (line 6): capture /response/nope: nothing matched">step 1 (line 6): capture /response/nope: nothing matched&#xA;  GET https://fake.test/bigbluebutton/api/getMeetings?checksum=1af42d0ccfdb960caedd524edc52e712796e97e9236668e9ef27344120c35aa2&#xA;</failure>
+    </testcase>
+    <testcase name="isMeetingRunning.report.eventually-timeout" classname="report" file="../../testdata/failing/report/eventually-timeout.yaml" line="1" time="0.000">
+      <failure message="step 2 (line 10): eventually: not within 500ms (N attempts): xpath /response/running: expected &#34;true&#34;, got &#34;false&#34;">step 2 (line 10): eventually: not within 500ms (N attempts): xpath /response/running: expected &#34;true&#34;, got &#34;false&#34;&#xA;  GET https://fake.test/bigbluebutton/api/isMeetingRunning?meetingID=uid-002&amp;checksum=cbe6372c38ddb8c8a9ec8b054f5dcf463ec0e2327b11d00cfcfd44021c72a694&#xA;  xpath /response/running: expected &#34;true&#34;, got &#34;false&#34;&#xA;</failure>
+    </testcase>
+    <testcase name="getMeetings.report.ignored" classname="report" file="../../testdata/failing/report/ignored.yaml" line="1" time="0.000">
+      <system-out>warning: step 1 (line 6), ignored: returncode: expected &#34;FAILED&#34;, got &#34;SUCCESS&#34;</system-out>
+    </testcase>
+    <testcase name="getMeetings.report.needs-clamav" classname="report" file="../../testdata/failing/report/needs-clamav.yaml" line="1" time="0.000">
+      <skipped message="target lacks clamav"></skipped>
+    </testcase>
+    <testcase name="getMeetings.report.no-sink" classname="report" file="../../testdata/failing/report/no-sink.yaml" line="1" time="0.000">
+      <skipped message="not-configured: sinkUrl"></skipped>
+    </testcase>
+    <testcase name="getMeetings.report.not-json" classname="report" file="../../testdata/failing/report/not-json.yaml" line="1" time="0.000">
+      <failure message="step 1 (line 6): format: expected json, got xml">step 1 (line 6): format: expected json, got xml&#xA;  GET https://fake.test/bigbluebutton/api/getMeetings?checksum=1af42d0ccfdb960caedd524edc52e712796e97e9236668e9ef27344120c35aa2&#xA;  format: expected json, got xml&#xA;  jsonpath $.response.returncode: expected &#34;SUCCESS&#34;, got the response is not JSON: invalid character &#39;&lt;&#39; looking for beginning of value&#xA;</failure>
+    </testcase>
+    <testcase name="getMeetings.report.route" classname="report" file="../../testdata/failing/report/route.yaml" line="1" time="0.000">
+      <skipped message="not-routed: presentation-download"></skipped>
+    </testcase>
+    <testcase name="getMeetings.report.salt-redacted" classname="report" file="../../testdata/failing/report/salt-redacted.yaml" line="1" time="0.000">
+      <failure message="step 1 (line 6): message: expected &#34;[salt]&#34;, got &#34;no meetings were found on this server&#34;">step 1 (line 6): message: expected &#34;[salt]&#34;, got &#34;no meetings were found on this server&#34;&#xA;  GET https://fake.test/bigbluebutton/api/getMeetings?echo=[salt]&amp;checksum=fa8fbba54a691065e170c7b1d654a55a3a12ed295fab660b422282b407b95363&#xA;  message: expected &#34;[salt]&#34;, got &#34;no meetings were found on this server&#34;&#xA;</failure>
+    </testcase>
+    <testcase name="getMeetings.report.schema" classname="report" file="../../testdata/failing/report/schema.yaml" line="1" time="0.000">
+      <skipped message="unimplemented: schema"></skipped>
+    </testcase>
+    <testcase name="getMeetings.report.teardown-warning" classname="report" file="../../testdata/failing/report/teardown-warning.yaml" line="1" time="0.000">
+      <system-out>warning: teardown step 1 (line 8): returncode: expected &#34;FAILED&#34;, got &#34;SUCCESS&#34;</system-out>
+    </testcase>
+    <testcase name="getMeetings.report.transport-error" classname="report" file="../../testdata/failing/report/transport-error.yaml" line="1" time="0.000">
+      <error message="step 1 (line 6): Get &#34;http://127.0.0.1:1/bigbluebutton/api&#34;: dial tcp 127.0.0.1:1: connect: connection refused">step 1 (line 6): Get &#34;http://127.0.0.1:1/bigbluebutton/api&#34;: dial tcp 127.0.0.1:1: connect: connection refused&#xA;  GET http://127.0.0.1:1/bigbluebutton/api&#xA;</error>
+    </testcase>
+    <testcase name="getMeetings.report.undefined-target-var" classname="report" file="../../testdata/failing/report/undefined-at-run-time.yaml" line="1" time="0.000">
+      <error message="step 1 (line 6): undefined variable target.sinkHost">step 1 (line 6): undefined variable target.sinkHost&#xA;</error>
+    </testcase>
+    <testcase name="getMeetings.report.wrong-value" classname="report" file="../../testdata/failing/report/wrong-value.yaml" line="1" time="0.000">
+      <failure message="step 1 (line 6): returncode: expected &#34;FAILED&#34;, got &#34;SUCCESS&#34;">step 1 (line 6): returncode: expected &#34;FAILED&#34;, got &#34;SUCCESS&#34;&#xA;  GET https://fake.test/bigbluebutton/api/getMeetings?checksum=1af42d0ccfdb960caedd524edc52e712796e97e9236668e9ef27344120c35aa2&#xA;  returncode: expected &#34;FAILED&#34;, got &#34;SUCCESS&#34;&#xA;  messageKey: expected one of &#34;a&#34;, &#34;b&#34;, got &#34;noMeetings&#34;&#xA;</failure>
+    </testcase>
+  </testsuite>
+</testsuites>

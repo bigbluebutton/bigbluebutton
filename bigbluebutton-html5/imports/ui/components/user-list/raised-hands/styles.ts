@@ -1,9 +1,11 @@
 import styled from 'styled-components';
 import {
-  colorWhite,
   colorGrayDark,
-  colorGrayLight,
+  colorGrayLightBorder,
   colorPrimary,
+  colorSurfaceMuted,
+  colorWhite,
+  colorWhiteSurface,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   smPaddingX,
@@ -47,7 +49,7 @@ const ClearButton = styled(Button)`
   position: relative;
   background-color: transparent !important;
   color: ${colorGrayDark} !important;
-  border: ${borderSizeSmall} solid ${colorGrayLight};
+  border: ${borderSizeSmall} solid ${colorGrayLightBorder};
   border-radius: 5px;
 
   margin: ${smPaddingX};
@@ -56,10 +58,10 @@ const ClearButton = styled(Button)`
   &:focus,
   &:hover,
   &:active {
-    background-color: #f5f5f5 !important;
+    background-color: ${colorSurfaceMuted} !important;
     color: ${colorGrayDark} !important;
     box-shadow: none;
-    border-color: ${colorGrayLight};
+    border-color: ${colorGrayLightBorder};
   }
 `;
 
@@ -145,7 +147,7 @@ const IndexBadge = styled.div`
   font-size: 0.75rem;
   font-weight: bold;
   z-index: 10;
-  box-shadow: 0 0 0 2px ${colorWhite};
+  box-shadow: 0 0 0 2px ${colorWhiteSurface};
 `;
 
 const EmojiContainer = styled.div`

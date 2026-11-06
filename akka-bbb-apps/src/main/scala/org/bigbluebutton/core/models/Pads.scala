@@ -38,8 +38,6 @@ object Pads {
 
   def setPadId(pads: Pads, externalId: String, padId: String): Unit = pads.setGroupPadId(externalId, padId)
 
-  def setRev(pads: Pads, externalId: String, rev: Int): Unit = pads.setGroupRev(externalId, rev)
-
   def setNextRev(pads: Pads, externalId: String): Unit = pads.setNextGroupRev(externalId)
 
   def getGroupById(pads: Pads, groupId: String): Option[PadGroup] = pads.getGroupById(groupId)
@@ -63,14 +61,6 @@ class Pads {
       group <- groups.get(externalId)
     } yield {
       groups += externalId -> group.copy(padId = padId)
-    }
-  }
-
-  def setGroupRev(externalId: String, rev: Int): Unit = {
-    for {
-      group <- groups.get(externalId)
-    } yield {
-      groups += externalId -> group.copy(rev = rev)
     }
   }
 

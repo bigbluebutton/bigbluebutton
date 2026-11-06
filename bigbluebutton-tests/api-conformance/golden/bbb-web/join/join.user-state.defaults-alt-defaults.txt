@@ -1,0 +1,11 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case join.user-state.defaults-alt-defaults
+target bbb-web
+
+== step 4: graphql query Me as ann
+$.data.user_current[].avatar "${baseUrl}/html5client/resources/images/avatar.png"
+$.data.user_current[].bot false
+$.data.user_current[].enforceLayout null
+$.data.user_current[].firstName null
+$.data.user_current[].lastName null
+$.data.user_current[].webcamBackground "${baseUrl}/html5client/resources/images/virtual-backgrounds/board.jpg"

@@ -16,7 +16,7 @@ concurrency:
 jobs:
   build:
     name: Build docs
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-latest' }}
     defaults:
       run:
         working-directory: ./docs
@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
           cache-dependency-path: ./docs/package-lock.json
       - name: Install dependencies
@@ -54,7 +54,7 @@ jobs:
       name: Documentation
       url: ${{ steps.deployment.outputs.page_url }}
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-latest' }}
     steps:
       - name: deploy to GitHub Pages
         id: deployment

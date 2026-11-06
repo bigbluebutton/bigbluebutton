@@ -1,0 +1,10 @@
+# want: 10: xpath checks need an XML response, but format is json
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+steps:
+  - call: create
+    expect:
+      format: json
+      xpath: {/a: b}

@@ -1,9 +1,9 @@
 import styled from 'styled-components';
 import {
-  colorWhite,
   colorDanger,
-  colorWarning,
   colorSuccess,
+  colorWarning,
+  colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 const SignalBars = styled.div`

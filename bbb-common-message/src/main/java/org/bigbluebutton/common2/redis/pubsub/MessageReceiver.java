@@ -34,10 +34,11 @@ public class MessageReceiver extends RedisAwareCommunicator {
         log.info("Ready to receive messages from Redis pubsub.");
         receiveMessage = true;
 
-        RedisURI redisUri = RedisURI.Builder.redis(this.host, this.port).withClientName(this.clientName).build();
+        RedisURI.Builder redisUriBuilder = RedisURI.Builder.redis(this.host, this.port).withClientName(this.clientName);
         if (!this.password.isEmpty()) {
-            redisUri.setPassword(this.password);
+            redisUriBuilder.withPassword(this.password.toCharArray());
         }
+        RedisURI redisUri = redisUriBuilder.build();
 
         redisClient = RedisClient.create(redisUri);
         redisClient.setOptions(ClientOptions.builder().autoReconnect(true).build());

@@ -48,20 +48,32 @@ const getDeviceIdFromTrack = (track) => {
   return null;
 };
 
-// Maps synthetic WebAudio-* device IDs to real device IDs.
+// Maps WASM-processed tracks back to the real device they were captured from.
 // WASM-processed streams (from AudioContext.createMediaStreamDestination) have
-// a unique synthetic device ID per AudioContext. These IDs change on stream
-// cloning as well, making things even more impractical.
-// doGUM is charge of registering the mappings after WASM processing
+// no real device behind them. Chromium invents a synthetic WebAudio-* device ID
+// per AudioContext; Firefox reports an empty getSettings() and so has no
+// synthetic ID at all. Track IDs are the only key every browser exposes, so keep
+// both: the synthetic ID survives cloning and the track ID does not, so a cloned
+// processed stream resolves only where the browser supplies the synthetic one.
+// doGUM is in charge of registering the mappings after WASM processing
 const wasmDeviceIdMap = new Map();
 
-const registerWasmDeviceId = (syntheticDeviceId, realDeviceId) => {
-  if (syntheticDeviceId && realDeviceId) {
-    wasmDeviceIdMap.set(syntheticDeviceId, realDeviceId);
-  }
+const registerWasmDeviceId = (processedStream, realDeviceId) => {
+  if (!processedStream || !realDeviceId) return;
+
+  getAudioTracks(processedStream).forEach((track) => {
+    const syntheticDeviceId = getDeviceIdFromTrack(track);
+
+    if (syntheticDeviceId) wasmDeviceIdMap.set(syntheticDeviceId, realDeviceId);
+    if (track.id) wasmDeviceIdMap.set(track.id, realDeviceId);
+  });
 };
 
-const resolveDeviceId = (deviceId) => wasmDeviceIdMap.get(deviceId) ?? deviceId;
+const resolveTrackDeviceId = (track) => {
+  const deviceId = getDeviceIdFromTrack(track);
+
+  return wasmDeviceIdMap.get(deviceId) ?? wasmDeviceIdMap.get(track?.id) ?? deviceId;
+};
 
 const extractDeviceIdFromStream = (stream, kind) => {
   let tracks = [];
@@ -70,7 +82,7 @@ const extractDeviceIdFromStream = (stream, kind) => {
     case 'audio':
       tracks = getAudioTracks(stream);
       if (tracks.length === 0) return 'listen-only';
-      return resolveDeviceId(getDeviceIdFromTrack(tracks[0]));
+      return resolveTrackDeviceId(tracks[0]);
     case 'video':
       tracks = getVideoTracks(stream);
       return getDeviceIdFromTrack(tracks[0]);

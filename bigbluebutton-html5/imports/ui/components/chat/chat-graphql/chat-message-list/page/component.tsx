@@ -87,6 +87,7 @@ const messagePropsToCompare = [
   'user.currentlyInMeeting',
   'recipientHasSeen',
   'message',
+  'deletedAt',
   'reactions.length',
 ] as const;
 
@@ -140,30 +141,37 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
   const scrollHeightBeforeRender = useRef(scrollRef.current?.scrollHeight || 0);
 
   const [renderedChatMessages, setRenderedChatMessages] = useState<MessageDetails[]>([]);
+
+  // Deleted messages render no content element, so they never register a dom element
+  const manipulableMessageCount = messages.filter((message) => !message.deletedAt).length;
+
   useEffect(() => {
     const requestedMessages = renderedChatMessages.filter((
       chatMessageRequested,
     ) => domElementManipulationIdentifiers.CHAT_MESSAGE?.includes(chatMessageRequested.messageId));
 
-    if (renderedChatMessages.length === messages.length) {
-      // Only dispatch event when all messages from the page have been rendered
-      // and dom elements registered in the components state
-      window.dispatchEvent(
-        new CustomEvent<UpdatedEventDetails<
-          UpdatedEventDetailsForChatMessageDomElements>>(HookEvents.BBB_CORE_SENT_NEW_DATA, {
-            detail: {
-              hook: DomElementManipulationHooks.CHAT_MESSAGE,
-              data: {
-                page,
-                messages: requestedMessages,
-              },
-            },
-          }),
-      );
-    }
+    if (renderedChatMessages.length !== manipulableMessageCount) return;
 
+    // Only dispatch event when all messages from the page have been rendered
+    // and dom elements registered in the components state
+    window.dispatchEvent(
+      new CustomEvent<UpdatedEventDetails<
+        UpdatedEventDetailsForChatMessageDomElements>>(HookEvents.BBB_CORE_SENT_NEW_DATA, {
+          detail: {
+            hook: DomElementManipulationHooks.CHAT_MESSAGE,
+            data: {
+              page,
+              messages: requestedMessages,
+            },
+          },
+        }),
+    );
+  }, [domElementManipulationIdentifiers, renderedChatMessages, manipulableMessageCount]);
+
+  useEffect(() => {
+    // An empty list tells the plugins sdk to drop every dom element it stored for
+    // this page, so it must only be sent when the page actually unmounts
     return () => {
-      // The page has unmounted, send an event to indicate this to the plugins sdk
       window.dispatchEvent(
         new CustomEvent<UpdatedEventDetails<
           UpdatedEventDetailsForChatMessageDomElements>>(HookEvents.BBB_CORE_SENT_NEW_DATA, {
@@ -177,7 +185,7 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
           }),
       );
     };
-  }, [domElementManipulationIdentifiers, renderedChatMessages]);
+  }, []);
 
   useEffect(() => {
     const handleFocusMessageRequest = (e: Event) => {

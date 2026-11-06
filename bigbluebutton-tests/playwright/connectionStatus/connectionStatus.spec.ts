@@ -30,8 +30,8 @@ test.describe.parallel('Connection Status', { tag: '@ci' }, () => {
     await connectionStatus.linkToSettingsTest();
   });
 
-  test('Copy stats', { tag: '@only-headed' }, async ({ browser, context, page }, testInfo) => {
-    test.skip(!!testInfo.project.use.headless, 'Only works in headed mode');
+  test('Copy stats', async ({ browser, browserName, context, page }, testInfo) => {
+    test.skip(browserName === 'firefox', 'Firefox does not support clipboard-write and clipboard-read');
     const connectionStatus = new ConnectionStatus(browser, context);
     await connectionStatus.initModPage(page, { testInfo });
     await connectionStatus.copyStatsTest();

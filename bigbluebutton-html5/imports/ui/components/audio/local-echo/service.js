@@ -11,7 +11,9 @@ let stubAudioElement = null;
 let delayNode = null;
 
 const shouldUseRTCLoopback = () => {
-  const USE_RTC_LOOPBACK_CHR = window.meetingClientSettings.public.media.localEchoTest.useRtcLoopbackInChromium;
+  const {
+    useRtcLoopbackInChromium: USE_RTC_LOOPBACK_CHR,
+  } = window.meetingClientSettings.public.media.localEchoTest;
 
   return (browserInfo.isChrome || browserInfo.isEdge) && USE_RTC_LOOPBACK_CHR;
 };
@@ -62,7 +64,7 @@ const addDelayNode = (stream) => {
     stubAudioElement.srcObject = stream;
 
     // Fetch sampleRate from stream
-    const sampleRate = stream.getAudioTracks()[0].getSettings().sampleRate;
+    const { sampleRate } = stream.getAudioTracks()[0].getSettings();
 
     // Create a new AudioContext to be able to add a delay to the stream
     audioContext = new AudioContext({ sampleRate });
@@ -96,6 +98,10 @@ const deattachEchoStream = () => {
   audioElement.srcObject = null;
 };
 
+/**
+ * @param {?MediaStream} stream - nothing plays without one
+ * @param {?Object} [loopbackAgent] - a LocalPCLoopback, when Chromium needs one
+ */
 const playEchoStream = async (stream, loopbackAgent = null) => {
   const {
     enabled: DELAY_ENABLED = true,

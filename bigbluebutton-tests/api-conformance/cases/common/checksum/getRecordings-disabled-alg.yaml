@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# The recording calls check the configured algorithms in their own checksum code.
+id: getRecordings.checksum.disabled-alg
+title: With only sha256 enabled, a sha1 checksum on a recording call is a checksumError
+endpoint: getRecordings
+class: contract
+tags: [disruptive]
+profile: checksum-sha256-only
+steps:
+  - call: getRecordings
+    params: {meetingID: "${uid}"}
+    sign: sha1
+    expect: {returncode: FAILED, messageKey: checksumError}
+  - call: getRecordings
+    params: {meetingID: "${uid}"}
+    sign: sha256
+    expect: {returncode: SUCCESS}

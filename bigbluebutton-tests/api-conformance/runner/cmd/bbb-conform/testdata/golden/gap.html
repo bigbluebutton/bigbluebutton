@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gap matrix</title>
+<style>
+:root { --bg: #fff; --fg: #1d2129; --muted: #5f6672; --line: #d7dae0;
+  --pass: #dff3e4; --fail: #fbe0de; --xfail: #fdf0d5; --skip: #eceef1; --missing: #fff; }
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #16181d; --fg: #e6e8eb; --muted: #a0a6b0; --line: #343842;
+    --pass: #1d3b27; --fail: #4a2321; --xfail: #463717; --skip: #2a2d34; --missing: #16181d; }
+}
+body { background: var(--bg); color: var(--fg); font: 14px/1.45 system-ui, sans-serif; margin: 0; padding: 16px; }
+h1 { font-size: 20px; } h2 { font-size: 16px; margin-top: 28px; }
+.wrap { overflow-x: auto; }
+table { border-collapse: collapse; min-width: 100%; }
+th, td { border: 1px solid var(--line); padding: 4px 8px; text-align: left; vertical-align: top; }
+th { color: var(--muted); font-weight: 600; }
+td.case { font-family: ui-monospace, monospace; font-size: 13px; word-break: break-all; }
+td.PASS { background: var(--pass); } td.FAIL, td.ERROR, td.XPASS { background: var(--fail); }
+td.XFAIL { background: var(--xfail); } td.SKIP { background: var(--skip); } td.missing { background: var(--missing); color: var(--muted); }
+td small { display: block; color: var(--muted); }
+a { color: inherit; }
+</style>
+</head>
+<body>
+<h1>Gap matrix</h1>
+<div class="wrap"><table>
+<tr><th>Endpoint</th><th>fake-web</th><th>fake-api</th></tr>
+<tr><td><a href="#create">create</a></td><td>2/2</td><td>0/2</td></tr>
+<tr><td><a href="#getMeetingInfo">getMeetingInfo</a></td><td>1/1</td><td>0/1</td></tr>
+<tr><td><a href="#getMeetings">getMeetings</a></td><td>9/9</td><td>8/9</td></tr>
+<tr><td><a href="#version">version</a></td><td>1/1</td><td>0/1</td></tr>
+</table></div>
+
+<h2 id="create">create</h2>
+<div class="wrap"><table>
+<tr><th>Case</th><th>fake-web</th><th>fake-api</th></tr>
+<tr><td class="case">create.smoke.lifecycle</td><td class="PASS" title="">PASS</td><td class="XFAIL" title="create answers returnCode, and end isn&#39;t implemented (step 1 (line 8): returncode: expected &#34;SUCCESS&#34;, got nothing)"><a href="https://example.com/issues/2">XFAIL</a><small>create answers returnCode, and end isn&#39;t implemented (step 1 (line 8): returncode: expected &#34;SUCCESS&#34;, got nothing)</small></td></tr>
+<tr><td class="case">create.smoke.side-effects</td><td class="PASS" title="">PASS</td><td class="XFAIL" title="create answers returnCode, and end isn&#39;t implemented (step 1 (line 8): returncode: expected &#34;SUCCESS&#34;, got nothing)">XFAIL<small>create answers returnCode, and end isn&#39;t implemented (step 1 (line 8): returncode: expected &#34;SUCCESS&#34;, got nothing)</small></td></tr>
+</table></div>
+
+<h2 id="getMeetingInfo">getMeetingInfo</h2>
+<div class="wrap"><table>
+<tr><th>Case</th><th>fake-web</th><th>fake-api</th></tr>
+<tr><td class="case">getMeetingInfo.smoke.json-error</td><td class="PASS" title="">PASS</td><td class="XFAIL" title="errors are always XML (step 1 (line 7): format: expected json, got xml)">XFAIL<small>errors are always XML (step 1 (line 7): format: expected json, got xml)</small></td></tr>
+</table></div>
+
+<h2 id="getMeetings">getMeetings</h2>
+<div class="wrap"><table>
+<tr><th>Case</th><th>fake-web</th><th>fake-api</th></tr>
+<tr><td class="case">getMeetings.smoke.checksum-accepted-first</td><td class="PASS" title="">PASS</td><td class="PASS" title="">PASS</td></tr>
+<tr><td class="case">getMeetings.smoke.checksum-accepted-middle</td><td class="PASS" title="">PASS</td><td class="PASS" title="">PASS</td></tr>
+<tr><td class="case">getMeetings.smoke.checksum-accepted-sha1</td><td class="PASS" title="">PASS</td><td class="PASS" title="">PASS</td></tr>
+<tr><td class="case">getMeetings.smoke.checksum-accepted-sha256</td><td class="PASS" title="">PASS</td><td class="PASS" title="">PASS</td></tr>
+<tr><td class="case">getMeetings.smoke.checksum-accepted-sha384</td><td class="PASS" title="">PASS</td><td class="PASS" title="">PASS</td></tr>
+<tr><td class="case">getMeetings.smoke.checksum-accepted-sha512</td><td class="PASS" title="">PASS</td><td class="PASS" title="">PASS</td></tr>
+<tr><td class="case">getMeetings.smoke.checksum-accepted-uppercase</td><td class="PASS" title="">PASS</td><td class="XFAIL" title="checksums are compared case-sensitively (step 1 (line 15): returncode: expected &#34;SUCCESS&#34;, got &#34;FAILED&#34;)">XFAIL<small>checksums are compared case-sensitively (step 1 (line 15): returncode: expected &#34;SUCCESS&#34;, got &#34;FAILED&#34;)</small></td></tr>
+<tr><td class="case">getMeetings.smoke.checksum-rejected-duplicate</td><td class="PASS" title="">PASS</td><td class="PASS" title="">PASS</td></tr>
+<tr><td class="case">getMeetings.smoke.checksum-rejected-wrong</td><td class="PASS" title="">PASS</td><td class="PASS" title="">PASS</td></tr>
+</table></div>
+
+<h2 id="version">version</h2>
+<div class="wrap"><table>
+<tr><th>Case</th><th>fake-web</th><th>fake-api</th></tr>
+<tr><td class="case">version.smoke.fields</td><td class="PASS" title="">PASS</td><td class="XFAIL" title="the version endpoint isn&#39;t served (step 1 (line 7): returncode: expected &#34;SUCCESS&#34;, got a text response has no returncode field)">XFAIL<small>the version endpoint isn&#39;t served (step 1 (line 7): returncode: expected &#34;SUCCESS&#34;, got a text response has no returncode field)</small></td></tr>
+</table></div>
+
+</body>
+</html>

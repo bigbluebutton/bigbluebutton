@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+id: getMeetings.checksum.rejected-dup-body
+title: The same checksum in the query and in the form body is a duplicate
+endpoint: getMeetings
+class: contract
+tags: [ci]
+steps:
+  - call: getMeetings
+    method: POST
+    sign: none
+    raw_query: 'a=1&checksum=${checksum("sha256","getMeetings","a=1")}'
+    body: {form: {checksum: '${checksum("sha256","getMeetings","a=1")}'}}
+    expect: {returncode: FAILED, messageKey: checksumError}

@@ -6,6 +6,13 @@ public:
     # user to select an option ("Microphone" and/or "Listen only") for joining
     # audio
     autoJoin: true
+    # Setup screen shown before the user joins
+    # While enabled it supersedes skipCheck, skipCheckOnJoin (no echo test to
+    # skip) and autoJoin (the audio always connects with the selection made
+    # here). autoShareWebcam still sets the camera toggle's initial state.
+    # Per session: userdata-bbb_pre_flight.
+    preFlight:
+      enabled: false
     # Set to false disables the listen only option in audio modal.
     listenOnlyMode: true
     forceListenOnly: false
@@ -66,13 +73,10 @@ public:
       enabled: true
     allowDefaultLogoutUrl: true
     skipMeetingEnded: false
-    dynamicGuestPolicy: true
     enableGuestLobbyMessage: true
     # Show the guest user's position in the lobby waiting queue.
     # Set to false when users should not see their place in line.
     showGuestLobbyWaitingQueuePosition: true
-    guestPolicyExtraAllowOptions: false
-    alwaysShowWaitingRoomUI: true
     enableLimitOfViewersInWebcam: false
     enableMultipleCameras: true
     enableCameraAsContent: true
@@ -104,6 +108,20 @@ public:
       mobile: false
       # provider: [webspeech, vosk, gladia]
       provider: webspeech
+      # speechProcessing: [cloud, local, auto] - only for the webspeech provider, where the
+      # browser transcribes the speaker's audio.
+      # cloud: the browser decides, as it always did. Chrome sends the audio to Google's servers,
+      #   unless the language pack happens to be installed: then it transcribes on the device.
+      # local: always on the user's device (SpeechRecognition.processLocally); the audio is never
+      #   sent to a speech recognition service. Each language's pack (a few hundred MB) is
+      #   downloaded when the user confirms joining audio with that transcription language, and
+      #   the audio settings stay open until it ends. Only the languages the browser can
+      #   transcribe locally are offered; browsers without on-device speech recognition
+      #   (Chrome 139+ on desktop has it) show transcription as unsupported.
+      # auto: as local, but a language the browser cannot transcribe on the device (or every
+      #   language, in a browser without on-device speech recognition) is still offered and
+      #   transcribed as with cloud.
+      speechProcessing: cloud
       # If true, the transcriptions and captions settings are displayed as an
       # entry in the sidebar navigation rather than a button in the actions bar
       showInSidebarNavigation: false
@@ -161,6 +179,8 @@ public:
       duration: 4000
     appsGallery:
       maxPinnedApps: 3
+    # Show the remaining time banner when the meeting has fewer than this many minutes left.
+    remainingTimeThresholdInMinutes: 6
     remainingTimeAlertThresholdArray: [1,5]
     enableDebugWindow: true
     # Warning: increasing the limit of breakout rooms per meeting
@@ -173,12 +193,14 @@ public:
       offerRecordingForBreakouts: false
       # Pre-check the "record breakout room" option
       recordRoomByDefault: false
-      # Pre-check the "capture whiteboard when ending breakouts" option 
+      # Pre-check the "capture whiteboard when ending breakouts" option
       captureWhiteboardByDefault: false
       # Pre-check the "save shared notes when ending breakouts" option
       captureSharedNotesByDefault: false
       # Pre-check the "send invitation to assigned moderators" option
       sendInvitationToAssignedModeratorsByDefault: false
+      # Pre-check the "Propagate the current lock settings" option
+      inheritLockSettingsByDefault: false
       # Minimum number of breakout rooms that can be created
       breakoutRoomMinimum: 2
       # Maximum number of breakout rooms that can be created
@@ -195,13 +217,21 @@ public:
     # For more info, see 'microphoneConstraints' option in this config.
     # If not set, default value is true.
     showAudioFilters: true
+    # audioFilterStorage: where the user's pick in Settings > Audio is kept.
+    # Advanced filtering is experimental, so the default deliberately keeps the
+    # pick from following the user around. Allowed values:
+    # 'session' -> sessionStorage, under a key scoped to the meeting: the pick
+    #              survives neither a new browser session nor another meeting,
+    #              whatever userSettingsStorage says
+    # 'local'   -> the pick follows userSettingsStorage like any other setting,
+    #              so with 'local' there it persists across sessions
+    audioFilterStorage: session
     reactionsButton:
       enabled: true
     emojiRain:
-      # If true, new reactions will be activated
+      # If true, every reaction plays an animated burst of its emoji from the reactions button
       enabled: false
-      # Can set the throttle, the number of emojis that will be displayed and their size
-      intervalEmojis: 2000
+      # numberOfEmojis: how many emojis each reaction bursts
       numberOfEmojis: 5
       # emojiSize: size of the emoji in 'em' units
       emojiSize: 2
@@ -216,6 +246,8 @@ public:
     # allowed values:
     # 'session' -> settings are stored in browser sessionStorage
     # 'local' -> settings are stored in browser localStorage
+    # A group with a storage flag of its own - see audioFilterStorage - only
+    # falls back to this option when that flag says 'local'.
     userSettingsStorage: session
     defaultSettings:
       layout:
@@ -237,7 +269,11 @@ public:
         wakeLock: true
         paginationEnabled: true
         whiteboardToolbarAutoHide: false
-        pushToTalkEnabled: false
+        # Collapse the recording button to an icon and reveal its label on hover.
+        # Off by default: the label stays put, so the button never resizes under
+        # the pointer and never shifts the nav bar around it.
+        recordingIndicatorAutoCollapse: false
+        pushToTalkEnabled: true
         autoCloseReactionsBar: true
         directLeaveButton: true
         darkTheme: false
@@ -254,30 +290,27 @@ public:
         # but on first page load overrideLocale will trump the browser's
         # preferred locale
         overrideLocale: null
-        #Audio constraints for microphone. Use this to control browser's
-        #filters, such as AGC (Auto Gain Control) , Echo Cancellation,
-        #Noise Suppression, etc.
-        #For more deails, see:
-        # https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
-        #Currently, google chrome sets {ideal: true} for autoGainControl,
-        #echoCancellation and noiseSuppression, if not set.
-        #The accepted value for each constraint is an object of type
-        #https://developer.mozilla.org/en-US/docs/Web/API/ConstrainBoolean
-        #These values are used as initial constraints for every new participant,
-        #and can be changed by user in: Settings > Application > Microphone
-        #Audio Filters.
-        # microphoneConstraints:
-        #   autoGainControl:
-        #     ideal: true
-        #   echoCancellation:
-        #     ideal: true
-        #   noiseSuppression:
-        #     ideal: true
-        # Audio input processing through WASM/BBBA: initial state (enabled/disabled)
-        audioWasmProcessing: true
       audio:
         inputDeviceId: undefined
         outputDeviceId: undefined
+        # processingMode: which of the audio-processing options in
+        # Settings > Audio comes selected by default for a new user.
+        # Accepted values:
+        #   voiceIsolation: like advanced, at full filtering intensity. Only
+        #             offered with the 'bbba' provider; falls back to
+        #             'advanced' with any other
+        #   advanced: process the microphone through BBBA/WASM (audioWasmProcessing)
+        #   standard: process it with the browser's own filters, i.e. the
+        #             AGC/echo-cancellation/noise-suppression constraints in
+        #             media.audio.microphoneConstraints
+        #   original: no processing at all, transmit the raw microphone signal
+        # If set to 'advanced' or 'voiceIsolation' but the browser doesn't
+        # support BBBA/WASM processing or it is disabled via
+        # media.audio.audioWasmProcessing.enabled, it falls back to 'standard'.
+        # Unless audioFilterStorage is set to 'local', a user's own pick is
+        # kept for the browser session and current meeting only, so a new
+        # meeting or browser session starts from this default.
+        processingMode: standard
       dataSaving:
         viewParticipantsWebcams: true
         viewScreenshare: true
@@ -353,6 +386,7 @@ public:
       - 3004
       # - 3005
       # - 3006
+      - 3007
   externalVideoPlayer:
     enabled: true
   kurento:
@@ -568,6 +602,10 @@ public:
       # paginationToggleEnabled: show a pagination toggle in settings for the
       # user to enable/disable it
       paginationToggleEnabled: true
+      # paginationToggleModeratorOnly: show the pagination toggle to moderators
+      # only. Users who can't see the toggle always get the default value in
+      # public.app.defaultSettings.application.paginationEnabled
+      paginationToggleModeratorOnly: false
       # how long (in ms) the negotiation will be debounced after a page change.
       pageChangeDebounceTime: 1000
       # video page sizes for DESKTOP endpoints. It stands for the number of SUBSCRIBER streams.
@@ -580,14 +618,17 @@ public:
       mobilePageSizes:
         moderator: 2
         viewer: 2
+      # gridEnabled: whether the camera-less avatar grid is shown when presentation
+      # is minimized. Can also be disabled per meeting with disabledFeatures=webcamGrid.
+      gridEnabled: true
       # grid size for DESKTOP endpoints
       desktopGridSizes:
         moderator: 48
         viewer: 48
       # grid size for MOBILE endpoints
       mobileGridSizes:
-        moderator: 14
-        viewer: 14
+        moderator: 6
+        viewer: 6
     paginationThresholds:
       enabled: false
       thresholds:
@@ -808,6 +849,10 @@ public:
     typingIndicator:
       enabled: true
       showNames: true
+    mentions:
+      pickerLimit: 5        # max suggestions per lookup
+      pickerDebounceMs: 500 # delay before a refined term hits the server
+      maxWords: 3           # how many words after "@" still count as a name
     moderatorChatEmphasized: true
     privateMessageReadFeedback:
       enabled: false
@@ -822,6 +867,7 @@ public:
     # example: ['reply', 'delete']
     toolbar: ['reply', 'delete', 'edit', 'reactions', 'pin']
     announcePresenterChangeInChat: true
+    announceUserAwayStatusInChat: true
   multiFunctionalMode:
     enabled: false # Enables an auxiliary sidebar content panel in the UI.
   userReaction:
@@ -875,8 +921,6 @@ public:
     # Possible values: 'poll', 'breakoutroom', 'timer', 'audio-captions'.
     # For plugins, refer to the isNew flag in the plugin's own settings.
     appsToLabelAsNew: []
-  pads:
-    url: ETHERPAD_HOST
   sharedNotes:
     # Hocuspocus server hostname for BlockNote (it will use the client's hostname when empty)
     # e.g: `bbb-host` (only the domain without protocol and path)
@@ -914,16 +958,50 @@ public:
       # by closing the audio modal while audio is being negotiated.
       # If false, the audio modal will be locked until the process finishes.
       allowAudioJoinCancel: true
-      # audioWasmProcessing: audio input processing through WASM/BBBA
-      #   enabled: whether BBBA should be exposed to users. If false, browser's
-      #            built-in audio processing will be used instead.
+      # audioWasmProcessing: audio input processing through WASM
+      #   enabled: whether advanced/WASM processing should be exposed to users.
+      #            If false, browser's built-in audio processing will be used instead.
+      #   provider: which WASM backend runs the processing - 'bbba' or
+      #             'workadventureDtln'. Defaults to 'bbba' if unset/unrecognized.
       #   constraints: browser-level audio constraints applied ON TOP of WASM processing.
+      #                Providers can force their own value for a given constraint,
+      #                overriding whatever is configured below.
+      #   intensity: how aggressively the provider filters, 0-100. Only the
+      #              'bbba' provider has such a knob; it is ignored by any
+      #              provider that does not. Applied to every processor as it
+      #              is created, so it also covers the audio settings echo
+      #              test. Applies to Advanced Filtering only: Voice Isolation
+      #              always runs at 100. Unset falls back to the provider's
+      #              own default.
       audioWasmProcessing:
         enabled: false
+        provider: bbba
+        intensity: 95
         constraints:
           echoCancellation: true
           autoGainControl: true
           noiseSuppression: true
+      # microphoneConstraints: browser-level audio constraints (AGC/echo
+      # cancellation/noise suppression) applied when the user selects the
+      # 'standard' audio processing mode in Settings > Audio.
+      # They apply in 'standard' only, including when the user hasn't picked a
+      # mode: if app.defaultSettings.audio.processingMode is 'original' every
+      # browser filter is off, and if it is 'advanced' the browser filters come
+      # from audioWasmProcessing.constraints instead.
+      # For more details, see:
+      # https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
+      # Currently, google chrome sets {ideal: true} for autoGainControl,
+      # echoCancellation and noiseSuppression, if not set.
+      # The accepted value for each constraint is an object of type
+      # https://developer.mozilla.org/en-US/docs/Web/API/ConstrainBoolean
+      # If not set (commented out), the browser's own default is used.
+      #microphoneConstraints:
+      #  autoGainControl:
+      #    ideal: true
+      #  echoCancellation:
+      #    ideal: true
+      #  noiseSuppression:
+      #    ideal: true
     stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
     cacheStunTurnServers: true
     fallbackStunServer: ''
@@ -1006,10 +1084,35 @@ public:
         # muteDebounceMs: debounce time in milliseconds for mute state
         # transitions that would trigger unsubscribe operations.
         muteDebounceMs: 2500
+        # lastN: play only the most relevant microphones (speaking now, presenter,
+        # pinned, recent speech, moderator). When enabled, it replaces
+        # audioSubscriptionPoolSize and has no unmuted-user exemption.
+        #   audibleSize: microphones played at once.
+        #   standbySize: microphones kept subscribed (audible included). Standby
+        #     tracks are paused with setEnabled, so promoting one to audible
+        #     needs no renegotiation. Lifted for viewers while the user list is
+        #     locked, as other users' voice activity is hidden from them.
+        #   speechHoldMs: silence after which an audible speaker can be replaced.
+        #   minAudibleMs: minimum time a microphone stays audible, unless it is
+        #     silent and an unmuted speaker needs its slot.
+        #   standbyGraceMs: delay before an unranked standby track is unsubscribed.
+        lastN:
+          enabled: false
+          audibleSize: 3
+          standbySize: 12
+          speechHoldMs: 1500
+          minAudibleMs: 2000
+          standbyGraceMs: 5000
       logLevel: 3
+      # livekit.sdkLogBridge: forward livekit-client's own logs to the client logger.
+      sdkLogBridge: true
       # reconnectOnFatalFailures: whether to trigger LK room reconnections when
       # fatal errors occur (e.g.: unrecoverable publish timeouts).
       reconnectOnFatalFailures: true
+      # livekit.negotiationProbe: tracks the time, via logs, that it takes
+      # for a subscriber offer to be answered, from receive to socket dispatch.
+      # Debug instrumentation, off by default
+      negotiationProbe: false
       # livekit.forceRelay: forces TURN/relay usage on all UAs when using LK.
       forceRelay: false
       # livekit.forceRelayOnFirefox: forces TURN/relay usage on Firefox when using LK.
@@ -1103,7 +1206,6 @@ public:
       warning: 500
       danger: 1000
       critical: 2000
-    help: STATS_HELP_URL
   presentation:
     allowDownloadOriginal: true
     allowDownloadWithAnnotations: true
@@ -1112,7 +1214,9 @@ public:
     restoreOnUpdate: true
     uploadEndpoint: '/bigbluebutton/presentation/upload'
     fileUploadConstraintsHint: false
-    # mirroredFromBBBCore are values controlled in bbb-web properties file. We include a copy here for notification purposes
+    # mirroredFromBBBCore are copies of values controlled in bbb-web properties file (maxFileSizeUpload and maxNumPages)
+    # The client refuses a file over uploadSizeMax before sending it, so raise it together with maxFileSizeUpload
+    # uploadPagesMax is only displayed, by fileUploadConstraintsHint: the page count is known after the upload
     mirroredFromBBBCore:
       uploadSizeMax: 30000000
       uploadPagesMax: 200
@@ -1182,6 +1286,16 @@ public:
     # This is the number of times we can press undo (plus 100 providing a safe margin for some shapes with extra entries)
     # default value is 400, adjusted for maxNumberOfAnnotations being 300
     maxHistoryStackSize: 400
+    # Upper bound (ms) for waiting on a new slide's background image to decode before
+    # swapping the visible page (issue 25397). Kept short: a warm/near cache resolves in
+    # sub-frame time and gates the swap, while a cold/slow asset falls through fast to the
+    # old (un-gated) behavior instead of leaving the un-gated toolbar/zoom UI on a stale
+    # slide. Latency above this bound still shows the original white flash.
+    slideSwapDecodeTimeoutMs: 250
+    # Presenter mouse wheel behavior over the presentation:
+    # true  - the wheel scrolls (pans) the slide; hold Ctrl/Cmd while scrolling to zoom
+    # false - the wheel zooms directly (behavior of BBB 3.0 and earlier)
+    wheelZoomRequiresCtrl: true
     lockToolbarTools: false
     annotations:
       status:

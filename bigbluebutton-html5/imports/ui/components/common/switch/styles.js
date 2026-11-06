@@ -1,6 +1,12 @@
 import styled, { css } from 'styled-components';
+import { visuallyHidden } from '/imports/ui/components/common/visually-hidden/styles';
 import { borderSize } from '/imports/ui/stylesheets/styled-components/general';
-import { colorDanger, colorSuccess } from '/imports/ui/stylesheets/styled-components/palette';
+import {
+  colorDanger,
+  colorPrimary,
+  colorSuccess,
+  colorSwitchThumb,
+} from '/imports/ui/stylesheets/styled-components/palette';
 
 const Switch = styled.div`
   &:hover,
@@ -125,7 +131,7 @@ const ToggleThumb = styled.div`
   width: 1.35rem;
   height: 1.35rem;
   border-radius: 50%;
-  background-color: #FAFAFA;
+  background-color: ${colorSwitchThumb};
   box-sizing: border-box;
   box-shadow: 2px 0px 10px -1px rgba(0,0,0,0.4);
 
@@ -139,25 +145,18 @@ const ToggleThumb = styled.div`
   `}
 
   ${({ hasFocus }) => hasFocus && `
-    box-shadow: 0px 0px 2px 3px #0F70D7;
+    box-shadow: 0px 0px 2px 3px ${colorPrimary};
   `}
 
   ${({ disabled }) => !disabled && `
     &:active{
-      box-shadow: 0px 0px 5px 5px #0F70D7;
+      box-shadow: 0px 0px 5px 5px ${colorPrimary};
     }
   `}
 `;
 
 const ScreenreaderInput = styled.input`
-  border: 0;
-  clip: rect(0 0 0 0);
-  height: 1px;
-  margin: -1px;
-  overflow: hidden;
-  padding: 0;
-  position: absolute;
-  width: 1px;
+  ${visuallyHidden}
 `;
 
 export default {

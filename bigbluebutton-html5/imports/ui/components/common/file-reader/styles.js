@@ -2,8 +2,8 @@ import styled, { css, keyframes } from 'styled-components';
 import Icon from '/imports/ui/components/common/icon/component';
 import {
   colorDanger,
-  colorGray,
-  colorGrayLightest,
+  colorGrayBorder,
+  colorGrayLightestText,
   colorSuccess,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
@@ -42,10 +42,10 @@ const ToastIcon = styled(Icon)`
   `}
 
   ${({ loading }) => loading && css`
-    color: ${colorGrayLightest};
+    color: ${colorGrayLightestText};
     border: 1px solid;
     border-radius: 50%;
-    border-right-color: ${colorGray};
+    border-right-color: ${colorGrayBorder};
     animation: ${rotate} 1s linear infinite;
   `}
 `;

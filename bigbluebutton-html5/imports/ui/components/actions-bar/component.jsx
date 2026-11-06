@@ -17,6 +17,7 @@ import RaiseHandButtonContainer from '/imports/ui/components/actions-bar/raise-h
 import Selector from '/imports/ui/components/common/selector/component';
 import ToggleGroup from '/imports/ui/components/common/toggle-group/component';
 import Separator from '/imports/ui/components/common/separator/component';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const intlMessages = defineMessages({
   actionsBarLabel: {
@@ -48,8 +49,8 @@ class ActionsBar extends PureComponent {
                   onClick: plugin.onClick,
                   hideLabel: plugin.hideLabel !== false,
                   color: plugin.color || 'primary',
-                  size: plugin.size || 'lg',
-                  circle: plugin.circle !== false,
+                  size: deviceInfo.isMobile ? 'md' : (plugin.size || 'lg'),
+                  circle: deviceInfo.isMobile ? true : (plugin.circle !== false),
                   style: plugin.style,
                   label: plugin.label || plugin.tooltip,
                   tooltipLabel: plugin.tooltip,
@@ -152,7 +153,6 @@ class ActionsBar extends PureComponent {
       setPresentationFitToWidth,
       isPresentationEnabled,
       ariaHidden,
-      isDarkThemeEnabled,
       isMobile,
       showScreenshareQuickSwapButton,
       isReactionsButtonEnabled,
@@ -171,6 +171,7 @@ class ActionsBar extends PureComponent {
 
     return shouldRenderActionBar && (
       <Styled.ActionsBarWrapper
+        className="bbb-actions-bar"
         id="ActionsBar"
         role="region"
         aria-label={intl.formatMessage(intlMessages.actionsBarLabel)}
@@ -197,12 +198,12 @@ class ActionsBar extends PureComponent {
             }
           }
         >
-          <Styled.Left>
+          <Styled.Left className="bbb-actions-bar__left">
             {this.renderPluginsActionBarItems(ActionsBarPosition.LEFT)}
             <AudioCaptionsButtonContainer />
 
           </Styled.Left>
-          <Styled.Center>
+          <Styled.Center className="bbb-actions-bar__center">
             <AudioControlsContainer />
             {shouldShowVideoButton && enableVideo
               ? (
@@ -220,8 +221,8 @@ class ActionsBar extends PureComponent {
             {isRaiseHandEnabled && <RaiseHandButtonContainer />}
             {this.renderPluginsActionBarItems(ActionsBarPosition.RIGHT)}
           </Styled.Center>
-          <Styled.Right>
-            <Styled.PresentationButtonsWrapper>
+          <Styled.Right className="bbb-actions-bar__right">
+            <Styled.PresentationButtonsWrapper className="bbb-actions-bar__media-buttons">
               {shouldShowPresentationButton && shouldShowOptionsButton
                 && (
                   <PresentationOptionsContainer
@@ -234,7 +235,6 @@ class ActionsBar extends PureComponent {
                     hasPinnedSharedNotes={isSharedNotesPinned}
                     hasGenericContent={hasGenericContent}
                     hasCameraAsContent={hasCameraAsContent}
-                    isDarkThemeEnabled={isDarkThemeEnabled}
                   />
                 )}
               {((amIPresenter || amIModerator)

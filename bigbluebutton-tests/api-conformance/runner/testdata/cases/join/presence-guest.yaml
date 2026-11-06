@@ -1,0 +1,40 @@
+# A guest of a meeting that asks a moderator waits until approved, then
+# joins: the second join on the same user continues the first.
+id: join.presence.guest-approved
+title: A guest waits for a moderator's approval, then joins
+endpoint: join
+class: contract
+tags: [presence]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Guests, guestPolicy: ASK_MODERATOR}
+  - presence:
+      action: join
+      as: mod
+      args: {meetingID: "${uid}", fullName: Mod, role: MODERATOR}
+  - presence:
+      action: join
+      as: eve
+      args: {meetingID: "${uid}", fullName: Eve, role: VIEWER, guest: "true"}
+    capture: {eveId: $.userId}
+    expect:
+      jsonpath:
+        $.guestStatus: WAIT
+        $.joined: "false"
+  - graphql:
+      as: mod
+      query: "mutation Approve($guests: [GuestUserApprovalStatus]!) { guestUsersSubmitApprovalStatus(guests: $guests) }"
+      variables:
+        guests: [{guest: "${eveId}", status: ALLOW}]
+  - presence: {action: join, as: eve}
+    expect:
+      jsonpath:
+        $.guestStatus: ALLOW
+        $.joined: "true"
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

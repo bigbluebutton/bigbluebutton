@@ -1,11 +1,13 @@
 import styled from 'styled-components';
 import { lineHeightComputed } from '/imports/ui/stylesheets/styled-components/typography';
 import {
+  colorDanger,
   colorGray,
-  colorWhite,
   colorPrimary,
   colorSuccess,
-  colorDanger,
+  colorWhite,
+  colorWhiteBorder,
+  colorWhiteSurface,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import Button from '/imports/ui/components/common/button/component';
 
@@ -24,8 +26,8 @@ const NotificationsBar = styled.div`
 
   ${({ color }) => color === 'default' && `
     color: ${colorGray};
-    background-color: ${colorWhite};
-    border-color: ${colorWhite};
+    background-color: ${colorWhiteSurface};
+    border-color: ${colorWhiteBorder};
   `}
 
   ${({ color }) => color === 'primary' && `
@@ -48,7 +50,7 @@ const NotificationsBar = styled.div`
 `;
 
 const ReloadButton = styled(Button)`
-  border: 1px solid ${colorWhite} !important;
+  border: 1px solid ${colorWhiteBorder} !important;
 `;
 
 export default {

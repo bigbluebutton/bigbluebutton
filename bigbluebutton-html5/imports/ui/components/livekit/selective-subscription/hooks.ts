@@ -6,11 +6,14 @@ import {
   useState,
 } from 'react';
 import {
+  ConnectionState,
   RoomEvent,
+  type Participant,
   RemoteParticipant,
   Track,
   type RemoteTrackPublication,
   type Room,
+  type TrackPublication,
 } from 'livekit-client';
 import { useReactiveVar } from '@apollo/client';
 import { useRemoteParticipants, useSpeakingParticipants } from '@livekit/components-react';
@@ -26,14 +29,24 @@ import {
   PUBLIC_GROUP_IDS,
 } from '/imports/ui/components/livekit/selective-subscription/types';
 import {
+  createLastNState,
   getBbbUserIdForParticipant,
   isAudioSource,
+  LastNCandidate,
+  LastNTiers,
+  nextLastNDeadline,
+  selectLastNTiers,
   selectParticipantsToSubscribe,
 } from '/imports/ui/components/livekit/selective-subscription/service';
 import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
 import AudioManager from '/imports/ui/services/audio-manager';
 import { useAutoplayState } from '/imports/ui/components/livekit/autoplay-modal/hooks';
-import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
+import useWhoIsUnmutedLiveKit from '/imports/ui/core/hooks/livekit/useWhoIsUnmutedLiveKit';
+import { useHasActiveNonPrimaryMembership } from '/imports/ui/components/livekit/memberships-manager/hooks';
+import useWhoIsTalkingGraphql from '/imports/ui/core/hooks/useWhoIsTalkingGraphql';
+import useUsersBasicInfo from '/imports/ui/core/hooks/useUsersBasicInfo';
+import useHideUserList from '/imports/ui/core/hooks/useHideUserList';
+import { useStreams } from '/imports/ui/components/video-provider/hooks';
 
 const PARTICIPANTS_UPDATE_FILTER = [
   RoomEvent.ParticipantConnected,
@@ -49,6 +62,23 @@ const PARTICIPANTS_UPDATE_FILTER = [
   RoomEvent.ActiveSpeakersChanged,
 ];
 
+// With Last-N, speaker changes reach the ranking from the room event itself
+// (useLastN); a re-render on them would only re-run the subscription pass.
+const LAST_N_PARTICIPANTS_UPDATE_FILTER = PARTICIPANTS_UPDATE_FILTER
+  .filter((event) => event !== RoomEvent.ActiveSpeakersChanged);
+
+// Room events that can change the Last-N ranking. They re-rank as they arrive,
+// not after a render: a new speaker is not heard until their microphone is
+// enabled.
+const LAST_N_RANKING_EVENTS = [
+  RoomEvent.ActiveSpeakersChanged,
+  RoomEvent.TrackMuted,
+  RoomEvent.TrackUnmuted,
+  RoomEvent.TrackPublished,
+  // Also emitted for each track of a participant who leaves.
+  RoomEvent.TrackUnpublished,
+] as const;
+
 const useMediaGroupStreamsSubscription = createUseSubscription(
   MEDIA_GROUP_STREAMS_SUBSCRIPTION,
   {},
@@ -62,11 +92,368 @@ const getSelectiveSubscriptionConfig = () => {
     ? selSubConfig?.audioSubscriptionPoolSize ?? 0
     : 0;
 
+  const lastN = selSubConfig?.lastN;
+
   return {
     selectiveSubscriptionEnabled,
     audioSubscriptionPoolSize,
     muteDebounceMs: selSubConfig?.muteDebounceMs ?? 2500,
+    lastN: {
+      enabled: selectiveSubscriptionEnabled && (lastN?.enabled ?? false),
+      audibleSize: lastN?.audibleSize ?? 3,
+      standbySize: lastN?.standbySize ?? 12,
+      speechHoldMs: lastN?.speechHoldMs ?? 1500,
+      minAudibleMs: lastN?.minAudibleMs ?? 2000,
+      standbyGraceMs: lastN?.standbyGraceMs ?? 5000,
+    },
   };
+};
+
+// A subscribe still unbound after this long is requested again.
+const LAST_N_RESUBSCRIBE_MS = 3000;
+// Recency fades with time alone, so the order of silent participants, and
+// with it who is kept in standby, can change with no event. The ranking re-runs
+// at least this often. Speech and the ranking deadlines re-rank on their own,
+// so this pace delays no speaker.
+const LAST_N_MAX_RANK_INTERVAL_MS = 1000;
+
+export type LastNInputs = {
+  bbbTalkingUsers: Record<string, boolean>;
+  bbbLastTalkedAt: Map<string, number>;
+  moderators: Set<string>;
+  presenters: Set<string>;
+  pinned: Set<string>;
+  hideUserList: boolean;
+};
+
+// Until the first inputs arrive.
+const NO_LAST_N_INPUTS: LastNInputs = {
+  bbbTalkingUsers: {},
+  bbbLastTalkedAt: new Map<string, number>(),
+  moderators: new Set<string>(),
+  presenters: new Set<string>(),
+  pinned: new Set<string>(),
+  hideUserList: false,
+};
+
+// Stand in for the pool inputs while Last-N ranks the microphones, so that
+// speaker and mute changes do not re-run the subscription pass.
+const NO_LAST_SPOKE_AT = new Map<string, number>();
+const NO_UNMUTED_USERS: Record<string, boolean> = {};
+
+/**
+ * Inputs the Last-N ranking needs beyond the LiveKit room: BBB voice activity
+ * (the only speech signal for participants we are not subscribed to, since
+ * LiveKit sends speaker updates for subscribed participants only), roles and
+ * camera pins.
+ */
+export const useLastNInputs = (): LastNInputs => {
+  const { data: bbbTalkingUsers } = useWhoIsTalkingGraphql();
+  const bbbLastTalkedAt = useRef<Map<string, number>>(new Map());
+  const previousTalkers = useRef<Set<string>>(new Set());
+  const { data: users } = useUsersBasicInfo((u) => ({
+    userId: u.userId,
+    isModerator: u.isModerator,
+    presenter: u.presenter,
+  }));
+  const streams = useStreams();
+  // useStreams returns new objects on every render; key on the pinned ids.
+  const pinnedKey = streams
+    .filter((stream) => stream.user?.pinned)
+    .map((stream) => stream.userId)
+    .sort()
+    .join(',');
+  const hideUserList = useHideUserList();
+
+  useEffect(() => {
+    const now = Date.now();
+    const talkers = new Set(Object.keys(bbbTalkingUsers || {}));
+
+    talkers.forEach((userId) => bbbLastTalkedAt.current.set(userId, now));
+    previousTalkers.current.forEach((userId) => {
+      if (!talkers.has(userId)) bbbLastTalkedAt.current.set(userId, now);
+    });
+    previousTalkers.current = talkers;
+  }, [bbbTalkingUsers]);
+
+  return useMemo<LastNInputs>(() => {
+    const moderators = new Set<string>();
+    const presenters = new Set<string>();
+
+    (users || []).forEach((user) => {
+      if (!user.userId) return;
+      if (user.isModerator) moderators.add(user.userId);
+      if (user.presenter) presenters.add(user.userId);
+    });
+
+    return {
+      bbbTalkingUsers: bbbTalkingUsers || {},
+      bbbLastTalkedAt: bbbLastTalkedAt.current,
+      moderators,
+      presenters,
+      pinned: new Set(pinnedKey ? pinnedKey.split(',') : []),
+      hideUserList,
+    };
+  }, [bbbTalkingUsers, users, pinnedKey, hideUserList]);
+};
+
+const getLastNCandidates = (
+  participants: RemoteParticipant[],
+  inputs: LastNInputs,
+  lkStoppedTalkingAt: Map<string, number>,
+  lkUnmutedAt: Map<string, number>,
+  now: number,
+): LastNCandidate[] => {
+  const candidates: LastNCandidate[] = [];
+
+  participants.forEach((participant) => {
+    const mics = Array.from(participant.audioTrackPublications.values())
+      .filter((publication) => publication.source === Track.Source.Microphone);
+
+    if (mics.length === 0) return;
+
+    const userId = getBbbUserIdForParticipant(participant);
+    const voiceAt = [
+      participant.lastSpokeAt?.getTime(),
+      participant.isSpeaking ? now : lkStoppedTalkingAt.get(participant.identity),
+      inputs.bbbTalkingUsers[userId] ? now : inputs.bbbLastTalkedAt.get(userId),
+    ].filter((value): value is number => value !== undefined);
+    const lastVoiceAt = voiceAt.length > 0 ? Math.max(...voiceAt) : undefined;
+    const spokeAt = [lastVoiceAt, lkUnmutedAt.get(participant.identity)]
+      .filter((value): value is number => value !== undefined);
+
+    candidates.push({
+      participantId: participant.identity,
+      lastSpokeAt: spokeAt.length > 0 ? Math.max(...spokeAt) : undefined,
+      lastVoiceAt,
+      talking: participant.isSpeaking || !!inputs.bbbTalkingUsers[userId],
+      unmuted: mics.some((publication) => !publication.isMuted),
+      presenter: inputs.presenters.has(userId),
+      pinned: inputs.pinned.has(userId),
+      moderator: inputs.moderators.has(userId),
+    });
+  });
+
+  return candidates;
+};
+
+/**
+ * Subscribes, enables and disables microphones to match the Last-N tiers.
+ * @param pending - trackSid -> when we asked to subscribe. setSubscribed
+ *   re-sends the request on every call, and a request stays pending until the
+ *   track is bound.
+ */
+const applyLastNTiers = (
+  tiers: LastNTiers,
+  participants: RemoteParticipant[],
+  pending: Map<string, number>,
+  now: number,
+) => {
+  const knownSids = new Set<string>();
+
+  participants.forEach((participant) => {
+    const shouldSubscribe = tiers.subscribed.has(participant.identity);
+    const shouldPlay = tiers.audible.has(participant.identity);
+
+    participant.audioTrackPublications.forEach((publication) => {
+      if (publication.source !== Track.Source.Microphone) return;
+
+      const { trackSid } = publication;
+      const requestedAt = pending.get(trackSid);
+      knownSids.add(trackSid);
+
+      if (publication.isSubscribed) pending.delete(trackSid);
+
+      if (shouldSubscribe) {
+        if (!publication.isSubscribed
+          && (requestedAt === undefined || now - requestedAt > LAST_N_RESUBSCRIBE_MS)) {
+          publication.setSubscribed(true);
+          pending.set(trackSid, now);
+          // LiveKit drops a subscription's track settings when it ends, so a
+          // paused state set before must be sent again.
+          if (publication.isEnabled === shouldPlay) {
+            publication.emitTrackUpdate();
+          } else {
+            publication.setEnabled(shouldPlay);
+          }
+          logger.debug({
+            logCode: 'livekit_audio_lastn_subscribed',
+            extraInfo: { trackSid, participantId: participant.identity, audible: shouldPlay },
+          }, `LiveKit: Last-N subscribed to ${trackSid}`);
+        } else if (publication.isEnabled !== shouldPlay) {
+          publication.setEnabled(shouldPlay);
+          logger.debug({
+            logCode: shouldPlay ? 'livekit_audio_lastn_enabled' : 'livekit_audio_lastn_disabled',
+            extraInfo: { trackSid, participantId: participant.identity },
+          }, `LiveKit: Last-N ${shouldPlay ? 'enabled' : 'disabled'} ${trackSid}`);
+        }
+      } else if (publication.isSubscribed || requestedAt !== undefined) {
+        publication.setSubscribed(false);
+        pending.delete(trackSid);
+        logger.debug({
+          logCode: 'livekit_audio_lastn_unsubscribed',
+          extraInfo: { trackSid, participantId: participant.identity },
+        }, `LiveKit: Last-N unsubscribed from ${trackSid}`);
+      }
+    });
+  });
+
+  Array.from(pending.keys()).forEach((trackSid) => {
+    if (!knownSids.has(trackSid)) pending.delete(trackSid);
+  });
+};
+
+/**
+ * Last-N ranking of microphones. It runs outside React renders: on the room
+ * events that can change it, when its inputs change, at its next deadline, and
+ * after each subscription pass.
+ * @param liveKitRoom - The LiveKit room
+ * @returns Whether Last-N is on, update (call from the subscription pass with
+ *   the available senders) and setInputs (for LastNInputsSource)
+ */
+const useLastN = (liveKitRoom: Room | undefined) => {
+  const settings = useMemo(() => getSelectiveSubscriptionConfig().lastN, []);
+  const tiersState = useRef(createLastNState());
+  const inputs = useRef(NO_LAST_N_INPUTS);
+  // Available senders as of the last subscription pass.
+  const participants = useRef<RemoteParticipant[]>([]);
+  const pendingSubscriptions = useRef<Map<string, number>>(new Map());
+  // LiveKit's lastSpokeAt is when speech started; the speech hold counts from
+  // when it stopped.
+  const lkStoppedTalkingAt = useRef<Map<string, number>>(new Map());
+  // An unmute counts as speech: speech detection reports a speaker only after
+  // their first words, so waiting for it loses them.
+  const lkUnmutedAt = useRef<Map<string, number>>(new Map());
+  const timer = useRef<ReturnType<typeof setTimeout>>();
+
+  const rank = useCallback(() => {
+    clearTimeout(timer.current);
+
+    if (!settings.enabled || liveKitRoom?.state !== ConnectionState.Connected) return;
+
+    const now = Date.now();
+    const candidates = getLastNCandidates(
+      participants.current,
+      inputs.current,
+      lkStoppedTalkingAt.current,
+      lkUnmutedAt.current,
+      now,
+    );
+    const tiers = selectLastNTiers(
+      candidates,
+      tiersState.current,
+      settings,
+      now,
+      // Speech of unsubscribed users is invisible to us while the user list
+      // is hidden, so nobody can be left unsubscribed.
+      inputs.current.hideUserList,
+    );
+    tiersState.current = tiers.state;
+    applyLastNTiers(tiers, participants.current, pendingSubscriptions.current, now);
+
+    const next = Math.min(
+      nextLastNDeadline(candidates, tiers.state, settings, now) ?? Infinity,
+      ...Array.from(
+        pendingSubscriptions.current.values(),
+        (requestedAt) => requestedAt + LAST_N_RESUBSCRIBE_MS + 1,
+      ),
+      now + LAST_N_MAX_RANK_INTERVAL_MS,
+    );
+    timer.current = setTimeout(rank, next - now);
+  }, [liveKitRoom, settings]);
+
+  const update = useCallback((available: RemoteParticipant[]) => {
+    const availableIds = new Set(available.map((participant) => participant.identity));
+
+    // The subscription pass only unsubscribes bound tracks. A subscribe still
+    // in flight for a sender that is no longer available (e.g. on deafen)
+    // would bind and play, so it is cancelled here.
+    participants.current.forEach((participant) => {
+      if (availableIds.has(participant.identity)) return;
+
+      participant.audioTrackPublications.forEach((publication) => {
+        if (pendingSubscriptions.current.delete(publication.trackSid)) publication.setSubscribed(false);
+      });
+    });
+    participants.current = available;
+    rank();
+  }, [rank]);
+
+  const setInputs = useCallback((next: LastNInputs) => {
+    inputs.current = next;
+    rank();
+  }, [rank]);
+
+  useEffect(() => {
+    if (!settings.enabled || !liveKitRoom) return undefined;
+
+    let talking = new Set(liveKitRoom.activeSpeakers.map((speaker) => speaker.identity));
+    const onActiveSpeakersChanged = (speakers: Participant[]) => {
+      const now = Date.now();
+      const nowTalking = new Set(speakers.map((speaker) => speaker.identity));
+
+      talking.forEach((identity) => {
+        if (!nowTalking.has(identity)) lkStoppedTalkingAt.current.set(identity, now);
+      });
+      talking = nowTalking;
+    };
+    const onMicUnmuted = (publication: TrackPublication, participant: Participant) => {
+      if (publication.source !== Track.Source.Microphone || publication.isMuted) return;
+
+      lkUnmutedAt.current.set(participant.identity, Date.now());
+    };
+    // With unpublishOnMute, an unmute publishes a new microphone. A participant's
+    // first publish is not an unmute, and neither are the publishes LiveKit
+    // replays after a reconnect: it emits them right after Reconnected, in the
+    // same task.
+    let replayingPublishes = false;
+    const onReconnected = () => {
+      replayingPublishes = true;
+      queueMicrotask(() => { replayingPublishes = false; });
+    };
+    const onTrackPublished = (publication: TrackPublication, participant: Participant) => {
+      if (replayingPublishes) return;
+      if (!participants.current.some((known) => known.identity === participant.identity)) return;
+
+      onMicUnmuted(publication, participant);
+    };
+
+    // One SDK update can emit many of these (several mute changes, every track
+    // unpublished on a reconnect). Rank once, right after it.
+    let active = true;
+    let rankQueued = false;
+    const queueRank = () => {
+      if (rankQueued) return;
+
+      rankQueued = true;
+      queueMicrotask(() => {
+        rankQueued = false;
+        if (active) rank();
+      });
+    };
+
+    liveKitRoom.on(RoomEvent.ActiveSpeakersChanged, onActiveSpeakersChanged);
+    liveKitRoom.on(RoomEvent.TrackUnmuted, onMicUnmuted);
+    liveKitRoom.on(RoomEvent.TrackPublished, onTrackPublished);
+    liveKitRoom.on(RoomEvent.Reconnected, onReconnected);
+    LAST_N_RANKING_EVENTS.forEach((event) => liveKitRoom.on(event, queueRank));
+
+    return () => {
+      active = false;
+      liveKitRoom.off(RoomEvent.ActiveSpeakersChanged, onActiveSpeakersChanged);
+      liveKitRoom.off(RoomEvent.TrackUnmuted, onMicUnmuted);
+      liveKitRoom.off(RoomEvent.TrackPublished, onTrackPublished);
+      liveKitRoom.off(RoomEvent.Reconnected, onReconnected);
+      LAST_N_RANKING_EVENTS.forEach((event) => liveKitRoom.off(event, queueRank));
+      clearTimeout(timer.current);
+    };
+  }, [liveKitRoom, settings, rank]);
+
+  return useMemo(() => ({
+    enabled: settings.enabled,
+    update,
+    setInputs,
+  }), [settings, update, setInputs]);
 };
 
 /**
@@ -75,7 +462,7 @@ const getSelectiveSubscriptionConfig = () => {
  * @returns A map of participant IDs to their last spoke timestamp
  */
 const useParticipantsLastSpokeAt = (
-  liveKitRoom: Room,
+  liveKitRoom: Room | undefined,
 ): Map<string, number> => {
   const speakingParticipants = useSpeakingParticipants();
   const participantsLastSpokeAtMap = useRef<Map<string, number>>(new Map());
@@ -107,12 +494,13 @@ const useParticipantsLastSpokeAt = (
   }, [speakingParticipants]);
 
   useEffect(() => {
+    if (!liveKitRoom) return undefined;
     liveKitRoom.on(RoomEvent.ParticipantDisconnected, handleParticipantDisconnected);
 
     return () => {
       liveKitRoom.off(RoomEvent.ParticipantDisconnected, handleParticipantDisconnected);
     };
-  }, [handleParticipantDisconnected]);
+  }, [liveKitRoom, handleParticipantDisconnected]);
 
   return participantLastSpokeAt;
 };
@@ -127,7 +515,12 @@ const useDebouncedMuteState = (
   participants: RemoteParticipant[],
   debounceMs: number = 2500,
 ): Record<string, boolean> => {
-  const { data: unmutedUsers } = useWhoIsUnmuted();
+  // Consume the LiveKit unmuted source directly rather than the opt-in router: this drives which
+  // audio tracks get subscribed, and the router resolves to the GraphQL source when
+  // useLiveKitAudioState is off (the default). That source is filtered by the hideUserList lock, so
+  // routing through it would let a lock stop a viewer from *hearing* hidden participants once
+  // audioSubscriptionPoolSize > 0. Media transport must not depend on a privacy-filtered stream.
+  const { data: unmutedUsers } = useWhoIsUnmutedLiveKit();
   const [debouncedState, setDebouncedState] = useState<Record<string, boolean>>(unmutedUsers || {});
   const debouncedStateRef = useRef(debouncedState);
   debouncedStateRef.current = debouncedState;
@@ -281,14 +674,19 @@ export const useMediaSenders = (
   }, [data, remoteParticipants, deafened, mediaType]);
 };
 
-export const useMediaSubscriptions = (liveKitRoom: Room) => {
+export const useMediaSubscriptions = (liveKitRoom: Room | undefined) => {
   const [autoplayState] = useAutoplayState(liveKitRoom);
   /* eslint no-underscore-dangle: 0 */
   // @ts-ignore
   const willinglyDeafened = useReactiveVar(AudioManager._isDeafened.value) as boolean;
-  const deafened = willinglyDeafened || !autoplayState.canPlayAudio;
+  // While the user is in a non-primary LK room (e.g., listening to a
+  // breakout), the primary room must be effectively deafened. That may change in the
+  // future (prlanzarin)
+  const hasActiveSecondary = useHasActiveNonPrimaryMembership();
+  const deafened = willinglyDeafened || !autoplayState.canPlayAudio || hasActiveSecondary;
+  const lastN = useLastN(liveKitRoom);
   const remoteParticipants = useRemoteParticipants({
-    updateOnlyOn: PARTICIPANTS_UPDATE_FILTER,
+    updateOnlyOn: lastN.enabled ? LAST_N_PARTICIPANTS_UPDATE_FILTER : PARTICIPANTS_UPDATE_FILTER,
   });
   // Audio group-based filtering; screen share audio is handled separately
   // (always subscribed regardless of groups) in handleSubscriptionChanges.
@@ -299,6 +697,8 @@ export const useMediaSubscriptions = (liveKitRoom: Room) => {
     remoteParticipants,
     muteDebounceMs,
   );
+  const poolLastSpokeAt = lastN.enabled ? NO_LAST_SPOKE_AT : participantsLastSpokeAt;
+  const poolUnmutedUsers = lastN.enabled ? NO_UNMUTED_USERS : debouncedUnmutedUsers;
 
   const handleSubscriptionChanges = useCallback(async () => {
     if (!liveKitRoom) return;
@@ -341,11 +741,11 @@ export const useMediaSubscriptions = (liveKitRoom: Room) => {
     let desiredSubscriptions: Set<string> = availableSenderIds;
 
     // Last N filtering is active, restrict subscriptions
-    if (audioSubscriptionPoolSize > 0) {
+    if (!lastN.enabled && audioSubscriptionPoolSize > 0) {
       desiredSubscriptions = selectParticipantsToSubscribe(
         availableParticipants,
-        participantsLastSpokeAt,
-        debouncedUnmutedUsers,
+        poolLastSpokeAt,
+        poolUnmutedUsers,
         audioSubscriptionPoolSize,
       );
     }
@@ -353,6 +753,8 @@ export const useMediaSubscriptions = (liveKitRoom: Room) => {
     // Handle new subscriptions
     desiredSubscriptions.forEach((participantId) => {
       Object.entries(currentSubscriptions).forEach(([source, subscriptions]) => {
+        if (lastN.enabled && source === Track.Source.Microphone) return;
+
         if (!subscriptions.has(participantId)) {
           const participant = participantsById.get(participantId);
           if (participant) {
@@ -383,8 +785,10 @@ export const useMediaSubscriptions = (liveKitRoom: Room) => {
           const participant = participantsById.get(participantId);
           if (participant) {
             participant.audioTrackPublications.forEach((publication) => {
-              // Screen share audio is always subscribed regardless of group membership
-              if (publication.source === Track.Source.ScreenShareAudio) return;
+              // Screen share audio is always subscribed regardless of group
+              // membership - except while deafened (incl. an active non-primary
+              // membership), when the primary room must go fully silent.
+              if (publication.source === Track.Source.ScreenShareAudio && !deafened) return;
 
               const { trackSid } = publication;
 
@@ -406,8 +810,9 @@ export const useMediaSubscriptions = (liveKitRoom: Room) => {
     });
 
     // Force-subscribe any screen share audio not already handled by the
-    // desired-subscription pass above.
+    // desired-subscription pass above - unless deafened (see above).
     pendingScreenShareAudio.forEach(({ publication, participantId }) => {
+      if (deafened) return;
       if (!publication.isSubscribed && !desiredSubscriptions.has(participantId)) {
         publication.setSubscribed(true);
         logger.debug({
@@ -420,16 +825,24 @@ export const useMediaSubscriptions = (liveKitRoom: Room) => {
         }, `LiveKit: Subscribed to ${publication.source} - ${publication.trackSid} (always-on)`);
       }
     });
+
+    // With Last-N, microphones of available senders follow the ranking; the
+    // passes above still handle screen share audio and senders that are no
+    // longer available.
+    if (lastN.enabled) lastN.update(availableParticipants);
   }, [
     senders,
     inAnyGroup,
     remoteParticipants,
     deafened,
-    participantsLastSpokeAt,
-    debouncedUnmutedUsers,
+    poolLastSpokeAt,
+    poolUnmutedUsers,
+    lastN,
   ]);
 
   return {
     handleSubscriptionChanges,
+    lastNEnabled: lastN.enabled,
+    setLastNInputs: lastN.setInputs,
   };
 };

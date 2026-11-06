@@ -12,24 +12,16 @@ const createTalkingIndicatorListDataGathering = (): [
   const talkingIndicatorList = makeVar<Partial<UserVoice>[]>([]);
 
   const setTalkingIndicatorList = (result: Partial<UserVoice>[]): void => {
-    const talkingIndicators = talkingIndicatorList();
-    const hasUserVoices = talkingIndicators && talkingIndicators.length > 0;
-    const shouldAdd = !hasUserVoices || !isEqual(talkingIndicators, result);
-    if (shouldAdd) {
-      const a = {
-        ...talkingIndicatorList(),
-        result,
-      };
-      talkingIndicatorList(a);
-    }
+    if (isEqual(talkingIndicatorList(), result)) return;
+
+    talkingIndicatorList(result);
   };
 
   const useTalkingIndicatorList = (fn: ((c: Partial<UserVoice>) => Partial<UserVoice>)): [
     Partial<UserVoice>[],
     (result: Partial<UserVoice>[]) => void,
   ] => {
-    const gatheredTalkingIndicator = useReactiveVar(talkingIndicatorList);
-    const talkingIndicatorData = Object.values(gatheredTalkingIndicator).filter((i) => Array.isArray(i)).flat();
+    const talkingIndicatorData = useReactiveVar(talkingIndicatorList);
     return [talkingIndicatorData.map(fn), setTalkingIndicatorList];
   };
 

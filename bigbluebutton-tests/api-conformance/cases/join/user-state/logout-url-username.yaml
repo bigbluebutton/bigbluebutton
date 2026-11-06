@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# join's logoutURL with %%USERNAME%% in it is dropped, and the user gets
+# create's logout URL: bbb-web checks the URL with a stand-in name that
+# has a space, which no URL may hold. In create's logoutURL the
+# placeholder works (logout-url.yaml). Recorded, not compared: still to
+# be decided (the triage tag).
+id: join.user-state.logout-url-username
+title: join's logoutURL with %%USERNAME%% gives way to create's
+endpoint: join
+class: compat
+tags: [triage, presence]
+requires: [akka, presence]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: User state, logoutURL: "https://example.com/meeting"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: moderator, logoutURL: "https://example.com/out?n=%%USERNAME%%"}}
+    golden: off
+  - graphql: {as: ann, query: "query Me { user_current { logoutUrl } }"}
+    golden: document
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

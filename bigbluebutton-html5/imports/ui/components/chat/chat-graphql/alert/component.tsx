@@ -20,10 +20,12 @@ import {
 import ChatPushAlert from './push-alert/component';
 import Styled from './styles';
 import Service from './service';
+import { parseMessageMetadata } from '../service';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import Auth from '/imports/ui/services/auth';
+import { addUnreadMentionChat } from '/imports/ui/components/chat/hooks/useHasUnreadChatMessages';
 
 const intlMessages = defineMessages({
   appToastChatPublic: {
@@ -37,6 +39,10 @@ const intlMessages = defineMessages({
   appToastChatSystem: {
     id: 'app.toast.chat.system',
     description: 'system for use',
+  },
+  appToastChatMention: {
+    id: 'app.toast.chat.mention',
+    description: 'when the current user is mentioned in a message',
   },
   publicChatClear: {
     id: 'app.chat.clearPublicChatMessage',
@@ -95,11 +101,17 @@ const ChatAlertGraphql: React.FC<ChatAlertGraphqlProps> = (props) => {
   const shouldRenderChatAlerts = chatMessagesDidChange
     && !!chatUnreadMessages
     && chatUnreadMessages.length > 0;
+
+  const isMentioned = useCallback((m: Message): boolean => {
+    const ids = parseMessageMetadata(m.messageMetadata)?.mentionedUserIds;
+    return Array.isArray(ids) && ids.includes(Auth.userID as string);
+  }, []);
+
   const shouldPlayAudioAlert = useCallback(
     (m: Message) => (m.senderId !== Auth.userID
-      && (m.chatId !== idChatOpen || !tabIsFocused)
+      && (m.chatId !== idChatOpen || !tabIsFocused || isMentioned(m))
       && !history.current.has(m.messageId)),
-    [history.current, idChatOpen, tabIsFocused],
+    [history.current, idChatOpen, tabIsFocused, isMentioned],
   );
 
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
@@ -109,9 +121,15 @@ const ChatAlertGraphql: React.FC<ChatAlertGraphqlProps> = (props) => {
     if (shouldRenderChatAlerts) {
       chatUnreadMessages.forEach((m) => {
         history.current.add(m.messageId);
+        const isUnreadMention = m.senderId !== Auth.userID
+          && isMentioned(m)
+          && (m.chatId !== idChatOpen || !tabIsFocused);
+        if (isUnreadMention) {
+          addUnreadMentionChat(m.chatId);
+        }
       });
     }
-  });
+  }, [shouldRenderChatAlerts, chatUnreadMessages, isMentioned, idChatOpen, tabIsFocused]);
 
   let playAudioAlert = false;
 
@@ -125,7 +143,7 @@ const ChatAlertGraphql: React.FC<ChatAlertGraphqlProps> = (props) => {
 
   const mapTextContent = (msg: Message) => {
     if (msg.messageType === ChatMessageType.USER_AWAY_STATUS_MSG) {
-      const { away } = JSON.parse(msg.messageMetadata as string);
+      const away = parseMessageMetadata(msg.messageMetadata)?.away;
 
       return away
         ? intl.formatMessage(intlMessages.userAway)
@@ -161,11 +179,13 @@ const ChatAlertGraphql: React.FC<ChatAlertGraphqlProps> = (props) => {
 
   const renderToast = (message: Message) => {
     if (history.current.has(message.messageId)) return null;
-    if (message.chatId === idChatOpen) return null;
+    const mentionedMe = message.senderId !== Auth.userID && isMentioned(message);
+    if (message.chatId === idChatOpen && !mentionedMe) return null;
 
     const isPublicChatMessage = message.chatId === PUBLIC_GROUP_CHAT_ID;
     const isPollResult = message.messageType === ChatMessageType.POLL;
     let content;
+    let titleContent;
 
     if (isPollResult) {
       content = createPollMessage();
@@ -173,16 +193,21 @@ const ChatAlertGraphql: React.FC<ChatAlertGraphqlProps> = (props) => {
       content = createMessage(message);
     }
 
+    if (mentionedMe) {
+      titleContent = <span>{intl.formatMessage(intlMessages.appToastChatMention)}</span>;
+    } else if (isPublicChatMessage) {
+      titleContent = <span>{intl.formatMessage(intlMessages.appToastChatPublic)}</span>;
+    } else {
+      titleContent = <span>{intl.formatMessage(intlMessages.appToastChatPrivate)}</span>;
+    }
+
     return (
       <ChatPushAlert
-        key={message.chatId}
+        key={`${message.chatId}-${message.messageId}`}
         chatId={message.chatId}
         content={content}
-        title={
-          isPublicChatMessage
-            ? <span>{intl.formatMessage(intlMessages.appToastChatPublic)}</span>
-            : <span>{intl.formatMessage(intlMessages.appToastChatPrivate)}</span>
-        }
+        title={titleContent}
+        isMention={mentionedMe}
         alertDuration={ALERT_DURATION}
         layoutContextDispatch={layoutContextDispatch}
       />
@@ -206,18 +231,11 @@ const ChatAlertContainerGraphql: React.FC = () => {
   };
 
   const [tabIsFocused, setTabIsFocused] = useState(true);
-  const skipSubscriptions = !chatPushAlerts && !chatAudioAlerts;
-  const previousSkipSubscriptions = usePreviousValue(skipSubscriptions);
   const cursor = useRef(new Date());
-
-  if (previousSkipSubscriptions && !skipSubscriptions) {
-    cursor.current = new Date();
-  }
 
   const { data: chatMessages } = useDeduplicatedSubscription<ChatMessageStreamResponse>(
     CHAT_MESSAGE_STREAM,
     {
-      skip: skipSubscriptions,
       variables: {
         createdAt: cursor.current.toISOString(),
       },
@@ -245,8 +263,6 @@ const ChatAlertContainerGraphql: React.FC = () => {
   const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
   const { sidebarContentPanel } = sidebarContent;
   const layoutContextDispatch = layoutDispatch();
-
-  if (!(chatAudioAlerts || chatPushAlerts)) return null;
 
   const idChat = sidebarContentPanel === PANELS.CHAT ? idChatOpen : '';
 

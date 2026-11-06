@@ -5,7 +5,7 @@ on:
 jobs:
   cleanup:
     if: github.event.pull_request.merged == true
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-latest' }}
     permissions:
       actions: write   # required to delete caches
     steps:

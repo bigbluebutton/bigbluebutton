@@ -6,14 +6,16 @@ We actively support BigBlueButton through the community forums and through secur
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 2.6.x (or earlier)  | :x:    |
-| 2.7.x   | :x: |
-| 3.0.x   | :white_check_mark: |
-| 3.1.x   | :x: |
+| 2.7.x (or earlier)  | :x:    |
+| 3.0.x   | :white_check_mark: until March 15, 2027 |
+| 4.0.x   | :white_check_mark: |
+| 4.1.x   | :x: |
 
-We have released 3.0 to the community and are going to support 3.0 for the coming months.  Previous versions BigBlueButton 2.7 and 2.6 were on 20.04, which is now end of life and hence we no longer support those releases.
+We have released 4.0 to the community and are going to support it going forward. BigBlueButton 3.0 will still see important fixes applied for two more months (until Dec 14, 2026. We aim to continue propagating security fixes until March 15, 2027 at which point BigBlueButton 3.0 will reach its End-of-Life.
 
-As such, we recommend that all administrators deploy 3.0 going forward.  You'll find [many improvements](https://docs.bigbluebutton.org/3.0/new-features) in this newer version.
+Previous versions BigBlueButton 2.7, 2.6, etc are no longer supported.
+
+As such, we recommend that all administrators deploy 4.0 going forward.  You'll find [many improvements](https://docs.bigbluebutton.org/4.0/new-features) in this newer version.
 
 ## Reporting a Vulnerability
 

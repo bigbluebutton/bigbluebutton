@@ -1,7 +1,5 @@
 import React, {
   useContext,
-  useEffect,
-  useState,
   memo,
 } from 'react';
 import { useIntl } from 'react-intl';
@@ -30,7 +28,6 @@ import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
 } from '/imports/ui/components/whiteboard/queries';
 import MediaService from '../media/service';
-import { isDarkThemeEnabled } from '/imports/ui/components/app/service';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
@@ -95,7 +92,6 @@ const ActionsBarContainer = (props) => {
   const intl = useIntl();
   const isPresentationEnabled = useIsPresentationEnabled();
   const isTimerFeatureEnabled = useIsTimerFeatureEnabled();
-  const [darkModeIsEnabled, setDarkModeIsEnabled] = useState(isDarkThemeEnabled());
   const isPollingEnabled = useIsPollingEnabled() && isPresentationEnabled;
   const isRaiseHandEnabled = useIsRaiseHandEnabled();
   const isReactionsButtonEnabled = useIsUserReactionsEnabled();
@@ -106,18 +102,6 @@ const ActionsBarContainer = (props) => {
   const ariaHidden = sidebarNavigationIsOpen
     && sidebarContentIsOpen
     && (deviceInfo.isPhone || isLayeredView.matches);
-
-  useEffect(() => {
-    const handleDarkModeChange = (event) => {
-      setDarkModeIsEnabled(event.detail.enabled);
-    };
-
-    window.addEventListener('darkmodechange', handleDarkModeChange);
-
-    return () => {
-      window.removeEventListener('darkmodechange', handleDarkModeChange);
-    };
-  }, []);
 
   if (actionsBarStyle.display === false) return null;
   if (!currentMeeting) return null;
@@ -158,7 +142,6 @@ const ActionsBarContainer = (props) => {
         isTimerEnabled: isTimerFeatureEnabled,
         hasGenericContent: isThereGenericMainContent,
         ariaHidden,
-        isDarkThemeEnabled: darkModeIsEnabled,
         isMobile,
         selectedLayout,
       }

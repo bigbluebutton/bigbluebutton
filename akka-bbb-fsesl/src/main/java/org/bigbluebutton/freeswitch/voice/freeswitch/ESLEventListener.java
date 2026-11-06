@@ -53,7 +53,7 @@ public class ESLEventListener implements IEslEventListener {
 //        notifyObservers(e);
     }
 
-    private static final Pattern GLOBAL_AUDION_PATTERN = Pattern.compile("(GLOBAL_AUDIO)_(.*)$");
+    private static final String GLOBAL_AUDIO_PREFIX = "GLOBAL_AUDIO_";
     private static final Pattern CALLERNAME_PATTERN = Pattern.compile("(.*)-bbbID-(.*)$");
     private static final Pattern CALLERNAME_WITH_SESS_INFO_PATTERN = Pattern.compile("^(.*)_(\\d+)-bbbID-(.*)$");
     private static final Pattern CALLERNAME_LISTENONLY_PATTERN = Pattern.compile("^(.*)_(\\d+)-bbbID-LISTENONLY-(.*)$");
@@ -73,9 +73,7 @@ public class ESLEventListener implements IEslEventListener {
 
         String voiceUserId = callerIdName;
 
-        Matcher gapMatcher = GLOBAL_AUDION_PATTERN.matcher(callerIdName);
-        if (gapMatcher.matches()) {
-            //System.out.println("Ignoring GLOBAL AUDIO USER [" + callerIdName + "]");
+        if ((GLOBAL_AUDIO_PREFIX + confName).equals(callerIdName)) {
             return;
         }
 

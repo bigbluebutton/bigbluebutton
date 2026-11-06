@@ -1,0 +1,9 @@
+# want: 8: steps[0]: give the bus step a meetingId, or tag the case serial
+# want: 9: steps[1]: the bus carries internal meeting IDs, not ${uid}
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+steps:
+  - bus: {name: MeetingCreatedEvtMsg, within: 1s}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${uid}", within: 1s}

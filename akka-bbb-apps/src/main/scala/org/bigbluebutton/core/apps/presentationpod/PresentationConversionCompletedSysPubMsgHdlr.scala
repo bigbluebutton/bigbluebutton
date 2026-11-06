@@ -8,8 +8,6 @@ import org.bigbluebutton.core.models.PresentationInPod
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
-import java.io.File
-import java.net.URI
 import java.time.{Instant, Duration}
 
 trait PresentationConversionCompletedSysPubMsgHdlr {
@@ -61,9 +59,9 @@ trait PresentationConversionCompletedSysPubMsgHdlr {
 
       PresPresentationDAO.updatePages(presWithConvertedName)
       if (pres.downloadable) {
-        val originalFilename = new URI(null, null, pres.name, null).getRawPath
-        val originalFileURI = List("presentation", "download", meetingId,
-          s"${pres.id}?presFilename=${pres.id}.${originalDownloadableExtension}&filename=$originalFilename").mkString("", File.separator, "")
+        val originalFileURI = PresentationDownloadUrlBuilder.buildFileUri(
+          meetingId, pres.id, originalDownloadableExtension, pres.name
+        )
         PresPresentationDAO.updateDownloadUri(pres.id, originalFileURI)
       }
       if(pres.current) {

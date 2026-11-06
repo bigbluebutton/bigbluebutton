@@ -1,0 +1,30 @@
+# Expected failures of bbb-api: what the Go port doesn't do yet.
+# This file is the bbb-api gap backlog. Globs stand for whole endpoints; when
+# an endpoint lands, replace its glob by entries for the cases that still
+# fail. Issue links are added as the gap tickets are filed.
+target: bbb-api
+expected:
+  - {id: "version.*", reason: the version endpoint isn't served}
+  - {id: "create.*", reason: "create can't succeed yet: its gRPC client is never set, and it requires attendeePW/moderatorPW"}
+  - {id: "getMeetings.*", reason: "getMeetings can't succeed yet: its gRPC client is never set"}
+  - {id: "getMeetingInfo.*", reason: "getMeetingInfo can't succeed yet: its gRPC client is never set"}
+  - {id: isMeetingRunning.method.allowed, reason: "bbb-api answers HTTP 202 where bbb-web answers 200"}
+  - {id: insertDocument.method.allowed, reason: "bbb-api answers HTTP 202 where bbb-web answers 200"}
+  - {id: isMeetingRunning.checksum.accepted, reason: "bbb-api answers HTTP 202 where bbb-web answers 200"}
+  - {id: isMeetingRunning.checksum.rejected, reason: "bbb-api answers HTTP 202 where bbb-web answers 200"}
+  - {id: insertDocument.checksum.accepted, reason: "bbb-api answers HTTP 202 where bbb-web answers 200"}
+  - {id: insertDocument.checksum.rejected, reason: "bbb-api answers HTTP 202 where bbb-web answers 200"}
+  - {id: "join.*", reason: join isn't implemented}
+  - {id: "end.*", reason: end isn't implemented}
+  - {id: "getSessions.*", reason: getSessions isn't implemented}
+  - {id: "sendChatMessage.*", reason: sendChatMessage isn't implemented}
+  - {id: "stuns.*", reason: stuns isn't implemented}
+  - {id: "signOut.*", reason: signOut isn't implemented}
+  - {id: "getJoinUrl.*", reason: getJoinUrl isn't implemented}
+  - {id: "learningDashboard.*", reason: learningDashboard isn't implemented}
+  - {id: "getRecordings.*", reason: the recording calls aren't implemented}
+  - {id: "publishRecordings.*", reason: the recording calls aren't implemented}
+  - {id: "deleteRecordings.*", reason: the recording calls aren't implemented}
+  - {id: "updateRecordings.*", reason: the recording calls aren't implemented}
+  - {id: "getRecordingTextTracks.*", reason: the recording calls aren't implemented}
+  - {id: "putRecordingTextTrack.*", reason: the recording calls aren't implemented}
