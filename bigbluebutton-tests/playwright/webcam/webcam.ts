@@ -4,9 +4,12 @@ import { ELEMENT_WAIT_LONGER_TIME, VIDEO_LOADING_WAIT_TIME } from '../core/const
 import { elements as e } from '../core/elements';
 import { allowMedia } from '../core/mediaPermissions';
 import { Page } from '../core/page';
+import { SECOND_CAMERA_LABEL } from './cameraCaps';
 import {
   checkBackgroundThumbnailColumns,
   checkVideoUploadData,
+  expectLocalCamerasLive,
+  expectPreviewLive,
   getSettledHeight,
   uploadBackgroundVideoImage,
   webcamContentCheck,
@@ -441,5 +444,119 @@ export class Webcam extends Page {
     );
     const toggle = this.page.locator(e.virtualBackgroundToggle);
     await expect(toggle, 'virtual background toggle should be disabled on unsupported device').toBeDisabled();
+  }
+
+  async keepsSettingsOpenWithTwoCameras() {
+    const { videoPreviewTimeout } = this.settings || {};
+    const cameraSelector = this.page.locator(e.webcamDeviceSelector);
+
+    await this.waitAndClick(e.joinVideo);
+    await this.hasElement(e.webcamMirroredVideoPreview, 'should display the camera preview', videoPreviewTimeout);
+    const firstCamera = await cameraSelector.inputValue();
+    await this.waitAndClick(e.startSharingWebcam);
+    await this.hasElement(
+      e.webcamSettingsModal,
+      'should keep the webcam settings open after sharing the first of two cameras',
+    );
+    await this.hasElementCount(e.webcamStreamItem, 1, 'should share the first camera');
+    await this.wasRemoved(e.webcamConnecting, 'should finish connecting the first camera', ELEMENT_WAIT_LONGER_TIME);
+    await expectPreviewLive(this, 'should keep previewing the camera it just shared');
+    await this.hasText(
+      e.startSharingWebcam,
+      e.stopSharingWebcamLabel,
+      'should offer to stop the camera it just shared',
+    );
+
+    await cameraSelector.selectOption({ label: SECOND_CAMERA_LABEL });
+    await this.hasText(e.startSharingWebcam, e.startSharingWebcamLabel, 'should offer to share the second camera');
+    await expectPreviewLive(this, 'should preview the second camera');
+    await this.waitAndClick(e.startSharingWebcam);
+    await this.hasElement(
+      e.webcamSettingsModal,
+      'should keep the webcam settings open after sharing the second camera',
+    );
+    await this.hasElementCount(e.webcamStreamItem, 2, 'should share both cameras');
+    await this.wasRemoved(e.webcamConnecting, 'should finish connecting the second camera', ELEMENT_WAIT_LONGER_TIME);
+    await this.hasText(e.startSharingWebcam, e.stopSharingWebcamLabel, 'should offer to stop the second camera');
+
+    await cameraSelector.selectOption(firstCamera);
+    await this.hasText(e.startSharingWebcam, e.stopSharingWebcamLabel, 'should offer to stop the first camera');
+    await this.waitAndClick(e.startSharingWebcam);
+    await this.hasElement(e.webcamSettingsModal, 'should keep the webcam settings open after stopping one camera');
+    await this.hasElementCount(e.webcamStreamItem, 1, 'should stop only the first camera');
+    await expectPreviewLive(this, 'should capture the stopped camera again for the preview');
+    await this.hasText(
+      e.startSharingWebcam,
+      e.startSharingWebcamLabel,
+      'should offer to share the stopped camera again',
+    );
+    await this.waitAndClick(e.startSharingWebcam);
+    await this.hasElementCount(e.webcamStreamItem, 2, 'should share the first camera again');
+    await this.wasRemoved(
+      e.webcamConnecting,
+      'should finish connecting the first camera again',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await this.hasText(e.startSharingWebcam, e.stopSharingWebcamLabel, 'should offer to stop the first camera again');
+
+    await this.waitAndClick(e.cancelSharingWebcam);
+    await this.wasRemoved(e.webcamSettingsModal, 'should close the webcam settings');
+    await this.hasElementCount(e.webcamStreamItem, 2, 'should keep both cameras shared after closing the settings');
+    await expectLocalCamerasLive(this, 2, 'should keep both cameras live after closing the settings');
+  }
+
+  async ignoresSecondShareClick() {
+    const { videoPreviewTimeout } = this.settings || {};
+
+    await this.waitAndClick(e.joinVideo);
+    await this.hasElement(e.webcamMirroredVideoPreview, 'should display the camera preview', videoPreviewTimeout);
+    // Clicks share again once the camera is published, before the subscription lists it as shared
+    const clickedAgain = this.page.evaluate(
+      ({ webcamButton, shareButton, startingLabel, startLabel, timeout }) =>
+        new Promise<boolean>((resolve) => {
+          let sawStarting = false;
+          const startedAt = performance.now();
+          const timer = setInterval(() => {
+            const starting = document.querySelector(webcamButton)?.getAttribute('aria-label') === startingLabel;
+            const share = document.querySelector<HTMLButtonElement>(shareButton);
+            sawStarting = sawStarting || starting;
+            if (sawStarting && !starting && share && !share.disabled && share.innerText.includes(startLabel)) {
+              clearInterval(timer);
+              share.click();
+              resolve(true);
+            } else if (performance.now() - startedAt > timeout) {
+              clearInterval(timer);
+              resolve(false);
+            }
+          }, 1);
+        }),
+      {
+        webcamButton: e.leaveVideo,
+        shareButton: e.startSharingWebcam,
+        startingLabel: e.webcamStartingLabel,
+        startLabel: e.startSharingWebcamLabel,
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      },
+    );
+    await this.waitAndClick(e.startSharingWebcam);
+    expect(await clickedAgain, 'should click share again once the camera is published').toBe(true);
+    await this.hasText(e.startSharingWebcam, e.stopSharingWebcamLabel, 'should list the camera as shared');
+    await this.hasElementCount(e.webcamStreamItem, 1, 'should share the camera once');
+    await expect(
+      this.page.locator(e.leaveVideo),
+      'should not leave the webcam button in its starting state',
+    ).toHaveAttribute('aria-label', e.leaveVideoLabel);
+    await expectLocalCamerasLive(this, 1, 'should keep the camera live');
+  }
+
+  async closesSettingsWithOneCamera() {
+    await this.shareWebcam();
+    await this.wasRemoved(e.webcamSettingsModal, 'should close the webcam settings after sharing the only camera');
+    await this.waitAndClick(e.videoDropdownMenu);
+    await this.waitAndClick(e.advancedVideoSettingsBtn);
+    await this.hasText(e.startSharingWebcam, e.stopSharingWebcamLabel, 'should offer to stop the shared camera');
+    await this.waitAndClick(e.startSharingWebcam);
+    await this.wasRemoved(e.webcamSettingsModal, 'should close the webcam settings after stopping the only camera');
+    await this.hasElement(e.joinVideo, 'should offer to share a webcam again');
   }
 }
