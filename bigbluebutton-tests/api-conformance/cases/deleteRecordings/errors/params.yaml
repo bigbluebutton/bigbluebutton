@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# deleteRecordings needs a recordID that is a published or unpublished
+# recording's: a recording already deleted isn't found.
+id: deleteRecordings.errors.params
+title: deleteRecordings fails with ${key} (${case})
+endpoint: deleteRecordings
+class: contract
+tags: [ci]
+requires: [recordings-fs]
+variants:
+  - {id: missing-record-id, vars: {case: no recordID, rid: null, key: missingParamRecordID, msg: You must specify a recordID.}}
+  - {id: unknown, vars: {case: an unknown recording, rid: 0000000000000000000000000000000000000000-1700000000000, key: notFound, msg: We could not find recordings}}
+  - {id: deleted, vars: {case: a deleted recording, rid: eb226ead35ff4ce5f368741d13015c9b648e49f2-1700010800000, key: notFound, msg: We could not find recordings}}
+steps:
+  - call: deleteRecordings
+    params: {recordID: "${rid}"}
+    expect: {returncode: FAILED, messageKey: "${key}", message: "${msg}"}

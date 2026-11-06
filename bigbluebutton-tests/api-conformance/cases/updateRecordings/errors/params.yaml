@@ -1,0 +1,19 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# updateRecordings needs a recordID that is a published or unpublished
+# recording's. Record IDs are case-sensitive, and a deleted recording isn't
+# found.
+id: updateRecordings.errors.params
+title: updateRecordings fails with ${key} (${case})
+endpoint: updateRecordings
+class: contract
+tags: [ci]
+requires: [recordings-fs]
+variants:
+  - {id: missing-record-id, vars: {case: no recordID, rid: null, key: missingParamRecordID, msg: You must specify a recordID.}}
+  - {id: unknown, vars: {case: an unknown recording, rid: 0000000000000000000000000000000000000000-1700000000000, key: notFound, msg: We could not find recordings}}
+  - {id: deleted, vars: {case: a deleted recording, rid: eb226ead35ff4ce5f368741d13015c9b648e49f2-1700010800000, key: notFound, msg: We could not find recordings}}
+  - {id: upper-case, vars: {case: an upper-case record ID, rid: 13ED80F250C8D538C9570D0240900F30C9867B0B-1700028800000, key: notFound, msg: We could not find recordings}}
+steps:
+  - call: updateRecordings
+    params: {recordID: "${rid}", meta_conform-color: purple}
+    expect: {returncode: FAILED, messageKey: "${key}", message: "${msg}"}

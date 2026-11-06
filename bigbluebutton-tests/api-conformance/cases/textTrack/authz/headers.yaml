@@ -1,0 +1,24 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# nginx asks bbb-web's textTrack/validateAuthToken whether to serve a
+# caption file, passing the token, record ID and track from the URL as
+# x-textTrack-* headers. Without all three, or with a token bbb-web never
+# issued, the answer is 401 "unauthorized".
+id: textTrack.authz.headers
+title: validateAuthToken refuses ${case}
+endpoint: textTrack
+class: contract
+tags: [ci]
+defs:
+  rid: &rid e633b9434f359d31c1be30832b42a91ac0fb0e92-1700000000000
+variants:
+  - {id: none, vars: {case: a request without the headers, token: null, rid: null, track: null}}
+  - {id: no-token, vars: {case: a request without a token, token: null, rid: *rid, track: subtitles_en.vtt}}
+  - {id: no-track, vars: {case: a request without a track, token: 0123456789abcdef0123456789abcdef01234567, rid: *rid, track: null}}
+  - {id: unknown-token, vars: {case: a token it never issued, token: 0123456789abcdef0123456789abcdef01234567, rid: *rid, track: subtitles_en.vtt}}
+steps:
+  - route: texttrack-authz
+    headers: {x-textTrack-token: "${token}", x-textTrack-recordId: "${rid}", x-textTrack-track: "${track}"}
+    expect:
+      status: 401
+      headers: {Cache-Control: no-cache}
+      body: unauthorized

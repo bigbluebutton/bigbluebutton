@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# With allowFetchAllRecordings off, a getRecordings with no meetingID,
+# recordID or limit lists nothing: SUCCESS, noRecordings, and no recordings
+# element at all, unlike a filter that matches nothing. A limit lists every
+# recording again, a page at a time, and a filter works as usual.
+id: getRecordings.all.fetch-all-off
+title: getRecordings with allowFetchAllRecordings off lists nothing without a filter or a limit
+endpoint: getRecordings
+class: contract
+tags: [ci, disruptive]
+profile: no-fetch-all-recordings
+requires: [recordings-fs]
+steps:
+  - call: getRecordings
+    expect:
+      returncode: SUCCESS
+      messageKey: noRecordings
+      message: No recordings found. This may occur if you attempt to retrieve all recordings.
+      xpath:
+        /response/recordings: {absent: true}
+  - call: getRecordings
+    params: {limit: "100"}
+    expect:
+      returncode: SUCCESS
+      xpath:
+        /response/recordings/recording: {count: 10}
+        /response/totalElements: "10"
+  - call: getRecordings
+    params: {meetingID: conform-rec-a}
+    expect:
+      returncode: SUCCESS
+      xpath:
+        /response/recordings/recording: {count: 2}
