@@ -11,13 +11,14 @@ import SettingsListItem from './settings-list-item/component';
 // 'pinned-apps' is intentionally not in this map: it needs the
 // sidebarNavigationInput prop and is special-cased in component.tsx.
 export const PINNED_APPS_BUTTON_ID = 'pinned-apps';
+export const APPS_GALLERY_BUTTON_ID = 'apps-gallery';
 
 const SIDEBAR_BUTTONS_REGISTRY: Record<string, React.ComponentType> = {
   profile: ProfileListItem,
   'user-list': UsersListItem,
   chat: ChatListItem,
   notes: UserNotesListItemContainer,
-  'apps-gallery': AppsListItem,
+  [APPS_GALLERY_BUTTON_ID]: AppsListItem,
   'audio-captions': AudioCaptionsListItem,
   'learning-dashboard': LearningDashboardListItem,
   settings: SettingsListItem,
