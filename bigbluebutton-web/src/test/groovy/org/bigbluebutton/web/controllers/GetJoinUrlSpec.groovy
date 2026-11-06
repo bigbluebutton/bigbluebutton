@@ -76,8 +76,8 @@ class GetJoinUrlSpec extends Specification implements ControllerUnitTest<ApiCont
    * `isBreakout` matters because moderators bypass the blocklist only in
    * non-breakout meetings.
    */
-  private Meeting buildMeeting(boolean isBreakout) {
-    Meeting m = new Meeting.Builder(EXTERNAL_MEETING_ID, INTERNAL_MEETING_ID, 1531155809613L)
+  private Meeting buildMeeting(boolean isBreakout, String externalMeetingId = EXTERNAL_MEETING_ID) {
+    Meeting m = new Meeting.Builder(externalMeetingId, INTERNAL_MEETING_ID, 1531155809613L)
         .withName("Test Meeting")
         .withMaxUsers(20)
         .withLogoutUrl(SERVER_URL + "/api/logout")
@@ -148,18 +148,27 @@ class GetJoinUrlSpec extends Specification implements ControllerUnitTest<ApiCont
     !checksumVerifies(tampered)
   }
 
-  def "Values are encoded once, so the meeting ID and name decode back intact"() {
-    given: "a viewer session whose meeting ID and name carry spaces"
-    registerUserSession(controller.ROLE_ATTENDEE)
+  @Unroll
+  def "Values with #characters are encoded once, so the meeting ID and name decode back intact"() {
+    given: "a meeting and a viewer session carrying those values"
+    meeting = buildMeeting(false, meetingId)
+    registerMeeting(meeting)
+    registerUserSession(controller.ROLE_ATTENDEE, fullName)
 
     when: "a join URL is requested"
     requestJoinUrl()
 
     then: "a servlet container decodes both back to the originals, and the URL verifies"
     def url = responseJoinUrl()
-    queryOf(url).get("meetingID") == EXTERNAL_MEETING_ID
-    queryOf(url).get("fullName") == "Test User"
+    queryOf(url).get("meetingID") == meetingId
+    queryOf(url).get("fullName") == fullName
     checksumVerifies(url)
+
+    where:
+    characters                 | meetingId           | fullName
+    "spaces"                   | EXTERNAL_MEETING_ID | "Test User"
+    "plus, ampersand, percent" | "Q&A 50%+1"         | "Ann+Bob & Co 100%"
+    "non-ASCII characters"     | "Réunion 東京"      | "Zoë Núñez"
   }
 
   @Unroll
@@ -183,6 +192,7 @@ class GetJoinUrlSpec extends Specification implements ControllerUnitTest<ApiCont
     "sha256"                    | "sha256" | 64
     "sha1"                      | "sha1"   | 40
     " sha1 , sha384 "           | "sha384" | 96
+    "sha1,SHA512"               | "sha1"   | 40
   }
 
   /***********************************
@@ -493,13 +503,13 @@ class GetJoinUrlSpec extends Specification implements ControllerUnitTest<ApiCont
     meetingsField.get(meetingService).put(m.getInternalId(), m)
   }
 
-  private void registerUserSession(String role) {
+  private void registerUserSession(String role, String fullName = "Test User") {
     UserSession us = new UserSession()
     us.meetingID = INTERNAL_MEETING_ID
     us.externMeetingID = EXTERNAL_MEETING_ID
     us.internalUserId = INTERNAL_USER_ID
     us.externUserID = "u1"
-    us.fullname = "Test User"
+    us.fullname = fullName
     us.role = role
     us.authToken = SESSION_TOKEN
     us.conferencename = "Test Meeting"

@@ -266,19 +266,16 @@ public class ValidationService {
     public void setSupportedChecksumAlgorithms(String supportedChecksumAlgorithms) { this.supportedChecksumAlgorithms = supportedChecksumAlgorithms; }
     public String getSupportedChecksumAlgorithms() { return supportedChecksumAlgorithms; }
 
-    /** The strongest algorithm named in supportedChecksumAlgorithms; sha256 when it names none. */
+    /** The strongest algorithm GetChecksumValidator accepts under supportedChecksumAlgorithms; sha256 when it accepts none. */
     public String getStrongestSupportedChecksumAlgorithm() {
-        Set<String> supported = new HashSet<>();
         if (supportedChecksumAlgorithms != null) {
-            for (String algorithm : supportedChecksumAlgorithms.split(",")) {
-                supported.add(algorithm.trim().toLowerCase());
+            for (String algorithm : new String[] { "sha512", "sha384", "sha256", "sha1" }) {
+                if (supportedChecksumAlgorithms.contains(algorithm)) {
+                    return algorithm;
+                }
             }
         }
-        for (String algorithm : new String[] { "sha512", "sha384", "sha256", "sha1" }) {
-            if (supported.contains(algorithm)) {
-                return algorithm;
-            }
-        }
+        log.warn("supportedChecksumAlgorithms ('{}') names no known algorithm; falling back to sha256", supportedChecksumAlgorithms);
         return "sha256";
     }
 
