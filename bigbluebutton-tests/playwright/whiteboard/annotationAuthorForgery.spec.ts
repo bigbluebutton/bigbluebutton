@@ -36,40 +36,76 @@ function browserSubmitAs({ targetUserId, reuseAnnotationId }: SubmitArgs): Promi
   return new Promise<SubmitResult>((resolve, reject) => {
     const sessionToken = sessionStorage.getItem('sessionToken');
     const clientSessionUUID = sessionStorage.getItem('clientSessionUUID') || 'author-binding-probe';
-    if (!sessionToken) { reject(new Error('no sessionToken in sessionStorage')); return; }
+    if (!sessionToken) {
+      reject(new Error('no sessionToken in sessionStorage'));
+      return;
+    }
 
     const ws = new WebSocket(`wss://${window.location.host}/graphql`, 'graphql-transport-ws');
     const annotationId = reuseAnnotationId ?? `shape:${Math.random().toString(36).slice(2, 14)}`;
     // per-call marker so the read-back waits for THIS submit (matters when updating an existing shape)
     const probe = `author-binding-${Math.random().toString(36).slice(2, 10)}`;
     let subId = 0;
-    const timer = setTimeout(() => { try { ws.close(); } catch (e) { /* noop */ } reject(new Error('probe timed out')); }, 30000);
+    const timer = setTimeout(() => {
+      try {
+        ws.close();
+      } catch {
+        /* noop */
+      }
+      reject(new Error('probe timed out'));
+    }, 30000);
     const send = (obj: unknown) => ws.send(JSON.stringify(obj));
 
     const request = (query: string, variables: Record<string, unknown>) =>
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       new Promise<any>((res) => {
-        const id = `op-${subId += 1}`;
+        const id = `op-${(subId += 1)}`;
         const onMsg = (ev: MessageEvent) => {
           const m = JSON.parse(ev.data as string);
-          if (m.type === 'ping') { send({ type: 'pong' }); return; }
+          if (m.type === 'ping') {
+            send({ type: 'pong' });
+            return;
+          }
           if (m.id !== id) return;
-          if (m.type === 'next') { ws.removeEventListener('message', onMsg); send({ id, type: 'complete' }); res(m.payload); }
-          else if (m.type === 'error') { ws.removeEventListener('message', onMsg); res({ errors: m.payload }); }
-          else if (m.type === 'complete') { ws.removeEventListener('message', onMsg); res(null); }
+          if (m.type === 'next') {
+            ws.removeEventListener('message', onMsg);
+            send({ id, type: 'complete' });
+            res(m.payload);
+          } else if (m.type === 'error') {
+            ws.removeEventListener('message', onMsg);
+            res({ errors: m.payload });
+          } else if (m.type === 'complete') {
+            ws.removeEventListener('message', onMsg);
+            res(null);
+          }
         };
         ws.addEventListener('message', onMsg);
         send({ id, type: 'subscribe', payload: { query, variables } });
       });
 
-    ws.onerror = () => { clearTimeout(timer); reject(new Error('websocket error')); };
-    ws.onopen = () => send({
-      type: 'connection_init',
-      payload: { headers: { 'X-Session-Token': sessionToken, 'X-ClientSessionUUID': clientSessionUUID, 'X-ClientType': 'HTML5', 'X-ClientIsMobile': 'false' } },
-    });
+    ws.onerror = () => {
+      clearTimeout(timer);
+      reject(new Error('websocket error'));
+    };
+    ws.onopen = () =>
+      send({
+        type: 'connection_init',
+        payload: {
+          headers: {
+            'X-Session-Token': sessionToken,
+            'X-ClientSessionUUID': clientSessionUUID,
+            'X-ClientType': 'HTML5',
+            'X-ClientIsMobile': 'false',
+          },
+        },
+      });
 
     const ackHandler = async (ev: MessageEvent) => {
       const m = JSON.parse(ev.data as string);
-      if (m.type === 'ping') { send({ type: 'pong' }); return; }
+      if (m.type === 'ping') {
+        send({ type: 'pong' });
+        return;
+      }
       if (m.type !== 'connection_ack') return;
       ws.removeEventListener('message', ackHandler);
       try {
@@ -84,16 +120,27 @@ function browserSubmitAs({ targetUserId, reuseAnnotationId }: SubmitArgs): Promi
           const pg = await request('subscription Pg { pres_page(where: {isCurrentPage: {_eq: true}}) { pageId } }', {});
           const rows = pg?.data?.pres_page || [];
           if (rows.length) pageId = rows[0].pageId;
-          else await new Promise((r) => setTimeout(r, 1000));
+          else
+            await new Promise((r) => {
+              setTimeout(r, 1000);
+            });
         }
         if (!pageId) throw new Error('no current page id found');
 
-        const annotations = [{
-          id: annotationId,
-          annotationInfo: { type: 'draw', x: 10, y: 10, props: { color: 'black' }, meta: { probe, createdBy: targetUserId } },
-          wbId: pageId,
-          userId: targetUserId,
-        }];
+        const annotations = [
+          {
+            id: annotationId,
+            annotationInfo: {
+              type: 'draw',
+              x: 10,
+              y: 10,
+              props: { color: 'black' },
+              meta: { probe, createdBy: targetUserId },
+            },
+            wbId: pageId,
+            userId: targetUserId,
+          },
+        ];
         await request(
           'mutation Submit($pageId: String!, $annotations: json!) { presAnnotationSubmit(pageId: $pageId, annotations: $annotations) }',
           { pageId, annotations },
@@ -107,21 +154,36 @@ function browserSubmitAs({ targetUserId, reuseAnnotationId }: SubmitArgs): Promi
             { pageId },
           );
           const rows = cur?.data?.pres_annotation_curr || [];
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const found = rows.find((r: any) => r.annotationId === annotationId);
-          const info = found ? (typeof found.annotationInfo === 'string' ? JSON.parse(found.annotationInfo) : found.annotationInfo) : null;
+          let info = null;
+          if (found) {
+            info = typeof found.annotationInfo === 'string' ? JSON.parse(found.annotationInfo) : found.annotationInfo;
+          }
           if (found && info?.meta?.probe === probe) {
             persistedAuthor = found.userId;
             persistedCreator = info?.meta?.createdBy ?? null;
+          } else {
+            await new Promise((r) => {
+              setTimeout(r, 500);
+            });
           }
-          else await new Promise((r) => setTimeout(r, 500));
         }
 
         clearTimeout(timer);
-        try { ws.close(); } catch (e) { /* noop */ }
+        try {
+          ws.close();
+        } catch {
+          /* noop */
+        }
         resolve({ submitterId, targetUserId, annotationId, persistedAuthor, persistedCreator });
       } catch (err) {
         clearTimeout(timer);
-        try { ws.close(); } catch (e) { /* noop */ }
+        try {
+          ws.close();
+        } catch {
+          /* noop */
+        }
         reject(err);
       }
     };
@@ -134,27 +196,67 @@ function browserOwnUserId(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     const sessionToken = sessionStorage.getItem('sessionToken');
     const clientSessionUUID = sessionStorage.getItem('clientSessionUUID') || 'whoami-probe';
-    if (!sessionToken) { reject(new Error('no sessionToken')); return; }
+    if (!sessionToken) {
+      reject(new Error('no sessionToken'));
+      return;
+    }
     const ws = new WebSocket(`wss://${window.location.host}/graphql`, 'graphql-transport-ws');
-    const timer = setTimeout(() => { try { ws.close(); } catch (e) { /* noop */ } reject(new Error('whoami timed out')); }, 15000);
+    const timer = setTimeout(() => {
+      try {
+        ws.close();
+      } catch {
+        /* noop */
+      }
+      reject(new Error('whoami timed out'));
+    }, 15000);
     const send = (obj: unknown) => ws.send(JSON.stringify(obj));
-    ws.onerror = () => { clearTimeout(timer); reject(new Error('websocket error')); };
-    ws.onopen = () => send({ type: 'connection_init', payload: { headers: { 'X-Session-Token': sessionToken, 'X-ClientSessionUUID': clientSessionUUID, 'X-ClientType': 'HTML5', 'X-ClientIsMobile': 'false' } } });
+    ws.onerror = () => {
+      clearTimeout(timer);
+      reject(new Error('websocket error'));
+    };
+    ws.onopen = () =>
+      send({
+        type: 'connection_init',
+        payload: {
+          headers: {
+            'X-Session-Token': sessionToken,
+            'X-ClientSessionUUID': clientSessionUUID,
+            'X-ClientType': 'HTML5',
+            'X-ClientIsMobile': 'false',
+          },
+        },
+      });
     ws.addEventListener('message', (ev) => {
       const m = JSON.parse(ev.data as string);
-      if (m.type === 'ping') { send({ type: 'pong' }); return; }
-      if (m.type === 'connection_ack') { send({ id: 'me', type: 'subscribe', payload: { query: 'subscription Me { user_current { userId } }' } }); return; }
+      if (m.type === 'ping') {
+        send({ type: 'pong' });
+        return;
+      }
+      if (m.type === 'connection_ack') {
+        send({ id: 'me', type: 'subscribe', payload: { query: 'subscription Me { user_current { userId } }' } });
+        return;
+      }
       if (m.id === 'me' && m.type === 'next') {
         const uid = m.payload?.data?.user_current?.[0]?.userId;
-        clearTimeout(timer); try { ws.close(); } catch (e) { /* noop */ }
-        if (uid) resolve(uid); else reject(new Error('no user_current'));
+        clearTimeout(timer);
+        try {
+          ws.close();
+        } catch {
+          /* noop */
+        }
+        if (uid) resolve(uid);
+        else reject(new Error('no user_current'));
       }
     });
   });
 }
 
 test.describe('Whiteboard annotation authorship binding', { tag: '@ci' }, () => {
-  test('binds annotation author to the submitter, not a forged participant id', async ({ browser, context, page }, testInfo) => {
+  test('binds annotation author to the submitter, not a forged participant id', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
     const m = new MultiUsers(browser, context);
     await m.initModPage(page, { testInfo });
     await m.initUserPage(context, { testInfo });
@@ -168,9 +270,13 @@ test.describe('Whiteboard annotation authorship binding', { tag: '@ci' }, () => 
     const forged = await m.modPage.page.evaluate(browserSubmitAs, { targetUserId: victimId });
     expect(forged.targetUserId, 'sanity: forging the victim id').toBe(victimId);
     expect(forged.persistedAuthor, 'the annotation must be persisted and visible to participants').not.toBeNull();
-    expect(forged.persistedAuthor, 'forged authorship must be rebound to the authenticated submitter').toBe(forged.submitterId);
+    expect(forged.persistedAuthor, 'forged authorship must be rebound to the authenticated submitter').toBe(
+      forged.submitterId,
+    );
     expect(forged.persistedAuthor, 'the victim must never be credited as author').not.toBe(victimId);
-    expect(forged.persistedCreator, 'the forged meta.createdBy must be rebound to the submitter').toBe(forged.submitterId);
+    expect(forged.persistedCreator, 'the forged meta.createdBy must be rebound to the submitter').toBe(
+      forged.submitterId,
+    );
     expect(forged.persistedCreator, 'the victim must never be marked as creator').not.toBe(victimId);
 
     // R3 negative control: a legitimate self-authored annotation is still stored and attributed correctly
@@ -179,7 +285,10 @@ test.describe('Whiteboard annotation authorship binding', { tag: '@ci' }, () => 
     expect(legit.persistedCreator, 'legitimate meta.createdBy must remain the author').toBe(legit.submitterId);
 
     // R5 variant: UPDATE the legit shape carrying meta.createdBy = victim; the creator must stay the submitter
-    const updated = await m.modPage.page.evaluate(browserSubmitAs, { targetUserId: victimId, reuseAnnotationId: legit.annotationId });
+    const updated = await m.modPage.page.evaluate(browserSubmitAs, {
+      targetUserId: victimId,
+      reuseAnnotationId: legit.annotationId,
+    });
     expect(updated.annotationId, 'sanity: the update targeted the existing shape').toBe(legit.annotationId);
     expect(updated.persistedCreator, 'an update must not re-attribute the creator').toBe(legit.submitterId);
     expect(updated.persistedCreator, 'the victim must never become the creator via update').not.toBe(victimId);

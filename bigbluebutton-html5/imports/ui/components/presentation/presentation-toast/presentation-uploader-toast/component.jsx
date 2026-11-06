@@ -6,6 +6,7 @@ import { defineMessages } from 'react-intl';
 import { usePreviousValue } from '/imports/ui/hooks/usePreviousValue';
 import { notify } from '/imports/ui/services/notification';
 import Session from '/imports/ui/services/storage/in-memory';
+import getSizeWithUnit from '/imports/utils/getSizeWithUnit';
 
 const EXPORT_STATUSES = {
   RUNNING: 'RUNNING',
@@ -29,6 +30,14 @@ const intlMessages = defineMessages({
   uploadingPlural: {
     id: 'app.presentationUploder.uploadingPlural',
     description: 'uploading label for toast notification (plural)',
+  },
+  uploadFailed: {
+    id: 'app.presentationUploder.uploadFailed',
+    description: 'failed upload label for toast notification',
+  },
+  uploadFailedPlural: {
+    id: 'app.presentationUploder.uploadFailedPlural',
+    description: 'failed uploads label for toast notification (plural)',
   },
   uploadStatus: {
     id: 'app.presentationUploder.uploadStatus',
@@ -73,6 +82,10 @@ const intlMessages = defineMessages({
   INVALID_MIME_TYPE: {
     id: 'app.presentationUploder.conversion.invalidMimeType',
     description: 'warns user that the file\'s mime type is not supported or it doesn\'t match the extension',
+  },
+  PAGE_COUNT_FAILED: {
+    id: 'app.presentationUploder.conversion.pageCountFailed',
+    description: 'warns the user that the number of pages of the file could not be determined',
   },
   PAGE_COUNT_EXCEEDED: {
     id: 'app.presentationUploder.conversion.pageCountExceeded',
@@ -176,15 +189,6 @@ const intlMessages = defineMessages({
   },
 });
 
-function getSizeWithUnit(size) {
-  // If the size in MB is negligible (0.00), switch to kB for better precision
-  const mbString = (size / 1000000).toFixed(2);
-  const kbString = (size / 1000).toFixed(2);
-  return (mbString === '0.00' || mbString === '0,00')
-    ? `${kbString} kB`
-    : `${mbString} MB`;
-}
-
 function renderPresentationItemStatus(item, intl) {
   if ((('progress' in item) && item.progress === 0) || (('upload' in item) && item.upload.progress === 0 && !item.upload.error)) {
     return intl.formatMessage(intlMessages.fileToUpload);
@@ -210,7 +214,7 @@ function renderPresentationItemStatus(item, intl) {
 
   if (('uploadErrorMsgKey' in item) && item.uploadErrorMsgKey) {
     const errorMessage = intlMessages[item.uploadErrorMsgKey]
-      || intlMessages.genericConversionStatus;
+      || intlMessages.genericError;
 
     switch (item.uploadErrorMsgKey) {
       case 'CONVERSION_TIMEOUT':
@@ -307,6 +311,7 @@ function renderToastItem(item, intl) {
 
 const renderToastList = (presentations, intl) => {
   let converted = 0;
+  let failed = 0;
 
   const presentationsSorted = presentations
     .sort((a, b) => a.uploadCompleted - b.uploadCompleted);
@@ -315,6 +320,7 @@ const renderToastList = (presentations, intl) => {
     .forEach((p) => {
       const presDone = p?.totalPages !== 0 && p?.totalPagesUploaded === p?.totalPages;
       if (presDone) converted += 1;
+      if (p?.uploadErrorMsgKey) failed += 1;
       return p;
     });
 
@@ -341,10 +347,20 @@ const renderToastList = (presentations, intl) => {
     });
   }
 
+  // Only refused or failed uploads are left (e.g. after a burst or a reload): none is uploading.
+  const allFailed = failed > 0 && failed === presentationsSorted.length;
+  if (allFailed) {
+    toastHeading = failed > 1
+      ? intl.formatMessage(intlMessages.uploadFailedPlural, {
+        numberOfPresentations: failed,
+      })
+      : intl.formatMessage(intlMessages.uploadFailed);
+  }
+
   return (
     <Styled.ToastWrapper data-test="presentationUploadProgressToast">
       <Styled.UploadToastHeader>
-        <Styled.UploadIcon iconName="upload" />
+        <Styled.UploadIcon iconName={allFailed ? 'close' : 'upload'} $error={allFailed} />
         <Styled.UploadToastTitle>{toastHeading}</Styled.UploadToastTitle>
       </Styled.UploadToastHeader>
       <Styled.InnerToast>

@@ -1,0 +1,8 @@
+# For the runner's own tests: fake bbb-api's known gaps on testdata/smoke.
+target: fake-api
+expected:
+  - {id: "version.*", reason: the version endpoint isn't served}
+  - {id: create.smoke.lifecycle, reason: "create answers returnCode, and end isn't implemented", issue: "https://example.com/issues/2"}
+  - {id: create.smoke.side-effects, reason: "create answers returnCode, and end isn't implemented"}
+  - {id: getMeetingInfo.smoke.json-error, reason: errors are always XML}
+  - {id: "getMeetings.smoke.checksum-*", reason: checksums are compared case-sensitively}

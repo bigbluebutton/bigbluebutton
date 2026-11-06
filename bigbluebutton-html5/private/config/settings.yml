@@ -66,13 +66,10 @@ public:
       enabled: true
     allowDefaultLogoutUrl: true
     skipMeetingEnded: false
-    dynamicGuestPolicy: true
     enableGuestLobbyMessage: true
     # Show the guest user's position in the lobby waiting queue.
     # Set to false when users should not see their place in line.
     showGuestLobbyWaitingQueuePosition: true
-    guestPolicyExtraAllowOptions: false
-    alwaysShowWaitingRoomUI: true
     enableLimitOfViewersInWebcam: false
     enableMultipleCameras: true
     enableCameraAsContent: true
@@ -225,10 +222,9 @@ public:
     reactionsButton:
       enabled: true
     emojiRain:
-      # If true, new reactions will be activated
+      # If true, every reaction plays an animated burst of its emoji from the reactions button
       enabled: false
-      # Can set the throttle, the number of emojis that will be displayed and their size
-      intervalEmojis: 2000
+      # numberOfEmojis: how many emojis each reaction bursts
       numberOfEmojis: 5
       # emojiSize: size of the emoji in 'em' units
       emojiSize: 2
@@ -290,17 +286,20 @@ public:
       audio:
         inputDeviceId: undefined
         outputDeviceId: undefined
-        # processingMode: which of the 3 audio-processing options in
+        # processingMode: which of the audio-processing options in
         # Settings > Audio comes selected by default for a new user.
         # Accepted values:
+        #   voiceIsolation: like advanced, at full filtering intensity. Only
+        #             offered with the 'bbba' provider; falls back to
+        #             'advanced' with any other
         #   advanced: process the microphone through BBBA/WASM (audioWasmProcessing)
         #   standard: process it with the browser's own filters, i.e. the
         #             AGC/echo-cancellation/noise-suppression constraints in
         #             media.audio.microphoneConstraints
         #   original: no processing at all, transmit the raw microphone signal
-        # If set to 'advanced' but the browser doesn't support BBBA/WASM
-        # processing or it is disabled via media.audio.audioWasmProcessing.enabled,
-        # it falls back to 'standard' (advanced -> standard).
+        # If set to 'advanced' or 'voiceIsolation' but the browser doesn't
+        # support BBBA/WASM processing or it is disabled via
+        # media.audio.audioWasmProcessing.enabled, it falls back to 'standard'.
         # Unless audioFilterStorage is set to 'local', a user's own pick is
         # kept for the browser session and current meeting only, so a new
         # meeting or browser session starts from this default.
@@ -956,9 +955,17 @@ public:
       #   constraints: browser-level audio constraints applied ON TOP of WASM processing.
       #                Providers can force their own value for a given constraint,
       #                overriding whatever is configured below.
+      #   intensity: how aggressively the provider filters, 0-100. Only the
+      #              'bbba' provider has such a knob; it is ignored by any
+      #              provider that does not. Applied to every processor as it
+      #              is created, so it also covers the audio settings echo
+      #              test. Applies to Advanced Filtering only: Voice Isolation
+      #              always runs at 100. Unset falls back to the provider's
+      #              own default.
       audioWasmProcessing:
         enabled: false
         provider: bbba
+        intensity: 95
         constraints:
           echoCancellation: true
           autoGainControl: true
@@ -1188,7 +1195,6 @@ public:
       warning: 500
       danger: 1000
       critical: 2000
-    help: STATS_HELP_URL
   presentation:
     allowDownloadOriginal: true
     allowDownloadWithAnnotations: true
@@ -1197,7 +1203,9 @@ public:
     restoreOnUpdate: true
     uploadEndpoint: '/bigbluebutton/presentation/upload'
     fileUploadConstraintsHint: false
-    # mirroredFromBBBCore are values controlled in bbb-web properties file. We include a copy here for notification purposes
+    # mirroredFromBBBCore are copies of values controlled in bbb-web properties file (maxFileSizeUpload and maxNumPages)
+    # The client refuses a file over uploadSizeMax before sending it, so raise it together with maxFileSizeUpload
+    # uploadPagesMax is only displayed, by fileUploadConstraintsHint: the page count is known after the upload
     mirroredFromBBBCore:
       uploadSizeMax: 30000000
       uploadPagesMax: 200

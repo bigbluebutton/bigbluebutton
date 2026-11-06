@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# With enforceLayout the client URL also carries waitLayout=1, both in the
+# redirect and in the url of the XML answer.
+id: join.response.enforce-layout
+title: join with enforceLayout adds waitLayout=1 to the client URL
+endpoint: join
+class: contract
+tags: [ci]
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Join response}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: join
+    params: {meetingID: "${uid}", fullName: Ann, role: viewer, enforceLayout: SMART_LAYOUT}
+    expect:
+      status: 302
+      redirect:
+        path: {regex: /html5client/}
+        query: {waitLayout: "1", sessionToken: {exists: true}}
+  - call: join
+    params: {meetingID: "${uid}", fullName: Bob, role: viewer, enforceLayout: SMART_LAYOUT, redirect: "false"}
+    expect:
+      returncode: SUCCESS
+      xpath:
+        /response/url: {regex: "/html5client/\\?waitLayout=1&sessionToken="}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

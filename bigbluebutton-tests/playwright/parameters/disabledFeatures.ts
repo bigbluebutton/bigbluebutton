@@ -34,6 +34,7 @@ export class DisabledFeatures extends MultiUsers {
       'audioCaptions.enabled should be on (AUDIO_CAPTIONS_SETTINGS)',
     ).toBe(true);
     await this.modPage.hasElement(e.audioModal, 'should display the audio modal', ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.clickMicrophoneButton();
     await this.modPage.hasElement(e.joinEchoTestButton, 'should display the audio settings');
     await this.modPage.wasRemoved(e.speechRecognition, 'should not display the speech recognition option');
     await this.modPage.wasRemoved(
@@ -86,7 +87,10 @@ export class DisabledFeatures extends MultiUsers {
 
   async learningDashboard() {
     await this.modPage.hasElement(e.usersListSidebarButton, 'should display the users list button on the sidebar');
-    await this.modPage.wasRemoved(e.learningDashboardSidebarButton, 'should not display the learning dashboard button on the sidebar');
+    await this.modPage.wasRemoved(
+      e.learningDashboardSidebarButton,
+      'should not display the learning dashboard button on the sidebar',
+    );
   }
 
   async polls() {
@@ -98,7 +102,10 @@ export class DisabledFeatures extends MultiUsers {
   }
 
   async sharedNotes() {
-    await this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button on the sidebar');
+    await this.modPage.wasRemoved(
+      e.sharedNotesSidebarButton,
+      'should not display the shared notes button on the sidebar',
+    );
   }
 
   async virtualBackgrounds() {
@@ -195,6 +202,7 @@ export class DisabledFeatures extends MultiUsers {
       'audioCaptions.enabled should be on (AUDIO_CAPTIONS_SETTINGS)',
     ).toBe(true);
     await this.modPage.waitForSelector(e.audioModal, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.clickMicrophoneButton();
     // without speech synthesis voices (headless browsers) the option is
     // replaced by the "unsupported" note
     await this.modPage.hasElement(
@@ -234,7 +242,10 @@ export class DisabledFeatures extends MultiUsers {
 
   async learningDashboardExclude() {
     await this.modPage.hasElement(e.usersListSidebarButton, 'should display the users list button on the sidebar');
-    await this.modPage.hasElement(e.learningDashboardSidebarButton, 'should display the learning dashboard button on the sidebar');
+    await this.modPage.hasElement(
+      e.learningDashboardSidebarButton,
+      'should display the learning dashboard button on the sidebar',
+    );
   }
 
   async pollsExclude() {

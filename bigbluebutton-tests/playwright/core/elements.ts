@@ -38,6 +38,7 @@ export const elements = {
   reactionsButtonLabel: `${reactionsButton} span:nth-child(2)`,
   singleReactionButton: 'li[data-test="reaction"]',
   removeReactionButton: 'li[data-test="remove-reaction"]',
+  emojiRainContainer: 'div[data-test="emojiRain"]',
   emojiRain: 'div[data-test="emojiRain"] svg',
   raiseHandBtn: 'button[data-test="raiseHandBtn"]',
   lowerHandBtn: 'button[data-test="lowerHandBtn"]',
@@ -413,6 +414,8 @@ export const elements = {
   blockNoteUnderlineButton: 'div[data-test="blockNoteToolbar"] button[aria-label="Underline"]',
   blockNoteAlignTextLeftButton: 'div[data-test="blockNoteToolbar"] button[aria-label="Align text left"]',
   blockNoteSlashMenuItem: '.bn-suggestion-menu .bn-suggestion-menu-item',
+  blockNoteMathBlock: '#bn-notes-scroll-container [data-content-type="mathBlock"]',
+  blockNoteDiagram: '#bn-notes-scroll-container [data-content-type="diagram"]',
   notesConnectionError: '[data-test="notesError"]',
   notesRetryButton: 'button[data-test="notesRetryButton"]',
 
@@ -542,6 +545,7 @@ export const elements = {
   stopScreenSharing: 'button[data-test="stopScreenShare"]',
   managePresentations: 'div[data-test="managePresentations"]',
   presentationFileUpload: 'div#upload-modal input[type="file"]',
+  uploadConstraintsHint: 'div[data-test="uploadConstraintsHint"]',
   presentationToolbarWrapper: 'div[id="presentationToolbarWrapper"]',
   nextSlide: 'button[data-test="nextSlide"]',
   prevSlide: 'button[data-test="prevSlide"]',
@@ -612,6 +616,7 @@ export const elements = {
   advancedFilteringRadio: 'input[data-test="advancedFilteringRadio"]',
   standardFilteringRadio: 'input[data-test="standardFilteringRadio"]',
   originalAudioRadio: 'input[data-test="originalAudioRadio"]',
+  voiceIsolationRadio: 'input[data-test="voiceIsolationRadio"]',
 
   // User
   moderatorAvatar: 'div[data-test="moderatorAvatar"]',

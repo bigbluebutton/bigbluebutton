@@ -481,7 +481,7 @@ To ensure that your modifications are not lost when a new version of the package
 
 #### Validating client settings overrides
 
-When you override the HTML5 client settings - via `/etc/bigbluebutton/bbb-html5.yml`, or per meeting via the `clientSettingsOverride` / `clientSettingsOverrideJsonUrl` create parameters - keys that do not exist in the base `settings.yml` (typos, obsolete parameters, or values placed at the wrong level in the structure) are merged in but never read by the client, so they are silently ignored.
+When you override the HTML5 client settings - via `/etc/bigbluebutton/bbb-html5.yml`, or per meeting via the `clientSettingsOverrideJsonUrl` create parameter or the `clientSettingsOverride` POST module - keys that do not exist in the base `settings.yml` (typos, obsolete parameters, or values placed at the wrong level in the structure) are merged in but never read by the client, so they are silently ignored.
 
 BigBlueButton logs a `WARN` in `bbb-apps-akka` for each such key so the problem is visible. The warning is non-blocking: the value is still applied.
 
@@ -950,6 +950,12 @@ It's also important to note that, alongside the PIN requirement, there are basic
 
 LiveKit is the default audio bridge in BigBlueButton 4.0. For meetings that use the LiveKit audio bridge, telephone dial-in is handled by `livekit-sip`.
 
+:::warning[Dial-in callers bypass the guest lobby]
+With the LiveKit audio bridge, dial-in callers do not go through the guest lobby, even when the guest policy is `ASK_MODERATOR`. The caller joins the meeting right after entering the conference PIN, and moderators cannot approve or deny them first. This differs from the FreeSWITCH audio bridge, which holds dial-in callers in the lobby like web guests.
+
+If your deployment relies on the guest lobby to control who joins by phone, use the FreeSWITCH audio bridge for those meetings. Set `audioBridge=bbb-webrtc-sfu` per meeting on `/create`, or server-wide in `/etc/bigbluebutton/bbb-web.properties`, and set up dial-in as described in [Add a phone number to the conference bridge](#add-a-phone-number-to-the-conference-bridge). See [issue 26282](https://github.com/bigbluebutton/bigbluebutton/issues/26282) for guest lobby support on the LiveKit bridge.
+:::
+
 The dial-in flow is: the caller reaches a **SIP call gateway** (a FreeSWITCH — either BigBlueButton's bundled one or an external one) that answers the call and prompts for the conference PIN; the gateway then bridges the authenticated call into `livekit-sip`, which joins the LiveKit room as a SIP participant.
 
 LiveKit dial-in is opt-in. Enable the LiveKit SIP controller in `/etc/bigbluebutton/bbb-webrtc-sfu/production.yml`:
@@ -1104,7 +1110,7 @@ If DTMF passes through to FreeSWITCH during the PIN prompt but does not reach `l
 
 ##### Limitations
 
-- The guest lobby is bypassed for SIP dial-in callers.
+The guest lobby is bypassed for SIP dial-in callers. See [the Media section of the BigBlueButton 4.0 new features](/new-features.md#media) for details.
 
 #### Turn on the "comfort noise" when no one is speaking
 
@@ -1210,11 +1216,13 @@ maxFileSizeUpload=30000000
 
 You will have to additionally increase the size for the HTML5 client, edit `/usr/share/bigbluebutton/html5-client/private/config/settings.yml` or `/etc/bigbluebutton/bbb-html5.yml` (recommended) and modify `uploadSizeMax`.
 
+To show presenters the limits on the upload panel, also set `public.presentation.fileUploadConstraintsHint: true` in the same file. The hint displays `uploadSizeMax` and `uploadPagesMax` from `public.presentation.mirroredFromBBBCore`, so keep `uploadPagesMax` in step with `maxNumPages`; it does not follow a meeting's `maxNumPages` `create` parameter.
+
 Restart BigBlueButton with `sudo bbb-conf --restart`. You should now be able to upload larger presentations within the new limit.
 
 #### Limit the number of presentations per API request
 
-By default, BigBlueButton processes at most **10** presentations per `create` or `insertDocument` API call. If a single request references more presentations than this limit, BigBlueButton processes the first `maxPresentationsPerRequest` presentations (in the order they appear in the request) and ignores the rest, logging a warning for each request that exceeds the limit. The API response still has the `returncode` `SUCCESS`, and adds the `messageKey` `documentsDropped`, with a `message` saying how many presentations were accepted.
+By default, BigBlueButton processes at most **10** presentations per `create` or `insertDocument` API call. If a single request references more presentations than this limit, BigBlueButton processes `maxPresentationsPerRequest` of them and ignores the rest, logging a warning for each request that exceeds the limit. The presentation that will be shown first is always kept, and the remaining slots go to the other presentations in the order they appear in the request. All presentation URLs are checked before the limit is applied, so a malformed URL fails the request with the `messageKey` `invalidPresentationUrl` even when its presentation would have been ignored. The API response still has the `returncode` `SUCCESS`, and adds the `messageKey` `documentsDropped`, with a `message` saying how many presentations were accepted.
 
 To change this limit, add an overwrite rule in `/etc/bigbluebutton/bbb-web.properties` and set the `maxPresentationsPerRequest` value:
 
@@ -1360,6 +1368,40 @@ public:
 ```
 
 and restart BigBlueButton via `sudo bbb-conf --restart`
+
+#### Change which whiteboard shape types the server accepts
+
+The server checks the type of every whiteboard annotation before storing and broadcasting it, and discards annotations whose type is not on an allowlist. This includes shape types introduced by a newer or customized client. The default list is:
+
+```properties
+whiteboard {
+  allowedAnnotationTypes = ["draw", "geo", "arrow", "line", "text", "note", "highlight", "frame", "group", "poll"]
+}
+```
+
+To change it — for example to accept a shape type contributed by a plugin — add an overwrite in `/etc/bigbluebutton/bbb-apps-akka.conf`, **below** the `include` line (an entry placed above the include is overwritten by the packaged defaults):
+
+```properties
+whiteboard {
+  allowedAnnotationTypes = ["draw", "geo", "arrow", "line", "text", "note", "highlight", "frame", "group", "poll", "my-plugin-shape"]
+}
+```
+
+A configured list *replaces* the default rather than adding to it, so list every type you want to keep — dropping a type from the list disables that tool server-wide. Leave the list empty, or remove the key, to restore the default.
+
+If the value cannot be read as a list of strings, akka-apps logs an error naming the setting and falls back to the default list. That covers a value that is not a list at all (for example `allowedAnnotationTypes = "draw"`, which is a string), and a list holding anything other than strings (for example `["draw", 2]`) — a number or a boolean would otherwise be read as the literal type name `"2"`, leaving an allowlist that matches no real annotation. A single bad entry rejects the whole list, so the default applies rather than a partial one. On startup it logs the types it ended up with, so you can confirm your edit took effect:
+
+```text
+INFO o.b.core.apps.WhiteboardModel$ - Whiteboard annotation types enabled: [arrow, draw, ...]
+```
+
+The types `embed`, `bookmark`, `image` and `video` are fixed in code and are always rejected. Adding them here has no effect, and akka-apps logs a warning naming the entries it ignored.
+
+Annotations are also rejected if they carry a link that is not an `http://` or `https://` URL. This applies to the shapes that can hold one (rectangles and other geo shapes, and sticky notes) and is not configurable.
+
+This is a server-side check only; the HTML5 client maintains its own, shorter list. A shape type the client permits but the server rejects is drawn locally for the author, never reaches anyone else, and disappears when they change slide or reload.
+
+Apply the change with `sudo systemctl restart bbb-apps-akka`, or restart everything with `sudo bbb-conf --restart`.
 
 #### Configure S3-based cache for presentation assets
 
@@ -1670,11 +1712,11 @@ defaultWelcomeMessage=<default welcome message>
 defaultWelcomeMessageFooter=<default welcome message footer>
 ```
 
-When a front-end creates a BigBlueButton session, it may also pass a `welcome` parameter in the [create](/development/api#create) API call.
+When a front-end creates a BigBlueButton session, it may also pass a `welcome` parameter in the [create](/development/api#get-post-create) API call.
 
 The final welcome message shown to the user (as blue text in the Chat window) is a composite of `welcome` + `defaultWelcomeMessage` + `defaultWelcomeMessageFooter`.
 
-The welcome message is fixed for the duration of a meeting. If you want to see the effect of changing the `welcome` parameter, you must [end](/development/api#end) the current meeting or wait until the BigBlueButton server removes it from memory (which occurs about two minutes after the last person has left). You can overwrite these values in file `/etc/bigbluebutton/bbb-web.properties`, just remember to restart BigBlueButton with `sudo bbb-conf --restart` for the new values to take effect.
+The welcome message is fixed for the duration of a meeting. If you want to see the effect of changing the `welcome` parameter, you must [end](/development/api#get-post-end) the current meeting or wait until the BigBlueButton server removes it from memory (which occurs about two minutes after the last person has left). You can overwrite these values in file `/etc/bigbluebutton/bbb-web.properties`, just remember to restart BigBlueButton with `sudo bbb-conf --restart` for the new values to take effect.
 
 #### Modify localization for the client (override with the latest locale)
 
@@ -1865,7 +1907,7 @@ If you are using LiveKit as audio gateway, use [bbb-livekit-stt](https://github.
 
 #### Advanced Filtering (WASM audio processing)
 
-BigBlueButton 4.0 ships with an optional WASM-based audio processor that runs on top of the microphone stream. It is exposed to users as the **"Advanced Filtering"** option in the Settings > Audio tab, and offers an alternative to the browser's built-in audio processing ("Standard Filtering"), isolating the speaker's voice and eliminating background noise. Users who want no processing at all — for example when sharing music, where noise suppression and automatic gain control would be undesirable — can select "Original Audio" in the same tab.
+BigBlueButton 4.0 ships with an optional WASM-based audio processor that runs on top of the microphone stream. It is exposed to users as the **"Advanced Filtering"** option in the Settings > Audio tab, and offers an alternative to the browser's built-in audio processing ("Standard Filtering"), isolating the foreground voice while retaining a minimal ambience. With the `bbba` provider it is also exposed as the **"Voice Isolation"** option, which runs the same processor at full filtering intensity to separate the voice from background noise completely. Users who want no processing at all — for example when sharing music, where noise suppression and automatic gain control would be undesirable — can select "Original Audio" in the same tab.
 
 It is **disabled by default**. To make it available to users, set `enabled: true` under `public.media.audio.audioWasmProcessing` in `/etc/bigbluebutton/bbb-html5.yml`:
 
@@ -1881,16 +1923,24 @@ public:
       #   constraints: browser-level audio constraints applied ON TOP of WASM processing.
       #                Providers can force their own value for a given constraint,
       #                overriding whatever is configured here.
+      #   intensity: how aggressively the provider filters, 0-100. Only the
+      #              'bbba' provider has such a knob; it is ignored by any
+      #              provider that does not. Applied to every processor as it
+      #              is created, so it also covers the audio settings echo
+      #              test. Applies to Advanced Filtering only: Voice Isolation
+      #              always runs at 100. Unset falls back to the provider's
+      #              own default.
       audioWasmProcessing:
         enabled: true
         provider: bbba
+        intensity: 95
         constraints:
           echoCancellation: true
           autoGainControl: true
           noiseSuppression: true
 ```
 
-The audio-processing mode pre-selected for new users is controlled by `public.app.defaultSettings.audio.processingMode` (`advanced` selects the WASM processor; the client falls back to `standard` when WASM processing is disabled or the browser does not support it). Restart BigBlueButton with `sudo bbb-conf --restart` after changing the configuration.
+The audio-processing mode pre-selected for new users is controlled by `public.app.defaultSettings.audio.processingMode` (`advanced` and `voiceIsolation` select the WASM processor; the client falls back to `standard` when WASM processing is disabled or the browser does not support it, and from `voiceIsolation` to `advanced` with a provider other than `bbba`). Restart BigBlueButton with `sudo bbb-conf --restart` after changing the configuration.
 
 #### Configure guest policy
 
@@ -1925,7 +1975,7 @@ Ensure that the parameter `displayBrandingArea` is set to `true` in bbb-html5's 
 To update the default logo, navigate to the `images` folder located at `/var/www/bigbluebutton-default/assets/images/`, and replace the `logo.png` file with your new logo.
 
 ### Other meeting configs available
-These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table is synced with [`bigbluebutton.properties`](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/bigbluebutton-web/grails-app/conf/bigbluebutton.properties); items marked _`overwritable`_ can be replaced per meeting through the matching [`/create`](/development/api/#create) parameter.
+These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table is synced with [`bigbluebutton.properties`](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/bigbluebutton-web/grails-app/conf/bigbluebutton.properties); items marked _`overwritable`_ can be replaced per meeting through the matching [`/create`](/development/api/#get-post-create) parameter.
 
 | Parameter | Description | Options | Default value |
 |---|---|---|---|
@@ -1980,9 +2030,9 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 | `breakoutRoomsPrivateChatEnabled` | Enable private chat in breakout rooms | true/false | true _`overwritable`_ |
 | `breakoutRoomsMultiUserWhiteboardDefaultOn` | Enable multi-user whiteboard by default in breakout rooms | true/false | true |
 | `learningDashboardCleanupDelayInMinutes` | Minutes the Learning Dashboard remains available after the meeting ends. For a breakout room's dashboard, the countdown starts when the parent meeting ends | Integer (0=keep permanently) | 2 _`overwritable`_ |
-| `disabledFeatures` | Comma-separated list of features to disable (see [`/create` docs](/development/api/#create) for the full list of feature names) | csv | _(empty)_ _`overwritable`_ |
+| `disabledFeatures` | Comma-separated list of features to disable (see [`/create` docs](/development/api/#get-post-create) for the full list of feature names) | csv | _(empty)_ _`overwritable`_ |
 | `maxSharedNotesInitialContentUrlPayloadSize` | Maximum size (in KiB) of the response fetched when seeding shared-notes initial content from `sharedNotesInitialContentJsonUrl` / `sharedNotesInitialContentMarkdownUrl` | Integer (KiB) | 1024 |
-| `allowOverrideClientSettingsOnCreateCall` | Allow the `clientSettingsOverride` POST module on `/create`. Does not apply to the `clientSettingsOverrideJsonUrl` parameter, which is always accepted (see [`/create` docs](/development/api/#create)) | true/false | false |
+| `allowOverrideClientSettingsOnCreateCall` | Allow the `clientSettingsOverride` POST module on `/create`. Does not apply to the `clientSettingsOverrideJsonUrl` parameter, which is always accepted (see [`/create` docs](/development/api/#get-post-create)) | true/false | false |
 | `clientSettingsOverrideStrictValidation` | When true, reject the `/create` call (`bbb-web`) and refuse `bbb-apps-akka` boot if a client settings override has unknown or malformed keys. Intended for test/staging (see [Validating client settings overrides](#validating-client-settings-overrides)) | true/false | false |
 | `clientSettingsFilePath` | Path to the `settings.yml` catalog used as the schema for the strict client-settings override validation above | path | `/usr/share/bigbluebutton/html5-client/private/config/settings.yml` |
 | `pluginManifests` | List of plugin manifests as a JSON array, e.g. `[{"url": "https://example.com/manifest.json"}]` | JSON array | _(empty)_ _`overwritable`_ |
@@ -1999,7 +2049,7 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 
 #### `/create` parameters without a `bigbluebutton.properties` counterpart
 
-Some `/create` parameters set per-meeting state but have no default in `bigbluebutton.properties`. Examples include `name`, `meetingID`, `parentMeetingID`/`sequence`/`freeJoin`/`isBreakout` (breakout-only), `bannerText`/`bannerColor`, `moderatorOnlyMessage`, `notifyRecordingAppend`, `meta_*` metadata, `logo`, `multiUserWhiteboardEnabled`, presentation-upload parameters (`preUploadedPresentation*`, `presentationUploadExternalUrl`, `presentationUploadExternalDescription`), `sharedNotesInitialContentJsonUrl`, `disabledFeaturesExclude`, `clientSettingsOverride` / `clientSettingsOverrideJsonUrl`, and `pluginManifestsFetchUrl`. See [Create API parameters](/development/api/#create) for the complete list and descriptions.
+Some `/create` parameters set per-meeting state but have no default in `bigbluebutton.properties`. Examples include `name`, `meetingID`, `parentMeetingID`/`sequence`/`freeJoin`/`isBreakout` (breakout-only), `bannerText`/`bannerColor`, `moderatorOnlyMessage`, `notifyRecordingAppend`, `meta_*` metadata, `logo`, `multiUserWhiteboardEnabled`, presentation-upload parameters (`preUploadedPresentation*`, `presentationUploadExternalUrl`, `presentationUploadExternalDescription`), `sharedNotesInitialContentJsonUrl`, `disabledFeaturesExclude`, `clientSettingsOverrideJsonUrl` (and the `clientSettingsOverride` POST module), and `pluginManifestsFetchUrl`. See [Create API parameters](/development/api/#get-post-create) for the complete list and descriptions.
 
 
 #### Passing user metadata to the client on join

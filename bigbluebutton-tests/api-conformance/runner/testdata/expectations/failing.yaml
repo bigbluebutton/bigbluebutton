@@ -1,0 +1,8 @@
+# For the runner's own tests: applied to testdata/failing on the fake.
+target: fake
+expected:
+  - {id: getMeetings.report.wrong-value, reason: an exact entry for a failing case, issue: "https://example.com/issues/1"}
+  - {id: "getMeetings.report.not-*", reason: a glob over a failing case}
+  - {id: getMeetings.report.ignored, reason: an exact entry for a passing case}
+  - {id: "getMeetings.report.teardown-*", reason: a glob over a passing case}
+  - {id: getMeetings.report.never-written, reason: an entry no case matches}

@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# api/feedback was removed with the post-meeting feedback (#22232). The 404
+# is the contract; the error page that carries it isn't, so the step is
+# recorded but not compared.
+id: feedback.removed.not-found
+title: The removed feedback call answers 404
+endpoint: feedback
+class: contract
+tags: [ci]
+steps:
+  - call: feedback
+    sign: none
+    golden: document
+    expect: {status: 404}

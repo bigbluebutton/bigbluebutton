@@ -15,8 +15,9 @@ trait PresentationConversionStartedSysPubMsgHdlr {
     val podId = msg.body.common.podId
 
     // An accepted presentation has already been added to its pod by the time this message
-    // is handled. Track only those: the completion handler resolves the pod entry as well,
-    // so an entry for a presentation that is not in a pod would never be removed.
+    // is handled. Track only those: the completion handler removes an entry only when it finds
+    // the presentation in its pod, so an entry for one that is not would stay until the
+    // conversion timeout dropped it, with a false "conversion may be down" warning.
     val presentationInPod = PresentationPodsApp.getPresentationPod(state, podId)
       .flatMap(_.getPresentation(presentationId))
       .isDefined

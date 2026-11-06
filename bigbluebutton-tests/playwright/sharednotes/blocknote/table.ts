@@ -55,10 +55,9 @@ export class BlockNoteTableSharedNotes extends MultiUsers {
     // placement, not the crash this probe guards against.
     await this.modPage.page.locator(FIRST_TABLE_CELL).first().click();
     await this.modPage.page.keyboard.type(TYPED_AFTER_INTERACTION);
-    await expect(
-      this.modPage.page.locator(e.blockNoteEditor),
-      'the editor should still accept typing',
-    ).toContainText(TYPED_AFTER_INTERACTION);
+    await expect(this.modPage.page.locator(e.blockNoteEditor), 'the editor should still accept typing').toContainText(
+      TYPED_AFTER_INTERACTION,
+    );
   }
 
   async arrowLeftOutOfFirstTableCell() {

@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A valid checksum is accepted, with the shortest and the longest digest (sha256 signs
+# every other case).
+id: getSessions.checksum.accepted
+title: getSessions accepts a valid ${alg} checksum
+endpoint: getSessions
+class: contract
+# Runs alone (serial): the answer lists the server's sessions, and bbb-web
+# cuts it short when the last one goes away while it lists them.
+tags: [ci, serial]
+variants:
+  - {id: sha1, vars: {alg: sha1}}
+  - {id: sha512, vars: {alg: sha512}}
+steps:
+  - call: getSessions
+    sign: "${alg}"
+    expect: {returncode: SUCCESS}

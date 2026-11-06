@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+id: getMeetings.checksum.rejected-appended
+title: A param appended after signing isn't covered by the checksum
+endpoint: getMeetings
+class: contract
+tags: [ci]
+steps:
+  # extra=x is appended after the checksum, so the server hashes a=1&extra=x,
+  # which the signature over a=1 doesn't cover.
+  - call: getMeetings
+    sign: none
+    raw_query: 'a=1&checksum=${checksum("sha256","getMeetings","a=1")}&extra=x'
+    expect: {returncode: FAILED, messageKey: checksumError}

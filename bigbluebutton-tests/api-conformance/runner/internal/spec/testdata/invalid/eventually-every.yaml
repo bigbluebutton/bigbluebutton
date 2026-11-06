@@ -1,0 +1,12 @@
+# want: 11: steps[0]: eventually.every must be at least 10ms, so the server isn't flooded
+# want: 10: steps[0]: eventually.within must be more than 0
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+steps:
+  - call: isMeetingRunning
+    eventually:
+      within: 0s
+      every: 0ms
+      until: {returncode: SUCCESS}
