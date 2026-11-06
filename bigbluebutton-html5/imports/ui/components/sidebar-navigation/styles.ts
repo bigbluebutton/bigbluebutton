@@ -12,6 +12,7 @@ import {
   navigationSidebarNotificationBadgeBottom,
   navigationSidebarNotificationBadgeRight,
   navigationSidebarPaddingY,
+  navigationSidebarPaddingYSmallHeight,
   navigationSidebarMargin,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
@@ -54,6 +55,10 @@ const NavigationSidebar = styled.div<{animations: boolean, isMobile: boolean, is
     ${animations && 'transition: background-color 0.2s ease-out;'}
   ` : `
     padding: ${navigationSidebarPaddingY} 0;
+
+    @media ${smallHeight} {
+      padding: ${navigationSidebarPaddingYSmallHeight} 0;
+    }
   `)}
 `;
 
@@ -112,6 +117,14 @@ const NavigationSidebarListItemsContainer = styled(ScrollboxVertical)<{
     gap: ${navigationSidebarListItemsContainerGapSmallHeight};
   }
 
+  ${({ isMobile }) => !isMobile && `
+    scrollbar-gutter: stable both-edges;
+
+    @supports (-moz-appearance: none) {
+      scrollbar-width: thin;
+    }
+  `}
+
   ${({ isExpanded }) => (isExpanded ? `
     max-height: 100%;
     opacity: 1;
@@ -160,7 +173,8 @@ const Bottom = styled(PositionedDiv)`
 `;
 
 const Separator = styled(BaseSeparator)`
-    width: 50%;
+  width: 50%;
+  margin: 0 auto;
 `;
 
 export default {

@@ -2,6 +2,8 @@ import styled from 'styled-components';
 import {
   borderSize,
   navigationSidebarListItemsWidth,
+  navigationSidebarListItemsWidthDesktop,
+  navigationSidebarListItemsWidthDesktopSmallHeight,
   navigationSidebarIconSize,
   navigationSidebarIconSizeSmallHeight,
 } from '/imports/ui/stylesheets/styled-components/general';
@@ -32,9 +34,17 @@ export const ListItem = styled.div<ListItemProps>`
   text-decoration: none;
   color: ${colorGrayIcons};
   cursor: pointer;
-  width: ${navigationSidebarListItemsWidth};
+  width: min(${navigationSidebarListItemsWidthDesktop}, 100%);
   aspect-ratio: 1 / 1;
   border-radius: 50%;
+
+  ${({ $isMobile }: ListItemProps) => ($isMobile ? `
+    width: ${navigationSidebarListItemsWidth};
+  ` : `
+    @media ${smallHeight} {
+      width: min(${navigationSidebarListItemsWidthDesktopSmallHeight}, 100%);
+    }
+  `)}
 
   > i {
     font-size: ${navigationSidebarIconSize};
