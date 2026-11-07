@@ -217,9 +217,6 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: BNSharedNotesCreatedEvtMsg => logMessage(msg)
       case m: BNSharedNotesUpdatedEvtMsg => logMessage(msg)
       case m: PadCreatedRespMsg => logMessage(msg)
-      // TODO(4.1 etherpad removal, #25720)
-      case m: PadUpdatePubMsg => logMessage(msg)
-      case m: PadUpdateCmdMsg => logMessage(msg)
 
       // Breakouts
       case m: CreateBreakoutRoomsCmdMsg => logMessage(msg)

@@ -646,8 +646,6 @@ class MeetingActor(
       case m: BNSharedNotesUpdatedEvtMsg =>
         padsApp2x.handle(m, liveMeeting, msgBus)
         updateUserLastActivity(m.body.intUserId)
-      // TODO(4.1 etherpad removal, #25720)
-      case m: PadUpdatePubMsg => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: PadPinnedReqMsg =>
         padsApp2x.handle(m, liveMeeting, msgBus)
         updateUserLastActivity(m.header.userId)

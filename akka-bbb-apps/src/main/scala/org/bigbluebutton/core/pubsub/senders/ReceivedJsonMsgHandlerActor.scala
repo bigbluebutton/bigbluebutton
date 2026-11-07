@@ -162,9 +162,6 @@ class ReceivedJsonMsgHandlerActor(
         routePadMsg[BNSharedNotesCreatedEvtMsg](envelope, jsonNode)
       case BNSharedNotesUpdatedEvtMsg.NAME =>
         routePadMsg[BNSharedNotesUpdatedEvtMsg](envelope, jsonNode)
-      // TODO(4.1 etherpad removal, #25720)
-      case PadUpdatePubMsg.NAME =>
-        routeGenericMsg[PadUpdatePubMsg](envelope, jsonNode)
       case PadPinnedReqMsg.NAME =>
         routeGenericMsg[PadPinnedReqMsg](envelope, jsonNode)
 
