@@ -150,28 +150,6 @@ object Polls {
 
   }
 
-  def handleGetCurrentPollReqMsg(state: MeetingState2x, requesterId: String, lm: LiveMeeting): Option[PollVO] = {
-    val poll = for {
-      pod <- state.presentationPodManager.getDefaultPod()
-      pres <- pod.getCurrentPresentation()
-      page <- PresentationInPod.getCurrentPage(pres)
-      curPoll <- getRunningPollThatStartsWith(page.id, lm.polls)
-    } yield curPoll
-
-    poll match {
-      case Some(p) => {
-        if (p.started && p.stopped && p.showResult) {
-          Some(p)
-        } else {
-          None
-        }
-      }
-      case None => {
-        None
-      }
-    }
-  }
-
   def handleRespondToPollReqMsg(requesterId: String, pollId: String, questionId: Int, answerIds: Seq[Int],
                                 lm: LiveMeeting): Option[(String, SimplePollResultOutVO)] = {
 

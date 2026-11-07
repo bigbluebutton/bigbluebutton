@@ -82,14 +82,12 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: ScreenshareRtmpBroadcastStoppedEvtMsg          => logMessage(msg)
       case m: StartRecordingVoiceConfSysMsg                  => logMessage(msg)
       case m: StopRecordingVoiceConfSysMsg                   => logMessage(msg)
-      case m: RecordAndClearPreviousMarkersCmdMsg            => logMessage(msg)
       case m: TransferUserToVoiceConfSysMsg                  => logMessage(msg)
       case m: UserBroadcastCamStartMsg                       => logMessage(msg)
       case m: UserBroadcastCamStopMsg                        => logMessage(msg)
       case m: SetCamShowAsContentReqMsg                      => logMessage(msg)
       case m: UserBroadcastCamStoppedEvtMsg                  => logMessage(msg)
       case m: UserBroadcastCamStartedEvtMsg                  => logMessage(msg)
-      case m: EjectUserFromMeetingSysMsg                     => logMessage(msg)
       case m: UserActivitySignCmdMsg                         => logMessage(msg)
       case m: UserInactivityInspectMsg                       => logMessage(msg)
 
@@ -144,7 +142,6 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: PresentationConversionEndedSysMsg => logMessage(msg)
       case m: PresentationConversionRequestReceivedSysMsg => logMessage(msg)
       //case m: PresentationConversionCompletedEvtMsg => logMessage(msg)
-      case m: GetAllPresentationPodsReqMsg => logMessage(msg)
       //case m: PresentationPageGeneratedSysPubMsg => logMessage(msg)
       //case m: PresentationPageGeneratedEvtMsg => logMessage(msg)
       //case m: ResizeAndMovePagePubMsg => logMessage(msg)
@@ -170,14 +167,10 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: SendGroupChatMessageReactionReqMsg => logChatMessage(msg)
       case m: DeleteGroupChatMessageReactionReqMsg => logChatMessage(msg)
       case m: GroupChatMessageBroadcastEvtMsg => logChatMessage(msg)
-      case m: GetGroupChatMsgsReqMsg => logChatMessage(msg)
-      case m: GetGroupChatMsgsRespMsg => logChatMessage(msg)
       case m: CreateGroupChatReqMsg => logChatMessage(msg)
       case m: SetGroupChatLastSeenReqMsg => logChatMessage(msg)
       case m: SetGroupChatVisibleReqMsg => logChatMessage(msg)
       case m: GroupChatCreatedEvtMsg => logChatMessage(msg)
-      case m: GetGroupChatsReqMsg => logChatMessage(msg)
-      case m: GetGroupChatsRespMsg => logChatMessage(msg)
 
       // Guest Management
       case m: GuestsWaitingApprovedMsg => logMessage(msg)
@@ -192,10 +185,6 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: GuestLobbyMessageChangedEvtMsg => logMessage(msg)
       case m: SetPrivateGuestLobbyMessageCmdMsg => logMessage(msg)
       case m: PrivateGuestLobbyMsgChangedEvtMsg => logMessage(msg)
-
-      // System
-      case m: ClientToServerLatencyTracerMsg => traceMessage(msg)
-      case m: ServerToClientLatencyTracerMsg => traceMessage(msg)
 
       // Recording
       case m: RecordingChapterBreakSysMsg => logMessage(msg)

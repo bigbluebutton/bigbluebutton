@@ -48,21 +48,9 @@ object OpenGroupChatWindowEvtMsg { val NAME = "OpenGroupChatWindowEvtMsg" }
 case class OpenGroupChatWindowEvtMsg(header: BbbClientMsgHeader, body: OpenGroupChatWindowEvtMsgBody) extends StandardMsg
 case class OpenGroupChatWindowEvtMsgBody(chatWindowId: String, openedBy: String)
 
-object GetGroupChatsReqMsg { val NAME = "GetGroupChatsReqMsg" }
-case class GetGroupChatsReqMsg(header: BbbClientMsgHeader, body: GetGroupChatsReqMsgBody) extends StandardMsg
-case class GetGroupChatsReqMsgBody()
 
-object GetGroupChatsRespMsg { val NAME = "GetGroupChatsRespMsg" }
-case class GetGroupChatsRespMsg(header: BbbClientMsgHeader, body: GetGroupChatsRespMsgBody) extends BbbCoreMsg
-case class GetGroupChatsRespMsgBody(chats: Vector[GroupChatInfo])
 
-object GetGroupChatMsgsReqMsg { val NAME = "GetGroupChatMsgsReqMsg" }
-case class GetGroupChatMsgsReqMsg(header: BbbClientMsgHeader, body: GetGroupChatMsgsReqMsgBody) extends StandardMsg
-case class GetGroupChatMsgsReqMsgBody(chatId: String)
 
-object GetGroupChatMsgsRespMsg { val NAME = "GetGroupChatMsgsRespMsg" }
-case class GetGroupChatMsgsRespMsg(header: BbbClientMsgHeader, body: GetGroupChatMsgsRespMsgBody) extends BbbCoreMsg
-case class GetGroupChatMsgsRespMsgBody(chatId: String, msgs: Vector[GroupChatMsgToUser])
 
 object CreateGroupChatReqMsg { val NAME = "CreateGroupChatReqMsg" }
 case class CreateGroupChatReqMsg(header: BbbClientMsgHeader, body: CreateGroupChatReqMsgBody) extends StandardMsg
