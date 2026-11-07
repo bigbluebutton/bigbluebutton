@@ -95,13 +95,14 @@ const RaisedHandsContainer: React.FC<{ searchQuery?: string }> = ({ searchQuery 
 
   return (
     <>
-      <Styled.RaisedHandsContainer>
+      <Styled.RaisedHandsContainer className="bbb-raised-hands">
         <Styled.TitleContainer>
-          <Styled.RaisedHandsTitle>
+          <Styled.RaisedHandsTitle className="bbb-raised-hands__title">
             {intl.formatMessage(intlMessages.raisedHandsTitle, { count: filteredRaisedHands.length })}
           </Styled.RaisedHandsTitle>
           {canLowerAll && filteredRaisedHands.length > 1 && (
             <Styled.LowerAllHandsButton
+              className="bbb-raised-hands__lower-all"
               onClick={() => raisedHands.forEach((u) => lowerUserHands(u.userId))}
               data-test="raiseHandRejection"
             >
