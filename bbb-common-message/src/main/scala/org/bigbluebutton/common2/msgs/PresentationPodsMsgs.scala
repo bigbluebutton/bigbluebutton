@@ -1,6 +1,6 @@
 package org.bigbluebutton.common2.msgs
 
-import org.bigbluebutton.common2.domain.{ PageVO, PresentationPageConvertedVO, PresentationPageVO, PresentationPodVO, PresentationVO }
+import org.bigbluebutton.common2.domain.{ PageVO, PresentationPageConvertedVO, PresentationPageVO, PresentationVO }
 
 // ------------ client to akka-apps ------------
 
@@ -256,10 +256,6 @@ case class PresentationUploadedFileScanFailedErrorSysPubMsgBody(
 object CreateNewPresentationPodEvtMsg { val NAME = "CreateNewPresentationPodEvtMsg" }
 case class CreateNewPresentationPodEvtMsg(header: BbbClientMsgHeader, body: CreateNewPresentationPodEvtMsgBody) extends StandardMsg
 case class CreateNewPresentationPodEvtMsgBody(currentPresenterId: String, podId: String)
-
-object RemovePresentationPodEvtMsg { val NAME = "RemovePresentationPodEvtMsg" }
-case class RemovePresentationPodEvtMsg(header: BbbClientMsgHeader, body: RemovePresentationPodEvtMsgBody) extends StandardMsg
-case class RemovePresentationPodEvtMsgBody(podId: String)
 
 object PdfConversionInvalidErrorEvtMsg { val NAME = "PdfConversionInvalidErrorEvtMsg" }
 case class PdfConversionInvalidErrorEvtMsg(header: BbbClientMsgHeader, body: PdfConversionInvalidErrorEvtMsgBody) extends StandardMsg

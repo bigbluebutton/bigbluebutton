@@ -38,7 +38,6 @@ case class GroupChatMsgToUser(
     messageType:        String,
     metadata:           Map[String, Any],
 )
-case class GroupChatInfo(id: String, access: String, createdBy: GroupChatUser, users: Vector[GroupChatUser])
 
 object OpenGroupChatWindowReqMsg { val NAME = "OpenGroupChatWindowReqMsg" }
 case class OpenGroupChatWindowReqMsg(header: BbbClientMsgHeader, body: OpenGroupChatWindowReqMsgBody) extends StandardMsg

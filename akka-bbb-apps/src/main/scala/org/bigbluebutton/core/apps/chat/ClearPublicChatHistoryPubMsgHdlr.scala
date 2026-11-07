@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.chat
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.apps.{ ChatModel, PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.db.ChatMessageDAO
 import org.bigbluebutton.core.running.{ LiveMeeting, LogHelper }
@@ -28,7 +28,6 @@ trait ClearPublicChatHistoryPubMsgHdlr extends LogHelper with RightsManagementTr
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
       state
     } else {
-      ChatModel.clearPublicChatHistory(liveMeeting.chatModel)
       val newState = for {
         gc <- state.groupChats.find(msg.body.chatId)
       } yield {

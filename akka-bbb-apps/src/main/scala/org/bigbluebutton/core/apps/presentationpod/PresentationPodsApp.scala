@@ -8,10 +8,6 @@ import org.bigbluebutton.core.util.RandomStringGenerator
 
 object PresentationPodsApp {
 
-  def createPresentationPod(creatorId: String): PresentationPod = {
-    PresentationPodFactory.create(creatorId)
-  }
-
   def createDefaultPresentationPod(): PresentationPod = {
     PresentationPodFactory.createDefaultPod()
   }
@@ -59,32 +55,6 @@ object PresentationPodsApp {
   }
 
   def getNumberOfPresentationPods(state: MeetingState2x): Int = state.presentationPodManager.getNumberOfPods()
-
-  def translatePresentationPodToVO(pod: PresentationPod): PresentationPodVO = {
-    val presentationObjects = pod.presentations
-    val presentationVOs = presentationObjects.values.map { p =>
-      val pages = p.pages.values.map { page =>
-        PageVO(
-          id = page.id,
-          num = page.num,
-          thumbUri = page.urls.getOrElse("thumb", ""),
-          txtUri = page.urls.getOrElse("text", ""),
-          svgUri = page.urls.getOrElse("svg", ""),
-          current = page.current,
-          xOffset = page.xOffset,
-          yOffset = page.yOffset,
-          widthRatio = page.widthRatio,
-          heightRatio = page.heightRatio,
-          pageToken = page.pageToken
-        )
-      }
-
-      PresentationVO(p.id, "", p.name, p.current,
-        pages.toVector, p.downloadable, p.removable, false, "")
-    }
-
-    PresentationPodVO(pod.id, pod.currentPresenter, presentationVOs.toVector)
-  }
 
   def findPodsWhereUserIsPresenter(mgr: PresentationPodManager, userId: String): Vector[PresentationPod] = {
     mgr.presentationPods.values.toVector.filter(p => p.currentPresenter == userId)
