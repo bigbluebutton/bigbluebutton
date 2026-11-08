@@ -22,11 +22,20 @@ for dir in $DIRS; do
   mkdir -p staging$dir
 done
 
-HASURA_VERSION=v2.49.3
+# The engine binary is built from source by the BigBlueButton fork of the
+# Hasura GraphQL Engine and published as a per-distro release asset. The
+# expected sha256 for each distro is pinned here; copy it from the SHA256SUMS
+# asset of the release when bumping.
+HASURA_BBB_TAG=v2.50.7-bbb.1
+declare -A HASURA_SHA256=(
+  [jammy]=1c414d6d7ac50bd65eb9157614abb54626ed018a174b98eac17d0860a09f0de3
+  [noble]=358c777347dfab50f2a582760767802a0999ad6a3bff414323bbdc9ba8b2a174
+)
 
-git clone --branch $HASURA_VERSION https://github.com/iMDT/hasura-graphql-engine.git
-cat hasura-graphql-engine/hasura-graphql.part-a* > hasura-graphql
-rm -rf hasura-graphql-engine/
+HASURA_URL="https://github.com/bigbluebutton/hasura-graphql-engine/releases/download/${HASURA_BBB_TAG}/hasura-graphql-engine-${DISTRO}-amd64"
+echo "Downloading the Hasura engine from $HASURA_URL"
+curl -fsSL --retry 5 --retry-delay 10 --retry-all-errors -o hasura-graphql "$HASURA_URL"
+echo "${HASURA_SHA256[$DISTRO]}  hasura-graphql" | sha256sum -c -
 chmod +x hasura-graphql
 cp -r hasura-graphql staging/usr/bin/hasura-graphql-engine
 
@@ -68,7 +77,8 @@ else
     exit 1
 fi
 
-url="https://github.com/hasura/graphql-engine/releases/download/${HASURA_VERSION}/cli-hasura-${platform}-${arch}"
+HASURA_CLI_VERSION=v2.50.7
+url="https://github.com/hasura/graphql-engine/releases/download/${HASURA_CLI_VERSION}/cli-hasura-${platform}-${arch}"
 
 echo "Downloading Hasura CLI from $url"
 
