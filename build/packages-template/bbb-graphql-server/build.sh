@@ -43,6 +43,11 @@ cp -r hasura-config.env staging/etc/default/bbb-graphql-server
 cp -r bbb_schema.sql metadata config.yaml staging/usr/share/bbb-graphql-server
 chmod -R a+rX staging/usr/share/bbb-graphql-server
 
+# Machine-readable copyright file (DEP-5) at the path dpkg expects: the engine
+# binary is a modified build of an Apache-2.0 licensed work, so the license
+# and the modification notice must ship with the package.
+install -Dm0644 copyright staging/usr/share/doc/bbb-graphql-server/copyright
+
 #Copy BBB configs for Postgres
 POSTGRES_MAJOR_VERSION=16
 mkdir -p staging/etc/postgresql/$POSTGRES_MAJOR_VERSION/main/conf.d
@@ -97,6 +102,6 @@ fpm -s dir -C ./staging -n $PACKAGE \
     --after-install after-install.sh \
     --after-remove after-remove.sh \
     --before-remove before-remove.sh \
-    --description "GraphQL server component for BigBlueButton" \
+    --description "GraphQL server component for BigBlueButton. Contains a modified build of the Apache-2.0 licensed Hasura GraphQL Engine community edition v2.50.7 (see /usr/share/doc/bbb-graphql-server/copyright)." \
     $DIRECTORIES \
     $OPTS

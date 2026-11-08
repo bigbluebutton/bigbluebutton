@@ -1,0 +1,58 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Hasura GraphQL Engine (community edition)
+Upstream-Contact: Hasura, Inc. <https://github.com/hasura/graphql-engine>
+Source: https://github.com/bigbluebutton/hasura-graphql-engine
+Comment:
+ The /usr/bin/hasura-graphql-engine executable in this package is a modified
+ build of the Apache-2.0 licensed Hasura GraphQL Engine community edition,
+ built from source by the BigBlueButton project from the fork at
+ https://github.com/bigbluebutton/hasura-graphql-engine (release tag
+ v2.50.7-bbb.1, commit de214841, based on the upstream tag v2.50.7). The
+ modifications relative to upstream are listed in the BBB-CHANGES.md file at
+ the root of that fork. The fork is maintained by the BigBlueButton project
+ and is not affiliated with, nor endorsed by, Hasura, Inc.; "Hasura" is a
+ trademark of Hasura, Inc.
+ .
+ The /usr/bin/hasura CLI is the unmodified upstream release binary.
+ .
+ System libraries (glibc, libgmp10, libpq5, libkrb5-3, unixODBC and others)
+ are linked dynamically and are therefore package dependencies, not part of
+ this package; their licenses ship with their own packages.
+
+Files: usr/bin/hasura-graphql-engine usr/bin/hasura
+Copyright: Hasura, Inc.
+License: Apache-2.0
+Comment:
+ The statically linked Haskell and C components embedded in the engine
+ executable carry the following licenses (copyright holders as published by
+ each project):
+ .
+  * mimalloc (Microsoft Corporation, Daan Leijen): MIT
+  * libdeflate-hs: MIT
+  * ekg-core, ekg-prometheus, ekg-json (Johan Tibell and contributors):
+    BSD-3-Clause
+  * resource-pool: BSD-3-Clause
+  * aeson-ordered: BSD-3-Clause
+  * hedis (Falko Peters): BSD-3-Clause
+  * graphql-parser: BSD-3-Clause
+  * odbc (FP Complete): BSD-3-Clause
+  * Spock-core: BSD-3-Clause
+  * kriti-lang (Hasura, Inc.): Apache-2.0
+  * ci-info (Hasura, Inc.): MIT
+ .
+ The remaining Haskell dependencies resolved by the pinned freeze file of the
+ fork are under permissive licenses (BSD, MIT, Apache-2.0, ISC or MPL-2.0);
+ no GPL, LGPL or AGPL licensed code is linked statically.
+
+Files: usr/share/bbb-graphql-server/* etc/default/bbb-graphql-server lib/systemd/system/*
+Copyright: BigBlueButton Inc.
+License: LGPL-3.0+
+Comment: BigBlueButton packaging and configuration.
+
+License: Apache-2.0
+ On Debian systems, the complete text of the Apache License version 2.0 can
+ be found in "/usr/share/common-licenses/Apache-2.0".
+
+License: LGPL-3.0+
+ On Debian systems, the complete text of the GNU Lesser General Public
+ License version 3 can be found in "/usr/share/common-licenses/LGPL-3".
