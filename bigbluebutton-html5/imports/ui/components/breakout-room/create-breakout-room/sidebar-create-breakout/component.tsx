@@ -600,7 +600,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
       <Styled.Separator />
 
       <Styled.ControlsRow>
-        <Styled.RoomCountControl>
+        <Styled.RoomCountControl className="bbb-breakout-room-count">
           <TooltipContainer title={intl.formatMessage(intlMessages.decreaseRooms)}>
             <Styled.RoomCountArrow
               onClick={decreaseRooms}
@@ -722,6 +722,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
           <Styled.StartButtonWrapper>
             <BBButton
               variant="primary"
+              className="bbb-action-button bbb-action-button--primary"
               disabled={!canStart}
               onClick={handleCreateRoom}
               label={intl.formatMessage(intlMessages.startLabel)}

@@ -101,6 +101,7 @@ const ReactionsButton = (props) => {
     onClick: () => (currentUserReaction !== 'none' ? handleReactionSelect('none') : null),
     customStyles: actionCustomStyles,
     dataTest: 'remove-reaction',
+    className: 'bbb-menu__item--remove-reaction',
   });
 
   const svgIcon = currentUserReaction === 'none' ? 'reactions' : null;
