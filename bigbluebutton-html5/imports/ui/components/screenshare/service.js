@@ -8,6 +8,7 @@ import logger from '/imports/startup/client/logger';
 import AudioService from '/imports/ui/components/audio/service';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import browserInfo from '/imports/utils/browserInfo';
+import onScreenshareStopRequest from '/imports/ui/services/mobile-app/screenshare-stop';
 import { SCREENSHARE_SUBSCRIPTION } from './queries';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import useMeeting from '../../core/hooks/useMeeting';
@@ -221,9 +222,7 @@ export const screenshareHasEnded = () => {
 
   screenShareBridge.stop();
 
-  if (window.bbbMobileApp && window.bbbMobileApp.onScreenshareStopRequest) {
-    window.bbbMobileApp.onScreenshareStopRequest();
-  }
+  onScreenshareStopRequest();
 };
 
 export const _handleStreamTermination = () => {
