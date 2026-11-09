@@ -12,8 +12,9 @@ const EQUATION = String.raw`\int_0^1 x^2 \, dx = \frac{1}{3}`;
 const TEXT_EXPORT_BLOCK_EQUATION = String.raw`x<y \quad a \& b`;
 const TEXT_EXPORT_EDGE_CASE = String.raw`\text{&lt;} <b>`;
 const DIAGRAM_LINES = ['graph TD', 'A[Agenda] --> B{Decision}', 'B -->|yes| C[Ship]'];
-// Script chunks (`<id>.bundle.<hash>.js`), not the bundle itself
-const CHUNK_URL = /\/[^/]+\.bundle\.[^/]+\.js$/;
+// Script chunks, not the bundle itself: `<id>.bundle.<hash>.js` in a
+// package, `<id>.bundle.js` from the dev server
+const CHUNK_URL = /\/[^/]+\.bundle\.(?:[^/]+\.)?js$/;
 
 async function typeSlots(testPage: Page, slots: string[]): Promise<void> {
   await getBlockNoteEditorLocator(testPage).click();
