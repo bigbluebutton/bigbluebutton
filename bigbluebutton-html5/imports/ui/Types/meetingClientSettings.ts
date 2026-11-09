@@ -725,6 +725,7 @@ export interface Audio2 {
 
 export interface Screenshare2 {
   showButtonForNonPresenters: boolean
+  enableOnMobile: boolean
 }
 
 export interface LocalEchoTest {
