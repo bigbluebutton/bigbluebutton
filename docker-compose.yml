@@ -442,8 +442,8 @@ configs:
   turnserver.conf:
     content: |
       listening-port=3478
-      min-port=49160
-      max-port=49199
+      min-port=32769
+      max-port=65535
       log-file=stdout
       pidfile=/tmp/turnserver.pid
       verbose
