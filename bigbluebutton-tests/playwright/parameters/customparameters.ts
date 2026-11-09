@@ -692,13 +692,6 @@ export class CustomParameters extends MultiUsers {
     );
   }
 
-  async autoShareWebcam() {
-    await this.modPage.hasElement(
-      e.webcamSettingsModal,
-      'should display the webcam settings modal when auto sharing the webcam ',
-    );
-  }
-
   async hideActionsBarTest() {
     await this.modPage.wasRemoved(e.mediaAreaButton, 'should not display the media area button');
     await this.modPage.wasRemoved(e.joinAudio, 'should not display the join audio button');
