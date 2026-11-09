@@ -60,7 +60,7 @@ sudo cp ../build/packages-template/bbb-shared-notes-server/bbb-shared-notes-serv
 sudo cp ../build/packages-template/bbb-shared-notes-server/bbb-shared-notes-conversion.socket /usr/lib/systemd/system
 sudo cp ../build/packages-template/bbb-shared-notes-server/bbb-shared-notes-conversion@.service /usr/lib/systemd/system
 # PDF conversion no longer goes through `systemd-run --user`
-sudo rm -f /etc/systemd/system/bbb-shared-notes-server.service.d/10-user-session.conf /usr/share/bbb-shared-notes-server/run-in-systemd.sh
+sudo rm -f /etc/systemd/system/bbb-shared-notes-server.service.d/10-user-session.conf
 sudo systemctl daemon-reload
 sudo systemctl enable bbb-shared-notes-server.service
 sudo systemctl enable --now bbb-shared-notes-conversion.socket
