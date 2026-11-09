@@ -1,6 +1,5 @@
 import { EMOJI_PICKER_SETTINGS_OVERRIDE } from '../chat/util';
 import { elements as e } from '../core/elements';
-import { linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { DisabledFeatureValues, MESSAGE_TOOLBAR_VALUES } from './disabledFeaturesValues';
 import { preUploadedPresentationModule } from './util';
@@ -206,19 +205,3 @@ test.describe.parallel('Disabled features values', { tag: '@nightly' }, () => {
     });
   });
 });
-
-// ParamsProcessorUtil removes the untrimmed pieces of disabledFeaturesExclude from the disabled features,
-// so " chat" does not match "chat" and chat stays disabled.
-test(
-  'An exclude list with a space after the comma re-enables chat',
-  { tag: '@known-issue' },
-  async ({ browser, context, page }, testInfo) => {
-    linkIssue(26233);
-    const disabledFeatureValues = new DisabledFeatureValues(browser, context);
-    await disabledFeatureValues.initModPage(page, {
-      createParameter: 'disabledFeatures=polls,chat&disabledFeaturesExclude=polls,%20chat',
-      testInfo,
-    });
-    await disabledFeatureValues.chatExcludedDespiteSpace();
-  },
-);

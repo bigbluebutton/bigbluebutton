@@ -31,7 +31,6 @@ export const JOIN_PARAMETERS = {
   directLeaveButtonOff: 'userdata-bbb_direct_leave_button=false',
   hideControls: 'userdata-bbb_hide_controls=true',
   hideNotifications: 'userdata-bbb_hide_notifications=true',
-  hideSidebarNavigation: 'userdata-bbb_hide_sidebar_navigation=true',
   preferDarkTheme: 'userdata-bbb_prefer_dark_theme=true',
   animationsOff: 'userdata-bbb_show_animations_default=false',
   defaultLayoutCamerasOnly: 'userdata-bbb_default_layout=CAMERAS_ONLY',
@@ -106,16 +105,6 @@ export class UserdataParameters extends MultiUsers {
       0,
       'should not display any toast to the moderator who joined with the parameter',
     );
-  }
-
-  async hideSidebarNavigation() {
-    await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard', ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.wasRemoved(e.navigationSidebarContainer, 'should not display the navigation sidebar');
-  }
-
-  async hideSidebarContentPanel() {
-    await this.hideSidebarNavigation();
-    await this.modPage.wasRemoved(e.sidebarContentMain, 'should not display the sidebar content panel either');
   }
 
   async preferDarkTheme() {

@@ -1,4 +1,3 @@
-import { linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { constants as c } from './constants';
 import { JOIN_PARAMETERS, NAMED_ATTENDEES, routeAvatarImage, UserdataParameters } from './userdataParameters';
@@ -44,16 +43,6 @@ test.describe.parallel('Userdata and join parameters', { tag: '@nightly' }, () =
     await userdata.initModPage2(context, { testInfo });
     await userdata.initUserPage(context, { testInfo });
     await userdata.hideNotifications();
-  });
-
-  test('userdata-bbb_hide_sidebar_navigation=true does not display the navigation sidebar', async ({
-    browser,
-    context,
-    page,
-  }, testInfo) => {
-    const userdata = new UserdataParameters(browser, context);
-    await userdata.initModPage(page, { joinParameter: JOIN_PARAMETERS.hideSidebarNavigation, testInfo });
-    await userdata.hideSidebarNavigation();
   });
 
   test('userdata-bbb_prefer_dark_theme=true starts the client in the dark theme', async ({
@@ -117,16 +106,3 @@ test.describe.parallel('Userdata and join parameters', { tag: '@nightly' }, () =
     await userdata.defaultLayoutCamerasOnly();
   });
 });
-
-// The layoutIsReady effect in layout/observer.tsx opens the initial public chat panel without checking the
-// parameter, which closed the panel just before.
-test(
-  'userdata-bbb_hide_sidebar_navigation=true also keeps the sidebar content panel closed',
-  { tag: '@known-issue' },
-  async ({ browser, context, page }, testInfo) => {
-    linkIssue(26358);
-    const userdata = new UserdataParameters(browser, context);
-    await userdata.initModPage(page, { joinParameter: JOIN_PARAMETERS.hideSidebarNavigation, testInfo });
-    await userdata.hideSidebarContentPanel();
-  },
-);

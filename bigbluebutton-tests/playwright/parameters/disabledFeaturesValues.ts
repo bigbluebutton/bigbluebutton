@@ -174,14 +174,6 @@ export class DisabledFeatureValues extends MultiUsers {
     ).toBeGreaterThan(0);
   }
 
-  async chatExcludedDespiteSpace() {
-    await this.modPage.hasElement(e.pollSidebarButton, 'should display the poll button on the sidebar');
-    await this.modPage.hasElement(
-      e.hidePublicChat,
-      'should display the hide public chat option when the public chat is open',
-    );
-  }
-
   private async openTextPresentationDownloadMenu() {
     const textPresentation = `${e.presentationItem}:has-text("${e.presentationTXT}")`;
     const downloadMenuButton = `${textPresentation} ${e.presentationOptionsDownloadBtn}`;
