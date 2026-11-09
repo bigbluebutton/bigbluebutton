@@ -162,9 +162,16 @@ object VoiceApp extends SystemConfiguration {
       voiceUserId: String,
       muted:       Boolean
   )(implicit context: ActorContext): Unit = {
+    val wasTalking = VoiceUsers.findWithVoiceUserId(liveMeeting.voiceUsers, voiceUserId).exists(_.talking)
+
     for {
       mutedUser <- VoiceUsers.userMuted(liveMeeting.voiceUsers, voiceUserId, muted)
     } yield {
+      // userMuted clears talking: announce that the talk ended at the mute.
+      if (muted && wasTalking) {
+        broadcastTalkingChanged(liveMeeting, outGW, mutedUser, talking = false)
+      }
+
       if (!muted) {
         // Make sure lock settings are in effect (ralam dec 6, 2019)
         LockSettingsUtil.enforceLockSettingsForVoiceUser(
@@ -334,11 +341,15 @@ object VoiceApp extends SystemConfiguration {
       userid:      String,
       liveMeeting: LiveMeeting,
       outGW:       OutMsgRouter
-  ): Unit = {
+  )(implicit context: ActorContext): Unit = {
     for {
       u <- VoiceUsers.findWithIntId(liveMeeting.voiceUsers, userid)
       oldU <- VoiceUsers.removeWithIntId(liveMeeting.voiceUsers, u.meetingId, u.intId)
     } yield {
+      // The replaced voice user goes without a leave: end its talk here.
+      if (oldU.talking) {
+        broadcastTalkingChanged(liveMeeting, outGW, oldU, talking = false)
+      }
       val event = MsgBuilder.buildEjectUserFromVoiceConfSysMsg(liveMeeting.props.meetingProp.intId, liveMeeting.props.voiceProp.voiceConf, oldU.voiceUserId)
       outGW.send(event)
     }
@@ -999,21 +1010,7 @@ object VoiceApp extends SystemConfiguration {
         liveMeeting,
         outGW
       )
-      liveMeeting.audioFloorManager.handleUserTalking(
-        talkingUser.intId,
-        talking,
-        System.currentTimeMillis(),
-        liveMeeting,
-        outGW
-      )
-      val event = MsgBuilder.buildUserTalkingVoiceEvtMsg(
-        liveMeeting.props.meetingProp.intId,
-        liveMeeting.props.voiceProp.voiceConf,
-        talkingUser.intId,
-        talkingUser.voiceUserId,
-        talking
-      )
-      outGW.send(event)
+      broadcastTalkingChanged(liveMeeting, outGW, talkingUser, talking)
 
       val eventUserVoiceStatus = MsgBuilder.buildUserVoiceStateEvtMsg(
         liveMeeting.props.meetingProp.intId,
@@ -1027,6 +1024,28 @@ object VoiceApp extends SystemConfiguration {
 
 
     }
+  }
+
+  private def broadcastTalkingChanged(
+    liveMeeting: LiveMeeting,
+    outGW:       OutMsgRouter,
+    voiceUser:   VoiceUserState,
+    talking:     Boolean
+  )(implicit context: ActorContext): Unit = {
+    liveMeeting.audioFloorManager.handleUserTalking(
+      voiceUser.intId,
+      talking,
+      System.currentTimeMillis(),
+      liveMeeting,
+      outGW
+    )
+    outGW.send(MsgBuilder.buildUserTalkingVoiceEvtMsg(
+      liveMeeting.props.meetingProp.intId,
+      liveMeeting.props.voiceProp.voiceConf,
+      voiceUser.intId,
+      voiceUser.voiceUserId,
+      talking
+    ))
   }
 
   def becameFloor(
