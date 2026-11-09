@@ -7,16 +7,11 @@ import { startSharedNotesBlockNote } from '../sharednotes/blocknote/util';
 import { MultiUsers } from '../user/multiusers';
 import { drawArrow } from '../user/util';
 
-// The pointer tldraw draws for another user, tagged with that user's name.
-const WHITEBOARD_REMOTE_CURSOR = 'div.tl-collaborator__cursor';
-// What the media area button opens. A viewer only finds there the ways to become presenter.
-const MEDIA_AREA_MENU = 'div#mediaAreaDropUp';
-
 const userListRow = (userName: string) => `${e.userListItem}[aria-label="${userName}"]`;
 
 function remoteCursor(testPage: Page, userName: string): Locator {
   return testPage.page
-    .locator(WHITEBOARD_REMOTE_CURSOR)
+    .locator(e.wbCollaboratorCursor)
     .filter({ has: testPage.page.getByText(userName, { exact: true }) });
 }
 
@@ -127,7 +122,7 @@ export class LockSettingsParameters extends MultiUsers {
 
   async viewerCannotBecomePresenter() {
     await this.userPage.waitAndClick(e.mediaAreaButton);
-    await this.userPage.hasElement(MEDIA_AREA_MENU, 'should open the media area menu for the attendee');
+    await this.userPage.hasElement(e.mediaAreaMenu, 'should open the media area menu for the attendee');
     await this.userPage.wasRemoved(e.requestPresenterButton, 'should not offer the attendee to request presenter');
     await this.userPage.wasRemoved(e.takePresenterButton, 'should not offer the attendee to take presenter');
   }

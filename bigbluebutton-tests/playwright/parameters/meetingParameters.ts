@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 
 import { VIDEO_LOADING_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
+import { getDefaultLocaleValue } from '../core/util';
 import { startScreenshare } from '../screenshare/util';
 import { MultiUsers } from '../user/multiusers';
 import { checkAvatarIcon } from '../user/util';
@@ -17,8 +18,9 @@ const EXTERNAL_UPLOAD_DESCRIPTION = 'Choose a file from the course library';
 const cameraTile = (userName: string) => `${e.webcamStreamItem}[data-user-name="${userName}"]`;
 // a row of the participants list, by the whole user name
 const userListItemOf = (userName: string) => `${e.userListItem}[aria-label="${userName}"]`;
-// the external upload block of the upload dialog carries no data-test
-const externalUploadBlock = 'div[id="upload-modal"] > div:has-text("Add content from 3rd party application")';
+// the external upload block of the upload dialog carries no data-test, so it is found by its heading
+const externalUploadBlock = () =>
+  `div[id="upload-modal"] > div:has-text("${getDefaultLocaleValue('app.presentationUploder.externalUploadTitle')}")`;
 
 // the signalling socket of bbb-webrtc-sfu, which a LiveKit meeting only opens for media routed there
 const isSfuSocket = (url: string) => url.includes('/bbb-webrtc-sfu');
@@ -101,11 +103,11 @@ export class MeetingParameters extends MultiUsers {
     await this.modPage.waitAndClick(e.mediaAreaButton);
     await this.modPage.waitAndClick(e.managePresentations);
     await this.modPage.hasText(
-      externalUploadBlock,
+      externalUploadBlock(),
       EXTERNAL_UPLOAD_DESCRIPTION,
       'should show the description of the external upload in the upload dialog',
     );
-    const externalUploadPage = await this.modPage.handleNewTab(`${externalUploadBlock} button`, context);
+    const externalUploadPage = await this.modPage.handleNewTab(`${externalUploadBlock()} button`, context);
     await expect(externalUploadPage, 'should open the external upload URL in a new page').toHaveURL(
       EXTERNAL_UPLOAD_URL,
     );

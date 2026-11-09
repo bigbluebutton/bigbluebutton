@@ -4,6 +4,7 @@ import { openPublicChat } from '../chat/util';
 import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, UPLOAD_PDF_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
+import { getDefaultLocaleValue } from '../core/util';
 import { MultiUsers } from '../user/multiusers';
 
 // the buttons of the toolbar shown when hovering a chat message
@@ -27,9 +28,11 @@ export const MESSAGE_TOOLBAR_VALUES: Record<string, MessageToolbarButton> = {
 
 // the tile shown for a participant without a camera once the presentation is minimized
 const GRID_TILE = `${e.webcamVideoItem}[data-video-type="grid"]`;
-// the download menu names each file by its extension: the uploaded text document and the PDF converted from it
-const ORIGINAL_FILE_DOWNLOAD = `${e.enableOriginalPresentationDownloadBtn}:has-text("(txt)")`;
-const CONVERTED_PDF_DOWNLOAD = `${e.enableOriginalPresentationDownloadBtn}:has-text("(pdf)")`;
+// the download menu names each file by its extension: the uploaded text document (txt) and the PDF converted from it
+const fileDownloadOption = (fileExtension: 'txt' | 'pdf') =>
+  `${e.enableOriginalPresentationDownloadBtn}:has-text("${getDefaultLocaleValue(
+    'app.presentationUploader.enableOriginalPresentationDownload',
+  ).replace('{fileExtension}', fileExtension)}")`;
 
 export class DisabledFeatureValues extends MultiUsers {
   // sends a message and hovers it: its toolbar should show every button but the hidden ones
@@ -125,20 +128,20 @@ export class DisabledFeatureValues extends MultiUsers {
 
   async originalFileDownloadRemoved() {
     await this.openTextPresentationDownloadMenu();
-    await this.modPage.hasElement(CONVERTED_PDF_DOWNLOAD, 'should offer to download the converted PDF');
-    await this.modPage.wasRemoved(ORIGINAL_FILE_DOWNLOAD, 'should not offer to download the original text document');
+    await this.modPage.hasElement(fileDownloadOption('pdf'), 'should offer to download the converted PDF');
+    await this.modPage.wasRemoved(fileDownloadOption('txt'), 'should not offer to download the original text document');
   }
 
   async convertedPdfDownloadRemoved() {
     await this.openTextPresentationDownloadMenu();
-    await this.modPage.hasElement(ORIGINAL_FILE_DOWNLOAD, 'should offer to download the original text document');
-    await this.modPage.wasRemoved(CONVERTED_PDF_DOWNLOAD, 'should not offer to download the converted PDF');
+    await this.modPage.hasElement(fileDownloadOption('txt'), 'should offer to download the original text document');
+    await this.modPage.wasRemoved(fileDownloadOption('pdf'), 'should not offer to download the converted PDF');
   }
 
   async presentationDownloadsShown() {
     await this.openTextPresentationDownloadMenu();
-    await this.modPage.hasElement(ORIGINAL_FILE_DOWNLOAD, 'should offer to download the original text document');
-    await this.modPage.hasElement(CONVERTED_PDF_DOWNLOAD, 'should offer to download the converted PDF');
+    await this.modPage.hasElement(fileDownloadOption('txt'), 'should offer to download the original text document');
+    await this.modPage.hasElement(fileDownloadOption('pdf'), 'should offer to download the converted PDF');
   }
 
   async webcamGridRemoved() {

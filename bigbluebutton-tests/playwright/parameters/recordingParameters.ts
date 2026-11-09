@@ -3,6 +3,7 @@ import { expect, Locator } from '@playwright/test';
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { ClientSettingsOverrides, Page } from '../core/page';
+import { getDefaultLocaleValue } from '../core/util';
 import { MultiUsers } from '../user/multiusers';
 
 // Recording breakout rooms is offered only when the client settings allow it; breakoutRoomsRecord then decides.
@@ -36,7 +37,9 @@ export class RecordingParameters extends MultiUsers {
     await expect(
       modIndicator,
       'should offer the moderator to pause the recording that started on join',
-    ).toHaveAttribute('aria-label', 'Pause recording', { timeout: ELEMENT_WAIT_LONGER_TIME });
+    ).toHaveAttribute('aria-label', getDefaultLocaleValue('app.recording.stopTitle'), {
+      timeout: ELEMENT_WAIT_LONGER_TIME,
+    });
     await expect(modIndicator, 'should show the recorded time to the moderator').toHaveText(/\d+:\d+/);
   }
 
@@ -49,7 +52,9 @@ export class RecordingParameters extends MultiUsers {
     await expect(
       modIndicator,
       'should tell the moderator the meeting is recording, not offer to pause it',
-    ).toHaveAttribute('aria-label', 'Recording', { timeout: ELEMENT_WAIT_LONGER_TIME });
+    ).toHaveAttribute('aria-label', getDefaultLocaleValue('app.recording.recordingTitle'), {
+      timeout: ELEMENT_WAIT_LONGER_TIME,
+    });
     await this.modPage.hasElementDisabled(
       RECORDING_CONTROL,
       'should not let the moderator use the recording indicator',
@@ -67,7 +72,10 @@ export class RecordingParameters extends MultiUsers {
       })
       .toBeGreaterThanOrEqual(recordedBeforeAttempt + STILL_RECORDING_SECONDS);
     await this.modPage.wasRemoved(e.confirmRecordingButton, 'should not ask the moderator to confirm a pause');
-    await expect(modIndicator, 'should still show the meeting as recording').toHaveAttribute('aria-label', 'Recording');
+    await expect(modIndicator, 'should still show the meeting as recording').toHaveAttribute(
+      'aria-label',
+      getDefaultLocaleValue('app.recording.recordingTitle'),
+    );
   }
 
   async recordPermissionDeniedForOneModerator() {
@@ -75,7 +83,7 @@ export class RecordingParameters extends MultiUsers {
     await expect(
       this.modPage2.page.locator(RECORDING_CONTROL),
       'should offer the second moderator to start recording',
-    ).toHaveAttribute('aria-label', 'Start recording');
+    ).toHaveAttribute('aria-label', getDefaultLocaleValue('app.recording.startTitle'));
     await hasHiddenRecordingControl(
       this.modPage,
       'should not show a recording control to the moderator without record permission',
@@ -88,19 +96,19 @@ export class RecordingParameters extends MultiUsers {
     await this.userPage.hasElementEnabled(RECORDING_CONTROL, 'should give the attendee the recording control');
     await expect(userIndicator, 'should offer the attendee to start recording').toHaveAttribute(
       'aria-label',
-      'Start recording',
+      getDefaultLocaleValue('app.recording.startTitle'),
     );
     await this.userPage.waitAndClick(e.recordingIndicator);
     await this.userPage.waitAndClick(e.confirmRecordingButton);
 
     await expect(modIndicator, 'should show the moderator the recording the attendee started').toHaveAttribute(
       'aria-label',
-      'Pause recording',
+      getDefaultLocaleValue('app.recording.stopTitle'),
     );
     await expect(modIndicator, 'should show the recorded time to the moderator').toHaveText(/\d+:\d+/);
     await expect(userIndicator, 'should offer the attendee to pause the recording').toHaveAttribute(
       'aria-label',
-      'Pause recording',
+      getDefaultLocaleValue('app.recording.stopTitle'),
     );
   }
 
@@ -118,15 +126,19 @@ export class RecordingParameters extends MultiUsers {
     await this.userPage.hasElement(RECORDING_CONTROL, 'should show the attendee the indicator once recording');
     await expect(userIndicator, 'should tell the attendee the meeting is recording').toHaveAttribute(
       'aria-label',
-      'Recording',
+      getDefaultLocaleValue('app.recording.recordingTitle'),
     );
 
     await this.modPage.waitAndClick(e.recordingIndicator);
-    await this.modPage.hasText(e.toastContainer, 'Pause recording', 'should ask the moderator to confirm the pause');
+    await this.modPage.hasText(
+      e.toastContainer,
+      getDefaultLocaleValue('app.recording.stopTitle'),
+      'should ask the moderator to confirm the pause',
+    );
     await this.modPage.waitAndClick(e.confirmRecordingButton);
     await expect(userIndicator, 'should tell the attendee the recording is paused').toHaveAttribute(
       'aria-label',
-      'Paused recording',
+      getDefaultLocaleValue('app.recording.resumeViewTitle'),
     );
 
     await this.userPage.hoverElement(e.recordingIndicator);

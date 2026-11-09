@@ -3,19 +3,14 @@ import path from 'path';
 
 import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, VIDEO_LOADING_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
+import { getDefaultLocaleValue } from '../core/util';
 import { openSettings } from '../options/util';
 import { MultiUsers } from '../user/multiusers';
 
-// Selectors core/elements.ts does not have.
-// The client writes the layout it is in on this element, as data-layout (layoutEngine.jsx).
-const layoutContainer = 'div#layout';
-const animationsToggleBtn = 'input[data-test="animationsToggleBtn"]';
 const avatarImage = `${e.moderatorAvatar} img`;
 
-// en.json: app.statusNotifier.raisedHandDescOneUser, app.userList.userOptions.sorted*Name.heading
-const raisedHandToast = (userName: string) => `${userName} raised hand`;
-const SORTED_BY_FIRST_NAME_HEADING = 'Sorted by first name:';
-const SORTED_BY_LAST_NAME_HEADING = 'Sorted by last name:';
+const raisedHandToast = (userName: string) =>
+  getDefaultLocaleValue('app.statusNotifier.raisedHandDescOneUser').replace('{userNames}', userName);
 
 // Never fetched from example.org: routeAvatarImage serves a core/media image for it.
 export const AVATAR_URL = 'https://example.org/bbb-test-avatar.png';
@@ -121,10 +116,10 @@ export class UserdataParameters extends MultiUsers {
 
   async animationsSettingAtStart() {
     await openSettings(this.modPage);
-    await this.modPage.hasElementNotChecked(animationsToggleBtn, 'should start with the animations setting off');
+    await this.modPage.hasElementNotChecked(e.animationsToggleBtn, 'should start with the animations setting off');
     await openSettings(this.modPage2);
     await this.modPage2.hasElementChecked(
-      animationsToggleBtn,
+      e.animationsToggleBtn,
       'should start with the animations setting on for the moderator without the parameter',
     );
   }
@@ -154,11 +149,13 @@ export class UserdataParameters extends MultiUsers {
         .split(/\r?\n/)
         .filter((name) => [zaraAbbott.fullName, adamZeller.fullName].includes(name));
 
-    expect(listedUnder(SORTED_BY_FIRST_NAME_HEADING), 'should sort the first name list by firstName').toEqual([
+    const firstNameHeading = getDefaultLocaleValue('app.userList.userOptions.sortedFirstName.heading');
+    const lastNameHeading = getDefaultLocaleValue('app.userList.userOptions.sortedLastName.heading');
+    expect(listedUnder(firstNameHeading), 'should sort the first name list by firstName').toEqual([
       adamZeller.fullName,
       zaraAbbott.fullName,
     ]);
-    expect(listedUnder(SORTED_BY_LAST_NAME_HEADING), 'should sort the last name list by lastName').toEqual([
+    expect(listedUnder(lastNameHeading), 'should sort the last name list by lastName').toEqual([
       zaraAbbott.fullName,
       adamZeller.fullName,
     ]);
@@ -166,7 +163,7 @@ export class UserdataParameters extends MultiUsers {
 
   async defaultLayoutCamerasOnly() {
     await expect(
-      this.modPage.page.locator(layoutContainer),
+      this.modPage.page.locator(e.layoutContainer),
       'should start the client in the cameras only layout',
     ).toHaveAttribute('data-layout', 'camerasOnly', { timeout: ELEMENT_WAIT_LONGER_TIME });
     await this.modPage.wasRemoved(e.whiteboard, 'should not display the whiteboard in the cameras only layout');
