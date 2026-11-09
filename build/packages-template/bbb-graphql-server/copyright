@@ -7,7 +7,7 @@ Comment:
  build of the Apache-2.0 licensed Hasura GraphQL Engine community edition,
  built from source by the BigBlueButton project from the fork at
  https://github.com/bigbluebutton/hasura-graphql-engine (release tag
- v2.50.7-bbb.1, commit de214841, based on the upstream tag v2.50.7). The
+ v2.50.7-bbb.2, commit 391cf837, based on the upstream tag v2.50.7). The
  modifications relative to upstream are listed in the BBB-CHANGES.md file at
  the root of that fork. The fork is maintained by the BigBlueButton project
  and is not affiliated with, nor endorsed by, Hasura, Inc.; "Hasura" is a

@@ -26,10 +26,10 @@ done
 # Hasura GraphQL Engine and published as a per-distro release asset. The
 # expected sha256 for each distro is pinned here; copy it from the SHA256SUMS
 # asset of the release when bumping.
-HASURA_BBB_TAG=v2.50.7-bbb.1
+HASURA_BBB_TAG=v2.50.7-bbb.2
 declare -A HASURA_SHA256=(
-  [jammy]=1c414d6d7ac50bd65eb9157614abb54626ed018a174b98eac17d0860a09f0de3
-  [noble]=358c777347dfab50f2a582760767802a0999ad6a3bff414323bbdc9ba8b2a174
+  [jammy]=0c2842baec1f9a4c5f537d28bb9ff3998753dbbc71a34d93afd846aa87c9d2f2
+  [noble]=42ed86ae87fe4a054eccb83a7eb22468e7579fe81dd0ab48df13ceff8b966ead
 )
 
 HASURA_URL="https://github.com/bigbluebutton/hasura-graphql-engine/releases/download/${HASURA_BBB_TAG}/hasura-graphql-engine-${DISTRO}-amd64"
