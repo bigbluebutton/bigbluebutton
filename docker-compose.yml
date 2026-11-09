@@ -445,8 +445,10 @@ configs:
       bn_notes_endpoint: http://shared-notes-server:8787/loopback/api/documents
       playback_host: ${BBB_DOMAIN}
 
-  # The turnserver.conf bbb-install writes. TLS is terminated by haproxy on 443, the relay ports
-  # stay on the bbb network.
+  # Based on the turnserver.conf bbb-install writes. It differs in: no listening and relay IPs,
+  # TLS terminated by haproxy on 443, relays only to LiveKit (the relay ports stay on the bbb
+  # network), logs to stdout, and no no-cli and lt-cred-mech, which coturn 4.16 warns about (the
+  # CLI is off by default; use-auth-secret is the credential mechanism).
   turnserver.conf:
     content: |
       listening-port=3478
@@ -457,14 +459,12 @@ configs:
       verbose
 
       fingerprint
-      lt-cred-mech
       use-auth-secret
       static-auth-secret=${TURN_SECRET}
       realm=${BBB_DOMAIN}
 
       keep-address-family
 
-      no-cli
       no-tls
       no-dtls
 

@@ -152,6 +152,9 @@ Requirements:
 - a DNS name for it and a public IPv4 address;
 - open ports: 80/tcp and 443/tcp (web, Let's Encrypt, TURN over TLS), 3478/tcp and 3478/udp
   (TURN), 7882/udp (LiveKit media);
+- LiveKit wants larger UDP buffers than most hosts have (it warns `UDP receive buffer is too
+  small` at start): set `net.core.rmem_max` and `net.core.wmem_max` on the host, e.g. to 5000000
+  (the value LiveKit suggests in that warning) in `/etc/sysctl.d/`;
 - the subnet `172.30.82.0/24` free on the host (the compose network; LiveKit has a fixed address
   in it, the only address coturn relays to).
 
