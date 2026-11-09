@@ -342,16 +342,16 @@ object VoiceApp extends SystemConfiguration {
       liveMeeting: LiveMeeting,
       outGW:       OutMsgRouter
   )(implicit context: ActorContext): Unit = {
-    for {
-      u <- VoiceUsers.findWithIntId(liveMeeting.voiceUsers, userid)
-      oldU <- VoiceUsers.removeWithIntId(liveMeeting.voiceUsers, u.meetingId, u.intId)
-    } yield {
-      // The replaced voice user goes without a leave: end its talk here.
-      if (oldU.talking) {
-        broadcastTalkingChanged(liveMeeting, outGW, oldU, talking = false)
+    VoiceUsers.findWithIntId(liveMeeting.voiceUsers, userid) foreach { u =>
+      // The replaced voice user goes without a leave: end its talk here, before
+      // removing it, so a floor release this triggers can still find it.
+      if (u.talking) {
+        broadcastTalkingChanged(liveMeeting, outGW, u, talking = false)
       }
-      val event = MsgBuilder.buildEjectUserFromVoiceConfSysMsg(liveMeeting.props.meetingProp.intId, liveMeeting.props.voiceProp.voiceConf, oldU.voiceUserId)
-      outGW.send(event)
+      VoiceUsers.removeWithIntId(liveMeeting.voiceUsers, u.meetingId, u.intId) foreach { oldU =>
+        val event = MsgBuilder.buildEjectUserFromVoiceConfSysMsg(liveMeeting.props.meetingProp.intId, liveMeeting.props.voiceProp.voiceConf, oldU.voiceUserId)
+        outGW.send(event)
+      }
     }
   }
 
