@@ -819,6 +819,28 @@ export class Join extends Create {
     );
   }
 
+  // Starts the recording as the moderator of the given meeting
+  protected static async startRecording(moderatorPage: Page, description = 'the moderator should start the recording') {
+    // Under LiveKit a page that closed the audio modal is joining audio muted, and the "You have joined the
+    // audio conference" toast of that join lands over the recording indicator. Wait for the audio controls
+    // to settle first: out of audio with the join button enabled, or in audio.
+    const audioControls = moderatorPage.page.locator(
+      `${e.joinAudio}:enabled, ${e.audioDropdownMenu}, ${e.muteMicButton}, ${e.unmuteMicButton}`,
+    );
+    await expect(audioControls.first(), 'the audio controls should settle before the recording starts').toBeVisible({
+      timeout: ELEMENT_WAIT_LONGER_TIME,
+    });
+    // toasts of a freshly joined meeting cover the recording indicator
+    await moderatorPage.closeAllToastNotifications();
+    await moderatorPage.waitAndClick(e.recordingIndicator);
+    await moderatorPage.waitAndClick(e.confirmRecordingButton);
+    await expect(moderatorPage.page.locator(`${e.recordingIndicator} button`), description).toHaveAttribute(
+      'aria-label',
+      'Pause recording',
+      { timeout: ELEMENT_WAIT_LONGER_TIME },
+    );
+  }
+
   // The rooms must have been created with the record option.
   async recordInBreakoutRoom() {
     if (!this?.modPage) throw new Error('modPage not initialized');
@@ -828,14 +850,7 @@ export class Join extends Create {
     const breakoutRoomIds = data.response.breakoutRooms?.[0]?.breakout ?? [];
 
     const breakoutModPage = new Page(this.browser, await this.joinFirstBreakoutRoomAsModerator());
-    // toasts of the freshly joined room cover the recording indicator
-    await breakoutModPage.closeAllToastNotifications();
-    await breakoutModPage.waitAndClick(e.recordingIndicator);
-    await breakoutModPage.waitAndClick(e.confirmRecordingButton);
-    await expect(
-      breakoutModPage.page.locator(`${e.recordingIndicator} button`),
-      'the moderator should be able to record inside the breakout room',
-    ).toHaveAttribute('aria-label', 'Pause recording', { timeout: ELEMENT_WAIT_LONGER_TIME });
+    await Join.startRecording(breakoutModPage, 'the moderator should be able to record inside the breakout room');
     await breakoutModPage.page.waitForTimeout(ELEMENT_WAIT_TIME);
     await this.endAllBreakoutRooms();
 
@@ -848,7 +863,7 @@ export class Join extends Create {
   }
 
   // Joins the room from the invitation the attendee got when the rooms were created
-  private async joinRoomFromInvitation(attendee: Page): Promise<Page> {
+  protected async joinRoomFromInvitation(attendee: Page): Promise<Page> {
     if (!this?.modPage) throw new Error('modPage not initialized');
 
     const breakoutTab = await attendee.handleNewTab(e.modalConfirmButton, attendee.page.context());
@@ -877,20 +892,7 @@ export class Join extends Create {
     );
 
     // both attendees go to the first room
-    await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 });
-    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
-    await this.modPage.waitForSelector(e.attendeeNotAssigned, ELEMENT_WAIT_EXTRA_LONG_TIME);
-    // the unassigned users are listed by name, so both attendees come before the moderator
-    await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
-    await this.modPage.hasText(e.breakoutBox1, this.userPage.username, 'should assign the attendee to the first room');
-    await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
-    await this.modPage.hasText(
-      e.breakoutBox1,
-      this.userPage2.username,
-      'should assign the other attendee to the first room',
-    );
-    await this.modPage.waitAndClick(e.createBreakoutRoomsButton, ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.setHeightWidthViewPortSize(); // reset to default size
+    await this.createRoomsWith([this.userPage, this.userPage2]);
 
     const breakoutUserPage = await this.joinRoomFromInvitation(this.userPage);
     await this.joinRoomFromInvitation(this.userPage2);
