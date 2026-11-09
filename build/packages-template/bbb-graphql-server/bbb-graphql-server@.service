@@ -11,6 +11,12 @@ Type=simple
 User=bigbluebutton
 Group=bigbluebutton
 WorkingDirectory=/usr/bin
+# Only nginx (upstream 127.0.0.1:8085) and bbb-graphql-middleware talk to the
+# engine, both over loopback, so do not listen on all interfaces. To bind
+# elsewhere, override this in /etc/bigbluebutton/bbb-graphql-server.env, which
+# the service unit already loads; the nginx upstream and the Hasura CLI
+# endpoint only need to change if the chosen bind excludes loopback.
+Environment=HASURA_GRAPHQL_SERVER_HOST=127.0.0.1
 EnvironmentFile=/etc/default/bbb-graphql-server
 # Optional file (the service should not fail if the file does not exist)
 EnvironmentFile=-/etc/bigbluebutton/bbb-graphql-server.env
