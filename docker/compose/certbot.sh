@@ -42,7 +42,7 @@ fi
 while :; do
   delay=12h
   certbot certonly --webroot -w /var/www/bigbluebutton-default/assets -d "$BBB_DOMAIN" \
-    --email "$ACME_EMAIL" --agree-tos --non-interactive --rsa-key-size 4096 --keep-until-expiring \
+    --email "$ACME_EMAIL" --agree-tos --non-interactive --keep-until-expiring \
     || delay=15m
   if [ -s "$live/privkey.pem" ]; then
     use_certificate "$live/fullchain.pem" "$live/privkey.pem"
