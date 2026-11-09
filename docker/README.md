@@ -248,6 +248,8 @@ Configuration:
   default). The download needs the real certificate; it fails while haproxy serves the
   self-signed one.
 - Logs: `docker compose logs <service>`; the logs per recording are in the `recording-logs` volume.
+  The compose file sets the `local` logging driver, which rotates the logs; it overrides the
+  host's Docker default (`daemon.json`). Remove it from `x-bbb` to use that default.
 
 Not covered: office document conversion (bbb-web expects
 `/usr/share/bbb-libreoffice-conversion/convert.sh`, which no image provides yet), FreeSWITCH and

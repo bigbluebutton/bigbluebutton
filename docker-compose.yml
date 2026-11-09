@@ -5,6 +5,10 @@ name: bigbluebutton
 
 x-bbb: &bbb
   restart: unless-stopped
+  # rotated container logs (5 files of 20 MB per container, compressed); the json-file default
+  # never rotates
+  logging:
+    driver: local
 
 x-recording: &recording
   <<: *bbb
