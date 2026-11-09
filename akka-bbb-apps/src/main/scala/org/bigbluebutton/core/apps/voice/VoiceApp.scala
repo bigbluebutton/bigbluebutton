@@ -1002,6 +1002,10 @@ object VoiceApp extends SystemConfiguration {
     talking:     Boolean
   )(implicit context: ActorContext): Unit = {
     for {
+      current <- VoiceUsers.findWithVoiceUserId(liveMeeting.voiceUsers, voiceUserId)
+      // Talking is consumed as edges (floor control, learning dashboard,
+      // recording): a repeated state would restart their talk counters.
+      if current.talking != talking
       talkingUser <- VoiceUsers.userTalking(liveMeeting.voiceUsers, voiceUserId, talking)
     } yield {
       // Make sure lock settings are in effect
