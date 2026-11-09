@@ -278,6 +278,10 @@ services:
       LIVEKIT_HOST: http://livekit:7880
       LIVEKIT_KEY: ${LIVEKIT_API_KEY:?}
       LIVEKIT_SECRET: ${LIVEKIT_API_SECRET:?}
+      # replaces the image's default list (config/default.yml: Kurento, Freeswitch, mediasoup);
+      # no FreeSWITCH in this setup: without its adapter the sfu stops retrying ESL on
+      # 127.0.0.1:8021 every 5 s
+      MEDIA_SERVER_ADAPTERS: '[{"path":"kurento/kurento.js","name":"Kurento"},{"path":"mediasoup/mediasoup-adapter.js","name":"mediasoup"}]'
 
   html5-client:
     <<: *bbb
