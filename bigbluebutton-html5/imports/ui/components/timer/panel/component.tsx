@@ -215,6 +215,7 @@ const TimerPanelComponent: React.FC<TimerPanelProps> = ({
     <Styled.ButtonWrapper>
       <BBButton
         variant="secondary"
+        className="bbb-action-button bbb-action-button--secondary"
         label={intl.formatMessage(intlMessages.deactivate)}
         onClick={handleDeactivate}
         dataTest="deactivateTimer"
@@ -229,6 +230,7 @@ const TimerPanelComponent: React.FC<TimerPanelProps> = ({
         <Styled.ButtonWrapper>
           <BBButton
             variant="secondary"
+            className="bbb-action-button bbb-action-button--secondary"
             label={intl.formatMessage(intlMessages.reset)}
             onClick={handleReset}
             dataTest="resetTimerStopWatch"
@@ -252,6 +254,7 @@ const TimerPanelComponent: React.FC<TimerPanelProps> = ({
         <Styled.ButtonWrapper>
           <BBButton
             variant="secondary"
+            className="bbb-action-button bbb-action-button--secondary"
             label={intl.formatMessage(intlMessages.reset)}
             onClick={handleReset}
             dataTest="resetTimerStopWatch"
