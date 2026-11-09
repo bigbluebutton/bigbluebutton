@@ -56,10 +56,16 @@ there compares like with like.
   (`*.errors.*`, `*.tracks.*`, `*.upload.*`) and the caption-file routes
   (`textTrack/`). They were recorded from a fresh stack (`make reset`)
   built from this tree that day, with the tap installing
-  `fixtures/recordings/`. On 2026-11-12 the fixtures' links moved to the
-  host `recordings.test`, and the 56 recordings that show them were
-  re-recorded from a fresh stack running packages built from
-  v4.0.x-develop of 2026-11-10; only the host changed in them.
+  `fixtures/recordings/`. On 2026-11-09 the publish, delete and upload cases
+  (`publishRecordings.state.*`, `deleteRecordings.state.*`,
+  `putRecordingTextTrack.{upload,errors}.*`) were recorded again with their
+  side effects: the directory moves, the `*RecordingSysMsg` announcements
+  and the captions inbox. That stack was started fresh (`make reset`) from
+  packages whose build key still matched this tree. The token-expiry case
+  (`textTrack.authz.expiry`) was recorded the same day. On 2026-11-12 the
+  fixtures' links moved to the host `recordings.test`, and the 56 recordings
+  that show them were re-recorded from a fresh stack running packages built
+  from v4.0.x-develop of 2026-11-10; only the host changed in them.
 
 ## Reviewing
 

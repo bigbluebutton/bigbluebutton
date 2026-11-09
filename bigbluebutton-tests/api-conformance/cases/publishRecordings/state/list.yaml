@@ -1,6 +1,7 @@
 # yaml-language-server: $schema=../../../runner/schema/case.schema.json
 # recordID takes a comma-separated list. It's enough that one of the
-# record IDs is found: the others are skipped. Serial, with the recording
+# record IDs is found: the others are skipped, and only the recording found
+# is announced on from-bbb-web-redis-channel. Serial, with the recording
 # put back before and after.
 id: publishRecordings.state.list
 title: publishRecordings publishes the recordings it finds in a list
@@ -17,5 +18,10 @@ steps:
     expect:
       returncode: SUCCESS
       xpath: {/response/recordings/recording/state: published}
+  - bus: {name: PublishedRecordingSysMsg, meetingId: db0c52cbb08b78549a52cb6f29e4d8dc236977bd-1700021600000, within: 3s}
+    select: [$.core.header.name, $.core.body.recordId]
+    expect: {count: 1}
+  - bus: {name: PublishedRecordingSysMsg, meetingId: 0000000000000000000000000000000000000000-1700000000000, within: 3s}
+    expect: {absent: true}
 teardown:
   - restore: {recordings: [db0c52cbb08b78549a52cb6f29e4d8dc236977bd-1700021600000]}

@@ -27,8 +27,11 @@ getRecordings finds a recording by its meeting's ID.
 
 The last four are changed by the cases that use them: each such case
 restores them before and after it runs, and is tagged `serial`. No other
-case may change a recording. A case that adds a recording here changes
-what getRecordings with no filter lists (`getRecordings.all.*`).
+case may change a recording. putRecordingTextTrack leaves its uploads in
+the data directory's `captions/inbox`, named after the record ID, where
+nothing on Tier 1 picks them up; restoring a recording removes them. A
+case that adds a recording here changes what getRecordings with no filter
+lists (`getRecordings.all.*`).
 
 Nothing here is real: the names, IDs, host (`recordings.test`, which no
 server is reached at) and caption text were made up for the suite.

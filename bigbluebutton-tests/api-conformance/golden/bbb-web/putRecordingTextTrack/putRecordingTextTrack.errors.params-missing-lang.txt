@@ -10,3 +10,7 @@ body json
 $.response.message "Missing param lang."
 $.response.messageKey "paramError"
 $.response.returncode "FAILED"
+
+== step 2: fs captions/inbox/*-track.*
+$.found false
+$.path "captions/inbox/*-track.*"

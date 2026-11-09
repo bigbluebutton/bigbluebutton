@@ -11,3 +11,7 @@ body json
 $.response.message "Missing param recordID."
 $.response.messageKey "paramError"
 $.response.returncode "FAILED"
+
+== step 2: fs captions/inbox/*-track.*
+$.found false
+$.path "captions/inbox/*-track.*"

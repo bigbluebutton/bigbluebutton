@@ -62,3 +62,15 @@ body xml
 /response/returncode "FAILED"
 /response/messageKey "notFound"
 /response/message "We could not find recordings"
+
+== step 8: fs unpublished/presentation/db0c52cbb08b78549a52cb6f29e4d8dc236977bd-1700021600000/metadata.xml
+$.found false
+$.path "unpublished/presentation/<sha1(?)>-<time>/metadata.xml"
+
+== step 9: fs unpublished/video/db0c52cbb08b78549a52cb6f29e4d8dc236977bd-1700021600000/metadata.xml
+$.found false
+$.path "unpublished/video/<sha1(?)>-<time>/metadata.xml"
+
+== step 10: bus DeletedRecordingSysMsg select $.core.header.name, $.core.body.recordId
+$.core.body.recordId "<sha1(?)>-<time>"
+$.core.header.name "DeletedRecordingSysMsg"
