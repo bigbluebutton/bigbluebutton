@@ -1,7 +1,8 @@
-# want: 7: steps[0].restore.recordings[0]: '../published' does not match pattern
+# want: 8: steps[0].restore.recordings[0]: '../published' does not match pattern
 id: getRecordings.x.y
 title: t
 endpoint: getRecordings
 class: contract
+tags: [serial]
 steps:
   - restore: {recordings: [../published]}

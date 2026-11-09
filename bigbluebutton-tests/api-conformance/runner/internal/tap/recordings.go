@@ -221,20 +221,31 @@ func (s *Server) installRecordings() error {
 	if err != nil {
 		return err
 	}
+	fail := func(err error) error {
+		rec.root.Close()
+		return err
+	}
+	data, err := s.root.Stat(".")
+	if err != nil {
+		return fail(err)
+	}
+	tree, err := rec.root.Stat(".")
+	if err != nil {
+		return fail(err)
+	}
+	// A restore removes a recording from the data directory before it
+	// copies the tree's, so the tree can't be the data directory.
+	if os.SameFile(tree, data) {
+		return fail(fmt.Errorf("fixture recordings: %s is the data directory: give the fixture tree, e.g. fixtures/recordings", s.cfg.Recordings))
+	}
 	if os.Geteuid() == 0 {
-		st, err := s.root.Stat(".")
-		if err != nil {
-			rec.root.Close()
-			return err
-		}
-		if uid, gid, ok := owner(st); ok {
+		if uid, gid, ok := owner(data); ok {
 			rec.uid, rec.gid = uid, gid
 		}
 	}
 	for _, id := range rec.ids() {
 		if err := rec.restore(s.root, id); err != nil {
-			rec.root.Close()
-			return fmt.Errorf("fixture recordings: installing %s: %w", id, err)
+			return fail(fmt.Errorf("fixture recordings: installing %s: %w", id, err))
 		}
 	}
 	s.rec = rec

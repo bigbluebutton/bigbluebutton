@@ -3,10 +3,13 @@ package steps
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -324,8 +327,9 @@ func TestAbsentLooksToTheEnd(t *testing.T) {
 	}
 }
 
-// A tap with fixture recordings gives the target recordings-fs; a restore
-// step puts a recording back through it. Without them, the cases that need
+// A tap with fixture recordings gives the target recordings-fs. The runner
+// puts every recording back through it before a run, and a restore step
+// puts its recordings back. Without them, the cases that need
 // recordings-fs are skipped.
 func TestRestoreStep(t *testing.T) {
 	r, err := fakeredis.Start()
@@ -342,7 +346,7 @@ func TestRestoreStep(t *testing.T) {
 		t.Fatal(err)
 	}
 	src := []string{
-		"id: getRecordings.x.restore\ntitle: t\nendpoint: getRecordings\nclass: contract\nsteps:\n  - restore: {recordings: [rec-a]}\n" +
+		"id: getRecordings.x.restore\ntitle: t\nendpoint: getRecordings\nclass: contract\ntags: [serial]\nsteps:\n  - restore: {recordings: [rec-a]}\n" +
 			"teardown:\n  - restore: {recordings: [rec-a]}\n",
 		"id: getRecordings.x.reads\ntitle: t\nendpoint: getRecordings\nclass: contract\nrequires: [recordings-fs]\nsteps:\n  - wait: 1ms\n",
 	}
@@ -357,29 +361,55 @@ func TestRestoreStep(t *testing.T) {
 	if got := cases[0].Requires; len(got) != 1 || got[0] != "recordings-fs" {
 		t.Errorf("a restore step requires %v", got)
 	}
-	runWith := func(recordings string) *report.Run {
+	// startTap starts a tap and a runner for it. It also returns the
+	// queries of the restore requests the tap has had so far: the tap
+	// puts every recording back when it starts, so only those show what
+	// the runner did.
+	startTap := func(recordings string) (*Runner, func() []string) {
 		tp, err := tap.Start(tap.Config{Redis: resp.Options{Addr: r.Addr()}, DataDir: data, Recordings: recordings, MaxBytes: 1 << 20, MaxAge: time.Hour})
 		if err != nil {
 			t.Fatal(err)
 		}
-		defer tp.Close()
-		ts := httptest.NewServer(tp)
-		defer ts.Close()
+		t.Cleanup(tp.Close)
+		var mu sync.Mutex
+		var restores []string
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+			if req.URL.Path == "/recordings/restore" {
+				mu.Lock()
+				restores = append(restores, req.URL.RawQuery)
+				mu.Unlock()
+			}
+			tp.ServeHTTP(w, req)
+		}))
+		t.Cleanup(ts.Close)
 		tg := &target.Target{Name: "fake", BaseURL: "http://127.0.0.1:1", APIPrefix: "/bigbluebutton/api/", Salt: salt, DefaultSign: "sha1",
 			TapURL: ts.URL, Capabilities: []string{"bus", "fs", "redis"}}
 		rn, err := NewRunner(tg, "", "test")
 		if err != nil {
 			t.Fatal(err)
 		}
-		return rn.RunAll(context.Background(), cases, 2)
+		return rn, func() []string {
+			mu.Lock()
+			defer mu.Unlock()
+			return slices.Clone(restores)
+		}
 	}
 
-	run := runWith(fixtures)
+	rn, restores := startTap(fixtures)
+	run := rn.RunAll(context.Background(), cases, 2)
 	for _, c := range run.Cases {
 		if c.Status != report.Pass {
 			t.Errorf("with recordings, %s: %s %s", c.ID, c.Status, c.Reason)
 		}
 	}
+	// Every recording before the run, then the restore step's and its
+	// teardown's.
+	if got, want := restores(), []string{"all=1", "id=rec-a", "id=rec-a"}; !slices.Equal(got, want) {
+		t.Errorf("restore requests = %q, want %q", got, want)
+	}
+
+	// A run starts by putting every fixture back, so a case that only
+	// reads sees the tree even after an earlier run left a change behind.
 	moved := filepath.Join(data, "published", "presentation", "rec-a")
 	if err := os.MkdirAll(filepath.Dir(moved), 0o755); err != nil {
 		t.Fatal(err)
@@ -387,28 +417,19 @@ func TestRestoreStep(t *testing.T) {
 	if err := os.Rename(filepath.Join(data, "unpublished", "presentation", "rec-a"), moved); err != nil {
 		t.Fatal(err)
 	}
-	run = runWith(fixtures)
+	run = rn.RunAll(context.Background(), cases[1:], 2)
 	if run.Cases[0].Status != report.Pass {
-		t.Fatalf("restore: %s %s", run.Cases[0].Status, run.Cases[0].Reason)
+		t.Errorf("reads: %s %s", run.Cases[0].Status, run.Cases[0].Reason)
 	}
 	if _, err := os.Stat(moved); err == nil {
-		t.Error("the published copy is still there")
+		t.Error("the run didn't put the fixtures back before it started")
 	}
 	if b, err := os.ReadFile(filepath.Join(data, "unpublished", "presentation", "rec-a", "metadata.xml")); err != nil || string(b) != "a" {
 		t.Errorf("rec-a wasn't put back: %q %v", b, err)
 	}
 
-	// A run starts by putting every fixture back, so a case that only
-	// reads sees the tree even after an earlier run left a change behind.
-	if err := os.Rename(filepath.Join(data, "unpublished", "presentation", "rec-a"), moved); err != nil {
-		t.Fatal(err)
-	}
-	run = runWith(fixtures)
-	if _, err := os.Stat(moved); err == nil {
-		t.Error("the run didn't put the fixtures back before it started")
-	}
-
-	run = runWith("")
+	rn, _ = startTap("")
+	run = rn.RunAll(context.Background(), cases, 2)
 	for _, c := range run.Cases {
 		if c.Status != report.Skip || c.Reason != "target lacks recordings-fs" {
 			t.Errorf("without recordings, %s: %s %s", c.ID, c.Status, c.Reason)
@@ -418,7 +439,7 @@ func TestRestoreStep(t *testing.T) {
 	// A tap that doesn't answer makes them ERROR, not skip.
 	tg := &target.Target{Name: "fake", BaseURL: "http://127.0.0.1:1", APIPrefix: "/bigbluebutton/api/", Salt: salt, DefaultSign: "sha1",
 		TapURL: "http://127.0.0.1:1", Capabilities: []string{"bus", "fs", "redis"}}
-	rn, err := NewRunner(tg, "", "test")
+	rn, err = NewRunner(tg, "", "test")
 	if err != nil {
 		t.Fatal(err)
 	}

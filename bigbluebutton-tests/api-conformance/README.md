@@ -326,7 +326,7 @@ BBB_TAP_TOKEN=$(openssl rand -hex 16) ./bbb-conform tap --listen 10.0.0.5:8099
 | `--channels a,b` | The to-akka-apps, from-akka-apps, from-akka-apps-pres and from-bbb-web redis channels. |
 | `--redis-keys a,b` | `meeting:*,recording:*,captions:*`: globs of the only keys it reads. |
 | `--max-mb N`, `--max-age D` | 128 MiB and 2h: how much of what it saw it keeps. Both must be positive. |
-| `--recordings DIR` | None. A tree of fixture recordings, e.g. `fixtures/recordings`, to write into the data directory at start and restore on request. Needs `--data-dir`. |
+| `--recordings DIR` | None. A tree of fixture recordings, e.g. `fixtures/recordings`, to write into the data directory at start and restore on request. Needs `--data-dir`, and can't be the data directory itself. |
 
 - **Test servers only.** What the tap serves includes the session tokens
   and passwords on the bus. With `BBB_TAP_TOKEN` set in its environment,
@@ -819,7 +819,7 @@ Each step has exactly one step-type key.
 | `redis` | `{key, within}`: a redis key. `expect: {exists, absent, hash, members, ttl}`. | yes |
 | `sink` | `{key, within}`: the requests the target's sink recorded under a key. `expect: {method, path, query, headers, absent, count}`. See [Callbacks and fetches](#callbacks-and-fetches-sink). | yes |
 | `env` | `{action: stop\|start\|restart\|reset, service}`. | not yet |
-| `restore` | `{recordings: [<record ID>, ...]}`: puts [fixture recordings](#fixture-recordings) back as the tree has them, through the tap. Record IDs are written out (a variant var works; a template doesn't). Takes no `expect`, `capture` or `golden`. A case that changes recordings restores them in its first step and in `teardown`, and is tagged `serial`, so the cases that list recordings never see it half done. | yes |
+| `restore` | `{recordings: [<record ID>, ...]}`: puts [fixture recordings](#fixture-recordings) back as the tree has them, through the tap. Record IDs are written out (a variant var works; a template doesn't). Takes no `expect`, `capture` or `golden`. A case that changes recordings restores them in its first step and in `teardown`. A case with a `restore` step must be tagged `serial` (`validate` checks), so the cases that list recordings never see it half done. | yes |
 
 - A case that uses a step type that isn't implemented yet is skipped as
   `unimplemented:<type>`. This is decided before any step runs.

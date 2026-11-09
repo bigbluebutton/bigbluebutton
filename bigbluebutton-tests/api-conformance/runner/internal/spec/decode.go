@@ -227,6 +227,9 @@ func (d *decoder) step(n *yaml.Node, where string) Step {
 	case KindWait:
 		s.Wait = duration(mapGet(n, "wait"))
 	case KindRestore:
+		if !d.serial {
+			d.f.errf(n, "%s: tag a case with restore steps serial: other cases would see its recordings half restored", where)
+		}
 		for _, id := range mapGet(mapGet(n, key), "recordings").Content {
 			s.Restore = append(s.Restore, id.Value)
 		}

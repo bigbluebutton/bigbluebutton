@@ -15,6 +15,13 @@
 # getRecordings finds a recording by its meeting's ID.
 set -eu
 
+# sha1 runs in command substitutions, where a missing sha1sum would leave
+# an empty hash rather than stop the script.
+command -v sha1sum >/dev/null || {
+	echo "make-tree.sh: needs sha1sum" >&2
+	exit 1
+}
+
 here=$(cd "$(dirname "$0")" && pwd)
 host=https://localhost:8443
 

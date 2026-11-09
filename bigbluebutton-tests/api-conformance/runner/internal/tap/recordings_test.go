@@ -166,8 +166,12 @@ func TestRestoreRefuses(t *testing.T) {
 	s, c := startRecordingsTap(t, fixtures, data)
 
 	var te *Error
+	writeTree(t, data, map[string]string{"published/presentation/rec-a/metadata.xml": "changed"})
 	if err := c.Restore(ctx(t), []string{"rec-a", "../published"}); !errors.As(err, &te) || te.Status != http.StatusNotFound {
 		t.Errorf("unknown ID: %v", err)
+	}
+	if readFile(t, data, "published/presentation/rec-a/metadata.xml") != "changed" {
+		t.Error("a refused restore put rec-a back")
 	}
 	if err := c.Restore(ctx(t), nil); !errors.As(err, &te) || te.Status != http.StatusBadRequest {
 		t.Errorf("no ID: %v", err)
@@ -208,5 +212,28 @@ func TestRecordingsTreeChecked(t *testing.T) {
 	}
 	if _, err := Start(Config{Redis: resp.Options{Addr: "127.0.0.1:1"}, Recordings: t.TempDir(), MaxBytes: 1 << 20, MaxAge: time.Hour}); err == nil {
 		t.Error("Start accepted recordings without a data directory")
+	}
+}
+
+// The fixture tree can't be the data directory, under any name: installing
+// would remove each recording from the tree before copying it.
+func TestRecordingsTreeIsntTheDataDirectory(t *testing.T) {
+	dir := t.TempDir()
+	writeTree(t, dir, fixtureTree)
+	link := filepath.Join(t.TempDir(), "link")
+	if err := os.Symlink(dir, link); err != nil {
+		t.Fatal(err)
+	}
+	for _, data := range []string{dir, link} {
+		_, err := Start(Config{Redis: resp.Options{Addr: "127.0.0.1:1"}, DataDir: data, Recordings: dir,
+			MaxBytes: 1 << 20, MaxAge: time.Hour})
+		if err == nil || !strings.Contains(err.Error(), "is the data directory") {
+			t.Errorf("data directory %s: %v", data, err)
+		}
+	}
+	for name, body := range fixtureTree {
+		if readFile(t, dir, name) != body {
+			t.Errorf("%s changed", name)
+		}
 	}
 }
