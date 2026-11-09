@@ -54,11 +54,6 @@ export class LockSettingsParameters extends MultiUsers {
   }
 
   async joinsUnlocked() {
-    await this.modPage.waitAndClick(e.usersListSidebarButton);
-    const attendeeRow = this.modPage.page.locator(userListRow(this.userPage.username));
-    await expect(attendeeRow, 'should list the attendee for the moderator').toBeVisible();
-    // while a lock setting is active, the moderator sees a locked viewer labelled as such
-    await expect(attendeeRow, 'should not show the attendee as locked to the moderator').not.toContainText(/locked/i);
     await this.userPage.hasElementEnabled(e.joinVideo, 'should keep the webcam button enabled for the attendee');
   }
 

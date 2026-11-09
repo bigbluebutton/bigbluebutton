@@ -187,7 +187,8 @@ export function createMeetingUrl(createParameter?: string, customMeetingId?: str
   const meetingID = customMeetingId || `random-${getRandomInt(1000000, 10000000).toString()}`;
   const mp = parameters.moderatorPW;
   const ap = parameters.attendeePW;
-  // bbb-web answers a repeated parameter with HTTP 500, so a default the test sets itself is left out
+  // bbb-web answers a repeated parameter with HTTP 500 (#26359), so the test's own allowStartStopRecording,
+  // autoStartRecording or welcome replaces the default; name, meetingID and the passwords cannot be overridden
   const overridden = new URLSearchParams(createParameter);
   const defaults = ['allowStartStopRecording=true', 'autoStartRecording=false', `welcome=${parameters.welcome}`].filter(
     (pair) => !overridden.has(pair.split('=')[0]),

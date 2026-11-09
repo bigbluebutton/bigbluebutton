@@ -215,6 +215,7 @@ test.describe.parallel('API', () => {
     });
 
     test('joinCustomUserdata', async ({ browser, context, page, request }, testInfo) => {
+      linkIssue(26236);
       const apiParameters = new APIParameters(browser, context);
       await apiParameters.testJoinCustomUserdata(page, testInfo, request);
     });
