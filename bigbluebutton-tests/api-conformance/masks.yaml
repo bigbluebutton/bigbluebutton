@@ -40,7 +40,24 @@ masks:
     as: regex
     regex: '([=/])w_[a-z0-9]{12}(&|$)'
     replace: '${1}w_<id>${2}'
+  # The auth hooks name the user and meeting in headers (cases/connection):
+  # the internal user ID (also the external one when join had no userID),
+  # and the meeting's create time and voice bridge, change from run to run.
+  - field: User-Id
+    as: user-id
+  - field: User-External-Id
+    as: user-id
+  - field: Meeting-Create-Time
+    as: time
+  - field: Voice-Bridge
+    as: random
+  # ...and checkGraphqlAuthorization's JSON body has the user ID too.
+  - field: X-UserId
+    as: user-id
 unordered: []
 scope: []
 drop: []
-headers: []
+# The auth hooks' answer headers, recorded where a response has them.
+headers: [User-Id, Meeting-Id, Voice-Bridge, User-Name, Meeting-Name, Meeting-Create-Time,
+  Meeting-External-Id, User-External-Id, User-Is-Moderator, User-Is-Presenter,
+  User-Notes-Enabled, User-Currently-Online]
