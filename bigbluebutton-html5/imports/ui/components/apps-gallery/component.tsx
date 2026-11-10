@@ -221,7 +221,8 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
               intlMessages.pinnedApps,
               { pinnedCount: pinnedApps.length, maxPinned: effectiveMaxPinnedApps },
             )}
-          </Styled.BoldText>&nbsp;
+          </Styled.BoldText>
+          &nbsp;
           {intl.formatMessage(intlMessages.pinnedAppsContinue)}
         </span>
         {!isMobile && (
