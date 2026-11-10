@@ -1,0 +1,90 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# checkGraphqlAuthorization's User-Notes-Enabled, which bbb-shared-notes-server
+# reads to decide whether a user may edit the shared notes, is true unless the
+# user is a locked viewer and the meeting's lock settings disable notes.
+# Viewers join locked (lockSettingsLockOnJoin). The header follows each
+# change of the lock settings and of a user's lock.
+id: connection.graphql-authz.notes
+title: checkGraphqlAuthorization's notes flag follows the lock settings and user locks
+endpoint: connection
+class: contract
+tags: [ci, presence]
+requires: [akka, presence]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: "Hook test"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: moderator}}
+    golden: off
+    capture: {annToken: $.sessionToken, annId: $.userId}
+  - presence: {action: join, as: bob, args: {meetingID: "${uid}", fullName: Bob, role: viewer}}
+    golden: off
+    capture: {bobToken: $.sessionToken, bobId: $.userId}
+  - route: connection-graphql-authz
+    client: ann
+    headers: {x-session-token: "${annToken}"}
+    golden: off
+    eventually: {within: 10s, every: 200ms, until: {headers: {User-Currently-Online: "true"}}}
+    expect: {headers: {User-Notes-Enabled: "true"}}
+  # Bob is locked, but the meeting doesn't disable notes.
+  - route: connection-graphql-authz
+    client: bob
+    headers: {x-session-token: "${bobToken}"}
+    eventually: {within: 10s, every: 200ms, until: {headers: {User-Currently-Online: "true"}}}
+    expect: {status: 200, headers: {User-Notes-Enabled: "true"}}
+  # The lock settings as shipped, but with notes disabled.
+  - graphql:
+      as: ann
+      query: >-
+        mutation Lock($cam: Boolean!, $mic: Boolean!, $priv: Boolean!, $pub: Boolean!, $notes: Boolean!,
+        $hide: Boolean!, $onJoin: Boolean!, $onJoinConf: Boolean!, $cursor: Boolean!, $annot: Boolean!, $policy: String!)
+        { meetingLockSettingsSetProps(disableCam: $cam, disableMic: $mic, disablePrivChat: $priv, disablePubChat: $pub,
+        disableNotes: $notes, hideUserList: $hide, lockOnJoin: $onJoin, lockOnJoinConfigurable: $onJoinConf,
+        hideViewersCursor: $cursor, hideViewersAnnotation: $annot, presenterPolicy: $policy) }
+      variables: {cam: false, mic: false, priv: false, pub: false, notes: true, hide: false, onJoin: true, onJoinConf: false, cursor: false, annot: false, policy: requireApproval}
+    golden: off
+  - route: connection-graphql-authz
+    client: bob
+    headers: {x-session-token: "${bobToken}"}
+    eventually: {within: 10s, every: 200ms, until: {headers: {User-Notes-Enabled: "false"}}}
+    expect: {status: 200, headers: {User-Notes-Enabled: "false"}}
+  - route: connection-graphql-authz
+    client: ann
+    headers: {x-session-token: "${annToken}"}
+    expect: {status: 200, headers: {User-Notes-Enabled: "true"}}
+  # Unlocking Bob gives him notes back.
+  - graphql:
+      as: ann
+      query: "mutation SetLocked($id: String!, $locked: Boolean!) { userSetLocked(userId: $id, locked: $locked) }"
+      variables: {id: "${bobId}", locked: false}
+    golden: off
+  - route: connection-graphql-authz
+    client: bob
+    headers: {x-session-token: "${bobToken}"}
+    eventually: {within: 10s, every: 200ms, until: {headers: {User-Notes-Enabled: "true"}}}
+    expect: {status: 200, headers: {User-Notes-Enabled: "true"}}
+  # Locking a moderator takes nothing away: wait until bbb-web has heard of
+  # the lock, then ask.
+  - graphql:
+      as: ann
+      query: "mutation SetLocked($id: String!, $locked: Boolean!) { userSetLocked(userId: $id, locked: $locked) }"
+      variables: {id: "${annId}", locked: true}
+    golden: off
+  - bus: {name: UserLockedInMeetingEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+    expect: {jsonpath: {$.core.body.userId: "${annId}", $.core.body.locked: true}}
+  - route: connection-graphql-authz
+    client: ann
+    headers: {x-session-token: "${annToken}"}
+    expect: {status: 200, headers: {User-Notes-Enabled: "true", User-Is-Moderator: "true"}}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

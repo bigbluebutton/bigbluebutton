@@ -1,0 +1,73 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# checkGraphqlAuthorization takes the session token from x-session-token and,
+# like checkAuthorization, wants the HTTP session the user's join set up. It
+# answers 200 with the user and the meeting in headers, which nginx hands on
+# (the GraphQL REST locations, shared notes), and in a JSON body, which
+# bbb-graphql-middleware reads. The variants send what each caller sends;
+# the hook reads none of the X-Original-* headers here.
+#
+# The flags come from the user's state in the meeting, which bbb-web learns
+# from akka-apps once the client enters: for a user who has only joined over
+# HTTP, all four are "false", a moderator's role included.
+id: connection.graphql-authz.valid
+title: checkGraphqlAuthorization authorizes a joined user, asked as ${case}
+endpoint: connection
+class: contract
+tags: [ci]
+requires: [akka]
+variants:
+  - {id: middleware, vars: {case: bbb-graphql-middleware asks, uri: null, method: null, ua: Go-http-client/1.1, accept: null}}
+  - {id: rest, vars: {case: nginx asks for the GraphQL REST locations, uri: /api/rest/meetingStaticData, method: GET, ua: "Mozilla/5.0 (X11; Linux x86_64)", accept: application/json}}
+  - {id: notes, vars: {case: nginx asks for shared notes, uri: /hocuspocus/collaboration, method: GET, ua: "Mozilla/5.0 (X11; Linux x86_64)", accept: null}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: "Hook test"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID, createTime: /response/createTime}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: join
+    client: ann
+    params: {meetingID: "${uid}", fullName: Ann, role: moderator, redirect: "false"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {annToken: /response/session_token, annId: /response/user_id}
+  - route: connection-graphql-authz
+    client: ann
+    headers:
+      x-session-token: "${annToken}"
+      X-Original-URI: "${uri}"
+      X-Original-Method: "${method}"
+      User-Agent: "${ua}"
+      Accept: "${accept}"
+    expect:
+      status: 200
+      headers:
+        Meeting-Id: "${intId}"
+        Meeting-External-Id: "${uid}"
+        User-Id: "${annId}"
+        User-External-Id: "${annId}"
+        User-Name: Ann
+        User-Is-Moderator: "false"
+        User-Is-Presenter: "false"
+        User-Notes-Enabled: "false"
+        User-Currently-Online: "false"
+        Meeting-Name: Hook+test
+        Meeting-Create-Time: "${createTime}"
+        Cache-Control: no-cache
+        Set-Cookie: {absent: true}
+      jsonpath:
+        $.response: authorized
+        $['X-UserId']: "${annId}"
+        $['X-MeetingId']: "${intId}"
+        $['X-Moderator']: "false"
+        $['X-Presenter']: "false"
+        $['X-Currently-Online']: "false"
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

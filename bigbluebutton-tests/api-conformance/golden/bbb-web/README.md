@@ -48,7 +48,9 @@ there compares like with like.
   `end/end.callbacks.expired` were added, and `create.expiry.not-joined-*`
   and `end.callbacks.http-*`, whose steps changed, were re-recorded, from a
   stack started that day from packages whose build key still matched this
-  tree.
+  tree. On 2026-11-10 the auth hook cases (`connection/`, two of them under
+  the alt-defaults profile and one under short-users-timeout) were added the
+  same way, from a stack built from this tree that day.
 
 ## Reviewing
 

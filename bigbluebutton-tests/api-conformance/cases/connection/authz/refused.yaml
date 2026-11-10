@@ -1,0 +1,44 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# checkAuthorization answers 401 "unauthorized", with no user headers, when
+# X-Original-URI's query has no live session token in its sessionToken param.
+# (connection.authz.session has the live token without the join's session.)
+id: connection.authz.refused
+title: checkAuthorization refuses ${case}
+endpoint: connection
+class: contract
+tags: [ci]
+requires: [akka]
+variants:
+  - {id: no-header, vars: {case: a request without X-Original-URI, client: nobody, uri: null}}
+  - {id: empty-header, vars: {case: an empty X-Original-URI, client: nobody, uri: ""}}
+  - {id: no-query, vars: {case: a URI without a query, client: ann, uri: /bbb-webrtc-sfu}}
+  - {id: no-param, vars: {case: a query without sessionToken, client: ann, uri: "/bbb-webrtc-sfu?a=1"}}
+  - {id: empty-token, vars: {case: an empty sessionToken, client: ann, uri: "/bbb-webrtc-sfu?sessionToken="}}
+  - {id: unknown-token, vars: {case: a token it never issued, client: ann, uri: "/bbb-webrtc-sfu?sessionToken=0000000000000000"}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: "Hook test"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: join
+    client: ann
+    params: {meetingID: "${uid}", fullName: Ann, role: moderator, redirect: "false"}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - route: connection-authz
+    client: "${client}"
+    headers: {X-Original-URI: "${uri}"}
+    expect:
+      status: 401
+      body: unauthorized
+      headers: {User-Id: {absent: true}, Meeting-Id: {absent: true}}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

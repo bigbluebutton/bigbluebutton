@@ -1,0 +1,59 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A user who leaves the meeting keeps a live session token: checkAuthorization
+# still answers 200, and checkGraphqlAuthorization too, but says the user is
+# no longer online. Ann stays, and the meeting would outlive its last user
+# for ten minutes, so the meeting itself goes on.
+id: connection.graphql-authz.left
+title: checkGraphqlAuthorization says a user who left is no longer online
+endpoint: connection
+class: contract
+tags: [ci, presence]
+requires: [akka, presence]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: "Hook test", meetingExpireWhenLastUserLeftInMinutes: "10"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: moderator}}
+    golden: off
+  - presence: {action: join, as: bob, args: {meetingID: "${uid}", fullName: Bob, role: viewer}}
+    golden: off
+    capture: {bobToken: $.sessionToken, bobId: $.userId}
+  - route: connection-graphql-authz
+    client: bob
+    headers: {x-session-token: "${bobToken}"}
+    golden: off
+    eventually: {within: 10s, every: 200ms, until: {headers: {User-Currently-Online: "true"}}}
+    expect: {headers: {User-Currently-Online: "true"}}
+  - presence: {action: leave, as: bob}
+    golden: off
+  # akka-apps tells bbb-web at its next check of the users, 10 to 20 seconds on.
+  - route: connection-graphql-authz
+    client: bob
+    headers: {x-session-token: "${bobToken}"}
+    eventually: {within: 25s, every: 500ms, until: {headers: {User-Currently-Online: "false"}}}
+    expect:
+      status: 200
+      headers:
+        User-Id: "${bobId}"
+        User-Currently-Online: "false"
+        User-Is-Moderator: "false"
+        Meeting-Name: Hook+test
+      jsonpath: {$.response: authorized, "$['X-Currently-Online']": "false"}
+  - route: connection-authz
+    client: bob
+    headers: {X-Original-URI: "/bbb-webrtc-sfu?sessionToken=${bobToken}"}
+    expect:
+      status: 200
+      body: authorized
+      headers: {User-Id: "${bobId}"}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

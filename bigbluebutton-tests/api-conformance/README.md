@@ -19,7 +19,8 @@ runner/                  the bbb-conform Go module
   schema/case.schema.json  the case format, as JSON Schema
   testdata/cases/          worked examples of every feature
   testdata/smoke/          a quick check of a live server
-cases/<area>/<group>/    the suite's cases, e.g. cases/common/checksum/ or cases/join/guest/
+cases/<area>/<group>/    the suite's cases, e.g. cases/common/checksum/, cases/join/guest/ or
+                           cases/connection/authz/ (the nginx auth hooks)
 fixtures/                files cases refer to or the sink serves (bodies, presentations, plugins)
 golden/<target>/         reviewed recordings of what a server answered
 masks.yaml               extra normalization rules for diff and recordings
@@ -113,7 +114,6 @@ routes:
   param is an error; params the path doesn't use are ignored.
 - `base` (or the variable `baseEnv` names) replaces `baseUrl`, for routes such
   as the nginx-internal hooks that cases call on bbb-web directly.
-- A case is skipped as `not-routed` if the target doesn't map one of its
 - A step on such a route is sent as nginx sends an `auth_request`
   subrequest, which carries the browser's cookies:
   - it carries the cookies its `client` holds for the same path under
@@ -122,6 +122,7 @@ routes:
     never reaches the browser (the recording still shows them);
   - a `Cookie` in the step's `headers` replaces the client's cookies, and
     an empty one sends none. A fresh `client` sends none either.
+- A case is skipped as `not-routed` if the target doesn't map one of its
   routes, or if the route's `baseEnv` is unset.
 - A route may name a path the server no longer serves, so that a case can
   check it stays gone.

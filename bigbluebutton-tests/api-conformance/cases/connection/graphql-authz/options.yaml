@@ -1,0 +1,51 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# nginx passes the browser's request method as X-Original-Method. For a
+# CORS preflight, OPTIONS (in capitals), checkGraphqlAuthorization answers
+# 200 "graphql-success" without looking at the session token, and names no
+# user. Any other value goes through the usual checks.
+id: connection.graphql-authz.options
+title: checkGraphqlAuthorization lets an OPTIONS request through without a session token
+endpoint: connection
+class: contract
+tags: [ci]
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: "Hook test"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: join
+    client: ann
+    params: {meetingID: "${uid}", fullName: Ann, role: moderator, redirect: "false"}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - route: connection-graphql-authz
+    client: ann
+    headers: {X-Original-URI: /api/rest/meetingStaticData, X-Original-Method: OPTIONS}
+    expect:
+      status: 200
+      body: graphql-success
+      headers: {User-Id: {absent: true}}
+  - route: connection-graphql-authz
+    client: ann
+    headers: {X-Original-URI: /api/rest/meetingStaticData, X-Original-Method: OPTIONS, x-session-token: "0000000000000000"}
+    expect:
+      status: 200
+      body: graphql-success
+      headers: {User-Id: {absent: true}}
+  - route: connection-graphql-authz
+    client: ann
+    headers: {X-Original-URI: /api/rest/meetingStaticData, X-Original-Method: options, x-session-token: "0000000000000000"}
+    expect:
+      status: 401
+      jsonpath: {$.response: unauthorized}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}
