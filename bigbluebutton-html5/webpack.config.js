@@ -1,5 +1,6 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
@@ -22,6 +23,11 @@ process.stdout.write(`Building: ${process.env.TARGET}\n`);
 // map under the bundle's file name. A new name per rebuild would keep every
 // old bundle and map (~100 MB each) in the cache until maxAge.
 const bundleFilename = env === prodEnv ? 'bundle.[fullhash].js' : 'bundle.js';
+
+// Dev builds: the hash of each script the page loads, by file name. main.html
+// puts it in the script's URL, and the dev server lets the browser keep a URL
+// whose hash is the current one (see devScripts and devServer.headers).
+const devScriptHashes = new Map();
 
 const config = {
   entry: './client/main.tsx',
@@ -83,8 +89,13 @@ const config = {
           bundleHash: fullhash,
           isProduction: env === prodEnv,
           // Dev builds split the page's code into several files (see
-          // splitChunks below); main.html loads each one of them
-          devScripts: env === prodEnv ? [] : assets.js,
+          // splitChunks below); main.html loads each one of them, with a hash
+          // of its bytes in the URL
+          devScripts: env === prodEnv ? [] : assets.js.map((file) => {
+            const content = compilation.getAsset(file).source.buffer();
+            devScriptHashes.set(file, crypto.createHash('sha1').update(content).digest('hex'));
+            return `${file}?contenthash=${devScriptHashes.get(file)}`;
+          }),
         };
       },
     }),
@@ -261,6 +272,15 @@ if (env === prodEnv) {
     devMiddleware: {
       etag: 'strong',
       cacheControl: 'no-cache',
+    },
+    // A script URL with the hash of the file's current bytes never serves
+    // anything else, so the browser can keep it and not ask again: a page
+    // load then makes no request for a script that did not change. A URL
+    // with any other hash is left to revalidate, like every other file.
+    headers: (req) => {
+      const { pathname, searchParams } = new URL(req.url, 'http://localhost');
+      const current = devScriptHashes.get(pathname.slice(1)) === searchParams.get('contenthash');
+      return current ? { 'Cache-Control': 'public, max-age=31536000, immutable' } : {};
     },
     client: {
       overlay: false,

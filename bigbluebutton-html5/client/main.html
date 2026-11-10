@@ -282,8 +282,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
               script.src = 'bundle.' + bundleHash + '.js';
             } else {
               // Dev builds split the code into several files, and the bundle
-              // comes last (see webpack.config.js). Revalidation keeps them
-              // fresh, so the names need no build hash.
+              // comes last (see webpack.config.js). Each URL carries a hash of
+              // the file's content, so it changes only when the file does.
               var devScripts = <%= JSON.stringify(devScripts) %>;
               for (var i = 0; i < devScripts.length - 1; i += 1) {
                 var part = document.createElement('script');
