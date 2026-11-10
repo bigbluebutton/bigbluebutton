@@ -110,6 +110,8 @@ const handleSharedNotesCreate = async (header: MessageHeader, body: MessageBody)
 
   const padId = `${documentNamePrefix}${meetingId}`;
 
+  logger.info('Shared notes create request received', { padId, externalId, meetingId });
+
   const hasInitialContentJson = initialContentJson !== undefined
     && initialContentJson !== null
     && typeof initialContentJson === "object"
@@ -152,6 +154,7 @@ const handleSharedNotesCreate = async (header: MessageHeader, body: MessageBody)
     }
   }
 
+  logger.info('Sending shared notes created reply', { padId, externalId, meetingId });
   sender.send('sharedNotesCreated', meetingId, { padId, externalId, model });
 };
 
