@@ -476,7 +476,6 @@ These changes apply to the client configuration file (`/etc/bigbluebutton/bbb-ht
 - `public.chat.toolbar` now includes a `pin` option (for pinning chat messages).
 - `public.layout.showParticipantsOnLogin` default changed from `true` to `false`.
 - `public.layout.syncCameraDockSizeAndPosition` default changed from `false` to `true`.
-- The default layout under `defaultSettings` moved from `application.selectedLayout: 'custom'` to `layout.selectedLayout: 'unified'` (with `pushLayout` now nested under `layout`).
 - `public.user.label` gained `presenter` and `bot` entries (both default `true`), and `moderator` default changed from `false` to `true`.
 - `public.media.audio.defaultFullAudioBridge` and `public.media.audio.defaultListenOnlyBridge` defaults changed from `fullaudio` to `livekit`, aligning the client fallbacks with LiveKit as the default media framework. (`defaultFullAudioBridge` is superseded by the `audioBridge` create/property setting; both keys are marked deprecated.)
 - `public.app.defaultSettings.application.pushToTalkEnabled` default changed from `false` to `true` - push-to-talk (hold `M` to stay unmuted, added in BBB 3.0) is now enabled by default.
@@ -488,6 +487,7 @@ These changes apply to the client configuration file (`/etc/bigbluebutton/bbb-ht
 #### Removed
 
 - `public.layout.showPushLayoutButton`, `public.layout.showPushLayoutToggle`, and `public.layout.enableDeprecatedLayoutSelection`.
+- `public.app.defaultSettings.layout.selectedLayout` and `public.app.defaultSettings.layout.pushLayout` (in BBB 3.0: `public.app.defaultSettings.application.selectedLayout` / `pushLayout`), removed in BBB 4.0.3. Neither had an effect: the layout a client starts in is the meeting's - `defaultMeetingLayout` in `/etc/bigbluebutton/bbb-web.properties`, `meetingLayout` on `/create`, `userdata-bbb_default_layout` or `enforceLayout` on `/join` - and the "Update to everyone" toggle that `pushLayout` defaulted went with the layout selection modal. An `/etc/bigbluebutton/bbb-html5.yml` that still sets them gets an unknown-key warning from bbb-apps-akka (an error with `clientSettingsOverrideStrictValidation=true`).
 - `public.stats.log` (replaced by `public.stats.logMediaStats`).
 - `public.app.defaultSettings.application.audioWasmProcessing` and the commented-out `public.app.defaultSettings.application.microphoneConstraints` example - superseded by `public.app.defaultSettings.audio.processingMode` and `public.media.audio.microphoneConstraints` (see [Dedicated Audio settings tab](#dedicated-audio-settings-tab)).
 - The SIP.js / legacy-audio client settings, removed together with the SIP.js audio bridge now that LiveKit is the default audio path. Under `public.media`: `callTransferTimeout`, `callHangupTimeout`, `callHangupMaximumRetries`, `iceGatheringTimeout`, `audioConnectionTimeout`, `audioReconnectionDelay`, `audioReconnectionAttempts`, `sipjsHackViaWs`, `sipjsAllowMdns`, `sip_ws_host`, `websocketKeepAliveInterval`, `websocketKeepAliveDebounce`, `traceSip`, `sdpSemantics`; plus `public.app.ipv4FallbackDomain`. Any of these still set in `bbb-html5.yml` are now silently ignored.

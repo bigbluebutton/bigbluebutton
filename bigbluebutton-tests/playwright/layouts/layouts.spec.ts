@@ -179,9 +179,6 @@ test.describe.parallel('Unified Layout - phone landscape propagation', { tag: '@
           createParameter: 'meetingLayout=UNIFIED_LAYOUT',
           joinParameter: 'userdata-bbb_auto_join_audio=false',
           shouldCloseAudioModal: false,
-          clientSettingsOverrides: {
-            public: { app: { defaultSettings: { layout: { pushLayout: true } } } },
-          },
           testInfo,
         });
         await layouts.phoneLandscapePublishesFinitePresentationVideoRate();
@@ -205,9 +202,6 @@ test.describe.parallel('Unified Layout - phone landscape propagation', { tag: '@
           createParameter: 'meetingLayout=UNIFIED_LAYOUT',
           joinParameter: 'userdata-bbb_auto_join_audio=false',
           shouldCloseAudioModal: false,
-          clientSettingsOverrides: {
-            public: { app: { defaultSettings: { layout: { pushLayout: true } } } },
-          },
           testInfo,
         });
         await layouts.phoneLandscapeKeepsTheMeetingCameraDock();
@@ -230,9 +224,6 @@ test.describe.parallel('Unified Layout - server layout rate validation', { tag: 
         createParameter: 'meetingLayout=UNIFIED_LAYOUT',
         joinParameter: 'userdata-bbb_auto_join_audio=false',
         shouldCloseAudioModal: false,
-        clientSettingsOverrides: {
-          public: { app: { defaultSettings: { layout: { pushLayout: true } } } },
-        },
         testInfo,
       });
       await layouts.initUserPage(context, {
@@ -282,4 +273,33 @@ test.describe.parallel('Unified Layout - viewer video pagination', { tag: '@nigh
       await layouts.viewerPaginationAtServerDefaults();
     },
   );
+});
+
+test.describe.parallel('Layout defaults come from the meeting', { tag: '@nightly' }, () => {
+  test('An override of the removed defaultSettings.layout keys changes nothing', async ({ browser }, testInfo) => {
+    // The values a client that still read the keys would start from: the presentation-only
+    // layout renders the client without the audio prompt, the actions bar and the sidebars.
+    // The audio modal is left open for the page object, which asserts it before closing it.
+    const staleLayoutDefaults = {
+      public: { app: { defaultSettings: { layout: { selectedLayout: 'presentationOnly', pushLayout: true } } } },
+    };
+    const context = await browser.newContext({ recordVideo: { dir: 'test-results/' } });
+    try {
+      const layouts = new Layouts(browser, context);
+      const page = await context.newPage();
+      await layouts.initModPage(page, {
+        createParameter: 'meetingLayout=UNIFIED_LAYOUT',
+        clientSettingsOverrides: staleLayoutDefaults,
+        shouldCloseAudioModal: false,
+        testInfo,
+      });
+      await layouts.initUserPage(context, {
+        clientSettingsOverrides: staleLayoutDefaults,
+        shouldCloseAudioModal: false,
+      });
+      await layouts.meetingLayoutAppliesDespiteClientLayoutDefaults();
+    } finally {
+      await context.close();
+    }
+  });
 });
