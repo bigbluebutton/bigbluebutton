@@ -81,6 +81,14 @@ test('captionSubmitText enforces the transcriptId length cap', () => {
   rejects(submit({ transcriptId: 'x'.repeat(MAX_TRANSCRIPT_ID_LENGTH + 1) }));
 });
 
+// akka-apps drops a transcriptId outside [A-Za-z0-9_-]; the action refuses it with an error.
+test('captionSubmitText rejects a transcriptId that is not alphanumeric', () => {
+  accepts(submit({ transcriptId: 'w_abcdefghijkl-1762800000000' }));
+  for (const transcriptId of ['', '../x', 'a b', 'a/b', '<b>', 'id;drop', 'a.b']) {
+    rejects(submit({ transcriptId }));
+  }
+});
+
 test('captionSubmitText rejects out-of-range and inverted offsets', () => {
   accepts(submit({ start: 0, end: MAX_TRANSCRIPT_LENGTH }));
   rejects(submit({ start: -1, end: 0 }));

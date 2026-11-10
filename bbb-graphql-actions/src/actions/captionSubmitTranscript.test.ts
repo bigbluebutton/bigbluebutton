@@ -65,6 +65,12 @@ test('captionSubmitTranscript enforces the shared ceiling and id cap', () => {
   rejects(submit({ transcriptId: 'x'.repeat(MAX_TRANSCRIPT_ID_LENGTH + 1) }));
 });
 
+test('captionSubmitTranscript rejects a transcriptId that is not alphanumeric', () => {
+  for (const transcriptId of ['', '../x', 'a b', '<b>']) {
+    rejects(submit({ transcriptId }));
+  }
+});
+
 test('captionSubmitTranscript rejects malformed locales', () => {
   accepts(submit({ locale: 'pt-BR' }));
   rejects(submit({ locale: '' }));

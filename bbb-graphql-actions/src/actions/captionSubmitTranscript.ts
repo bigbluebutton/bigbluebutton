@@ -2,6 +2,7 @@
 import {
   throwErrorIfInvalidInput,
   throwErrorIfInvalidLocale,
+  throwErrorIfInvalidCaptionId,
   throwErrorIfNotModerator,
   throwErrorIfStringTooLong,
 } from '../imports/validation';
@@ -24,6 +25,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
 
   throwErrorIfInvalidLocale(input.locale);
   throwErrorIfStringTooLong('transcriptId', input.transcriptId, MAX_TRANSCRIPT_ID_LENGTH);
+  throwErrorIfInvalidCaptionId('transcriptId', input.transcriptId);
   throwErrorIfStringTooLong('transcript', input.transcript, MAX_TRANSCRIPT_LENGTH);
 
   const routing = {
