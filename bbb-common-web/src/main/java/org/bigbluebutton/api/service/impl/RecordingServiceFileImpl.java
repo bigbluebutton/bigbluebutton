@@ -502,7 +502,7 @@ public class RecordingServiceFileImpl implements RecordingService {
         for (String aFormat : format) {
             List<File> recordings = getDirectories(path + File.separatorChar + aFormat);
             for (File recording : recordings) {
-                if (recording.getName().equalsIgnoreCase(recordingId)) {
+                if (recording.getName().equals(recordingId)) {
                     exists = true;
                     File dest;
                     if (state.equals(Recording.STATE_PUBLISHED)) {
