@@ -11,6 +11,7 @@ import { renderMathForPdf } from '../../common/math';
 const TWEMOJI_SVG_DIR = path.join(process.cwd(), 'assets/twemoji/svg');
 
 const PDF_MAGIC = Buffer.from('%PDF-');
+const PDF_EOF = Buffer.from('%%EOF');
 const logger = new Logger('exportDocumentToPdf');
 
 /**
@@ -136,6 +137,10 @@ function convertThroughSocket(socketPath: string, html: string, timeoutMs: numbe
       // The service sends nothing back when the conversion fails or hits its time limit
       if (!pdf.subarray(0, PDF_MAGIC.length).equals(PDF_MAGIC)) {
         reject(new Error(`PDF conversion returned no PDF (${pdf.length} bytes)`));
+        return;
+      }
+      if (!pdf.subarray(-1024).includes(PDF_EOF)) {
+        reject(new Error(`PDF conversion returned a truncated PDF (${pdf.length} bytes)`));
         return;
       }
       resolve(pdf);

@@ -7,7 +7,10 @@ CollectMode=inactive-or-failed
 # `systemctl edit bbb-shared-notes-conversion@.service`; keep RuntimeMaxSec equal
 # to commandExecution.timeout of bbb-shared-notes-server.
 [Service]
-# wkhtmltopdf cannot write the PDF to stdout, so it goes through the private /tmp
+# wkhtmltopdf writes `-` by opening /dev/stdout, which fails when stdout is a socket,
+# so the PDF goes through the private /tmp. Its exit status is ignored on purpose:
+# it exits 1 but still writes a complete PDF when a blocked resource (file:// image,
+# remote stylesheet, iframe) is skipped.
 ExecStart=/bin/sh -c 'wkhtmltopdf -q --disable-local-file-access --encoding utf-8 --dpi 96 --page-size A4 --margin-top 0mm --margin-bottom 0mm --margin-left 0mm --margin-right 0mm --print-media-type --background --no-header-line - /tmp/out.pdf >/dev/null; cat /tmp/out.pdf'
 StandardInput=socket
 StandardOutput=socket

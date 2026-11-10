@@ -12,6 +12,8 @@ commandExecution:
   workDir: /tmp/shared-notes-dropbox/
   # Socket of bbb-shared-notes-conversion.socket, which converts HTML to PDF
   conversionSocket: /run/bbb-shared-notes-conversion.sock
+  # Seconds. The conversion service has its own limit (RuntimeMaxSec=30): raise both,
+  # the other with `systemctl edit bbb-shared-notes-conversion@.service`
   timeout: 30
 
 bbbWeb:
