@@ -10,7 +10,7 @@ import { defineMessages, useIntl } from 'react-intl';
 import CustomLogo from './custom-logo/component';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import PinnedApps from './pinned-apps/component';
-import SIDEBAR_BUTTONS_REGISTRY, { APPS_GALLERY_BUTTON_ID, PINNED_APPS_BUTTON_ID } from './buttons-registry';
+import SIDEBAR_BUTTONS_REGISTRY, { PINNED_APPS_BUTTON_ID } from './buttons-registry';
 import { SidebarNavigation as SidebarNavigationInput } from '../layout/layoutTypes';
 import getSettingsSingletonInstance from '/imports/ui/services/settings';
 import { PANELS } from '/imports/ui/components/layout/enums';
@@ -174,21 +174,6 @@ const SidebarNavigation = ({
     return <ButtonComponent key={buttonId} />;
   }, [sidebarNavigationInput]);
 
-  // A section only counts as having content if one of its buttons renders
-  // something, so no separator is left around an empty one: the apps gallery
-  // button is hidden when there are no apps, the pinned apps can be none, and an
-  // unknown button id renders nothing.
-  const { registeredApps = {}, pinnedApps = [] } = sidebarNavigationInput;
-  const hasRegisteredApps = Object.keys(registeredApps).length > 0;
-  const isButtonRendered = (buttonId: string) => {
-    if (buttonId === PINNED_APPS_BUTTON_ID) return pinnedApps.length > 0;
-    if (buttonId === APPS_GALLERY_BUTTON_ID) return hasRegisteredApps;
-    return Boolean(SIDEBAR_BUTTONS_REGISTRY[buttonId]);
-  };
-  const hasTopContent = showBrandingArea || topButtons.some(isButtonRendered);
-  const hasCenterContent = centerButtons.some(isButtonRendered);
-  const hasBottomContent = bottomButtons.some(isButtonRendered);
-
   return (
     <Styled.NavigationSidebarBackdrop
       className={cx('bbb-navigation', { 'bbb-navigation--collapsed': !isExpanded })}
@@ -243,17 +228,13 @@ const SidebarNavigation = ({
             {topButtons.map((buttonId) => renderButton(buttonId))}
           </Styled.Top>
 
-          {hasTopContent && hasCenterContent && (
-            <Styled.Separator className="bbb-navigation__separator" />
-          )}
+          <Styled.Separator className="bbb-navigation__separator" />
 
           <Styled.Center>
             {centerButtons.map((buttonId) => renderButton(buttonId))}
           </Styled.Center>
 
-          {hasCenterContent && hasBottomContent && (
-            <Styled.Separator className="bbb-navigation__separator" />
-          )}
+          <Styled.Separator className="bbb-navigation__separator" />
 
           <Styled.Bottom>
             {bottomButtons.map((buttonId) => renderButton(buttonId))}
