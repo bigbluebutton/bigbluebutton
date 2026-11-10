@@ -1669,7 +1669,14 @@ To move the whole range in one go, `sudo bbb-conf --set-port-range <min>-<max>` 
 </beans>
 ```
 
-The override file persists on its own, so it does not have to be rewritten from [apply-config.sh](#preserving-customizations-using-apply-configsh).
+The override file persists on its own, so it does not have to be rewritten on every run of [apply-config.sh](#preserving-customizations-using-apply-configsh). If you keep all your customizations in that script anyway, write the file from there with a heredoc:
+
+```bash
+echo "  - Update TURN server configuration turn-stun-servers.xml"
+cat <<HERE > /etc/bigbluebutton/turn-stun-servers.xml
+<the XML shown above>
+HERE
+```
 
 ### HTML5 client
 
@@ -1789,7 +1796,7 @@ nginx serves the client through `/usr/share/bigbluebutton/nginx/bbb-html5.nginx.
 $ sudo sh -c "sed 's|/html5client|/NEW_PATH|g' /usr/share/bigbluebutton/nginx/bbb-html5.nginx.static > /etc/bigbluebutton/nginx/html5-client-path.nginx"
 ```
 
-The shipped `/html5client` locations stay in place next to the new ones; to remove them, see [the nginx override mechanism](/administration/configuration-files#nginx).
+Keep the shipped `/html5client` locations in place next to the new ones. Parts of BigBlueButton use the default path whatever `basename` says: the Advanced Filtering audio processor loads its WASM files from `/html5client/wasm/`, the learning dashboard loads its locale files from `/html5client/locales/`, and the `bbb-web` properties `defaultAvatarURL`, `defaultBotAvatarURL` and `defaultWebcamBackgroundURL` point to `/html5client/resources/` unless you change them in `/etc/bigbluebutton/bbb-web.properties`.
 
 Then point `bbb-web` at the new path in `/etc/bigbluebutton/bbb-web.properties`:
 
@@ -1965,7 +1972,7 @@ useDefaultDarkLogo=true
 defaultDarkLogoURL=${bigbluebutton.web.serverURL}/site/darklogo.png
 ```
 
-Restart BigBlueButton with `sudo bbb-conf --restart` afterwards.
+Restart BigBlueButton with `sudo bbb-conf --restart` afterwards. Like the per-meeting `logo`, the default logo is shown only while `public.app.branding.displayBrandingArea` is `true` in `/etc/bigbluebutton/bbb-html5.yml`, which is the shipped default.
 
 ### Other meeting configs available
 These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table is synced with [`bigbluebutton.properties`](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/bigbluebutton-web/grails-app/conf/bigbluebutton.properties); items marked _`overwritable`_ can be replaced per meeting through the matching [`/create`](/development/api/#get-post-create) parameter.
