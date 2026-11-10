@@ -169,8 +169,8 @@ Administration:
 
 | Name                    | Path (file)                                                 | Description |
 | :-----------------------| :-----------------------------------------------------------| :-----------|
-| webcamsOnlyForModerator | /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties | If true, only the moderator's cam will be showed in playback depending on how the `show_moderator_viewpoint`. It can be changed in the ongoing meeting|
-| show_moderator_viewpoint | /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | If false, the viewer's point of view will be showed, meaning that if the above property is set to true, only the moderator's camera will be displayed. |
+| webcamsOnlyForModerator | /etc/bigbluebutton/bbb-web.properties (override of /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties) | If true, only the moderator's cam will be showed in playback depending on how the `show_moderator_viewpoint`. It can be changed in the ongoing meeting|
+| show_moderator_viewpoint | /etc/bigbluebutton/recording/recording.yml (override of /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml) | If false, the viewer's point of view will be showed, meaning that if the above property is set to true, only the moderator's camera will be displayed. |
 
 
 #### Useful terms
@@ -758,7 +758,7 @@ Once the meeting has finished, an **_X_** should appear under **R**. If it doesn
 
 - all users left the meeting.
 
-- the parameter `meetingExpireWhenLastUserLeftInMinutes` in `/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties` is not set to a big value (defaults to 1).
+- the `bbb-web` property `meetingExpireWhenLastUserLeftInMinutes` (default 1, set in `/etc/bigbluebutton/bbb-web.properties`) is not set to a big value.
 
 - the parameter `record=true` was passed in the `create` API call; if not, the meeting was not recorded.
 

@@ -305,7 +305,7 @@ The BigBlueButton server processes recordings as meetings finish: `bbb-rap-start
 
 #### Allow all recordings to be returned
 
-The configuration property `allowFetchAllRecordings` in `bigbluebutton.properties` determines whether every recording on the server can be returned in a single response from a `getRecordings` call. By default this property is set to `true`. On a server with a large number of recordings an attempt to return every recording in a single response can cause a large amount of load on the server and therefore it is advised that this property be switched to `false`. When this is done any request to `getRecordings` that does not specify any recording or meeting IDs as well as no pagination parameters will return no recordings to prevent all recordings from being returned.
+The `bbb-web` property `allowFetchAllRecordings` determines whether every recording on the server can be returned in a single response from a `getRecordings` call. By default this property is set to `true`. On a server with a large number of recordings an attempt to return every recording in a single response can cause a large amount of load on the server and therefore it is advised that this property be switched to `false` in `/etc/bigbluebutton/bbb-web.properties`. When this is done any request to `getRecordings` that does not specify any recording or meeting IDs as well as no pagination parameters will return no recordings to prevent all recordings from being returned.
 
 #### Increase the number of recording workers
 
@@ -356,7 +356,7 @@ The processing scripts and playback support files for these recording formats ca
 
 There is currently an issue where the recording formats are not automatically enabled when they are installed - see [#12241](https://github.com/bigbluebutton/bigbluebutton/issues/12241) for details.
 
-In order to enable the recording formats manually, you need to edit the file `/usr/local/bigbluebutton/core/scripts/bigbluebutton.yml`. Look for the section named `steps:`. In this section, the recording processing workflow is defined, including what recording processing steps are performed, and what order they need to be performed in. To ensure that your modifications are not lost when a new version of the packages is installed, you can [create the file and] write your changes to `/etc/bigbluebutton/recording/recording.yml`.
+To enable the recording formats manually, set the `steps:` section in the override file `/etc/bigbluebutton/recording/recording.yml` (create the directory and the file if they do not exist yet). The defaults are in `/usr/local/bigbluebutton/core/scripts/bigbluebutton.yml`; do not edit that file, it is replaced when the packages are upgraded. The `steps:` section defines the recording processing workflow: which recording processing steps are performed, and in what order. A `steps:` section in the override replaces the shipped one as a whole, so list every step in it, not only the ones you add.
 
 To enable a new recording format, you need to add a new step named `process:formatname` that runs after the step named captions, and a new step named `publish:formatname` that runs after `process:formatname`. You may have to convert some of the steps to list format.
 
@@ -418,7 +418,7 @@ By default, the `presentation` and `screenshare` recording formats generate thei
 
 **`video`**
 
-The `video` format already produces an `.mp4` (H.264) file by default. To generate a `.webm` file as well, edit `/usr/local/bigbluebutton/core/scripts/video.yml` and uncomment the `video/webm` entry under `formats:`.
+The `video` format already produces an `.mp4` (H.264) file by default. To generate a `.webm` file as well, add the `video/webm` entry to `formats:` of the preset you use (`720p` by default) in the override file `/etc/bigbluebutton/recording/video.yml`. A preset in the override replaces the shipped preset of the same name as a whole, so copy the complete preset (`layout`, `layouts` and `formats`) from `/usr/local/bigbluebutton/core/scripts/video.yml`, where the `video/webm` entry is present but commented out, into the override and uncomment it there. Settings outside `presets:` (for example `default_preset`) can be set in the override on their own.
 
 The encoding options can be adjusted to speed up encoding or increase quality of video generation as desired.
 
@@ -434,7 +434,7 @@ video_formats:
 
 **`screenshare`**
 
-Edit the file `/usr/local/bigbluebutton/core/scripts/screenshare.yml` and uncomment the lines under the `:formats:` label for the mime type `video/mp4`:
+Edit the file `/usr/local/bigbluebutton/core/scripts/screenshare.yml` and uncomment the lines under the `:formats:` label for the mime type `video/mp4`. This file has no override under `/etc/bigbluebutton` and is replaced when `bbb-playback-screenshare` is upgraded, so re-apply the change after an upgrade, for example from [apply-config.sh](#preserving-customizations-using-apply-configsh):
 
 ```yml
   - :mimetype: 'video/mp4; codecs="avc1.640028, mp4a.40.2"'
@@ -451,33 +451,35 @@ The encoding options can be adjusted to speed up encoding or increase quality of
 
 #### Reduce bandwidth from webcams
 
-You can use a bandwidth usage on your BigBlueButton server using a tool such as `bmon` (`sudo apt-get install bmon`). You can change the maximum bandwidth settings for each webcam options (low, medium, high, high definition) by editing `/usr/share/bigbluebutton/html5-client/private/config/settings.yml` and modifying the entries for
+You can monitor the bandwidth usage on your BigBlueButton server using a tool such as `bmon` (`sudo apt-get install bmon`). You can change the maximum bandwidth settings for each webcam option (low, medium, high, high definition) through `public.kurento.cameraProfiles` in `/etc/bigbluebutton/bbb-html5.yml`, the override of the shipped defaults in `/usr/share/bigbluebutton/html5-client/private/config/settings.yml`. The profiles users can pick from are shipped as
 
 ```yaml
-cameraProfiles:
-  - id: low
-    name: Low quality
-    default: false
-    bitrate: 100
-  - id: medium
-    name: Medium quality
-    default: true
-    bitrate: 200
-  - id: high
-    name: High quality
-    default: false
-    bitrate: 500
-  - id: hd
-    name: High definition
-    default: false
-    bitrate: 800
+public:
+  kurento:
+    cameraProfiles:
+      - id: low
+        name: Low
+        default: false
+        bitrate: 100
+      - id: medium
+        name: Medium
+        default: true
+        bitrate: 200
+      - id: high
+        name: High
+        default: false
+        bitrate: 500
+      - id: hd
+        name: High definition
+        default: false
+        bitrate: 800
 ```
 
 The settings for `bitrate` are in kbits/sec (i.e. 100 kbits/sec). After your modify the values, save the file, restart your BigBlueButton server `sudo bbb-conf --restart` to have the settings take effect. The lowest setting allowed for WebRTC is 30 Kbits/sec.
 
 If you have sessions that like to share lots of webcams, such as ten or more, then setting the `bitrate` for `low` to 50 and `medium` to 100 will help reduce the overall bandwidth on the server. When many webcams are shared, the size of the webcams get so small that the reduction in `bitrate` will not be noticeable during the live sessions.
 
-To ensure that your modifications are not lost when a new version of the packages is installed, you can [create the file and] write your changes to `/etc/bigbluebutton/bbb-html5.yml`.
+Arrays in `bbb-html5.yml` replace the shipped array as a whole, and the shipped `cameraProfiles` list also contains hidden profiles that the client switches to as the number of webcams grows. Do not write the list by hand: the `yq-go` commands in [Reduce bandwidth for webcams](#reduce-bandwidth-for-webcams) copy the complete shipped list into the override and then adjust the bitrates in place.
 
 #### Validating client settings overrides
 
@@ -548,15 +550,20 @@ yq-go e -i '( .public.kurento.cameraProfiles[] | select(.id == "hd") ).default =
 Screen sharing quality can be tweaked to either improve quality or reduce bandwidth usage.
 There are different configurations for live meetings and recordings and they need to be changed independently from each other.
 
-For **recordings**, the following parameters can be changed (presentation format):
-  - `/usr/local/bigbluebutton/core/scripts/presentation.yml`: `deskshare_output_width` (default: 1280)
-  - `/usr/local/bigbluebutton/core/scripts/presentation.yml`: `deskshare_output_height` (default: 720)
-  - `/usr/local/bigbluebutton/core/scripts/presentation.yml`: `deskshare_output_framerate` (default: 5)
+For **recordings**, the following parameters can be changed (presentation format) in `/etc/bigbluebutton/recording/presentation.yml`, the override of `/usr/local/bigbluebutton/core/scripts/presentation.yml`:
+  - `deskshare_output_width` (default: 1280)
+  - `deskshare_output_height` (default: 720)
+  - `deskshare_output_framerate` (default: 5)
 
-As an example, suppose you want to increase the output resolution and framerate of the recorded screen share media to match a 1080p/15 FPS stream. The following changes would be necessary:
-  -  `$ yq-go e -i '.deskshare_output_width = 1920' /usr/local/bigbluebutton/core/scripts/presentation.yml`
-  -  `$ yq-go e -i '.deskshare_output_height = 1080' /usr/local/bigbluebutton/core/scripts/presentation.yml`
-  -  `$ yq-go e -i '.deskshare_output_framerate = 15' /usr/local/bigbluebutton/core/scripts/presentation.yml`
+As an example, suppose you want to increase the output resolution and framerate of the recorded screen share media to match a 1080p/15 FPS stream. The following commands create the override file if it does not exist yet and set the values:
+
+```bash
+$ sudo mkdir -p /etc/bigbluebutton/recording
+$ sudo test -s /etc/bigbluebutton/recording/presentation.yml || sudo sh -c "echo '{}' > /etc/bigbluebutton/recording/presentation.yml"
+$ sudo yq-go e -i '.deskshare_output_width = 1920' /etc/bigbluebutton/recording/presentation.yml
+$ sudo yq-go e -i '.deskshare_output_height = 1080' /etc/bigbluebutton/recording/presentation.yml
+$ sudo yq-go e -i '.deskshare_output_framerate = 15' /etc/bigbluebutton/recording/presentation.yml
+```
 
 For **live meetings**, the following parameters can be changed:
   - `/etc/bigbluebutton/bbb-html5.yml`: `public.kurento.screenshare.bitrate`
@@ -585,7 +592,7 @@ public:
 
 #### Limit overall media streams
 
-On any setup for BigBlueButton server there is a cap for how many media streams can be shared. A media stream is created when a user broadcasts or receives a webcam or screen share video, or when a user joins audio listening only. If your server will be using webcams, you can set limits per user, per room, and an overall limit per server in `/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml`. The default is no limit.
+On any setup for BigBlueButton server there is a cap for how many media streams can be shared. A media stream is created when a user broadcasts or receives a webcam or screen share video, or when a user joins audio listening only. If your server will be using webcams, you can set limits per user, per room, and an overall limit per server with `mediaThresholds` in `/etc/bigbluebutton/bbb-webrtc-sfu/production.yml`, the override of `/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml`. The default is no limit.
 
 ```
 mediaThresholds:
@@ -603,11 +610,11 @@ mediaThresholds:
   perUser: 0
 ```
 
-On a BigBlueButton 2.3 (or later) server, you can place the above in `/etc/bigbluebutton/bbb-webrtc-sfu/production.yml`, which `bbb-webrtc-sfu` will use to override the settings in `default.yml` (even after package upgrades).
+The override is read when `bbb-webrtc-sfu` starts, so restart it (`sudo systemctl restart bbb-webrtc-sfu`) after changing it.
 
 If any of these thresholds are reached, then a user will receive a "Media resources not available (2002)" error when sharing webcams.
 
-BigBlueButton will dynamically reduce the number of webcams in a meeting as the meeting grows larger. These are set in `/usr/share/bigbluebutton/html5-client/private/config/settings.yml`, but you can override them by placing them in `/etc/bigbluebutton/bbb-html5.yml`.
+BigBlueButton will dynamically reduce the number of webcams in a meeting as the meeting grows larger. The page sizes are set in `/etc/bigbluebutton/bbb-html5.yml`; the shipped defaults are in `/usr/share/bigbluebutton/html5-client/private/config/settings.yml`.
 
 For example, the following `/etc/bigbluebutton/bbb-html5.yml` file would ensure that no single meeting will have more than 300 streams. For example, in a meeting with 30 users, the moderator will see 25 webcams and the viewers 6 webcams. This gives 25 + 29 _ 6 = 196 webcam streams. If the meeting grows to 100 users, the moderator will see 8 webcams and viewers will see 2 webcams. This gives 8 + 99 _ 2 = 206 webcam streams.
 
@@ -679,35 +686,44 @@ The switch only shows when the user's page size is above `0`. With the default `
 
 #### Use custom images for virtual background
 
-BigBlueButton offers virtual backgrounds for webcams.
-To use your own background images copy them into the directory
-`/usr/share/bigbluebutton/html5-client/resources/images/virtual-backgrounds`.
-For each image copy a thumbnail of the image of 50x50 pixels size into
-`/usr/share/bigbluebutton/html5-client/resources/images/virtual-backgrounds/thumbnails`.
+BigBlueButton offers virtual backgrounds for webcams. The shipped images are in `/usr/share/bigbluebutton/html5-client/resources/images/virtual-backgrounds/`, with 50x50 pixel thumbnails in its `thumbnails/` subdirectory; that directory belongs to the `bbb-html5` package, so do not add your images there. The client fetches an image from `<client path><imagesPath><file name>` and its thumbnail from `<client path><thumbnailsPath><file name>`, with `imagesPath` and `thumbnailsPath` taken from `public.virtualBackgrounds`, so an nginx `location` under the client path can serve your images from a directory of your own.
 
-To generate thumbnails you can use the following shell snippet:
+Copy the images into that directory, for example `/var/www/bigbluebutton-default/site/virtual-backgrounds/`, and generate the thumbnails:
 
 ```bash
 #!/bin/bash
-FULL="/usr/share/bigbluebutton/html5-client/resources/images/virtual-backgrounds"
+FULL="/var/www/bigbluebutton-default/site/virtual-backgrounds"
 THUMB="${FULL}/thumbnails"
 
+mkdir -p "$THUMB"
 cd "$FULL"
 for pic in *.jpg; do
     convert "$pic" -resize 50x50^ -gravity Center -extent 50x50 "${THUMB}/${pic}"
 done
 ```
 
-Reference them in the configuration file `/etc/bigbluebutton/bbb-html5.yml`:
+Create `/etc/bigbluebutton/nginx/virtual-backgrounds.nginx` to serve the directory under the client path (`/html5client` by default), then reload nginx with `sudo systemctl reload nginx`:
 
+```nginx
+location /html5client/virtual-backgrounds/ {
+    alias /var/www/bigbluebutton-default/site/virtual-backgrounds/;
+}
 ```
+
+Then point the client at the directory and list the images in `/etc/bigbluebutton/bbb-html5.yml`. The list replaces the shipped one, so copy the shipped images into your directory and list them too if you want to keep them:
+
+```yaml
 public:
   virtualBackgrounds:
+    imagesPath: /virtual-backgrounds/
+    thumbnailsPath: /virtual-backgrounds/thumbnails/
     fileNames:
       - image1.jpg
       - image2.jpg
       - image3.jpg
 ```
+
+Restart BigBlueButton with `sudo bbb-conf --restart` for the client settings to take effect.
 
 Background images should not be too large as clients have to download them. You
 can optimize them using the `jpegoptim` command which is available as an Ubuntu
@@ -1132,13 +1148,19 @@ $ sudo bbb-conf --restart
 
 #### Change the default presentation
 
-When a new meeting starts, BigBlueButton displays a default presentation. The file for the default presentation is located in `/var/www/bigbluebutton-default/assets/default.pdf`. You can replace the contents of this file with your presentation. Whenever a meeting is created, BigBlueButton will automatically load, convert, and display this presentation for all users. Note that this file may be overwritten when BigBlueButton is upgraded. 
+When a new meeting starts, BigBlueButton displays a default presentation: whenever a meeting is created, `bbb-web` downloads the file at the URL in its property `beans.presentationService.defaultUploadedPresentation`, converts it and displays it for all users. The shipped file, `/var/www/bigbluebutton-default/assets/default.pdf`, belongs to the `bbb-config` package and is restored on every upgrade of that package, so do not replace it in place. Instead, keep your presentation outside the package directory, for example as `/var/www/bigbluebutton-default/site/default.pdf`, served by nginx through a file `/etc/bigbluebutton/nginx/site.nginx` (every `*.nginx` file in that directory is included):
 
-Alternatively, you can change the global default by adding an overwriting rule in `/etc/bigbluebutton/bbb-web.properties` specifying the URL for `beans.presentationService.defaultUploadedPresentation`.
+```nginx
+location /site/ {
+    alias /var/www/bigbluebutton-default/site/;
+}
+```
+
+Reload nginx with `sudo systemctl reload nginx`, then set the URL in `/etc/bigbluebutton/bbb-web.properties` (any other web server the BigBlueButton server can reach works too):
 
 ```properties
 # Default Uploaded presentation file
-beans.presentationService.defaultUploadedPresentation=${bigbluebutton.web.serverURL}/default.pdf
+beans.presentationService.defaultUploadedPresentation=${bigbluebutton.web.serverURL}/site/default.pdf
 ```
 
 Please use the file name "default.pdf" if you would not like BigBlueButton to generate thumbnails from this file. The thumbnails will be used in some frontend apps, such as Greenlight.
@@ -1214,7 +1236,7 @@ Change the restriction in bbb-web. Add an overwrite rule in `/etc/bigbluebutton/
 maxFileSizeUpload=30000000
 ```
 
-You will have to additionally increase the size for the HTML5 client, edit `/usr/share/bigbluebutton/html5-client/private/config/settings.yml` or `/etc/bigbluebutton/bbb-html5.yml` (recommended) and modify `uploadSizeMax`.
+You will have to additionally increase the size for the HTML5 client: set `public.presentation.mirroredFromBBBCore.uploadSizeMax` in `/etc/bigbluebutton/bbb-html5.yml` to the same value.
 
 To show presenters the limits on the upload panel, also set `public.presentation.fileUploadConstraintsHint: true` in the same file. The hint displays `uploadSizeMax` and `uploadPagesMax` from `public.presentation.mirroredFromBBBCore`, so keep `uploadPagesMax` in step with `maxNumPages`; it does not follow a meeting's `maxNumPages` `create` parameter.
 
@@ -1474,13 +1496,19 @@ You can test your setup with one of the files from [eicar.org](https://www.eicar
 
 #### Modify the default landing page
 
-The default HTML landing page is located in
+The default HTML landing page is `/var/www/bigbluebutton-default/assets/index.html`, a file of the `bbb-config` package that is restored on every upgrade of that package, so do not change it in place. Instead, put your own page in a directory of your own, for example `/var/www/bigbluebutton-default/site/index.html`, and serve it from there with a file `/etc/bigbluebutton/nginx/landing.nginx` (every `*.nginx` file in that directory is included):
 
-```bash
-/var/www/bigbluebutton-default/assets/index.html
+```nginx
+location = / {
+    root /var/www/bigbluebutton-default/site;
+    index index.html;
+}
+location = /index.html {
+    root /var/www/bigbluebutton-default/site;
+}
 ```
 
-Change this page to create your own landing page (and keep a back-up copy of it as it will be overwritten during package updates to `bbb-config`).
+The second block is needed because `index` redirects `/` to `/index.html` internally. Other files your page links to (images, stylesheets) can be served the same way, for example under `/site/` as shown in [Change the default presentation](#change-the-default-presentation). Reload nginx with `sudo systemctl reload nginx` afterwards.
 
 #### Use the Greenlight front-end
 
@@ -1617,11 +1645,9 @@ To move the whole range in one go, `sudo bbb-conf --set-port-range <min>-<max>` 
 
 #### Apply custom settings for TURN server
 
-If you always want a specific TURN server configuration, add the following to [apply-config.sh](#preserving-customizations-using-apply-configsh) and modify `aaa.bbb.ccc.ddd` and `secret` with your values.
+`bbb-web` reads the STUN and TURN servers it hands to the browsers from `/etc/bigbluebutton/turn-stun-servers.xml` when that file exists, and from the shipped `/usr/share/bbb-web/WEB-INF/classes/spring/turn-stun-servers.xml` otherwise. Write your configuration to the file under `/etc/bigbluebutton`, which survives upgrades, and not to the shipped file, which every `bbb-web` upgrade replaces. For example, create `/etc/bigbluebutton/turn-stun-servers.xml` with the following contents, replacing `aaa.bbb.ccc.ddd` and `secret` with your values, and restart BigBlueButton with `sudo bbb-conf --restart`. The [TURN server](/administration/turn-server) page explains the entries.
 
-```bash
-echo "  - Update TURN server configuration turn-stun-servers.xml"
-  cat <<HERE > /usr/share/bbb-web/WEB-INF/classes/spring/turn-stun-servers.xml
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -1649,41 +1675,14 @@ echo "  - Update TURN server configuration turn-stun-servers.xml"
         </property>
     </bean>
 </beans>
-HERE
 ```
 
-To ensure that your modifications are not lost when a new version of the packages is installed, tweak the snippet above to `cat` the content to `/etc/bigbluebutton/turn-stun-servers.xml` instead of `/usr/share/bbb-web/WEB-INF/classes/spring/turn-stun-servers.xml`:
+The override file persists on its own, so it does not have to be rewritten on every run of [apply-config.sh](#preserving-customizations-using-apply-configsh). If you keep all your customizations in that script anyway, write the file from there with a heredoc:
 
 ```bash
 echo "  - Update TURN server configuration turn-stun-servers.xml"
-  cat <<HERE > /etc/bigbluebutton/turn-stun-servers.xml
-<?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.springframework.org/schema/beans
-        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
-    <bean id="stun0" class="org.bigbluebutton.web.services.turn.StunServer">
-        <constructor-arg index="0" value="stun:aaa.bbb.ccc.ddd"/>
-    </bean>
-    <bean id="turn0" class="org.bigbluebutton.web.services.turn.TurnServer">
-        <constructor-arg index="0" value="secret"/>
-        <constructor-arg index="1" value="turns:aaa.bbb.ccc.ddd:443?transport=tcp"/>
-        <constructor-arg index="2" value="86400"/>
-    </bean>
-    <bean id="stunTurnService"
-            class="org.bigbluebutton.web.services.turn.StunTurnService">
-        <property name="stunServers">
-            <set>
-                <ref bean="stun0"/>
-            </set>
-        </property>
-        <property name="turnServers">
-            <set>
-                <ref bean="turn0"/>
-            </set>
-        </property>
-    </bean>
-</beans>
+cat <<HERE > /etc/bigbluebutton/turn-stun-servers.xml
+<the XML shown above>
 HERE
 ```
 
@@ -1705,7 +1704,7 @@ Restart `bbb-apps-akka` with `sudo systemctl restart bbb-apps-akka` for the chan
 
 The default welcome message is built from three parameters: two system-wide parameters (see below) and the `welcome` parameter from the BigBlueButton `create` API call.
 
-You'll find the two system-wide welcome parameters `defaultWelcomeMessage` and `defaultWelcomeMessageFooter` in `/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties`.
+The two system-wide parameters are `defaultWelcomeMessage` and `defaultWelcomeMessageFooter`, `bbb-web` properties that you set in `/etc/bigbluebutton/bbb-web.properties` (the shipped defaults are in `/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties`).
 
 ```properties
 defaultWelcomeMessage=<default welcome message>
@@ -1716,24 +1715,33 @@ When a front-end creates a BigBlueButton session, it may also pass a `welcome` p
 
 The final welcome message shown to the user (as blue text in the Chat window) is a composite of `welcome` + `defaultWelcomeMessage` + `defaultWelcomeMessageFooter`.
 
-The welcome message is fixed for the duration of a meeting. If you want to see the effect of changing the `welcome` parameter, you must [end](/development/api#get-post-end) the current meeting or wait until the BigBlueButton server removes it from memory (which occurs about two minutes after the last person has left). You can overwrite these values in file `/etc/bigbluebutton/bbb-web.properties`, just remember to restart BigBlueButton with `sudo bbb-conf --restart` for the new values to take effect.
+The welcome message is fixed for the duration of a meeting. If you want to see the effect of changing the `welcome` parameter, you must [end](/development/api#get-post-end) the current meeting or wait until the BigBlueButton server removes it from memory (which occurs about two minutes after the last person has left). After changing the values in `/etc/bigbluebutton/bbb-web.properties`, restart BigBlueButton with `sudo bbb-conf --restart` for them to take effect.
 
 #### Modify localization for the client (override with the latest locale)
 
 A common use case is to modify a particular string from the locales or to include newer localizations from upstream.
-For example, if you would like to replace `de.json` with the version from a specific branch/tag of the repository, you could do the following:
+The client fetches each locale file from `<client path>/locales/<locale>.json`, which nginx serves from `/usr/share/bigbluebutton/html5-client/locales/`. That directory belongs to the `bbb-html5` package and is replaced on upgrades, so do not change the files in it. Instead, keep your version of the file outside the package directory and let nginx serve it in place of the shipped one, through a file in `/etc/bigbluebutton/nginx/` (every `*.nginx` file there is included, see [the nginx override mechanism](/administration/configuration-files#nginx)).
+
+For example, to replace `de.json` with the version from a specific branch/tag of the repository:
 
 ```bash
-cd /usr/share/bigbluebutton/html5-client/locales/
-mv de.json /tmp/de.json.old
-wget https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.0.x-release/bigbluebutton-html5/public/locales/de.json
+sudo mkdir -p /var/www/bigbluebutton-default/site/locales
+sudo wget -O /var/www/bigbluebutton-default/site/locales/de.json https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.0.x-release/bigbluebutton-html5/public/locales/de.json
 ```
 
-No restart is needed: the client loads the locale files from this directory when it starts.
+Then create `/etc/bigbluebutton/nginx/locales.nginx` with one `location` per replaced file (the path starts with the client path, `/html5client` by default):
 
-Start a new meeting on the server, switch to German localization in Settings, **clear the cache** if needed -- frequently locales are cached.
+```nginx
+location = /html5client/locales/de.json {
+    alias /var/www/bigbluebutton-default/site/locales/de.json;
+}
+```
 
-Please use caution when replacing/editing locales. If you followed the steps above you should have a backup copy of `de.json` (with ".old" appended) in `/tmp` in case you need to revert.
+and reload nginx with `sudo systemctl reload nginx`. No BigBlueButton restart is needed: the client fetches the locale files when it starts.
+
+Start a new meeting on the server, switch to German localization in Settings, **clear the cache** if needed -- frequently locales are cached. To revert, remove the `location` block (or the whole file) and reload nginx: the shipped file is served again.
+
+Please use caution when replacing/editing locales.
 Note that the json files across BigBlueButton versions are not always interchangeable. The workflow described above is only really meant for cases like
  - I would like to tweak a translation for my own use
  - I would like to adopt a change from upstream without having to wait for the official release in a few days
@@ -1742,29 +1750,20 @@ Note that the json files across BigBlueButton versions are not always interchang
 
 #### Change favicon
 
-First method:
+The shipped favicon is `/var/www/bigbluebutton-default/assets/favicon.ico`, a file of the `bbb-config` package that is restored on every upgrade of that package, so do not overwrite it. Instead, create a custom directory under `/var/www/bigbluebutton-default/` like `/var/www/bigbluebutton-default/site` and copy your favicon.ico into this directory. Add a new file `favicon.nginx` to `/etc/bigbluebutton/nginx` with the following lines:
 
-To change the favicon, overwrite the file `/var/www/bigbluebutton-default/assets/favicon.ico`.
-
-You'll need to update file each time the `bbb-config` package updates.
-
-Second method:
-
-Create a custom directory under `/var/www/bigbluebutton-default/` like `/var/www/bigbluebutton-default/site` and copy your favicon.ico into this directory. Add a new file `favicon.nginx` to `/etc/bigbluebutton/nginx` and add the following lines:
-
-```
+```nginx
 location = /favicon.ico {
     alias /var/www/bigbluebutton-default/site/favicon.ico;
+}
 ```
 
-After a restart of nginx, your customized favicon.ico will be delivered. This change will affect BigBlueButton and Greenlight and will persist during updates.
+After a reload of nginx (`sudo systemctl reload nginx`), your customized favicon.ico will be delivered. This change will affect BigBlueButton and Greenlight and will persist during updates.
 
 #### Change title in the HTML5 client
 
-The configuration file for the HTML5 client is located in `/usr/share/bigbluebutton/html5-client/private/config/settings.yml`. It contains all the settings for the HTML5 client.
-
-We recommend you make any adjustments to these configurations in the override file `/etc/bigbluebutton/bbb-html5.yml` so they are not lost when updating the system.
-To change the title, edit `bbb-html5.yml` and change the entry for `public.app.clientTitle`
+The settings of the HTML5 client are changed in the override file `/etc/bigbluebutton/bbb-html5.yml`. The shipped defaults are in `/usr/share/bigbluebutton/html5-client/private/config/settings.yml`, which lists every setting but is replaced when the system is updated, so do not edit it.
+To change the title, set `public.app.clientTitle` in `bbb-html5.yml`:
 
 ```yaml
 public:
@@ -1797,30 +1796,31 @@ After restart, if you open the lock settings you'll see `Share webcam` lock enab
 
 #### Change the default path for HTML5 client
 
-The default URL path for the client is `/html5client`, and it can be changed to match your preferences.
+The default URL path for the client is `/html5client`, and it can be changed to match your preferences. Three places have to agree: the nginx `location` blocks that serve the client files, the URL `bbb-web` sends users to, and the path the client uses for its own routes.
 
-Edit the nginx configuration file `/usr/share/bigbluebutton/nginx/bbb-html5.nginx.static` (included by `bbb-html5.nginx`), replacing all instances of `/html5client` with the new path;
+nginx serves the client through `/usr/share/bigbluebutton/nginx/bbb-html5.nginx.static` (included by `bbb-html5.nginx`). Do not edit it: `bbb-html5` upgrades replace it. Instead, add a file to `/etc/bigbluebutton/nginx/`, where every `*.nginx` file is included by the nginx site configuration, with a copy of its `location` blocks in which `/html5client` is replaced by the new path:
 
-Do the same in `/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties` in the following lines:
-
-```
-defaultHTML5ClientUrl=${bigbluebutton.web.serverURL}/html5client/
+```bash
+$ sudo sh -c "sed 's|/html5client|/NEW_PATH|g' /usr/share/bigbluebutton/nginx/bbb-html5.nginx.static > /etc/bigbluebutton/nginx/html5-client-path.nginx"
 ```
 
-You can overwrite that value in `/etc/bigbluebutton/bbb-web.properties` (recommended).
+Keep the shipped `/html5client` locations in place next to the new ones. Parts of BigBlueButton use the default path whatever `basename` says: the Advanced Filtering audio processor loads its WASM files from `/html5client/wasm/`, the learning dashboard loads its locale files from `/html5client/locales/`, and the `bbb-web` properties `defaultAvatarURL`, `defaultBotAvatarURL` and `defaultWebcamBackgroundURL` point to `/html5client/resources/` unless you change them in `/etc/bigbluebutton/bbb-web.properties`.
 
-In configuration file for the HTML5 client, located in `/usr/share/bigbluebutton/html5-client/private/config/settings.yml`, change the entry for `public.app.basename`:
+Then point `bbb-web` at the new path in `/etc/bigbluebutton/bbb-web.properties`:
 
+```properties
+defaultHTML5ClientUrl=${bigbluebutton.web.serverURL}/NEW_PATH/
 ```
+
+and set the path the client uses in `/etc/bigbluebutton/bbb-html5.yml`:
+
+```yaml
 public:
   app:
-    ...
-    basename: '/html5client'
+    basename: '/NEW_PATH'
 ```
 
-You can overwrite that value in `/etc/bigbluebutton/bbb-html5.yml` (recommended).
-
-Finally, run the following command to reload configuration:
+Finally, run the following command to reload the configuration:
 
 `sudo service nginx reload && sudo bbb-conf --restart`
 
@@ -1889,16 +1889,23 @@ sudo yq-go e -i '.public.app.audioCaptions.enabled = true' /etc/bigbluebutton/bb
 sudo yq-go e -i '.public.app.audioCaptions.provider = "gladia"' /etc/bigbluebutton/bbb-html5.yml
 ```
 
-Next, set the gladia.io API key using the command below, replacing \<gladia_api_key\> with a glada.io API key obtained above.
+`bbb-transcription-controller` reads its settings from `/usr/local/bigbluebutton/bbb-transcription-controller/config/default.yml`, which the package regenerates on every install and upgrade, and from the override file `/etc/bigbluebutton/bbb-transcription-controller/production.yml`, so put your changes in the override. Create it if it does not exist yet:
 
 ```bash
-sudo yq-go e -i '.gladia.startMessage = "{\"x_gladia_key\": \"<gladia-api-key>\", \"sample_rate\": 0, \"bit_depth\": 16, \"model_type\": \"fast\", \"endpointing\": 10 }"' /usr/local/bigbluebutton/bbb-transcription-controller/config/default.yml
+sudo mkdir -p /etc/bigbluebutton/bbb-transcription-controller
+sudo test -s /etc/bigbluebutton/bbb-transcription-controller/production.yml || sudo sh -c "echo '{}' > /etc/bigbluebutton/bbb-transcription-controller/production.yml"
+```
+
+Next, set the gladia.io API key using the command below, replacing \<gladia_api_key\> with a gladia.io API key obtained above.
+
+```bash
+sudo yq-go e -i '.gladia.startMessage = "{\"x_gladia_key\": \"<gladia-api-key>\", \"sample_rate\": 0, \"bit_depth\": 16, \"model_type\": \"fast\", \"endpointing\": 10 }"' /etc/bigbluebutton/bbb-transcription-controller/production.yml
 ```
 
 If you are running BigBlueButton version **3.0** or higher, use release version **>0.3.x** of the [bbb-transcription-controller](https://github.com/bigbluebutton/bbb-transcription-controller/) repository, install the Live Transcription plugin [https://github.com/bigbluebutton/bbb-plugin-live-transcription](https://github.com/bigbluebutton/bbb-plugin-live-transcription) and use the following startMessage:
 
 ```bash
-sudo yq-go e -i '.gladia.startMessage = "{\"sample_rate\": 16000, \"bit_depth\": 16, \"endpointing\": 0.01 }"' /usr/local/bigbluebutton/bbb-transcription-controller/config/default.yml
+sudo yq-go e -i '.gladia.startMessage = "{\"sample_rate\": 16000, \"bit_depth\": 16, \"endpointing\": 0.01 }"' /etc/bigbluebutton/bbb-transcription-controller/production.yml
 ```
 
 Restart the BigBlueButton server with `bbb-conf --restart`.  You will now be able to select a speech-to-text option when joining audio (including auto translate).  When one or more users have selected the option, a CC button will appear at the bottom and a Transcript panel will also be available.
@@ -1944,8 +1951,7 @@ The audio-processing mode pre-selected for new users is controlled by `public.ap
 
 #### Configure guest policy
 
-The policy for guest management on the server is is set in the properties file for `bbb-web`, which is located at `/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties`.
-You can overwrite the default guest policy in `/etc/bigbluebutton/bbb-web.properties`. Just add the value you prefer, save the file and restart BigBlueButton.
+The default policy for guest management on the server is the `bbb-web` property `defaultGuestPolicy`. Set it in `/etc/bigbluebutton/bbb-web.properties` (the shipped default is in `/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties`), save the file and restart BigBlueButton.
 
 ```properties
 # Default Guest Policy
@@ -1968,11 +1974,21 @@ Restart BigBlueButton with `sudo bbb-conf --restart` for the change to take effe
 
 #### Show a custom logo on the client
 
-Ensure that the parameter `displayBrandingArea` is set to `true` in bbb-html5's configuration, restart BigBlueButton server with `sudo bbb-conf --restart` and pass `logo=<image-url>` in Custom parameters when creating the meeting.
+Ensure that `public.app.branding.displayBrandingArea` is set to `true` in `/etc/bigbluebutton/bbb-html5.yml`, restart BigBlueButton server with `sudo bbb-conf --restart` and pass `logo=<image-url>` in Custom parameters when creating the meeting.
 
 #### Changing the default logo
 
-To update the default logo, navigate to the `images` folder located at `/var/www/bigbluebutton-default/assets/images/`, and replace the `logo.png` file with your new logo.
+Meetings created without a `logo` parameter show the logo at `defaultLogoURL` when the `bbb-web` property `useDefaultLogo` is `true`; `useDefaultDarkLogo` and `defaultDarkLogoURL` do the same for the dark theme, which falls back to `defaultLogoURL` while `useDefaultDarkLogo` is `false`. The shipped default, `/var/www/bigbluebutton-default/assets/images/logo.png`, belongs to the `bbb-config` package and is restored on every upgrade of that package, so do not replace it. Instead, host your logo at a URL of your own, for example in `/var/www/bigbluebutton-default/site/` served through the `site.nginx` file shown in [Change the default presentation](#change-the-default-presentation), and set the properties in `/etc/bigbluebutton/bbb-web.properties`:
+
+```properties
+useDefaultLogo=true
+defaultLogoURL=${bigbluebutton.web.serverURL}/site/logo.png
+# Optional: a different logo for the dark theme
+useDefaultDarkLogo=true
+defaultDarkLogoURL=${bigbluebutton.web.serverURL}/site/darklogo.png
+```
+
+Restart BigBlueButton with `sudo bbb-conf --restart` afterwards. Like the per-meeting `logo`, the default logo is shown only while `public.app.branding.displayBrandingArea` is `true` in `/etc/bigbluebutton/bbb-html5.yml`, which is the shipped default.
 
 ### Other meeting configs available
 These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table is synced with [`bigbluebutton.properties`](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/bigbluebutton-web/grails-app/conf/bigbluebutton.properties); items marked _`overwritable`_ can be replaced per meeting through the matching [`/create`](/development/api/#get-post-create) parameter.
