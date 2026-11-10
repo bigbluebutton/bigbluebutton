@@ -190,6 +190,7 @@ test.describe.parallel('Disabled features values', { tag: '@nightly' }, () => {
   test.describe(() => {
     test('slidePreloading stops preloading the next slides', async ({ browser, context, page }, testInfo) => {
       const disabledFeatureValues = new DisabledFeatureValues(browser, context);
+      disabledFeatureValues.recordSlideRequests(page);
       await disabledFeatureValues.initModPage(page, { createParameter: 'disabledFeatures=slidePreloading', testInfo });
       await disabledFeatureValues.slidePreloadingOff();
     });
@@ -200,6 +201,7 @@ test.describe.parallel('Disabled features values', { tag: '@nightly' }, () => {
       page,
     }, testInfo) => {
       const disabledFeatureValues = new DisabledFeatureValues(browser, context);
+      disabledFeatureValues.recordSlideRequests(page);
       await disabledFeatureValues.initModPage(page, { testInfo });
       await disabledFeatureValues.slidePreloadingOn();
     });

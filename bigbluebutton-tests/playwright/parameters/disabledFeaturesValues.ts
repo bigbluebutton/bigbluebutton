@@ -1,4 +1,4 @@
-import { expect } from '@playwright/test';
+import { expect, Page as PlaywrightPage } from '@playwright/test';
 
 import { openPublicChat } from '../chat/util';
 import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, UPLOAD_PDF_WAIT_TIME } from '../core/constants';
@@ -35,6 +35,17 @@ const fileDownloadOption = (fileExtension: 'txt' | 'pdf') =>
   ).replace('{fileExtension}', fileExtension)}")`;
 
 export class DisabledFeatureValues extends MultiUsers {
+  private requestedSlides: number[] = [];
+
+  // The client fetches the SVG of the next slides as soon as it shows a slide, before it even requests the image of
+  // that slide (presentation/container.jsx), so the requests have to be recorded from before the join
+  recordSlideRequests(page: PlaywrightPage) {
+    page.on('request', (request) => {
+      const slide = request.url().match(/\/svg\/(\d+)(?:\?|$)/);
+      if (slide) this.requestedSlides.push(Number(slide[1]));
+    });
+  }
+
   // sends a message and hovers it: its toolbar should show every button but the hidden ones
   async messageToolbarLacks(hiddenButtons: MessageToolbarButton[]) {
     const sentMessage = `${e.chatMessageItem}:has-text("${e.message}")`;
@@ -167,14 +178,15 @@ export class DisabledFeatureValues extends MultiUsers {
   }
 
   async slidePreloadingOff() {
-    expect(await this.getPreloadNextSlides(), 'should preload no next slides (public.app.preloadNextSlides)').toBe(0);
+    await this.firstSlideRequested();
+    expect(this.requestedSlides, 'should not request slide 2 while slide 1 is shown').not.toContain(2);
   }
 
   async slidePreloadingOn() {
-    expect(
-      await this.getPreloadNextSlides(),
-      'should preload the next slides (public.app.preloadNextSlides)',
-    ).toBeGreaterThan(0);
+    await this.firstSlideRequested();
+    await expect
+      .poll(() => this.requestedSlides, { message: 'should request slide 2 while slide 1 is shown' })
+      .toContain(2);
   }
 
   private async openTextPresentationDownloadMenu() {
@@ -206,11 +218,8 @@ export class DisabledFeatureValues extends MultiUsers {
     await this.modPage.hasElement(e.restorePresentation, 'should display the restore presentation button');
   }
 
-  private async getPreloadNextSlides(): Promise<number> {
-    return this.modPage.page.evaluate(
-      () =>
-        (window as unknown as { meetingClientSettings: { public: { app: { preloadNextSlides: number } } } })
-          .meetingClientSettings.public.app.preloadNextSlides,
-    );
+  private async firstSlideRequested() {
+    await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard', ELEMENT_WAIT_LONGER_TIME);
+    await expect.poll(() => this.requestedSlides, { message: 'should request the image of slide 1' }).toContain(1);
   }
 }
