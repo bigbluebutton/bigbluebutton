@@ -625,4 +625,18 @@ test.describe.parallel('Emoji rain', { tag: '@nightly' }, () => {
     });
     await multiusers.emojiRainForEveryReaction(numberOfEmojis);
   });
+
+  test('Raising the hand right after a reaction does not replay its rain', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    const numberOfEmojis = 5;
+    const multiusers = new MultiUsers(browser, context);
+    await multiusers.initModPage(page, {
+      testInfo,
+      clientSettingsOverrides: emojiRainSettingsOverride(true, numberOfEmojis),
+    });
+    await multiusers.emojiRainOnceWhenRaisingHandAfterReaction(numberOfEmojis);
+  });
 });
