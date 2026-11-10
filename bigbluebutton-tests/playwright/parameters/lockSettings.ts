@@ -5,9 +5,7 @@ import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 import { startSharedNotesBlockNote } from '../sharednotes/blocknote/util';
 import { MultiUsers } from '../user/multiusers';
-import { drawArrow } from '../user/util';
-
-const userListRow = (userName: string) => `${e.userListItem}[aria-label="${userName}"]`;
+import { drawArrow, privateChatOptionOf, userListRowOf } from '../user/util';
 
 function remoteCursor(testPage: Page, userName: string): Locator {
   return testPage.page
@@ -19,11 +17,11 @@ export class LockSettingsParameters extends MultiUsers {
   async privateChatButtons(canChatWithOtherViewers: boolean) {
     await this.userPage.waitAndClick(e.usersListSidebarButton);
     await this.userPage.hasElement(
-      `${userListRow(this.modPage.username)} ${e.startPrivateChat}`,
+      privateChatOptionOf(this.modPage.username),
       'should offer the attendee a private chat with the moderator',
     );
-    await this.userPage.hasElement(userListRow(this.userPage2.username), 'should list the other attendee');
-    const otherAttendeeChat = `${userListRow(this.userPage2.username)} ${e.startPrivateChat}`;
+    await this.userPage.hasElement(userListRowOf(this.userPage2.username), 'should list the other attendee');
+    const otherAttendeeChat = privateChatOptionOf(this.userPage2.username);
     if (canChatWithOtherViewers) {
       await this.userPage.hasElement(
         otherAttendeeChat,
