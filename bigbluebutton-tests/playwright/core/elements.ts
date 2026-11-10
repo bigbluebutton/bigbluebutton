@@ -14,6 +14,8 @@ export const elements = {
   sharePresentationButton: 'button[data-test="sharePresentationButton"]',
   mediaAreaButton: 'button[data-test="mediaAreaButton"]',
   mediaAreaItem: 'div[id="media-area-dropdown-menu"] ul li',
+  // what the media area button opens
+  mediaAreaMenu: 'div#mediaAreaDropUp',
   optionsButton: 'button[data-test="optionsButton"]',
   settings: 'li[data-test="settings"]',
   presenceToggle: 'div[data-test="presenceToggle"]',
@@ -616,6 +618,7 @@ export const elements = {
   dataSavingsTab: 'span[id="dataSaving"]',
   enableWebcamsToggleBtn: 'span[data-test="webcamToggleBtn"] input',
   enableDesktopSharingToggleBtn: 'span[data-test="desktopSharingToggleBtn"] input',
+  animationsToggleBtn: 'input[data-test="animationsToggleBtn"]',
   shortcutsTab: 'span[id="shortcutsTab"]',
   audioTab: 'span[id="audioTab"]',
   advancedFilteringRadio: 'input[data-test="advancedFilteringRadio"]',
@@ -886,6 +889,8 @@ export const elements = {
   // tldraw renders this textarea only while a shape is actively being edited
   // (select.editing_shape state) - used to gate on "is editing", not just "has text"
   wbEditingTextArea: 'textarea.tl-text-input',
+  // the pointer tldraw draws for another user, with that user's name; whiteboard/styles.js styles it too
+  wbCollaboratorCursor: 'div.tl-collaborator__cursor',
   wbDrawnArrow: 'div[data-shape-type="arrow"]',
   wbAutoHideToggleBtn: 'input[data-test="whiteboardToolbarAutoHideToggleBtn"]',
   turnInfiniteWhiteboardOn: 'button[data-test="turnInfiniteWhiteboardOn"]',
@@ -907,6 +912,8 @@ export const elements = {
 
   // Layout
   cameraDock: 'div#cameraDock',
+  // the client writes the layout it is in on this element, as data-layout (layoutEngine.jsx)
+  layoutContainer: 'div#layout',
 
   // Font size
   increaseFontSize: 'button[data-test="increaseFontSize"]',

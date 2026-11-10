@@ -11,6 +11,7 @@ import { APIDisabledFeatures } from './disabledFeatures';
 import { APIDocumentTypes } from './documentTypes';
 import { APIJoin } from './join';
 import { APILifecycle } from './lifecycle';
+import { APIParameters } from './parameters';
 
 test.describe.parallel('API', () => {
   test('getMeetings', { tag: '@ci' }, async ({ browser, context, page, request }, testInfo) => {
@@ -346,6 +347,40 @@ test.describe.parallel('API', () => {
     test('getJoinUrlRoundTripKeepsSpacedValues', async ({ browser, context, page, request }, testInfo) => {
       const join = new APIJoin(browser, context);
       await join.testGetJoinUrlRoundTrip(page, testInfo, request);
+    });
+  });
+
+  // bbb-web reads each create parameter as one string; a repeated parameter arrives as an array and
+  // the cast in ParamsProcessorUtil.processCreateParams throws, so create answers HTTP 500.
+  test('repeatedCreateParameterRefused', { tag: '@known-issue' }, async ({ request }) => {
+    linkIssue(26359);
+    await APIParameters.testRepeatedCreateParameterRefused(request);
+  });
+
+  test.describe('Create and join parameters', { tag: '@nightly' }, () => {
+    test('metadataParameterNames', async ({ request }) => {
+      linkIssue(26236);
+      await APIParameters.testMetadataNames(request);
+    });
+
+    test('createWithoutNameRefused', async ({ request }) => {
+      await APIParameters.testCreateWithoutNameRefused(request);
+    });
+
+    test('guestPolicyAlwaysAcceptAuth', async ({ request }) => {
+      linkIssue(26236);
+      await APIParameters.testGuestPolicyAlwaysAcceptAuth(request);
+    });
+
+    test('joinAuthUnderAskModerator', async ({ request }) => {
+      linkIssue(26236);
+      await APIParameters.testJoinAuthUnderAskModerator(request);
+    });
+
+    test('joinCustomUserdata', async ({ browser, context, page, request }, testInfo) => {
+      linkIssue(26236);
+      const apiParameters = new APIParameters(browser, context);
+      await apiParameters.testJoinCustomUserdata(page, testInfo, request);
     });
   });
 
