@@ -198,6 +198,7 @@ jobs:
   # the package files it mirrors (env/tier1/copies.sha256), its
   # configuration, and the suite itself.
   api-conformance-changes:
+    if: github.event_name != 'workflow_dispatch' || inputs.jobs == 'all'
     runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-24.04' }}
     outputs:
       run: ${{ steps.changes.outputs.run }}
