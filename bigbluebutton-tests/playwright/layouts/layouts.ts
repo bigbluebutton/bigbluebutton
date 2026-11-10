@@ -323,6 +323,28 @@ export class Layouts extends MultiUsers {
     }
   }
 
+  async meetingLayoutAppliesDespiteClientLayoutDefaults() {
+    // Both pages joined with public.app.defaultSettings.layout overridden to
+    // presentationOnly / pushLayout true, in a meeting created with
+    // meetingLayout=UNIFIED_LAYOUT: the meeting's layout is the one each client starts in.
+    // A client that still read the key passed through the presentation-only layout until
+    // the meeting layout arrived; that layout renders the client without the audio
+    // container, and the audio prompt of the join was lost with it.
+    for (const page of [this.modPage, this.userPage]) {
+      await page.hasElement(
+        e.audioModal,
+        'the audio prompt should be offered on join: the presentation-only layout renders the client without it',
+      );
+      await page.closeAudioModal();
+      await page.hasElement(e.whiteboard, 'the presentation should be open, as in the unified layout');
+      await page.hasElement(e.joinVideo, 'the webcam button should be rendered: the presentation-only layout hides it');
+      await page.hasElement(
+        e.chatBox,
+        'the public chat should be open on join, as it is when the unified layout is applied',
+      );
+    }
+  }
+
   async unifiedLayoutMinimizeShowsTiles() {
     // Wait for the whiteboard canvas to confirm the presentation is fully loaded and
     // the minimize button is in an enabled/clickable state (isThereCurrentPresentation = true).

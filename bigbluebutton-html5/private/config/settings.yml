@@ -243,9 +243,6 @@ public:
     # falls back to this option when that flag says 'local'.
     userSettingsStorage: session
     defaultSettings:
-      layout:
-        selectedLayout: 'unified'
-        pushLayout: false
       application:
         animations: true
         chatAudioAlerts: false
