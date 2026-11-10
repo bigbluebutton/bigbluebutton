@@ -82,6 +82,9 @@ const config = {
           },
           bundleHash: fullhash,
           isProduction: env === prodEnv,
+          // Dev builds split the page's code into several files (see
+          // splitChunks below); main.html loads each one of them
+          devScripts: env === prodEnv ? [] : assets.js,
         };
       },
     }),
@@ -213,6 +216,41 @@ if (env === prodEnv) {
   };
 } else {
   config.mode = devEnv;
+  const mainEntryOnly = (chunk) => chunk.name === 'main';
+  // Split the code the page loads at startup into several files, so that the
+  // browser downloads again only the ones an edit changed: node_modules in
+  // vendors-*.js, imports/ in app-*.js, and the rest (webpack's runtime and
+  // client/) in bundle.js. maxSize makes webpack cut each group into parts
+  // along folder boundaries. The parts stay few: each file is a request on
+  // the first load, and one more for its source map when DevTools is open.
+  // Only the main entry: the connection-status worker keeps loading alone,
+  // and Mermaid stays lazy.
+  config.optimization = {
+    splitChunks: {
+      cacheGroups: {
+        vendors: {
+          test: /[\\/]node_modules[\\/]/,
+          chunks: mainEntryOnly,
+          name: 'vendors',
+          filename: '[name].js',
+          minSize: 1000000,
+          maxSize: 8000000,
+          enforce: true,
+        },
+        app: {
+          test: path.join(__dirname, 'imports') + path.sep,
+          chunks: mainEntryOnly,
+          name: 'app',
+          filename: '[name].js',
+          minSize: 300000,
+          // It defaults to minSize, and bundle.js is left with less than that
+          minRemainingSize: 0,
+          maxSize: 1500000,
+          enforce: true,
+        },
+      },
+    },
+  };
   config.devServer = {
     port: 3000,
     hot: true,

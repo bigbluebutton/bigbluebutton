@@ -281,8 +281,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             } else if (isProduction) {
               script.src = 'bundle.' + bundleHash + '.js';
             } else {
-              // Dev builds keep one bundle name (see webpack.config.js)
-              script.src = 'bundle.js?v=' + bundleHash;
+              // Dev builds split the code into several files, and the bundle
+              // comes last (see webpack.config.js). Revalidation keeps them
+              // fresh, so the names need no build hash.
+              var devScripts = <%= JSON.stringify(devScripts) %>;
+              for (var i = 0; i < devScripts.length - 1; i += 1) {
+                var part = document.createElement('script');
+                part.src = devScripts[i];
+                document.head.appendChild(part);
+              }
+              script.src = devScripts[devScripts.length - 1];
             }
 
             document.head.appendChild(script);
