@@ -15,7 +15,10 @@ done
 
 ##
 
-IMAGE="$(cat docker-image)"
+# The image the package runs LibreOffice from: the FROM line of docker/Dockerfile, which is what
+# dependabot bumps and what the api-conformance stack reads too
+IMAGE="$(sed -n 's/^FROM //p' docker/Dockerfile)"
+[ -n "$IMAGE" ] || { echo "build.sh: no FROM line in docker/Dockerfile" >&2; exit 1; }
 
 if [ $DISTRO != "amzn2" ]; then 
   mkdir -p staging/etc/sudoers.d
@@ -35,7 +38,8 @@ chmod +x staging/usr/share/bbb-libreoffice-conversion/convert-local.sh
 chmod +x staging/usr/share/bbb-libreoffice-conversion/convert-remote.sh
 
 
-cp docker-image                      staging/usr/share/bbb-libreoffice/docker-image
+# after-install.sh, convert-local.sh and uninstall-local.sh read the image from this one-line file
+printf '%s\n' "$IMAGE" > staging/usr/share/bbb-libreoffice/docker-image
 cp assets/zzz-bbb-docker-libreoffice staging/usr/share/bbb-libreoffice/zzz-bbb-docker-libreoffice.template
 
 ##

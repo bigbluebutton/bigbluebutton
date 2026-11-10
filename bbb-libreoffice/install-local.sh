@@ -23,7 +23,7 @@ else
 	echo "Docker already installed";
 fi
 
-IMAGE="$(cat docker-image)"
+IMAGE="$(sed -n 's/^FROM //p' docker/Dockerfile)"
 if docker image inspect "$IMAGE" &> /dev/null; then
 	echo "Docker image already exists";
 else
@@ -31,7 +31,9 @@ else
 	docker pull "$IMAGE"
 fi
 
-install -Dm644 docker-image /usr/share/bbb-libreoffice/docker-image
+install -d /usr/share/bbb-libreoffice
+printf '%s\n' "$IMAGE" > /usr/share/bbb-libreoffice/docker-image
+chmod 0644 /usr/share/bbb-libreoffice/docker-image
 install -Dm644 assets/zzz-bbb-docker-libreoffice /usr/share/bbb-libreoffice/zzz-bbb-docker-libreoffice.template
 
 FOLDER_CHECK=`[ -d /usr/share/bbb-libreoffice-conversion/ ] && echo 1 || echo 0`
