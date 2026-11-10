@@ -4,7 +4,8 @@
 # token in its query, as X-Original-URI, along with the browser's cookies.
 # For a token that the join's HTTP session holds, bbb-web answers 200
 # "authorized" and names the user and the meeting in headers, which nginx
-# hands on to the SFU. Names are URL-encoded.
+# hands on to the SFU. Names are URL-encoded. (The answer's Content-Type is
+# "plain/text", sic; nginx doesn't read it.)
 id: connection.authz.valid
 title: checkAuthorization authorizes a joined user and names ${case}
 endpoint: connection

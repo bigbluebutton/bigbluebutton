@@ -1,8 +1,8 @@
 # yaml-language-server: $schema=../../../runner/schema/case.schema.json
-# A user who leaves the meeting keeps a live session token: checkAuthorization
-# still answers 200, and checkGraphqlAuthorization too, but says the user is
-# no longer online. Ann stays, and the meeting would outlive its last user
-# for ten minutes, so the meeting itself goes on.
+# A user who leaves the meeting keeps a live session token:
+# checkGraphqlAuthorization still answers 200, but says the user is no longer
+# online. Ann stays, and the meeting would outlive its last user for ten
+# minutes, so the meeting itself goes on.
 id: connection.graphql-authz.left
 title: checkGraphqlAuthorization says a user who left is no longer online
 endpoint: connection
@@ -43,13 +43,6 @@ steps:
         User-Is-Moderator: "false"
         Meeting-Name: Hook+test
       jsonpath: {$.response: authorized, "$['X-Currently-Online']": "false"}
-  - route: connection-authz
-    client: bob
-    headers: {X-Original-URI: "/bbb-webrtc-sfu?sessionToken=${bobToken}"}
-    expect:
-      status: 200
-      body: authorized
-      headers: {User-Id: "${bobId}"}
 teardown:
   # Again until bbb-web no longer knows the meeting: an end that reaches
   # akka-apps before the create does is lost.

@@ -67,16 +67,25 @@ steps:
     headers: {x-session-token: "${bobToken}"}
     eventually: {within: 10s, every: 200ms, until: {headers: {User-Notes-Enabled: "true"}}}
     expect: {status: 200, headers: {User-Notes-Enabled: "true"}}
-  # Locking a moderator takes nothing away: wait until bbb-web has heard of
-  # the lock, then ask.
+  # Locking a moderator takes nothing away. Ann's flag doesn't change, so to
+  # know bbb-web has applied her lock, lock Bob after her: bbb-web handles
+  # akka-apps' events in order, so once Bob loses notes, Ann is locked too.
   - graphql:
       as: ann
       query: "mutation SetLocked($id: String!, $locked: Boolean!) { userSetLocked(userId: $id, locked: $locked) }"
       variables: {id: "${annId}", locked: true}
     golden: off
-  - bus: {name: UserLockedInMeetingEvtMsg, meetingId: "${intId}", within: 5s}
+  - graphql:
+      as: ann
+      query: "mutation SetLocked($id: String!, $locked: Boolean!) { userSetLocked(userId: $id, locked: $locked) }"
+      variables: {id: "${bobId}", locked: true}
     golden: off
-    expect: {jsonpath: {$.core.body.userId: "${annId}", $.core.body.locked: true}}
+  - route: connection-graphql-authz
+    client: bob
+    headers: {x-session-token: "${bobToken}"}
+    golden: off
+    eventually: {within: 10s, every: 200ms, until: {headers: {User-Notes-Enabled: "false"}}}
+    expect: {status: 200, headers: {User-Notes-Enabled: "false"}}
   - route: connection-graphql-authz
     client: ann
     headers: {x-session-token: "${annToken}"}

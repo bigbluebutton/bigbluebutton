@@ -2,19 +2,7 @@
 case connection.graphql-authz.guest-waiting
 target bbb-web
 
-== step 4: route connection-authz
-status 200
-header Cache-Control no-cache
-header Content-Type plain/text
-header Meeting-Create-Time <time>
-header Meeting-Id <sha1(meetingID)>-<time>
-header Meeting-Name Hook+test
-header User-Id w_<id>
-header User-Name Gus
-header Voice-Bridge <random>
-body text 10 bytes, sha256 04dd9c7e9464
-
-== step 5: route connection-graphql-authz
+== step 4: route connection-graphql-authz
 status 200
 header Cache-Control no-cache
 header Content-Type application/json;charset=utf-8

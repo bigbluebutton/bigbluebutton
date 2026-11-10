@@ -2,7 +2,8 @@
 # checkGraphqlAuthorization answers 401 with {"response": "unauthorized"}
 # and no user headers when x-session-token holds no live session token.
 # (connection.graphql-authz.session has the live token without the join's
-# session.)
+# session.) Without the header at all, the answer also lacks the
+# Cache-Control: no-cache the others carry (the recordings show it).
 id: connection.graphql-authz.refused
 title: checkGraphqlAuthorization refuses ${case}
 endpoint: connection

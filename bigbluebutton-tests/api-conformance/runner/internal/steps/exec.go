@@ -622,6 +622,24 @@ func (x *exec) call(ctx context.Context, phase string, index int, s spec.Step, s
 		return
 	}
 	sr.Request = x.requestInfo(p)
+	if p.CookiesFrom != "" {
+		// Name the cookies the subrequest forwards, without their values.
+		cookies, err := x.session.ForwardedCookies(p, cs.Client)
+		if err != nil {
+			sr.Status, sr.Message = report.Error, err.Error()
+			return
+		}
+		var names []string
+		for _, c := range cookies {
+			names = append(names, c.Name+"=<forwarded>")
+		}
+		if len(names) > 0 {
+			if sr.Request.Headers == nil {
+				sr.Request.Headers = map[string]string{}
+			}
+			sr.Request.Headers["Cookie"] = strings.Join(names, "; ")
+		}
+	}
 	timeout := cs.Timeout
 	if timeout <= 0 {
 		timeout = DefaultTimeout

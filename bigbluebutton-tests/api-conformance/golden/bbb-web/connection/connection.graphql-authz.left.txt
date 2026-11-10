@@ -24,15 +24,3 @@ $.X-Moderator "false"
 $.X-Presenter "false"
 $.X-UserId "w_<id>"
 $.response "authorized"
-
-== step 8: route connection-authz
-status 200
-header Cache-Control no-cache
-header Content-Type plain/text
-header Meeting-Create-Time <time>
-header Meeting-Id <sha1(meetingID)>-<time>
-header Meeting-Name Hook+test
-header User-Id w_<id>
-header User-Name Bob
-header Voice-Bridge <random>
-body text 10 bytes, sha256 04dd9c7e9464

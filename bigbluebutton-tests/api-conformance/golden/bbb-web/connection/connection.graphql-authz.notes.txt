@@ -94,7 +94,7 @@ $.X-Presenter "false"
 $.X-UserId "w_<id>"
 $.response "authorized"
 
-== step 14: route connection-graphql-authz
+== step 15: route connection-graphql-authz
 status 200
 header Cache-Control no-cache
 header Content-Type application/json;charset=utf-8

@@ -110,21 +110,31 @@ func (s *Session) Cookies(name string, u *url.URL) []*http.Cookie {
 	return s.jar(name).Cookies(u)
 }
 
-// subrequestCookies puts on req the cookies a subrequest carries (see
-// Prepared.CookiesFrom). They go on req, not in p.Header, so reports, which
-// show p.Header, don't show them.
-func (s *Session) subrequestCookies(req *http.Request, p *Prepared, name string) error {
-	if vs, ok := req.Header["Cookie"]; ok {
-		if strings.Join(vs, "") == "" {
-			delete(req.Header, "Cookie")
-		}
-		return nil
+// ForwardedCookies returns the cookies a request with CookiesFrom carries
+// for client name: none when p.Header has a Cookie of its own.
+func (s *Session) ForwardedCookies(p *Prepared, name string) ([]*http.Cookie, error) {
+	if _, ok := p.Header["Cookie"]; ok {
+		return nil, nil
 	}
 	u, err := url.Parse(p.CookiesFrom)
 	if err != nil || u.Scheme == "" || u.Host == "" {
-		return fmt.Errorf("cookies from %q: not an absolute URL", p.CookiesFrom)
+		return nil, fmt.Errorf("cookies from %q: not an absolute URL", p.CookiesFrom)
 	}
-	for _, c := range s.jar(name).Cookies(u) {
+	return s.jar(name).Cookies(u), nil
+}
+
+// subrequestCookies puts on req the cookies a subrequest carries (see
+// Prepared.CookiesFrom). They go on req, not in p.Header, so their values
+// stay out of reports; the runner reports their names.
+func (s *Session) subrequestCookies(req *http.Request, p *Prepared, name string) error {
+	if vs, ok := req.Header["Cookie"]; ok && strings.Join(vs, "") == "" {
+		delete(req.Header, "Cookie")
+	}
+	cookies, err := s.ForwardedCookies(p, name)
+	if err != nil {
+		return err
+	}
+	for _, c := range cookies {
 		req.AddCookie(c)
 	}
 	return nil

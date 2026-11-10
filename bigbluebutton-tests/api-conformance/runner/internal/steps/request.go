@@ -30,7 +30,8 @@ func (x *exec) prepare(cs *spec.CallStep) (*client.Prepared, error) {
 	// cookiesFrom is set for a route served somewhere other than baseUrl,
 	// such as bbb-web's own port for the nginx auth hooks: nginx calls
 	// those with the browser's cookies, so the step sends the cookies its
-	// client holds for the same path under baseUrl.
+	// client holds under baseUrl, for X-Original-URI's path if the step
+	// sends one, else for the route's own.
 	var base, query, call, cookiesFrom string
 	switch {
 	case cs.HasCall:
@@ -138,6 +139,14 @@ func (x *exec) prepare(cs *spec.CallStep) (*client.Prepared, error) {
 			return nil, err
 		}
 		h.Set(name, v)
+	}
+	// The browser sent nginx the cookies of the request it made, which nginx
+	// passes on as X-Original-URI when the hook takes it.
+	if p.CookiesFrom != "" {
+		if xo := h.Get("X-Original-URI"); strings.HasPrefix(xo, "/") {
+			xo, _, _ = strings.Cut(xo, "?")
+			p.CookiesFrom = x.r.Target.BaseURL + xo
+		}
 	}
 	return p, nil
 }
