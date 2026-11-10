@@ -1,7 +1,7 @@
 # Same Hasura version as build/packages-template/bbb-graphql-server/build.sh
 FROM hasura/graphql-engine:v2.49.3-ce.cli-migrations-v3@sha256:d3889fe021838f1a200aaeac7c57b9c0245e46990305fa92e73c4d9c65676958 AS hasura
 
-FROM ubuntu:24.04@sha256:68ee22004a9109b44973313b02ff7b1de250f1de0f5ecb628d73f579aaff33ac
+FROM ubuntu:24.10@sha256:cdf755952ed117f6126ff4e65810bf93767d4c38f5c7185b50ec1f1078b464cc
 
 # Libraries of the engine as in opts-noble.sh; netcat for Hasura's entrypoint; netbase for
 # /etc/protocols, without which the engine makes no outbound HTTP call (the auth hook)
