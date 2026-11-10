@@ -1164,6 +1164,8 @@ public:
             maxFramerate: 15
             priority: medium
   stats:
+    # Shows the connection status button, its modal and the connection notifications.
+    # The connection-alive heartbeat behind user_connectionStatus is sent regardless of this value.
     enabled: true
     interval: 10000
     timeout: 10000
