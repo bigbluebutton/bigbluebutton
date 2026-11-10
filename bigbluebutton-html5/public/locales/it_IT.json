@@ -206,7 +206,7 @@
     "app.appsGallery.listViewLabel": "Vista ad elenco",
     "app.appsGallery.newAppLabel": "Nuova",
     "app.appsGallery.modal.title": "Oops!",
-    "app.appsGallery.modal.subtitle": "Hai già {pinnedAppsNumber} app appuntate nella barra laterale.",
+    "app.appsGallery.modal.subtitle": "Hai già {pinnedAppsNumber} appuntate nella barra laterale.",
     "app.appsGallery.modal.description": "Per appuntare una nuova app, devi prima sbloccarne un'altra.",
     "app.appsGallery.modal.confirmButtonLabel": "Ho capito",
     "app.profileSettings.title": "Impostazioni profilo",
