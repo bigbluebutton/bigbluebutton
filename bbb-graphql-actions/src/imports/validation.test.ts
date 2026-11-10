@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert';
 import {
   throwErrorIfInvalidLocale,
+  throwErrorIfInvalidCaptionId,
   throwErrorIfIntOutOfRange,
   throwErrorIfStringTooLong,
 } from './validation';
@@ -70,6 +71,15 @@ test('throwErrorIfStringTooLong enforces the boundary', () => {
   // A uuid v4 is what the client and the plugin path both send.
   accepts(() => throwErrorIfStringTooLong('transcriptId', '1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed', 40));
   accepts(() => throwErrorIfStringTooLong('text', '', 8192));
+});
+
+test('throwErrorIfInvalidCaptionId accepts the ids the clients generate and nothing else', () => {
+  accepts(() => throwErrorIfInvalidCaptionId('transcriptId', '1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed'));
+  accepts(() => throwErrorIfInvalidCaptionId('transcriptId', 'w_abcdefghijkl-1762800000000'));
+  accepts(() => throwErrorIfInvalidCaptionId('transcriptId', 'a_B-9'));
+  for (const value of ['', '../x', 'a b', 'a/b', '<b>', 'id;drop', 'a.b', 'a\u0000', undefined, null, 42]) {
+    rejects(() => throwErrorIfInvalidCaptionId('transcriptId', value));
+  }
 });
 
 test('throwErrorIfIntOutOfRange rejects negatives and overflow', () => {

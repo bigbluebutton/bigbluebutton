@@ -3,6 +3,7 @@ import {
   throwErrorIfInvalidInput,
   throwErrorIfInvalidLocale,
   throwErrorIfNonCanonicalLocale,
+  throwErrorIfInvalidCaptionId,
   throwErrorIfIntOutOfRange,
   throwErrorIfStringTooLong,
 } from "../imports/validation";
@@ -25,6 +26,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
   throwErrorIfInvalidLocale(input.locale);
   throwErrorIfNonCanonicalLocale(input.locale);
   throwErrorIfStringTooLong('transcriptId', input.transcriptId, MAX_TRANSCRIPT_ID_LENGTH);
+  throwErrorIfInvalidCaptionId('transcriptId', input.transcriptId);
   throwErrorIfStringTooLong('text', input.text, MAX_TRANSCRIPT_LENGTH);
   throwErrorIfStringTooLong('transcript', input.transcript, MAX_TRANSCRIPT_LENGTH);
   // An offset can never legitimately exceed the maximum text length, and

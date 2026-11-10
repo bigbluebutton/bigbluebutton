@@ -57,6 +57,17 @@ export const throwErrorIfStringTooLong = (name: string, value: unknown, maxLengt
     }
 };
 
+// A caption id is stored as "<userId>-<captionId>" and akka-apps
+// (LocaleUtil.isValidCaptionId) drops anything else without telling the
+// client, so refuse it here with an error. The clients send a uuid v4.
+const CAPTION_ID_PATTERN = /^[A-Za-z0-9_-]+$/;
+
+export const throwErrorIfInvalidCaptionId = (name: string, value: unknown) => {
+    if (typeof value !== 'string' || !CAPTION_ID_PATTERN.test(value)) {
+        throw new ValidationError(`Parameter '${name}' must contain only letters, digits, '-' and '_'`, 400);
+    }
+};
+
 export const throwErrorIfIntOutOfRange = (name: string, value: unknown, min: number, max: number) => {
     if (typeof value !== 'number' || !Number.isInteger(value) || value < min || value > max) {
         throw new ValidationError(`Parameter '${name}' must be an integer between ${min} and ${max}`, 400);

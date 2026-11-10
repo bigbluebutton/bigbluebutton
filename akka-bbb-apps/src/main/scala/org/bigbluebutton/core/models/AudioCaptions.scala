@@ -2,9 +2,7 @@ package org.bigbluebutton.core.models
 
 import scala.collection.immutable.HashMap
 
-import org.bigbluebutton.SystemConfiguration
-
-object AudioCaptions extends SystemConfiguration {
+object AudioCaptions {
   // Bounds the per-meeting transcript map, which is never pruned while the
   // meeting runs. 20 is well above the number of transcription languages a
   // meeting offers (public.app.audioCaptions.language.available). A transcript
