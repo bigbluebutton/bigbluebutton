@@ -36,15 +36,12 @@ printf '%s\n' "$IMAGE" > /usr/share/bbb-libreoffice/docker-image
 chmod 0644 /usr/share/bbb-libreoffice/docker-image
 install -Dm644 assets/zzz-bbb-docker-libreoffice /usr/share/bbb-libreoffice/zzz-bbb-docker-libreoffice.template
 
-FOLDER_CHECK=`[ -d /usr/share/bbb-libreoffice-conversion/ ] && echo 1 || echo 0`
-if [ "$FOLDER_CHECK" = "0" ]; then
-	echo "Install folder doesn't exists, installing"
-	install -Dm755 assets/convert-local.sh /usr/share/bbb-libreoffice-conversion/convert.sh
-	install -Dm755 assets/convert-cool.sh /usr/share/bbb-libreoffice-conversion/convert-cool.sh
-	chown -R root /usr/share/bbb-libreoffice-conversion/
-else
-	echo "Install folder already exists"
-fi;
+# Always installed, so a conversion script from an earlier checkout is replaced on upgrade: the one
+# shipped until 4.0 ran the bbb-soffice alias, which this version no longer creates
+echo "Installing conversion scripts"
+install -Dm755 assets/convert-local.sh /usr/share/bbb-libreoffice-conversion/convert.sh
+install -Dm755 assets/convert-cool.sh /usr/share/bbb-libreoffice-conversion/convert-cool.sh
+chown -R root /usr/share/bbb-libreoffice-conversion/
 
 # Always rendered, so a rule written for an earlier image is replaced on upgrade
 echo "Installing sudoers file"
