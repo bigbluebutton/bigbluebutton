@@ -619,6 +619,8 @@ export const elements = {
   enableWebcamsToggleBtn: 'span[data-test="webcamToggleBtn"] input',
   enableDesktopSharingToggleBtn: 'span[data-test="desktopSharingToggleBtn"] input',
   animationsToggleBtn: 'input[data-test="animationsToggleBtn"]',
+  selfViewDisableToggleBtn: 'input[data-test="selfViewDisableToggleBtn"]',
+  selfViewDisabledLabel: 'Self-view disabled',
   shortcutsTab: 'span[id="shortcutsTab"]',
   audioTab: 'span[id="audioTab"]',
   advancedFilteringRadio: 'input[data-test="advancedFilteringRadio"]',

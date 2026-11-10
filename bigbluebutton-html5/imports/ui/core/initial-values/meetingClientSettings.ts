@@ -155,6 +155,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           paginationEnabled: true,
           whiteboardToolbarAutoHide: false,
           recordingIndicatorAutoCollapse: false,
+          selfViewDisable: false,
           pushToTalkEnabled: false,
           autoCloseReactionsBar: true,
           darkTheme: false,

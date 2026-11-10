@@ -164,3 +164,28 @@ test.describe.parallel('Webcam', { tag: ['@ci', '@media'] }, () => {
     });
   });
 });
+
+// Settings > Application > "Disable self-view (all cameras)" hides the user's own tiles while
+// everyone else keeps receiving the stream. Sharing goes through the webcam preview, and the
+// own tile mounts after it closes, so the setting has to come through the preview intact.
+test.describe.parallel('Self-view disabled in the settings', { tag: ['@nightly', '@media'] }, () => {
+  test('Disable self-view in the settings survives sharing the webcam', async ({ browser, page }, testInfo) => {
+    const webcam = new Webcam(browser, page);
+    await webcam.init(true, { testInfo });
+    await webcam.disableSelfViewInSettings();
+    await webcam.selfViewStaysDisabledAfterSharing();
+  });
+
+  test('The selfViewDisable default of the client settings reaches the user and survives sharing', async ({
+    browser,
+    page,
+  }, testInfo) => {
+    const webcam = new Webcam(browser, page);
+    await webcam.init(true, {
+      testInfo,
+      clientSettingsOverrides: { public: { app: { defaultSettings: { application: { selfViewDisable: true } } } } },
+    });
+    await webcam.hasSelfViewDisabledInSettings('the default should reach "Disable self-view" in the settings');
+    await webcam.selfViewStaysDisabledAfterSharing();
+  });
+});
