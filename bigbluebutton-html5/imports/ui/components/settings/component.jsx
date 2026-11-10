@@ -276,7 +276,6 @@ class Settings extends Component {
       isPresenter,
       showGuestNotification,
       layoutContextDispatch,
-      selectedLayout,
       isScreenSharingEnabled,
       isVideoEnabled,
       isReactionsEnabled,
@@ -303,7 +302,6 @@ class Settings extends Component {
             settings={current.application}
             displaySettingsStatus={this.displaySettingsStatus}
             layoutContextDispatch={layoutContextDispatch}
-            selectedLayout={selectedLayout}
             isPresenter={isPresenter}
             isReactionsEnabled={isReactionsEnabled}
             paginationToggleEnabled={paginationToggleEnabled}
