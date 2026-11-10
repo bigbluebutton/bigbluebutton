@@ -133,7 +133,10 @@ export class MeetingParameters extends MultiUsers {
       await this.modPage.waitAndClick(promoteOption);
       await checkAvatarIcon(this.userPage2);
     } else {
-      await this.modPage.wasRemoved(promoteOption, 'should not offer to promote the guest');
+      await this.modPage.wasRemoved(
+        promoteOption,
+        'should not offer to promote the guest (needs authenticatedGuest=true, the bbb-web default)',
+      );
     }
   }
 

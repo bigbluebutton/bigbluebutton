@@ -38,7 +38,7 @@ export class APIParameters extends MultiUsers {
         meta_plain: 'plain',
         meta_with_underscore: 'underscore',
       });
-      const metadata = (await getMeetingInfo(request, meetingID)).metadata?.[0] as Record<string, string[]>;
+      const metadata = ((await getMeetingInfo(request, meetingID)).metadata?.[0] || {}) as Record<string, string[]>;
       expect(metadata['mixed-case'], 'should keep a mixed-case name, lowercased').toEqual(['mixed']);
       expect(metadata.plain, 'should keep a plain name').toEqual(['plain']);
       expect(Object.keys(metadata), 'should drop a name with an underscore after the prefix').not.toContain(
@@ -54,7 +54,10 @@ export class APIParameters extends MultiUsers {
     const meetingID = uniqueMeetingID('guest-policy-auth');
     try {
       await createWithParams(request, { name: meetingID, meetingID, guestPolicy: 'ALWAYS_ACCEPT_AUTH' });
-      expect(await guestStatusOnJoin(request, meetingID, { guest: 'true' }), 'should make a guest wait').toBe('WAIT');
+      expect(
+        await guestStatusOnJoin(request, meetingID, { guest: 'true' }),
+        'should make a guest wait (needs authenticatedGuest=true, the bbb-web default)',
+      ).toBe('WAIT');
       expect(await guestStatusOnJoin(request, meetingID, {}), 'should admit a viewer who is not a guest').toBe('ALLOW');
     } finally {
       await endMeetings(request, [meetingID]);
@@ -67,7 +70,10 @@ export class APIParameters extends MultiUsers {
     const meetingID = uniqueMeetingID('join-auth');
     try {
       await createWithParams(request, { name: meetingID, meetingID, guestPolicy: 'ASK_MODERATOR' });
-      expect(await guestStatusOnJoin(request, meetingID, {}), 'should make a viewer without guest= wait').toBe('WAIT');
+      expect(
+        await guestStatusOnJoin(request, meetingID, {}),
+        'should make a viewer without guest= wait (needs authenticatedGuest=true, the bbb-web default)',
+      ).toBe('WAIT');
       expect(
         await guestStatusOnJoin(request, meetingID, { auth: 'false' }),
         'should admit a viewer with auth=false',
