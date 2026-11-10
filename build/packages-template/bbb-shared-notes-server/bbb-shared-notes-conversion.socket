@@ -11,6 +11,9 @@ SocketUser=root
 SocketGroup=bigbluebutton
 SocketMode=0660
 RemoveOnStop=yes
+# No trigger rate limit: refused connections count towards it, and once it is hit
+# the socket stays failed until restarted. MaxConnections bounds the work instead.
+TriggerLimitIntervalSec=0
 
 [Install]
 WantedBy=sockets.target
