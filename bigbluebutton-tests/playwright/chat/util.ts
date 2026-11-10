@@ -59,7 +59,13 @@ export async function hoverLastMessage(testPage: Page) {
 // Runs in the browser. Sends the messages to the public chat one after the other with the
 // mutation the chat form sends, over a separate graphql-transport-ws connection authenticated
 // with the page's own session, and resolves once the server has accepted the last one.
-function sendPublicMessagesInBrowser(messages: string[]): Promise<void> {
+function sendPublicMessagesInBrowser({
+  messages,
+  batchSize,
+}: {
+  messages: string[];
+  batchSize: number;
+}): Promise<void> {
   const query =
     'mutation ChatSendMessage($chatId: String!, $chatMessageInMarkdownFormat: String!) ' +
     '{ chatSendMessage(chatId: $chatId, chatMessageInMarkdownFormat: $chatMessageInMarkdownFormat) }';
@@ -78,13 +84,18 @@ function sendPublicMessagesInBrowser(messages: string[]): Promise<void> {
       else resolve();
     };
     let next = 0;
-    const sendNext = () => {
-      if (next === messages.length) {
+    let completed = 0;
+    const sendNextBatch = () => {
+      if (completed === messages.length) {
         finish();
         return;
       }
-      const variables = { chatId: 'MAIN-PUBLIC-GROUP-CHAT', chatMessageInMarkdownFormat: messages[next] };
-      send({ id: String(next), type: 'subscribe', payload: { query, variables } });
+      const batchEnd = Math.min(next + batchSize, messages.length);
+      while (next < batchEnd) {
+        const variables = { chatId: 'MAIN-PUBLIC-GROUP-CHAT', chatMessageInMarkdownFormat: messages[next] };
+        send({ id: String(next), type: 'subscribe', payload: { query, variables } });
+        next += 1;
+      }
     };
     ws.onerror = () => finish(new Error('websocket error'));
     ws.onclose = (event: CloseEvent) =>
@@ -104,12 +115,12 @@ function sendPublicMessagesInBrowser(messages: string[]): Promise<void> {
     ws.onmessage = (event: MessageEvent) => {
       const message = JSON.parse(event.data as string);
       if (message.type === 'ping') send({ type: 'pong' });
-      else if (message.type === 'connection_ack') sendNext();
+      else if (message.type === 'connection_ack') sendNextBatch();
       else if (message.type === 'error' || message.payload?.errors) {
         finish(new Error(`chatSendMessage refused: ${JSON.stringify(message.payload)}`));
-      } else if (message.type === 'complete' && message.id === String(next)) {
-        next += 1;
-        sendNext();
+      } else if (message.type === 'complete') {
+        completed += 1;
+        if (completed % batchSize === 0 || completed === messages.length) sendNextBatch();
       }
     };
   });
@@ -117,5 +128,64 @@ function sendPublicMessagesInBrowser(messages: string[]): Promise<void> {
 
 // Many messages, sent as the chat form sends them but without typing each one.
 export async function sendPublicMessages(testPage: Page, messages: string[]) {
-  await testPage.page.evaluate(sendPublicMessagesInBrowser, messages);
+  await testPage.page.evaluate(sendPublicMessagesInBrowser, { messages, batchSize: 1 });
+}
+
+export async function sendPublicMessagesInBatches(testPage: Page, messages: string[], batchSize: number) {
+  await testPage.page.evaluate(sendPublicMessagesInBrowser, { messages, batchSize });
+}
+
+function countPublicMessageCreatedAtTiesInBrowser(): Promise<number> {
+  const query = `subscription chatMessages($limit: Int!, $offset: Int!) {
+    chat_message_public(limit: $limit, offset: $offset, order_by: { createdAt: asc }) {
+      createdAt
+    }
+  }`;
+  return new Promise<number>((resolve, reject) => {
+    const ws = new WebSocket(`wss://${window.location.host}/graphql`, 'graphql-transport-ws');
+    const send = (message: unknown) => ws.send(JSON.stringify(message));
+    const timer = setTimeout(() => {
+      ws.close();
+      reject(new Error('counting createdAt ties timed out'));
+    }, 30000);
+    const finish = (tieCount?: number, error?: Error) => {
+      clearTimeout(timer);
+      ws.onclose = null;
+      ws.close();
+      if (error) reject(error);
+      else resolve(tieCount ?? 0);
+    };
+    ws.onerror = () => finish(undefined, new Error('websocket error'));
+    ws.onclose = (event: CloseEvent) =>
+      finish(undefined, new Error(`websocket closed before createdAt ties were counted (code ${event.code})`));
+    ws.onopen = () =>
+      send({
+        type: 'connection_init',
+        payload: {
+          headers: {
+            'X-Session-Token': sessionStorage.getItem('sessionToken'),
+            'X-ClientSessionUUID': sessionStorage.getItem('clientSessionUUID'),
+            'X-ClientType': 'HTML5',
+            'X-ClientIsMobile': 'false',
+          },
+        },
+      });
+    ws.onmessage = (event: MessageEvent) => {
+      const message = JSON.parse(event.data as string);
+      if (message.type === 'ping') send({ type: 'pong' });
+      else if (message.type === 'connection_ack') {
+        send({ id: 'created-at-ties', type: 'subscribe', payload: { query, variables: { limit: 50, offset: 0 } } });
+      } else if (message.type === 'error' || message.payload?.errors) {
+        finish(undefined, new Error(`chat message query refused: ${JSON.stringify(message.payload)}`));
+      } else if (message.type === 'next') {
+        const rows = message.payload.data.chat_message_public as Array<{ createdAt: string }>;
+        const tieCount = rows.slice(1).filter((row, index) => row.createdAt === rows[index].createdAt).length;
+        finish(tieCount);
+      }
+    };
+  });
+}
+
+export async function countPublicMessageCreatedAtTies(testPage: Page) {
+  return testPage.page.evaluate(countPublicMessageCreatedAtTiesInBrowser);
 }

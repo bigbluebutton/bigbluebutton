@@ -101,6 +101,45 @@ interface HandleDownloadResult {
   content: string;
 }
 
+// Runs in the browser before the client: merges `settingsOverrides` into window.meetingClientSettings
+// whenever the client sets it, so the page runs on the overridden settings
+const clientSettingsOverridesInitScript = (settingsOverrides: ClientSettingsOverrides) => {
+  const isPlainObject = (val: unknown): val is Record<string, unknown> =>
+    typeof val === 'object' && val !== null && !Array.isArray(val);
+  const deepMerge = (base: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> => {
+    const merged: Record<string, unknown> = { ...base };
+    Object.keys(source).forEach((key) => {
+      const sourceValue = source[key];
+      const baseValue = merged[key];
+      merged[key] =
+        isPlainObject(sourceValue) && isPlainObject(baseValue) ? deepMerge(baseValue, sourceValue) : sourceValue;
+    });
+    return merged;
+  };
+
+  let storedSettings: unknown;
+  Object.defineProperty(window, 'meetingClientSettings', {
+    configurable: true,
+    get() {
+      return storedSettings;
+    },
+    set(value: unknown) {
+      // Keep the unpatched server value aside for expectServerClientSettingsOverride.
+      // eslint-disable-next-line no-underscore-dangle
+      (window as unknown as { __serverMeetingClientSettings?: unknown }).__serverMeetingClientSettings = value;
+      storedSettings = isPlainObject(value) ? deepMerge(value, settingsOverrides) : value;
+    },
+  });
+};
+
+// Installs the same patch on a browser context, so a tab it opens later (a breakout room) gets it too
+export async function applyClientSettingsOverridesToContext(
+  context: BrowserContext,
+  overrides: ClientSettingsOverrides,
+): Promise<void> {
+  await context.addInitScript(clientSettingsOverridesInitScript, overrides);
+}
+
 export class Page {
   public browser: Browser;
 
@@ -225,34 +264,7 @@ export class Page {
    * Must run before `page.goto()`.
    */
   async applyClientSettingsOverrides(overrides: ClientSettingsOverrides): Promise<void> {
-    await this.page.addInitScript((settingsOverrides) => {
-      const isPlainObject = (val: unknown): val is Record<string, unknown> =>
-        typeof val === 'object' && val !== null && !Array.isArray(val);
-      const deepMerge = (base: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> => {
-        const merged: Record<string, unknown> = { ...base };
-        Object.keys(source).forEach((key) => {
-          const sourceValue = source[key];
-          const baseValue = merged[key];
-          merged[key] =
-            isPlainObject(sourceValue) && isPlainObject(baseValue) ? deepMerge(baseValue, sourceValue) : sourceValue;
-        });
-        return merged;
-      };
-
-      let storedSettings: unknown;
-      Object.defineProperty(window, 'meetingClientSettings', {
-        configurable: true,
-        get() {
-          return storedSettings;
-        },
-        set(value: unknown) {
-          // Keep the unpatched server value aside for expectServerClientSettingsOverride.
-          // eslint-disable-next-line no-underscore-dangle
-          (window as unknown as { __serverMeetingClientSettings?: unknown }).__serverMeetingClientSettings = value;
-          storedSettings = isPlainObject(value) ? deepMerge(value, settingsOverrides) : value;
-        },
-      });
-    }, overrides);
+    await this.page.addInitScript(clientSettingsOverridesInitScript, overrides);
   }
 
   /**
@@ -553,35 +565,34 @@ export class Page {
 
   async hasNotificationIcon(selector: string, description: string, timeout = ELEMENT_WAIT_TIME) {
     await expect(async () => {
-      const hasNotificationIcon = await this.page.evaluate(({
-        el,
-        publicIndicator,
-        privateIndicator,
-      }) => {
-        const element = document.querySelector(el);
-        if (!element) return false;
-        
-        const afterElement = getComputedStyle(element, '::after');
-        if (afterElement && afterElement.content !== 'none') {
-          return true;
-        }
-        
-        // Check for unread indicator in public/private buttons inside the chat panel
-        const publicBadge = element.querySelector(publicIndicator);
-        if (publicBadge) {
-          return true;
-        }
-        const privateBadge = element.querySelector(privateIndicator);
-        if (privateBadge) {
-          return true;
-        }
-        
-        return false;
-      }, {
-        el: selector,
-        publicIndicator: e.publicUnreadIndicator,
-        privateIndicator: e.privateUnreadIndicator,
-      });
+      const hasNotificationIcon = await this.page.evaluate(
+        ({ el, publicIndicator, privateIndicator }) => {
+          const element = document.querySelector(el);
+          if (!element) return false;
+
+          const afterElement = getComputedStyle(element, '::after');
+          if (afterElement && afterElement.content !== 'none') {
+            return true;
+          }
+
+          // Check for unread indicator in public/private buttons inside the chat panel
+          const publicBadge = element.querySelector(publicIndicator);
+          if (publicBadge) {
+            return true;
+          }
+          const privateBadge = element.querySelector(privateIndicator);
+          if (privateBadge) {
+            return true;
+          }
+
+          return false;
+        },
+        {
+          el: selector,
+          publicIndicator: e.publicUnreadIndicator,
+          privateIndicator: e.privateUnreadIndicator,
+        },
+      );
       expect(hasNotificationIcon).toBeTruthy();
     }, description).toPass({ timeout });
   }
@@ -716,6 +727,6 @@ export class Page {
   async checkTooltip(selector: string, text: string) {
     await this.hoverElement(selector);
     const locatorTooltip = this.page.locator(`text=${text}`);
-    await expect(locatorTooltip).toBeVisible({ timeout: 10000});
+    await expect(locatorTooltip).toBeVisible({ timeout: 10000 });
   }
 }

@@ -1,0 +1,24 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# presentationUploadExternalUrl must be a URL. Where a valid one goes is in
+# create/strings/; an empty one is in
+# presentation-upload-external-url-empty.yaml.
+id: create.validation.presentation-upload-external-url
+title: create with presentationUploadExternalUrl ${scenario}
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka]
+variants:
+  - {id: invalid, vars: {scenario: that isn't a URL, url: not a url, returncode: FAILED, key: validationError}}
+  - {id: valid, vars: {scenario: that is a URL, url: "https://uploads.example/upload", returncode: SUCCESS, key: ""}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: External upload, presentationUploadExternalUrl: "${url}"}
+    expect: {returncode: "${returncode}", messageKey: "${key}"}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

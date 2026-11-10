@@ -1,0 +1,27 @@
+NEW        create.body.forms
+NEW        create.duplicate.same-passwords
+NEW        create.validation.meeting-id-missing
+NEW        create.validation.meeting-id-with-comma
+NEW        create.validation.name-length-1
+NEW        create.validation.name-length-2
+NEW        create.validation.name-length-256
+NEW        create.validation.name-length-257
+NEW        create.props.selected
+SKIP       create.props.mute-on-start: unimplemented: env
+NEW        create.side-effects.unrecorded
+NEW        create.side-effects.recorded
+NEW        end.callback.ended
+NEW        getMeetingInfo.fields.metadata
+NEW        getMeetings.checksum.errors
+NEW        getMeetings.checksum.modes-sha1-last
+NEW        getMeetings.checksum.modes-sha256-first
+NEW        getMeetings.checksum.modes-sha384-middle
+NEW        getMeetings.checksum.modes-sha512-uppercase
+NEW        isMeetingRunning.lifecycle.after-end
+NEW        join.presence.guest-approved
+NEW        join.presence.two-users
+NEW        join.redirect.session-token
+NEW        stuns.session.unknown-token
+NEW        version.index.fields
+
+OUT: 24 new, 0 changed, 0 unchanged, 0 unstable, 0 incomplete, 0 secret, 0 errors, 1 skipped

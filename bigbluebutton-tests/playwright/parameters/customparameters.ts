@@ -9,7 +9,12 @@ import {
 } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { checkScreenshots } from '../layouts/util';
-import { EXTERNAL_VIDEO_URL, routeExternalVideo, uploadSinglePresentation } from '../presentation/util';
+import {
+  EXTERNAL_VIDEO_URL,
+  routeExternalVideo,
+  uploadSinglePresentation,
+  waitForSlideToSettle,
+} from '../presentation/util';
 import * as utilScreenShare from '../screenshare/util';
 import { MultiUsers } from '../user/multiusers';
 import { constants as c, LOGOUT_URL, LONG_GROUP_NAMES } from './constants';
@@ -42,6 +47,21 @@ export class CustomParameters extends MultiUsers {
 
   async hideParticipantsOnLogin() {
     await this.modPage.wasRemoved(e.usersList, 'should not display the users list');
+  }
+
+  async hideSidebarNavigation() {
+    // The whiteboard renders after the initial panel settles, avoiding a false positive between closes.
+    await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard');
+    await this.modPage.wasRemoved(e.navigationSidebarContainer, 'should not display the navigation sidebar');
+    await this.modPage.wasRemoved(e.sidebarContentMain, 'should not display the sidebar content panel');
+    await this.modPage2.hasElement(
+      e.navigationSidebarContainer,
+      'should display the navigation sidebar without the parameter',
+    );
+    await this.modPage2.hasElement(
+      e.sidebarContentMain,
+      'should display the sidebar content panel without the parameter',
+    );
   }
 
   async showParticipantsOnLoginOnTablet() {
@@ -687,13 +707,6 @@ export class CustomParameters extends MultiUsers {
     );
   }
 
-  async autoShareWebcam() {
-    await this.modPage.hasElement(
-      e.webcamSettingsModal,
-      'should display the webcam settings modal when auto sharing the webcam ',
-    );
-  }
-
   async hideActionsBarTest() {
     await this.modPage.wasRemoved(e.mediaAreaButton, 'should not display the media area button');
     await this.modPage.wasRemoved(e.joinAudio, 'should not display the join audio button');
@@ -911,6 +924,8 @@ export class CustomParameters extends MultiUsers {
     await this.modPage.wasRemoved(e.joinVideo, 'should not display the join video button');
 
     await this.modPage.hasElement(e.chatMessages, 'should display the chat messages');
+    // the attendee joins without enforceLayout and sees the presentation
+    await waitForSlideToSettle(this.userPage);
 
     await checkScreenshots(
       this,

@@ -107,8 +107,7 @@ trait PresentationPageConversionStartedSysMsgHdlr extends SystemConfiguration {
         liveMeeting.droppedPresentations.addRefused(presentationId)
         sendConversionRejected("PRESENTATION_UPLOAD_POD_LIMIT_REACHED")
 
-        // Drop any conversion tracker entry for this presentation.
-        state.update(state.presentationConversions.remove(presentationId))
+        state
 
       case Some(pod) =>
         var pods = state.presentationPodManager.addPod(pod)

@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# The longest meetingID create accepts. It is fixed, so that its length
+# doesn't depend on the case's own ID, and the case runs alone.
+id: create.validation.meeting-id-longest
+title: create accepts a 256-character meetingID
+endpoint: create
+class: contract
+tags: [ci, serial]
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: '${repeat("z", 256)}', name: Meeting ID}
+    expect: {returncode: SUCCESS}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: '${repeat("z", 256)}'}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

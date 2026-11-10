@@ -1,5 +1,6 @@
 package org.bigbluebutton.api.service;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.bigbluebutton.api.model.request.*;
 import org.bigbluebutton.api.model.shared.Checksum;
 import org.bigbluebutton.api.model.shared.ChecksumValidationGroup;
@@ -264,6 +265,29 @@ public class ValidationService {
 
     public void setSupportedChecksumAlgorithms(String supportedChecksumAlgorithms) { this.supportedChecksumAlgorithms = supportedChecksumAlgorithms; }
     public String getSupportedChecksumAlgorithms() { return supportedChecksumAlgorithms; }
+
+    /** The strongest algorithm GetChecksumValidator accepts under supportedChecksumAlgorithms; sha256 when it accepts none. */
+    public String getStrongestSupportedChecksumAlgorithm() {
+        if (supportedChecksumAlgorithms != null) {
+            for (String algorithm : new String[] { "sha512", "sha384", "sha256", "sha1" }) {
+                if (supportedChecksumAlgorithms.contains(algorithm)) {
+                    return algorithm;
+                }
+            }
+        }
+        log.warn("supportedChecksumAlgorithms ('{}') names no known algorithm; falling back to sha256", supportedChecksumAlgorithms);
+        return "sha256";
+    }
+
+    /** Hashes data with getStrongestSupportedChecksumAlgorithm(), for URLs this server signs itself. */
+    public String calculateChecksum(String data) {
+        switch (getStrongestSupportedChecksumAlgorithm()) {
+            case "sha512": return DigestUtils.sha512Hex(data);
+            case "sha384": return DigestUtils.sha384Hex(data);
+            case "sha1": return DigestUtils.sha1Hex(data);
+            default: return DigestUtils.sha256Hex(data);
+        }
+    }
 
     public void setAllowRequestsWithoutSession(Boolean allowRequestsWithoutSession) {
         this.allowRequestsWithoutSession = allowRequestsWithoutSession;

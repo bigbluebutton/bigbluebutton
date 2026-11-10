@@ -115,9 +115,21 @@ export class MeetingEnded extends MultiUsers {
     const secondPage = await this.openSessionLink(await getSessionToken(this.userPage));
     await secondPage.waitForSelector(e.actionsBarBackground, ELEMENT_WAIT_EXTRA_LONG_TIME);
     await expect(
-      this.userPage.page.getByText(e.joinedAnotherWindowMessage),
+      this.userPage.page.locator(e.errorScreenDescription),
       'should tell the first page that the session was opened in another window',
-    ).toBeVisible({ timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
+    ).toHaveText(e.joinedAnotherWindowMessage, { timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
+    await this.userPage.wasRemoved(e.actionsBarBackground, 'should remove the first page from the meeting');
+    await secondPage.hasElement(e.actionsBarBackground, 'should keep the second page in the meeting');
+  }
+
+  async reloadKeepsThePageInTheMeeting() {
+    await this.userPage.page.reload();
+    await this.userPage.hasElement(
+      e.actionsBarBackground,
+      'should keep the reloaded page in the meeting',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+    await this.userPage.wasRemoved(e.errorScreenDescription, 'should not report the reloaded page as another window');
   }
 
   // the presentation is not waited for: ending the meeting does not depend on it

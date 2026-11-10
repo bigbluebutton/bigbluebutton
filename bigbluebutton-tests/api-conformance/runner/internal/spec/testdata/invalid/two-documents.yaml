@@ -1,0 +1,8 @@
+# want: 8: a file holds one case, but this one has 2 YAML documents
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+steps: [{call: create}]
+---
+id: create.x.z

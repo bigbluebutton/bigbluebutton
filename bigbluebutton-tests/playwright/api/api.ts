@@ -304,6 +304,20 @@ export class API extends MultiUsers {
     }
   }
 
+  // The generic mapping also matches a controller name alone. A controller without an index
+  // action failed on the default action it does not have, answering 500. Such a URL, like one
+  // naming an action the controller lacks, gets the same JSON 404 as any unknown path.
+  static async testControllerWithoutActionNotFound() {
+    const server = parameters.server!.replace(/\/$/, '');
+    const api = await axios.get(`${server}/api`, { adapter: 'http' });
+    expect(String(api.data), 'a controller with an index action should still answer').toContain('SUCCESS');
+    for (const path of ['presentation', 'recording', 'connection', 'presentation/noSuchAction', 'error']) {
+      const response = await axios.get(`${server}/${path}`, { adapter: 'http', validateStatus: () => true });
+      expect(response.status, `${path} should not be a resource`).toBe(404);
+      expect(response.data?.status, `${path} should get the JSON body of an unknown path`).toBe(404);
+    }
+  }
+
   // An LMS-style page on another origin frames the join URL: the join redirect carries
   // X-Frame-Options, but the client it redirects to is served by nginx without it, so the
   // meeting still loads. A document rendered by bbb-web itself is refused in such a frame.

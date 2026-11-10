@@ -1,0 +1,19 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case join.user-state.role-viewer
+target bbb-web
+
+== step 3: presence join as ann
+$.ejectReasonCode null
+$.ejected null
+$.extId "w_<id>"
+$.guest false
+$.guestStatus "ALLOW"
+$.isModerator false
+$.joinErrorCode null
+$.joinErrorMessage null
+$.joined true
+$.loggedOut false
+$.name "Ann"
+$.role "VIEWER"
+$.sessionToken "<token>"
+$.userId "w_<id>"

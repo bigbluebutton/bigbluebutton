@@ -1,0 +1,7 @@
+# want: 7: fixture path "../../go.mod" must stay inside the fixtures directory
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+steps:
+  - {call: create, params: {doc: '${base64File("../../go.mod")}'}}

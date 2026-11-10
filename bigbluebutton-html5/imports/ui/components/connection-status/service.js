@@ -15,15 +15,6 @@ const intlMessages = defineMessages({
   },
 });
 
-export const URL_REGEX = new RegExp(/^(http|https):\/\/[^ "]+$/);
-export const getHelp = () => {
-  const STATS = window.meetingClientSettings.public.stats;
-
-  if (URL_REGEX.test(STATS.help)) return STATS.help;
-
-  return null;
-};
-
 export const sortLevel = (a, b) => {
   const RTT = window.meetingClientSettings.public.stats.rtt;
 
@@ -222,7 +213,6 @@ export function getWorstStatus(statuses) {
 }
 
 export default {
-  getHelp,
   isEnabled,
   notification,
   calculateBitsPerSecond,

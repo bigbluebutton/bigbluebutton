@@ -1,0 +1,13 @@
+id: getMeetingInfo.smoke.json-error
+title: Errors come back as JSON when the client asks for JSON
+endpoint: getMeetingInfo
+class: contract
+tags: [ci]
+steps:
+  - call: getMeetingInfo
+    params: {meetingID: "${uid}"}
+    headers: {Accept: application/json}
+    expect:
+      format: json
+      returncode: FAILED
+      messageKey: notFound

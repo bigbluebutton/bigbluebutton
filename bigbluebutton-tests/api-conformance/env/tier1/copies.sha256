@@ -1,0 +1,11 @@
+b1312e0f4b6c89afdab45750255889ac4854f01a073bd62ba76a15508f6f0906  build/packages-template/bbb-web/opts-noble.sh
+d194811197560a4fd069da094f58059c5919e75a51d027680357c81d7bc44b20  build/packages-template/bbb-web/after-install.sh
+79ad2642d27bb596de3c62e2d1b97e60bf2f510b40f34e1bc43dfca5c3ed52f8  build/packages-template/bbb-web/bbb-web.service
+2fbb19194450530f8126578ee6a0fcec9018c966a0397d624c5194d485214cdb  build/packages-template/bbb-config/after-install.sh
+905c3f88ac0f59b0a5e24d937515645b63b6d8cc7854dff4836b1d02f32c4218  build/packages-template/bbb-graphql-server/after-install.sh
+3f819dbb943d2159c508882768762f6c57400915d5ef6081ad3005f84e56fbdc  build/packages-template/bbb-graphql-server/bbb-graphql-server@.service
+111a007efee5d41875973036c35029841f4b644c31eebca8ffc786ba285ff378  build/packages-template/bbb-graphql-middleware/bbb-graphql-middleware.service
+23dbd0e1371cf2d187c554d63b0b821bbdf3face1c93a4feaef6af6a92999788  build/packages-template/bbb-graphql-actions/bbb-graphql-actions.service
+b3022061fab741415dc9c3b6bfd5f345c9ed8677abb46c28e425aaf221a4f6c2  akka-bbb-apps/src/debian/DEBIAN/preinst
+80ee29d1628543b65ed6be551896ec4928fd59fea0bea96a9d02c7923baf0908  akka-bbb-apps/src/templates/systemloader/systemd/start-template
+d3213b9ad81b294d380f6a594f271273df2d53fd40f6afe6017abb7515cdf245  bbb-libreoffice/assets/convert-local.sh

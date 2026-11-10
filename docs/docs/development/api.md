@@ -145,11 +145,19 @@ Updated in 4.0:
   - **Changed:** Breakout rooms now always inherit the parent meeting's effective `meetingKeepEvents` value; an explicit `meetingKeepEvents` parameter and the server-wide `defaultKeepEvents` fallback only apply to top-level meetings (previously breakouts always fell back to `defaultKeepEvents`, even when the parent had an explicit override).
   - **Removed option:** `layouts` is no longer a valid `disabledFeatures` value (the layout selection UI was removed).
   - **Removed option:** `captions` is no longer a valid `disabledFeatures` value (it has had no effect since BBB 3.0, when typed captions moved to a plugin). Use `liveTranscription` to disable automatic transcription.
+  - **Changed:** At most `maxPresentationsPerRequest` pre-uploaded documents (10 by default; the default presentation is not counted) are uploaded per call (added in 4.0.1). The meeting is still created, and the response carries the `messageKey` `documentsDropped`; see [Pre-upload Slides](#pre-upload-slides).
+  - **Changed:** The `meetingEndedURL` callback carries the query parameters `recordingmarks` and `meetingID`, appended to the query of the URL (added in 4.0.1; 4.0.0 called the URL unchanged). See [Meeting Ended Callback URL](#meeting-ended-callback-url).
 - **join**
   - **Changed:** Parameter `enforceLayout` accepted values are now `UNIFIED_LAYOUT`, `CAMERAS_ONLY`, `PARTICIPANTS_AND_CHAT_ONLY`, `PRESENTATION_ONLY`, `MEDIA_ONLY` (the deprecated `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, `VIDEO_FOCUS` are no longer accepted).
   - **Changed:** Parameter `fullName` is now limited to 255 characters; a longer value is rejected with the `fullNameTooLong` message key (previously unbounded).
   - **Removed parameters:** `userdata-bbb_change_layout` (redundant with `userdata-bbb_default_layout`; its legacy `smart`/`videoFocus`/`presentationFocus`/`custom` values no longer exist), `userdata-enable-user-reaction` (redundant with the `userReactions` `disabledFeatures` option and `public.userReaction.enabled` in `settings.yml`) and `userdata-bbb_parent_room_moderator` (removed in 4.0.1; akka-apps no longer appends it to the breakout join URLs it generates; nothing has read it since 3.0.25, when breakout rooms started keeping the parent-room role, so the role itself tells who may remove users).
   - **Removed parameter:** `webVoiceConf` (obsolete; it set a custom Asterisk voice extension for the old Flash client and had no downstream effect, the value was never read).
+- **insertDocument**
+  - **Changed:** At most `maxPresentationsPerRequest` documents (10 by default) are uploaded per call (added in 4.0.1). The response is still `SUCCESS` and carries the `messageKey` `documentsDropped`.
+  - **Changed:** Calls are rate limited per meeting, by default to 30 calls per 60 seconds (`insertDocumentMaxRequests`, `insertDocumentRateWindowSec`); a call over the limit fails with the `messageKey` `rateLimitExceeded` (added in 4.0.1).
+  - **Changed:** Every `FAILED` response carries a `messageKey` (added in 4.0.1): an unknown meeting, an invalid filename, a disabled presentation feature and a request without documents now return `notFound`, `invalidFilename`, `presentationDisabled` and `noDocuments`, with the same messages as before. See [insertDocument](#post-insertdocument).
+- **end**
+  - **Changed:** Ending a meeting now also ends the breakout rooms created through `create` with `isBreakout=true` (previously only the rooms created from the client's breakout panel ended with their parent).
 - **clientSettings** - The deprecated REST endpoint `/api/rest/clientSettings` was **removed**. Client settings are now served through the GraphQL stack.
 
 ## API Data Types
@@ -518,13 +526,13 @@ In the payload the variables are passed inside each `<document>` tag of the xml,
 The first file with current="true" will be loaded in the client. If no file has current="true", the first one will be loaded in the client.
 The processing of the other documents will continue in the background and they will be available for display when the user select one of them from the client.
 
-A request may carry at most `maxPresentationsPerRequest` documents (10 by default; the default presentation is not counted); see [Limit the number of presentations per API request](/administration/customize#limit-the-number-of-presentations-per-api-request). Documents beyond that are not uploaded. The meeting is still created, and the response carries the `messageKey` `documentsDropped` with a `message` saying how many documents were accepted.
+A request may carry at most `maxPresentationsPerRequest` documents (10 by default; the default presentation is not counted); see [Limit the number of presentations per API request](/administration/customize#limit-the-number-of-presentations-per-api-request). The document that is loaded first in the client is always kept, the remaining slots go to the other documents in the order they appear in the request, and the documents beyond that are not uploaded. The meeting is still created, and the response carries the `messageKey` `documentsDropped` with a `message` saying how many documents were accepted. All document URLs are checked before the limit is applied, so a malformed URL fails the call with the `messageKey` `invalidPresentationUrl` even when its document would not have been uploaded.
 
 For more information about the pre-upload slides check the following [link](http://groups.google.com/group/bigbluebutton-dev/browse_thread/thread/d36ba6ff53e4aa79).
 
 #### clientSettingsOverride
 
-We support overriding the client settings (the entire set of options can be found in `/usr/share/bigbluebutton/html5-client/private/config/settings.yml`) as part of the CREATE call.
+We support overriding the client settings (the entire set of options can be found in `/usr/share/bigbluebutton/html5-client/private/config/settings.yml`, the shipped defaults that `/etc/bigbluebutton/bbb-html5.yml` overrides) as part of the CREATE call.
 Note that these values would have higher precedence over customizations made in `/etc/bigbluebutton/bbb-html5.yml`.
 
 By default this overriding approach on CREATE is disabled. To enable it, set `allowOverrideClientSettingsOnCreateCall=true` in `/etc/bigbluebutton/bbb-web.properties` and restart bbb-web. This is a **server-side setting only** — it is not read from the create request, so passing `allowOverrideClientSettingsOnCreateCall` as a `/create` parameter has no effect.
@@ -544,11 +552,11 @@ curl -s -X POST "$URL/$CONTROLLER?$PARAMS&checksum=$CHECKSUM" --header "Content-
                   "wsUrl": "wss://test.bigbluebutton.org/bbb-webrtc-sfu"
                },
                "app": {
-                    "appName": "Test",
+                    "clientTitle": "Test",
                     "helpLink": "https://www.bigbluebutton.org",
                     "autoJoin": false,
                     "askForConfirmationOnLeave": false,
-                    "userSettingsStorage": "localStorage",
+                    "userSettingsStorage": "local",
                     "defaultSettings": {
                      "application": {
                         "overrideLocale": "en"
@@ -564,7 +572,7 @@ curl -s -X POST "$URL/$CONTROLLER?$PARAMS&checksum=$CHECKSUM" --header "Content-
 
 #### Upload slides from external application to a live BigBlueButton session
 
-For external applications that integrate to BigBlueButton using the [insertDocument](/development/api#insertdocument) API call, `presentationUploadExternalUrl` and `presentationUploadExternalDescription` parameters can be used in the `create` API call in order to display a button and a message in the bottom of the presentation upload dialog.
+For external applications that integrate to BigBlueButton using the [insertDocument](/development/api#post-insertdocument) API call, `presentationUploadExternalUrl` and `presentationUploadExternalDescription` parameters can be used in the `create` API call in order to display a button and a message in the bottom of the presentation upload dialog.
 
 Clicking this button will open the URL in a new tab that shows the file picker for the external application. The user can then select files in the external application and they will be sent to the live session.
 
@@ -798,7 +806,7 @@ Values are URL encoded. The client parses each value as JSON where possible and 
 
 Each parameter overrides one default of the client's `settings.yml`, named in the **Default** column; the same key can be changed for the whole server in `/etc/bigbluebutton/bbb-html5.yml` (see [Configuration Files](/administration/configuration-files)).
 
-[`getJoinUrl`](#get-post-getjoinurl) forwards `userdata-` parameters into the new session it creates. Moderators can pass any of them, except inside a breakout room; for viewers, and for everyone in a breakout room, the parameters named in `getJoinUrlUserdataBlocklist` in `bbb-web.properties` are dropped (by default the recording, audio bridge and whiteboard tool parameters).
+[`getJoinUrl`](#get-post-getjoinurl) forwards `userdata-` parameters into the new session it creates. Moderators can pass any of them, except inside a breakout room; for viewers, and for everyone in a breakout room, the parameters named in `getJoinUrlUserdataBlocklist` in `bbb-web.properties` are dropped (by default the recording, transparent listen-only and whiteboard tool parameters). Set the list to `all` to drop every `userdata-` parameter in those cases.
 
 Tools for experimenting:
 
@@ -950,7 +958,7 @@ There is also the possibility of passing the removable, downloadable and current
 </response>
 ```
 
-When the request carries more than `maxPresentationsPerRequest` documents (10 by default), only the first ones are uploaded. The `returncode` is still `SUCCESS`, and the response adds the `messageKey` `documentsDropped`, with a `message` saying how many documents were accepted.
+When the request carries more than `maxPresentationsPerRequest` documents (10 by default), only that many are uploaded: the first document with `current="true"`, if there is one, and then the others in the order they appear in the request. The `returncode` is still `SUCCESS`, and the response adds the `messageKey` `documentsDropped`, with a `message` saying how many documents were accepted. All document URLs are checked before the limit is applied, so a malformed URL fails the call with `invalidPresentationUrl` even when its document would not have been uploaded.
 
 **Errors:**
 
@@ -1008,7 +1016,7 @@ running can be “true” or “false” that signals whether a meeting with thi
 
 ### `GET` `POST` end
 
-Use this to forcibly end a meeting and kick all participants out of the meeting.
+Use this to forcibly end a meeting and kick all participants out of the meeting. Ending a meeting also ends all of its breakout rooms, including the ones created through `create` with `isBreakout=true`.
 
 **Resource URL:**
 
@@ -1677,7 +1685,7 @@ This is particularly useful for hybrid environments where multiple screens in th
 
 It also facilitates seamless user session transfers to another device. For example, a mobile device can scan a QR code displayed on a computer, instantly migrating the user’s session from one device to another.
 
-The caller must present the `sessionToken` of an existing, still-active session; the resulting `/join` URL carries a valid `checksum` and can then be opened directly by the browser.
+The caller must present the `sessionToken` of an existing, still-active session; the resulting `/join` URL carries a valid `checksum` and can then be opened directly by the browser. The checksum uses the strongest algorithm listed in `supportedChecksumAlgorithms`.
 
 **Resource URL:**
 
@@ -1893,4 +1901,4 @@ For example, the application may be able to register a URL that BigBlueButton wo
 - Plain Text:
   - .txt
 
-All these valid formats are also present in a list in the [back-end](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.10/bbb-common-web/src/main/java/org/bigbluebutton/presentation/MimeTypeUtils.java#L28-L47) and in the [front-end](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.10/bigbluebutton-html5/private/config/settings.yml#L824-L862) if more details are needed.
+All these valid formats are also present in the `EXTENSIONS_MIME` map of the [back-end](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/bbb-common-web/src/main/java/org/bigbluebutton/presentation/MimeTypeUtils.java) and under `uploadValidMimeTypes` in the [front-end](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/bigbluebutton-html5/private/config/settings.yml) if more details are needed.

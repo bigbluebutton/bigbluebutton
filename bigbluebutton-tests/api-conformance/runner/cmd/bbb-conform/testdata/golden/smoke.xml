@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="bbb-conform fake" tests="13" failures="0" errors="0" skipped="0" time="0.000">
+  <testsuite name="create" tests="2" failures="0" errors="0" skipped="0" time="0.000">
+    <testcase name="create.smoke.lifecycle" classname="create" file="../../testdata/smoke/create/lifecycle.yaml" line="1" time="0.000"></testcase>
+    <testcase name="create.smoke.side-effects" classname="create" file="../../testdata/smoke/create/side-effects.yaml" line="2" time="0.000"></testcase>
+  </testsuite>
+  <testsuite name="getMeetingInfo" tests="1" failures="0" errors="0" skipped="0" time="0.000">
+    <testcase name="getMeetingInfo.smoke.json-error" classname="getMeetingInfo" file="../../testdata/smoke/getMeetingInfo/json-error.yaml" line="1" time="0.000"></testcase>
+  </testsuite>
+  <testsuite name="getMeetings" tests="9" failures="0" errors="0" skipped="0" time="0.000">
+    <testcase name="getMeetings.smoke.checksum-accepted-sha1" classname="getMeetings" file="../../testdata/smoke/getMeetings/checksum-accepted.yaml" line="1" time="0.000"></testcase>
+    <testcase name="getMeetings.smoke.checksum-accepted-sha256" classname="getMeetings" file="../../testdata/smoke/getMeetings/checksum-accepted.yaml" line="1" time="0.000"></testcase>
+    <testcase name="getMeetings.smoke.checksum-accepted-sha384" classname="getMeetings" file="../../testdata/smoke/getMeetings/checksum-accepted.yaml" line="1" time="0.000"></testcase>
+    <testcase name="getMeetings.smoke.checksum-accepted-sha512" classname="getMeetings" file="../../testdata/smoke/getMeetings/checksum-accepted.yaml" line="1" time="0.000"></testcase>
+    <testcase name="getMeetings.smoke.checksum-accepted-uppercase" classname="getMeetings" file="../../testdata/smoke/getMeetings/checksum-accepted.yaml" line="1" time="0.000"></testcase>
+    <testcase name="getMeetings.smoke.checksum-accepted-first" classname="getMeetings" file="../../testdata/smoke/getMeetings/checksum-accepted.yaml" line="1" time="0.000"></testcase>
+    <testcase name="getMeetings.smoke.checksum-accepted-middle" classname="getMeetings" file="../../testdata/smoke/getMeetings/checksum-accepted.yaml" line="1" time="0.000"></testcase>
+    <testcase name="getMeetings.smoke.checksum-rejected-wrong" classname="getMeetings" file="../../testdata/smoke/getMeetings/checksum-rejected.yaml" line="1" time="0.000"></testcase>
+    <testcase name="getMeetings.smoke.checksum-rejected-duplicate" classname="getMeetings" file="../../testdata/smoke/getMeetings/checksum-rejected.yaml" line="1" time="0.000"></testcase>
+  </testsuite>
+  <testsuite name="version" tests="1" failures="0" errors="0" skipped="0" time="0.000">
+    <testcase name="version.smoke.fields" classname="version" file="../../testdata/smoke/version/fields.yaml" line="1" time="0.000"></testcase>
+  </testsuite>
+</testsuites>

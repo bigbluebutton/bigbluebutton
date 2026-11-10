@@ -36,8 +36,14 @@ Many of the configuration files have local overrides so the administrator can sp
 | /usr/share/livekit-server/livekit.yaml                                  | /etc/bigbluebutton/livekit.yaml                  | Merged when `livekit-server` starts; holds the API keys                          |
 | /usr/share/livekit-server/livekit-sip.yaml                              | /etc/bigbluebutton/livekit-sip.yaml              | Merged when `livekit-sip` starts                                                 |
 | /usr/share/bbb-shared-notes-server/config/default.yml                   | /etc/bigbluebutton/bbb-shared-notes-server.yml   |                                                  |
-| /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml                 | /etc/bigbluebutton/recording/recording.yml       |
-| /usr/local/bigbluebutton/core/scripts/presentation.yml                  | /etc/bigbluebutton/recording/presentation.yml    |
+| /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml                 | /etc/bigbluebutton/recording/recording.yml       | Top-level keys in the override replace the shipped values as a whole (for example the complete `steps` map) |
+| /usr/local/bigbluebutton/core/scripts/presentation.yml                  | /etc/bigbluebutton/recording/presentation.yml    | Top-level keys in the override replace the shipped values as a whole                |
+| /usr/local/bigbluebutton/core/scripts/video.yml                         | /etc/bigbluebutton/recording/video.yml           | Presets are merged by name: a preset in the override replaces the shipped preset of the same name as a whole |
+| /usr/local/bigbluebutton/core/scripts/screenshare.yml                   |                                                  | No override file; replaced on upgrades of `bbb-playback-screenshare`               |
+| /usr/local/bigbluebutton/bbb-transcription-controller/config/default.yml | /etc/bigbluebutton/bbb-transcription-controller/production.yml | `default.yml` is regenerated on every install and upgrade of the package |
+| /usr/local/bigbluebutton/bbb-export-annotations/config/settings.json    |                                                  | No override file; replaced on upgrades of `bbb-export-annotations`                 |
+| /usr/local/bigbluebutton/bbb-webhooks/config/default.yml                |                                                  | No override file; regenerated on every install and upgrade of `bbb-webhooks`        |
+| /usr/share/bigbluebutton/nginx/*.nginx                                  | /etc/bigbluebutton/nginx/*.nginx                 | See [nginx](#nginx) below                                                          |
 | /etc/cron.daily/bigbluebutton                                           | /etc/default/bigbluebutton-cron-config    | Only variables allowed in the override
 
 <br /><br />
@@ -95,7 +101,7 @@ Redis has no password by default. To require one, set `requirepass` in `/etc/red
 
 ### Configuration files
 
-For `bbb-html5.yml` the settings file are YAML formatted. Any setting in this file overrides the corresponding setting in `/usr/share/bigbluebutton/html5-client/private/config/settings.yml`. For example, the following `bbb-html5.yml` overrides the values for `public.kurento.screenshare.constraints.audio` to `true`.
+For `bbb-html5.yml` the settings file are YAML formatted. Any setting in this file overrides the corresponding setting in `/usr/share/bigbluebutton/html5-client/private/config/settings.yml`, the shipped defaults, which are replaced on upgrades. Maps are merged key by key; any other value, arrays included, replaces the shipped value as a whole. The override is read when `bbb-apps-akka` starts, so restart it (`sudo systemctl restart bbb-apps-akka`) or run `sudo bbb-conf --restart` after changing the file. For example, the following `bbb-html5.yml` overrides the values for `public.kurento.screenshare.constraints.audio` to `true`.
 
 ```
 public:
@@ -121,6 +127,17 @@ The HTML5 client is a static bundle served by nginx, so it has no service of its
 
 To assist with monitoring and debugging, the HTML5 client can send its logs to the BigBlueButton server via the `logger` function. Here's an example of its use:
 
+```javascript
+import logger from '/imports/startup/client/logger';
+
+logger.info({
+  logCode: 'app_component_componentdidmount',
+  extraInfo: { meetingId, meetingName },
+}, 'User joined main room');
+```
+
+The first argument holds structured fields added to the log entry: `logCode` identifies the entry and `extraInfo` carries any additional data. The second argument is the message. Use `logger.debug`, `logger.info`, `logger.warn` or `logger.error` to choose the log level.
+
 The client logger has two targets, `console` and `external`, configured under `public.clientLog` in `/etc/bigbluebutton/bbb-html5.yml`. Each target has its own settings:
 
 | Name   | Target | Accepted Values                  | Description                                                                                             |
@@ -132,6 +149,7 @@ The client logger has two targets, `console` and `external`, configured under `p
 | method | external | "POST", "PUT"                  | HTTP method used to send the logs.                                                                      |
 | throttleInterval | external | milliseconds         | How often buffered log entries are sent.                                                                |
 | flushOnClose | external | true / false             | Send the remaining entries when the page is closed.                                                     |
+| logTag | external | string                         | When not empty, added to every log entry as `logTag`.                                                   |
 
 The default values are:
 
@@ -151,15 +169,16 @@ clientLog:
       method: POST,
       throttleInterval: 400,
       flushOnClose: true,
+      logTag: '',
     }
 ```
 
 Notice that the `external` option is disabled by default - you can enable it on your own server after a few configuration changes.
 
-When enabling the `external` logging output, the BigBlueButton client will POST the log events to the URL endpoint provided by `url`. To create an associated endpoint on the BigBlueButton server for the POST request, create a file `/etc/bigbluebutton/nginx/html5-client-log.nginx` with the following contents:
+When enabling the `external` logging output, the BigBlueButton client will POST the log events to the URL endpoint provided by `url`. `LOG_HOST` in the default value is a placeholder that nothing replaces, so set `public.clientLog.external.url` to your server's address, for example `https://bbb.example.com/html5log`. To create an associated endpoint on the BigBlueButton server for the POST request, create a file `/etc/bigbluebutton/nginx/html5-client-log.nginx` with the following contents. Its `location` must match the path in `url` exactly, including case:
 
 ```nginx
-location /html5Log {
+location /html5log {
     access_log /var/log/nginx/html5-client.log postdata;
     echo_read_request_body;
 }
@@ -197,16 +216,35 @@ You can follow the logs on the server with the command
 $ tail -f /var/log/nginx/html5-client.log | sed -u -e 's/\\x22/"/g' -e 's/\\x5C/\\/g'
 ```
 
-Here's a sample log entry
+Here's the log entry the example above produces:
 
 ```json
-      "requesterUserId":"w_klfavdlkumj8",
-      "fullname":"Ios",
-      "confname":"Demo Meeting",
-      "externUserID":"w_klfavdlkumj8"
+{
+   "name":"clientLogger",
+   "level":30,
+   "logCode":"app_component_componentdidmount",
+   "extraInfo":{
+      "meetingId":"b1f6e9c84d0a7f35e2c6a9d1047b38f5ce21a6d4-1793665760000",
+      "meetingName":"Demo Meeting"
    },
-   "url":"https://demo.bigbluebutton.org/html5client/users",
-   "userAgent":"Mozilla/5.0 (iPad; CPU OS 11_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/11.0 Mobile/15E148 Safari/604.1",
+   "levelName":"info",
+   "msg":"User joined main room",
+   "time":"2026-11-03T00:29:28.069Z",
+   "src":"e.value (https://bbb.example.com/html5client/bundle.0123456789abcdef0123.js:2:3043034)",
+   "v":1,
+   "userInfo":{
+      "meetingId":"b1f6e9c84d0a7f35e2c6a9d1047b38f5ce21a6d4-1793665760000",
+      "requesterUserId":"w_klfavdlkumj8",
+      "fullname":"Demo User",
+      "confname":"Demo Meeting",
+      "externUserID":"w_klfavdlkumj8",
+      "logoutUrl":"https://bbb.example.com",
+      "sessionToken":"abcdefgh12345678",
+      "clientSessionUUID":"00000000-0000-4000-8000-000000000000"
+   },
+   "clientBuild":"20261103T002928",
+   "url":"https://bbb.example.com/html5client/",
+   "userAgent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.7390.37 Safari/537.36",
    "count":1
 }
 ```
@@ -217,7 +255,10 @@ Here's a sample log entry
 
 Located in `/etc/nginx/sites-enabled/bigbluebutton`
 
-This configures nginx to use `/var/www/bigbluebutton-default/assets` as the default site. ([src](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/build/packages-template/bbb-html5/bigbluebutton.nginx)) The configuration of each component is included from `/etc/bigbluebutton/nginx/*.nginx`.
+This configures nginx to use `/var/www/bigbluebutton-default/assets` as the default site. ([src](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/build/packages-template/bbb-html5/bigbluebutton.nginx)) It includes every `/etc/bigbluebutton/nginx/*.nginx` file. By default that directory holds a single entry, `include_default.nginx`, a symlink to `/usr/share/bigbluebutton/include_default.nginx`, which in turn includes the configuration of each component from `/usr/share/bigbluebutton/nginx/*.nginx`. The files under `/usr/share` are installed by the component packages and replaced on upgrades, so do not edit them:
+
+- To add nginx configuration (a custom favicon, the locations of a [cluster proxy](/administration/cluster-proxy)), put a `*.nginx` file in `/etc/bigbluebutton/nginx/`.
+- To change one of the component files, replace the `include_default.nginx` symlink with a copy of the file it points to, replace the wildcard `include` in the copy with one `include` line per component file you keep unchanged, and put your changed copy of the component file in `/etc/bigbluebutton/nginx/`. `bbb-config` leaves an existing `include_default.nginx` alone on upgrades; component files that later packages add have to be included by hand.
 
 On a server installed by `bbb-install.sh` with the built-in TURN server, port 443 belongs to HAProxy, which terminates TLS and passes HTTP connections to nginx on ports 81 and 82 (with the PROXY protocol) and TURN connections to coturn. nginx itself listens on port 80 and on those two local ports.
 
@@ -238,7 +279,7 @@ On a server installed by `bbb-install.sh` with the built-in TURN server, port 44
  /etc/bigbluebutton/bbb-web.properties
 ```
 
-This is one of the main configuration files for BigBlueButton applications.
+This is one of the main configuration files for BigBlueButton applications. The first file holds the shipped defaults and is replaced on upgrades; set your values in the second one, the override.
 
 https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/bigbluebutton-web/grails-app/conf/bigbluebutton.properties
 

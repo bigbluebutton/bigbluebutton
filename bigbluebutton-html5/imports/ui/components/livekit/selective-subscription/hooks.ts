@@ -213,16 +213,20 @@ const getLastNCandidates = (
     if (mics.length === 0) return;
 
     const userId = getBbbUserIdForParticipant(participant);
-    const spokeAt = [
+    const voiceAt = [
       participant.lastSpokeAt?.getTime(),
       participant.isSpeaking ? now : lkStoppedTalkingAt.get(participant.identity),
-      lkUnmutedAt.get(participant.identity),
       inputs.bbbTalkingUsers[userId] ? now : inputs.bbbLastTalkedAt.get(userId),
     ].filter((value): value is number => value !== undefined);
+    const lastVoiceAt = voiceAt.length > 0 ? Math.max(...voiceAt) : undefined;
+    const spokeAt = [lastVoiceAt, lkUnmutedAt.get(participant.identity)]
+      .filter((value): value is number => value !== undefined);
 
     candidates.push({
       participantId: participant.identity,
       lastSpokeAt: spokeAt.length > 0 ? Math.max(...spokeAt) : undefined,
+      lastVoiceAt,
+      talking: participant.isSpeaking || !!inputs.bbbTalkingUsers[userId],
       unmuted: mics.some((publication) => !publication.isMuted),
       presenter: inputs.presenters.has(userId),
       pinned: inputs.pinned.has(userId),

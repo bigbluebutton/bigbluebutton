@@ -144,19 +144,19 @@ public class MeetingService implements MessageListener {
   public void registerUser(String meetingID, String internalUserId,
                            String fullname, String firstName, String lastName, String role, String externUserID,
                            String authToken, String sessionToken, String avatarURL, String webcamBackgroundURL, Boolean bot,
-                           Boolean guest, Boolean authed, String guestStatus, Boolean excludeFromDashboard, Boolean leftGuestLobby,
+                           Boolean guest, Boolean authed, String guestStatus, Boolean excludeFromDashboard,
                            String enforceLayout, String logoutUrl, Map<String, String> joinRequestMetadata, Map<String, String> userMetadata) {
     handle(
             new RegisterUser(meetingID, internalUserId, fullname, firstName, lastName, role,
                             externUserID, authToken, sessionToken, avatarURL, webcamBackgroundURL, bot, guest, authed, guestStatus,
-                            excludeFromDashboard, leftGuestLobby, enforceLayout, logoutUrl, joinRequestMetadata, userMetadata
+                            excludeFromDashboard, enforceLayout, logoutUrl, joinRequestMetadata, userMetadata
             )
     );
 
     Meeting m = getMeeting(meetingID);
     if (m != null) {
       RegisteredUser ruser = new RegisteredUser(authToken, internalUserId, guestStatus,
-                                                excludeFromDashboard, leftGuestLobby, enforceLayout, logoutUrl);
+                                                excludeFromDashboard, enforceLayout, logoutUrl);
       m.userRegistered(ruser);
     }
   }
@@ -256,13 +256,6 @@ public class MeetingService implements MessageListener {
           log.info(" --analytics-- data={}", logStr);
         }
       }
-    }
-  }
-
-  public void guestIsWaiting(String meetingId, String userId) {
-    Meeting m = getMeeting(meetingId);
-    if (m != null) {
-      m.guestIsWaiting(userId);
     }
   }
 
@@ -1186,7 +1179,23 @@ public class MeetingService implements MessageListener {
         learningDashboardService.removeJsonDataFiles(meetingIdsToClean, m.getLearningDashboardCleanupDelayInMinutes());
       }
 
+      endBreakoutRoomsOf(m);
+
       processRemoveEndedMeeting(message);
+    }
+  }
+
+  // akka-apps ends only the rooms the parent created from the client; a room created through the
+  // create API with isBreakout=true is known here alone, so end every room that is still running.
+  // A breakout can be the parent of an API-created room too: ending that room cascades the same way.
+  private void endBreakoutRoomsOf(Meeting parent) {
+    for (String roomId : parent.getBreakoutRoomsInternalIds()) {
+      Meeting room = getMeeting(roomId);
+      // The ID of a room that already ended can be reused by a room of another meeting
+      if (room != null && !room.isForciblyEnded() && parent.getInternalId().equals(room.getParentMeetingId())) {
+        log.info("Ending breakout room {} because its parent meeting {} ended.", roomId, parent.getInternalId());
+        gw.endMeeting(new EndMeetingMessage(roomId));
+      }
     }
   }
 
@@ -1471,8 +1480,6 @@ public class MeetingService implements MessageListener {
           processPresentationUploadToken((PresentationUploadToken) message);
         } else if (message instanceof PresentationConversionRejected) {
           processPresentationConversionRejected((PresentationConversionRejected) message);
-        } else if (message instanceof PositionInWaitingQueueUpdated) {
-          processPositionInWaitingQueueUpdated((PositionInWaitingQueueUpdated) message);
         } else if (message instanceof GuestStatusChangedEventMsg) {
           processGuestStatusChangedEventMsg((GuestStatusChangedEventMsg) message);
         } else if (message instanceof GuestPolicyChanged) {
@@ -1481,10 +1488,6 @@ public class MeetingService implements MessageListener {
           processLockSettingsChanged((LockSettingsChanged) message);
         } else if (message instanceof WebcamsOnlyForModeratorChanged) {
           processWebcamsOnlyForModeratorChanged((WebcamsOnlyForModeratorChanged) message);
-        } else if (message instanceof GuestLobbyMessageChanged) {
-          processGuestLobbyMessageChanged((GuestLobbyMessageChanged) message);
-        } else if (message instanceof PrivateGuestLobbyMessageChanged) {
-          processPrivateGuestLobbyMessageChanged((PrivateGuestLobbyMessageChanged) message);
         } else if (message instanceof RecordChapterBreak) {
           processRecordingChapterBreak((RecordChapterBreak) message);
         } else if (message instanceof MakePresentationDownloadableMsg) {
@@ -1497,7 +1500,13 @@ public class MeetingService implements MessageListener {
       }
     };
 
-    runExec.execute(task);
+    runExec.execute(() -> {
+      try {
+        task.run();
+      } catch (Exception e) {
+        log.error("Unexpected exception while processing {}", message.getClass().getSimpleName(), e);
+      }
+    });
   }
 
   public void processGuestPolicyChanged(GuestPolicyChanged msg) {
@@ -1531,28 +1540,6 @@ public class MeetingService implements MessageListener {
     Meeting m = getMeeting(msg.meetingId);
     if (m != null) {
       m.setWebcamsOnlyForModerator(msg.webcamsOnlyForModerator);
-    }
-  }
-
-  public void processPositionInWaitingQueueUpdated(PositionInWaitingQueueUpdated msg) {
-    Meeting m = getMeeting(msg.meetingId);
-    HashMap<String,String> guestUsers = msg.guests;
-    if (m != null) {
-      m.setWaitingPositionsInWaitingQueue(guestUsers);
-    }
-  }
-
-  public void processGuestLobbyMessageChanged(GuestLobbyMessageChanged msg) {
-    Meeting m = getMeeting(msg.meetingId);
-    if (m != null) {
-      m.setGuestLobbyMessage(msg.message);
-    }
-  }
-
-  public void processPrivateGuestLobbyMessageChanged(PrivateGuestLobbyMessageChanged msg) {
-    Meeting m = getMeeting(msg.meetingId);
-    if (m != null) {
-      m.setPrivateGuestLobbyMessage(msg.guestId, msg.message);
     }
   }
 

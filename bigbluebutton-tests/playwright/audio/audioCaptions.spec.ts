@@ -170,6 +170,7 @@ test.describe("Audio captions - on-device transcription (speechProcessing 'local
     const { modPage } = audioCaptions;
 
     await audioCaptions.openAudioSettings();
+    await modPage.hasElement(e.onDeviceLanguageDownloadable, 'should offer the language pack download before joining');
     await modPage.waitAndClick(e.joinEchoTestButton);
     await modPage.hasElement(e.onDeviceLanguageFailed, 'should tell that the language pack could not be downloaded');
     await modPage.hasElement(e.audioSettingsModal, 'should keep the audio settings open after the failure');
