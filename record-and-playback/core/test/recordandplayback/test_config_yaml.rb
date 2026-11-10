@@ -113,10 +113,26 @@ class TestConfigYaml < Minitest::Test
     end
   end
 
+  # Psych's fallback: covers only a stream with no document. A bare document
+  # marker or an explicit null is a document whose value is nil, and an admin
+  # who trims an override down to "---" would otherwise get a TypeError from
+  # the merge that follows.
+  def test_null_document_override_returns_requested_fallback
+    ["---\n", "null\n", "~\n", "---\n# nothing enabled here\n"].each do |content|
+      with_yaml(content) do |path|
+        assert_equal({}, BigBlueButton.load_yaml(path, fallback: {}), "for #{content.inspect}")
+      end
+    end
+  end
+
   # A required config that parses as nil must not be silently treated as empty:
   # that would turn a broken install into wrong paths instead of a crash.
   def test_empty_required_config_is_not_masked
     with_yaml("# nothing enabled here\n") do |path|
+      assert_nil(BigBlueButton.load_yaml(path))
+    end
+
+    with_yaml("---\n") do |path|
       assert_nil(BigBlueButton.load_yaml(path))
     end
   end
@@ -127,6 +143,20 @@ class TestConfigYaml < Minitest::Test
     with_yaml("false\n") do |path|
       assert_equal(false, BigBlueButton.load_yaml(path, fallback: {}))
     end
+  end
+
+  # bigbluebutton.yml is the shipped default; admins change it through
+  # /etc/bigbluebutton/recording/recording.yml, which only read_props merges in.
+  # A script that loads bigbluebutton.yml itself silently ignores the override.
+  def test_scripts_read_bigbluebutton_yml_through_read_props
+    direct = Dir.glob(File.join(RAP_ROOT, '**', '*.rb')).filter_map do |path|
+      next if path == File.join(RAP_ROOT, 'core/lib/recordandplayback.rb')
+
+      lines = File.foreach(path).each_with_index.select { |line, _| line.match?(/load_yaml\(.*bigbluebutton\.yml/) }
+      lines.map { |_, index| "#{path.delete_prefix("#{RAP_ROOT}/")}:#{index + 1}" } unless lines.empty?
+    end.flatten
+
+    assert_empty(direct, 'these read bigbluebutton.yml directly instead of BigBlueButton.read_props')
   end
 
   # load_yaml must not leave the file descriptor open -- recording cleanup

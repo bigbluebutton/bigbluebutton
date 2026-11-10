@@ -1,0 +1,29 @@
+id: getMeetings.checksum.errors
+title: getMeetings rejects bad, duplicate and re-encoded checksums
+endpoint: getMeetings
+class: contract
+tags: [ci]
+steps:
+  - call: getMeetings
+    sign: bad
+    expect: {returncode: FAILED, messageKey: checksumError}
+  - call: getMeetings
+    sign: duplicate
+    expect: {returncode: FAILED, messageKey: checksumError}
+  # Signed over one encoding, sent with another.
+  - call: getMeetings
+    sign: none
+    raw_query: 'x=a+b&checksum=${checksum("sha256", "getMeetings", "x=a%20b")}'
+    expect: {returncode: FAILED, messageKey: checksumError}
+  # The exact raw query, signed by hand.
+  - call: getMeetings
+    method: POST
+    sign: none
+    raw_query: 'x=a%20b&checksum=${checksum("sha256", "getMeetings", "x=a%20b")}'
+    expect: {returncode: SUCCESS}
+  - call: getMeetings
+    sign: none
+    expect:
+      returncode: FAILED
+      messageKey: checksumError
+      message: {oneOf: ["Checksums do not match", "You must provide the checksum"]}

@@ -21,7 +21,6 @@ public class RegisterUser implements IMessage {
 	public final Boolean authed;
 	public final String guestStatus;
 	public final Boolean excludeFromDashboard;
-	public final Boolean leftGuestLobby;
 	public final String enforceLayout;
 	public final String logoutUrl;
 	public final Map<String, String> joinRequestMetadata;
@@ -30,7 +29,7 @@ public class RegisterUser implements IMessage {
 	public RegisterUser(String meetingID, String internalUserId, String fullname, String firstName, String lastName,
 						String role, String externUserID,
 						String authToken, String sessionToken, String avatarURL, String webcamBackgroundURL, Boolean bot, Boolean guest,
-						Boolean authed, String guestStatus, Boolean excludeFromDashboard, Boolean leftGuestLobby,
+						Boolean authed, String guestStatus, Boolean excludeFromDashboard,
 						String enforceLayout, String logoutUrl, Map<String, String> joinRequestMetadata, Map<String, String> userMetadata) {
 		this.meetingID = meetingID;
 		this.internalUserId = internalUserId;
@@ -48,7 +47,6 @@ public class RegisterUser implements IMessage {
 		this.authed = authed;
 		this.guestStatus = guestStatus;
 		this.excludeFromDashboard = excludeFromDashboard;
-		this.leftGuestLobby = leftGuestLobby;
 		this.enforceLayout = enforceLayout;
 		this.logoutUrl = logoutUrl;
 		this.joinRequestMetadata = joinRequestMetadata;

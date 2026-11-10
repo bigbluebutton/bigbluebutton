@@ -6,13 +6,13 @@ on:
 
 jobs:
   stale:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-latest' }}
     permissions:
       issues: write
       pull-requests: write
 
     steps:
-      - uses: actions/stale@v9
+      - uses: actions/stale@v10
         with:
           days-before-stale: 270
           days-before-close: 90

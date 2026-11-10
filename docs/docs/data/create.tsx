@@ -98,13 +98,13 @@ const createEndpointTableData = [
     "name": "isBreakout",
     "required": false,
     "type": "Boolean",
-    "description": (<>Must be set to <code className="language-plaintext highlighter-rouge">true</code> to create a breakout room.</>)
+    "description": (<>Must be set to <code className="language-plaintext highlighter-rouge">true</code> to create a breakout room. A breakout room does not end when it is empty or has no moderator, only when its own <code className="language-plaintext highlighter-rouge">duration</code> runs out or its parent meeting ends; see <code className="language-plaintext highlighter-rouge">parentMeetingID</code>.</>)
   },
   {
     "name": "parentMeetingID",
     "required": false,
     "type": "String",
-    "description": (<>The ID of the main room where the breakout was initiated. Must be provided when creating a breakout room, the parent room must be running.</>)
+    "description": (<>The ID of the main room where the breakout was initiated. Must be provided when creating a breakout room, the parent room must be running. The breakout room ends when its parent meeting ends, whether the parent is ended through <code className="language-plaintext highlighter-rouge">end</code> or ends on its own (<code className="language-plaintext highlighter-rouge">duration</code>, <code className="language-plaintext highlighter-rouge">meetingExpireIfNoUserJoinedInMinutes</code>, <code className="language-plaintext highlighter-rouge">meetingExpireWhenLastUserLeftInMinutes</code>, <code className="language-plaintext highlighter-rouge">endWhenNoModerator</code>). Users who join only the breakout room do not count as users of the parent, so a parent that nobody joins ends after <code className="language-plaintext highlighter-rouge">meetingExpireIfNoUserJoinedInMinutes</code> (5 minutes by default) and takes its breakout rooms with it.</>)
   },
   {
     "name": "sequence",
@@ -123,7 +123,7 @@ const createEndpointTableData = [
     "required": false,
     "type": "Boolean",
     "default": true,
-    "description": (<>If set to false, the private chat will be disabled in breakout rooms.</>)
+    "description": (<>If set to false, the private chat will be disabled in breakout rooms. As with <code>disabledFeatures=privateChat</code>, private chats that involve a moderator stay available.</>)
   },
   {
     "name": "breakoutRoomsRecord",
@@ -413,7 +413,7 @@ const createEndpointTableData = [
     "name": "audioBridge",
     "required": false,
     "type": "String",
-    "description": (<>Per-meeting override of the <code className="language-plaintext highlighter-rouge">audioBridge</code> property. Selects the media bridge used for audio streams. Valid values: <code className="language-plaintext highlighter-rouge">bbb-webrtc-sfu</code>, <code className="language-plaintext highlighter-rouge">livekit</code>, <code className="language-plaintext highlighter-rouge">freeswitch</code>. (added 3.0)</>)
+    "description": (<>Per-meeting override of the <code className="language-plaintext highlighter-rouge">audioBridge</code> property. Selects the media bridge used for audio streams. Valid values: <code className="language-plaintext highlighter-rouge">bbb-webrtc-sfu</code>, <code className="language-plaintext highlighter-rouge">livekit</code>. (added 3.0)</>)
   },
   {
     "name": "meetingExpireIfNoUserJoinedInMinutes",
@@ -427,7 +427,7 @@ const createEndpointTableData = [
     "required": false,
     "type": "Number",
     "default": 1,
-    "description": (<>Number of minutes to automatically end meeting after last user left. (added 2.5)<br />Setting to <code className="language-plaintext highlighter-rouge">0</code> will disable this function.</>)
+    "description": (<>Number of minutes to automatically end meeting after last user left. (added 2.5)<br />Setting to <code className="language-plaintext highlighter-rouge">0</code> ends the meeting as soon as the last user has left, so a meeting whose only user reloads the page or loses the connection can end.</>)
   },
   {
     "name": "groups",
@@ -692,8 +692,8 @@ const createEndpointTableData = [
     "type": "JSON",
     "description": (
       <>
-        <p>A data structure containing settings which override values from the HTML5 client's <code>settings.yml</code> file. This data can also be provided in the body of a POST request, see <a href='#clientsettingsoverride'>clientSettingsOverride</a> for details.</p>
-        <p><i>Added:</i> 3.0.0-alpha.5</p>
+        <p>A data structure containing settings which override values from the HTML5 client's <code>settings.yml</code> file. It is not read from the query string or from form fields: send it as an XML module, <code>&lt;module name="clientSettingsOverride"&gt;</code>, in an <code>application/xml</code> POST body (see <a href='#clientsettingsoverride'>clientSettingsOverride</a>). The module is applied only when <code>allowOverrideClientSettingsOnCreateCall=true</code> is set in <code>/etc/bigbluebutton/bbb-web.properties</code> (default <code>false</code>). Integrations that can only send GET parameters can use <code>clientSettingsOverrideJsonUrl</code>, which takes precedence when both are present.</p>
+        <p><i>Added:</i> 3.0.0-alpha.1</p>
       </>
     )
   },

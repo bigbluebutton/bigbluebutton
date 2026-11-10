@@ -1,7 +1,9 @@
 import React from 'react';
 import { FormattedMessage, injectIntl } from 'react-intl';
 import { getUserReactionsSummary } from '../services/ReactionService';
-import { getActivityScore, getSumOfTime, tsToHHmmss } from '../services/UserService';
+import {
+  getActivityScore, getSumOfTime, tsToHHmmss, isUserOnline,
+} from '../services/UserService';
 import UserAvatar from './UserAvatar';
 import { UserDetailsContext } from './UserDetails/context';
 
@@ -566,8 +568,7 @@ class UsersTable extends React.Component {
                     }
                     <td className="px-3.5 2xl:px-4 py-3 text-xs text-center" data-test="userStatusDashboard">
                       {
-                        Object.values(user.intIds)[Object.values(user.intIds).length - 1]
-                          .sessions.slice(-1)[0].leftOn > 0
+                        !isUserOnline(user)
                           ? (
                             <span className="px-2 py-1 font-semibold leading-tight text-red-700 bg-red-100 rounded-full">
                               {intl.formatMessage({

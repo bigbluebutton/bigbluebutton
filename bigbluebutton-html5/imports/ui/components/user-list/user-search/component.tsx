@@ -52,6 +52,7 @@ const UserSearch: React.FC<UserSearchProps> = ({
 
   return (
     <Styled.SearchContainer
+      className="bbb-user-list__search"
       onClick={(e) => {
         if (e.target === e.currentTarget) {
           inputRef.current?.focus();

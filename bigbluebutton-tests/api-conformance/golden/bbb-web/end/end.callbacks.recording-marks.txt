@@ -1,0 +1,22 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case end.callbacks.recording-marks
+target bbb-web
+
+== step 4: bus RecordingStatusChangedEvtMsg
+$.channel "from-akka-apps-redis-channel"
+$.core.body.recording true
+$.core.body.setBy "system"
+$.core.header.meetingId "<sha1(meetingID)>-<time>"
+$.core.header.name "RecordingStatusChangedEvtMsg"
+$.core.header.userId "system"
+$.envelope.name "RecordingStatusChangedEvtMsg"
+$.envelope.routing.meetingId "<sha1(meetingID)>-<time>"
+$.envelope.routing.msgType "BROADCAST_TO_MEETING"
+$.envelope.routing.userId "system"
+$.envelope.timestamp "<time>"
+
+== step 6: sink ${uid}
+$.method "GET"
+$.path "/${uid}/ended"
+$.query.meetingID "${uid}"
+$.query.recordingmarks "true"

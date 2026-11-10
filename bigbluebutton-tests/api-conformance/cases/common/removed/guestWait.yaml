@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# api/guestWait was removed (#26117). The 404 is the contract; the error page that
+# carries it isn't, so the step is recorded but not compared.
+id: guestWait.removed.not-found
+title: The removed guestWait call answers 404
+endpoint: guestWait
+class: contract
+tags: [ci]
+steps:
+  - call: guestWait
+    sign: none
+    golden: document
+    expect: {status: 404}

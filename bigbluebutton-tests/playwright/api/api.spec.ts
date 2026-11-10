@@ -1,25 +1,34 @@
+import { expect } from '@playwright/test';
+
+import { CI } from '../core/constants';
 import { linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { API } from './api';
 import { APIBreakout } from './breakout';
+import { APICallbacks } from './callbacks';
+import { APIChecksum } from './checksum';
+import { APIDisabledFeatures } from './disabledFeatures';
+import { APIDocumentTypes } from './documentTypes';
+import { APIJoin } from './join';
+import { APILifecycle } from './lifecycle';
+import { APIParameters } from './parameters';
 
 test.describe.parallel('API', () => {
-  // fixme: getMeetingInfo fails if executed sequentially with getMeetings.
-  test.fixme('getMeetings', async ({ browser, context, page }, testInfo) => {
+  test('getMeetings', { tag: '@ci' }, async ({ browser, context, page, request }, testInfo) => {
     const api = new API(browser, context);
-    await api.testGetMeetings(page, testInfo);
+    await api.testGetMeetings(page, testInfo, request);
   });
 
-  test.fixme('getMeetingInfo', async ({ browser, context, page }, testInfo) => {
+  test('getMeetingInfo', { tag: '@ci' }, async ({ browser, context, page, request }, testInfo) => {
     const api = new API(browser, context);
-    await api.testGetMeetingInfo(page, testInfo);
+    await api.testGetMeetingInfo(page, testInfo, request);
   });
 
-  test('webVoiceParamIgnored', async () => {
+  test('webVoiceParamIgnored', { tag: '@ci' }, async () => {
     await API.testWebVoiceParamIgnored();
   });
 
-  test('duplicateVoiceBridgeRejected', async () => {
+  test('duplicateVoiceBridgeRejected', { tag: '@ci' }, async () => {
     await API.testDuplicateVoiceBridgeRejected();
   });
 
@@ -43,6 +52,15 @@ test.describe.parallel('API', () => {
     await API.testBbbWebSecurityHeaders();
   });
 
+  test('controllerHelpersNotReachable', { tag: '@ci' }, async () => {
+    linkIssue(26002);
+    await API.testControllerHelpersNotReachable();
+  });
+
+  test('controllerWithoutActionNotFound', { tag: '@ci' }, async () => {
+    await API.testControllerWithoutActionNotFound();
+  });
+
   test('joinInsideCrossOriginFrame', { tag: '@ci' }, async ({ page, browserName }) => {
     test.skip(
       browserName !== 'chromium',
@@ -55,26 +73,344 @@ test.describe.parallel('API', () => {
     await API.testOverAThousandRequestParameters();
   });
 
-  test('breakoutWithoutParent', async () => {
+  test('hiddenMethodOverrideIgnored', { tag: '@ci' }, async () => {
+    linkIssue(26002);
+    await API.testHiddenMethodOverrideIgnored();
+  });
+
+  test('svgDocumentNotAdded', { tag: '@ci' }, async ({ browser, context, page, request }, testInfo) => {
+    const documentTypes = new APIDocumentTypes(browser, context);
+    await documentTypes.testSvgDocumentNotAdded(page, testInfo, request);
+  });
+
+  test('breakoutWithoutParent', { tag: '@ci' }, async () => {
     await APIBreakout.testBreakoutWithoutParent();
   });
 
-  test('breakoutWithoutSequenceNumber', async ({ browser, context, page }) => {
-    const api = new APIBreakout(browser, context);
-    await api.initModPage(page);
-    await api.testBreakoutWithoutSequenceNumber();
+  // A breakout create without `sequence` fails with HTTP 500: bbb-web parses the
+  // missing value with Integer.parseInt (ParamsProcessorUtil). The API is
+  // documented to answer errors with returncode FAILED.
+  test('breakoutWithoutSequenceNumber', { tag: ['@ci', '@known-issue'] }, async ({ request }) => {
+    await APIBreakout.testBreakoutWithoutSequenceNumber(request);
   });
 
-  test('breakoutWithNonexistentParent', async () => {
+  // A non-numeric sequence takes the same Integer.parseInt path (ParamsProcessorUtil
+  // processCreateParams) and fails the same way as a missing one.
+  test('breakoutWithNonNumericSequenceNumber', { tag: ['@ci', '@known-issue'] }, async ({ request }) => {
+    await APIBreakout.testBreakoutWithNonNumericSequence(request);
+  });
+
+  test('breakoutWithNonexistentParent', { tag: '@ci' }, async () => {
     await APIBreakout.testBreakoutWithNonexistentParent();
   });
 
-  test.fixme('breakoutMeetingInfo', async ({ browser, context, page }, testInfo) => {
+  test('breakoutMeetingInfo', { tag: '@ci' }, async ({ browser, context, page, request }, testInfo) => {
     const api = new APIBreakout(browser, context);
     await api.initPages(page, testInfo);
-    await api.create();
-    await api.testBreakoutMeetingInfoNoJoins();
-    await api.joinRoom();
-    await api.testBreakoutMeetingInfoOneJoin();
+    try {
+      await api.create();
+      await api.testBreakoutMeetingInfoNoJoins();
+      await api.joinRoom();
+      await api.testBreakoutMeetingInfoOneJoin();
+    } finally {
+      await api.endParentMeeting(request);
+    }
+  });
+
+  test(
+    'apiCreatedBreakoutRoomEndsWithParent',
+    { tag: '@ci' },
+    async ({ browser, context, page, request }, testInfo) => {
+      const api = new APIBreakout(browser, context);
+      await api.testApiCreatedRoomEndsWithParent(page, testInfo, request);
+    },
+  );
+
+  test('nestedApiCreatedBreakoutRoomsEndWithParent', { tag: '@ci' }, async ({ request }) => {
+    await APIBreakout.testNestedApiCreatedRoomsEndWithParent(request);
+  });
+
+  test('reusedBreakoutRoomIdNotEndedByFormerParent', { tag: '@ci' }, async ({ request }) => {
+    await APIBreakout.testReusedRoomIdNotEndedByFormerParent(request);
+  });
+
+  test(
+    'emptiedApiCreatedBreakoutRoomEndsWithParent',
+    { tag: '@ci' },
+    async ({ browser, context, page, request }, testInfo) => {
+      const api = new APIBreakout(browser, context);
+      await api.testEmptiedApiCreatedRoomEndsWithParent(page, testInfo, request);
+    },
+  );
+
+  // Waits more than a minute for the parent to expire, so it runs nightly
+  test(
+    'apiCreatedBreakoutRoomEndsWhenParentExpires',
+    { tag: '@nightly' },
+    async ({ browser, context, page, request }, testInfo) => {
+      test.setTimeout(4 * 60 * 1000);
+      const api = new APIBreakout(browser, context);
+      await api.testApiCreatedRoomEndsWhenParentExpires(page, testInfo, request);
+    },
+  );
+
+  test.describe('Breakout rooms', () => {
+    // A room's voice bridge is the parent's plus its sequence. When another meeting holds
+    // that number, bbb-web refuses to create the room (MeetingService.createMeeting ~557-561,
+    // duplicate telVoice) and processCreateBreakoutRoom ignores the refusal (~931), while
+    // akka-apps keeps the room in its breakout model and waits for it to start.
+    test(
+      'breakoutRoomOnTakenVoiceBridgeIsCreated',
+      { tag: ['@ci', '@known-issue'] },
+      async ({ browser, context, page, request }, testInfo) => {
+        linkIssue(26273);
+        const api = new APIBreakout(browser, context);
+        await api.testVoiceBridgeTakenByAnotherMeeting(page, testInfo, request);
+      },
+    );
+
+    test('apiCreatedBreakoutRoom', { tag: '@nightly' }, async ({ browser, context, page, request }, testInfo) => {
+      const api = new APIBreakout(browser, context);
+      await api.testApiCreatedRoom(page, testInfo, request);
+    });
+
+    // bbb-web keeps the requested meetingID as the room's internal ID and returns a rebuilt
+    // external ID (ParamsProcessorUtil.processCreateParams ~941-950); getMeetingInfo resolves
+    // an external ID through sha1(externalID) (ServiceUtils.findMeetingFromMeetingID), which
+    // matches only the IDs akka-apps builds for the rooms it creates.
+    test(
+      'apiCreatedBreakoutRoomFoundByReturnedId',
+      { tag: ['@ci', '@known-issue'] },
+      async ({ browser, context, page, request }, testInfo) => {
+        linkIssue(26272);
+        const api = new APIBreakout(browser, context);
+        await api.testApiCreatedRoomFoundByReturnedId(page, testInfo, request);
+      },
+    );
+
+    // CreateBreakoutRoomsCmdMsgHdlr (~130) passes the client's record flag to the rooms
+    // without checking the parent's breakoutRoomsRecord.
+    test(
+      'breakoutRoomsRecordFalseEnforced',
+      { tag: ['@ci', '@known-issue'] },
+      async ({ browser, context, page, request }, testInfo) => {
+        linkIssue(26274);
+        const api = new APIBreakout(browser, context);
+        await api.testRoomsNotRecordedWhenParentForbids(page, testInfo, request);
+      },
+    );
+
+    test(
+      'breakoutRoomsRecordTrueControl',
+      { tag: '@nightly' },
+      async ({ browser, context, page, request }, testInfo) => {
+        const api = new APIBreakout(browser, context);
+        await api.testRoomsRecordedWhenParentAllows(page, testInfo, request);
+      },
+    );
+
+    test(
+      'disabledBreakoutRoomsNotCreated',
+      { tag: '@nightly' },
+      async ({ browser, context, page, request }, testInfo) => {
+        const api = new APIBreakout(browser, context);
+        await api.testDisabledBreakoutRoomsNotCreated(page, testInfo, request);
+      },
+    );
+
+    test(
+      'breakoutRoomCreateTakesEffect',
+      { tag: '@nightly' },
+      async ({ browser, context, page, request }, testInfo) => {
+        const api = new APIBreakout(browser, context);
+        await api.testBreakoutRoomCreateTakesEffect(page, testInfo, request);
+      },
+    );
+
+    test(
+      'attendeeCannotCreateBreakoutRooms',
+      { tag: '@nightly' },
+      async ({ browser, context, page, request }, testInfo) => {
+        const api = new APIBreakout(browser, context);
+        await api.testAttendeeCannotCreateRooms(page, testInfo, request);
+      },
+    );
+
+    test(
+      'breakoutRoomCannotCreateBreakoutRooms',
+      { tag: '@nightly' },
+      async ({ browser, context, page, request }, testInfo) => {
+        const api = new APIBreakout(browser, context);
+        await api.testRoomCannotCreateRooms(page, testInfo, request);
+      },
+    );
+
+    test('breakoutRoomCountLimits', { tag: '@nightly' }, async ({ browser, context, page, request }, testInfo) => {
+      const api = new APIBreakout(browser, context);
+      await api.testRoomCountLimits(page, testInfo, request);
+    });
+
+    test(
+      'endingParentEndsBreakoutRooms',
+      { tag: '@nightly' },
+      async ({ browser, context, page, request }, testInfo) => {
+        const api = new APIBreakout(browser, context);
+        await api.testEndingParentEndsRooms(page, testInfo, request);
+      },
+    );
+
+    test(
+      'getMeetingsListsBreakoutRooms',
+      { tag: '@nightly' },
+      async ({ browser, context, page, request }, testInfo) => {
+        const api = new APIBreakout(browser, context);
+        await api.testGetMeetingsListsRooms(page, testInfo, request);
+      },
+    );
+  });
+
+  test.describe('Checksum', { tag: '@ci' }, () => {
+    test('checksumAlgorithmsAccepted', async ({ request }) => {
+      await APIChecksum.testAlgorithmsAccepted(request);
+    });
+
+    test('createChecksumRefused', async ({ request }) => {
+      await APIChecksum.testCreateRefused(request);
+    });
+
+    test('joinChecksumRefused', async ({ request }) => {
+      await APIChecksum.testJoinRefused(request);
+    });
+
+    test('getMeetingInfoChecksumRefused', async ({ request }) => {
+      await APIChecksum.testGetMeetingInfoRefused(request);
+    });
+  });
+
+  test.describe('Meeting lifecycle', { tag: '@ci' }, () => {
+    test('meetingLifecycle', async ({ browser, context, page, request }, testInfo) => {
+      const lifecycle = new APILifecycle(browser, context);
+      await lifecycle.testLifecycle(page, testInfo, request);
+    });
+
+    test('createTwice', async ({ request }) => {
+      await APILifecycle.testCreateTwice(request);
+    });
+  });
+
+  test.describe('Meeting ended callback', { tag: '@ci' }, () => {
+    test('meetingEndedUrlCarriesRecordingmarksAndMeetingID', async ({ request }) => {
+      linkIssue(25929);
+      const callsBack = await APICallbacks.serverCallsBackItsOwnHost(request);
+      if (CI) {
+        expect(callsBack, 'the meta_endCallbackUrl control callback should re-create the meeting').toBe(true);
+      } else {
+        test.skip(!callsBack, 'bbb-web does not accept a callback to its own host (fetchUrlAllowedLocalHosts)');
+      }
+      await APICallbacks.testMeetingEndedUrlCarriesRecordingmarksAndMeetingID(request);
+    });
+  });
+
+  test.describe('Join', { tag: '@ci' }, () => {
+    test('joinRoleOverridesPassword', async ({ browser, context, page, request }, testInfo) => {
+      const join = new APIJoin(browser, context);
+      await join.testRoleOverridesPassword(page, testInfo, request);
+    });
+
+    test('joinPasswordAndRoleRules', async ({ request }) => {
+      await APIJoin.testPasswordAndRoleRules(request);
+    });
+
+    test('joinRedirectFalseReturnsSession', async ({ request }) => {
+      await APIJoin.testRedirectFalseReturnsSession(request);
+    });
+
+    test('joinUnknownMeetingRefused', async ({ request }) => {
+      await APIJoin.testUnknownMeetingRefused(request);
+    });
+
+    // bbb-web answers meetingForciblyEnded for a meeting that never existed.
+    test('joinUnknownMeetingErrorKey', { tag: '@known-issue' }, async ({ request }) => {
+      await APIJoin.testUnknownMeetingErrorKey(request);
+    });
+
+    // bbb-web redirects on a validation error even with redirect=false.
+    test('joinValidationErrorWithRedirectFalse', { tag: '@known-issue' }, async ({ request }) => {
+      await APIJoin.testValidationErrorWithRedirectFalse(request);
+    });
+
+    test('maxParticipantsReached', async ({ browser, context, page, request }, testInfo) => {
+      const join = new APIJoin(browser, context);
+      await join.testMaxParticipants(page, testInfo, request);
+    });
+
+    test('getJoinUrlRoundTripKeepsSpacedValues', async ({ browser, context, page, request }, testInfo) => {
+      const join = new APIJoin(browser, context);
+      await join.testGetJoinUrlRoundTrip(page, testInfo, request);
+    });
+  });
+
+  // bbb-web reads each create parameter as one string; a repeated parameter arrives as an array and
+  // the cast in ParamsProcessorUtil.processCreateParams throws, so create answers HTTP 500.
+  test('repeatedCreateParameterRefused', { tag: '@known-issue' }, async ({ request }) => {
+    linkIssue(26359);
+    await APIParameters.testRepeatedCreateParameterRefused(request);
+  });
+
+  test.describe('Create and join parameters', { tag: '@nightly' }, () => {
+    test('metadataParameterNames', async ({ request }) => {
+      linkIssue(26236);
+      await APIParameters.testMetadataNames(request);
+    });
+
+    test('createWithoutNameRefused', async ({ request }) => {
+      await APIParameters.testCreateWithoutNameRefused(request);
+    });
+
+    test('guestPolicyAlwaysAcceptAuth', async ({ request }) => {
+      linkIssue(26236);
+      await APIParameters.testGuestPolicyAlwaysAcceptAuth(request);
+    });
+
+    test('joinAuthUnderAskModerator', async ({ request }) => {
+      linkIssue(26236);
+      await APIParameters.testJoinAuthUnderAskModerator(request);
+    });
+
+    test('joinCustomUserdata', async ({ browser, context, page, request }, testInfo) => {
+      linkIssue(26236);
+      const apiParameters = new APIParameters(browser, context);
+      await apiParameters.testJoinCustomUserdata(page, testInfo, request);
+    });
+  });
+
+  // Each feature is disabled on create and the matching GraphQL request is
+  // sent directly, as a client that ignores the hidden UI would; another
+  // participant must not see any effect.
+  test.describe('disabledFeatures enforcement', { tag: '@ci' }, () => {
+    test('disabledChatMessageDropped', async ({ browser, context, page, request }, testInfo) => {
+      const disabledFeatures = new APIDisabledFeatures(browser, context);
+      await disabledFeatures.testChatMessageDropped(page, testInfo, request);
+    });
+
+    test('disabledPollNotStarted', async ({ browser, context, page, request }, testInfo) => {
+      const disabledFeatures = new APIDisabledFeatures(browser, context);
+      await disabledFeatures.testPollNotStarted(page, testInfo, request);
+    });
+
+    test('disabledTimerNotActivated', async ({ browser, context, page, request }, testInfo) => {
+      const disabledFeatures = new APIDisabledFeatures(browser, context);
+      await disabledFeatures.testTimerNotActivated(page, testInfo, request);
+    });
+
+    test('disabledPrivateChatNotCreated', async ({ browser, context, page, request }, testInfo) => {
+      const disabledFeatures = new APIDisabledFeatures(browser, context);
+      await disabledFeatures.testPrivateChatNotCreated(page, testInfo, request);
+    });
+
+    test('enabledFeaturesControl', async ({ browser, context, page, request }, testInfo) => {
+      const disabledFeatures = new APIDisabledFeatures(browser, context);
+      await disabledFeatures.testRequestsTakeEffectWhenEnabled(page, testInfo, request);
+    });
   });
 });

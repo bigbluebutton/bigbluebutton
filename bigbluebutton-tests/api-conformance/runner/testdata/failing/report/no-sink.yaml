@@ -1,0 +1,7 @@
+id: getMeetings.report.no-sink
+title: A case that needs a sink the target doesn't have is skipped
+endpoint: getMeetings
+class: contract
+steps:
+  - call: getMeetings
+    params: {callback: "${sinkUrl}/x"}

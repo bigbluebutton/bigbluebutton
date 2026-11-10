@@ -127,7 +127,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
         liveMeeting.props.password.viewerPass,
         breakout.presId,
         roomSlides,
-        msg.body.record,
+        msg.body.record && liveMeeting.props.breakoutProps.record,
         liveMeeting.props.recordProp.autoStartRecording,
         liveMeeting.props.recordProp.allowStartStopRecording,
         liveMeeting.props.breakoutProps.privateChatEnabled,

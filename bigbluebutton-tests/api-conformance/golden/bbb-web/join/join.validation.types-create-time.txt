@@ -1,0 +1,8 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case join.validation.types-create-time
+target bbb-web
+
+== step 2: call join
+status 302
+location ${baseUrl}?errors=[{"message":"Value must be an integral number","key":"validationError"}]
+body (redirect)

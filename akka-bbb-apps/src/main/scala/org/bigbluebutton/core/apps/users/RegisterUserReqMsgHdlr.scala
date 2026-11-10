@@ -79,16 +79,7 @@ trait RegisterUserReqMsgHdlr {
       regUser.role, regUser.excludeFromDashboard, regUser.registeredOn)
     outGW.send(event)
 
-    def notifyModeratorsOfGuestWaiting(guests: Vector[GuestWaiting], users: Users2x, meetingId: String): Unit = {
-      val mods = Users2x.findAll(users).filter(p => p.role == Roles.MODERATOR_ROLE && p.clientType == ClientType.FLASH)
-      mods foreach { m =>
-        val event = MsgBuilder.buildGuestsWaitingForApprovalEvtMsg(meetingId, m.intId, guests)
-        outGW.send(event)
-      }
-      // Meteor should only listen for this single message
-      val event = MsgBuilder.buildGuestsWaitingForApprovalEvtMsg(meetingId, "nodeJSapp", guests)
-      outGW.send(event)
-
+    def notifyModeratorsOfGuestWaiting(): Unit = {
       val notifyEvent = MsgBuilder.buildNotifyRoleInMeetingEvtMsg(
         Roles.MODERATOR_ROLE,
 
@@ -110,14 +101,14 @@ trait RegisterUserReqMsgHdlr {
     guestStatus match {
       case GuestStatus.ALLOW =>
         val g = GuestApprovedVO(regUser.id, GuestStatus.ALLOW)
-        UsersApp.approveOrRejectGuest(liveMeeting, outGW, g, SystemUser.ID)
+        UsersApp.approveOrRejectGuest(liveMeeting, g, SystemUser.ID)
       case GuestStatus.WAIT =>
         val guest = GuestWaiting(regUser.id, regUser.name, regUser.role, regUser.guest, regUser.avatarURL, regUser.webcamBackgroundURL, regUser.color, regUser.authed, regUser.registeredOn)
         addGuestToWaitingForApproval(guest, liveMeeting.guestsWaiting)
-        notifyModeratorsOfGuestWaiting(Vector(guest), liveMeeting.users2x, liveMeeting.props.meetingProp.intId)
+        notifyModeratorsOfGuestWaiting()
       case GuestStatus.DENY =>
         val g = GuestApprovedVO(regUser.id, GuestStatus.DENY)
-        UsersApp.approveOrRejectGuest(liveMeeting, outGW, g, SystemUser.ID)
+        UsersApp.approveOrRejectGuest(liveMeeting, g, SystemUser.ID)
     }
 
   }

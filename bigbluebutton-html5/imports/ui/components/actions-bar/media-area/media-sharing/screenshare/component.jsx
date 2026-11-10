@@ -1,17 +1,17 @@
 import React, { memo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import deviceInfo from '/imports/utils/deviceInfo';
 import browserInfo from '/imports/utils/browserInfo';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
 import { useMutation } from '@apollo/client';
-import Styled from './styles';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import ScreenshareBridgeService from '/imports/api/screenshare/client/bridge/service';
 import {
   shareScreen,
   screenshareHasEnded,
   useIsCameraAsContentBroadcasting,
+  useIsScreenshareAllowedOnDevice,
   useShowButtonForNonPresenters,
 } from '/imports/ui/components/screenshare/service';
 import { SCREENSHARING_ERRORS } from '/imports/api/screenshare/client/bridge/errors';
@@ -19,8 +19,7 @@ import { EXTERNAL_VIDEO_STOP } from '/imports/ui/components/external-video-playe
 import { MediaButton } from '/imports/ui/components/actions-bar/media-area/media-sharing/media-button/component';
 import Icon from '/imports/ui/components/common/icon/component';
 
-const { isMobile } = deviceInfo;
-const { isSafari, isTabletApp } = browserInfo;
+const { isSafari } = browserInfo;
 
 const propTypes = {
   intl: PropTypes.objectOf(Object).isRequired,
@@ -163,23 +162,21 @@ const ScreenshareButton = ({
   };
 
   const RenderScreenshareUnavailableModal = (otherProps) => (
-    <Styled.ScreenShareModal
-      hideBorder
+    <ModalSimple
       contentLabel={intl.formatMessage(intlMessages.screenShareUnavailable)}
+      title={intl.formatMessage(intlMessages.screenShareUnavailable)}
       {...otherProps}
     >
-      <Styled.Title>
-        {intl.formatMessage(intlMessages.screenShareUnavailable)}
-      </Styled.Title>
       <p>{intl.formatMessage(intlMessages.screenShareNotSupported)}</p>
-    </Styled.ScreenShareModal>
+    </ModalSimple>
   );
 
   const amIBroadcasting = isScreenBroadcasting && amIPresenter;
   const showButtonForNonPresenters = useShowButtonForNonPresenters();
+  const isScreenshareAllowedOnDevice = useIsScreenshareAllowedOnDevice();
 
   const shouldAllowScreensharing = enabled
-    && (!isMobile || isTabletApp)
+    && isScreenshareAllowedOnDevice
     && (amIPresenter || showButtonForNonPresenters);
 
   const dataTest = isScreenBroadcasting ? 'stopScreenShare' : 'startScreenShare';
@@ -195,7 +192,7 @@ const ScreenshareButton = ({
                 (!isConnected && !isScreenBroadcasting) || !screenshareDataSavingSetting
                 || !amIPresenter || loading
               }
-              data-test={dataTest}
+              dataTest={dataTest}
               color={amIBroadcasting ? 'primary' : 'default'}
               text={intl.formatMessage(intlMessages.screenShareLabel)}
               icon={<Icon iconName="desktop" />}

@@ -9,9 +9,12 @@ import { test } from '../core/setup/fixtures';
 import {
   AudioProcessingMode,
   audioProcessingModeOverrides,
+  canStartAudioContext,
   CapturedAudioConstraints,
   captureGetUserMediaAudioConstraints,
   getCapturedAudioConstraints,
+  getProcessorPortMessages,
+  observeProcessorPorts,
 } from './audioProcessingMode';
 
 // getAudioConstraints()/getConstraintsForMode() determine the raw getUserMedia
@@ -20,6 +23,12 @@ import {
 // 'standard' when BBBA/WASM is active ("on top of WASM"), so constraints can't
 // tell the two apart - whether the WASM processor file was actually requested
 // is the only reliable signal for that mode.
+const NO_AUDIO_CONTEXT =
+  'Advanced filtering needs a running AudioContext; headless Firefox without an audio output device cannot start one';
+
+// BBBA_PARAM.INTENSITY in audio-processor/providers/bbba.js
+const BBBA_INTENSITY_PARAM = 7;
+
 test.describe('Audio processing mode - actual getUserMedia constraints', { tag: ['@ci', '@media'] }, () => {
   test('applies the configured media.audio.microphoneConstraints for Standard filtering', async ({
     browser,
@@ -97,12 +106,19 @@ test.describe('Audio processing mode - actual getUserMedia constraints', { tag: 
     });
   });
 
-  test('loads the BBBA/WASM processor for Advanced filtering', async ({ browser, context, page }, testInfo) => {
+  test('loads the BBBA/WASM processor for Advanced filtering', async ({
+    browser,
+    browserName,
+    context,
+    page,
+  }, testInfo) => {
+    test.skip(browserName === 'firefox' && !(await canStartAudioContext(page)), NO_AUDIO_CONTEXT);
     const audioProcessingMode = new AudioProcessingMode(browser, context);
     await audioProcessingMode.trackWasmProcessorRequests(page);
+    await observeProcessorPorts(page);
     await audioProcessingMode.initModPage(page, {
       testInfo,
-      clientSettingsOverrides: audioProcessingModeOverrides(true, 'advanced'),
+      clientSettingsOverrides: audioProcessingModeOverrides(true, 'advanced', undefined, undefined, 'bbba'),
     });
 
     await audioProcessingMode.joinWithMicrophone();
@@ -110,13 +126,52 @@ test.describe('Audio processing mode - actual getUserMedia constraints', { tag: 
     await expect(async () => {
       expect(audioProcessingMode.wasmProcessorWasLoaded()).toBe(true);
     }).toPass();
+    // a worklet that fails still requests the .wasm; only 'loaded' shows it runs
+    await expect
+      .poll(async () => (await getProcessorPortMessages(page)).filter((m) => m.direction === 'in').map((m) => m.type))
+      .toContain('loaded');
+  });
+
+  test('runs the BBBA/WASM processor at full intensity for Voice Isolation', async ({
+    browser,
+    browserName,
+    context,
+    page,
+  }, testInfo) => {
+    test.skip(browserName === 'firefox' && !(await canStartAudioContext(page)), NO_AUDIO_CONTEXT);
+    const audioProcessingMode = new AudioProcessingMode(browser, context);
+    await observeProcessorPorts(page);
+    await audioProcessingMode.initModPage(page, {
+      testInfo,
+      clientSettingsOverrides: audioProcessingModeOverrides(true, 'voiceIsolation', undefined, undefined, 'bbba'),
+    });
+
+    await audioProcessingMode.joinWithMicrophone();
+
+    // The worklet gets the provider default (95) on 'loaded', then the
+    // intensity of the mode. Every processor that loaded must end at 100.
+    await expect(async () => {
+      const messages = await getProcessorPortMessages(page);
+      const loadedNodes = messages.filter((m) => m.direction === 'in' && m.type === 'loaded').map((m) => m.node);
+      expect(loadedNodes.length, 'a BBBA processor should have loaded').toBeGreaterThan(0);
+      const lastIntensities = loadedNodes.map(
+        (node) =>
+          messages
+            .filter((m) => m.node === node && m.direction === 'out' && m.type === 'param')
+            .filter((m) => m.index === BBBA_INTENSITY_PARAM)
+            .pop()?.value,
+      );
+      expect(lastIntensities).toEqual(loadedNodes.map(() => 100));
+    }).toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
   });
 
   test('applies media.audio.audioWasmProcessing.constraints, not microphoneConstraints, for Advanced filtering', async ({
     browser,
+    browserName,
     context,
     page,
   }, testInfo) => {
+    test.skip(browserName === 'firefox' && !(await canStartAudioContext(page)), NO_AUDIO_CONTEXT);
     await captureGetUserMediaAudioConstraints(page);
 
     const audioProcessingMode = new AudioProcessingMode(browser, context);
@@ -159,9 +214,11 @@ test.describe('Audio processing mode - actual getUserMedia constraints', { tag: 
 
   test('loads the WorkAdventure/DTLN processor for Advanced filtering when configured', async ({
     browser,
+    browserName,
     context,
     page,
   }, testInfo) => {
+    test.skip(browserName === 'firefox' && !(await canStartAudioContext(page)), NO_AUDIO_CONTEXT);
     const audioProcessingMode = new AudioProcessingMode(browser, context);
     await audioProcessingMode.trackWasmProcessorRequests(page);
     await audioProcessingMode.initModPage(page, {
@@ -190,9 +247,11 @@ test.describe('Audio processing mode - actual getUserMedia constraints', { tag: 
 
   test('forces noiseSuppression off for Advanced filtering with the WorkAdventure/DTLN provider, even if audioWasmProcessing.constraints says otherwise', async ({
     browser,
+    browserName,
     context,
     page,
   }, testInfo) => {
+    test.skip(browserName === 'firefox' && !(await canStartAudioContext(page)), NO_AUDIO_CONTEXT);
     await captureGetUserMediaAudioConstraints(page);
 
     const audioProcessingMode = new AudioProcessingMode(browser, context);
@@ -298,6 +357,9 @@ test.describe('Audio processing mode - filter choice left by earlier clients', {
 const hasExactConstraint = (value: unknown): boolean =>
   typeof value === 'object' && value !== null && 'exact' in (value as Record<string, unknown>);
 
+// How long the microphone is watched after a mode change: longer than the ~5s unpublishOnMute window.
+const UNPUBLISH_ON_MUTE_WATCH_TIME = 7000;
+
 // Overall rationale of this test block: an audio filter change must not
 // disturb the microphone publication - i.e.: no mute/unmute state flap.
 test.describe('Audio processing mode - publication continuity', { tag: ['@ci', '@media'] }, () => {
@@ -334,7 +396,7 @@ test.describe('Audio processing mode - publication continuity', { tag: ['@ci', '
     // Covers the ~5s unpublishOnMute window the spurious mute would arm.
     // The magic 7s may need to be changed if the unpublishOnMute defaults ever change.
     // so be aware if flakiness hits this test in the future.
-    await audioProcessingMode.modPage.page.waitForTimeout(7000);
+    await audioProcessingMode.modPage.page.waitForTimeout(UNPUBLISH_ON_MUTE_WATCH_TIME);
     const samples = await stopLocalMicWatch(page);
 
     // Guarantee audio mode actually changed
@@ -412,7 +474,7 @@ test.describe('Audio processing mode - publication continuity', { tag: ['@ci', '
 
     await startLocalMicWatch(page);
     await audioProcessingMode.selectProcessingMode('original');
-    await audioProcessingMode.modPage.page.waitForTimeout(7000);
+    await audioProcessingMode.modPage.page.waitForTimeout(UNPUBLISH_ON_MUTE_WATCH_TIME);
     const samples = await stopLocalMicWatch(page);
 
     expect(samples.length, 'the publication should have been sampled during the change').toBeGreaterThan(0);

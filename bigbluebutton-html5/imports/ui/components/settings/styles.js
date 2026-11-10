@@ -12,7 +12,6 @@ import {
   colorBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
-  fontSizeBase,
   fontSizeLarge,
   fontSizeMedium,
 } from '/imports/ui/stylesheets/styled-components/typography';
@@ -20,7 +19,6 @@ import {
   Tab, Tabs, TabList, TabPanel,
 } from 'react-tabs';
 import Icon from '/imports/ui/components/common/icon/component';
-import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 
 const ToggleLabel = styled.span`
   margin-right: ${smPaddingX};
@@ -50,7 +48,6 @@ const SettingsTabList = styled(TabList)`
   display: flex;
   flex-flow: column;
   margin: 0;
-  border-top: 1px solid ${colorBorder};
   padding: 0;
   width: calc(100% / 3);
   height: 39rem;
@@ -79,7 +76,8 @@ const SettingsTabSelector = styled(Tab)`
   color: ${colorGrayDark};
   cursor: pointer;
   border-radius: 10px;
-  margin: 1rem 1.5rem;
+  margin-block: 1rem;
+  margin-inline: 0 1.5rem;
   transition: background-color 0.3s, color 0.3s;
 
   & > span {
@@ -104,12 +102,10 @@ const SettingsTabSelector = styled(Tab)`
 
     &:first-child {
       border-radius: 8px 0 0 8px;
-      margin-left: 0.5rem;
     }
 
     &:last-child {
       border-radius: 0 8px 8px 0;
-      margin-right: 0.5rem;
     }
 
     &.is-selected {
@@ -147,10 +143,9 @@ const SettingsIcon = styled(Icon)`
 const SettingsTabPanel = styled(TabPanel)`
   display: none;
   flex-grow: 1;
-  ${({ $noPadding }) => !$noPadding && 'padding: 1.5rem 3rem'};
-  border-top: 1px solid ${colorBorder};
+  // BBBModal already pads the outer edge, so only the side next to the tab list gets 3rem.
+  ${({ $noPadding }) => !$noPadding && 'padding-block: 1.5rem; padding-inline: 3rem 1.5rem'};
   border-left: 1px solid ${colorBorder};
-  border-bottom: 1px solid ${colorBorder};
   width: calc(100% / 3 * 2);
 
   [dir="rtl"] & {
@@ -165,95 +160,12 @@ const SettingsTabPanel = styled(TabPanel)`
   @media ${smallOnly} {
     width: 100%;
     margin: 0;
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 0;
     border: none;
     height: auto;
     flex-grow: 1;
     flex-basis: 0;
     overflow-x: hidden;
-  }
-`;
-
-const ActionsContainer = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  gap: 1.5rem;
-  padding: 1.5rem;
-  border-top: 1px solid ${colorBorder};
-
-  @media ${smallOnly} {
-    padding: 1rem;
-    gap: 1rem;
-    position: relative;
-    bottom: auto;
-    background: transparent;
-    box-shadow: none;
-    flex-grow: 0;
-  }
-`;
-
-const ActionButton = styled.button`
-  width: 12.75rem;
-  height: 3.5rem;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 1rem;
-  cursor: pointer;
-  font-size: ${fontSizeBase};
-  color: #fff;
-
-  &:first-child {
-    background-color: transparent;
-    color: #ccc;
-  }
-
-  &:last-child {
-    background-color: ${colorPrimary};
-  }
-
-  &:hover {
-    opacity: 0.9;
-  }
-
-  &:disabled {
-    background-color: #aaa;
-    cursor: not-allowed;
-  }
-`;
-
-const Modal = styled(ModalSimple)`
-  padding: 0;
-  border-radius: 1rem;
-
-  & > div {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-  }
-
-  & > div > div:last-child {
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-  }
-
-  @media ${smallOnly} {
-    height: 90vh !important;
-    min-height: 90vh;
-    max-height: 90vh;
-    margin: 5vh auto;
-    display: flex;
-    flex-direction: column;
-    & > div {
-      display: flex;
-      flex-direction: column;
-      flex-grow: 1;
-      & > div {
-        display: flex;
-        flex-direction: column;
-        flex-grow: 1;
-      }
-    }
   }
 `;
 
@@ -264,7 +176,4 @@ export default {
   SettingsTabSelector,
   SettingsIcon,
   SettingsTabPanel,
-  ActionsContainer,
-  ActionButton,
-  Modal,
 };

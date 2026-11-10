@@ -4,6 +4,8 @@ import { USER_LEAVE_MEETING } from '/imports/ui/core/graphql/mutations/userMutat
 import { useMutation } from '@apollo/client';
 import Session from '/imports/ui/services/storage/in-memory';
 import logger from '/imports/startup/client/logger';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
+import { ModalPriority } from '/imports/ui/components/common/modal/generic/component';
 
 import Styled from './styles';
 
@@ -41,7 +43,7 @@ interface RecordingNotifyModalProps {
   toggleShouldNotify: () => void;
   closeModal: () => void;
   isOpen: boolean;
-  priority: string;
+  priority: ModalPriority;
   notifyRecordingAppend: string;
 }
 
@@ -77,50 +79,53 @@ const RecordingNotifyModal: React.FC<RecordingNotifyModalProps> = ({
   }, []);
 
   return (
-    <Styled.RecordingNotifyModal
+    <ModalSimple
       contentLabel={intl.formatMessage(intlMessages.title)}
-      data-test="recordingNotifyModal"
-      shouldShowCloseButton={false}
+      dataTest="recordingNotifyModal"
       title={intl.formatMessage(intlMessages.title)}
-      {...{
-        isOpen,
-        priority,
-        modalIsOpen: isOpen,
-      }}
-    >
-      <Styled.Container>
-        <Styled.Description data-test="recordingNotifyDescription">
-          {intl.formatMessage(intlMessages.description)}
-          {hasRecordingAppend ? (
-            <Styled.AppendDescription data-test="recordingNotifyAppend">
-              {notifyRecordingAppend}
-            </Styled.AppendDescription>
-          ) : null}
-        </Styled.Description>
-        <Styled.Footer>
+      isOpen={isOpen}
+      onRequestClose={closeModal}
+      priority={priority}
+      shouldCloseOnOverlayClick={false}
+      shouldCloseOnEsc={false}
+      hideCloseButton
+      noFooter={false}
+      footerContent={(
+        <>
           <Styled.ScreenreaderLabel id="recordingNotifyContinueLabel">
             {intl.formatMessage(intlMessages.continueAriaLabel)}
           </Styled.ScreenreaderLabel>
           <Styled.ScreenreaderLabel id="recordingNotifyLeaveLabel">
             {intl.formatMessage(intlMessages.leaveAriaLabel)}
           </Styled.ScreenreaderLabel>
-          <Styled.FooterButton
-            variant="primary"
-            dataTest="recordingNotifyContinue"
-            label={intl.formatMessage(intlMessages.continue)}
-            onClick={handleContinueInRecordedSession}
-            ariaLabelledBy="recordingNotifyContinueLabel"
-          />
-          <Styled.FooterButton
-            variant="secondary"
-            dataTest="recordingNotifyLeave"
-            label={intl.formatMessage(intlMessages.leave)}
-            onClick={skipButtonHandle}
-            ariaLabelledBy="recordingNotifyLeaveLabel"
-          />
-        </Styled.Footer>
-      </Styled.Container>
-    </Styled.RecordingNotifyModal>
+          <Styled.Footer>
+            <Styled.FooterButton
+              variant="secondary"
+              dataTest="recordingNotifyLeave"
+              label={intl.formatMessage(intlMessages.leave)}
+              onClick={skipButtonHandle}
+              ariaLabelledBy="recordingNotifyLeaveLabel"
+            />
+            <Styled.FooterButton
+              variant="primary"
+              dataTest="recordingNotifyContinue"
+              label={intl.formatMessage(intlMessages.continue)}
+              onClick={handleContinueInRecordedSession}
+              ariaLabelledBy="recordingNotifyContinueLabel"
+            />
+          </Styled.Footer>
+        </>
+      )}
+    >
+      <Styled.Description data-test="recordingNotifyDescription">
+        {intl.formatMessage(intlMessages.description)}
+        {hasRecordingAppend ? (
+          <Styled.AppendDescription data-test="recordingNotifyAppend">
+            {notifyRecordingAppend}
+          </Styled.AppendDescription>
+        ) : null}
+      </Styled.Description>
+    </ModalSimple>
   );
 };
 

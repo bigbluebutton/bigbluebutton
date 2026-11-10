@@ -1,29 +1,19 @@
 import styled from 'styled-components';
 import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
-import ModalSimple from '/imports/ui/components/common/modal/simple/component';
-import {
-  mdPaddingX,
-  lgPaddingY,
-  jumboPaddingY,
-} from '/imports/ui/stylesheets/styled-components/general';
+import { jumboPaddingY } from '/imports/ui/stylesheets/styled-components/general';
 import { colorGray } from '/imports/ui/stylesheets/styled-components/palette';
 import { lineHeightBase } from '/imports/ui/stylesheets/styled-components/typography';
 
-const ConfirmationModal = styled(ModalSimple)`
-  padding: ${mdPaddingX};
-`;
-
 const Container = styled.div`
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   flex-direction: column;
   padding: 0;
-  margin-top: 0;
-  margin: auto;
+  margin: 0;
 `;
 
 const Description = styled.div`
-  text-align: center;
+  text-align: start;
   line-height: ${lineHeightBase};
   color: ${colorGray};
   margin-bottom: ${jumboPaddingY};
@@ -49,7 +39,6 @@ const Footer = styled.div`
   flex-wrap: wrap;
   justify-content: center;
   gap: 0.75rem;
-  margin-bottom: ${lgPaddingY};
 `;
 
 // A floor keeps a one-word label ("Pin", "Yes") from rendering as a square
@@ -68,7 +57,6 @@ const Label = styled.label`
 `;
 
 export default {
-  ConfirmationModal,
   Container,
   Description,
   DescriptionText,

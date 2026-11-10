@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# With no meeting on the server, getMeetings succeeds with an empty list and
+# says so in messageKey and message. Normalization drops those two, since
+# they depend on other cases' meetings, so the expect checks them. The case
+# runs alone after the others (serial), but needs a server nobody else is
+# using.
+id: getMeetings.list.empty
+title: getMeetings on a server with no meetings
+endpoint: getMeetings
+class: contract
+tags: [ci, serial]
+steps:
+  - call: getMeetings
+    # Until the other cases' meetings are gone.
+    eventually: {within: 10s, every: 200ms, until: {messageKey: noMeetings}}
+    expect:
+      returncode: SUCCESS
+      messageKey: noMeetings
+      message: no meetings were found on this server
+      xpath: {/response/meetings/meeting: {count: 0}}

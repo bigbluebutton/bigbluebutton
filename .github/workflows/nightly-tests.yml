@@ -1,0 +1,419 @@
+name: "Nightly tests"
+# Runs the Playwright suite against freshly installed servers, outside the per-PR gate:
+#   chromium-*  every test except the quarantined ones (config.quarantine in the suite's package.json),
+#               @nightly and @stress, on the default media bridge; then the quarantined tests 3 times
+#               each, report-only, for a pass rate (except @only-headed, which cannot run headless, and
+#               @setting-required, which runs in the setting-* jobs)
+#   media-*     the gate's @media tests on the legacy bbb-webrtc-sfu bridge: the selection of the per-PR
+#               job install-and-run-legacy-media-tests, which ran until it moved here
+#   recording-* the @nightly tests with every recording format installed and enabled
+#   stress      the @stress tests
+#   setting-*   the @setting-required:<setting> tests, on a server installed with that bbb-web setting
+# Every job uses one worker and ends with bigbluebutton-tests/server-health-check.sh. The
+# api-conformance-slow job runs the API conformance suite's slow cases (bigbluebutton-tests/
+# api-conformance: callback retries, expiry timing, about 20 minutes), which the per-PR gate leaves
+# out, on the suite's Tier 1 stack built from the same build's packages. The report job
+# merges the results into one HTML report per group (artifact nightly-test-reports) and lists in its
+# summary the tests that passed only on retry.
+# Screenshot comparisons run as in the per-PR gate: GitHub sets CI=true on its runners, which skips
+# only the ones the suite wraps in `if (!CI)` (in options/options.ts and presentation/presentation.ts).
+#
+# What it needs:
+#   - Packages: it builds nothing. It installs the all-bbb-artifacts artifact of an "Automated tests"
+#     run and tests the commit that run built: by default the newest push run on the branch below
+#     whose artifact has not expired; a manual run can name another run.
+#   - Runners: 8 ubuntu-24.04 jobs per run, each installing BigBlueButton (up to about 2 hours each).
+#   - Permissions: actions: read, to find that run and download its artifact. No secrets.
+#   - Schedule: GitHub starts scheduled workflows only from the default branch, so the schedule takes
+#     effect once this file is on the default branch; it still tests the branch named below. It runs
+#     only in bigbluebutton/bigbluebutton. A manual run works on any branch and fork that has the file.
+on:
+  schedule:
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch whose newest Automated tests build to test"
+        type: string
+        default: "v4.0.x-develop"
+      build-run-id:
+        description: "Automated tests run to take the packages from instead (optional)"
+        type: string
+        required: false
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: ${{ github.workflow }}-${{ inputs.branch || 'v4.0.x-develop' }}
+  cancel-in-progress: false
+env:
+  BRANCH: ${{ inputs.branch || 'v4.0.x-develop' }}
+  NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
+  BBB_URL: https://bbb-ci.test/bigbluebutton/
+  BBB_SECRET: bbbci
+jobs:
+  find-build:
+    if: github.event_name != 'schedule' || github.repository == 'bigbluebutton/bigbluebutton'
+    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-24.04' }}
+    outputs:
+      run-id: ${{ steps.find.outputs.run-id }}
+      sha: ${{ steps.find.outputs.sha }}
+    steps:
+      - name: Find the build to test
+        id: find
+        uses: actions/github-script@v8
+        env:
+          BUILD_RUN_ID: ${{ inputs.build-run-id }}
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const hasPackages = async (runId) => {
+              const artifacts = await github.paginate(github.rest.actions.listWorkflowRunArtifacts, {
+                owner,
+                repo,
+                run_id: runId,
+                name: 'all-bbb-artifacts',
+              });
+              return artifacts.some((artifact) => !artifact.expired);
+            };
+            let run;
+            if (process.env.BUILD_RUN_ID) {
+              const { data } = await github.rest.actions.getWorkflowRun({
+                owner,
+                repo,
+                run_id: Number(process.env.BUILD_RUN_ID),
+              });
+              if (await hasPackages(data.id)) run = data;
+            } else {
+              const { data } = await github.rest.actions.listWorkflowRuns({
+                owner,
+                repo,
+                workflow_id: 'automated-tests.yml',
+                branch: process.env.BRANCH,
+                event: 'push',
+                per_page: 100,
+              });
+              for (const candidate of data.workflow_runs) {
+                if (await hasPackages(candidate.id)) {
+                  run = candidate;
+                  break;
+                }
+              }
+            }
+            if (!run) {
+              core.setFailed('No Automated tests run with an unexpired all-bbb-artifacts artifact was found');
+              return;
+            }
+            core.setOutput('run-id', run.id);
+            core.setOutput('sha', run.head_sha);
+            await core.summary
+              .addRaw(`Packages from ${run.html_url} (${run.head_branch} at ${run.head_sha})`, true)
+              .write();
+  tests:
+    needs: find-build
+    name: ${{ matrix.group }} ${{ matrix.shard }}/${{ matrix.shards }}
+    runs-on: ${{ vars.CI_HEAVY_RUNNER || 'ubuntu-24.04' }}
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { group: chromium-livekit, project: chromium, bridge: livekit, shard: 1, shards: 4, quarantined: true }
+          - { group: chromium-livekit, project: chromium, bridge: livekit, shard: 2, shards: 4, quarantined: true }
+          - { group: chromium-livekit, project: chromium, bridge: livekit, shard: 3, shards: 4, quarantined: true }
+          - { group: chromium-livekit, project: chromium, bridge: livekit, shard: 4, shards: 4, quarantined: true }
+          - { group: media-bbb-webrtc-sfu, project: chromium, bridge: bbb-webrtc-sfu, shard: 1, shards: 1, grep: "@media", exclude-tags: true }
+          - { group: recording-livekit, project: chromium, bridge: livekit, shard: 1, shards: 1, grep: "@nightly" }
+          - { group: stress, project: chromium, bridge: livekit, shard: 1, shards: 1, grep: "@stress" }
+          - { group: setting-masktagthreshold, project: chromium, bridge: livekit, shard: 1, shards: 1, grep: "@setting-required:maskTagThreshold", bbb-web-properties: "maskTagThreshold=1" }
+    env:
+      MEDIA_BRIDGE: ${{ matrix.bridge }}
+      # workers, retries, reporters, traces and videos come from playwright.nightly.config.ts
+      TIMEOUT_MULTIPLIER: 2
+      # left out of the full-suite and media-* steps: they have their own jobs, or cannot pass on these servers
+      EXCLUDED_TAGS: "@only-headed|@setting-required|@nightly|@stress"
+    steps:
+      - name: Checkout the commit that was built
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.find-build.outputs.sha }}
+      - name: Install BBB
+        id: install
+        timeout-minutes: 60
+        uses: ./.github/actions/install-bbb
+        with:
+          artifacts-run-id: ${{ needs.find-build.outputs.run-id }}
+          github-token: ${{ github.token }}
+          bbb-web-properties: ${{ matrix.bbb-web-properties }}
+      - name: Install and enable every recording format
+        if: ${{ startsWith(matrix.group, 'recording-') }}
+        run: |
+          sudo apt-get install -y bbb-playback-notes bbb-playback-podcast bbb-playback-screenshare bbb-playback-video
+          sudo mkdir -p /etc/bigbluebutton/recording
+          sudo tee /etc/bigbluebutton/recording/recording.yml > /dev/null <<'EOF'
+          steps:
+            archive: "sanity"
+            sanity: "captions"
+            captions:
+              - "process:notes"
+              - "process:podcast"
+              - "process:presentation"
+              - "process:screenshare"
+              - "process:video"
+            "process:notes": "publish:notes"
+            "process:podcast": "publish:podcast"
+            "process:presentation": "publish:presentation"
+            "process:screenshare": "publish:screenshare"
+            "process:video": "publish:video"
+          EOF
+          sudo systemctl restart bbb-rap-resque-worker.service
+      - uses: actions/setup-node@v5
+        name: PLAYWRIGHT CACHE - Restore Playwright node modules from cache
+        with:
+          cache: "npm"
+          cache-dependency-path: bigbluebutton-tests/playwright/package-lock.json
+      - name: PLAYWRIGHT CACHE - Restore Playwright binaries from cache
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright/
+          key: ${{ runner.os }}-playwright-bins-${{ hashFiles('bigbluebutton-tests/playwright/package-lock.json') }}
+      - name: Install test dependencies
+        id: deps
+        working-directory: ./bigbluebutton-tests/playwright
+        timeout-minutes: 25
+        run: |
+          npm ci
+          npx playwright install-deps
+          npx playwright install
+          quarantine=$(jq -er .config.quarantine package.json)
+          echo "QUARANTINE_TAGS=$quarantine" >> "$GITHUB_ENV"
+      - name: Run tests
+        working-directory: ./bigbluebutton-tests/playwright
+        timeout-minutes: 150
+        env:
+          PROJECT: ${{ matrix.project }}
+          SHARD: ${{ matrix.shard }}/${{ matrix.shards }}
+          GREP: ${{ matrix.grep }}
+          EXCLUDE_TAGS: ${{ matrix.exclude-tags }}
+          RECORDING_FORMATS: ${{ startsWith(matrix.group, 'recording-') && 'presentation,podcast,video,screenshare,notes' || '' }}
+          PLAYWRIGHT_BLOB_OUTPUT_DIR: nightly-output/blob-tests
+        run: |
+          args=(-c playwright.nightly.config.ts "--project=$PROJECT" "--shard=$SHARD")
+          if [ -n "$GREP" ]; then
+            args+=(--grep "$GREP")
+          fi
+          if [ -z "$GREP" ] || [ "$EXCLUDE_TAGS" = "true" ]; then
+            args+=(--grep-invert "$QUARANTINE_TAGS|$EXCLUDED_TAGS")
+          fi
+          npx playwright test "${args[@]}"
+      - name: Run quarantined tests 3 times each (report only)
+        if: ${{ matrix.quarantined && !cancelled() && steps.deps.outcome == 'success' }}
+        working-directory: ./bigbluebutton-tests/playwright
+        timeout-minutes: 60
+        env:
+          PROJECT: ${{ matrix.project }}
+          SHARD: ${{ matrix.shard }}/${{ matrix.shards }}
+          PLAYWRIGHT_BLOB_OUTPUT_DIR: nightly-output/blob-quarantined
+        run: |
+          if ! npx playwright test -c playwright.nightly.config.ts "--project=$PROJECT" "--shard=$SHARD" \
+            --grep "$QUARANTINE_TAGS" --grep-invert "$EXCLUDED_TAGS" --repeat-each=3 --retries=0 --trace=off --reporter=list,blob; then
+            echo "::warning title=Report only::Some quarantined tests failed; see the nightly-test-reports artifact"
+          fi
+      - name: Check the server's health
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        timeout-minutes: 10
+        shell: bash
+        run: |
+          mkdir -p bigbluebutton-tests/playwright/nightly-output
+          sudo bash bigbluebutton-tests/server-health-check.sh | tee bigbluebutton-tests/playwright/nightly-output/health.txt
+      - if: ${{ !cancelled() }}
+        name: Upload the blob reports, health check and browser logs
+        uses: actions/upload-artifact@v6
+        with:
+          name: nightly-job-${{ matrix.group }}-${{ matrix.shard }}
+          path: |
+            bigbluebutton-tests/playwright/nightly-output
+            bigbluebutton-tests/playwright/logs
+          if-no-files-found: ignore
+          retention-days: 7
+      - if: failure()
+        name: Prepare artifacts
+        uses: ./.github/actions/prepare-artifacts
+      - if: failure()
+        name: Upload bbb-configs and bbb-logs artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: nightly-bbb-logs-${{ matrix.group }}-${{ matrix.shard }}
+          path: |
+            configs
+            bbb-logs.tar.gz
+          retention-days: 7
+  # The API conformance suite's slow cases, against bbb-web on the suite's
+  # Tier 1 stack, from the packages of the build under test: the cases the
+  # per-PR api-conformance job (automated-tests.yml) leaves out because they
+  # take minutes each. Every answer is compared with the committed
+  # recordings; a skipped case fails the run.
+  api-conformance-slow:
+    needs: find-build
+    runs-on: ${{ vars.CI_HEAVY_RUNNER || 'ubuntu-24.04' }}
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: bigbluebutton-tests/api-conformance
+    steps:
+      - name: Checkout the commit that was built
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.find-build.outputs.sha }}
+      # The stack's images need more room than a GitHub-hosted runner leaves
+      # free. On a fork's own runner these directories may be in use, so they
+      # are left alone there.
+      - name: Free disk space
+        if: runner.environment == 'github-hosted'
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          df -h /
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: bigbluebutton-tests/api-conformance/runner/go.mod
+          cache-dependency-path: bigbluebutton-tests/api-conformance/runner/go.sum
+      # The five debs Tier 1 runs, from the packages unify-artifacts
+      # gathered (it deletes the per-package artifacts once it has).
+      - name: Download all-bbb-artifacts
+        uses: actions/download-artifact@v7
+        with:
+          name: all-bbb-artifacts
+          path: ${{ runner.temp }}/bbb-artifacts
+          run-id: ${{ needs.find-build.outputs.run-id }}
+          github-token: ${{ github.token }}
+      - name: Pick Tier 1's debs
+        env:
+          ARTIFACTS: ${{ runner.temp }}/bbb-artifacts
+        run: |
+          mkdir -p env/.state/debs
+          for p in bbb-web bbb-apps-akka bbb-graphql-server bbb-graphql-middleware bbb-graphql-actions; do
+            cp "$ARTIFACTS/${p}"_*.deb env/.state/debs/
+          done
+          ls -l env/.state/debs
+      - name: Bring up Tier 1
+        run: make -C env up
+      - name: Run the slow cases
+        run: |
+          vars=$(make -s -C env env)
+          eval "$vars"
+          mkdir -p out
+          cd runner
+          go run ./cmd/bbb-conform run --target ../targets/bbb-web.yaml --cases ../cases \
+            --golden ../golden/bbb-web --expect ../expectations/bbb-web.yaml \
+            --tags slow --exclude-tags full-stack --fail-on-skip --junit ../out/junit.xml --json ../out/results.json
+      - name: Write the summary
+        if: always()
+        run: |
+          [ -f out/results.json ] || exit 0
+          # The counts, as an annotation on the run.
+          jq -r '"::notice title=API conformance (slow)::" + ([.counts | to_entries[] | "\(.value) \(.key)"] | join(", "))' out/results.json
+          cd runner
+          go run ./cmd/bbb-conform gap --results ../out/results.json --md ../out/gap.md --html ../out/gap.html
+          cat ../out/gap.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Collect the services' logs
+        if: failure()
+        run: |
+          mkdir -p out
+          make -s -C env logs TAIL=all > out/services.log 2>&1 || true
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: api-conformance-bbb-web-slow
+          path: bigbluebutton-tests/api-conformance/out/
+          if-no-files-found: ignore
+      - name: Take Tier 1 down
+        if: always()
+        run: make -C env down
+  report:
+    if: ${{ !cancelled() && needs.find-build.result == 'success' }}
+    needs:
+      - find-build
+      - tests
+    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-24.04' }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.find-build.outputs.sha }}
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: "npm"
+          cache-dependency-path: bigbluebutton-tests/playwright/package-lock.json
+      - name: Install dependencies
+        working-directory: ./bigbluebutton-tests/playwright
+        run: npm ci
+      - name: Download the job results
+        uses: actions/download-artifact@v7
+        with:
+          pattern: nightly-job-*
+          path: bigbluebutton-tests/playwright/nightly-jobs
+      - name: Merge them into one HTML report per group
+        working-directory: ./bigbluebutton-tests/playwright
+        shell: bash
+        env:
+          # one table row per test that failed an attempt and passed the retry, from a JSON report
+          PASSED_ON_RETRY: |
+            def specs($path):
+              (.specs[]? | {title: ($path + [.title] | join(" › ")), file, line, tests}),
+              (.suites[]? as $suite | $suite | specs($path + [$suite.title]));
+            def cell: gsub("\u001b\\[[0-9;]*m"; "") | gsub("\\s+"; " ") | gsub("\\|"; "\\|");
+            .suites[] | specs([]) as $spec | $spec.tests[] | select(.status == "flaky")
+            | ([.results[] | select(.status != "passed" and .status != "skipped") | .error.message // .status]
+               | first // "" | split("\n") | map(select(test("\\S"))) | first // "" | .[0:200]) as $failure
+            | "| \("[\(.projectName)] › \($spec.file):\($spec.line) › \($spec.title)" | cell) | \($failure | cell) |"
+        run: |
+          for job in nightly-jobs/nightly-job-*; do
+            name=${job#nightly-jobs/nightly-job-}
+            group=${name%-*}
+            for kind in tests quarantined; do
+              [ -d "$job/nightly-output/blob-$kind" ] || continue
+              target=nightly-merge/$group
+              [ "$kind" = quarantined ] && target=$target-quarantined
+              mkdir -p "$target"
+              cp "$job/nightly-output/blob-$kind"/*.zip "$target"/
+            done
+          done
+          {
+            echo "| Group | Passed | Failed | Flaky | Skipped |"
+            echo "|---|---|---|---|---|"
+          } >> "$GITHUB_STEP_SUMMARY"
+          for target in nightly-merge/*; do
+            [ -d "$target" ] || continue
+            group=${target#nightly-merge/}
+            PLAYWRIGHT_HTML_OUTPUT_DIR=nightly-reports/$group PLAYWRIGHT_JSON_OUTPUT_FILE=nightly-summary/$group.json \
+              npx playwright merge-reports --reporter html,json "$target"
+            jq -r --arg group "$group" \
+              '"| \($group) | \(.stats.expected) | \(.stats.unexpected) | \(.stats.flaky) | \(.stats.skipped) |"' \
+              "nightly-summary/$group.json" >> "$GITHUB_STEP_SUMMARY"
+            jq -r "$PASSED_ON_RETRY" "nightly-summary/$group.json" > "nightly-summary/$group.retried"
+          done
+          for list in nightly-summary/*.retried; do
+            [ -s "$list" ] || continue
+            group=${list#nightly-summary/}
+            {
+              echo
+              echo "Passed only on retry in ${group%.retried}:"
+              echo
+              echo "| Test | First failure |"
+              echo "|---|---|"
+              cat "$list"
+            } >> "$GITHUB_STEP_SUMMARY"
+          done
+          {
+            echo
+            echo "Server health checks that failed:"
+            echo '```'
+            grep -H '^FAIL' nightly-jobs/*/nightly-output/health.txt || echo "none"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload the HTML reports
+        uses: actions/upload-artifact@v6
+        with:
+          name: nightly-test-reports
+          path: bigbluebutton-tests/playwright/nightly-reports
+          retention-days: 30

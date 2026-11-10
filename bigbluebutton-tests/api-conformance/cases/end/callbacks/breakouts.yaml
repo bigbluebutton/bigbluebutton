@@ -1,0 +1,80 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# Breakout rooms send no end callback. akka-apps creates a breakout with
+# the parent's metadata, end callback URL included, but when the breakout
+# ends bbb-web calls nothing; when the parent ends, it calls back once,
+# with the parent's meetingID. akka-apps wants at least two rooms.
+id: end.callbacks.breakout-none
+title: An ended breakout room doesn't call its parent's end callback URL
+endpoint: end
+class: contract
+tags: [ci, presence]
+requires: [akka, presence]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Callback, meta_endCallbackUrl: "${sinkUrl}/${uid}/ended"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - presence:
+      action: join
+      as: ann
+      args: {meetingID: "${uid}", fullName: Ann, role: MODERATOR}
+    golden: off
+  - graphql:
+      as: ann
+      query: >-
+        mutation CreateBreakouts($record: Boolean!, $notes: Boolean!, $slides: Boolean!, $duration: Int!,
+        $invite: Boolean!, $lock: Boolean!, $rooms: [BreakoutRoom]!) {
+        breakoutRoomCreate(record: $record, captureNotes: $notes, captureSlides: $slides, durationInSeconds: $duration,
+        sendInviteToModerators: $invite, inheritLockSettings: $lock, rooms: $rooms) }
+      variables:
+        record: false
+        notes: false
+        slides: false
+        duration: 600
+        invite: false
+        lock: false
+        rooms:
+          - {name: Room 1, shortName: Room 1, sequence: 1, isDefaultName: true, freeJoin: false, users: [], captureNotesFilename: "", captureSlidesFilename: "", allPages: true, presId: ""}
+          - {name: Room 2, shortName: Room 2, sequence: 2, isDefaultName: true, freeJoin: false, users: [], captureNotesFilename: "", captureSlidesFilename: "", allPages: true, presId: ""}
+    golden: off
+  - bus: {name: BreakoutRoomStartedEvtMsg, meetingId: "${intId}", within: 15s}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.breakout.sequence: "1"}
+    capture: {roomId: $.core.body.breakout.breakoutId}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${roomId}", within: 5s}
+    golden: off
+    expect:
+      jsonpath:
+        $.core.body.props.meetingProp.isBreakout: "true"
+        $.core.body.props.metadataProp.metadata.endcallbackurl: "${sinkUrl}/${uid}/ended"
+  - graphql:
+      as: ann
+      query: "mutation EndBreakouts { breakoutRoomEndAll }"
+    golden: off
+  - bus: {name: MeetingEndedEvtMsg, meetingId: "${roomId}", within: 15s}
+    golden: off
+  - sink: {key: "${uid}", within: 10s}
+    expect: {absent: true}
+  - call: end
+    params: {meetingID: "${uid}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - sink: {key: "${uid}", within: 10s}
+    expect:
+      method: GET
+      path: /${uid}/ended
+      query: {meetingID: "${uid}", recordingmarks: "false"}
+  - sink: {key: "${uid}", within: 2s}
+    golden: off
+    expect: {count: 1}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

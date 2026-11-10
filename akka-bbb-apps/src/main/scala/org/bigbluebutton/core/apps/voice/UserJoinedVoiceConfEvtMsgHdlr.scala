@@ -23,16 +23,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration with HandlerHelp
     val isDialInUser = msg.body.intId.startsWith(IntIdPrefixType.DIAL_IN)
     val userColor = ColorPicker.nextColor(liveMeeting.props.meetingProp.intId)
 
-    def notifyModeratorsOfGuestWaiting(guest: GuestWaiting, users: Users2x, meetingId: String): Unit = {
-      val moderators = Users2x.findAll(users).filter(p => p.role == Roles.MODERATOR_ROLE)
-      moderators foreach { mod =>
-        val event = MsgBuilder.buildGuestsWaitingForApprovalEvtMsg(meetingId, mod.intId, Vector(guest))
-        outGW.send(event)
-      }
-      // bbb-html should only listen for this single message
-      val event = MsgBuilder.buildGuestsWaitingForApprovalEvtMsg(meetingId, "nodeJSapp", Vector(guest))
-      outGW.send(event)
-
+    def notifyModeratorsOfGuestWaiting(guest: GuestWaiting): Unit = {
       val notifyEvent = MsgBuilder.buildNotifyRoleInMeetingEvtMsg(
         Roles.MODERATOR_ROLE,
 
@@ -96,7 +87,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration with HandlerHelp
           System.currentTimeMillis()
         )
         GuestsWaiting.add(liveMeeting.guestsWaiting, guest)
-        notifyModeratorsOfGuestWaiting(guest, liveMeeting.users2x, liveMeeting.props.meetingProp.intId)
+        notifyModeratorsOfGuestWaiting(guest)
 
         VoiceApp.toggleUserAudioInVoiceConf(
           liveMeeting,
