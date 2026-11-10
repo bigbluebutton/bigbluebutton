@@ -45,12 +45,7 @@ export class Options extends MultiUsers {
       console.log(`Testing ${locale} locale`);
       const currentValuesBySelector = await getLocaleValues(selectedKeysBySelector, locale);
 
-      await this.modPage.waitAndClick(e.settingsSidebarButton);
-      await this.modPage.waitForSelector(e.languageSelector, 5000);
-      const langDropdown = await this.modPage.page.$(e.languageSelector);
-      if (!langDropdown) throw new Error('Language dropdown not found');
-      await langDropdown.selectOption({ value: locale });
-      await this.modPage.waitAndClick(e.saveSettingsButton);
+      await selectLocale(this.modPage, locale);
 
       for (const selector of Object.keys(currentValuesBySelector)) {
         await this.modPage.hasText(
@@ -341,7 +336,7 @@ export class Options extends MultiUsers {
     );
     await openSettings(this.modPage);
     await expect(
-      this.modPage.page.locator(e.languageSelector),
+      this.modPage.page.locator(e.languageSelectorInput),
       'should show Arabic as the selected language after a reload',
     ).toHaveValue('ar');
   }

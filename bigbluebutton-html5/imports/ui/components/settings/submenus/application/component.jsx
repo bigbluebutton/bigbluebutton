@@ -293,7 +293,7 @@ class ApplicationMenu extends BaseMenu {
                   allLocales={allLocales}
                   handleChange={(e) => this.handleSelectChange('locale', e)}
                   value={settings.locale}
-                  elementId="langSelector"
+                  dataTest="languageSelector"
                   ariaLabel={intl.formatMessage(intlMessages.languageLabel)}
                   selectMessage={intl.formatMessage(intlMessages.languageOptionLabel)}
                 />

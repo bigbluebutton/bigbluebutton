@@ -1,0 +1,35 @@
+name: Locales - check translation placeholders
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "bigbluebutton-html5/public/locales/*.json"
+      - "bigbluebutton-html5/scripts/check-locale-placeholders.js"
+      - ".github/workflows/locale-placeholder-check.yml"
+permissions:
+  contents: read
+jobs:
+  locale-placeholder-check:
+    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-24.04' }}
+    steps:
+      - name: Checkout PR's source merged into its target branch
+        uses: actions/checkout@v5
+        with:
+          ref: refs/pull/${{ github.event.number }}/merge
+          fetch-depth: 2
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: bigbluebutton-html5/package-lock.json
+      - name: install npm dependencies
+        working-directory: bigbluebutton-html5
+        run: npm ci
+      - name: extract the target branch's locale files
+        run: |
+          mkdir "$RUNNER_TEMP/base-locales"
+          git archive HEAD^1 bigbluebutton-html5/public/locales \
+            | tar -x -C "$RUNNER_TEMP/base-locales" --strip-components=3
+      - name: check translation placeholders against en.json
+        working-directory: bigbluebutton-html5
+        run: node scripts/check-locale-placeholders.js --base "$RUNNER_TEMP/base-locales" public/locales

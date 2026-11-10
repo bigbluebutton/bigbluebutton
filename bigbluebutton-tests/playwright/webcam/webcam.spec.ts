@@ -63,7 +63,7 @@ test.describe.parallel('Webcam', { tag: ['@ci', '@media'] }, () => {
     await webcam.pinningWebcams();
   });
 
-  test('Change video quality', async ({ browser, page }, testInfo) => {
+  test('Change video quality', { tag: '@nightly' }, async ({ browser, page }, testInfo) => {
     const webcam = new Webcam(browser, page);
     await webcam.init(true, { testInfo });
     await webcam.changeVideoQuality();

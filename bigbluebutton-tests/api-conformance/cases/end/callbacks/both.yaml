@@ -1,0 +1,44 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A meeting given both meta_endCallbackUrl and meetingEndedURL calls back
+# each of them, once, when it ends.
+id: end.callbacks.both
+title: An ended meeting calls back both of its end callback URLs
+endpoint: end
+class: contract
+tags: [ci]
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Callback, meta_endCallbackUrl: "${sinkUrl}/${uid}-meta/ended", meetingEndedURL: "${sinkUrl}/${uid}-param/ended"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: end
+    params: {meetingID: "${uid}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - sink: {key: "${uid}-meta", within: 10s}
+    expect:
+      method: GET
+      path: /${uid}-meta/ended
+      query: {meetingID: "${uid}", recordingmarks: "false"}
+  - sink: {key: "${uid}-param", within: 10s}
+    expect:
+      method: GET
+      path: /${uid}-param/ended
+      query: {meetingID: "${uid}", recordingmarks: "false"}
+  - sink: {key: "${uid}-meta", within: 2s}
+    golden: off
+    expect: {count: 1}
+  - sink: {key: "${uid}-param", within: 1s}
+    golden: off
+    expect: {count: 1}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

@@ -1,0 +1,7 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.strings.logos-logo
+target bbb-web
+
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.systemProps.customLogoURL, $.core.body.props.systemProps.customDarkLogoURL
+$.core.body.props.systemProps.customDarkLogoURL "https://img.example/logo.png"
+$.core.body.props.systemProps.customLogoURL "https://img.example/logo.png"

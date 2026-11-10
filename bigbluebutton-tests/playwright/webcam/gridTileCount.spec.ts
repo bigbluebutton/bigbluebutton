@@ -129,15 +129,15 @@ test.describe('Grid layout with bots', { tag: '@ci' }, () => {
     await grid.checkModeratorCameraWithBot();
   });
 
-  test('a bot joining and leaving does not change the hidden human count', async ({
-    browser,
-    context,
-    page,
-  }, testInfo) => {
-    const grid = new GridTileCount(browser, context);
-    await grid.initModPage(page, { testInfo, clientSettingsOverrides: SMALL_GRID_SETTINGS });
-    await grid.checkHumanOverflowWithBot();
-  });
+  test(
+    'a bot joining and leaving does not change the hidden human count',
+    { tag: '@nightly' },
+    async ({ browser, context, page }, testInfo) => {
+      const grid = new GridTileCount(browser, context);
+      await grid.initModPage(page, { testInfo, clientSettingsOverrides: SMALL_GRID_SETTINGS });
+      await grid.checkHumanOverflowWithBot();
+    },
+  );
 
   test('a bot camera is reachable across pages and stops counting when its camera stops', async ({
     browser,

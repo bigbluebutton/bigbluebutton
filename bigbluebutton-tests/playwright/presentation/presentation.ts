@@ -8,6 +8,7 @@ import {
   UPLOAD_PDF_WAIT_TIME,
 } from '../core/constants';
 import { elements as e } from '../core/elements';
+import { prepareForScreenshot, screenshotMask } from '../core/screenshots';
 import { checkNotificationText } from '../notifications/util';
 import { MultiUsers } from '../user/multiusers';
 import {
@@ -18,6 +19,7 @@ import {
   expectExternalVideoPlaying,
   expectSlidesEqualBetweenPages,
   EXTERNAL_VIDEO_URL,
+  fixtureFile,
   getCurrentPresentationHeight,
   getCurrentSlideAspectRatio,
   getCurrentSlideDarkPixelRatio,
@@ -958,24 +960,27 @@ export class Presentation extends MultiUsers {
     await this.modPage.waitAndClick(e.multiUsersWhiteboardOn);
     await this.modPage.waitAndClick(e.whiteboardOptionsButton, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.toolVisibility);
-    const screenshotOptions = {
-      maxDiffPixels: 1000,
-    };
     await this.modPage.wasRemoved(e.wbToolbar, 'should not display the whiteboard toolbar for the moderator');
-    if (!CI)
+    if (!CI) {
+      const restoreFocus = await prepareForScreenshot(this.modPage);
       await expect(this.modPage.page, 'should not display the presentation toolbar').toHaveScreenshot(
         'mod-hide-toolbars.png',
-        screenshotOptions,
+        { maxDiffPixels: 1000, mask: screenshotMask(this.modPage.page) },
       );
+      await restoreFocus();
+    }
     await this.userPage.hasElement(
       e.wbToolbar,
       'should display the whiteboard toolbar for the viewer with whiteboard access',
     );
-    if (!CI)
+    if (!CI) {
+      const restoreFocus = await prepareForScreenshot(this.userPage);
       await expect(this.userPage.page, 'should display the presentation toolbar').toHaveScreenshot(
         'user-toolbars.png',
-        screenshotOptions,
+        { maxDiffPixels: 1000, mask: screenshotMask(this.userPage.page) },
       );
+      await restoreFocus();
+    }
   }
 
   async zoom() {
@@ -1039,5 +1044,65 @@ export class Presentation extends MultiUsers {
   // One page over maxNumPages, assumed to be the default 200
   async tooManyPagesIsRefused() {
     await uploadRefusedPresentation(this.modPage, buildPdfWithPages(201), e.presentationPageCountExceededLabel);
+  }
+
+  private async openPresentationManager() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.mediaAreaButton);
+    await this.modPage.waitAndClick(e.managePresentations);
+    await this.modPage.hasElement(
+      e.presentationFileUpload,
+      'should display the presentation space for uploading a new file, when the manage presentations is opened',
+    );
+    await this.modPage.hasElement(
+      e.presentationThumbnails,
+      'should list the current presentation in the presentation manager',
+    );
+  }
+
+  // The spec sets uploadSizeMax to the size of the mask sample PDF, so that file sits exactly on the limit
+  async fileOverSizeLimitIsNotSent() {
+    const atTheLimit = fixtureFile(e.maskSamplePdf);
+    const limit = atTheLimit.buffer.length;
+    const overTheLimit = {
+      name: 'over-the-limit.pdf',
+      mimeType: 'application/pdf',
+      buffer: Buffer.alloc(limit + 1, 0x25),
+    };
+    let uploads = 0;
+    this.modPage.page.on('request', (request) => {
+      if (request.method() === 'POST' && request.url().endsWith('/upload')) uploads += 1;
+    });
+
+    await this.openPresentationManager();
+    const thumbnailsBefore = await this.modPage.getSelectorCount(e.presentationThumbnails);
+    await this.modPage.page.setInputFiles(e.presentationFileUpload, [atTheLimit, overTheLimit]);
+
+    await expect(
+      this.modPage.page.locator(e.smallToastMsg).filter({ hasText: overTheLimit.name }),
+      'should say why the file was refused',
+    ).toContainText(`${e.presentationTooLargeLabel} ${(limit / 1000).toFixed(2)} kB`);
+    // The uploads of a drop start together, so once the file at the limit is listed every POST of the drop is out
+    await this.modPage.waitUntilHaveCountSelector(e.presentationThumbnails, thumbnailsBefore + 1, UPLOAD_PDF_WAIT_TIME);
+    expect(uploads, 'should send only the file at the limit').toBe(1);
+    await expect(
+      this.modPage.page.locator(e.presentationNames).filter({ hasText: overTheLimit.name }),
+      'should not add the refused file to the presentations',
+    ).toHaveCount(0);
+  }
+
+  // The spec sets uploadSizeMax to 50 MB and uploadPagesMax to 7
+  async uploadConstraintsHintShowsLimits() {
+    await this.openPresentationManager();
+    await this.modPage.hasText(
+      e.uploadConstraintsHint,
+      'each file may not exceed 50 MB and 7 pages',
+      'should display both limits on the upload panel',
+    );
+  }
+
+  async uploadConstraintsHintIsHidden() {
+    await this.openPresentationManager();
+    await this.modPage.wasRemoved(e.uploadConstraintsHint, 'should not display the limits when the hint is off');
   }
 }

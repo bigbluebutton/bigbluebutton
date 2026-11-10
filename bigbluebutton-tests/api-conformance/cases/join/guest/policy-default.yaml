@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A meeting created without guestPolicy gets the server's default,
+# defaultGuestPolicy, which ships as ALWAYS_ACCEPT: a guest is let in.
+id: join.guest.policy-default
+title: join as a guest of a meeting created without guestPolicy
+endpoint: join
+class: contract
+tags: [ci]
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Guest policy}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: join
+    params: {meetingID: "${uid}", fullName: Ann, role: viewer, guest: "true", redirect: "false"}
+    expect:
+      returncode: SUCCESS
+      xpath: {/response/guestStatus: ALLOW}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}
