@@ -178,51 +178,39 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       shortcuts: {
         openOptions: {
           accesskey: 'O',
-          descId: 'openOptions',
         },
         toggleUserList: {
           accesskey: 'U',
-          descId: 'toggleUserList',
         },
         openLeaveMenu: {
           accesskey: 'X',
-          descId: 'openLeaveMenu',
         },
         toggleMute: {
           accesskey: 'M',
-          descId: 'toggleMute',
         },
         joinAudio: {
           accesskey: 'J',
-          descId: 'joinAudio',
         },
         leaveAudio: {
           accesskey: 'L',
-          descId: 'leaveAudio',
         },
         togglePublicChat: {
           accesskey: 'P',
-          descId: 'togglePublicChat',
         },
         hidePrivateChat: {
           accesskey: 'H',
-          descId: 'hidePrivateChat',
         },
         closePrivateChat: {
           accesskey: 'G',
-          descId: 'closePrivateChat',
         },
         raiseHand: {
           accesskey: 'R',
-          descId: 'raiseHand',
         },
         openActions: {
           accesskey: 'A',
-          descId: 'openActions',
         },
         openDebugWindow: {
           accesskey: 'K',
-          descId: 'openDebugWindow',
         },
       },
       branding: {

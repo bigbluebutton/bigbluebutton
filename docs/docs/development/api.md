@@ -841,7 +841,7 @@ Tools for experimenting:
 
 | Parameter | Description | Default |
 | --- | --- | --- |
-| `userdata-bbb_shortcuts` | JSON array of the keyboard shortcuts that stay enabled, by their `descId` in `public.app.shortcuts`: `openOptions`, `toggleUserList`, `openLeaveMenu`, `toggleMute`, `joinAudio`, `leaveAudio`, `togglePublicChat`, `hidePrivateChat`, `closePrivateChat`, `raiseHand`, `openActions`, `openDebugWindow`. Shortcuts not listed are disabled; `%5B%5D` (an empty array) disables them all. | all shortcuts in `public.app.shortcuts` |
+| `userdata-bbb_shortcuts` | JSON array of the keyboard shortcuts that stay enabled, by their name in `public.app.shortcuts`: `openOptions`, `toggleUserList`, `openLeaveMenu`, `toggleMute`, `joinAudio`, `leaveAudio`, `togglePublicChat`, `hidePrivateChat`, `closePrivateChat`, `raiseHand`, `openActions`, `openDebugWindow`. Shortcuts not listed are disabled; `%5B%5D` (an empty array) disables them all. | all shortcuts in `public.app.shortcuts` |
 
 ##### Media parameters
 
