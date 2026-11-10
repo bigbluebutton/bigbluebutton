@@ -217,6 +217,13 @@ if (env === prodEnv) {
     port: 3000,
     hot: true,
     allowedHosts: 'all',
+    // Make the browser revalidate every file, and answer unchanged ones with a
+    // 304 instead of sending them again. Strong ETags hash the content, so they
+    // still match after a restart or when webpack rewrites the same bytes.
+    devMiddleware: {
+      etag: 'strong',
+      cacheControl: 'no-cache',
+    },
     client: {
       overlay: false,
       webSocketURL: 'auto://0.0.0.0:0/html5client/ws',
