@@ -15,6 +15,7 @@ import (
 	"net/http/cookiejar"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/observe"
@@ -74,6 +75,13 @@ type Prepared struct {
 	Body    []byte
 	HasBody bool
 	Chunked bool // send without Content-Length
+	// CookiesFrom, when set, sends the request the way nginx sends an
+	// auth_request subrequest to a server behind it. It carries the cookies
+	// the client holds for this URL on the public side (what the browser
+	// sent nginx), and the cookies the answer sets aren't kept, since a
+	// subrequest's answer never reaches the browser. A Cookie in Header
+	// replaces the client's cookies; an empty one sends none.
+	CookiesFrom string
 }
 
 // Session holds one case's cookie jars.
@@ -100,6 +108,26 @@ func (s *Session) jar(name string) *cookiejar.Jar {
 // of a Session, it is for the case's own goroutine.
 func (s *Session) Cookies(name string, u *url.URL) []*http.Cookie {
 	return s.jar(name).Cookies(u)
+}
+
+// subrequestCookies puts on req the cookies a subrequest carries (see
+// Prepared.CookiesFrom). They go on req, not in p.Header, so reports, which
+// show p.Header, don't show them.
+func (s *Session) subrequestCookies(req *http.Request, p *Prepared, name string) error {
+	if vs, ok := req.Header["Cookie"]; ok {
+		if strings.Join(vs, "") == "" {
+			delete(req.Header, "Cookie")
+		}
+		return nil
+	}
+	u, err := url.Parse(p.CookiesFrom)
+	if err != nil || u.Scheme == "" || u.Host == "" {
+		return fmt.Errorf("cookies from %q: not an absolute URL", p.CookiesFrom)
+	}
+	for _, c := range s.jar(name).Cookies(u) {
+		req.AddCookie(c)
+	}
+	return nil
 }
 
 // Do sends p as client name. Redirects are returned, not followed, unless
@@ -142,6 +170,12 @@ func (s *Session) Do(ctx context.Context, p *Prepared, name string, follow bool,
 			continue
 		}
 		req.Header[k] = vs
+	}
+	if p.CookiesFrom != "" {
+		if err := s.subrequestCookies(req, p, name); err != nil {
+			return nil, err
+		}
+		hc.Jar = nil
 	}
 	start := time.Now()
 	resp, err := hc.Do(req)

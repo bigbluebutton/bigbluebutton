@@ -114,6 +114,14 @@ routes:
 - `base` (or the variable `baseEnv` names) replaces `baseUrl`, for routes such
   as the nginx-internal hooks that cases call on bbb-web directly.
 - A case is skipped as `not-routed` if the target doesn't map one of its
+- A step on such a route is sent as nginx sends an `auth_request`
+  subrequest, which carries the browser's cookies:
+  - it carries the cookies its `client` holds for the same path under
+    `baseUrl`, such as the JSESSIONID a `join` set;
+  - the cookies the answer sets aren't kept, because a subrequest's answer
+    never reaches the browser (the recording still shows them);
+  - a `Cookie` in the step's `headers` replaces the client's cookies, and
+    an empty one sends none. A fresh `client` sends none either.
   routes, or if the route's `baseEnv` is unset.
 - A route may name a path the server no longer serves, so that a case can
   check it stays gone.
@@ -1037,7 +1045,7 @@ starting with `_`, which the sink keeps for itself.
 | Key | Meaning |
 |---|---|
 | `call` | An API call name, sent to the target's API prefix. `""` is the version endpoint. |
-| `route`, `pathParams` | A non-API route (presentation, connection, textTrack), mapped per target. |
+| `route`, `pathParams` | A non-API route (presentation, connection, textTrack), mapped per target. A route served off `baseUrl` sends the client's `baseUrl` cookies and keeps none ([routes](#target-files)). |
 | `url` | An absolute URL sent as it is, e.g. a link getJoinUrl returned. |
 | `method` | A HEAD response has no body, so a HEAD step can only check `status`, `headers` and `redirect`, and capture headers. |
 | `params` | Query parameters, in the order written. |
