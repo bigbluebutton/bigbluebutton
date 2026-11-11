@@ -469,9 +469,10 @@ public class SvgImageCreatorImp implements SvgImageCreator {
     // masks (an alpha SMask whose transparency group carries a /Matrix), whereas the splash
     // backend composites it correctly. "-singlefile" makes pdftoppm write exactly
     // "<destFileRoot>.png" (no page number suffix), matching the temp file the caller created.
-    // See issue #23953.
+    // See issue #23953. "-cropbox" renders the page's CropBox, as pdftocairo -svg does for the
+    // vector slides, instead of the whole MediaBox (issue #26507).
     private NuProcessBuilder createRasterizationProcess(int page, String source, String destFileRoot, long timeout) {
-        String rawCommand = "pdftoppm -q -png -singlefile -r " + this.svgResolutionPpi;
+        String rawCommand = "pdftoppm -cropbox -q -png -singlefile -r " + this.svgResolutionPpi;
 
         //Resize png resolution to avoid too large files
         if (this.pngWidthRasterizedSlides != 0) {
@@ -487,7 +488,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
     // and splash (pdftoppm), so the two results can be compared.
     private NuProcessBuilder createRenderComparisonProcess(int page, String source, String cairoFileRoot,
             String splashFileRoot, long timeout) {
-        String pageArgs = " -q -png -singlefile -scale-to " + RENDER_COMPARISON_SIZE
+        String pageArgs = " -cropbox -q -png -singlefile -scale-to " + RENDER_COMPARISON_SIZE
                 + " -f " + String.valueOf(page) + " -l " + String.valueOf(page) + " " + source + " ";
         String rawCommand = "pdftocairo" + pageArgs + cairoFileRoot + " && pdftoppm" + pageArgs + splashFileRoot;
 

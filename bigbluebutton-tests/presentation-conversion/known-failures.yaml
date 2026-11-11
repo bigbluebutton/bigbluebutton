@@ -70,16 +70,6 @@
   since: 2026-10-09
   note: Same cause as rt-pdf-oversized-31mb-insert, here for a base64 document over maxFileSizeUpload=400000.
 
-- fixture: pdf-rotate-cropbox-3p
-  profiles: [rasterize-all]
-  pages: [3]
-  checks: [aspect, pixels]
-  issue: https://github.com/bigbluebutton/bigbluebutton/issues/26507
-  since: 2026-10-09
-  note: >-
-    SvgImageCreatorImp.createRasterizationProcess runs pdftoppm without -cropbox, so a rasterized cropped page
-    shows the whole MediaBox (content outside the crop, 3:2 instead of 16:9). The vector path is correct.
-
 - fixture: pdf-image-slide-300k
   profiles: [tight-limits]
   checks: [aspect]
