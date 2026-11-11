@@ -36,7 +36,8 @@ const storeDevScripts = (compilation, files) => {
   devBuild += 1;
   const urls = files.map((file) => {
     const content = compilation.getAsset(file).source.buffer();
-    const url = `${file}?contenthash=${crypto.createHash('sha1').update(content).digest('hex')}`;
+    const hash = crypto.createHash('sha256').update(content).digest('hex').slice(0, 20);
+    const url = `${file}?contenthash=${hash}`;
     devScriptsByUrl.set(url, { content, build: devBuild });
     return url;
   });
@@ -311,16 +312,25 @@ if (env === prodEnv) {
       // names, from the scripts of recent builds: during a rebuild, after it,
       // and whether or not the browser already holds the page's other scripts.
       // Those bytes never change, so the browser keeps them without asking
-      // again. Any other URL goes on to webpack-dev-middleware and revalidates.
-      // This runs after compression, like webpack-dev-middleware.
+      // again. A hash the dev server no longer holds (a page from more than
+      // 10 builds ago, or from before a restart) gets a script that reloads
+      // the page, instead of other bytes that would mix two builds. Other
+      // URLs go on to webpack-dev-middleware and revalidate. This runs after
+      // compression, like webpack-dev-middleware.
       const serveScriptByHash = (req, res, next) => {
         const { pathname, searchParams } = new URL(req.url, 'http://localhost');
-        const script = devScriptsByUrl.get(`${pathname.slice(1)}?contenthash=${searchParams.get('contenthash')}`);
-        if (req.method !== 'GET' || !script) {
+        const hash = searchParams.get('contenthash');
+        if (req.method !== 'GET' || !hash) {
           next();
           return;
         }
+        const script = devScriptsByUrl.get(`${pathname.slice(1)}?contenthash=${hash}`);
         res.setHeader('Content-Type', 'text/javascript; charset=utf-8');
+        if (!script) {
+          res.setHeader('Cache-Control', 'no-store');
+          res.end('window.location.reload();');
+          return;
+        }
         res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
         res.end(script.content);
       };
