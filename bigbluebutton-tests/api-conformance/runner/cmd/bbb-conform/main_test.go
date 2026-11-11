@@ -196,3 +196,39 @@ func TestLoadRulesMasksDir(t *testing.T) {
 		t.Errorf("bad masks.d file: error = %v, want it to name c.yaml", err)
 	}
 }
+
+func TestLoadRulesMasksDirPathAndErrors(t *testing.T) {
+	// A directory name with glob metacharacters is taken literally.
+	dir := filepath.Join(t.TempDir(), "suite[1")
+	if err := os.MkdirAll(filepath.Join(dir, "masks.d"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "masks.d", "a.yaml"), []byte("drop: [{path: /response/extra}]\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	r, err := loadRules("", filepath.Join(dir, "cases"))
+	if err != nil {
+		t.Fatalf("cases under %q: %v", dir, err)
+	}
+	found := false
+	for _, d := range r.Drop {
+		if d.Path == "/response/extra" {
+			found = true
+		}
+	}
+	if !found {
+		t.Errorf("cases under %q: masks.d's rules not loaded", dir)
+	}
+
+	// An unreadable masks.d fails instead of loading no rules.
+	if os.Geteuid() == 0 {
+		t.Skip("root reads any directory")
+	}
+	if err := os.Chmod(filepath.Join(dir, "masks.d"), 0o000); err != nil {
+		t.Fatal(err)
+	}
+	defer os.Chmod(filepath.Join(dir, "masks.d"), 0o755)
+	if _, err := loadRules("", filepath.Join(dir, "cases")); err == nil {
+		t.Error("an unreadable masks.d should fail")
+	}
+}

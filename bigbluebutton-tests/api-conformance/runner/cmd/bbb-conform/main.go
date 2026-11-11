@@ -576,11 +576,18 @@ func loadRules(masksFile, cases string) (*normalize.Rules, error) {
 		return normalize.Load(masksFile)
 	}
 	dir := filepath.Dir(filepath.Clean(cases))
-	files, err := filepath.Glob(filepath.Join(dir, "masks.d", "*.yaml"))
-	if err != nil {
+	// ReadDir, not Glob: the path is literal, and an unreadable masks.d
+	// fails instead of loading no rules. It sorts the entries by name.
+	var files []string
+	entries, err := os.ReadDir(filepath.Join(dir, "masks.d"))
+	if err != nil && !errors.Is(err, fs.ErrNotExist) {
 		return nil, err
 	}
-	// Glob sorts the files by name.
+	for _, e := range entries {
+		if !e.IsDir() && strings.HasSuffix(e.Name(), ".yaml") {
+			files = append(files, filepath.Join(dir, "masks.d", e.Name()))
+		}
+	}
 	def := filepath.Join(dir, "masks.yaml")
 	if _, err := os.Stat(def); err == nil {
 		files = append(files, def)
