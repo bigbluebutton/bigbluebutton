@@ -27,7 +27,7 @@ export class Create extends MultiUsers {
     }).toPass({ timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
   }
 
-  private static async setPermissionAllowed(page: PlaywrightPage, selector: string, allowed: boolean) {
+  protected static async setPermissionAllowed(page: PlaywrightPage, selector: string, allowed: boolean) {
     await Create.setCheckboxChecked(page, selector, allowed);
   }
 
