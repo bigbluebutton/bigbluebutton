@@ -1730,7 +1730,46 @@ const reducer = (state, action) => {
     case ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA: {
       const { presentationAreaContentActions } = state;
       if (action.value.open) {
-        presentationAreaContentActions.push(action);
+        const { replacesGenericContentId, ...value } = action.value;
+        const replacedIndex = replacesGenericContentId
+          ? presentationAreaContentActions.findIndex((p) => (
+            p.value.content === PRESENTATION_AREA.GENERIC_CONTENT
+            && p.value.genericContentId === replacesGenericContentId
+          ))
+          : -1;
+        if (replacedIndex !== -1) {
+          presentationAreaContentActions.splice(replacedIndex, 1, { ...action, value });
+          // The pile keeps its shape, so nothing re-derives the area: point it at the new item
+          const { genericMainContent } = state.input;
+          if (genericMainContent.genericContentId === replacesGenericContentId) {
+            return {
+              ...state,
+              presentationAreaContentActions,
+              input: {
+                ...state.input,
+                genericMainContent: {
+                  ...genericMainContent,
+                  genericContentId: value.genericContentId,
+                },
+              },
+            };
+          }
+        } else if (value.content === PRESENTATION_AREA.GENERIC_CONTENT) {
+          // Plugin content goes under the core content on top (screenshare, external video,
+          // pinned notes) and shows once that content stops. For a new share, the presenter's
+          // client stops it. Content restored after a reload, or seen by a late joiner, must
+          // not cover what everyone else sees.
+          let index = presentationAreaContentActions.length;
+          while (index > 0 && ![
+            PRESENTATION_AREA.GENERIC_CONTENT,
+            PRESENTATION_AREA.WHITEBOARD_OPEN,
+          ].includes(presentationAreaContentActions[index - 1].value.content)) {
+            index -= 1;
+          }
+          presentationAreaContentActions.splice(index, 0, { ...action, value });
+        } else {
+          presentationAreaContentActions.push({ ...action, value });
+        }
       } else {
         let indexesOfOpenedContent = presentationAreaContentActions.reduce((indexes, p, index) => {
           if (action.value.content === PRESENTATION_AREA.GENERIC_CONTENT) {
@@ -1961,11 +2000,13 @@ const LayoutContextProvider = (props) => {
   useEffect(() => {
     const currentPile = layoutContextState.presentationAreaContentActions;
     const previousPile = previousPresentationAreaContentActions.current;
-    const topGenericContentId = (pile) => pile[pile.length - 1]?.value?.genericContentId;
+    const top = (pile) => pile[pile.length - 1]?.value;
     if (
       currentPile.length !== previousPile.length
       // A plugin replacing its generic content in a single render keeps the pile size
-      || topGenericContentId(currentPile) !== topGenericContentId(previousPile)
+      || top(currentPile)?.genericContentId !== top(previousPile)?.genericContentId
+      // So does one content replacing another (e.g. an external video unpinning the notes)
+      || top(currentPile)?.content !== top(previousPile)?.content
     ) {
       updatePresentationAreaContent(
         layoutContextState,
