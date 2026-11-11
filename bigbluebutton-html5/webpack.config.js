@@ -272,15 +272,17 @@ if (env === prodEnv) {
     devMiddleware: {
       etag: 'strong',
       cacheControl: 'no-cache',
-    },
-    // A script URL with the hash of the file's current bytes never serves
-    // anything else, so the browser can keep it and not ask again: a page
-    // load then makes no request for a script that did not change. A URL
-    // with any other hash is left to revalidate, like every other file.
-    headers: (req) => {
-      const { pathname, searchParams } = new URL(req.url, 'http://localhost');
-      const current = devScriptHashes.get(pathname.slice(1)) === searchParams.get('contenthash');
-      return current ? { 'Cache-Control': 'public, max-age=31536000, immutable' } : {};
+      // A script URL with the hash of the file's current bytes never serves
+      // anything else, so the browser can keep it and not ask again: a page
+      // load then makes no request for a script that did not change. A URL
+      // with any other hash is left to revalidate, like every other file.
+      // These headers, unlike devServer.headers, are set after a running
+      // rebuild finishes, so the hash is checked against the bytes served.
+      headers: (req) => {
+        const { pathname, searchParams } = new URL(req.url, 'http://localhost');
+        const current = devScriptHashes.get(pathname.slice(1)) === searchParams.get('contenthash');
+        return current ? { 'Cache-Control': 'public, max-age=31536000, immutable' } : {};
+      },
     },
     client: {
       overlay: false,
