@@ -137,6 +137,51 @@ runs:
         EOL
         systemctl daemon-reload
         '
+    # bbb-install.sh does not stop when apt can't reach the Ubuntu mirrors: apt-get update only
+    # warns, and set -e is off inside main() (it runs as `main "$@" || exit 1`), so a failed
+    # `apt-get install bigbluebutton` ends in an endless wait for bigbluebutton.properties until
+    # the step times out. Runners do lose DNS for *.ubuntu.com for several minutes at a time,
+    # so only start the install once the mirrors answer.
+    - name: Wait for Ubuntu package mirrors
+      shell: bash
+      run: |
+        sudo tee /etc/apt/apt.conf.d/80-ci-retries > /dev/null <<'EOL'
+        Acquire::Retries "5";
+        Acquire::http::Timeout "30";
+        Acquire::https::Timeout "30";
+        EOL
+
+        hosts=$({ grep -ohE 'https?://[^/[:space:]]+' /etc/apt/apt-mirrors.txt 2>/dev/null || true; } | sed -E 's|https?://||' | sort -u)
+        hosts=${hosts:-archive.ubuntu.com}
+        deadline=$((SECONDS + 20 * 60))
+        attempt=1
+        while :; do
+          resolved=""
+          unresolved=""
+          for h in $hosts; do
+            if getent ahosts "$h" > /dev/null; then resolved="$resolved $h"; else unresolved="$unresolved $h"; fi
+          done
+          if [ -n "$resolved" ]; then
+            out=$(sudo apt-get update 2>&1) || true
+            echo "$out"
+            if ! grep -qE '^(W|E): Failed to fetch .*(ubuntu\.com|apt-mirrors\.txt)' <<<"$out"; then
+              echo "Ubuntu mirrors OK (attempt $attempt)"
+              break
+            fi
+            reason="apt-get update could not fetch the Ubuntu indexes"
+          else
+            reason="DNS failed for:$unresolved"
+            # Tells apart the runner's resolver from the ubuntu.com DNS itself
+            for h in $unresolved; do echo "$h via 1.1.1.1: $(dig +time=3 +tries=1 +short "$h" @1.1.1.1 2>&1 | tr '\n' ' ')"; done
+          fi
+          if (( SECONDS >= deadline )); then
+            echo "::error::Ubuntu package mirrors unreachable for 20 minutes ($reason)"
+            exit 1
+          fi
+          echo "::warning::Ubuntu mirrors not ready, attempt $attempt ($reason); retrying in 30s"
+          attempt=$((attempt + 1))
+          sleep 30
+        done
     - name: Install BBB
       shell: bash
       env:
@@ -150,6 +195,22 @@ runs:
         cd /root/
         wget -nv https://raw.githubusercontent.com/bigbluebutton/bbb-install/v4.0.x-release/bbb-install.sh -O bbb-install.sh
         sed -i "s|> /etc/apt/sources.list.d/bigbluebutton.list||g" bbb-install.sh
+        # Retry the meta-package install and stop if it is still missing, instead of hanging
+        # on the bigbluebutton.properties wait loop until the step times out (see above).
+        cat > /tmp/bbb-ci-install-retry.sh <<'SNIPPET'
+          for ci_try in 1 2 3; do
+            need_pkg bigbluebutton
+            [ "$(dpkg-query -W -f='${db:Status-Status}' bigbluebutton 2>/dev/null)" = installed ] && break
+            echo "bigbluebutton not installed (attempt $ci_try/3), retrying in 60s"
+            sleep 60
+            dpkg --configure -a || true
+            apt_update
+          done
+          [ "$(dpkg-query -W -f='${db:Status-Status}' bigbluebutton 2>/dev/null)" = installed ] || err "Failed to install the bigbluebutton package"
+        SNIPPET
+        awk -v snip=/tmp/bbb-ci-install-retry.sh '$0 == "  need_pkg bigbluebutton" { while ((getline l < snip) > 0) print l; next } 1' bbb-install.sh > bbb-install.sh.new
+        mv bbb-install.sh.new bbb-install.sh
+        grep -q 'ci_try' bbb-install.sh || echo "::warning::bbb-install.sh changed; install retry/fail-fast patch not applied"
         chmod +x bbb-install.sh
 
         ./bbb-install.sh -v noble-40-dev -s bbb-ci.test -r packages.bigbluebutton.org -j -d /certs/
