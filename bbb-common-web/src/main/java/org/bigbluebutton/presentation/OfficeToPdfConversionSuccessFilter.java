@@ -53,10 +53,15 @@ public class OfficeToPdfConversionSuccessFilter {
   }
 
   public void sendOfficeToPdfConversionFailed(UploadedPresentation pres) {
+    // Keep the pre-check's own verdict: a document it rejected reports OFFICE_DOC_CONVERSION_INVALID,
+    // a conversion that failed the generic key.
+    String messageKey = ConversionMessageConstants.OFFICE_DOC_CONVERSION_INVALID_KEY.equals(pres.getConversionStatus())
+            ? ConversionMessageConstants.OFFICE_DOC_CONVERSION_INVALID_KEY
+            : ConversionMessageConstants.OFFICE_DOC_CONVERSION_FAILED_KEY;
     OfficeToPdfConversionFailed error = new OfficeToPdfConversionFailed(pres.getPodId(),
             pres.getMeetingId(),
             pres.getName(),
-            ConversionMessageConstants.OFFICE_DOC_CONVERSION_FAILED_KEY,
+            messageKey,
             pres.getTemporaryPresentationId(),
             pres.getId(),
             3);
