@@ -42,17 +42,6 @@
     The slide is auto-oriented by ImageMagick, but ThumbnailCreatorImp runs `convert -thumbnail` without
     -auto-orient, so the thumbnail of a portrait phone photo is sideways. The golden is the correct thumbnail.
 
-- fixture: pdf-rotate-cropbox-3p
-  profiles: "*"
-  pages: [3]
-  checks: [thumb]
-  issue: https://github.com/bigbluebutton/bigbluebutton/issues/26506
-  since: 2026-10-09
-  note: >-
-    ThumbnailCreatorImp runs pdftoppm without -cropbox, so the thumbnail of a cropped page shows the whole
-    MediaBox (content outside the crop, 3:2 instead of 16:9) while the slide itself is cropped. The golden is the
-    thumbnail with -cropbox.
-
 - fixture: off-pptx-phone-photo-exif6
   profiles: "*"
   checks: [marker]
