@@ -2,7 +2,6 @@ import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { MdAddCircle } from 'react-icons/md';
 import { BBBToggle } from '@bigbluebutton/bbb-ui-components-react/Toggle';
-import { BBButton } from '@bigbluebutton/bbb-ui-components-react/Button';
 import Styled from '../styles';
 import { pollTypes, isDefaultPoll } from '../service';
 import PollInputs from './PollInputs';
@@ -105,18 +104,16 @@ const ResponseArea: React.FC<ResponseAreaProps> = ({
           />
         )}
         {defaultPoll && (
-          <Styled.AddItemButton>
-            <BBButton
-              dataTest="addPollItem"
-              label={intl.formatMessage(intlMessages.addOptionLabel)}
-              ariaDescribedBy="add-item-button"
-              variant="subtle"
-              color="default"
-              iconStart={<MdAddCircle />}
-              disabled={optList.length >= MAX_CUSTOM_FIELDS}
-              onClick={() => handleAddOption()}
-            />
-          </Styled.AddItemButton>
+          <Styled.AddItemButton
+            dataTest="addPollItem"
+            label={intl.formatMessage(intlMessages.addOptionLabel)}
+            ariaDescribedBy="add-item-button"
+            variant="subtle"
+            color="default"
+            iconStart={<MdAddCircle />}
+            disabled={optList.length >= MAX_CUSTOM_FIELDS}
+            onClick={() => handleAddOption()}
+          />
         )}
       </Styled.ResponseArea>
     );
