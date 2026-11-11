@@ -6,7 +6,7 @@
 - fixture: rt-pdf-oversized-31mb-insert
   profiles: "*"
   checks: [outcome]
-  issue: "not filed yet: FILE_TOO_LARGE from insertDocument is lost"
+  issue: https://github.com/bigbluebutton/bigbluebutton/issues/26508
   since: 2026-10-09
   note: >-
     bbb-web rejects the download and sends FILE_TOO_LARGE, but akka-apps only updates an existing pres_presentation
@@ -46,7 +46,7 @@
   profiles: "*"
   pages: [3]
   checks: [thumb]
-  issue: "not filed yet: thumbnails ignore the PDF CropBox"
+  issue: https://github.com/bigbluebutton/bigbluebutton/issues/26506
   since: 2026-10-09
   note: >-
     ThumbnailCreatorImp runs pdftoppm without -cropbox, so the thumbnail of a cropped page shows the whole
@@ -56,16 +56,17 @@
 - fixture: off-pptx-phone-photo-exif6
   profiles: "*"
   checks: [marker]
-  issue: "not filed yet: LibreOffice ignores the EXIF orientation of pictures in PowerPoint decks"
+  issue: https://github.com/bigbluebutton/bigbluebutton/issues/26510
   since: 2026-10-09
   note: >-
     The deck holds a portrait phone photo stored sideways with EXIF Orientation 6; LibreOffice draws the stored
-    pixels, so the slide, its thumbnail and the recording show it rotated. Compare with PowerPoint before filing.
+    pixels, so the slide, its thumbnail and the recording show it rotated. PowerPoint's rendering of such a deck is
+    unverified; the issue says so.
 
 - fixture: rt-pdf-padded-500k-insert
   profiles: [tight-limits]
   checks: [outcome]
-  issue: "not filed yet: FILE_TOO_LARGE from insertDocument is lost"
+  issue: https://github.com/bigbluebutton/bigbluebutton/issues/26508
   since: 2026-10-09
   note: Same cause as rt-pdf-oversized-31mb-insert, here for a base64 document over maxFileSizeUpload=400000.
 
@@ -73,7 +74,7 @@
   profiles: [rasterize-all]
   pages: [3]
   checks: [aspect, pixels]
-  issue: "not filed yet: rasterized slides ignore the PDF CropBox"
+  issue: https://github.com/bigbluebutton/bigbluebutton/issues/26507
   since: 2026-10-09
   note: >-
     SvgImageCreatorImp.createRasterizationProcess runs pdftoppm without -cropbox, so a rasterized cropped page
@@ -82,7 +83,7 @@
 - fixture: pdf-image-slide-300k
   profiles: [tight-limits]
   checks: [aspect]
-  issue: "not filed yet: the blank substitute slide is always A4"
+  issue: https://github.com/bigbluebutton/bigbluebutton/issues/26509
   since: 2026-10-09
   note: >-
     A slide whose SVG exceeds maxBigSvgSize becomes the blank slide, as designed, but blank-svg.svg is
@@ -92,7 +93,7 @@
   profiles: [tight-limits]
   pages: [2]
   checks: [aspect]
-  issue: "not filed yet: the blank substitute slide is always A4"
+  issue: https://github.com/bigbluebutton/bigbluebutton/issues/26509
   since: 2026-10-09
 
 - fixture: repo-hello-txt
