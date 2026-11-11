@@ -24,10 +24,27 @@ process.stdout.write(`Building: ${process.env.TARGET}\n`);
 // old bundle and map (~100 MB each) in the cache until maxAge.
 const bundleFilename = env === prodEnv ? 'bundle.[fullhash].js' : 'bundle.js';
 
-// Dev builds: the hash of each script the page loads, by file name. main.html
-// puts it in the script's URL, and the dev server lets the browser keep a URL
-// whose hash is the current one (see devScripts and devServer.headers).
-const devScriptHashes = new Map();
+// Dev builds: the scripts of recent builds, by URL. Each URL carries a hash of
+// the script's bytes, and the dev server answers it from here, so a page always
+// gets the exact bytes its URLs name (see setupMiddlewares).
+const devScriptsByUrl = new Map();
+let devBuild = 0;
+
+// Stores this build's scripts and returns their URLs. The scripts of the last
+// 10 builds stay available, for pages loaded before a rebuild.
+const storeDevScripts = (compilation, files) => {
+  devBuild += 1;
+  const urls = files.map((file) => {
+    const content = compilation.getAsset(file).source.buffer();
+    const url = `${file}?contenthash=${crypto.createHash('sha1').update(content).digest('hex')}`;
+    devScriptsByUrl.set(url, { content, build: devBuild });
+    return url;
+  });
+  devScriptsByUrl.forEach(({ build }, url) => {
+    if (build <= devBuild - 10) devScriptsByUrl.delete(url);
+  });
+  return urls;
+};
 
 const config = {
   entry: './client/main.tsx',
@@ -91,11 +108,7 @@ const config = {
           // Dev builds split the page's code into several files (see
           // splitChunks below); main.html loads each one of them, with a hash
           // of its bytes in the URL
-          devScripts: env === prodEnv ? [] : assets.js.map((file) => {
-            const content = compilation.getAsset(file).source.buffer();
-            devScriptHashes.set(file, crypto.createHash('sha1').update(content).digest('hex'));
-            return `${file}?contenthash=${devScriptHashes.get(file)}`;
-          }),
+          devScripts: env === prodEnv ? [] : storeDevScripts(compilation, assets.js),
         };
       },
     }),
@@ -272,17 +285,6 @@ if (env === prodEnv) {
     devMiddleware: {
       etag: 'strong',
       cacheControl: 'no-cache',
-      // A script URL with the hash of the file's current bytes never serves
-      // anything else, so the browser can keep it and not ask again: a page
-      // load then makes no request for a script that did not change. A URL
-      // with any other hash is left to revalidate, like every other file.
-      // These headers, unlike devServer.headers, are set after a running
-      // rebuild finishes, so the hash is checked against the bytes served.
-      headers: (req) => {
-        const { pathname, searchParams } = new URL(req.url, 'http://localhost');
-        const current = devScriptHashes.get(pathname.slice(1)) === searchParams.get('contenthash');
-        return current ? { 'Cache-Control': 'public, max-age=31536000, immutable' } : {};
-      },
     },
     client: {
       overlay: false,
@@ -304,6 +306,26 @@ if (env === prodEnv) {
           next();
         }
       });
+
+      // A script URL with a content hash always gets the bytes that hash
+      // names, from the scripts of recent builds: during a rebuild, after it,
+      // and whether or not the browser already holds the page's other scripts.
+      // Those bytes never change, so the browser keeps them without asking
+      // again. Any other URL goes on to webpack-dev-middleware and revalidates.
+      // This runs after compression, like webpack-dev-middleware.
+      const serveScriptByHash = (req, res, next) => {
+        const { pathname, searchParams } = new URL(req.url, 'http://localhost');
+        const script = devScriptsByUrl.get(`${pathname.slice(1)}?contenthash=${searchParams.get('contenthash')}`);
+        if (req.method !== 'GET' || !script) {
+          next();
+          return;
+        }
+        res.setHeader('Content-Type', 'text/javascript; charset=utf-8');
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+        res.end(script.content);
+      };
+      const devMiddlewareIndex = middlewares.findIndex(({ name }) => name === 'webpack-dev-middleware');
+      middlewares.splice(devMiddlewareIndex, 0, { name: 'serve-script-by-hash', middleware: serveScriptByHash });
 
       return middlewares;
     },
