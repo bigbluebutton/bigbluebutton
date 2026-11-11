@@ -1,8 +1,8 @@
 import React, {
-  useEffect, useContext, useCallback, useState,
+  useEffect, useContext, useState,
 } from 'react';
 import PropTypes from 'prop-types';
-import { useMutation, useReactiveVar } from '@apollo/client';
+import { useReactiveVar } from '@apollo/client';
 import { defineMessages } from 'react-intl';
 import {
   getSharingContentType,
@@ -21,10 +21,8 @@ import { PluginsContext } from '/imports/ui/components/components-data/plugin-co
 import ScreenshareComponent from './component';
 import { layoutSelect, layoutSelectOutput, layoutDispatch } from '../layout/context';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
 import AudioManager from '/imports/ui/services/audio-manager';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import { PIN_NOTES } from '../notes/mutations';
 
 const screenshareIntlMessages = defineMessages({
   // SCREENSHARE
@@ -104,15 +102,9 @@ const ScreenshareContainer = (props) => {
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
   const { data: currentMeeting } = useMeeting((m) => ({
     screenShareBridge: m.screenShareBridge,
-    componentsFlags: m.componentsFlags,
   }));
   const { data: currentUserData } = useCurrentUser((u) => ({ presenter: u.presenter, bot: u.bot }));
   const [bridgeIsReady, setBridgeIsReady] = useState(false);
-  const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
-  const [pinSharedNotes] = useMutation(PIN_NOTES);
-  const unpinSharedNotes = useCallback(() => {
-    pinSharedNotes({ variables: { pinned: false } });
-  }, [pinSharedNotes]);
 
   const { element } = fullscreen;
   const fullscreenElementId = 'Screenshare';
@@ -126,8 +118,6 @@ const ScreenshareContainer = (props) => {
   }, [currentMeeting?.screenShareBridge]);
 
   const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
-
-  const isSharedNotesPinned = currentMeeting?.componentsFlags?.isSharedNotesPinned;
 
   const isPresenter = currentUserData?.presenter || false;
   const isBot = currentUserData?.bot || false;
@@ -182,9 +172,6 @@ const ScreenshareContainer = (props) => {
           ...screenShare,
           fullscreenContext,
           fullscreenElementId,
-          isSharedNotesPinned,
-          stopExternalVideoShare,
-          unpinSharedNotes,
           outputDeviceId,
           enableVolumeControl,
           hasAudio,
