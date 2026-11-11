@@ -12,7 +12,6 @@ files:
   thumb: "thumbnails/thumb-{n}.png"
   text: "textfiles/slide-{n}.txt"
   png: "pngs/slide-{n}.png"
-blankSvgBytes: 317
 blankText: "No text could be retrieved for the slide"
 statusSource: disk
 served:

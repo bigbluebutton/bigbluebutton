@@ -27,7 +27,6 @@ export interface Target {
   meetingKey: 'internal' | 'external';
   layout: string;
   files: { svg: string; thumb: string; text: string; png: string };
-  blankSvgBytes: number;
   blankText: string;
   statusSource: 'db' | 'disk';
   db?: { command: string };

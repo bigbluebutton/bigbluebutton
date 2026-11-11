@@ -64,7 +64,7 @@ for (const m of selectedManifests(profile)) {
         const abs = (rel?: string) => (rel ? path.join(profileWorkDir(), rel) : undefined);
         const svgFile = abs(page!.svg);
         const svg = svgFile ? fs.readFileSync(svgFile, 'utf8') : '';
-        const kind = svg ? slideKind(svg, target.blankSvgBytes) : 'missing';
+        const kind = svg ? slideKind(svg) : 'missing';
         testInfo.annotations.push({ type: 'kind', description: kind });
         const run = new CheckRun(m.id, profile, n, enabledChecks(m), measureOnly, testInfo);
         const golden = (file: string) => [m.id, gp, file];

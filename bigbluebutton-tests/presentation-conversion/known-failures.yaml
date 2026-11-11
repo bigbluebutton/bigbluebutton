@@ -80,22 +80,6 @@
     SvgImageCreatorImp.createRasterizationProcess runs pdftoppm without -cropbox, so a rasterized cropped page
     shows the whole MediaBox (content outside the crop, 3:2 instead of 16:9). The vector path is correct.
 
-- fixture: pdf-image-slide-300k
-  profiles: [tight-limits]
-  checks: [aspect]
-  issue: https://github.com/bigbluebutton/bigbluebutton/issues/26509
-  since: 2026-10-09
-  note: >-
-    A slide whose SVG exceeds maxBigSvgSize becomes the blank slide, as designed, but blank-svg.svg is
-    841.89x595.28, so a 16:9 page changes shape (and the stored page width and height with it).
-
-- fixture: pdf-use-tags-2p
-  profiles: [tight-limits]
-  pages: [2]
-  checks: [aspect]
-  issue: https://github.com/bigbluebutton/bigbluebutton/issues/26509
-  since: 2026-10-09
-
 - fixture: repo-hello-txt
   profiles: [office-precheck]
   checks: [outcome, pages]
