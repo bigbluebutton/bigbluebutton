@@ -141,3 +141,58 @@ func TestLoopbackOnly(t *testing.T) {
 		}
 	}
 }
+
+func TestLoadRulesMasksDir(t *testing.T) {
+	dir := t.TempDir()
+	write := func(name, body string) string {
+		t.Helper()
+		p := filepath.Join(dir, name)
+		if err := os.MkdirAll(filepath.Dir(p), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(p, []byte(body), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		return p
+	}
+	cases := filepath.Join(dir, "cases")
+	suite := write("masks.yaml", "masks: [{field: meetingName, as: token}]\n")
+	write("masks.d/b.yaml", "drop: [{path: /response/extra, value: \"false\"}]\n")
+	write("masks.d/a.yaml", "masks: [{field: meetingName, as: time}]\n")
+	write("masks.d/notes.txt", "not rules\n")
+
+	// maskOf returns the kind of the first mask for field, the one that
+	// applies, and whether the masks.d drop rule is loaded.
+	maskOf := func(field string, masksFile string) (as string, dropped bool) {
+		t.Helper()
+		r, err := loadRules(masksFile, cases)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, m := range r.Masks {
+			if m.Field == field && as == "" {
+				as = m.As
+			}
+		}
+		for _, d := range r.Drop {
+			if d.Path == "/response/extra" {
+				dropped = true
+			}
+		}
+		return as, dropped
+	}
+
+	// masks.d's files come first, in name order, then masks.yaml.
+	if as, dropped := maskOf("meetingName", ""); as != "time" || !dropped {
+		t.Errorf("default rules: meetingName as %q, extra dropped %v; want time, true", as, dropped)
+	}
+	// --masks replaces masks.yaml and masks.d alike.
+	if as, dropped := maskOf("meetingName", suite); as != "token" || dropped {
+		t.Errorf("--masks rules: meetingName as %q, extra dropped %v; want token, false", as, dropped)
+	}
+	// A bad file in masks.d fails like a bad masks.yaml.
+	write("masks.d/c.yaml", "drop: [{value: x}]\n")
+	if _, err := loadRules("", cases); err == nil || !strings.Contains(err.Error(), "c.yaml") {
+		t.Errorf("bad masks.d file: error = %v, want it to name c.yaml", err)
+	}
+}
