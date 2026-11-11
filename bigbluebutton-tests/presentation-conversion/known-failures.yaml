@@ -3,16 +3,6 @@
 # reported as "fixed" so the entry can be removed. Fields: fixture, profiles (list or "*"), pages (list or "*"),
 # checks (outcome, pages, kind, aspect, exif, text, marker, pixels, thumb, served), issue, since, note.
 
-- fixture: rt-pdf-oversized-31mb-insert
-  profiles: "*"
-  checks: [outcome]
-  issue: https://github.com/bigbluebutton/bigbluebutton/issues/26508
-  since: 2026-10-09
-  note: >-
-    bbb-web rejects the download and sends FILE_TOO_LARGE, but akka-apps only updates an existing pres_presentation
-    row (PresPresentationDAO.updateErrors) and an insertDocument upload that fails before conversion has none, so
-    the error never reaches the database or the presenter.
-
 - fixture: pdf-exif-1-to-8
   profiles: [defaults]
   pages: [2, 3, 4, 5, 6, 7, 8]
@@ -62,13 +52,6 @@
     The deck holds a portrait phone photo stored sideways with EXIF Orientation 6; LibreOffice draws the stored
     pixels, so the slide, its thumbnail and the recording show it rotated. PowerPoint's rendering of such a deck is
     unverified; the issue says so.
-
-- fixture: rt-pdf-padded-500k-insert
-  profiles: [tight-limits]
-  checks: [outcome]
-  issue: https://github.com/bigbluebutton/bigbluebutton/issues/26508
-  since: 2026-10-09
-  note: Same cause as rt-pdf-oversized-31mb-insert, here for a base64 document over maxFileSizeUpload=400000.
 
 - fixture: pdf-rotate-cropbox-3p
   profiles: [rasterize-all]
