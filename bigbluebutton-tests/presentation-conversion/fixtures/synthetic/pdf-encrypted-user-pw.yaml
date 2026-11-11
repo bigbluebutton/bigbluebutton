@@ -1,0 +1,18 @@
+id: pdf-encrypted-user-pw
+title: "pdf-base14-text-3p encrypted with user password \"x\""
+tier: synthetic
+file: pdf-encrypted-user-pw.pdf
+issues: []
+catalog: ["Encrypted PDF"]
+upload:
+  method: create
+pages: 0
+expect: "rejected:PAGE_COUNT_FAILED"
+kind: any
+marker: false
+aspect: auto
+checks: [outcome]
+profiles: [defaults]
+notes: >-
+  RC4 128-bit (R=3) through pikepdf, owner password pcf-owner, qpdf's static /ID. Nothing can be
+  rendered without the password; pdfinfo reports 'Incorrect password'.

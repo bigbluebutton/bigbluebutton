@@ -1,0 +1,14 @@
+Sites used more than 1/day
+SITE                 RESPONSES        =Other
+Other                            15
+                                      =Gov Agency
+CDC not CDC Wonder                4
+                                      =Regulation
+EPA                              3
+                                      =Literature
+Federal Register                 3    =Phone Bk
+Phone Directories                3    =Data Source
+CFR                              2
+PA Health Dept                   1
+PittCat                          1
+USDA                             1

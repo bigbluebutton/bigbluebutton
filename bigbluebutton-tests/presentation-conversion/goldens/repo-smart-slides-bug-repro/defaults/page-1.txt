@@ -1,0 +1,6 @@
+     Bug 1 — parens stripped
+•   What is the dose (one per day) for adults?
+•   A. 10 mg
+•   B. 20 mg
+•   C. 30 mg
+•   D. 40 mg

@@ -1,0 +1,9 @@
+Fonts - Good
+
+ Use at least an 18-point font
+ Use different size fonts for main points and
+  secondary points
+  – this font is 24-point, the main point font is 28-point,
+    and the title font is 36-point
+ Use a standard font like Times New Roman or
+  Arial

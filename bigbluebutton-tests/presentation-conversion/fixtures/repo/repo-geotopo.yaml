@@ -1,0 +1,10 @@
+id: repo-geotopo
+title: 117-page A4 document of 5.3 MB, uploaded by URL
+tier: repo
+file: ../../../playwright/core/media/GeoTopo.pdf
+upload: { method: create-url }
+catalog: [Huge images, SVG too complex for the client]
+pages: 117
+expect: converted
+kind: any
+checks: [outcome, pages, kind, aspect]

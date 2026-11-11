@@ -1,0 +1,11 @@
+Slide Structure - Bad
+
+ This page contains too many words for a
+  presentation slide. It is not written in point
+  form, making it difficult both for your audience
+  to read and for you to present each point.
+  Although there are exactly the same number of
+  points on this slide as the previous slide, it
+  looks much more complicated. In short, your
+  audience will spend too much time trying to
+  read this paragraph instead of listening to you.

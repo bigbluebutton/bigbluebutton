@@ -1,0 +1,26 @@
+{
+  "name": "bbb-presentation-conversion-tests",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Black-box regression suite for BigBlueButton presentation conversion",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "bin/run-pass.sh defaults",
+    "run-all": "bin/run-all.sh",
+    "bless": "bin/bless.sh",
+    "lint:manifests": "npx tsx src/cli/lint.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.0",
+    "@resvg/resvg-js": "2.6.2",
+    "@types/node": "^22.10.0",
+    "@types/pngjs": "^6.0.5",
+    "pngjs": "^7.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "yaml": "^2.6.0"
+  }
+}

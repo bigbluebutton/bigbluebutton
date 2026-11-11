@@ -1,0 +1,9 @@
+id: repo-mock-poll-slide
+title: Smart-slide poll question used by the Playwright polling tests
+tier: repo
+file: ../../../playwright/core/media/mockPollSlide.pdf
+issues: [23362]
+catalog: [Smart-slide / quick-poll text]
+pages: 1
+expect: converted
+kind: any

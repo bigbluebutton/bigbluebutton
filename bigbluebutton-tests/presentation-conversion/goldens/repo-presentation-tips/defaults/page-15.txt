@@ -1,0 +1,6 @@
+Graphs - Bad
+
+
+               January February    March     April
+    Blue Balls     20.4     27.4        90     20.4
+    Red Balls      30.6     38.6      34.6     31.6

@@ -1,0 +1,19 @@
+id: pdf-text-order-poll-2p
+title: "Quick-poll text drawn body-first with a superscript; two text columns"
+tier: synthetic
+file: pdf-text-order-poll-2p.pdf
+issues: [23304, 25320, 24613]
+catalog: ["Smart-slide / quick-poll text"]
+upload:
+  method: create
+pages: 2
+expect: converted
+kind: vector
+marker: false
+aspect: auto
+profiles: [defaults]
+notes: >-
+  Page 1 draws the question 'Which fruit do you eat (one per day)?', the answers 'A. Apple', 'B.
+  Banana', 'C. Cherry' and 'Area in m' + superscript '3' (Ts rise 13) before the title 'Quick
+  poll', which sits at the top. Page 2 has two columns, each with its own heading, drawn row by
+  row. The text goldens show what pdftotext gives the smart-slide parser.

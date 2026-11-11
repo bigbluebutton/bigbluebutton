@@ -1,0 +1,12 @@
+id: rt-pdf-padded-500k
+title: One-page PDF padded to 500 000 bytes, sent in the create body
+tier: runtime
+generate: { kind: padded-pdf, bytes: 500000, seed: 1, label: padded to 500000 bytes }
+issues: [25129]
+catalog: [Upload size limit]
+pages: 1
+expect: converted
+expectByProfile: { tight-limits: dropped }
+kind: vector
+profiles: [defaults, tight-limits]
+notes: tight-limits sets maxFileSizeUpload=400000; create rejects without telling anyone (no row, no messageKey).

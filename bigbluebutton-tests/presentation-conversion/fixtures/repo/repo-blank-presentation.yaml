@@ -1,0 +1,7 @@
+id: repo-blank-presentation
+title: One empty A4 page
+tier: repo
+file: ../../../../bigbluebutton-web/test/resources/blankpresentation.pdf
+pages: 1
+expect: converted
+kind: any

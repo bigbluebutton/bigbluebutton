@@ -1,0 +1,36 @@
+                 How confident do you feel using the
+                        Internet for work?
+                                          N=141
+
+
+            50
+
+            45
+
+            40
+
+            35
+Responses
+
+
+
+
+            30
+
+            25
+
+            20
+
+            15
+
+            10
+
+            5
+
+            0
+
+                 NA      Very       Somewhat      Moderately   Confident   Very Confident
+                      Unconfident   unconfident   Confident
+                                      Confidence Level                 Low confidence       15
+                                                                       Moderate confidence 41
+                                                                       High confidence      80
