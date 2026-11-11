@@ -1402,6 +1402,12 @@ const Whiteboard = React.memo((props) => {
       editor.setStyleForNextShapes(DefaultSizeStyle, initialSizeStyle);
     }
 
+    editor.sideEffects.registerBeforeCreateHandler('shape', (shape, source) => {
+      const userId = currentUserRef.current?.userId;
+      if (source !== 'user' || !userId || shape.meta?.createdBy) return shape;
+      return { ...shape, meta: { ...shape.meta, createdBy: userId } };
+    });
+
     editor.sideEffects.registerBeforeDeleteHandler('shape', (shape, source) => {
       const { presenter, isModerator, userId } = currentUserRef.current;
       const isOwn = userId && shape.meta?.createdBy === userId;
