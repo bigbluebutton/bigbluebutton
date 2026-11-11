@@ -424,6 +424,9 @@ export const elements = {
   notesConnectionError: '[data-test="notesError"]',
   notesRetryButton: 'button[data-test="notesRetryButton"]',
 
+  // Plugins
+  e2ePluginMainContent: 'div[data-test="container-e2ePluginMainContent"]',
+
   // Notifications
   smallToastMsg: 'div[data-test="toastSmallMsg"]',
   closeToastBtn: 'i[data-test="closeToastBtn"]',
@@ -572,6 +575,7 @@ export const elements = {
   // the media-sharing view's confirm button (was startNewVideo before the
   // external video share moved into the media area)
   startShareVideoBtn: 'button[data-test="ShareExternalVideo"]',
+  mediaAreaStopSharing: 'button[data-test="StopSharing"]',
   videoPlayer: 'div[data-test="videoPlayer"]',
   externalVideo: 'div[data-test="videoPlayer"] video',
   presentationTitle: 'h1[data-test="presentationTitle"]',
