@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { useMutation } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
-import { BBButton } from '@bigbluebutton/bbb-ui-components-react/Button';
 import Styled from '../styles';
 import { POLL_CANCEL, POLL_PUBLISH_RESULT } from '../mutations';
 import { layoutDispatch } from '../../layout/context';
@@ -74,7 +73,7 @@ const LiveResultActions: React.FC = () => {
         </Styled.ShowCorrectAnswerLabel>
       )}
       <Styled.LiveResultActionsRow>
-        <BBButton
+        <Styled.LiveResultActionButton
           dataTest="publishPollingLabel"
           label={intl.formatMessage(intlMessages.publishLabel)}
           variant="primary"
@@ -98,7 +97,7 @@ const LiveResultActions: React.FC = () => {
             });
           }}
         />
-        <BBButton
+        <Styled.LiveResultActionButton
           dataTest="cancelPollLabel"
           label={intl.formatMessage(intlMessages.cancelPollLabel)}
           variant="tertiary"
