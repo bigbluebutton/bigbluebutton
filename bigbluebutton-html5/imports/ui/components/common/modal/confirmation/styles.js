@@ -34,19 +34,18 @@ const Checkbox = styled.input`
   }
 `;
 
+// The buttons keep their own width and stay at the end of the row; when the
+// pair does not fit (a long label on a phone), the row wraps instead of
+// stretching them across the dialog.
 const Footer = styled.div`
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-end;
   gap: 0.75rem;
 `;
 
-// Once the pair stacks on a phone, each button fills its line; side by side
-// the footer shrinks to fit its buttons, so there is no room to grow into. Two
-// floors plus a long label can be wider than a phone screen, so the label
-// wraps instead of overflowing.
+// A label wider than the whole line wraps instead of overflowing.
 const FooterButton = styled(ModalFooterButton)`
-  flex-grow: 1;
   white-space: normal;
 `;
 
