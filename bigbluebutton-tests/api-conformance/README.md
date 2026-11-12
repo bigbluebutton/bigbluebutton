@@ -383,11 +383,14 @@ A tap started with `--recordings fixtures/recordings`:
   starts, replacing any copy of it there, in whatever state;
 - puts recordings back on `POST /recordings/restore?id=<record ID>&id=...`,
   which `restore` steps send: every copy of each recording goes, in any
-  state and format, with its caption files and anything uploaded for it to
-  the captions inbox, and the tree's copy goes in. A record ID that isn't
-  in the tree is refused. `?all=1` puts every recording back: the runner
-  asks for that before a run with cases that need the recordings, so each
-  run starts from the tree whatever an earlier one left;
+  state and format, with its caption files, anything uploaded for it to
+  the captions inbox and record-and-playback's work directory for such an
+  upload (`recording/caption/inbox/<record ID>`), and the tree's copy goes
+  in. A record ID that isn't in the tree is refused. `?all=1` puts every
+  recording back: the runner asks for that before a run with cases that
+  need the recordings, so each run starts from the tree whatever an
+  earlier one left. A restore of several recordings that fails partway
+  says which one it stopped at and how many it had put back;
 - writes as the data directory's owner when it runs as root, so bbb-web
   can move what it wrote.
 
@@ -395,9 +398,10 @@ A target whose tap reports fixture recordings has the `recordings-fs`
 capability; the cases that need them are skipped elsewhere, and ERROR when
 the tap doesn't answer. Run it on a test server only: the recordings show
 up in that server's getRecordings, and the cases that list every recording
-expect only them. On a full install, record-and-playback may process a
-caption track a case uploaded after the case has put the recording back;
-the next run undoes that.
+expect only them. On a full install, record-and-playback's caption watcher
+(`rap-caption-inbox.rb`) can pick up a track a case uploaded after the case
+has put the recording back. What it writes for a fixture recording is
+under the paths a restore clears, so the next run undoes it.
 
 ## The sink: `sink`
 

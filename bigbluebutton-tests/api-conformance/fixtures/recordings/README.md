@@ -30,5 +30,5 @@ restores them before and after it runs, and is tagged `serial`. No other
 case may change a recording. A case that adds a recording here changes
 what getRecordings with no filter lists (`getRecordings.all.*`).
 
-Nothing here is real: the names, IDs, host (`localhost:8443`, Tier 1's)
-and caption text were made up for the suite.
+Nothing here is real: the names, IDs, host (`recordings.test`, which no
+server is reached at) and caption text were made up for the suite.

@@ -117,8 +117,9 @@ func (rec *recordings) ids() []string {
 
 // restore puts the recording id back into data as the fixture tree has
 // it: every copy of it in data goes, in any state and format, with its
-// caption files and anything uploaded for it to the captions inbox; then
-// the tree's copy goes in.
+// caption files, anything uploaded for it to the captions inbox and
+// record-and-playback's work directory for such an upload; then the tree's
+// copy goes in.
 func (rec *recordings) restore(data *os.Root, id string) error {
 	for _, st := range recordingStates {
 		formats, err := subdirs(data, st)
@@ -131,8 +132,10 @@ func (rec *recordings) restore(data *os.Root, id string) error {
 			}
 		}
 	}
-	if err := data.RemoveAll(path.Join("captions", id)); err != nil {
-		return err
+	for _, dir := range []string{"captions", "recording/caption/inbox"} {
+		if err := data.RemoveAll(path.Join(dir, id)); err != nil {
+			return err
+		}
 	}
 	inbox, err := fs.ReadDir(data.FS(), "captions/inbox")
 	if err != nil && !errors.Is(err, fs.ErrNotExist) {
@@ -279,9 +282,13 @@ func (s *Server) restoreRecordings(r *http.Request) (any, int, error) {
 	}
 	s.recMu.Lock()
 	defer s.recMu.Unlock()
-	for _, id := range ids {
+	for i, id := range ids {
 		if err := s.rec.restore(s.root, id); err != nil {
-			return nil, http.StatusInternalServerError, fmt.Errorf("restoring %s: %w", id, err)
+			err = fmt.Errorf("restoring %s: %w", id, err)
+			if len(ids) > 1 {
+				err = fmt.Errorf("%w; the restore stopped there, so the data directory is only partly restored (%d of %d recordings put back)", err, i, len(ids))
+			}
+			return nil, http.StatusInternalServerError, err
 		}
 	}
 	return RestoreResult{Restored: ids}, 0, nil

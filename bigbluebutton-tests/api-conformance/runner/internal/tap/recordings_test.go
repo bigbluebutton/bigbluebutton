@@ -151,12 +151,50 @@ func TestRestoreRecordings(t *testing.T) {
 		t.Error("rec-b wasn't put back")
 	}
 
-	writeTree(t, data, map[string]string{"recording/process/presentation/rec-d/x/y.txt": "changed", "captions/rec-a/captions.json": "changed"})
+	// record-and-playback works on a caption upload in
+	// recording/caption/inbox/<record ID>.
+	writeTree(t, data, map[string]string{
+		"recording/process/presentation/rec-d/x/y.txt":   "changed",
+		"captions/rec-a/captions.json":                   "changed",
+		"recording/caption/inbox/rec-a/subtitles_fr.vtt": "being converted",
+		"recording/caption/inbox/other/subtitles_fr.vtt": "another recording's",
+	})
 	if err := c.RestoreAll(ctx(t)); err != nil {
 		t.Fatal(err)
 	}
 	if readFile(t, data, "recording/process/presentation/rec-d/x/y.txt") != "d" || readFile(t, data, "captions/rec-a/captions.json") != "[]" {
 		t.Error("all=1 didn't put every recording back")
+	}
+	if exists(data, "recording/caption/inbox/rec-a") || !exists(data, "recording/caption/inbox/other") {
+		t.Error("a restore should remove the fixture's caption work directory, and only that")
+	}
+}
+
+// A restore that fails partway says the data directory is only partly
+// restored.
+func TestRestorePartial(t *testing.T) {
+	if os.Geteuid() == 0 {
+		t.Skip("root can remove a read-only directory's contents")
+	}
+	fixtures, data := t.TempDir(), t.TempDir()
+	writeTree(t, fixtures, fixtureTree)
+	_, c := startRecordingsTap(t, fixtures, data)
+	// rec-b, the second of four, can't be removed from where it is.
+	locked := filepath.Join(data, "published/presentation/rec-b/locked")
+	writeTree(t, data, map[string]string{"published/presentation/rec-b/locked/f": "x"})
+	if err := os.Chmod(locked, 0o500); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = os.Chmod(locked, 0o755) })
+
+	var te *Error
+	err := c.RestoreAll(ctx(t))
+	if !errors.As(err, &te) || te.Status != http.StatusInternalServerError || !strings.Contains(err.Error(), "restoring rec-b") ||
+		!strings.Contains(err.Error(), "only partly restored (1 of 4 recordings put back)") {
+		t.Errorf("all=1: %v", err)
+	}
+	if err := c.Restore(ctx(t), []string{"rec-b"}); err == nil || strings.Contains(err.Error(), "partly") {
+		t.Errorf("one recording: %v", err)
 	}
 }
 

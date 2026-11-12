@@ -18,7 +18,7 @@
   </meta>
   <playback>
     <format>presentation</format>
-    <link>https://localhost:8443/playback/presentation/2.3/13ed80f250c8d538c9570d0240900f30c9867b0b-1700028800000</link>
+    <link>https://recordings.test/playback/presentation/2.3/13ed80f250c8d538c9570d0240900f30c9867b0b-1700028800000</link>
     <processing_time>6980</processing_time>
     <duration>95000</duration>
     <size>204800</size>

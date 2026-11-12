@@ -29,7 +29,7 @@ body xml
 /response/recordings/recording/breakoutRooms/breakoutRoom "<sha1(?)>-<time>"
 /response/recordings/recording/size "1087707"
 /response/recordings/recording/playback/format/type "presentation"
-/response/recordings/recording/playback/format/url "${baseUrl}/playback/presentation/2.3/<sha1(meetingID)>-<time>"
+/response/recordings/recording/playback/format/url "https://recordings.test/playback/presentation/2.3/<sha1(meetingID)>-<time>"
 /response/recordings/recording/playback/format/processingTime "6980"
 /response/recordings/recording/playback/format/length "6"
 /response/recordings/recording/playback/format/size "1087707"

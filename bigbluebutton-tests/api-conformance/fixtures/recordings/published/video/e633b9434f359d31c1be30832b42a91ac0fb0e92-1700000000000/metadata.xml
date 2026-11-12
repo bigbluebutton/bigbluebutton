@@ -18,7 +18,7 @@
   </meta>
   <playback>
     <format>video</format>
-    <link>https://localhost:8443/playback/video/e633b9434f359d31c1be30832b42a91ac0fb0e92-1700000000000/</link>
+    <link>https://recordings.test/playback/video/e633b9434f359d31c1be30832b42a91ac0fb0e92-1700000000000/</link>
     <processing_time>51320</processing_time>
     <duration>1795000</duration>
     <size>23488102</size>

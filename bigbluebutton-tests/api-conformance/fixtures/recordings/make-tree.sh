@@ -23,7 +23,10 @@ command -v sha1sum >/dev/null || {
 }
 
 here=$(cd "$(dirname "$0")" && pwd)
-host=https://localhost:8443
+# The host the playback, preview and data links name. bbb-web returns them
+# as metadata.xml has them, so it is one no server is reached at: the
+# recordings then show it as written, on Tier 1 or any other server.
+host=https://recordings.test
 
 sha1() {
 	printf %s "$1" | sha1sum | cut -c1-40

@@ -56,7 +56,10 @@ there compares like with like.
   (`*.errors.*`, `*.tracks.*`, `*.upload.*`) and the caption-file routes
   (`textTrack/`). They were recorded from a fresh stack (`make reset`)
   built from this tree that day, with the tap installing
-  `fixtures/recordings/`.
+  `fixtures/recordings/`. On 2026-11-12 the fixtures' links moved to the
+  host `recordings.test`, and the 56 recordings that show them were
+  re-recorded from a fresh stack running packages built from
+  v4.0.x-develop of 2026-11-10; only the host changed in them.
 
 ## Reviewing
 

@@ -27,7 +27,7 @@ body xml
 /response/recordings/recording/breakout/freeJoin "false"
 /response/recordings/recording/size "204800"
 /response/recordings/recording/playback/format/type "presentation"
-/response/recordings/recording/playback/format/url "${baseUrl}/playback/presentation/2.3/<sha1(?)>-<time>"
+/response/recordings/recording/playback/format/url "https://recordings.test/playback/presentation/2.3/<sha1(?)>-<time>"
 /response/recordings/recording/playback/format/processingTime "6980"
 /response/recordings/recording/playback/format/length "1"
 /response/recordings/recording/playback/format/size "204800"

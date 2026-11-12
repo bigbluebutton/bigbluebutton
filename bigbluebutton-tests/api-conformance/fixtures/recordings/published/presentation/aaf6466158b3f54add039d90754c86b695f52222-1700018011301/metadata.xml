@@ -17,13 +17,13 @@
   </meta>
   <playback>
     <format>presentation</format>
-    <link>https://localhost:8443/playback/presentation/2.3/aaf6466158b3f54add039d90754c86b695f52222-1700018011301</link>
+    <link>https://recordings.test/playback/presentation/2.3/aaf6466158b3f54add039d90754c86b695f52222-1700018011301</link>
     <processing_time>6980</processing_time>
     <duration>288000</duration>
     <extensions>
       <preview>
         <images>
-          <image width="176" height="136" alt="Welcome To BigBlueButton">https://localhost:8443/presentation/aaf6466158b3f54add039d90754c86b695f52222-1700018011301/presentation/7c15a0fadb79fe6e739bdd79cca3589e5d9e295f-1700018011301/thumbnails/thumb-1.png</image>
+          <image width="176" height="136" alt="Welcome To BigBlueButton">https://recordings.test/presentation/aaf6466158b3f54add039d90754c86b695f52222-1700018011301/presentation/7c15a0fadb79fe6e739bdd79cca3589e5d9e295f-1700018011301/thumbnails/thumb-1.png</image>
         </images>
       </preview>
     </extensions>
