@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 )
@@ -221,6 +222,9 @@ func TestLoadRulesMasksDirPathAndErrors(t *testing.T) {
 	}
 
 	// An unreadable masks.d fails instead of loading no rules.
+	if runtime.GOOS == "windows" {
+		t.Skip("chmod does not block directory reads on Windows")
+	}
 	if os.Geteuid() == 0 {
 		t.Skip("root reads any directory")
 	}
