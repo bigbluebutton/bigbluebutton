@@ -137,6 +137,16 @@ runs:
         EOL
         systemctl daemon-reload
         '
+        # bbb-install.sh runs `apt-get dist-upgrade`, which also pulls the newest kernel and snapd
+        # when the runner image is behind Ubuntu (300+ MB, mostly kernel, on a stale image). The
+        # runner never reboots, so that download is wasted and, on a slow mirror, times the step out.
+        # linux-libc-dev stays upgradable: new build dependencies may require a newer one.
+        hold=$({ dpkg-query -W -f='${db:Status-Status} ${Package}\n' 'linux-*' snapd 2>/dev/null || true; } \
+          | awk '$1 == "installed" && $2 != "linux-libc-dev" { print $2 }')
+        if [ -n "$hold" ]; then
+          # shellcheck disable=SC2086
+          sudo apt-mark hold $hold
+        fi
     # bbb-install.sh does not stop when apt can't reach the Ubuntu mirrors: apt-get update only
     # warns, and set -e is off inside main() (it runs as `main "$@" || exit 1`), so a failed
     # `apt-get install bigbluebutton` ends in an endless wait for bigbluebutton.properties until
