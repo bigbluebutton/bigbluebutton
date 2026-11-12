@@ -1,4 +1,4 @@
-import { ServerBlockNoteEditor } from "@blocknote/server-util";
+import { createServerEditor, type ServerEditor } from "../../blocknote/editor";
 import * as Y from "yjs";
 import hocuspocus from "../../hocuspocus";
 import { Logger } from "../../common/logger";
@@ -7,7 +7,7 @@ const logger = new Logger('redis.service.pushInitialContent');
 
 // Schema generics are left open (as the raw JSON blocks already are): this tier only
 // forwards blocks into the Yjs fragment, it does not depend on the concrete schema.
-type Editor = ServerBlockNoteEditor<any, any, any>;
+type Editor = ServerEditor;
 
 interface InitialContent {
   // BlockNote blocks already parsed on the web tier (sharedNotesInitialContentJson).
@@ -108,7 +108,7 @@ export async function pushInitialContent(padId: string, content: InitialContent)
     }
 
     // Create a ServerBlockNoteEditor instance
-    const editor = ServerBlockNoteEditor.create();
+    const editor = createServerEditor();
 
     // JSON (already parsed on the web tier) takes precedence. The raw markdown is only a
     // fallback, used when JSON is absent, empty, or fails to convert to a valid document.

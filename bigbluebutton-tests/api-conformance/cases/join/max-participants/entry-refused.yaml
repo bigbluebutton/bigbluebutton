@@ -1,0 +1,41 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# join counts only the users already in the meeting, so two users can
+# join a meeting with maxParticipants=1 before either enters. akka-apps
+# checks again when a user enters: the second to enter is refused with
+# joinErrorCode max_participants_reason.
+id: join.max-participants.entry-refused
+title: akka-apps refuses the user who would enter a full meeting, though join let them in
+endpoint: join
+class: contract
+tags: [ci, presence]
+requires: [akka, presence]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Max participants, maxParticipants: "1"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: join
+    client: ann
+    params: {meetingID: "${uid}", fullName: Ann, role: moderator, userID: ann, redirect: "false"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {annToken: /response/session_token}
+  - call: join
+    client: bob
+    params: {meetingID: "${uid}", fullName: Bob, role: viewer, userID: bob, redirect: "false"}
+    expect: {returncode: SUCCESS, messageKey: successfullyJoined}
+    capture: {bobToken: /response/session_token}
+  - presence: {action: join, as: ann, sessionToken: "${annToken}"}
+    golden: off
+  - presence: {action: join, as: bob, sessionToken: "${bobToken}"}
+    expect: {jsonpath: {$.joined: "false", $.joinErrorCode: max_participants_reason}}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

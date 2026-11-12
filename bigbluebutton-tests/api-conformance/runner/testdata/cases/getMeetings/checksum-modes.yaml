@@ -1,0 +1,15 @@
+id: getMeetings.checksum.modes
+title: getMeetings accepts every way of placing a valid checksum
+endpoint: getMeetings
+class: contract
+tags: [ci]
+variants:
+  - {id: sha1-last, vars: {alg: sha1, mode: valid, pos: last}}
+  - {id: sha256-first, vars: {alg: sha256, mode: valid, pos: first}}
+  - {id: sha384-middle, vars: {alg: sha384, mode: valid, pos: middle}}
+  - {id: sha512-uppercase, vars: {alg: sha512, mode: uppercase, pos: last}}
+steps:
+  - call: getMeetings
+    params: {a: "1", b: "2"}
+    sign: {alg: "${alg}", mode: "${mode}", position: "${pos}"}
+    expect: {returncode: SUCCESS}

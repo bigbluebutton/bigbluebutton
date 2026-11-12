@@ -108,6 +108,13 @@ export function useIsInfiniteWhiteboardEnabled() {
   );
 }
 
+export function useIsInfiniteWhiteboardInBreakoutsEnabled() {
+  return (
+    useDisabledFeatures().indexOf('infiniteWhiteboard') === -1
+    && window.meetingClientSettings.public.whiteboard.allowInfiniteWhiteboardInBreakouts
+  );
+}
+
 export function useIsReplyChatMessageEnabled() {
   return (
     useDisabledFeatures().indexOf('replyChatMessage') === -1

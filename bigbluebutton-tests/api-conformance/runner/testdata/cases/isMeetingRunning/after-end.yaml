@@ -1,0 +1,31 @@
+id: isMeetingRunning.lifecycle.after-end
+title: isMeetingRunning eventually reports false after end
+endpoint: isMeetingRunning
+class: contract
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Running}
+  - call: end
+    params: {meetingID: "${uid}"}
+    expect: {messageKey: sentEndMeetingRequest}
+  - wait: 100ms
+  - call: isMeetingRunning
+    params: {meetingID: "${uid}"}
+    eventually:
+      within: 5s
+      every: 200ms
+      until:
+        xpath:
+          /response/running: "false"
+    expect:
+      returncode: SUCCESS
+      xpath:
+        /response/running: "false"
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

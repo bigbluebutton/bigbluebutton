@@ -57,6 +57,7 @@ const navigationSidebarIconSize = 'calc(18rem / 14)';
 const navigationSidebarIconSizeSmallHeight = '1rem';
 const navigationSidebarNotificationBadgeSize = '14px';
 const navigationSidebarNotificationBadgeFontSize = '9px';
+const navigationSidebarNotificationBadgePaddingX = '3px';
 const navigationSidebarNotificationBadgeBottom = '-2px';
 const navigationSidebarNotificationBadgeRight = '-2px';
 const navigationSidebarBorderRadius = '48px';
@@ -176,6 +177,7 @@ export {
   navigationSidebarIconSizeSmallHeight,
   navigationSidebarNotificationBadgeSize,
   navigationSidebarNotificationBadgeFontSize,
+  navigationSidebarNotificationBadgePaddingX,
   navigationSidebarNotificationBadgeBottom,
   navigationSidebarNotificationBadgeRight,
   navigationSidebarBorderRadius,

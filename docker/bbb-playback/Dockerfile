@@ -1,4 +1,4 @@
-FROM node:24-alpine@sha256:8a32c8cf649a49915a66e81e7a609223c708d0adabf288ee3f4077d765542f85 AS build
+FROM node:24-alpine@sha256:a34ab6d7f6f4813f4d0c5469d74685604b962fbdbf5793a7bc7b4998ecb867c8 AS build
 
 # The source at the tag the package builds, cloned by the same script (build/get_external_dependencies.sh)
 # hadolint ignore=DL3018
@@ -9,7 +9,7 @@ RUN --mount=type=bind,from=placeholders,source=bbb-playback.placeholder.sh,targe
 WORKDIR /app/bbb-playback
 RUN npm ci && npm run build && node -p "require('./package.json').version" > build/bbb-playback-version
 
-FROM nginxinc/nginx-unprivileged:1.30-alpine@sha256:f5116ed4606f3eb015dd4a8e28cb9b351476dc0ad4bc6e9f93b19cec130cdf03
+FROM nginxinc/nginx-unprivileged:1.31-alpine@sha256:b5047b9b76845eac124358373c6852377c52e4b05834a47647e955dd91cb8f1e
 
 COPY --from=build /app/bbb-playback/build /var/bigbluebutton/playback/presentation/2.3
 COPY --from=build /app/bbb-playback/playback.nginx /usr/share/bigbluebutton/nginx/

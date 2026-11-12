@@ -1,6 +1,6 @@
 import { isLiveKit } from '../core/livekit';
 import { test } from '../core/setup/fixtures';
-import { LastN } from './lastN';
+import { LastN, UNMUTE_CASE_SPEECH_HOLD_MS } from './lastN';
 
 // Last-N audio (public.media.livekit.selectiveSubscription.lastN): a listener
 // plays at most audibleSize microphones and keeps at most standbySize
@@ -26,9 +26,13 @@ test.describe('Audio Last-N', { tag: ['@ci', '@media'] }, () => {
     await lastN.expectSpeechSwitchWithoutResubscribe();
   });
 
-  test('gives the audible slot to a speaker who unmutes, before they talk', async ({ browser, context }, testInfo) => {
+  test('gives the audible slot to a speaker who unmutes, until one talks', async ({ browser, context }, testInfo) => {
     const lastN = new LastN(browser, context);
-    await lastN.initListenerAndSpeakers(testInfo, 1, 2, { switchableMicrophones: true, secondSpeakerMuted: true });
-    await lastN.expectUnmuteTakesAudibleSlot();
+    await lastN.initListenerAndSpeakers(testInfo, 1, 2, {
+      switchableMicrophones: true,
+      secondSpeakerMuted: true,
+      speechHoldMs: UNMUTE_CASE_SPEECH_HOLD_MS,
+    });
+    await lastN.expectUnmuteTakesAudibleSlot(UNMUTE_CASE_SPEECH_HOLD_MS);
   });
 });

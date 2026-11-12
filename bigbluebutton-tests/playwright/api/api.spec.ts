@@ -110,6 +110,43 @@ test.describe.parallel('API', () => {
     }
   });
 
+  test(
+    'apiCreatedBreakoutRoomEndsWithParent',
+    { tag: '@ci' },
+    async ({ browser, context, page, request }, testInfo) => {
+      const api = new APIBreakout(browser, context);
+      await api.testApiCreatedRoomEndsWithParent(page, testInfo, request);
+    },
+  );
+
+  test('nestedApiCreatedBreakoutRoomsEndWithParent', { tag: '@ci' }, async ({ request }) => {
+    await APIBreakout.testNestedApiCreatedRoomsEndWithParent(request);
+  });
+
+  test('reusedBreakoutRoomIdNotEndedByFormerParent', { tag: '@ci' }, async ({ request }) => {
+    await APIBreakout.testReusedRoomIdNotEndedByFormerParent(request);
+  });
+
+  test(
+    'emptiedApiCreatedBreakoutRoomEndsWithParent',
+    { tag: '@ci' },
+    async ({ browser, context, page, request }, testInfo) => {
+      const api = new APIBreakout(browser, context);
+      await api.testEmptiedApiCreatedRoomEndsWithParent(page, testInfo, request);
+    },
+  );
+
+  // Waits more than a minute for the parent to expire, so it runs nightly
+  test(
+    'apiCreatedBreakoutRoomEndsWhenParentExpires',
+    { tag: '@nightly' },
+    async ({ browser, context, page, request }, testInfo) => {
+      test.setTimeout(4 * 60 * 1000);
+      const api = new APIBreakout(browser, context);
+      await api.testApiCreatedRoomEndsWhenParentExpires(page, testInfo, request);
+    },
+  );
+
   test.describe('Checksum', { tag: '@ci' }, () => {
     test('checksumAlgorithmsAccepted', async ({ request }) => {
       await APIChecksum.testAlgorithmsAccepted(request);

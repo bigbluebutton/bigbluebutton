@@ -1,4 +1,4 @@
-FROM node:24@sha256:e7add2a490bb17d97b485b8641bd88455fff7839ade0f5eba493c3508124d413 AS build
+FROM node:24@sha256:8fa96264f302f58bbb13aa7339c541547b56975766ce956c875da149452a3e40 AS build
 
 WORKDIR /app
 COPY package.json package-lock.json ./
@@ -8,7 +8,7 @@ RUN npm ci --no-progress
 COPY . .
 RUN npm run build && mv dist/index.js dist/bbb-shared-notes-server.js && npm prune --omit=dev
 
-FROM node:24-slim@sha256:c86ecead9e55a5210ac1727de38a4ca840bf03dcaf34dc9749addbf383b1920c
+FROM node:24-slim@sha256:01d566e8d94d8c619591d78652babfccd3c6992a3dffa9ed5ab39e11cf6c70e9
 
 # wkhtmltopdf is the PDF converter of the package (not available on Alpine)
 RUN apt-get update && apt-get install -y --no-install-recommends wkhtmltopdf \

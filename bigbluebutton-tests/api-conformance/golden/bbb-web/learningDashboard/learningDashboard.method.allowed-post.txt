@@ -1,0 +1,11 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case learningDashboard.method.allowed-post
+target bbb-web
+
+== step 1: call learningDashboard (POST)
+status 200
+header Cache-Control no-cache
+header Content-Type application/json;charset=utf-8
+body json
+$.response.message "Invalid session token"
+$.response.returncode "FAILED"

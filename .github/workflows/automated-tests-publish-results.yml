@@ -166,6 +166,7 @@ jobs:
       cancel-in-progress: ${{ github.event.action != 'in_progress' }}
     permissions:
       actions: read
+      contents: read
       pull-requests: write
     needs: get-pr-data
     if: ${{ needs.get-pr-data.outputs.pr-number && needs.get-pr-data.outputs.workflow-id }}

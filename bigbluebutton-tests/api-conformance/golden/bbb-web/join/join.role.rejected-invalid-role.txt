@@ -1,0 +1,15 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case join.role.rejected-invalid-role
+target bbb-web
+
+== step 2: call join
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "FAILED"
+/response/messageKey "Params required"
+/response/message "You must either send the valid role of the user, or the password, should the meeting have one."
+
+== step 3: bus UserRegisteredRespMsg
+$ null

@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# logoutURL reaches akka-apps' system props as it was given, "default" too:
+# only the bigbluebutton.web.logoutURL setting treats "default" specially.
+# An empty value means that setting, which means the server's URL when it is
+# "default" (the shipped value). The response defaults case covers a meeting
+# without a logoutURL, under both profiles.
+id: create.strings.logout-url
+title: create with logoutURL=${url}
+endpoint: create
+class: compat
+tags: [ci]
+requires: [akka, bus]
+variants:
+  - {id: given, vars: {url: "https://logout.example/bye"}, class: contract}
+  - {id: default, vars: {url: default}, class: contract}
+  - {id: default-upper-case, vars: {url: DEFAULT}}
+  - {id: empty, vars: {url: ""}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Strings, logoutURL: "${url}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.props.systemProps.logoutUrl]
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

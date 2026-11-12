@@ -1,0 +1,7 @@
+id: getMeetings.report.schema
+title: Response schemas are skipped until they exist
+endpoint: getMeetings
+class: contract
+steps:
+  - call: getMeetings
+    expect: {schema: schemas/get-meetings.xsd}

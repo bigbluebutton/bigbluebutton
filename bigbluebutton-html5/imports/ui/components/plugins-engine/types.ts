@@ -36,3 +36,11 @@ export interface EffectivePluginConfig extends PluginConfig {
     name: string;
     uuid: string;
 }
+
+export interface PluginsLoadingProgress {
+    startedAt: number;
+    totalNumberOfPlugins: number;
+    pendingPluginNamesByUuid: Map<string, string>;
+    loadedPluginNames: string[];
+    failedPluginNames: string[];
+}
