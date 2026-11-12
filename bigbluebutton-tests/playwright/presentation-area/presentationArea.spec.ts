@@ -205,6 +205,46 @@ test.describe.parallel('Presentation area content', { tag: ['@ci', '@media'] }, 
       await presentationArea.presenterRejoinKeepsCoreContent('pinnedNotes');
     });
 
+    test('After a rejoin with no plugin content restored, sharing it ejects the pinned shared notes', async ({
+      browser,
+      page,
+      context,
+      request,
+    }, testInfo) => {
+      const presentationArea = await init(
+        {
+          browser,
+          page,
+          context,
+          request,
+        },
+        testInfo,
+        true,
+      );
+      await presentationArea.rejoinWithoutRestoredContentSharesAgain('pinnedNotes');
+    });
+
+    (['pinnedNotes', 'externalVideo'] as const).forEach((core) => {
+      test(`After a rejoin, sharing plugin content ejects the ${CONTENT_LABELS[core]} shared in the new tab`, async ({
+        browser,
+        page,
+        context,
+        request,
+      }, testInfo) => {
+        const presentationArea = await init(
+          {
+            browser,
+            page,
+            context,
+            request,
+          },
+          testInfo,
+          true,
+        );
+        await presentationArea.rejoinThenCoreShareMakesPluginShareNew(core);
+      });
+    });
+
     (['pinnedNotes', 'externalVideo'] as const).forEach((core) => {
       test(`A viewer joining later sees the ${CONTENT_LABELS[core]} over the plugin content`, async ({
         browser,

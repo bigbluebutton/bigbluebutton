@@ -10,6 +10,8 @@ import { MultiUsers } from '../user/multiusers';
 
 export const PLUGIN_CONTENT_ID = 'e2ePluginMainContent';
 const PLUGIN_CONTENT_TEXT = 'e2e plugin main content';
+// How long the client treats new plugin content as restored after loading (restored-content.ts)
+const PLUGIN_RESTORE_WINDOW_MS = 30000;
 
 // Everything that can take over the presentation area, besides the whiteboard
 export const MEDIA_AREA_CONTENTS = [
@@ -387,16 +389,47 @@ export class PresentationArea extends MultiUsers {
     await this.start('pluginContent');
     await this.start(core);
     await this.joinViewerWithPluginContent();
-    const { meetingId, context: presenterContext, testInfo } = this.modPage;
-    await this.modPage.page.close();
-    const rejoined = new Page(this.browser, await presenterContext!.newPage(), testInfo);
-    await rejoined.init(true, { meetingId, fullName: 'Moderator', testInfo });
-    await rejoined.waitForSelector(e.startScreenSharing, ELEMENT_WAIT_EXTRA_LONG_TIME);
-    this.modPage = rejoined;
+    await this.rejoinPresenter();
     await this.setPluginMainContent([PLUGIN_CONTENT_ID]);
     await this.modPage.page.waitForTimeout(ELEMENT_WAIT_LONGER_TIME / 2);
     await this.assertOnTop(core, this.userPage, 'the viewer');
     await this.assertShown(core);
+  }
+
+  // The presenter closes the tab and joins again in a new one of the same browser. With
+  // fakeClock, the test can move the new tab's time forward.
+  async rejoinPresenter({ fakeClock = false } = {}) {
+    const { meetingId, context: presenterContext, testInfo } = this.modPage;
+    await this.modPage.page.close();
+    const rejoined = new Page(this.browser, await presenterContext!.newPage(), testInfo);
+    if (fakeClock) await rejoined.page.clock.install();
+    await rejoined.init(true, { meetingId, fullName: 'Moderator', testInfo });
+    await rejoined.waitForSelector(e.startScreenSharing, ELEMENT_WAIT_EXTRA_LONG_TIME);
+    this.modPage = rejoined;
+  }
+
+  // The plugin content was closed while the presenter was away, so nothing comes back. Once
+  // plugins are done restoring, sharing it again is new and ejects the core content.
+  async rejoinWithoutRestoredContentSharesAgain(core: MediaAreaContent) {
+    await this.waitForWhiteboard();
+    await this.start('pluginContent');
+    await this.start(core);
+    await this.rejoinPresenter({ fakeClock: true });
+    await this.assertShown(core);
+    await this.modPage.page.clock.fastForward(PLUGIN_RESTORE_WINDOW_MS);
+    await this.start('pluginContent');
+    await this.assertGone(core, 'a plugin share after the restore window');
+  }
+
+  // Same, but the presenter shares core content in the new tab: no need to wait, what the plugin
+  // shows next is new
+  async rejoinThenCoreShareMakesPluginShareNew(core: MediaAreaContent) {
+    await this.waitForWhiteboard();
+    await this.start('pluginContent');
+    await this.rejoinPresenter();
+    await this.start(core);
+    await this.start('pluginContent');
+    await this.assertGone(core, 'a plugin share after the core share');
   }
 
   // Opening the camera-as-content view is not sharing yet: backing out keeps the screenshare
