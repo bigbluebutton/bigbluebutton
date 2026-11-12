@@ -4,6 +4,7 @@ import useMeeting from './useMeeting';
 import { isSharing, screenshareHasEnded } from '/imports/ui/components/screenshare/service';
 import { EXTERNAL_VIDEO_STOP } from '/imports/ui/components/external-video-player/mutations';
 import { PIN_NOTES } from '/imports/ui/components/notes/mutations';
+import { endContentRestore } from '/imports/ui/components/generic-content/generic-main-content/restored-content';
 
 export type PresentationAreaContent = 'screenshare' | 'externalVideo' | 'pinnedNotes' | 'pluginContent';
 
@@ -19,6 +20,9 @@ const useEjectPresentationAreaContent = () => {
   componentsFlags.current = currentMeeting?.componentsFlags;
 
   return useCallback((starting: PresentationAreaContent) => {
+    // A share by the presenter in this tab: plugin content shown from now on
+    // is new, not restored
+    if (starting !== 'pluginContent') endContentRestore();
     const { hasExternalVideo, isSharedNotesPinned } = componentsFlags.current || {};
     if (starting !== 'screenshare' && isSharing()) screenshareHasEnded();
     if (starting !== 'externalVideo' && hasExternalVideo) stopExternalVideoShare();
