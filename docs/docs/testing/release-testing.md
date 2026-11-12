@@ -421,6 +421,11 @@ Webcams will be moved when mouse is released. (Note: When only one webcam is sha
 
     - The "Layout view" button shouldn't be shown.
 
+5. Create a meeting with `disabledFeatures=layoutView` and join as moderator with a viewer. Minimize the presentation.
+
+    - The "Layout view" button shouldn't be shown, and the viewer's avatar tile should still be in the grid.
+    - With `hideUsersWithoutCamera=true` added to the create call, the avatar tiles should stay hidden for the whole meeting.
+
 ### Share camera as content [(Partially automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/presentation/presentation.spec.ts)
 
 1. Join in a meeting with 2 users.

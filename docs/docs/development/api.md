@@ -162,6 +162,7 @@ Updated in 4.1:
 
 - **create**
   - **Added parameters:** `allowModsToRequestCameraShare` (when `true`, moderators may ask a participant to share their webcam and the participant accepts or declines) and `hideUsersWithoutCamera` (when `true`, the meeting starts with participants without a camera hidden from the webcam grid).
+  - **Added options:** Parameter `disabledFeatures` supports the new option `layoutView` (hides the "Layout view" button, so the hide-participants-without-camera option keeps its initial value).
 
 ## API Data Types
 

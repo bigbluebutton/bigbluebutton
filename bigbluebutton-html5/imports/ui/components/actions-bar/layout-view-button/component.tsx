@@ -12,7 +12,7 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import { throttle } from '/imports/utils/throttle';
 import Button from '/imports/ui/components/common/button/component';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import { useIsWebcamGridEnabled } from '/imports/ui/services/features';
+import { useIsLayoutViewEnabled, useIsWebcamGridEnabled } from '/imports/ui/services/features';
 import { useHideUsersWithoutCamera } from '/imports/ui/components/video-provider/hooks';
 import { SET_HIDE_USERS_WITHOUT_CAMERA } from '/imports/ui/core/graphql/mutations/userMutations';
 import { listItemBgHover } from '/imports/ui/stylesheets/styled-components/palette';
@@ -55,6 +55,7 @@ const LayoutViewButton: React.FC = () => {
     isModerator: u.isModerator,
   }));
   const isWebcamGridEnabled = useIsWebcamGridEnabled();
+  const isLayoutViewEnabled = useIsLayoutViewEnabled();
   const hideUsersWithoutCamera = useHideUsersWithoutCamera();
   const [setHideUsersWithoutCamera] = useMutation(SET_HIDE_USERS_WITHOUT_CAMERA);
   // Last value requested by this user, shown until the subscription catches up so
@@ -95,7 +96,7 @@ const LayoutViewButton: React.FC = () => {
   }, [hideUsersWithoutCamera]);
 
   const canToggle = !!(currentUser?.presenter || currentUser?.isModerator);
-  const isAvailable = canToggle && isWebcamGridEnabled;
+  const isAvailable = canToggle && isWebcamGridEnabled && isLayoutViewEnabled;
 
   // Don't reopen by itself if the user loses the role with the popover open and gets it back.
   useEffect(() => {

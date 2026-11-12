@@ -3,6 +3,7 @@ import { elements as e } from '../core/elements';
 import { MultiUsers } from '../user/multiusers';
 
 export const HIDE_USERS_WITHOUT_CAMERA_PARAMETER = 'hideUsersWithoutCamera=true';
+export const LAYOUT_VIEW_DISABLED_PARAMETER = 'disabledFeatures=layoutView';
 
 export class HideUsersWithoutCamera extends MultiUsers {
   // Moderator shares a camera, the attendee doesn't. With the presentation
@@ -66,5 +67,15 @@ export class HideUsersWithoutCamera extends MultiUsers {
       'should show avatar tiles once turned off',
       ELEMENT_WAIT_LONGER_TIME,
     );
+  }
+
+  // With disabledFeatures=layoutView the button is gone for moderators, while
+  // the grid itself keeps the attendee's avatar tile.
+  async layoutViewDisabled(): Promise<void> {
+    await this.modPage.shareWebcam();
+    await this.modPage.waitAndClick(e.minimizePresentation);
+
+    await this.userPage.hasElementCount(e.webcamGridItem, 1, 'should keep the attendee avatar tile in the grid');
+    await this.modPage.wasRemoved(e.layoutViewButton, 'should not show the layout view button to moderators');
   }
 }

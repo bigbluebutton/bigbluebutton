@@ -170,3 +170,7 @@ export function useIsWebcamGridEnabled() {
   const GRID_ENABLED = window.meetingClientSettings.public.kurento.pagination.gridEnabled ?? true;
   return useDisabledFeatures().indexOf('webcamGrid') === -1 && GRID_ENABLED;
 }
+
+export function useIsLayoutViewEnabled() {
+  return useDisabledFeatures().indexOf('layoutView') === -1;
+}
