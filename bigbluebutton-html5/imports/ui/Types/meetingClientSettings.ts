@@ -475,6 +475,7 @@ export interface Pagination {
   desktopPageSizes: DesktopPageSizes
   mobilePageSizes: MobilePageSizes
   gridEnabled?: boolean
+  layoutViewEnabled?: boolean
   desktopGridSizes: DesktopGridSizes
   mobileGridSizes: MobileGridSizes
 }

@@ -622,6 +622,10 @@ public:
       # gridEnabled: whether the camera-less avatar grid is shown when presentation
       # is minimized. Can also be disabled per meeting with disabledFeatures=webcamGrid.
       gridEnabled: true
+      # layoutViewEnabled: whether moderators and the presenter get the "Layout view"
+      # button to hide participants without camera. Can also be disabled per meeting
+      # with disabledFeatures=layoutView.
+      layoutViewEnabled: true
       # grid size for DESKTOP endpoints
       desktopGridSizes:
         moderator: 48

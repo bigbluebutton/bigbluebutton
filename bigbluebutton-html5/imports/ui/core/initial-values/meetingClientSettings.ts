@@ -463,6 +463,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           viewer: 2,
         },
         gridEnabled: true,
+        layoutViewEnabled: true,
         desktopGridSizes: {
           moderator: 48,
           viewer: 48,

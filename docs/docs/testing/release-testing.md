@@ -425,6 +425,7 @@ Webcams will be moved when mouse is released. (Note: When only one webcam is sha
 
     - The "Layout view" button shouldn't be shown, and the viewer's avatar tile should still be in the grid.
     - With `hideUsersWithoutCamera=true` added to the create call, the avatar tiles should stay hidden for the whole meeting.
+    - Setting `public.kurento.pagination.layoutViewEnabled: false` in `/etc/bigbluebutton/bbb-html5.yml` instead should have the same effect in every meeting.
 
 ### Share camera as content [(Partially automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/presentation/presentation.spec.ts)
 

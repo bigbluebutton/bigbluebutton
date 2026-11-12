@@ -634,7 +634,7 @@ const createEndpointTableData = [
               <code className="language-plaintext highlighter-rouge">webcamGrid</code> - <b>Enable/Disable the webcam grid, ie. the avatar tiles rendered for camera-less users while the presentation is minimized (added in BigBlueButton 4.0)</b>
             </li>
             <li>
-              <code className="language-plaintext highlighter-rouge">layoutView</code> - <b>Enable/Disable the "Layout view" button in the actions bar, which lets moderators and the presenter hide participants without camera. While disabled, the option keeps the value it was created with (see <code className="language-plaintext highlighter-rouge">hideUsersWithoutCamera</code>) (added in BigBlueButton 4.1)</b>
+              <code className="language-plaintext highlighter-rouge">layoutView</code> - <b>Enable/Disable the "Layout view" button in the actions bar, which lets moderators and the presenter hide participants without camera. While disabled, the option keeps the value it was created with (see <code className="language-plaintext highlighter-rouge">hideUsersWithoutCamera</code>). Can also be disabled for the whole server with <code className="language-plaintext highlighter-rouge">public.kurento.pagination.layoutViewEnabled: false</code> (added in BigBlueButton 4.1)</b>
             </li>
           </ul>
         </>
