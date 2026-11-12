@@ -172,7 +172,6 @@ export function useIsWebcamGridEnabled() {
 }
 
 export function useIsLayoutViewEnabled() {
-  const LAYOUT_VIEW_ENABLED = window.meetingClientSettings.public.kurento.pagination
-    .layoutViewEnabled ?? true;
+  const LAYOUT_VIEW_ENABLED = window.meetingClientSettings.public.layout.layoutViewEnabled ?? true;
   return useDisabledFeatures().indexOf('layoutView') === -1 && LAYOUT_VIEW_ENABLED;
 }

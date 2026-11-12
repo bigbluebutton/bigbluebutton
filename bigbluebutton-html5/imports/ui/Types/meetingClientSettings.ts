@@ -475,7 +475,6 @@ export interface Pagination {
   desktopPageSizes: DesktopPageSizes
   mobilePageSizes: MobilePageSizes
   gridEnabled?: boolean
-  layoutViewEnabled?: boolean
   desktopGridSizes: DesktopGridSizes
   mobileGridSizes: MobileGridSizes
 }
@@ -645,6 +644,7 @@ export interface Layout {
   showSessionDetailsOnJoin: boolean
   showScreenshareQuickSwapButton: boolean
   showLeaveSessionLabel: boolean
+  layoutViewEnabled?: boolean
   usersPerUserListPage: number
   syncCameraDockSizeAndPosition: boolean
 }

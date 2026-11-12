@@ -463,7 +463,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           viewer: 2,
         },
         gridEnabled: true,
-        layoutViewEnabled: true,
         desktopGridSizes: {
           moderator: 48,
           viewer: 48,
@@ -726,6 +725,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       showSessionDetailsOnJoin: true,
       showScreenshareQuickSwapButton: false,
       showLeaveSessionLabel: false,
+      layoutViewEnabled: true,
       usersPerUserListPage: 50,
       syncCameraDockSizeAndPosition: true,
     },
