@@ -27,11 +27,11 @@ const multipartBoundary = "bbb-conform-boundary-5f0c2a9e1d"
 
 // prepare builds the request a call step describes.
 func (x *exec) prepare(cs *spec.CallStep) (*client.Prepared, error) {
-	// cookiesFrom is set for a route served somewhere other than baseUrl,
-	// such as bbb-web's own port for the nginx auth hooks: nginx calls
-	// those with the browser's cookies, so the step sends the cookies its
-	// client holds under baseUrl, for X-Original-URI's path if the step
-	// sends one, else for the route's own.
+	// cookiesFrom is set for a subrequest route, such as the nginx auth
+	// hooks on bbb-web's own port: nginx calls those with the browser's
+	// cookies, so the step sends the cookies its client holds under
+	// baseUrl, for X-Original-URI's path if the step sends one, else for
+	// the route's own.
 	var base, query, call, cookiesFrom string
 	switch {
 	case cs.HasCall:
@@ -74,7 +74,7 @@ func (x *exec) prepare(cs *spec.CallStep) (*client.Prepared, error) {
 			return nil, fmt.Errorf("route %s: %w", name, err)
 		}
 		base = root + path
-		if root != x.r.Target.BaseURL {
+		if x.r.Target.Routes[name].Subrequest {
 			cookiesFrom = x.r.Target.BaseURL + path
 		}
 	}

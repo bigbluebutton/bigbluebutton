@@ -469,9 +469,10 @@ func TestRoutes(t *testing.T) {
 	}
 }
 
-// A route served somewhere other than baseUrl is called as nginx calls an
-// auth hook: with the cookies the client holds for baseUrl, keeping none
-// that the answer sets. The two hosts are names a cookie jar tells apart.
+// A subrequest route is called as nginx calls an auth hook: with the
+// cookies the client holds for baseUrl, keeping none that the answer sets.
+// A route that only moves to another base uses the jar as any request does.
+// The two hosts are names a cookie jar tells apart.
 func TestDirectRouteCookies(t *testing.T) {
 	var public, direct []string // path and Cookie header of each request
 	pub := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -490,7 +491,8 @@ func TestDirectRouteCookies(t *testing.T) {
 	t.Setenv("STEPS_TEST_HOOKS", "http://direct.test")
 	tf := filepath.Join(t.TempDir(), "r.yaml")
 	body := "name: r\nbaseUrl: https://public.test\nsalt: " + salt + "\nroutes:\n" +
-		"  hook: {path: /bigbluebutton/connection/checkAuthorization, baseEnv: STEPS_TEST_HOOKS}\n" +
+		"  hook: {path: /bigbluebutton/connection/checkAuthorization, baseEnv: STEPS_TEST_HOOKS, subrequest: true}\n" +
+		"  moved: {path: /bigbluebutton/moved, baseEnv: STEPS_TEST_HOOKS}\n" +
 		"  page: {path: /bigbluebutton/page}\n"
 	if err := os.WriteFile(tf, []byte(body), 0o644); err != nil {
 		t.Fatal(err)
@@ -534,6 +536,10 @@ func TestDirectRouteCookies(t *testing.T) {
   - route: hook
     client: ann
     headers: {X-Original-URI: "/bbb-webrtc-sfu?sessionToken=t"}
+  - route: moved
+    client: ann
+  - route: moved
+    client: ann
 `)), spec.Options{})
 	if len(probs) > 0 {
 		t.Fatal(probs)
@@ -545,7 +551,10 @@ func TestDirectRouteCookies(t *testing.T) {
 	hook := "/bigbluebutton/connection/checkAuthorization "
 	// The SFU cookie is the browser's for /bbb-webrtc-sfu only, so it goes
 	// along when X-Original-URI names that path.
-	want := []string{hook + "JSESSIONID=ann", hook + "JSESSIONID=ann", hook, hook + "a=1", hook, hook + "SFU=s; JSESSIONID=ann"}
+	// The moved route's first answer sets a cookie for its own host, which
+	// its second request carries.
+	moved := "/bigbluebutton/moved "
+	want := []string{hook + "JSESSIONID=ann", hook + "JSESSIONID=ann", hook, hook + "a=1", hook, hook + "SFU=s; JSESSIONID=ann", moved, moved + "JSESSIONID=minted"}
 	if strings.Join(direct, "|") != strings.Join(want, "|") {
 		t.Errorf("the hook got %q, want %q", direct, want)
 	}
@@ -557,6 +566,9 @@ func TestDirectRouteCookies(t *testing.T) {
 	}
 	if h := res.Steps[5].Request.Headers; h["Cookie"] != "" {
 		t.Errorf("a fresh client forwards nothing, but the report shows %q", h["Cookie"])
+	}
+	if h := res.Steps[7].Request.Headers; h["Cookie"] != "SFU=<forwarded>; JSESSIONID=<forwarded>" {
+		t.Errorf("the report should name both forwarded cookies: %v", h)
 	}
 }
 

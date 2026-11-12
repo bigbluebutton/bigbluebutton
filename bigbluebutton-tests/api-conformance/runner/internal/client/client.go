@@ -110,9 +110,9 @@ func (s *Session) Cookies(name string, u *url.URL) []*http.Cookie {
 	return s.jar(name).Cookies(u)
 }
 
-// ForwardedCookies returns the cookies a request with CookiesFrom carries
+// forwardedCookies returns the cookies a request with CookiesFrom carries
 // for client name: none when p.Header has a Cookie of its own.
-func (s *Session) ForwardedCookies(p *Prepared, name string) ([]*http.Cookie, error) {
+func (s *Session) forwardedCookies(p *Prepared, name string) ([]*http.Cookie, error) {
 	if _, ok := p.Header["Cookie"]; ok {
 		return nil, nil
 	}
@@ -124,25 +124,29 @@ func (s *Session) ForwardedCookies(p *Prepared, name string) ([]*http.Cookie, er
 }
 
 // subrequestCookies puts on req the cookies a subrequest carries (see
-// Prepared.CookiesFrom). They go on req, not in p.Header, so their values
-// stay out of reports; the runner reports their names.
-func (s *Session) subrequestCookies(req *http.Request, p *Prepared, name string) error {
+// Prepared.CookiesFrom) and returns their names. They go on req, not in
+// p.Header, so their values stay out of reports; the runner reports their
+// names.
+func (s *Session) subrequestCookies(req *http.Request, p *Prepared, name string) ([]string, error) {
 	if vs, ok := req.Header["Cookie"]; ok && strings.Join(vs, "") == "" {
 		delete(req.Header, "Cookie")
 	}
-	cookies, err := s.ForwardedCookies(p, name)
+	cookies, err := s.forwardedCookies(p, name)
 	if err != nil {
-		return err
+		return nil, err
 	}
+	var names []string
 	for _, c := range cookies {
 		req.AddCookie(c)
+		names = append(names, c.Name)
 	}
-	return nil
+	return names, nil
 }
 
 // Do sends p as client name. Redirects are returned, not followed, unless
-// follow is set.
-func (s *Session) Do(ctx context.Context, p *Prepared, name string, follow bool, timeout time.Duration) (*observe.Observation, error) {
+// follow is set. forwarded names the cookies a request with CookiesFrom
+// carried from the client's jar, even if the request then failed.
+func (s *Session) Do(ctx context.Context, p *Prepared, name string, follow bool, timeout time.Duration) (o *observe.Observation, forwarded []string, err error) {
 	hc := &http.Client{
 		Transport: s.rt,
 		Jar:       s.jar(name),
@@ -164,7 +168,7 @@ func (s *Session) Do(ctx context.Context, p *Prepared, name string, follow bool,
 	}
 	req, err := http.NewRequestWithContext(ctx, p.Method, p.URL, body)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	if p.HasBody && p.Chunked {
 		// Hide the reader's length so the transport sends Transfer-Encoding: chunked.
@@ -182,23 +186,23 @@ func (s *Session) Do(ctx context.Context, p *Prepared, name string, follow bool,
 		req.Header[k] = vs
 	}
 	if p.CookiesFrom != "" {
-		if err := s.subrequestCookies(req, p, name); err != nil {
-			return nil, err
+		if forwarded, err = s.subrequestCookies(req, p, name); err != nil {
+			return nil, nil, err
 		}
 		hc.Jar = nil
 	}
 	start := time.Now()
 	resp, err := hc.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, forwarded, err
 	}
 	defer resp.Body.Close()
 	data, err := io.ReadAll(io.LimitReader(resp.Body, MaxBody+1))
 	if err != nil {
-		return nil, fmt.Errorf("reading the response: %w", err)
+		return nil, forwarded, fmt.Errorf("reading the response: %w", err)
 	}
 	if len(data) > MaxBody {
-		return nil, fmt.Errorf("the response body is over %d bytes", MaxBody)
+		return nil, forwarded, fmt.Errorf("the response body is over %d bytes", MaxBody)
 	}
-	return observe.New(resp, data, time.Since(start)), nil
+	return observe.New(resp, data, time.Since(start)), forwarded, nil
 }

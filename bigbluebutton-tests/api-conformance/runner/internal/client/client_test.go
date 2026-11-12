@@ -24,7 +24,7 @@ func TestCookiesPerClient(t *testing.T) {
 	tr := srv.Client().Transport
 	s := NewSession(tr)
 	for _, who := range []string{"ann", "bob"} {
-		if _, err := s.Do(context.Background(), &Prepared{Method: "GET", URL: srv.URL + "/join?v=" + who}, who, false, 5*time.Second); err != nil {
+		if _, _, err := s.Do(context.Background(), &Prepared{Method: "GET", URL: srv.URL + "/join?v=" + who}, who, false, 5*time.Second); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -88,11 +88,14 @@ func TestSubrequestCookies(t *testing.T) {
 		"direct.test": direct.Listener.Addr().String(),
 	}))
 	ctx := context.Background()
+	var fwd []string // the cookie names Do says each request forwarded
 	do := func(p *Prepared, who string) {
 		t.Helper()
-		if _, err := s.Do(ctx, p, who, false, 5*time.Second); err != nil {
+		_, names, err := s.Do(ctx, p, who, false, 5*time.Second)
+		if err != nil {
 			t.Fatal(err)
 		}
+		fwd = append(fwd, strings.Join(names, ","))
 	}
 	do(&Prepared{Method: "GET", URL: "https://public.test/join?v=ann"}, "ann")
 	hook := func(h http.Header) *Prepared {
@@ -106,6 +109,10 @@ func TestSubrequestCookies(t *testing.T) {
 	want := []string{"JSESSIONID=ann", "JSESSIONID=ann", "", "JSESSIONID=given", ""}
 	if strings.Join(got, "|") != strings.Join(want, "|") {
 		t.Errorf("the hook got cookies %q, want %q", got, want)
+	}
+	// Do names what it took from the jar: not a Cookie the request set.
+	if want := []string{"", "JSESSIONID", "JSESSIONID", "", "", ""}; strings.Join(fwd, "|") != strings.Join(want, "|") {
+		t.Errorf("Do said it forwarded %q, want %q", fwd, want)
 	}
 	pub, _ := url.Parse("https://public.test/")
 	if c := s.Cookies("ann", pub); len(c) != 1 || c[0].Value != "ann" {
@@ -123,7 +130,7 @@ func TestSubrequestCookies(t *testing.T) {
 	if strings.Join(got, "|") != "|JSESSIONID=minted" {
 		t.Errorf("a plain request got cookies %q", got)
 	}
-	if _, err := s.Do(ctx, &Prepared{Method: "GET", URL: "http://direct.test/hook", CookiesFrom: "/hook"}, "ann", false, time.Second); err == nil {
+	if _, _, err := s.Do(ctx, &Prepared{Method: "GET", URL: "http://direct.test/hook", CookiesFrom: "/hook"}, "ann", false, time.Second); err == nil {
 		t.Error("a relative CookiesFrom should be an error")
 	}
 }

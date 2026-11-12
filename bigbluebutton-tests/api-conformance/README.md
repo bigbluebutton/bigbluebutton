@@ -107,21 +107,23 @@ error. The runner trusts the sink as it trusts the target (`tls`).
 ```yaml
 routes:
   presentation-download: {path: "/bigbluebutton/presentation/download/{meetingId}/{presId}"}
-  connection-authz:      {path: "/bigbluebutton/connection/checkAuthorization", baseEnv: BBB_WEB_DIRECT_URL}
+  connection-authz:      {path: "/bigbluebutton/connection/checkAuthorization", baseEnv: BBB_WEB_DIRECT_URL, subrequest: true}
 ```
 
 - `{name}` is filled from the step's `pathParams`, path-escaped. A missing
   param is an error; params the path doesn't use are ignored.
 - `base` (or the variable `baseEnv` names) replaces `baseUrl`, for routes such
   as the nginx-internal hooks that cases call on bbb-web directly.
-- A step on such a route is sent as nginx sends an `auth_request`
-  subrequest, which carries the browser's cookies:
+- With `subrequest: true`, a step on the route is sent as nginx sends an
+  `auth_request` subrequest, which carries the browser's cookies:
   - it carries the cookies its `client` holds for the same path under
     `baseUrl`, such as the JSESSIONID a `join` set;
   - the cookies the answer sets aren't kept, because a subrequest's answer
     never reaches the browser (the recording still shows them);
   - a `Cookie` in the step's `headers` replaces the client's cookies, and
     an empty one sends none. A fresh `client` sends none either.
+- A route with `base` but not `subrequest` keeps and sends cookies as any
+  request does.
 - A case is skipped as `not-routed` if the target doesn't map one of its
   routes, or if the route's `baseEnv` is unset.
 - A route may name a path the server no longer serves, so that a case can
@@ -169,6 +171,10 @@ env/full-install/profile.sh default        # restore the server's own file
   says so), so `--exclude-tags disruptive` leaves the server alone.
 - **Another switcher:** set `BBB_PROFILE_CMD` to a command that takes the
   same arguments. The Tier 1 stack's is `env/tier1/profile.sh` (see below).
+- **Picking a profile:** each overlay's header says what it changes.
+  `alt-defaults` sets `allowRequestsWithoutSession=true`, so under it a
+  session token alone passes every session check: a case about the join's
+  HTTP session doesn't belong there.
 
 To smoke-test a server, point a target at it and run `--cases testdata/smoke`.
 
