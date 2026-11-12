@@ -34,6 +34,7 @@ const propTypes = {
     name: PropTypes.string,
   }),
   renderSettingsLabel: PropTypes.bool,
+  columns: PropTypes.number,
 };
 
 const SKELETON_COUNT = 5;
@@ -57,6 +58,7 @@ const VirtualBgSelector = ({
   readFile,
   isCustomVirtualBackgroundsEnabled,
   renderSettingsLabel = true,
+  columns,
 }) => {
   const IMAGE_NAMES = getImageNames();
 
@@ -437,6 +439,7 @@ const VirtualBgSelector = ({
         role="group"
         aria-label={intl.formatMessage(intlMessages.virtualBackgroundSettingsLabel)}
         brightnessEnabled={ENABLE_CAMERA_BRIGHTNESS}
+        $columns={columns}
         data-test="virtualBackground"
       >
         {shouldEnableBackgroundUpload(isCustomVirtualBackgroundsEnabled) && (

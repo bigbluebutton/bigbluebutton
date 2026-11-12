@@ -46,8 +46,9 @@ public class OfficeToPdfConversionService {
   public UploadedPresentation convertOfficeToPdf(UploadedPresentation pres) {
     initialize(pres);
     if (SupportedFileTypes.isOfficeFile(pres.getFileType())) {
-      // Check if we need to precheck office document
-      if (!skipOfficePrecheck && officeDocumentValidator.isValid(pres)) {
+      // The pre-check rejects the document when the validator finds a problem or cannot run it; the
+      // negation went missing in 4f453c4026, which made it reject every valid file instead (issue #25432).
+      if (!skipOfficePrecheck && !officeDocumentValidator.isValid(pres)) {
         Map<String, Object> logData = new HashMap<>();
         logData.put("meetingId", pres.getMeetingId());
         logData.put("presId", pres.getId());

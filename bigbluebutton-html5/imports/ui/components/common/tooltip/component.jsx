@@ -26,12 +26,14 @@ const propTypes = {
   position: PropTypes.oneOf(['right', 'left', 'bottom', 'top']),
   children: PropTypes.element.isRequired,
   className: PropTypes.string,
+  trigger: PropTypes.string,
 };
 
 const defaultProps = {
   position: 'bottom',
   className: null,
   title: '',
+  trigger: 'mouseenter focus',
 };
 
 class Tooltip extends Component {
@@ -63,6 +65,7 @@ class Tooltip extends Component {
       title,
       delay,
       placement,
+      trigger,
     } = this.props;
 
     const Settings = getSettingsSingletonInstance();
@@ -103,6 +106,7 @@ class Tooltip extends Component {
       offset: TIP_OFFSET,
       placement: overridePlacement,
       touch: ['hold', 1000],
+      trigger,
       theme: 'bbbtip',
       maxWidth: 300,
     };
@@ -186,6 +190,7 @@ class Tooltip extends Component {
       children,
       className,
       title,
+      trigger,
       ...restProps
     } = this.props;
 

@@ -366,8 +366,8 @@ Webcams will be moved when mouse is released. (Note: When only one webcam is sha
 
 3. As each user, open Settings > Application.
 
-    - The moderator should see the "Video pagination" switch
-    - The viewers should not see it
+    - The moderator should see the "Video pagination" switch, enabled
+    - The viewers should see it disabled, showing the `public.app.defaultSettings.application.paginationEnabled` default, with a tooltip saying only moderators can change it
 
 4. As the viewer without a webcam, look at the webcam area.
 
@@ -379,7 +379,7 @@ Webcams will be moved when mouse is released. (Note: When only one webcam is sha
 
 6. Demote the user back to viewer.
 
-    - The switch should disappear from their Settings
+    - The switch should be disabled again in their Settings, showing the default
     - The webcams should be paginated again, even though they turned pagination off as a moderator
 
 ### Share camera as content [(Partially automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-develop/bigbluebutton-tests/playwright/presentation/presentation.spec.ts)

@@ -149,8 +149,9 @@ public class PngCreatorImp implements PngCreator {
 
 		String COMMAND = "";
 		dest = pngsDir.getAbsolutePath() + File.separator + TEMP_PNG_NAME + "-" + page; // the "-x.png" is appended automagically
-		// pdftoppm rather than pdftocairo, which drops the content behind some soft masks (issue #23953)
-		COMMAND = "pdftoppm -png -scale-to " + slideWidth + " " + source + " " + dest;
+		// pdftoppm rather than pdftocairo, which drops the content behind some soft masks (issue #23953).
+		// -cropbox renders the page's CropBox, as the slide SVG does, not the whole MediaBox (issue #26506).
+		COMMAND = "pdftoppm -cropbox -png -scale-to " + slideWidth + " " + source + " " + dest;
 
 		//System.out.println("********* CREATING PNGs " + COMMAND);
 

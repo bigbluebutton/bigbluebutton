@@ -32,17 +32,6 @@
     The slide is auto-oriented by ImageMagick, but ThumbnailCreatorImp runs `convert -thumbnail` without
     -auto-orient, so the thumbnail of a portrait phone photo is sideways. The golden is the correct thumbnail.
 
-- fixture: pdf-rotate-cropbox-3p
-  profiles: "*"
-  pages: [3]
-  checks: [thumb]
-  issue: https://github.com/bigbluebutton/bigbluebutton/issues/26506
-  since: 2026-10-09
-  note: >-
-    ThumbnailCreatorImp runs pdftoppm without -cropbox, so the thumbnail of a cropped page shows the whole
-    MediaBox (content outside the crop, 3:2 instead of 16:9) while the slide itself is cropped. The golden is the
-    thumbnail with -cropbox.
-
 - fixture: off-pptx-phone-photo-exif6
   profiles: "*"
   checks: [marker]
@@ -52,16 +41,6 @@
     The deck holds a portrait phone photo stored sideways with EXIF Orientation 6; LibreOffice draws the stored
     pixels, so the slide, its thumbnail and the recording show it rotated. PowerPoint's rendering of such a deck is
     unverified; the issue says so.
-
-- fixture: pdf-rotate-cropbox-3p
-  profiles: [rasterize-all]
-  pages: [3]
-  checks: [aspect, pixels]
-  issue: https://github.com/bigbluebutton/bigbluebutton/issues/26507
-  since: 2026-10-09
-  note: >-
-    SvgImageCreatorImp.createRasterizationProcess runs pdftoppm without -cropbox, so a rasterized cropped page
-    shows the whole MediaBox (content outside the crop, 3:2 instead of 16:9). The vector path is correct.
 
 - fixture: pdf-image-slide-300k
   profiles: [tight-limits]
@@ -78,53 +57,3 @@
   checks: [aspect]
   issue: https://github.com/bigbluebutton/bigbluebutton/issues/26509
   since: 2026-10-09
-
-- fixture: repo-hello-txt
-  profiles: [office-precheck]
-  checks: [outcome, pages]
-  issue: https://github.com/bigbluebutton/bigbluebutton/issues/25432
-  since: 2026-10-09
-  note: >-
-    With skipOfficePrecheck=false, OfficeToPdfConversionService rejects every file the pre-check finds valid (the
-    condition lost its negation in 4f453c4026, 2020), before LibreOffice runs. The message then says
-    OFFICE_DOC_CONVERSION_FAILED, not INVALID, because OfficeToPdfConversionSuccessFilter hardcodes that key.
-
-- fixture: repo-bbb-pptx
-  profiles: [office-precheck]
-  checks: [outcome, pages]
-  issue: https://github.com/bigbluebutton/bigbluebutton/issues/25432
-  since: 2026-10-09
-  note: >-
-    With skipOfficePrecheck=false, OfficeToPdfConversionService rejects every file the pre-check finds valid (the
-    condition lost its negation in 4f453c4026, 2020), before LibreOffice runs. The message then says
-    OFFICE_DOC_CONVERSION_FAILED, not INVALID, because OfficeToPdfConversionSuccessFilter hardcodes that key.
-
-- fixture: off-rtf-one-page
-  profiles: [office-precheck]
-  checks: [outcome, pages]
-  issue: https://github.com/bigbluebutton/bigbluebutton/issues/25432
-  since: 2026-10-09
-  note: >-
-    With skipOfficePrecheck=false, OfficeToPdfConversionService rejects every file the pre-check finds valid (the
-    condition lost its negation in 4f453c4026, 2020), before LibreOffice runs. The message then says
-    OFFICE_DOC_CONVERSION_FAILED, not INVALID, because OfficeToPdfConversionSuccessFilter hardcodes that key.
-
-- fixture: off-pptx-one-slide
-  profiles: [office-precheck]
-  checks: [outcome, pages]
-  issue: https://github.com/bigbluebutton/bigbluebutton/issues/25432
-  since: 2026-10-09
-  note: >-
-    With skipOfficePrecheck=false, OfficeToPdfConversionService rejects every file the pre-check finds valid (the
-    condition lost its negation in 4f453c4026, 2020), before LibreOffice runs. The message then says
-    OFFICE_DOC_CONVERSION_FAILED, not INVALID, because OfficeToPdfConversionSuccessFilter hardcodes that key.
-
-- fixture: off-docx-lorem-a4
-  profiles: [office-precheck]
-  checks: [outcome, pages]
-  issue: https://github.com/bigbluebutton/bigbluebutton/issues/25432
-  since: 2026-10-09
-  note: >-
-    With skipOfficePrecheck=false, OfficeToPdfConversionService rejects every file the pre-check finds valid (the
-    condition lost its negation in 4f453c4026, 2020), before LibreOffice runs. The message then says
-    OFFICE_DOC_CONVERSION_FAILED, not INVALID, because OfficeToPdfConversionSuccessFilter hardcodes that key.

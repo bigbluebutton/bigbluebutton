@@ -697,6 +697,7 @@
     "app.submenu.application.languageOptionLabel": "Choose language",
     "app.submenu.application.noLocaleOptionLabel": "No active locales",
     "app.submenu.application.paginationEnabledLabel": "Video pagination",
+    "app.submenu.application.paginationModeratorOnlyTooltip": "Only moderators can change video pagination",
     "app.submenu.application.wakeLockEnabledLabel": "Wake lock",
     "app.submenu.application.layoutOptionLabel": "Layout type",
     "app.submenu.application.localeDropdown.af": "Afrikaans",
