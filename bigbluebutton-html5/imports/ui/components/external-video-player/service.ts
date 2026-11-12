@@ -2,6 +2,7 @@ import ReactPlayer from 'react-player';
 import { MutationFunction } from '@apollo/client';
 
 import { ExternalVideo } from '/imports/ui/Types/meeting';
+import { endContentRestore } from '/imports/ui/components/generic-content/generic-main-content/restored-content';
 
 const YOUTUBE_SHORTS_REGEX = new RegExp(/^(?:https?:\/\/)?(?:www\.)?(youtube\.com\/shorts)\/.+$/);
 const DAILYMOTION_MATCH_URL = /https?:\/\/(?:www\.)?dailymotion\.com\/video\/[a-zA-Z0-9]+(?:\?[^\s]*)?/g;
@@ -23,6 +24,8 @@ const startWatching = (startExternalVideoMutation: MutationFunction) => {
       externalVideoUrl = YTUrl.toString();
     }
 
+    // The server ejects the other content, so this share skips useEjectPresentationAreaContent
+    endContentRestore();
     startExternalVideoMutation({ variables: { externalVideoUrl } });
   };
 };
