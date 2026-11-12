@@ -2,48 +2,29 @@ import styled from 'styled-components';
 import {
   colorText,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import {
-  $2xlPadding,
-  confirmationButtonMinWidth,
-} from '/imports/ui/stylesheets/styled-components/general';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
+// The modal body already pads its content, so the text lines up with the title.
 const Subtitle = styled.p`
   display: block;
-  text-align: left;
+  text-align: start;
   font-size: 1rem;
-  padding: 0rem 1rem;
-  padding-bottom: 1.5rem;
-  margin-top: 0rem;
+  margin: 0;
   color: ${colorText};
-
-  @media ${smallOnly} {
-    margin-top: 0.5rem;
-    padding-bottom: 0.5rem;
-  }
 `;
 
-const RequestModalContent = styled.div`
+// Rendered inside the modal footer, which aligns its content to the end.
+const Footer = styled.div`
   display: flex;
-  justify-content: center;
+  flex: 1;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   align-items: center;
-  gap: ${$2xlPadding};
-  margin-top: 1rem;
-  padding: 1rem;
-
-  & > button {
-    min-width: ${confirmationButtonMinWidth};
-  }
+  gap: 0.75rem;
 
   @media ${smallOnly} {
-    flex-direction: column-reverse;
-    align-items: stretch;
-    gap: 1rem;
-    margin-top: 0;
-    padding: 0;
-
     button {
-      white-space: normal;
+      flex: 1;
 
       i {
         display: none;
@@ -54,5 +35,5 @@ const RequestModalContent = styled.div`
 
 export default {
   Subtitle,
-  RequestModalContent,
+  Footer,
 };
