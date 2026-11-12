@@ -1,0 +1,19 @@
+[Unit]
+Description=BigBlueButton shared notes PDF conversion socket
+
+# Used by bbb-shared-notes-server (group bigbluebutton); each connection starts
+# one bbb-shared-notes-conversion@.service. Connections over MaxConnections are refused.
+[Socket]
+ListenStream=/run/bbb-shared-notes-conversion.sock
+Accept=yes
+MaxConnections=8
+SocketUser=root
+SocketGroup=bigbluebutton
+SocketMode=0660
+RemoveOnStop=yes
+# No trigger rate limit: refused connections count towards it, and once it is hit
+# the socket stays failed until restarted. MaxConnections bounds the work instead.
+TriggerLimitIntervalSec=0
+
+[Install]
+WantedBy=sockets.target
