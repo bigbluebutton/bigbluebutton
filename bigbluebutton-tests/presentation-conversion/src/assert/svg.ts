@@ -5,8 +5,10 @@ import { Kind } from '../env';
  * raster: bbb-web's own wrapper around one embedded PNG (SvgImageCreatorImp.createSvgWithEmbeddedPng);
  * blank: the blank slide bbb-web substitutes when conversion fails.
  */
-export function slideKind(svg: string, blankSvgBytes: number): Exclude<Kind, 'any'> {
-  if (Buffer.byteLength(svg) === blankSvgBytes && !/<path|<image/.test(svg)) return 'blank';
+export function slideKind(svg: string): Exclude<Kind, 'any'> {
+  // An <svg> root with nothing inside: the page-sized blank bbb-web writes for a page it could not deliver
+  // (#26509), and the packaged A4 blank-svg.svg it copied before that.
+  if (/<svg\b[^>]*>\s*(<!--[\s\S]*?-->\s*)*<\/svg>\s*$/.test(svg)) return 'blank';
   if (/<image\s+href="data:image\/png;base64,/.test(svg) && !/<path[\s>]/.test(svg)) return 'raster';
   return 'vector';
 }

@@ -41,19 +41,3 @@
     The deck holds a portrait phone photo stored sideways with EXIF Orientation 6; LibreOffice draws the stored
     pixels, so the slide, its thumbnail and the recording show it rotated. PowerPoint's rendering of such a deck is
     unverified; the issue says so.
-
-- fixture: pdf-image-slide-300k
-  profiles: [tight-limits]
-  checks: [aspect]
-  issue: https://github.com/bigbluebutton/bigbluebutton/issues/26509
-  since: 2026-10-09
-  note: >-
-    A slide whose SVG exceeds maxBigSvgSize becomes the blank slide, as designed, but blank-svg.svg is
-    841.89x595.28, so a 16:9 page changes shape (and the stored page width and height with it).
-
-- fixture: pdf-use-tags-2p
-  profiles: [tight-limits]
-  pages: [2]
-  checks: [aspect]
-  issue: https://github.com/bigbluebutton/bigbluebutton/issues/26509
-  since: 2026-10-09
