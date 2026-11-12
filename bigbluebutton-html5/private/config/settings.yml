@@ -263,6 +263,9 @@ public:
         # Off by default: the label stays put, so the button never resizes under
         # the pointer and never shifts the nav bar around it.
         recordingIndicatorAutoCollapse: false
+        # Hide the user's own webcam tiles; everyone else still receives the stream.
+        # Each user can change it in Settings > Application ("Disable self-view (all cameras)").
+        selfViewDisable: false
         pushToTalkEnabled: true
         autoCloseReactionsBar: true
         directLeaveButton: true

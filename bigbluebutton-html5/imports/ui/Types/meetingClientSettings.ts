@@ -215,6 +215,7 @@ export interface Application {
   paginationEnabled: boolean
   whiteboardToolbarAutoHide: boolean
   recordingIndicatorAutoCollapse: boolean
+  selfViewDisable: boolean
   pushToTalkEnabled: boolean
   autoCloseReactionsBar: boolean
   darkTheme: boolean
