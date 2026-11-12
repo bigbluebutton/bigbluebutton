@@ -98,6 +98,7 @@ $.core.body.props.usersProp.allowModsToUnmuteUsers true
 $.core.body.props.usersProp.allowPromoteGuestToModerator true
 $.core.body.props.usersProp.authenticatedGuest false
 $.core.body.props.usersProp.guestPolicy "ASK_MODERATOR"
+$.core.body.props.usersProp.hideUsersWithoutCamera false
 $.core.body.props.usersProp.maxUserConcurrentAccesses 5
 $.core.body.props.usersProp.maxUsers 25
 $.core.body.props.usersProp.meetingLayout "CUSTOM_LAYOUT"
