@@ -73,6 +73,29 @@ export class MultiUserWhiteboard extends MultiUsers {
     await this.hasShapeCount(e.wbDraw, 1, 'should keep the pencil stroke drawn by the attendee');
   }
 
+  // the attendee's Ctrl+Z right after drawing must leave nothing behind on any page:
+  // the shape used to come back as its first point (a dot) and be saved like that
+  async viewerUndoRemovesStroke() {
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitAndClick(e.multiUsersWhiteboardOn);
+    await this.userPage.hasElement(e.wbToolbar, 'should display the whiteboard toolbar for the attendee');
+
+    const strokes = [
+      { tool: e.wbPencilShape, shape: e.wbDraw, name: 'pencil stroke' },
+      { tool: e.wbHighlighterShape, shape: e.wbHighlight, name: 'highlighter stroke' },
+    ];
+    for (const { tool, shape, name } of strokes) {
+      await this.userPage.waitAndClick(tool);
+      await dragAcrossWhiteboard(this.userPage, 0.3, 0.5);
+      // a highlighter stroke renders as two elements of its shape type, so check the first match
+      await this.userPage.hasNElements(shape, 1, `should display the ${name} for the attendee who drew it`);
+      await this.modPage.hasNElements(shape, 1, `should display the attendee's ${name} for the presenter`);
+      await this.userPage.press('Control+Z');
+      await this.hasShapeCount(shape, 0, `should remove the ${name} on every page after the attendee's undo`);
+    }
+  }
+
   // the presenter draws a rectangle and the attendee, given access, a pencil stroke
   async drawPresenterAndViewerShapes() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
