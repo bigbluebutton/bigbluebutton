@@ -92,7 +92,7 @@ class ConfirmationModal extends Component {
             {!hideCancelButton && (
               <Styled.FooterButton
                 id={this.cancelButtonId}
-                variant="secondary"
+                variant="subtle"
                 dataTest="confirmationModalCancel"
                 label={cancelButtonLabel || intl.formatMessage(messages.noLabel)}
                 onClick={handleClose}

@@ -441,7 +441,7 @@ class Settings extends Component {
         footerContent={(
           <>
             <ModalFooterButton
-              variant="secondary"
+              variant="subtle"
               label={intl.formatMessage(intlMessages.CancelLabel)}
               onClick={this.performClose}
             />

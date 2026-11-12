@@ -634,7 +634,7 @@ class LockViewersComponent extends Component {
         footerContent={(
           <>
             <ModalFooterButton
-              variant="secondary"
+              variant="subtle"
               dataTest="cancelLockSettings"
               label={intl.formatMessage(intlMessages.buttonCancel)}
               onClick={closeModal}

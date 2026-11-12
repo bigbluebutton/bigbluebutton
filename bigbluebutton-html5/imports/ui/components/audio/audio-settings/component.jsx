@@ -467,7 +467,7 @@ class AudioSettings extends React.Component {
     setFooterContent(
       <>
         <ModalFooterButton
-          variant="secondary"
+          variant="subtle"
           label={(isConnected || skipAudioOptions())
             ? intl.formatMessage(intlMessages.cancelLabel)
             : intl.formatMessage(intlMessages.backLabel)}
