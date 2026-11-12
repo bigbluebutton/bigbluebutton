@@ -65,28 +65,30 @@ const MediaConsentModal = ({
       priority="high"
       title={title}
       onRequestClose={onDeny}
+      footerContent={(
+        <Styled.Footer>
+          <BBButton
+            label={effectiveDenyLabel}
+            dataTest={denyDataTest}
+            iconStart={<Icon iconName={denyIcon} />}
+            onClick={onDeny}
+            variant="secondary"
+            color="danger"
+          />
+          <BBButton
+            label={confirmLabel}
+            dataTest={confirmDataTest}
+            iconStart={<Icon iconName={confirmIcon} />}
+            onClick={onConfirm}
+            variant="primary"
+            color="default"
+          />
+        </Styled.Footer>
+      )}
     >
       <Styled.Subtitle>
         {subtitle}
       </Styled.Subtitle>
-      <Styled.RequestModalContent>
-        <BBButton
-          label={confirmLabel}
-          dataTest={confirmDataTest}
-          iconStart={<Icon iconName={confirmIcon} />}
-          onClick={onConfirm}
-          variant="primary"
-          color="default"
-        />
-        <BBButton
-          label={effectiveDenyLabel}
-          dataTest={denyDataTest}
-          iconStart={<Icon iconName={denyIcon} />}
-          onClick={onDeny}
-          variant="secondary"
-          color="danger"
-        />
-      </Styled.RequestModalContent>
     </ModalSimple>
   );
 };
