@@ -3,6 +3,7 @@ import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints
 import {
   smPaddingX,
   borderRadius,
+  borderRadiusRounded,
   borderSize,
   borderSizeSmall,
 } from '/imports/ui/stylesheets/styled-components/general';
@@ -82,11 +83,14 @@ const GlobalStyle = createGlobalStyle`
   }
 
   // toast
+  // The card's font and radius follow the Design System's toast (BBBToast):
+  // react-toastify's own stylesheet would set a generic sans-serif.
   .toastClass {
     position: relative;
     margin-bottom: ${smPaddingX};
     padding: ${smPaddingX};
-    border-radius: ${borderRadius};
+    border-radius: ${borderRadiusRounded};
+    font-family: inherit;
     box-shadow: 0 ${borderSizeSmall} 10px 0 rgba(0, 0, 0, 0.1), 0 ${borderSize} 15px 0 rgba(0, 0, 0, 0.05);
     display: flex;
     justify-content: space-between;
@@ -101,15 +105,6 @@ const GlobalStyle = createGlobalStyle`
     &:focus {
       background-color: #EEE;
     }
-  }
-
-  .toastBodyClass {
-    font-family: 'Source Sans Pro';
-    margin: auto auto;
-    flex: 1;
-    background-color: inherit;
-    max-width: 17.75rem !important;
-    background-color: ${colorWhite} !important;
   }
 
   // Scale, not width: a width animation lays out and repaints the page on every

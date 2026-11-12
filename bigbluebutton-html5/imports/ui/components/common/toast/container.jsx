@@ -19,7 +19,6 @@ class ToastContainer extends React.Component {
           closeButton={(<Styled.CloseIcon data-test="closeToastBtn" iconName="close" animations={animations} />)}
           autoClose={5000}
           toastClassName="toastClass"
-          bodyClassName="toastBodyClass"
           progressClassName="toastProgressClass"
           newestOnTop={false}
           hideProgressBar={false}
