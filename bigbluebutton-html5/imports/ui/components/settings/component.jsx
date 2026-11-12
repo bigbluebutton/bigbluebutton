@@ -9,7 +9,7 @@ import Notification from '/imports/ui/components/settings/submenus/notification/
 import Shortcuts from '/imports/ui/components/settings/submenus/shortcuts/component';
 import { clone } from 'radash';
 import PropTypes from 'prop-types';
-import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
+import ModalFooterButton from '/imports/ui/components/common/modal/footer-button/component';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Styled from './styles';
 import { formatLocaleCode } from '/imports/utils/string-utils';
@@ -440,12 +440,12 @@ class Settings extends Component {
         showDividers
         footerContent={(
           <>
-            <BBButton
+            <ModalFooterButton
               variant="secondary"
               label={intl.formatMessage(intlMessages.CancelLabel)}
               onClick={this.performClose}
             />
-            <BBButton
+            <ModalFooterButton
               variant="primary"
               dataTest="saveSettingsButton"
               label={intl.formatMessage(intlMessages.SaveLabel)}

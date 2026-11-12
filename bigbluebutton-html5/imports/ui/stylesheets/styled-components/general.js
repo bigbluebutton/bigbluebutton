@@ -68,8 +68,9 @@ const toastContentWidth = '98%';
 const modalMargin = '3rem';
 const settingsModalHeight = '50rem';
 const settingsModalWidth = '70rem';
-// Design System floor for the buttons of confirmation dialogs: 119px at the
-// 14px desktop root, 136px at the 16px mobile root.
+// Design System floor for the filled and outlined buttons of dialogs (136px in
+// the design, at a 16px root): 119px at the 14px desktop root, 136px at the
+// 16px mobile root.
 const confirmationButtonMinWidth = '8.5rem';
 const titlePositionLeft = '2.2rem';
 const userIndicatorsOffset = '-5px';

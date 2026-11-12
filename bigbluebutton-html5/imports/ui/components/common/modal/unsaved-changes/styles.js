@@ -1,9 +1,6 @@
 import styled from 'styled-components';
-import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
-import {
-  $2xlPadding,
-  confirmationButtonMinWidth,
-} from '/imports/ui/stylesheets/styled-components/general';
+import ModalFooterButton from '/imports/ui/components/common/modal/footer-button/component';
+import { $2xlPadding } from '/imports/ui/stylesheets/styled-components/general';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import {
   titlesFontWeight,
@@ -33,9 +30,7 @@ const Footer = styled.div`
   }
 `;
 
-const FooterButton = styled(BBButton)`
-  min-width: ${confirmationButtonMinWidth};
-
+const FooterButton = styled(ModalFooterButton)`
   @media ${smallOnly} {
     white-space: normal;
   }
