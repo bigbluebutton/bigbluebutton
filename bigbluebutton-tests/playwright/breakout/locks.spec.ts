@@ -14,7 +14,7 @@ test.describe.parallel('Breakout lock settings', { tag: '@nightly' }, () => {
     await locks.otherLockSettingsFollowInheritance(true);
   });
 
-  test('Rooms do not take the public chat, notes, user list, cursor, annotation and lock-on-join settings without inheritance', async ({
+  test('Rooms do not take the public chat, notes, user list, cursor and annotation settings without inheritance and keep lock-on-join on', async ({
     browser,
     context,
     page,

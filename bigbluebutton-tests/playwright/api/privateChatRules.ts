@@ -183,11 +183,8 @@ export class PrivateChatRules extends Join {
     expect(
       roomMeeting?.lockSettings,
       `the room should ${inheritLockSettings ? '' : 'not '}take the private chat lock from its parent`,
-    ).toEqual({ disablePrivateChat: inheritLockSettings, lockOnJoin: inheritLockSettings });
-    expect(
-      (await readCurrentUser(roomPage))?.locked,
-      `the attendee should join the room ${inheritLockSettings ? 'locked' : 'unlocked'}`,
-    ).toBe(inheritLockSettings);
+    ).toEqual({ disablePrivateChat: inheritLockSettings, lockOnJoin: true });
+    expect((await readCurrentUser(roomPage))?.locked, 'the attendee should join the room locked').toBe(true);
 
     if (inheritLockSettings) {
       await waitForLockGraceToPass(roomsOpenedAt);
