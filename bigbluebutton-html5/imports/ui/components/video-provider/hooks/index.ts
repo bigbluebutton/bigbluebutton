@@ -1066,13 +1066,6 @@ export const useStopVideo = () => {
   }, [cameraBroadcastStop]);
 };
 
-export const useShouldRenderPaginationToggle = () => {
-  const myPageSize = useMyPageSize();
-  const isToggleAllowed = useIsPaginationToggleAllowed();
-
-  return isToggleAllowed && myPageSize > 0;
-};
-
 export const useIsVideoPinEnabledForCurrentUser = (isModerator: boolean) => {
   const isPinEnabled = videoService.isPinEnabled();
 

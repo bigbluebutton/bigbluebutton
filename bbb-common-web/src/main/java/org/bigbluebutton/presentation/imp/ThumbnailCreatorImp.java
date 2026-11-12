@@ -100,8 +100,9 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
       COMMAND = IMAGEMAGICK_DIR + File.separatorChar + "convert -thumbnail 150x150 "  + source + " " + dest;
     } else {
       String pdftoppmDest = thumbsDir.getAbsolutePath() + File.separatorChar + TEMP_THUMB_NAME + "-" + page; // the "-x.png" is appended automagically
-      // pdftoppm rather than pdftocairo, which drops the content behind some soft masks (issue #23953)
-      COMMAND = "pdftoppm -png -scale-to 150 " + source + " " + pdftoppmDest;
+      // pdftoppm rather than pdftocairo, which drops the content behind some soft masks (issue #23953).
+      // -cropbox renders the page's CropBox, as the slide SVG does, not the whole MediaBox (issue #26506).
+      COMMAND = "pdftoppm -cropbox -png -scale-to 150 " + source + " " + pdftoppmDest;
     }
 
     //System.out.println(COMMAND);

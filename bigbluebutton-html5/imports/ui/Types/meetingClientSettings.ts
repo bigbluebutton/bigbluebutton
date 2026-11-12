@@ -215,6 +215,7 @@ export interface Application {
   paginationEnabled: boolean
   whiteboardToolbarAutoHide: boolean
   recordingIndicatorAutoCollapse: boolean
+  selfViewDisable: boolean
   pushToTalkEnabled: boolean
   autoCloseReactionsBar: boolean
   darkTheme: boolean
@@ -494,6 +495,7 @@ export interface Poll {
 
 export interface Captions {
   background: string
+  maxTextLength: number
   font: Font
   lines: number
   time: number

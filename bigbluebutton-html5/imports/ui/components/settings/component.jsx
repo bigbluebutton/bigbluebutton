@@ -280,6 +280,7 @@ class Settings extends Component {
       isVideoEnabled,
       isReactionsEnabled,
       paginationToggleEnabled,
+      paginationToggleLocked,
       isChatEnabled,
     } = this.props;
 
@@ -305,6 +306,7 @@ class Settings extends Component {
             isPresenter={isPresenter}
             isReactionsEnabled={isReactionsEnabled}
             paginationToggleEnabled={paginationToggleEnabled}
+            paginationToggleLocked={paginationToggleLocked}
           />
         ),
       },
