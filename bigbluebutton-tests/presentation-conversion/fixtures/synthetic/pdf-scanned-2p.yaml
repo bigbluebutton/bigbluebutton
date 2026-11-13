@@ -1,0 +1,19 @@
+id: pdf-scanned-2p
+title: "Photo JPEG with a feathered /SMask; stencil /ImageMask strokes over a paper JPEG"
+tier: synthetic
+file: pdf-scanned-2p.pdf
+issues: [24393, 23598, 9680, 25513]
+catalog: ["Scanned / masked PDFs"]
+upload:
+  method: create
+pages: 2
+expect: converted
+kind: { defaults: vector, low-thresholds: raster }
+marker: false
+aspect: auto
+profiles: [defaults, low-thresholds]
+notes: >-
+  Page 1: 640x360 DCT image whose /SMask is an 8-bit alpha image with feathered edges. Page 2:
+  1-bit /ImageMask (black text-like strokes, painted with 0 g) over a 480x270 paper-texture JPEG.
+  Both pages produce <mask and <filter tags: render comparison with the defaults (kind any),
+  raster in low-thresholds (maskTagThreshold 1).

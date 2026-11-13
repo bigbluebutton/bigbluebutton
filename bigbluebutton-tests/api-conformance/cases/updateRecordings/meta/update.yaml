@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# updateRecordings sets each meta_<name> param in the recording's metadata,
+# adding the key or changing its value; an empty value removes the key.
+# Names are lower-cased, as at create, so a camel-case name such as
+# meetingName adds a new key beside bbb-web's own. Without meta_ params it
+# answers SUCCESS and changes nothing. The recording is blue and large.
+# Serial, with the recording put back before and after.
+id: updateRecordings.meta.update
+title: updateRecordings ${case}
+endpoint: updateRecordings
+class: contract
+tags: [ci, serial]
+defs:
+  rec: &rec 13ed80f250c8d538c9570d0240900f30c9867b0b-1700028800000
+variants:
+  - id: add
+    vars: {case: adds a key, name: meta_conform-shape, value: round, key: conform-shape, want: round, kept: conform-color}
+  - id: change
+    vars: {case: changes a value, name: meta_conform-color, value: green, key: conform-color, want: green, kept: conform-size}
+  - id: mixed-case
+    vars: {case: lower-cases a param's name, name: meta_Conform-Shape, value: round, key: conform-shape, want: round, kept: conform-color}
+  - id: camel-case-key
+    vars: {case: adds a lower-case key beside meetingName, name: meta_meetingName, value: Renamed, key: meetingname, want: Renamed, kept: meetingName}
+steps:
+  - restore: {recordings: [*rec]}
+  - call: updateRecordings
+    params: {recordID: *rec, "${name}": "${value}"}
+    expect:
+      returncode: SUCCESS
+      xpath: {/response/updated: "true"}
+  - call: getRecordings
+    params: {recordID: *rec}
+    expect:
+      returncode: SUCCESS
+      xpath:
+        /response/recordings/recording/metadata/${key}: "${want}"
+        /response/recordings/recording/metadata/${kept}: {exists: true}
+teardown:
+  - restore: {recordings: [*rec]}

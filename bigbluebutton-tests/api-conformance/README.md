@@ -246,6 +246,8 @@ access for the first build.
     itself answers on `http://localhost:8090` (`BBB_WEB_DIRECT_URL`), the
     tap on `http://localhost:8099`, and the sink on `https://localhost:8444`
     (`BBB_SINK_READ_URL`). All four are bound to the host's loopback only;
+  - the tap installs the [fixture recordings](#fixture-recordings) when it
+    starts, so they are there after every `make up` and `make reset`;
   - bbb-web reaches the sink as `https://sink.test:8444` (`BBB_SINK_URL`),
     a name the stack's hosts file gives it and nginx's certificate names.
     The sink serves `fixtures/` (`BBB_FIXTURE_URL`), and plain HTTP on
@@ -313,9 +315,11 @@ access for the first build.
 through a tap: `bbb-conform tap`, running on the server itself. The tap:
 - follows the redis channels that bbb-web and akka-apps talk over;
 - reads redis keys;
-- reads files in the data directory.
+- reads files in the data directory;
+- with `--recordings`, installs the suite's fixture recordings and puts
+  them back for `restore` steps (see [Fixture recordings](#fixture-recordings)).
 
-It serves all three over HTTP to the runner, which can run on another
+It serves all of this over HTTP to the runner, which can run on another
 host.
 
 ```sh
@@ -337,6 +341,7 @@ BBB_TAP_TOKEN=$(openssl rand -hex 16) ./bbb-conform tap --listen 10.0.0.5:8099
 | `--channels a,b` | The to-akka-apps, from-akka-apps, from-akka-apps-pres and from-bbb-web redis channels. |
 | `--redis-keys a,b` | `meeting:*,recording:*,captions:*`: globs of the only keys it reads. |
 | `--max-mb N`, `--max-age D` | 128 MiB and 2h: how much of what it saw it keeps. Both must be positive. |
+| `--recordings DIR` | None. A tree of fixture recordings, e.g. `fixtures/recordings`, to write into the data directory at start and restore on request. Needs `--data-dir`, and can't be the data directory itself. |
 
 - **Test servers only.** What the tap serves includes the session tokens
   and passwords on the bus. With `BBB_TAP_TOKEN` set in its environment,
@@ -346,7 +351,8 @@ BBB_TAP_TOKEN=$(openssl rand -hex 16) ./bbb-conform tap --listen 10.0.0.5:8099
   unless told otherwise, and won't listen anywhere else without a token.
   To reach it from another host, listen on a private interface with a
   token, or use an SSH tunnel (`ssh -L 8099:127.0.0.1:8099 server`). Never
-  expose it on a public interface. It never writes to redis or to files.
+  expose it on a public interface. It never writes to redis, and writes
+  files only with `--recordings`, and only the fixture recordings.
   It answers only requests addressed to an IP address, `localhost` or one
   of its `--hosts`; any other host name gets HTTP 421.
 - **What it keeps:**
@@ -378,8 +384,39 @@ BBB_TAP_TOKEN=$(openssl rand -hex 16) ./bbb-conform tap --listen 10.0.0.5:8099
 
 `GET /info` on the tap shows the channels it follows, whether it is
 subscribed, its redis connection, the directories it watches and why it
-can't watch any others. Before a run, the runner checks that the tap
-answers; if it doesn't, the cases that use it ERROR at once.
+can't watch any others, and how many fixture recordings it has. Before a
+run, the runner checks that the tap answers; if it doesn't, the cases that
+use it ERROR at once.
+
+### Fixture recordings
+
+getRecordings and the calls that change recordings need recordings to
+work on. `fixtures/recordings/` (see its README) is a tree laid out like
+`/var/bigbluebutton`, with recordings in every state and caption tracks.
+A tap started with `--recordings fixtures/recordings`:
+- writes every recording in the tree into the data directory when it
+  starts, replacing any copy of it there, in whatever state;
+- puts recordings back on `POST /recordings/restore?id=<record ID>&id=...`,
+  which `restore` steps send: every copy of each recording goes, in any
+  state and format, with its caption files, anything uploaded for it to
+  the captions inbox and record-and-playback's work directory for such an
+  upload (`recording/caption/inbox/<record ID>`), and the tree's copy goes
+  in. A record ID that isn't in the tree is refused. `?all=1` puts every
+  recording back: the runner asks for that before a run with cases that
+  need the recordings, so each run starts from the tree whatever an
+  earlier one left. A restore of several recordings that fails partway
+  says which one it stopped at and how many it had put back;
+- writes as the data directory's owner when it runs as root, so bbb-web
+  can move what it wrote.
+
+A target whose tap reports fixture recordings has the `recordings-fs`
+capability; the cases that need them are skipped elsewhere, and ERROR when
+the tap doesn't answer. Run it on a test server only: the recordings show
+up in that server's getRecordings, and the cases that list every recording
+expect only them. On a full install, record-and-playback's caption watcher
+(`rap-caption-inbox.rb`) can pick up a track a case uploaded after the case
+has put the recording back. What it writes for a fixture recording is
+under the paths a restore clears, so the next run undoes it.
 
 ## The sink: `sink`
 
@@ -733,7 +770,7 @@ after 2s with a warning.
 | `endpoint` | The endpoint the case is about. |
 | `class` | `contract` (documented or relied-on behaviour), `compat` (a bbb-web quirk clients may depend on) or `defect` (asserts the *correct* behaviour that bbb-web gets wrong). |
 | `tags` | Any of `ci`, `slow`, `disruptive`, `full-stack`, `presence`, `conversion`, `serial`, `triage`. `triage` marks behaviour still to be classified as contract, compat or defect: until then each of its steps (outside teardown) must say `golden: document` or `off`, which `validate` checks. |
-| `requires` | Capabilities the target must declare, or the case is skipped: `akka`, `presence`, `recordings-fs`, `callbacks`, `presentation-conversion`, `bus`, `fs`, `redis`, `clamav`, `full-stack`. Step types add their own: `presence` and `graphql` add `presence`; `bus`, `fs` and `redis` add themselves; `sink` adds `callbacks`. |
+| `requires` | Capabilities the target must declare, or the case is skipped: `akka`, `presence`, `recordings-fs`, `callbacks`, `presentation-conversion`, `bus`, `fs`, `redis`, `clamav`, `full-stack`. Step types add their own: `presence` and `graphql` add `presence`; `bus`, `fs` and `redis` add themselves; `sink` adds `callbacks`; `restore` adds `recordings-fs`, which a target also has when its tap has [fixture recordings](#fixture-recordings). |
 | `profile` | A named config overlay the target must run with, e.g. one with short timeouts. |
 | `variants` | See below. |
 | `defs` | Ignored. A place to define YAML anchors. |
@@ -801,10 +838,12 @@ Each step has exactly one step-type key.
 | `redis` | `{key, within}`: a redis key. `expect: {exists, absent, hash, members, ttl}`. | yes |
 | `sink` | `{key, within}`: the requests the target's sink recorded under a key. `expect: {method, path, query, headers, absent, count}`. See [Callbacks and fetches](#callbacks-and-fetches-sink). | yes |
 | `env` | `{action: stop\|start\|restart\|reset, service}`. | not yet |
+| `restore` | `{recordings: [<record ID>, ...]}`: puts [fixture recordings](#fixture-recordings) back as the tree has them, through the tap. Record IDs are written out (a variant var works; a template doesn't). Takes no `expect`, `capture` or `golden`. A case that changes recordings restores them in its first step and in `teardown`. A case with a `restore` step must be tagged `serial` (`validate` checks), so the cases that list recordings never see it half done. | yes |
 
 - A case that uses a step type that isn't implemented yet is skipped as
   `unimplemented:<type>`. This is decided before any step runs.
-- Every step that observes something takes `expect`, `capture` and `golden`.
+- Every step that observes something takes `expect`, `capture` and `golden`;
+  `wait` and `restore` observe nothing.
 
 #### Users: `presence` and `graphql`
 
@@ -1173,7 +1212,11 @@ Any string can contain `${...}`.
   - `repeat(s, n)`;
   - `urlencode(s)`;
   - `base64File(path)`, a file under `fixtures/`;
-  - `checksum(alg, call, query)`, a lowercase hex digest of call + query + salt.
+  - `checksum(alg, call, query)`, a lowercase hex digest of call + query + salt;
+  - `match(s, regex)`, the first group of regex's first match in s, or the
+    whole match when regex has no group; no match, or a first group that
+    took no part in it, is an error. For a part of a captured value, e.g.
+    the token in a URL.
 
   Arguments are `"strings"`, integers, variables or nested calls.
 - **Escaping:** `$${` is a literal `${`.

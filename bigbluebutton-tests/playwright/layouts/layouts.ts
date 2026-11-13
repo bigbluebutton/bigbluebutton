@@ -3,6 +3,7 @@ import { expect } from '@playwright/test';
 import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME, VIDEO_LOADING_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
+import { startScreenshare } from '../screenshare/util';
 import { MultiUsers } from '../user/multiusers';
 
 // Comfortably away from the 600px mobile breakpoint on both sides: getDeviceType()
@@ -323,6 +324,28 @@ export class Layouts extends MultiUsers {
     }
   }
 
+  async meetingLayoutAppliesDespiteClientLayoutDefaults() {
+    // Both pages joined with public.app.defaultSettings.layout overridden to
+    // presentationOnly / pushLayout true, in a meeting created with
+    // meetingLayout=UNIFIED_LAYOUT: the meeting's layout is the one each client starts in.
+    // A client that still read the key passed through the presentation-only layout until
+    // the meeting layout arrived; that layout renders the client without the audio
+    // container, and the audio prompt of the join was lost with it.
+    for (const page of [this.modPage, this.userPage]) {
+      await page.hasElement(
+        e.audioModal,
+        'the audio prompt should be offered on join: the presentation-only layout renders the client without it',
+      );
+      await page.closeAudioModal();
+      await page.hasElement(e.whiteboard, 'the presentation should be open, as in the unified layout');
+      await page.hasElement(e.joinVideo, 'the webcam button should be rendered: the presentation-only layout hides it');
+      await page.hasElement(
+        e.chatBox,
+        'the public chat should be open on join, as it is when the unified layout is applied',
+      );
+    }
+  }
+
   async unifiedLayoutMinimizeShowsTiles() {
     // Wait for the whiteboard canvas to confirm the presentation is fully loaded and
     // the minimize button is in an enabled/clickable state (isThereCurrentPresentation = true).
@@ -477,6 +500,42 @@ export class Layouts extends MultiUsers {
     await this.modPage.wasRemoved(
       e.presentationContainer,
       'presentation should stay minimized for the presenter after a webcam turns on',
+    );
+
+    await this.attachPageVideos();
+  }
+
+  async unifiedLayoutNewPresenterPropagatesLocalPresentation() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.userPage.waitForSelector(e.whiteboard);
+
+    // The presenter minimizes: a genuine change in the meeting layout, so the viewer follows.
+    await this.modPage.waitAndClick(e.minimizePresentation);
+    await this.userPage.wasRemoved(e.presentationContainer, 'viewer should follow the presenter minimize');
+
+    // The viewer restores locally. Followers never propagate, so the meeting stays minimized.
+    await this.userPage.waitAndClick(e.restorePresentation);
+    await this.userPage.hasElement(e.presentationContainer, 'presentation should be restored for the viewer');
+
+    // Once presenter, what the viewer is showing becomes the meeting layout.
+    await this.makePresenter();
+    await this.modPage.hasElement(
+      e.presentationContainer,
+      'the former presenter should follow the presentation shown by the new presenter',
+    );
+
+    // Closing shared content restores the new presenter's presentation state, which
+    // must be what it showed on becoming presenter, not a stale follower value.
+    await startScreenshare(this.userPage);
+    await this.userPage.waitAndClick(e.stopScreenSharing);
+    await this.userPage.wasRemoved(e.screenShareVideo, 'screen share should stop for the new presenter');
+    await this.userPage.hasElement(
+      e.presentationContainer,
+      'presentation should be restored for the new presenter after the screen share',
+    );
+    await this.modPage.hasElement(
+      e.presentationContainer,
+      'presentation should be restored for the former presenter after the screen share',
     );
 
     await this.attachPageVideos();

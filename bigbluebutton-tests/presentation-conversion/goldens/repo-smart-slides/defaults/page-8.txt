@@ -1,0 +1,13 @@
+   Not               A little                           Very
+                                          Confident
+confident           confident                         confident
+
+
+
+
+                                                       How confident are you?
+
+    Tip: The poll question can be anywhere on the          A.    Not confident
+                                                           B.    A little confident
+    slide.                                                 C.    Confident
+                                                           D.    Very confident

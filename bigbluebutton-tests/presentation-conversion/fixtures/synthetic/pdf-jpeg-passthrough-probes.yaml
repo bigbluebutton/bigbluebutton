@@ -1,0 +1,19 @@
+id: pdf-jpeg-passthrough-probes
+title: "JPEG passthrough probes: inverting /Decode, CMYK, CMYK with /Decode"
+tier: synthetic
+file: pdf-jpeg-passthrough-probes.pdf
+issues: [26001]
+catalog: ["EXIF orientation, JPEG inside a PDF"]
+upload:
+  method: create
+pages: 3
+expect: converted
+kind: vector
+marker: false
+aspect: auto
+profiles: [defaults]
+notes: >-
+  Port of jpeg-passthrough-probes.pdf. Page 1: RGB JPEG with /Decode [1 0 1 0 1 0] (shown
+  inverted). Page 2: Pillow CMYK JPEG as /DeviceCMYK. Page 3: the same with an inverting /Decode.
+  A fix that copies JPEG bytes verbatim into the SVG must leave these re-encoded; the goldens
+  record poppler's colours, not the marker.

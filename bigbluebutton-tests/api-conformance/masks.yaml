@@ -54,7 +54,17 @@ masks:
   # ...and checkGraphqlAuthorization's JSON body has the user ID too.
   - field: X-UserId
     as: user-id
-unordered: []
+  # getRecordingTextTracks' track URLs carry a single-use token, new on
+  # every call.
+  - field: href
+    as: regex
+    regex: '/textTrack/[0-9a-f]{40}/'
+    replace: '/textTrack/<token>/'
+# getRecordings lists recordings, and each recording's playback
+# formats, in the order the server's file system lists their directories.
+unordered:
+  - {path: recordings/recording, key: recordID}
+  - {path: recordings/recording/playback/format, key: type}
 scope: []
 drop: []
 # The auth hooks' answer headers, recorded where a response has them.

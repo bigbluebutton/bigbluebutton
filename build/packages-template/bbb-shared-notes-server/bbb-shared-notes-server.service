@@ -1,7 +1,7 @@
 [Unit]
 Description=BigBlueButton Shared Notes Server
-Wants=redis-server.service postgresql.service
-After=syslog.target network.target redis-server.service postgresql.service
+Wants=redis-server.service postgresql.service bbb-shared-notes-conversion.socket
+After=syslog.target network.target redis-server.service postgresql.service bbb-shared-notes-conversion.socket
 PartOf=bigbluebutton.target
 StartLimitIntervalSec=0
 

@@ -170,6 +170,7 @@ jobs:
       - uses: actions/setup-node@v5
         name: PLAYWRIGHT CACHE - Restore Playwright node modules from cache
         with:
+          node-version: 24
           cache: "npm"
           cache-dependency-path: bigbluebutton-tests/playwright/package-lock.json
       - name: PLAYWRIGHT CACHE - Restore Playwright binaries from cache
@@ -341,7 +342,7 @@ jobs:
           ref: ${{ needs.find-build.outputs.sha }}
       - uses: actions/setup-node@v5
         with:
-          node-version: 22
+          node-version: 24
           cache: "npm"
           cache-dependency-path: bigbluebutton-tests/playwright/package-lock.json
       - name: Install dependencies

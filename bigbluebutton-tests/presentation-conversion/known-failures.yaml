@@ -1,0 +1,43 @@
+# Presentations where bbb-web's defaults do not give the correct result today.
+# A listed check that fails is reported as "known" and does not fail the run; a listed check that passes is
+# reported as "fixed" so the entry can be removed. Fields: fixture, profiles (list or "*"), pages (list or "*"),
+# checks (outcome, pages, kind, aspect, exif, text, marker, pixels, thumb, served), issue, since, note.
+
+- fixture: pdf-exif-1-to-8
+  profiles: [defaults]
+  pages: [2, 3, 4, 5, 6, 7, 8]
+  checks: [exif]
+  issue: https://github.com/bigbluebutton/bigbluebutton/issues/26001
+  since: 2026-10-09
+  note: pdftocairo copies the JPEG into the slide SVG with its EXIF block; browsers then rotate or mirror it.
+
+- fixture: pdf-exif6-plus-control
+  profiles: [defaults]
+  checks: [exif]
+  issue: https://github.com/bigbluebutton/bigbluebutton/issues/26001
+  since: 2026-10-09
+
+- fixture: pdf-img2pdf-rotate90-exif6
+  profiles: [defaults]
+  checks: [exif]
+  issue: https://github.com/bigbluebutton/bigbluebutton/issues/26001
+  since: 2026-10-09
+
+- fixture: img-jpg-exif6-camera
+  profiles: "*"
+  checks: [thumb]
+  issue: https://github.com/bigbluebutton/bigbluebutton/issues/13351
+  since: 2026-10-09
+  note: >-
+    The slide is auto-oriented by ImageMagick, but ThumbnailCreatorImp runs `convert -thumbnail` without
+    -auto-orient, so the thumbnail of a portrait phone photo is sideways. The golden is the correct thumbnail.
+
+- fixture: off-pptx-phone-photo-exif6
+  profiles: "*"
+  checks: [marker]
+  issue: https://github.com/bigbluebutton/bigbluebutton/issues/26510
+  since: 2026-10-09
+  note: >-
+    The deck holds a portrait phone photo stored sideways with EXIF Orientation 6; LibreOffice draws the stored
+    pixels, so the slide, its thumbnail and the recording show it rotated. PowerPoint's rendering of such a deck is
+    unverified; the issue says so.

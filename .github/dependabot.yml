@@ -1,5 +1,6 @@
 # Base images of the Dockerfiles, checked weekly; one pull request per base image across all
-# directories, new major versions left out
+# directories, new major versions left out. Pins are image:<full version tag>@sha256:<digest>
+# (node:24.22.2-alpine, not node:24-alpine) so a bump reads as a version change.
 version: 2
 updates:
   - package-ecosystem: docker
@@ -35,3 +36,7 @@ updates:
       - dependency-name: "*"
         update-types:
           - version-update:semver-major
+      # Ubuntu's YY.MM tags parse as minor versions; 24.04 -> 24.10 would leave the LTS base.
+      - dependency-name: ubuntu
+        update-types:
+          - version-update:semver-minor

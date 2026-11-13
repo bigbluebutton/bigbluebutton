@@ -1,0 +1,24 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# getRecordingTextTracks answers in JSON, except for a missing recordID,
+# which gets the XML error the other recording calls give. A record ID
+# with no captions directory is noRecordings; one whose directory has no
+# captions.json is noCaptionsFound. B1 has a captions directory without
+# captions.json.
+id: getRecordingTextTracks.errors.params
+title: getRecordingTextTracks fails with ${key} (${case})
+endpoint: getRecordingTextTracks
+class: contract
+tags: [ci]
+requires: [recordings-fs]
+variants:
+  - {id: missing-record-id, vars: {case: no recordID, rid: null, format: xml, key: missingParamRecordID, msg: You must specify a recordID.}}
+  - id: unknown
+    vars: {case: an unknown recording, rid: 0000000000000000000000000000000000000000-1700000000000, format: json, key: noRecordings,
+           msg: No recording found for 0000000000000000000000000000000000000000-1700000000000}
+  - id: no-captions
+    vars: {case: no captions.json, rid: e449065b81c433bf7e5aae59e5854db148d5fa28-1700007200000, format: json, key: noCaptionsFound,
+           msg: No captions found for e449065b81c433bf7e5aae59e5854db148d5fa28-1700007200000}
+steps:
+  - call: getRecordingTextTracks
+    params: {recordID: "${rid}"}
+    expect: {format: "${format}", returncode: FAILED, messageKey: "${key}", message: "${msg}"}

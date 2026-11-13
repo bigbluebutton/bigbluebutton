@@ -1,0 +1,11 @@
+id: var-name-nfd-umlaut
+title: File name in macOS NFD form (decomposed umlauts)
+tier: variant
+file: ../../../playwright/core/media/sample-with-mask.pdf
+upload: { method: insertDocument, name: "Pra\u0308sentation U\u0308bersicht.pdf" }
+issues: [14749, 14779]
+catalog: [Filenames]
+pages: 1
+expect: converted
+kind: vector
+checks: [outcome, pages, kind, aspect, served]

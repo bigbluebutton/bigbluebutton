@@ -1,0 +1,11 @@
+id: repo-101-pages
+title: 101 letter pages (the file is called 100PagesFile.pdf)
+tier: repo
+file: ../../../playwright/core/media/100PagesFile.pdf
+issues: [10054, 24231]
+catalog: [Thumbnails and slide PNGs, Timeout unit mismatch]
+pages: 101
+expect: converted
+kind: any
+checks: [outcome, pages, kind, aspect, text]
+notes: Every page must get its svg, thumbnail and text; no pixel goldens to keep the repository small.

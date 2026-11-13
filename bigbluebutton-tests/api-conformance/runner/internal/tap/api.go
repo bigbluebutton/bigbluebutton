@@ -21,6 +21,16 @@ type Info struct {
 	WatchDirs  int      `json:"watchDirs,omitempty"`
 	WatchError string   `json:"watchError,omitempty"`
 	Seq        int64    `json:"seq"`
+	// Recordings is the tree of fixture recordings the tap installed and
+	// restores, and RecordingCount how many record IDs it has; empty
+	// without --recordings.
+	Recordings     string `json:"recordings,omitempty"`
+	RecordingCount int    `json:"recordingCount,omitempty"`
+}
+
+// RestoreResult answers POST /recordings/restore.
+type RestoreResult struct {
+	Restored []string `json:"restored"`
 }
 
 // Mark is where a case starts looking: GET /mark. Later queries pass

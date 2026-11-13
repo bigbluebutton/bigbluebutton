@@ -48,9 +48,21 @@ there compares like with like.
   `end/end.callbacks.expired` were added, and `create.expiry.not-joined-*`
   and `end.callbacks.http-*`, whose steps changed, were re-recorded, from a
   stack started that day from packages whose build key still matched this
-  tree. On 2026-11-10 the auth hook cases (`connection/`, two of them under
-  the alt-defaults profile and one under short-users-timeout) were added the
-  same way, from a stack built from this tree that day.
+  tree. On 2026-11-06 the recording cases were added: getRecordings
+  (`getRecordings/getRecordings.{filters,pagination,all,response}.*`, the
+  `all` ones partly under the no-fetch-all-recordings profile),
+  publishRecordings, deleteRecordings and updateRecordings (`*.errors.*`,
+  `*.state.*`, `*.meta.*`), getRecordingTextTracks and putRecordingTextTrack
+  (`*.errors.*`, `*.tracks.*`, `*.upload.*`) and the caption-file routes
+  (`textTrack/`). They were recorded from a fresh stack (`make reset`)
+  built from this tree that day, with the tap installing
+  `fixtures/recordings/`. On 2026-11-10 the auth hook cases (`connection/`,
+  two of them under the alt-defaults profile and one under
+  short-users-timeout) were added, recorded from a stack built that day from
+  a tree without the recording cases. On 2026-11-12 the fixtures' links
+  moved to the host `recordings.test`, and the 56 recordings that show
+  them were re-recorded from a fresh stack running packages built from
+  v4.0.x-develop of 2026-11-10; only the host changed in them.
 
 ## Reviewing
 

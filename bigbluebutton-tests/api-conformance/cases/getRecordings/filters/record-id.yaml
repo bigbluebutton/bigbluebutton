@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# recordID is a comma-separated list of record ID prefixes: a recording is
+# listed when its record ID starts with one of them, so a meeting's
+# internal ID lists all its sessions. It's case-sensitive. Given both,
+# recordID wins and meetingID is ignored.
+# A1 and A2 are two sessions of conform-rec-a; B1 is conform-rec-b's.
+id: getRecordings.filters.record-id
+title: getRecordings by recordID (${case})
+endpoint: getRecordings
+class: contract
+tags: [ci]
+requires: [recordings-fs]
+defs:
+  a1: &a1 e633b9434f359d31c1be30832b42a91ac0fb0e92-1700000000000
+  b1: &b1 e449065b81c433bf7e5aae59e5854db148d5fa28-1700007200000
+variants:
+  - id: exact
+    vars: {case: one record ID, ids: *a1, meeting: null, count: 1}
+  - id: prefix-meeting
+    vars: {case: a meeting's internal ID, ids: e633b9434f359d31c1be30832b42a91ac0fb0e92, meeting: null, count: 2}
+  - id: prefix-narrow
+    vars: {case: a prefix of one session, ids: e633b9434f359d31c1be30832b42a91ac0fb0e92-17000000, meeting: null, count: 1}
+  - id: list
+    vars: {case: a list, ids: "e633b9434f359d31c1be30832b42a91ac0fb0e92-1700000000000,e449065b81c433bf7e5aae59e5854db148d5fa28-1700007200000", meeting: null, count: 2}
+  - id: wins-over-meeting-id
+    vars: {case: with a meetingID too, ids: *b1, meeting: conform-rec-a, count: 1}
+  - id: case-sensitive
+    vars: {case: upper-case, ids: E633B9434F359D31C1BE30832B42A91AC0FB0E92-1700000000000, meeting: null, count: 0}
+steps:
+  - call: getRecordings
+    params: {recordID: "${ids}", meetingID: "${meeting}"}
+    expect:
+      returncode: SUCCESS
+      xpath:
+        /response/recordings/recording:
+          count: ${count}

@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<recording>
+  <id>aaf6466158b3f54add039d90754c86b695f52222-1700018011301</id>
+  <state>published</state>
+  <published>true</published>
+  <start_time>1700018011301</start_time>
+  <end_time>1700018300000</end_time>
+  <participants>1</participants>
+  <meeting id="aaf6466158b3f54add039d90754c86b695f52222-1700018011301" externalId="aebb6b17b57ebc52583c78eb98be2c808ad399ed-1700018011301" name="Room 1" breakout="true"/>
+  <breakout captureNotes="false" captureSlides="false" freeJoin="true" meetingId="aebb6b17b57ebc52583c78eb98be2c808ad399ed-1700018011301" parentMeetingId="18e5f907ce98e6c297471554522029c6118e2aff-1700018000000" sequence="1"/>
+  <breakoutRooms/>
+  <meta>
+    <conform-color>blue</conform-color>
+    <isBreakout>true</isBreakout>
+    <meetingId>aebb6b17b57ebc52583c78eb98be2c808ad399ed-1700018011301</meetingId>
+    <meetingName>Room 1</meetingName>
+  </meta>
+  <playback>
+    <format>presentation</format>
+    <link>https://recordings.test/playback/presentation/2.3/aaf6466158b3f54add039d90754c86b695f52222-1700018011301</link>
+    <processing_time>6980</processing_time>
+    <duration>288000</duration>
+    <extensions>
+      <preview>
+        <images>
+          <image width="176" height="136" alt="Welcome To BigBlueButton">https://recordings.test/presentation/aaf6466158b3f54add039d90754c86b695f52222-1700018011301/presentation/7c15a0fadb79fe6e739bdd79cca3589e5d9e295f-1700018011301/thumbnails/thumb-1.png</image>
+        </images>
+      </preview>
+    </extensions>
+    <size>1067051</size>
+  </playback>
+  <raw_size>839652</raw_size>
+</recording>

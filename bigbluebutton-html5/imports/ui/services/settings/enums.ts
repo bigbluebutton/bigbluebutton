@@ -2,11 +2,7 @@ const SETTINGS = {
   LAYOUT: 'layout',
   APPLICATION: 'application',
   AUDIO: 'audio',
-  VIDEO: 'video',
-  CC: 'cc',
   DATA_SAVING: 'dataSaving',
-  ANIMATIONS: 'animations',
-  SELF_VIEW_DISABLE: 'selfViewDisable',
   TRANSCRIPTION: 'transcription',
 } as const;
 

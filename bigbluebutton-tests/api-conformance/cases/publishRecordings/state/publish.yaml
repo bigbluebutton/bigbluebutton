@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# publish=true publishes an unpublished recording and publish=false
+# unpublishes a published one, in every format; the answer echoes publish,
+# and a later getRecordings shows the new state. Serial, with the
+# recordings put back before and after.
+id: publishRecordings.state.publish
+title: publishRecordings ${case}
+endpoint: publishRecordings
+class: contract
+tags: [ci, serial]
+variants:
+  - id: publish
+    vars: {case: publishes an unpublished recording, rid: db0c52cbb08b78549a52cb6f29e4d8dc236977bd-1700021600000, publish: "true", state: published}
+  - id: unpublish
+    vars: {case: unpublishes a published recording, rid: 4d64ff980226cdc0de5d24362bf27a829e1a8ab2-1700025200000, publish: "false", state: unpublished}
+steps:
+  - restore: {recordings: ["${rid}"]}
+  - call: publishRecordings
+    params: {recordID: "${rid}", publish: "${publish}"}
+    expect:
+      returncode: SUCCESS
+      xpath: {/response/published: "${publish}"}
+  - call: getRecordings
+    params: {recordID: "${rid}"}
+    expect:
+      returncode: SUCCESS
+      xpath:
+        /response/recordings/recording/state: "${state}"
+        /response/recordings/recording/published: "${publish}"
+        /response/recordings/recording/playback/format: {count: 2}
+teardown:
+  - restore: {recordings: ["${rid}"]}

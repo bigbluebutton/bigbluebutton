@@ -48,4 +48,5 @@ profiles:
   alt-defaults:          {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" alt-defaults'}
   fetch-http:            {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" fetch-http'}
   short-users-timeout:   {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" short-users-timeout'}
+  no-fetch-all-recordings: {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" no-fetch-all-recordings'}
   default:               {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" default'}

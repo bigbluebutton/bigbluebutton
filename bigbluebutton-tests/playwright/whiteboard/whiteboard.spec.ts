@@ -412,6 +412,13 @@ test.describe.parallel('Multi-user whiteboard', { tag: '@ci' }, () => {
     await whiteboard.initUserPage2(context, { testInfo });
     await whiteboard.viewerAnnotationReachesEveryone();
   });
+
+  test('Viewer undo removes the stroke for everyone', async ({ browser, context, page }, testInfo) => {
+    const whiteboard = new MultiUserWhiteboard(browser, context);
+    await whiteboard.initModPage(page, { testInfo });
+    await whiteboard.initUserPage(context, { testInfo });
+    await whiteboard.viewerUndoRemovesStroke();
+  });
 });
 
 test.describe.parallel('Clear annotations', { tag: '@ci' }, () => {

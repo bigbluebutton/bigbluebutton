@@ -60,15 +60,43 @@ func usesSinkHTTP(c *spec.Case) bool {
 	return slices.Contains(c.Uses, "sinkHttpUrl")
 }
 
-// usesTap says whether a case's steps, not counting its teardown, have
-// one the tap answers.
+// usesTap says whether a case needs the tap: a bus, fs or redis step
+// before its teardown, or fixture recordings.
 func usesTap(c *spec.Case) bool {
 	for _, s := range c.Steps {
 		if s.Kind == spec.KindBus || s.Kind == spec.KindFS || s.Kind == spec.KindRedis {
 			return true
 		}
 	}
-	return false
+	return usesFixtures(c)
+}
+
+// usesFixtures says whether a case needs fixture recordings: it requires
+// recordings-fs, as its restore steps make it.
+func usesFixtures(c *spec.Case) bool {
+	return slices.Contains(c.Requires, "recordings-fs")
+}
+
+// hasCap says whether the target has capability c for this run. A tap
+// gives recordings-fs when it has fixture recordings; until it has said it
+// has none, it is assumed, so that a tap that is down makes those cases
+// ERROR rather than skip.
+func (r *Runner) hasCap(c string) bool {
+	return r.Target.Has(c) || (c == "recordings-fs" && r.Tap != nil && !r.noTapRecordings)
+}
+
+// restore puts fixture recordings back through the tap.
+func (x *exec) restore(ctx context.Context, s spec.Step, sr *report.StepResult) {
+	sr.Request = &report.Request{Method: "POST", URL: x.redact(x.r.Target.TapURL + "/recordings/restore?" + url.Values{"id": s.Restore}.Encode())}
+	if x.r.Tap == nil {
+		sr.Status, sr.Message = report.Error, "restoring fixture recordings needs a tap started with --recordings: set tapUrl or BBB_TAP_URL"
+		return
+	}
+	if err := x.r.Tap.Restore(ctx, s.Restore); err != nil {
+		sr.Status, sr.Message = report.Error, err.Error()
+		return
+	}
+	sr.Status = report.Pass
 }
 
 type mode int

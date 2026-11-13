@@ -1,0 +1,18 @@
+id: off-odg-one-page
+title: "odfpy drawing: a red rectangle, a blue circle, a line and a text frame"
+tier: synthetic
+file: off-odg-one-page.odg
+issues: [20092]
+catalog: ["File-type detection"]
+upload:
+  method: create
+pages: 1
+expect: converted
+kind: vector
+marker: false
+aspect: 1.4143
+profiles: [defaults]
+notes: >-
+  A4 landscape drawing. .odg was refused as an unsupported type (#20092) and is now in bbb-web's
+  office list; whether its MIME type passes validation is what this records. LibreOffice 25.8
+  converts it to one A4 landscape page.

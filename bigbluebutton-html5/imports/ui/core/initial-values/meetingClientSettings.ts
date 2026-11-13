@@ -135,10 +135,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       enableCopyNetworkStatsButton: true,
       userSettingsStorage: 'session',
       defaultSettings: {
-        layout: {
-          selectedLayout: 'unified',
-          pushLayout: false,
-        },
         application: {
           animations: true,
           chatAudioAlerts: false,
@@ -155,6 +151,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           paginationEnabled: true,
           whiteboardToolbarAutoHide: false,
           recordingIndicatorAutoCollapse: false,
+          selfViewDisable: false,
           pushToTalkEnabled: false,
           autoCloseReactionsBar: true,
           darkTheme: false,
@@ -519,6 +516,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
     },
     captions: {
       background: '#000000',
+      maxTextLength: 8192,
       font: {
         color: '#ffffff',
         family: 'Calibri',

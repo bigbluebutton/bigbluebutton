@@ -15,7 +15,7 @@ const SignalBars = styled.div`
 
   ${({ grayscale }) => grayscale && `
     & > div {
-      background-color: ${colorWhite};
+      background-color: currentColor;
     }
   `}
 
