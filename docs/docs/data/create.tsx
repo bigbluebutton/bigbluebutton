@@ -620,7 +620,7 @@ const createEndpointTableData = [
               <code className="language-plaintext highlighter-rouge">webcamGrid</code> - <b>Enable/Disable the webcam grid, ie. the avatar tiles rendered for camera-less users while the presentation is minimized (added in BigBlueButton 4.0)</b>
             </li>
             <li>
-              <code className="language-plaintext highlighter-rouge">lockSettings</code> - <b>Lock viewers settings (added in BigBlueButton 4.0)</b> - removes the "Lock viewers" moderator control and disables lock enforcement, so all viewer restrictions stay unlocked for the meeting (lock create parameters and server defaults are ignored)
+              <code className="language-plaintext highlighter-rouge">lockSettings</code> - <b>Lock settings (added in BigBlueButton 4.0.3)</b> - no viewer restriction applies in the meeting or in its breakout rooms. The <code className="language-plaintext highlighter-rouge">lockSettings*</code> create parameters, <code className="language-plaintext highlighter-rouge">webcamsOnlyForModerator</code> and their server defaults are ignored (<code className="language-plaintext highlighter-rouge">lockSettingsPresenterPolicy</code> stays at <code className="language-plaintext highlighter-rouge">requireApproval</code>), and moderators cannot lock viewers during the meeting: the "Permissions and Policies" dialog keeps only its "Guest Policy" tab. Locking the public chat for a single user from the user list is still possible
             </li>
           </ul>
         </>
