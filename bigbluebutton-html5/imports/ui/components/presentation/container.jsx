@@ -44,6 +44,12 @@ const PresentationContainer = (props) => {
 
   const { pres_page_curr: presentationPageArray } = (presentationPageData || {});
   const currentPresentationPage = presentationPageArray?.[0];
+  const nextPresentationPage =
+     currentPresentationPage?.nextPagesSvg?.length > 0
+      ? {
+          svgUrl: currentPresentationPage.nextPagesSvg[0],
+        }
+      : null;
   const slideSvgUrl = currentPresentationPage?.svgUrl
     ? Auth.authenticateURL(currentPresentationPage.svgUrl) : undefined;
   const currentPageId = currentPresentationPage?.pageId;
@@ -170,8 +176,21 @@ const PresentationContainer = (props) => {
     num: currentPresentationPage?.num,
     presentationId: currentPresentationPage?.presentationId,
     svgUri: slideSvgUrl,
+    noteUri: slideSvgUrl?.replace(
+      /\/svg\/(\d+)(\?.*)?$/,
+      '/notes/$1$2',
+    ),
     infiniteWhiteboard: currentPresentationPage.infiniteWhiteboard,
   } : null;
+
+  const nextSlide = nextPresentationPage
+    ? {
+        imageUri: Auth.authenticateURL(nextPresentationPage.svgUrl),
+        svgUri: Auth.authenticateURL(nextPresentationPage.svgUrl),
+        num: currentSlide ? currentSlide.num + 1 : undefined,
+        presentationId: currentSlide?.presentationId,
+      }
+    : null;
 
   let slidePosition;
   if (currentSlide) {
@@ -266,6 +285,7 @@ const PresentationContainer = (props) => {
           isMobile: deviceType === DEVICE_TYPE.MOBILE,
           isIphone,
           currentSlide,
+          nextSlide,
           slidePosition,
           hasWBAccess: currentUser?.whiteboardWriteAccess,
           downloadPresentationUri: currentPresentationPage?.downloadFileUri
@@ -288,6 +308,7 @@ const PresentationContainer = (props) => {
           presentationAreaSize,
           currentUser,
           currentPresentationPage,
+          nextPresentationPage,
           layoutType: selectedLayout || '',
           annotationStreamData,
           initialPageAnnotations,
