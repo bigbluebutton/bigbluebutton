@@ -33,16 +33,17 @@ object CaptionDAO {
   def insertOrUpdateCaption(captionId: String, meetingId: String, userId: String, transcript: String,
                             locale: String, captionType: String = CaptionTypes.AUDIO_TRANSCRIPTION) = {
     val now = new java.sql.Timestamp(System.currentTimeMillis())
+    val scopedCaptionId = s"${userId}-${captionId}"
     DatabaseConnection.enqueue(
       sqlu"""INSERT INTO "caption" ("captionId", "meetingId", "captionType", "userId", "locale", "captionText", "createdAt")
-             VALUES (${captionId}, ${meetingId}, ${captionType}, ${userId}, ${locale}, ${transcript}, ${now})
+             VALUES (${scopedCaptionId}, ${meetingId}, ${captionType}, ${userId}, ${locale}, ${transcript}, ${now})
              ON CONFLICT ("captionId")
              DO UPDATE SET
                "captionText" = ${transcript},
                "locale" = ${locale},
                "captionType" = ${captionType},
                "createdAt" = ${now}
-             WHERE "caption"."userId" = ${userId}"""
+             WHERE "caption"."userId" = ${userId} AND "caption"."meetingId" = ${meetingId}"""
     )
   }
 }
