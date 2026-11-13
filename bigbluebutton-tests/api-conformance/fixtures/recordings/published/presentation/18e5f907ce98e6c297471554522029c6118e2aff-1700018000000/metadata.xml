@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<recording>
+  <id>18e5f907ce98e6c297471554522029c6118e2aff-1700018000000</id>
+  <state>published</state>
+  <published>true</published>
+  <start_time>1700018000000</start_time>
+  <end_time>1700018400000</end_time>
+  <participants>3</participants>
+  <meeting id="18e5f907ce98e6c297471554522029c6118e2aff-1700018000000" externalId="conform-rec-parent" name="Conform Recordings Parent" breakout="false"/>
+  <breakout/>
+  <breakoutRooms>
+    <breakoutRoom>aaf6466158b3f54add039d90754c86b695f52222-1700018011301</breakoutRoom>
+    <breakoutRoom>e628f5f97465b84a9a43cd4d1ff2bdf7e97a3dad-1700018011301</breakoutRoom>
+  </breakoutRooms>
+  <meta>
+    <conform-color>blue</conform-color>
+    <isBreakout>false</isBreakout>
+    <meetingId>conform-rec-parent</meetingId>
+    <meetingName>Conform Recordings Parent</meetingName>
+  </meta>
+  <playback>
+    <format>presentation</format>
+    <link>https://recordings.test/playback/presentation/2.3/18e5f907ce98e6c297471554522029c6118e2aff-1700018000000</link>
+    <processing_time>6980</processing_time>
+    <duration>399000</duration>
+    <size>1087707</size>
+  </playback>
+  <raw_size>839551</raw_size>
+</recording>

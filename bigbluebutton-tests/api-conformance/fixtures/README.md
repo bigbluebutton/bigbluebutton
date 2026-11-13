@@ -9,6 +9,9 @@ is the same file, with the request recorded under `<key>`.
 - `presentations/`: documents to upload or have fetched, beyond what the
   presentation conversion suite's fixtures cover.
 - `plugins/`: plugin manifests for create to fetch.
+- `recordings/`: recordings in every state, laid out like
+  `/var/bigbluebutton`, which the tap installs and restores (see its
+  README). The sink serves them too, which nothing uses.
 
 `generated/` is the sink's: `fixtures/generated/<name>?_size=N` is a file
 of N bytes made for the request, never a file here. Use it for anything

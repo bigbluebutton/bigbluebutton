@@ -1,0 +1,24 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A getRecordingTextTracks href fetches the track through nginx once: nginx
+# asks bbb-web whether the token is good, then serves the file from the
+# captions directory. The same URL again is refused with nginx's 401.
+# Serial, like every case that gets tokens from getRecordingTextTracks.
+id: textTrack.file.fetch
+title: A caption track's URL serves the file once
+endpoint: textTrack
+class: contract
+tags: [ci, serial]
+requires: [recordings-fs]
+steps:
+  - call: getRecordingTextTracks
+    params: {recordID: e633b9434f359d31c1be30832b42a91ac0fb0e92-1700000000000}
+    golden: off
+    expect: {format: json, returncode: SUCCESS}
+    capture: {href: "$.response.tracks[0].href"}
+  - url: "${href}"
+    expect:
+      status: 200
+      body: {contains: Welcome to the recording.}
+  - url: "${href}"
+    golden: document
+    expect: {status: 401}

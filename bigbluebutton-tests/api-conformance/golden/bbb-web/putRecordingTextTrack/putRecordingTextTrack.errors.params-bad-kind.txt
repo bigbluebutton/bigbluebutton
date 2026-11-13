@@ -1,0 +1,13 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case putRecordingTextTrack.errors.params-bad-kind
+target bbb-web
+
+== step 1: call putRecordingTextTrack (POST)
+status 200
+header Cache-Control no-cache
+header Content-Type application/json;charset=utf-8
+header Set-Cookie JSESSIONID=<token>; HttpOnly; Path=/; Secure
+body json
+$.response.message "Invalid kind parameter, expected='subtitles|captions' actual=chapters"
+$.response.messageKey "invalidKind"
+$.response.returncode "FAILED"

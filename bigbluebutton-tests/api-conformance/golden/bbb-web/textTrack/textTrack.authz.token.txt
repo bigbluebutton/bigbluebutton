@@ -1,0 +1,27 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case textTrack.authz.token
+target bbb-web
+
+== step 2: route texttrack-authz
+status 401
+header Cache-Control no-cache
+header Content-Type plain/text
+body text 12 bytes, sha256 e9d83f01c9af
+
+== step 3: route texttrack-authz
+status 401
+header Cache-Control no-cache
+header Content-Type plain/text
+body text 12 bytes, sha256 e9d83f01c9af
+
+== step 4: route texttrack-authz
+status 200
+header Cache-Control no-cache
+header Content-Type plain/text
+body text 10 bytes, sha256 04dd9c7e9464
+
+== step 5: route texttrack-authz
+status 401
+header Cache-Control no-cache
+header Content-Type plain/text
+body text 12 bytes, sha256 e9d83f01c9af

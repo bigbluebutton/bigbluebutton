@@ -1,0 +1,23 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A limit that isn't an integer turns paging off: the whole list, and no
+# totalElements. An offset without a limit doesn't page either.
+id: getRecordings.pagination.off
+title: getRecordings doesn't page with ${case}
+endpoint: getRecordings
+class: contract
+tags: [ci]
+requires: [recordings-fs]
+variants:
+  - {id: non-integer-limit, vars: {case: a limit that isn't an integer, limit: x, offset: null}}
+  - {id: offset-only, vars: {case: an offset alone, limit: null, offset: "1"}}
+steps:
+  - call: getRecordings
+    params:
+      recordID: "e449065b81c433bf7e5aae59e5854db148d5fa28-1700007200000,18e5f907ce98e6c297471554522029c6118e2aff-1700018000000,aaf6466158b3f54add039d90754c86b695f52222-1700018011301"
+      limit: "${limit}"
+      offset: "${offset}"
+    expect:
+      returncode: SUCCESS
+      xpath:
+        /response/recordings/recording: {count: 3}
+        /response/totalElements: {absent: true}
