@@ -36,11 +36,10 @@ trait SetGuestPolicyMsgHdlr extends RightsManagementTrait {
 
         if (oldPolicy != newPolicy) {
           val policyLabelKey: Option[String] = newPolicy match {
-            case GuestPolicyType.ASK_MODERATOR      => Some("app.guest-policy.button.askModerator")
-            case GuestPolicyType.ALWAYS_ACCEPT      => Some("app.guest-policy.button.alwaysAccept")
-            case GuestPolicyType.ALWAYS_ACCEPT_AUTH => Some("app.guest-policy.button.alwaysAcceptAuth")
-            case GuestPolicyType.ALWAYS_DENY        => Some("app.guest-policy.button.alwaysDeny")
-            case _                                  => None
+            case GuestPolicyType.ASK_MODERATOR => Some("app.guest-policy.button.askModerator")
+            case GuestPolicyType.ALWAYS_ACCEPT => Some("app.guest-policy.button.alwaysAccept")
+            case GuestPolicyType.ALWAYS_DENY   => Some("app.guest-policy.button.alwaysDeny")
+            case _                             => None
           }
           policyLabelKey.foreach { labelKey =>
             val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(

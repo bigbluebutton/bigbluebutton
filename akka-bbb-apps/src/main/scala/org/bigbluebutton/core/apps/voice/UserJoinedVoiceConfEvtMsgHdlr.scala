@@ -183,6 +183,11 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration with HandlerHelp
                 case GuestPolicyType.ASK_MODERATOR =>
                   registerUserAsGuest()
                   state
+                case unknownPolicy =>
+                  log.warning("Unknown guest policy " + unknownPolicy + " in meeting " + liveMeeting.props.meetingProp.intId
+                    + ", dial-in user " + msg.body.intId + " waits for moderator approval")
+                  registerUserAsGuest()
+                  state
               }
             }
           }
