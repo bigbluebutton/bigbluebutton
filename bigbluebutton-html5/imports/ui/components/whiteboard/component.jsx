@@ -155,6 +155,7 @@ const Whiteboard = React.memo((props) => {
     fillStyle,
     fontStyle,
     sizeStyle,
+    CJKdrawFontLocale,
     presentationAreaHeight,
     presentationAreaWidth,
     setTldrawIsMounting,
@@ -349,6 +350,13 @@ const Whiteboard = React.memo((props) => {
       return acc;
     }, {}),
   }), [intl, currentUser?.presenter, currentUser?.userId, isModerator, viewerCanPan]);
+
+  let CJKdrawFontLocales = ['JA','KR','TW','CN'];
+  if (CJKdrawFontLocales.includes(CJKdrawFontLocale)) {
+    CJKdrawFontLocales = [CJKdrawFontLocale, ...CJKdrawFontLocales.filter(code => code !== CJKdrawFontLocale)];
+  } else {
+    CJKdrawFontLocales = [];
+  }
 
   const presenterChanged = usePrevious(isPresenter) !== isPresenter;
   const prevCurPageId = usePrevious(curPageId);
@@ -2515,6 +2523,7 @@ const Whiteboard = React.memo((props) => {
           isToolbarVisible,
           presentationHeight,
           cursorType,
+          CJKdrawFontLocales,
           pointerDiameter,
           hiddenGeoShapes,
           viewerCanPan,
@@ -2554,6 +2563,7 @@ Whiteboard.propTypes = {
   fillStyle: PropTypes.string.isRequired,
   fontStyle: PropTypes.string.isRequired,
   sizeStyle: PropTypes.string.isRequired,
+  CJKdrawFontLocale: PropTypes.string.isRequired,
   presentationAreaHeight: PropTypes.number.isRequired,
   presentationAreaWidth: PropTypes.number.isRequired,
   maxNumberOfAnnotations: PropTypes.number.isRequired,
@@ -2578,3 +2588,4 @@ Whiteboard.propTypes = {
   isInfiniteWhiteboard: PropTypes.bool,
   whiteboardWriters: PropTypes.arrayOf(PropTypes.shape).isRequired,
 };
+
