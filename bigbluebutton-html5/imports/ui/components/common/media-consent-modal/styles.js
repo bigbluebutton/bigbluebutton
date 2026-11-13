@@ -1,5 +1,6 @@
 // Shared by request-unmute-modal and request-camera-modal.
 import styled from 'styled-components';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import {
   colorText,
 } from '/imports/ui/stylesheets/styled-components/palette';
@@ -13,26 +14,17 @@ const Subtitle = styled.p`
   color: ${colorText};
 `;
 
-const Footer = styled.div`
-  display: flex;
-  flex: 1;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 0.75rem;
-
+const FooterButton = styled(BBButton)`
   @media ${smallOnly} {
-    button {
-      flex: 1;
+    flex: 1;
 
-      i {
-        display: none;
-      }
+    i {
+      display: none;
     }
   }
 `;
 
 export default {
   Subtitle,
-  Footer,
+  FooterButton,
 };
