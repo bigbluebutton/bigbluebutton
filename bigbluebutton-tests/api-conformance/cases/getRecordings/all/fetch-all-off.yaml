@@ -20,7 +20,8 @@ steps:
         /response/recordings: {absent: true}
   # With a limit, bbb-web keeps one of A1's two formats, whichever the file
   # system lists first (getRecordings.pagination.formats), so the listing
-  # isn't recorded.
+  # isn't recorded. Its record IDs are checked instead: every published and
+  # unpublished fixture recording, once each.
   - call: getRecordings
     params: {limit: "100"}
     golden: off
@@ -29,6 +30,16 @@ steps:
       xpath:
         /response/recordings/recording: {count: 10}
         /response/totalElements: "10"
+        /response/recordings/recording[recordID='e633b9434f359d31c1be30832b42a91ac0fb0e92-1700000000000']: {count: 1}  # A1
+        /response/recordings/recording[recordID='e633b9434f359d31c1be30832b42a91ac0fb0e92-1700003600000']: {count: 1}  # A2
+        /response/recordings/recording[recordID='e449065b81c433bf7e5aae59e5854db148d5fa28-1700007200000']: {count: 1}  # B1
+        /response/recordings/recording[recordID='18e5f907ce98e6c297471554522029c6118e2aff-1700018000000']: {count: 1}  # breakout parent
+        /response/recordings/recording[recordID='aaf6466158b3f54add039d90754c86b695f52222-1700018011301']: {count: 1}  # Room 1
+        /response/recordings/recording[recordID='e628f5f97465b84a9a43cd4d1ff2bdf7e97a3dad-1700018011301']: {count: 1}  # Room 2
+        /response/recordings/recording[recordID='db0c52cbb08b78549a52cb6f29e4d8dc236977bd-1700021600000']: {count: 1}  # mut-unpub
+        /response/recordings/recording[recordID='4d64ff980226cdc0de5d24362bf27a829e1a8ab2-1700025200000']: {count: 1}  # mut-pub
+        /response/recordings/recording[recordID='13ed80f250c8d538c9570d0240900f30c9867b0b-1700028800000']: {count: 1}  # mut-meta
+        /response/recordings/recording[recordID='52388302b3d61ff0ce98e0d6192952f38e0604aa-1700032400000']: {count: 1}  # mut-captions
   - call: getRecordings
     params: {meetingID: conform-rec-a}
     expect:
