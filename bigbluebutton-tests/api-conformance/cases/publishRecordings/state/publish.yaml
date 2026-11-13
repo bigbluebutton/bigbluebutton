@@ -48,7 +48,7 @@ steps:
     expect: {exists: false}
   - fs: {path: "${from}/video/${rid}/metadata.xml"}
     expect: {exists: false}
-  - bus: {name: "${msg}", meetingId: "${rid}", within: 3s}
+  - bus: {name: "${msg}", channel: from-bbb-web-redis-channel, meetingId: "${rid}", within: 3s}
     select: [$.core.header.name, $.core.body.recordId]
     expect: {count: 1}
 teardown:

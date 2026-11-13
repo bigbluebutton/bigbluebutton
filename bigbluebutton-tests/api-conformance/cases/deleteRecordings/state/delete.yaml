@@ -27,6 +27,11 @@ steps:
     expect:
       returncode: SUCCESS
       xpath: {/response/deleted: "true"}
+  # The first delete's message, counted before the second delete runs, so
+  # the count in the last step shows that the second sends none.
+  - bus: {name: DeletedRecordingSysMsg, channel: from-bbb-web-redis-channel, meetingId: "${rid}", within: 3s}
+    golden: off
+    expect: {count: 1}
   - call: getRecordings
     params: {recordID: "${rid}"}
     expect: {returncode: SUCCESS, messageKey: noRecordings}
@@ -49,7 +54,7 @@ steps:
     expect: {exists: false}
   - fs: {path: "${from}/video/${rid}/metadata.xml"}
     expect: {exists: false}
-  - bus: {name: DeletedRecordingSysMsg, meetingId: "${rid}", within: 3s}
+  - bus: {name: DeletedRecordingSysMsg, channel: from-bbb-web-redis-channel, meetingId: "${rid}", within: 3s}
     select: [$.core.header.name, $.core.body.recordId]
     expect: {count: 1}
 teardown:

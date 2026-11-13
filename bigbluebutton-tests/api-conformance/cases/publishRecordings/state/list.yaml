@@ -18,7 +18,7 @@ steps:
     expect:
       returncode: SUCCESS
       xpath: {/response/recordings/recording/state: published}
-  - bus: {name: PublishedRecordingSysMsg, meetingId: db0c52cbb08b78549a52cb6f29e4d8dc236977bd-1700021600000, within: 3s}
+  - bus: {name: PublishedRecordingSysMsg, channel: from-bbb-web-redis-channel, meetingId: db0c52cbb08b78549a52cb6f29e4d8dc236977bd-1700021600000, within: 3s}
     select: [$.core.header.name, $.core.body.recordId]
     expect: {count: 1}
   - bus: {name: PublishedRecordingSysMsg, meetingId: 0000000000000000000000000000000000000000-1700000000000, within: 3s}
