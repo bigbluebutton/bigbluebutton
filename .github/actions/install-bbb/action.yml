@@ -172,13 +172,17 @@ runs:
             if getent ahosts "$h" > /dev/null; then resolved="$resolved $h"; else unresolved="$unresolved $h"; fi
           done
           if [ -n "$resolved" ]; then
-            out=$(sudo apt-get update 2>&1) || true
+            # apt-get update can hang on a mirror that resolves but never answers, so bound it.
+            # A killed update leaves no "Failed to fetch" line, hence the exit code check.
+            rc=0
+            out=$(sudo timeout 300 apt-get update 2>&1) || rc=$?
             echo "$out"
-            if ! grep -qE '^(W|E): Failed to fetch .*(ubuntu\.com|apt-mirrors\.txt)' <<<"$out"; then
+            if [ "$rc" -ne 124 ] && ! grep -qE '^(W|E): Failed to fetch .*(ubuntu\.com|apt-mirrors\.txt)' <<<"$out"; then
               echo "Ubuntu mirrors OK (attempt $attempt)"
               break
             fi
             reason="apt-get update could not fetch the Ubuntu indexes"
+            if [ "$rc" -eq 124 ]; then reason="apt-get update did not finish in 5 minutes"; fi
           else
             reason="DNS failed for:$unresolved"
             # Tells apart the runner's resolver from the ubuntu.com DNS itself
@@ -207,10 +211,13 @@ runs:
         sed -i "s|> /etc/apt/sources.list.d/bigbluebutton.list||g" bbb-install.sh
         # Retry the meta-package install and stop if it is still missing, instead of hanging
         # on the bigbluebutton.properties wait loop until the step times out (see above).
+        # Calls apt-get directly: need_pkg exits on the first failure once bbb-install#869 is in,
+        # and it skips any package dpkg knows about, even a half-installed one.
         cat > /tmp/bbb-ci-install-retry.sh <<'SNIPPET'
           for ci_try in 1 2 3; do
-            need_pkg bigbluebutton
+            LC_CTYPE=C.UTF-8 apt-get install -yq -o DPkg::Lock::Timeout=300 bigbluebutton || true
             [ "$(dpkg-query -W -f='${db:Status-Status}' bigbluebutton 2>/dev/null)" = installed ] && break
+            [ "$ci_try" = 3 ] && break
             echo "bigbluebutton not installed (attempt $ci_try/3), retrying in 60s"
             sleep 60
             dpkg --configure -a || true
