@@ -17,10 +17,6 @@ const Subtitle = styled.p`
 const FooterButton = styled(BBButton)`
   @media ${smallOnly} {
     flex: 1;
-
-    i {
-      display: none;
-    }
   }
 `;
 

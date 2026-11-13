@@ -69,7 +69,7 @@ const MediaConsentModal = ({
           <Styled.FooterButton
             label={effectiveDenyLabel}
             dataTest={denyDataTest}
-            iconStart={<Icon iconName={denyIcon} />}
+            iconStart={isSmallViewport ? null : <Icon iconName={denyIcon} />}
             onClick={onDeny}
             variant="secondary"
             color="danger"
@@ -77,7 +77,7 @@ const MediaConsentModal = ({
           <Styled.FooterButton
             label={confirmLabel}
             dataTest={confirmDataTest}
-            iconStart={<Icon iconName={confirmIcon} />}
+            iconStart={isSmallViewport ? null : <Icon iconName={confirmIcon} />}
             onClick={onConfirm}
             variant="primary"
             color="default"
