@@ -185,6 +185,37 @@ test.describe("Audio captions - on-device transcription (speechProcessing 'local
     await modPage.hasElement(e.audioSettingsModal, 'should still keep the audio settings open');
   });
 
+  test('downloads the language pack of a forced locale when transcription is on in the transcription panel', async ({
+    browser,
+    browserName,
+    context,
+    page,
+  }, testInfo) => {
+    test.skip(browserName === 'firefox', NO_WEBSPEECH);
+    await shimSpeechSynthesisVoices(page, VOICES);
+    await shimSpeechRecognition(page, { ...AVAILABILITY, 'en-US': 'downloadable' }, true, { delayMs: 3000 });
+    const audioCaptions = new AudioCaptions(browser, context);
+    // Closing the audio modal skips its download: the panel is what the "not ready" toast sends
+    // the user to
+    await audioCaptions.initModPage(page, {
+      testInfo,
+      clientSettingsOverrides: audioCaptionsOverrides('en-US', true, 'local', {
+        forceLocale: true,
+        showInSidebarNavigation: true,
+      }),
+    });
+    const { modPage } = audioCaptions;
+
+    await audioCaptions.turnTranscriptionOnInPanel();
+    await modPage.hasElement(e.onDeviceLanguageDownloading, 'should tell that the language pack is downloading');
+    await modPage.hasElement(e.onDeviceLanguageAvailable, 'should tell that the language is transcribed on the device');
+    await modPage.wasRemoved(e.transcriptionPanelLanguageSelect, 'should not offer a language to pick');
+    expect(
+      (await audioCaptions.getSpeechRecognitionShimRecord()).installs,
+      'should download the forced language once',
+    ).toEqual(['en-US']);
+  });
+
   test('joins audio right away with transcription disabled', async ({
     browser,
     browserName,
