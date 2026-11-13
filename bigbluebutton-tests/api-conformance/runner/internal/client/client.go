@@ -15,6 +15,7 @@ import (
 	"net/http/cookiejar"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/observe"
@@ -74,6 +75,13 @@ type Prepared struct {
 	Body    []byte
 	HasBody bool
 	Chunked bool // send without Content-Length
+	// CookiesFrom, when set, sends the request the way nginx sends an
+	// auth_request subrequest to a server behind it. It carries the cookies
+	// the client holds for this URL on the public side (what the browser
+	// sent nginx), and the cookies the answer sets aren't kept, since a
+	// subrequest's answer never reaches the browser. A Cookie in Header
+	// replaces the client's cookies; an empty one sends none.
+	CookiesFrom string
 }
 
 // Session holds one case's cookie jars.
@@ -102,9 +110,43 @@ func (s *Session) Cookies(name string, u *url.URL) []*http.Cookie {
 	return s.jar(name).Cookies(u)
 }
 
+// forwardedCookies returns the cookies a request with CookiesFrom carries
+// for client name: none when p.Header has a Cookie of its own.
+func (s *Session) forwardedCookies(p *Prepared, name string) ([]*http.Cookie, error) {
+	if _, ok := p.Header["Cookie"]; ok {
+		return nil, nil
+	}
+	u, err := url.Parse(p.CookiesFrom)
+	if err != nil || u.Scheme == "" || u.Host == "" {
+		return nil, fmt.Errorf("cookies from %q: not an absolute URL", p.CookiesFrom)
+	}
+	return s.jar(name).Cookies(u), nil
+}
+
+// subrequestCookies puts on req the cookies a subrequest carries (see
+// Prepared.CookiesFrom) and returns their names. They go on req, not in
+// p.Header, so their values stay out of reports; the runner reports their
+// names.
+func (s *Session) subrequestCookies(req *http.Request, p *Prepared, name string) ([]string, error) {
+	if vs, ok := req.Header["Cookie"]; ok && strings.Join(vs, "") == "" {
+		delete(req.Header, "Cookie")
+	}
+	cookies, err := s.forwardedCookies(p, name)
+	if err != nil {
+		return nil, err
+	}
+	var names []string
+	for _, c := range cookies {
+		req.AddCookie(c)
+		names = append(names, c.Name)
+	}
+	return names, nil
+}
+
 // Do sends p as client name. Redirects are returned, not followed, unless
-// follow is set.
-func (s *Session) Do(ctx context.Context, p *Prepared, name string, follow bool, timeout time.Duration) (*observe.Observation, error) {
+// follow is set. forwarded names the cookies a request with CookiesFrom
+// carried from the client's jar, even if the request then failed.
+func (s *Session) Do(ctx context.Context, p *Prepared, name string, follow bool, timeout time.Duration) (o *observe.Observation, forwarded []string, err error) {
 	hc := &http.Client{
 		Transport: s.rt,
 		Jar:       s.jar(name),
@@ -126,7 +168,7 @@ func (s *Session) Do(ctx context.Context, p *Prepared, name string, follow bool,
 	}
 	req, err := http.NewRequestWithContext(ctx, p.Method, p.URL, body)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	if p.HasBody && p.Chunked {
 		// Hide the reader's length so the transport sends Transfer-Encoding: chunked.
@@ -143,18 +185,24 @@ func (s *Session) Do(ctx context.Context, p *Prepared, name string, follow bool,
 		}
 		req.Header[k] = vs
 	}
+	if p.CookiesFrom != "" {
+		if forwarded, err = s.subrequestCookies(req, p, name); err != nil {
+			return nil, nil, err
+		}
+		hc.Jar = nil
+	}
 	start := time.Now()
 	resp, err := hc.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, forwarded, err
 	}
 	defer resp.Body.Close()
 	data, err := io.ReadAll(io.LimitReader(resp.Body, MaxBody+1))
 	if err != nil {
-		return nil, fmt.Errorf("reading the response: %w", err)
+		return nil, forwarded, fmt.Errorf("reading the response: %w", err)
 	}
 	if len(data) > MaxBody {
-		return nil, fmt.Errorf("the response body is over %d bytes", MaxBody)
+		return nil, forwarded, fmt.Errorf("the response body is over %d bytes", MaxBody)
 	}
-	return observe.New(resp, data, time.Since(start)), nil
+	return observe.New(resp, data, time.Since(start)), forwarded, nil
 }

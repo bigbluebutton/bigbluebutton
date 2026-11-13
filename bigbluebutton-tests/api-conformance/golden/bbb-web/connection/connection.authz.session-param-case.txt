@@ -1,0 +1,9 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case connection.authz.session-param-case
+target bbb-web
+
+== step 5: route connection-authz
+status 401
+header Cache-Control no-cache
+header Content-Type plain/text
+body text 12 bytes, sha256 e9d83f01c9af

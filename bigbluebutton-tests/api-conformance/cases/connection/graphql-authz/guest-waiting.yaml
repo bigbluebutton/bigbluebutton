@@ -1,0 +1,43 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A guest waiting for a moderator's approval holds a live session token, and
+# the client shows its waiting page over GraphQL: checkGraphqlAuthorization
+# authorizes the guest, and says they are neither in the meeting nor a
+# moderator.
+id: connection.graphql-authz.guest-waiting
+title: checkGraphqlAuthorization authorizes a guest waiting for approval, as not yet in the meeting
+endpoint: connection
+class: contract
+tags: [ci]
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: "Hook test", guestPolicy: ASK_MODERATOR}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: join
+    client: gus
+    params: {meetingID: "${uid}", fullName: Gus, role: viewer, guest: "true", redirect: "false"}
+    golden: off
+    expect: {returncode: SUCCESS, xpath: {/response/guestStatus: WAIT}}
+    capture: {gusToken: /response/session_token, gusId: /response/user_id}
+  - route: connection-graphql-authz
+    client: gus
+    headers: {x-session-token: "${gusToken}"}
+    expect:
+      status: 200
+      headers:
+        User-Id: "${gusId}"
+        User-Is-Moderator: "false"
+        User-Is-Presenter: "false"
+        User-Currently-Online: "false"
+      jsonpath: {$.response: authorized}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

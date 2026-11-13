@@ -1,0 +1,48 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A role a moderator changes in the meeting shows in checkGraphqlAuthorization's
+# answer for that user, in the header and in the JSON body.
+id: connection.graphql-authz.role-change
+title: checkGraphqlAuthorization follows a role changed in the meeting
+endpoint: connection
+class: contract
+tags: [ci, presence]
+requires: [akka, presence]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: "Hook test"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: moderator}}
+    golden: off
+  - presence: {action: join, as: bob, args: {meetingID: "${uid}", fullName: Bob, role: viewer}}
+    golden: off
+    capture: {bobToken: $.sessionToken, bobId: $.userId}
+  - route: connection-graphql-authz
+    client: bob
+    headers: {x-session-token: "${bobToken}"}
+    golden: off
+    eventually: {within: 10s, every: 200ms, until: {headers: {User-Currently-Online: "true"}}}
+    expect: {headers: {User-Is-Moderator: "false"}}
+  - graphql:
+      as: ann
+      query: "mutation SetRole($id: String!, $role: String!) { userSetRole(userId: $id, role: $role) }"
+      variables: {id: "${bobId}", role: MODERATOR}
+    golden: off
+  - route: connection-graphql-authz
+    client: bob
+    headers: {x-session-token: "${bobToken}"}
+    eventually: {within: 10s, every: 200ms, until: {headers: {User-Is-Moderator: "true"}}}
+    expect:
+      status: 200
+      headers: {User-Id: "${bobId}", User-Is-Moderator: "true", User-Currently-Online: "true"}
+      jsonpath: {"$['X-Moderator']": "true"}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

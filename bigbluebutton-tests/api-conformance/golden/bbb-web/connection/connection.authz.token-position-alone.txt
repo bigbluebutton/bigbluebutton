@@ -1,0 +1,15 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case connection.authz.token-position-alone
+target bbb-web
+
+== step 4: route connection-authz
+status 200
+header Cache-Control no-cache
+header Content-Type plain/text
+header Meeting-Create-Time <time>
+header Meeting-Id <sha1(meetingID)>-<time>
+header Meeting-Name Hook+test
+header User-Id w_<id>
+header User-Name Ann
+header Voice-Bridge <random>
+body text 10 bytes, sha256 04dd9c7e9464

@@ -5,6 +5,7 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"fmt"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -465,6 +466,109 @@ func TestRoutes(t *testing.T) {
 	}
 	if res := run("steps:\n  - route: presentation-download\n    pathParams: {meetingId: m}\n"); res.Status != report.Error || !strings.Contains(res.Reason, "needs pathParams presId") {
 		t.Errorf("status %s, reason %q", res.Status, res.Reason)
+	}
+}
+
+// A subrequest route is called as nginx calls an auth hook: with the
+// cookies the client holds for baseUrl, keeping none that the answer sets.
+// A route that only moves to another base uses the jar as any request does.
+// The two hosts are names a cookie jar tells apart.
+func TestDirectRouteCookies(t *testing.T) {
+	var public, direct []string // path and Cookie header of each request
+	pub := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		public = append(public, r.URL.Path+" "+strings.Join(r.Header.Values("Cookie"), "; "))
+		if v := r.URL.Query().Get("v"); v != "" {
+			http.SetCookie(w, &http.Cookie{Name: "JSESSIONID", Value: v, Path: "/", Secure: true, HttpOnly: true})
+			http.SetCookie(w, &http.Cookie{Name: "SFU", Value: "s", Path: "/bbb-webrtc-sfu", Secure: true})
+		}
+	}))
+	defer pub.Close()
+	dir := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		direct = append(direct, r.URL.Path+" "+strings.Join(r.Header.Values("Cookie"), "; "))
+		http.SetCookie(w, &http.Cookie{Name: "JSESSIONID", Value: "minted", Path: "/"})
+	}))
+	defer dir.Close()
+	t.Setenv("STEPS_TEST_HOOKS", "http://direct.test")
+	tf := filepath.Join(t.TempDir(), "r.yaml")
+	body := "name: r\nbaseUrl: https://public.test\nsalt: " + salt + "\nroutes:\n" +
+		"  hook: {path: /bigbluebutton/connection/checkAuthorization, baseEnv: STEPS_TEST_HOOKS, subrequest: true}\n" +
+		"  moved: {path: /bigbluebutton/moved, baseEnv: STEPS_TEST_HOOKS}\n" +
+		"  page: {path: /bigbluebutton/page}\n"
+	if err := os.WriteFile(tf, []byte(body), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	tg, err := target.Load(tf)
+	if err != nil {
+		t.Fatal(err)
+	}
+	r, err := NewRunner(tg, "", "test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	tr := pub.Client().Transport.(*http.Transport).Clone()
+	tr.TLSClientConfig.ServerName = "example.com" // in httptest's certificate
+	tr.DialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
+		to, ok := map[string]string{"public.test:443": pub.Listener.Addr().String(), "direct.test:80": dir.Listener.Addr().String()}[addr]
+		if !ok {
+			return nil, fmt.Errorf("no address for %s", addr)
+		}
+		return (&net.Dialer{}).DialContext(ctx, network, to)
+	}
+	r.Transport = tr
+	cases, probs := spec.LoadBytes("case.yaml", []byte(header(`steps:
+  - url: "https://public.test/set?v=ann"
+    client: ann
+  - route: hook
+    client: ann
+  - route: hook
+    client: ann
+    headers: {Cookie: null}
+  - route: hook
+    client: ann
+    headers: {Cookie: ""}
+  - route: hook
+    client: ann
+    headers: {Cookie: "a=1"}
+  - route: hook
+    client: eve
+  - route: page
+    client: ann
+  - route: hook
+    client: ann
+    headers: {X-Original-URI: "/bbb-webrtc-sfu?sessionToken=t"}
+  - route: moved
+    client: ann
+  - route: moved
+    client: ann
+`)), spec.Options{})
+	if len(probs) > 0 {
+		t.Fatal(probs)
+	}
+	res := r.RunCase(context.Background(), cases[0], "uid-1")
+	if res.Status != report.Pass {
+		t.Fatalf("status %s: %s", res.Status, res.Reason)
+	}
+	hook := "/bigbluebutton/connection/checkAuthorization "
+	// The SFU cookie is the browser's for /bbb-webrtc-sfu only, so it goes
+	// along when X-Original-URI names that path.
+	// The moved route's first answer sets a cookie for its own host, which
+	// its second request carries.
+	moved := "/bigbluebutton/moved "
+	want := []string{hook + "JSESSIONID=ann", hook + "JSESSIONID=ann", hook, hook + "a=1", hook, hook + "SFU=s; JSESSIONID=ann", moved, moved + "JSESSIONID=minted"}
+	if strings.Join(direct, "|") != strings.Join(want, "|") {
+		t.Errorf("the hook got %q, want %q", direct, want)
+	}
+	if len(public) != 2 || public[1] != "/bigbluebutton/page JSESSIONID=ann" {
+		t.Errorf("a route on baseUrl should use the jar as before: %q", public)
+	}
+	if h := res.Steps[1].Request.Headers; h["Cookie"] != "JSESSIONID=<forwarded>" {
+		t.Errorf("the report should name the forwarded cookie, not show it: %v", h)
+	}
+	if h := res.Steps[5].Request.Headers; h["Cookie"] != "" {
+		t.Errorf("a fresh client forwards nothing, but the report shows %q", h["Cookie"])
+	}
+	if h := res.Steps[7].Request.Headers; h["Cookie"] != "SFU=<forwarded>; JSESSIONID=<forwarded>" {
+		t.Errorf("the report should name both forwarded cookies: %v", h)
 	}
 }
 

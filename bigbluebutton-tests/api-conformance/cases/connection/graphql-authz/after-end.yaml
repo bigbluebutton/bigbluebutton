@@ -1,0 +1,68 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# Once a meeting has ended, checkGraphqlAuthorization still answers 200 for
+# its users' session tokens when the request brings the join's HTTP session,
+# so that the client can show that the meeting ended. That answer names the
+# user and the meeting (but not its name or create time), keeps the user's
+# role, and says they are neither presenter, nor online, nor allowed notes.
+# Without the join's HTTP session the token is refused, even though this
+# meeting allowed requests without one.
+id: connection.graphql-authz.after-end
+title: checkGraphqlAuthorization still knows a user of an ended meeting, with the join's session only
+endpoint: connection
+class: contract
+tags: [ci]
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: "Hook test", allowRequestsWithoutSession: "true"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: join
+    client: ann
+    params: {meetingID: "${uid}", fullName: Ann, role: moderator, redirect: "false"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {annToken: /response/session_token, annId: /response/user_id}
+  # end answers before bbb-web has dropped the meeting; again until it has.
+  - call: end
+    params: {meetingID: "${uid}"}
+    golden: off
+    eventually: {within: 5s, every: 100ms, until: {messageKey: notFound}}
+    expect: {messageKey: notFound}
+  - route: connection-graphql-authz
+    client: ann
+    headers: {x-session-token: "${annToken}"}
+    expect:
+      status: 200
+      headers:
+        Meeting-Id: "${intId}"
+        Meeting-External-Id: "${uid}"
+        User-Id: "${annId}"
+        User-Name: Ann
+        User-Is-Moderator: "true"
+        User-Is-Presenter: "false"
+        User-Notes-Enabled: "false"
+        User-Currently-Online: "false"
+        Meeting-Name: {absent: true}
+        Meeting-Create-Time: {absent: true}
+      jsonpath:
+        $.response: authorized
+        $['X-UserId']: "${annId}"
+        $['X-Moderator']: "true"
+        $['X-Currently-Online']: "false"
+  # Sent without cookies: not recorded.
+  - route: connection-graphql-authz
+    client: nobody
+    headers: {x-session-token: "${annToken}"}
+    golden: off
+    expect:
+      status: 401
+      jsonpath: {$.response: unauthorized}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

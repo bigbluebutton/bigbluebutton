@@ -1,0 +1,44 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A meeting created with allowRequestsWithoutSession=true (or, without the
+# param, under the setting of that name) lets a live session token through
+# checkGraphqlAuthorization without the join's HTTP session. The step, sent
+# without cookies, isn't recorded.
+id: connection.graphql-authz.without-session
+title: checkGraphqlAuthorization ${case}
+endpoint: connection
+class: contract
+tags: [ci]
+requires: [akka]
+variants:
+  - {id: allowed, vars: {case: takes a token alone when the meeting allows it, allow: "true", status: 200, answer: authorized}}
+  - {id: not-allowed, vars: {case: wants the join's session when the meeting doesn't allow otherwise, allow: "false", status: 401, answer: unauthorized}}
+  - {id: allowed-by-default, vars: {case: takes a token alone when the setting allows it, allow: null, status: 200, answer: authorized}, profile: alt-defaults, tags: [disruptive]}
+  - {id: not-allowed-over-default, vars: {case: wants the join's session when the meeting overrides the setting, allow: "false", status: 401, answer: unauthorized}, profile: alt-defaults, tags: [disruptive]}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: "Hook test", allowRequestsWithoutSession: "${allow}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: join
+    client: ann
+    params: {meetingID: "${uid}", fullName: Ann, role: moderator, redirect: "false"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {annToken: /response/session_token}
+  - route: connection-graphql-authz
+    client: nobody
+    headers: {x-session-token: "${annToken}"}
+    golden: off
+    expect:
+      status: ${status}
+      jsonpath: {$.response: "${answer}"}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

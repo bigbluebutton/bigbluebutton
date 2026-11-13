@@ -1,0 +1,56 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# usersTimeout after a user leaves, bbb-web forgets them. Their session token
+# stays live, but checkGraphqlAuthorization then has no state for them: every
+# flag is false, notes included, though the meeting doesn't lock notes. Run
+# under usersTimeout=5000 (short-users-timeout); bbb-web looks for such users
+# every 15 seconds, the first time a minute after it starts, and the profile
+# switch has just restarted it.
+id: connection.graphql-authz.purged
+title: checkGraphqlAuthorization reports no state for a user bbb-web has forgotten
+endpoint: connection
+class: contract
+tags: [ci, presence, disruptive]
+requires: [akka, presence]
+profile: short-users-timeout
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: "Hook test", meetingExpireWhenLastUserLeftInMinutes: "10"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: moderator}}
+    golden: off
+  - presence: {action: join, as: bob, args: {meetingID: "${uid}", fullName: Bob, role: viewer}}
+    golden: off
+    capture: {bobToken: $.sessionToken, bobId: $.userId}
+  - route: connection-graphql-authz
+    client: bob
+    headers: {x-session-token: "${bobToken}"}
+    golden: off
+    eventually: {within: 10s, every: 200ms, until: {headers: {User-Currently-Online: "true"}}}
+    expect: {headers: {User-Notes-Enabled: "true"}}
+  - presence: {action: leave, as: bob}
+    golden: off
+  - route: connection-graphql-authz
+    client: bob
+    headers: {x-session-token: "${bobToken}"}
+    eventually: {within: 90s, every: 1s, until: {headers: {User-Notes-Enabled: "false"}}}
+    expect:
+      status: 200
+      headers:
+        User-Id: "${bobId}"
+        User-Is-Moderator: "false"
+        User-Is-Presenter: "false"
+        User-Notes-Enabled: "false"
+        User-Currently-Online: "false"
+        Meeting-Name: Hook+test
+      jsonpath: {$.response: authorized}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

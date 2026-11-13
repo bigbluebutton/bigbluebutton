@@ -1,0 +1,49 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A live session token alone isn't enough for checkGraphqlAuthorization: the
+# request must bring the HTTP session (JSESSIONID) that the user's join set
+# up. Otherwise it answers 401 with no user headers. (A meeting created with
+# allowRequestsWithoutSession lifts this: connection.graphql-authz.without-session.)
+id: connection.graphql-authz.session
+title: checkGraphqlAuthorization refuses a live token ${case}
+endpoint: connection
+class: contract
+tags: [ci]
+requires: [akka]
+variants:
+  # Sent without the join's cookies: not recorded.
+  - {id: none, vars: {case: without the join's HTTP session, client: nobody, golden: "off"}}
+  - {id: other-user, vars: {case: with another user's HTTP session, client: bob, golden: compare}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: "Hook test"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: join
+    client: ann
+    params: {meetingID: "${uid}", fullName: Ann, role: moderator, redirect: "false"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {annToken: /response/session_token}
+  - call: join
+    client: bob
+    params: {meetingID: "${uid}", fullName: Bob, role: viewer, redirect: "false"}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - route: connection-graphql-authz
+    client: "${client}"
+    headers: {x-session-token: "${annToken}"}
+    golden: "${golden}"
+    expect:
+      status: 401
+      jsonpath: {$.response: unauthorized}
+      headers: {User-Id: {absent: true}}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}
