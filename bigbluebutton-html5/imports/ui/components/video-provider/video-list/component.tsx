@@ -454,6 +454,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
 
     return (
       <Styled.NextPageButton
+        className="bbb-webcam-pagination__next"
         role="button"
         aria-label={nextPageLabel}
         color="primary"
@@ -485,6 +486,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
 
     return (
       <Styled.PreviousPageButton
+        className="bbb-webcam-pagination__prev"
         role="button"
         aria-label={prevPageLabel}
         color="primary"
@@ -607,9 +609,11 @@ class VideoList extends Component<VideoListProps, VideoListState> {
 
     return (
       <Styled.PaginationBar
+        className="bbb-webcam-pagination"
         data-test="mobilePaginationBar"
       >
         <Styled.PaginationArrow
+          className="bbb-webcam-pagination__prev"
           role="button"
           aria-label={prevPageLabel}
           color="primary"
@@ -624,6 +628,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
           <Styled.PaginationDots>
             {range(0, numberOfPages).map((page) => (
               <Styled.PaginationDot
+                className={`bbb-webcam-pagination__dot${page === currentVideoPageIndex ? ' bbb-webcam-pagination__dot--active' : ''}`}
                 key={`page-dot-${page}`}
                 type="button"
                 $active={page === currentVideoPageIndex}
@@ -635,11 +640,12 @@ class VideoList extends Component<VideoListProps, VideoListState> {
             ))}
           </Styled.PaginationDots>
         ) : (
-          <Styled.PaginationCounter data-test="mobilePageCounter">
+          <Styled.PaginationCounter className="bbb-webcam-pagination__counter" data-test="mobilePageCounter">
             {intl.formatMessage(intlMessages.pageOfLabel, { 0: currentPage, 1: numberOfPages })}
           </Styled.PaginationCounter>
         )}
         <Styled.PaginationArrow
+          className="bbb-webcam-pagination__next"
           role="button"
           aria-label={nextPageLabel}
           color="primary"
