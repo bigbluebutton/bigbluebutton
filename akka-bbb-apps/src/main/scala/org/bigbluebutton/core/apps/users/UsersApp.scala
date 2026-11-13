@@ -13,6 +13,7 @@ import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{LiveMeeting, OutMsgRouter}
 import org.bigbluebutton.core2.message.senders.{MsgBuilder, Sender}
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
+import org.bigbluebutton.core.apps.webcam.CameraHdlrHelpers
 import org.bigbluebutton.core.db.{ChatMessageDAO, UserDAO, UserStateDAO}
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core.graphql.GraphqlMiddleware
@@ -154,6 +155,9 @@ object UsersApp {
         automaticallyAssignPresenter(outGW, liveMeeting)
       }
       UserStateDAO.updateEjected(meetingId, userId, reason, reasonCode, ejectedBy)
+      Webcams.findWebcamsForUser(liveMeeting.webcams, userId) foreach { webcam =>
+        CameraHdlrHelpers.stopBroadcastedCam(liveMeeting, meetingId, userId, webcam.streamId, outGW)
+      }
 
       regUser
     }
