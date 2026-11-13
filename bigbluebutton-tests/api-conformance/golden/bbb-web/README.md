@@ -59,7 +59,10 @@ there compares like with like.
   `fixtures/recordings/`. On 2026-11-12 the fixtures' links moved to the
   host `recordings.test`, and the 56 recordings that show them were
   re-recorded from a fresh stack running packages built from
-  v4.0.x-develop of 2026-11-10; only the host changed in them.
+  v4.0.x-develop of 2026-11-10; only the host changed in them. On
+  2026-11-13 `getRecordings.all.fetch-all-off` was re-recorded without its
+  limited listing, whose formats depend on the file system's order, from a
+  stack running the same packages.
 
 ## Reviewing
 

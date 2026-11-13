@@ -18,8 +18,12 @@ steps:
       message: No recordings found. This may occur if you attempt to retrieve all recordings.
       xpath:
         /response/recordings: {absent: true}
+  # With a limit, bbb-web keeps one of A1's two formats, whichever the file
+  # system lists first (getRecordings.pagination.formats), so the listing
+  # isn't recorded.
   - call: getRecordings
     params: {limit: "100"}
+    golden: off
     expect:
       returncode: SUCCESS
       xpath:
