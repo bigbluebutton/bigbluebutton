@@ -7,9 +7,7 @@ import {
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
 const Subtitle = styled.p`
-  display: block;
   text-align: start;
-  font-size: 1rem;
   margin: 0;
   color: ${colorText};
 `;
