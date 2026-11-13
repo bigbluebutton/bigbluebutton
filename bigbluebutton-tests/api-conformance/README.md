@@ -287,7 +287,8 @@ access for the first build.
   and, when the job fails, the services' logs are uploaded as
   `api-conformance-bbb-web`, and the matrix is the job's summary;
   `check-copies.sh`'s warnings are annotations on the run. The `slow`
-  cases, about 20 minutes, run every night instead: the
+  cases, about 85 minutes (one waits an hour for a text-track token to
+  expire), run every night instead: the
   `api-conformance-slow` job of `.github/workflows/nightly-tests.yml`
   starts the stack from the packages of the newest Automated tests build of
   v4.0.x-develop, at the commit that build is of, and uploads

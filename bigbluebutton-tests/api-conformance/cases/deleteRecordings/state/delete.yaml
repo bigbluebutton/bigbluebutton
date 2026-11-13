@@ -1,16 +1,25 @@
 # yaml-language-server: $schema=../../../runner/schema/case.schema.json
 # deleteRecordings deletes a published or unpublished recording, in every
 # format: getRecordings no longer lists it unless asked for state deleted,
-# and a second delete doesn't find it. Serial, with the recording put back
-# before and after.
+# and a second delete doesn't find it. On disk, each format's directory
+# moves to deleted/, its metadata.xml giving the deleted state. One
+# message announces the delete on from-bbb-web-redis-channel; the second
+# delete sends none. Serial, with the recording put back before and after.
 id: deleteRecordings.state.delete
 title: deleteRecordings deletes ${case}
 endpoint: deleteRecordings
 class: contract
 tags: [ci, serial]
+defs:
+  # metadata.xml as bbb-web rewrites it: only the state matters here, not
+  # how bbb-web lays the file out.
+  moved: &moved
+    expect:
+      contents: {regex: '<state>deleted</state>\s*<published>false</published>'}
+    golden: off
 variants:
-  - {id: published, vars: {case: a published recording, rid: 4d64ff980226cdc0de5d24362bf27a829e1a8ab2-1700025200000}}
-  - {id: unpublished, vars: {case: an unpublished recording, rid: db0c52cbb08b78549a52cb6f29e4d8dc236977bd-1700021600000}}
+  - {id: published, vars: {case: a published recording, rid: 4d64ff980226cdc0de5d24362bf27a829e1a8ab2-1700025200000, from: published}}
+  - {id: unpublished, vars: {case: an unpublished recording, rid: db0c52cbb08b78549a52cb6f29e4d8dc236977bd-1700021600000, from: unpublished}}
 steps:
   - restore: {recordings: ["${rid}"]}
   - call: deleteRecordings
@@ -18,6 +27,11 @@ steps:
     expect:
       returncode: SUCCESS
       xpath: {/response/deleted: "true"}
+  # The first delete's message, counted before the second delete runs, so
+  # the count in the last step shows that the second sends none.
+  - bus: {name: DeletedRecordingSysMsg, channel: from-bbb-web-redis-channel, meetingId: "${rid}", within: 3s}
+    golden: off
+    expect: {count: 1}
   - call: getRecordings
     params: {recordID: "${rid}"}
     expect: {returncode: SUCCESS, messageKey: noRecordings}
@@ -32,5 +46,16 @@ steps:
   - call: deleteRecordings
     params: {recordID: "${rid}"}
     expect: {returncode: FAILED, messageKey: notFound}
+  - <<: *moved
+    fs: {path: "deleted/presentation/${rid}/metadata.xml"}
+  - <<: *moved
+    fs: {path: "deleted/video/${rid}/metadata.xml"}
+  - fs: {path: "${from}/presentation/${rid}/metadata.xml"}
+    expect: {exists: false}
+  - fs: {path: "${from}/video/${rid}/metadata.xml"}
+    expect: {exists: false}
+  - bus: {name: DeletedRecordingSysMsg, channel: from-bbb-web-redis-channel, meetingId: "${rid}", within: 3s}
+    select: [$.core.header.name, $.core.body.recordId]
+    expect: {count: 1}
 teardown:
   - restore: {recordings: ["${rid}"]}

@@ -9,7 +9,7 @@ body xml
 /response/returncode "SUCCESS"
 /response/deleted "true"
 
-== step 3: call getRecordings
+== step 4: call getRecordings
 status 200
 header Content-Type text/xml;charset=utf-8
 body xml
@@ -18,7 +18,7 @@ body xml
 /response/messageKey "noRecordings"
 /response/message "There are no recordings for the meeting(s)."
 
-== step 4: call getRecordings
+== step 5: call getRecordings
 status 200
 header Content-Type text/xml;charset=utf-8
 body xml
@@ -54,7 +54,7 @@ body xml
 /response/recordings/recording/playback/format/size "3145728"
 /response/recordings/recording/data
 
-== step 5: call deleteRecordings
+== step 6: call deleteRecordings
 status 200
 header Cache-Control no-cache
 header Content-Type text/xml;charset=utf-8
@@ -62,3 +62,15 @@ body xml
 /response/returncode "FAILED"
 /response/messageKey "notFound"
 /response/message "We could not find recordings"
+
+== step 9: fs unpublished/presentation/db0c52cbb08b78549a52cb6f29e4d8dc236977bd-1700021600000/metadata.xml
+$.found false
+$.path "unpublished/presentation/<sha1(?)>-<time>/metadata.xml"
+
+== step 10: fs unpublished/video/db0c52cbb08b78549a52cb6f29e4d8dc236977bd-1700021600000/metadata.xml
+$.found false
+$.path "unpublished/video/<sha1(?)>-<time>/metadata.xml"
+
+== step 11: bus DeletedRecordingSysMsg select $.core.header.name, $.core.body.recordId
+$.core.body.recordId "<sha1(?)>-<time>"
+$.core.header.name "DeletedRecordingSysMsg"
