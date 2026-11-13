@@ -23,6 +23,7 @@ cases/<area>/<group>/    the suite's cases, e.g. cases/common/checksum/ or cases
 fixtures/                files cases refer to or the sink serves (bodies, presentations, plugins)
 golden/<target>/         reviewed recordings of what a server answered
 masks.yaml               extra normalization rules for diff and recordings
+masks.d/                 more of them, for a server that answers more than the suite records
 env/                     the Tier 1 stack (make -C env up) and config profiles
 ```
 
@@ -566,7 +567,7 @@ The HTML is one self-contained page.
 
 A response becomes ordered lines: `status`, the headers that matter
 (Content-Type, Cache-Control, Access-Control-*, Set-Cookie with its value
-masked, plus any listed in `masks.yaml`), `location`, then one
+masked, plus any listed in `masks.yaml` or `masks.d`), `location`, then one
 `path "value"` line per XML element, attribute or JSON value. JSON numbers,
 booleans and null aren't quoted.
 
@@ -614,6 +615,14 @@ built-in rule, for the same field; the others only add, so the built-in
 missing-checksum message bbb-web picks at random, and the version
 endpoint's `bbbVersion` and `html5PluginSdkVersion`, which change with each
 release.
+
+The `*.yaml` files in `masks.d`, next to `masks.yaml`, add rules the same
+way, in name order and ahead of `masks.yaml`, so their masks win over its.
+They are for a server that answers more than the suite records, such as a
+fork's own response fields (e.g. `drop: [{path: response/myField}]`): the
+fork keeps them in its own file, and the suite's files stay as they are.
+The suite ships none. `--masks FILE` replaces both `masks.yaml` and
+`masks.d`.
 
 ## Recording what a server answers: `record`
 
