@@ -382,6 +382,51 @@ Webcams will be moved when mouse is released. (Note: When only one webcam is sha
     - The switch should disappear from their Settings
     - The webcams should be paginated again, even though they turned pagination off as a moderator
 
+### Hide participants without camera [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/webcam/hideUsersWithoutCamera.spec.ts)
+
+1. Join a meeting with a moderator and a viewer. Only the moderator shares a webcam.
+
+    - The viewer shouldn't see the "Layout view" button in the actions bar.
+
+2. Moderator: minimize the presentation.
+
+    - Everyone should see the grid: the moderator's webcam plus the viewer's avatar tile.
+
+3. Moderator: click "Layout view" in the actions bar and turn on "Hide participants without camera".
+
+    - Avatar tiles should disappear for everyone, moderators included. Only the moderator's webcam remains.
+
+4. Moderator: turn the toggle off and close the panel.
+
+    - The avatar tiles should come back for everyone.
+
+5. Create a meeting with `hideUsersWithoutCamera=true` and repeat steps 1 and 2.
+
+    - Avatar tiles should be hidden from the start, and the "Layout view" toggle should be on.
+
+### Hide participants without camera: late join, presenter and audio-only tiles
+
+1. Join a meeting with a moderator and 2 viewers, nobody sharing a webcam. Minimize the presentation.
+
+2. Moderator: turn on "Hide participants without camera".
+
+    - A viewer who joins now, or reloads, should also see no avatar tiles.
+    - A viewer speaking without a webcam shouldn't get an audio-only tile.
+
+3. Make a viewer presenter. As that viewer, open "Layout view" and turn the toggle off.
+
+    - The avatar tiles should come back for everyone.
+
+4. Create a meeting with `disabledFeatures=webcamGrid` and join as moderator.
+
+    - The "Layout view" button shouldn't be shown.
+
+5. Create a meeting with `disabledFeatures=layoutView` and join as moderator with a viewer. Minimize the presentation.
+
+    - The "Layout view" button shouldn't be shown, and the viewer's avatar tile should still be in the grid.
+    - With `hideUsersWithoutCamera=true` added to the create call, the avatar tiles should stay hidden for the whole meeting.
+    - Setting `public.layout.layoutViewEnabled: false` in `/etc/bigbluebutton/bbb-html5.yml` instead should have the same effect in every meeting.
+
 ### Share camera as content [(Partially automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/presentation/presentation.spec.ts)
 
 1. Join in a meeting with 2 users.

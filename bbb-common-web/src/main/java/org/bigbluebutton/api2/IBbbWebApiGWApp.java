@@ -45,6 +45,7 @@ public interface IBbbWebApiGWApp {
                      Boolean allowPromoteGuestToModerator,
                      Long waitingGuestUsersTimeout,
                      String meetingLayout,
+                     Boolean hideUsersWithoutCamera,
                      String welcomeMsgTemplate,
                      String welcomeMsg,
                      String welcomeMsgForModerators,
