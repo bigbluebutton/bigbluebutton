@@ -74,10 +74,14 @@ const UploaderDropzone = styled(Dropzone)`
   justify-content: center;
   align-items: center;
   gap: 1rem;
-  flex: 1 0 0;
+  flex: 0 0 auto;
   border-radius: 0.5rem;
   border: 1px dashed ${colorPrimary};
   cursor: pointer;
+
+  & + & {
+    margin-top: 0.5rem;
+  }
 
   &.dropzoneActive {
     background-color: ${colorGrayUserListToolbar};
@@ -127,27 +131,38 @@ const ExternalUploadButton = styled(Button)`
   margin-left: 2rem;
 `;
 
-const PresentationsContainer = styled.div`
+// The uploader is a column that fits the media sharing modal: the upload areas
+// and the share button keep their height, and the list takes what is left.
+const UploadModal = styled.div`
   display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+`;
+
+// A grid that wraps and scrolls vertically, so every presentation can be
+// reached on a narrow screen and the share button stays in view.
+const PresentationsContainer = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
+  align-content: start;
   padding-top: 1.5rem;
   padding-right: 1.5rem;
   padding-bottom: 0.5rem;
   padding-left: 1.5rem;
-  align-items: stretch;
   gap: 1rem;
-  align-self: stretch;
-  flex-wrap: nowrap;
-  overflow-x: auto;
+  flex: 1 1 auto;
+  min-height: 9rem;
+  overflow-x: hidden;
+  overflow-y: auto;
 `;
 
 const PresentationItemContainer = styled.div`
-  width: 10rem;
-  max-height: 15rem;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: stretch;
-  flex-shrink: 0;
 `;
 
 const PresentationThumbnail = styled.button`
@@ -155,7 +170,9 @@ const PresentationThumbnail = styled.button`
   padding: 0;
   margin: 0;
   width: 100%;
-  height: auto; // Adjust height based on image aspect ratio
+  /* Every thumbnail gets the same frame, so a portrait page fits inside it
+     instead of making its row several times taller than the others. */
+  aspect-ratio: 16 / 9;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -177,7 +194,7 @@ const PresentationThumbnail = styled.button`
   img {
     max-width: 100%;
     width: 100%;
-    height: auto;
+    height: 100%;
     object-fit: contain;
     display: block; // Remove extra space below image
   }
@@ -204,6 +221,7 @@ const PresentationItemName = styled.div`
 `;
 
 export default {
+  UploadModal,
   PresentationsContainer,
   PresentationItemContainer,
   PresentationThumbnail,
