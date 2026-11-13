@@ -1,10 +1,18 @@
 import { expect } from '@playwright/test';
 
-import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
+import { ELEMENT_WAIT_LONGER_TIME, VIDEO_LOADING_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
+import { readRows } from '../core/graphql';
 import { ClientSettingsOverrides } from '../core/page';
 import { MultiUsers } from '../user/multiusers';
-import { openUserListIfClosed, privateChatOptionOf, userListRowOf } from '../user/util';
+import {
+  hasNoRecordedToast,
+  hasRecordedToast,
+  openUserListIfClosed,
+  privateChatOptionOf,
+  recordToasts,
+  userListRowOf,
+} from '../user/util';
 
 // Live transcription is off by default, and then the speech recognition option
 // is hidden whether or not the feature is disabled.
@@ -19,6 +27,19 @@ export const AUDIO_CAPTIONS_SIDEBAR_SETTINGS: ClientSettingsOverrides = {
 export const INFINITE_WHITEBOARD_SETTINGS: ClientSettingsOverrides = {
   public: { whiteboard: { allowInfiniteWhiteboard: true } },
 };
+
+// Has the moderator offered to lock the viewers' webcams as soon as one viewer shares a webcam
+export const VIEWERS_IN_WEBCAM_LIMIT_SETTINGS: ClientSettingsOverrides = {
+  public: { app: { enableLimitOfViewersInWebcam: true, viewersInWebcam: 1 } },
+};
+// app.video.suggestWebcamLock
+const WEBCAM_LOCK_SUGGESTION = 'Enforce lock setting to viewers webcams?';
+
+// The guest policy as a participant reads it
+const GUEST_POLICY = 'subscription { meeting { usersPolicies { guestPolicy } } }';
+interface GuestPolicyRow {
+  usersPolicies: { guestPolicy: string };
+}
 
 export class DisabledFeatures extends MultiUsers {
   async breakoutRooms() {
@@ -99,28 +120,79 @@ export class DisabledFeatures extends MultiUsers {
 
   async lockSettings() {
     await openUserListIfClosed(this.modPage);
-    // The "mute all except presenter" button shares the moderator crowd-action area and is
-    // not gated, so its presence confirms the area rendered while only the lock viewers
-    // button is hidden by disabledFeatures=lockSettings.
-    await this.modPage.hasElement(e.muteAllUsers, 'should display the moderator crowd action buttons');
-    await this.modPage.wasRemoved(e.lockViewersButton, 'should not display the lock viewers button');
+    // The button opens "Permissions and Policies", which also holds the guest policy, so it
+    // stays. The two tabs that edit lock settings are what disabledFeatures=lockSettings removes.
+    await this.modPage.waitAndClick(e.lockViewersButton);
+    await this.modPage.hasElement(e.guestPolicyTab, 'should offer the guest policy tab');
+    await this.modPage.wasRemoved(e.participantPermissionsTab, 'should not offer the participant permissions tab');
+    await this.modPage.wasRemoved(e.presentationPermissionsTab, 'should not offer the presentation policy tab');
+
+    // The guest policy is not a lock setting: it can still be changed from the modal.
+    await this.modPage.waitAndClick(e.guestPolicySelector);
+    await this.modPage.waitAndClick(e.askModerator);
+    await this.modPage.waitAndClick(e.applyLockSettings);
+    await expect
+      .poll(
+        async () => {
+          const [meeting] = await readRows<GuestPolicyRow>(this.modPage, GUEST_POLICY, 'meeting');
+          return meeting?.usersPolicies.guestPolicy;
+        },
+        { message: 'should apply the guest policy picked in the modal', timeout: ELEMENT_WAIT_LONGER_TIME },
+      )
+      .toBe('ASK_MODERATOR');
+  }
+
+  async lockSettingsExclude() {
+    await openUserListIfClosed(this.modPage);
+    await this.modPage.waitAndClick(e.lockViewersButton);
+    await this.modPage.hasElement(e.participantPermissionsTab, 'should offer the participant permissions tab');
+    await this.modPage.hasElement(e.guestPolicyTab, 'should offer the guest policy tab');
+    await this.modPage.hasElement(e.presentationPermissionsTab, 'should offer the presentation policy tab');
+  }
+
+  // Once enough viewers share a webcam the moderator is offered to lock the viewers' webcams.
+  // With lockSettings disabled the lock cannot be applied, so the offer is not made.
+  async webcamLockSuggestion(offered: boolean) {
+    await recordToasts(this.modPage);
+    await this.userPage.shareWebcam();
+    await this.modPage.hasElement(
+      e.webcamStreamItem,
+      'should display the viewer webcam for the moderator',
+      VIDEO_LOADING_WAIT_TIME,
+    );
+    if (offered) {
+      await hasRecordedToast(
+        this.modPage,
+        WEBCAM_LOCK_SUGGESTION,
+        'should offer the moderator to lock the viewers webcams',
+      );
+    } else {
+      await hasNoRecordedToast(
+        this.modPage,
+        WEBCAM_LOCK_SUGGESTION,
+        'should not offer the moderator to lock the viewers webcams',
+      );
+    }
   }
 
   async lockSettingsServerEnforcement() {
     // The meeting was created with disabledFeatures=lockSettings AND
     // lockSettingsDisablePublicChat=true. Because the feature is disabled, the lock must not
-    // be applied server-side and the moderator control must be hidden.
+    // be applied server-side.
     await openUserListIfClosed(this.modPage);
-    await this.modPage.wasRemoved(e.lockViewersButton, 'should not display the lock viewers button');
 
     // The per-user "Lock <user>" option is gated on hasActiveLockSetting. Neutralizing the
     // lock create params at the source keeps that flag false, so the option must be absent for
     // the viewer. This is the case that would surface a DB / in-memory divergence.
-    await this.modPage.page.locator(e.userListItem).filter({ hasText: this.userPage.username }).click();
+    const viewerRow = this.modPage.page.locator(e.userListItem).filter({ hasText: this.userPage.username });
+    await viewerRow.locator(e.moreOptionsUserItemButton).click();
+    await this.modPage.hasElement(`${e.removeUser}:visible`, 'should open the options menu of the viewer');
     await this.modPage.wasRemoved(
-      e.unlockUserButton,
+      `${e.unlockUserButton}:visible`,
       'should not offer the per-user lock option when lockSettings is disabled',
     );
+    // Silencing one viewer in the public chat is a moderation action of its own, not a lock setting.
+    await this.modPage.hasElement(`${e.togglePublicChat}:visible`, 'should still offer the per-user public chat lock');
     await this.modPage.page.keyboard.press('Escape');
 
     // The public-chat lock coming from the create parameter must be ignored, so the viewer

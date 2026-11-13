@@ -139,6 +139,7 @@ export const constants = {
   learningDashboardExclude:
     'disabledFeatures=presentation,chat,learningDashboard&disabledFeaturesExclude=learningDashboard',
   pollsExclude: 'disabledFeatures=layouts,polls&disabledFeaturesExclude=polls',
+  lockSettingsExclude: 'disabledFeatures=chat,lockSettings&disabledFeaturesExclude=lockSettings',
   screenshareExclude: 'disabledFeatures=presentation,chat,screenshare&disabledFeaturesExclude=screenshare',
   sharedNotesExclude: 'disabledFeatures=presentation,chat,sharedNotes&disabledFeaturesExclude=sharedNotes',
   virtualBackgroundsExclude:

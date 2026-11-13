@@ -11,6 +11,7 @@ import {
   AUDIO_CAPTIONS_SIDEBAR_SETTINGS,
   DisabledFeatures,
   INFINITE_WHITEBOARD_SETTINGS,
+  VIEWERS_IN_WEBCAM_LIMIT_SETTINGS,
 } from './disabledFeatures';
 import { encodeCustomParams, getAllShortcutParams, hexToRgb, preUploadedPresentationModule } from './util';
 
@@ -396,12 +397,44 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
         await disabledFeatures.initModPage(page, { createParameter: c.lockSettingsDisabled, testInfo });
         await disabledFeatures.lockSettings();
       });
+      test('Lock Settings (exclude)', { tag: '@nightly' }, async ({ browser, context, page }, testInfo) => {
+        const disabledFeatures = new DisabledFeatures(browser, context);
+        await disabledFeatures.initModPage(page, { createParameter: c.lockSettingsExclude, testInfo });
+        await disabledFeatures.lockSettingsExclude();
+      });
       test('Lock Settings (server-side enforcement)', async ({ browser, context, page }, testInfo) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
         await disabledFeatures.initModPage(page, { createParameter: c.lockSettingsDisabledWithChatLock, testInfo });
         await disabledFeatures.initUserPage(context, { testInfo });
         await disabledFeatures.lockSettingsServerEnforcement();
       });
+      test(
+        'Lock Settings (no webcam lock suggestion)',
+        { tag: '@media' },
+        async ({ browser, context, page }, testInfo) => {
+          const disabledFeatures = new DisabledFeatures(browser, context);
+          await disabledFeatures.initModPage(page, {
+            createParameter: c.lockSettingsDisabled,
+            clientSettingsOverrides: VIEWERS_IN_WEBCAM_LIMIT_SETTINGS,
+            testInfo,
+          });
+          await disabledFeatures.initUserPage(context, { testInfo });
+          await disabledFeatures.webcamLockSuggestion(false);
+        },
+      );
+      test(
+        'Webcam lock suggestion (lock settings not disabled)',
+        { tag: ['@media', '@nightly'] },
+        async ({ browser, context, page }, testInfo) => {
+          const disabledFeatures = new DisabledFeatures(browser, context);
+          await disabledFeatures.initModPage(page, {
+            clientSettingsOverrides: VIEWERS_IN_WEBCAM_LIMIT_SETTINGS,
+            testInfo,
+          });
+          await disabledFeatures.initUserPage(context, { testInfo });
+          await disabledFeatures.webcamLockSuggestion(true);
+        },
+      );
     });
 
     test.describe(() => {

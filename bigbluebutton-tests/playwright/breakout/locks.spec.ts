@@ -25,6 +25,20 @@ test.describe.parallel('Breakout lock settings', { tag: '@nightly' }, () => {
     await locks.otherLockSettingsFollowInheritance(false);
   });
 
+  test('Rooms of a meeting with lockSettings disabled have no lock settings', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    const locks = new BreakoutLocks(browser, context);
+    await locks.initModPage(page, {
+      createParameter: `disabledFeatures=lockSettings&${LOCKS_WITHOUT_SWITCH_CREATE_PARAMETER}`,
+      testInfo,
+    });
+    await locks.initUserPage(context, { testInfo });
+    await locks.roomsOfMeetingWithoutLockSettings();
+  });
+
   test('Inherited public chat and shared notes locks bind the attendee in the room', async ({
     browser,
     context,
