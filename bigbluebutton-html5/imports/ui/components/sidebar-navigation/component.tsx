@@ -232,6 +232,7 @@ const SidebarNavigation = ({
         <Styled.NavigationSidebarListItemsContainer
           className="bbb-navigation__list"
           ref={scrollRef}
+          data-test="sidebarNavigationScrollbox"
           isMobile={isMobile}
           noVirtualScrollboxBackground={noVirtualScrollboxBackground}
           isExpanded={isExpanded}

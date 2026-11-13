@@ -53,6 +53,9 @@ const navigationSidebarListItemsContainerGapSmallHeight = 'calc(9rem / 14)';
 const navigationSidebarListItemsGap = 'calc(12rem / 14)';
 const navigationSidebarListItemsGapSmallHeight = 'calc(6rem / 14)';
 const navigationSidebarListItemsWidth = '65%';
+// (issue 25564) Fixed so the icon size can't feed back from the scrollbar width.
+const navigationSidebarListItemsWidthDesktop = 'calc(39rem / 14)';
+const navigationSidebarListItemsWidthDesktopSmallHeight = 'calc(32rem / 14)';
 const navigationSidebarIconSize = 'calc(18rem / 14)';
 const navigationSidebarIconSizeSmallHeight = '1rem';
 const navigationSidebarNotificationBadgeSize = '14px';
@@ -62,6 +65,7 @@ const navigationSidebarNotificationBadgeBottom = '-2px';
 const navigationSidebarNotificationBadgeRight = '-2px';
 const navigationSidebarBorderRadius = '48px';
 const navigationSidebarPaddingY = '20px';
+const navigationSidebarPaddingYSmallHeight = '10px';
 const navigationSidebarMargin = `${SIDEBAR_NAVIGATION_MARGIN_PERCENTAGE_WIDTH * 100}vw`;
 const pollHeaderOffset = '-0.875rem';
 const toastContentWidth = '98%';
@@ -176,6 +180,8 @@ export {
   navigationSidebarListItemsGap,
   navigationSidebarListItemsGapSmallHeight,
   navigationSidebarListItemsWidth,
+  navigationSidebarListItemsWidthDesktop,
+  navigationSidebarListItemsWidthDesktopSmallHeight,
   navigationSidebarIconSize,
   navigationSidebarIconSizeSmallHeight,
   navigationSidebarNotificationBadgeSize,
@@ -185,6 +191,7 @@ export {
   navigationSidebarNotificationBadgeRight,
   navigationSidebarBorderRadius,
   navigationSidebarPaddingY,
+  navigationSidebarPaddingYSmallHeight,
   navigationSidebarMargin,
   pollHeaderOffset,
   toastContentWidth,
