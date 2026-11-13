@@ -16,6 +16,7 @@ export const HeaderContent = styled.div`
   flex-flow: row;
   align-items: center;
   width: 100%;
+  min-width: 0;
 `;
 
 export const ChatUserName = styled.div<ChatUserNameProps>`
