@@ -1,6 +1,7 @@
 import { test } from '../core/setup/fixtures';
 import { API } from './api';
 import { APIBreakout } from './breakout';
+import { APIDocumentTypes } from './documentTypes';
 
 test.describe.parallel('API', () => {
   // fixme: getMeetingInfo fails if executed sequentially with getMeetings.
@@ -28,6 +29,11 @@ test.describe.parallel('API', () => {
 
   test('overAThousandRequestParameters', { tag: '@ci' }, async () => {
     await API.testOverAThousandRequestParameters();
+  });
+
+  test('svgDocumentNotAdded', { tag: '@ci' }, async ({ browser, context, page, request }, testInfo) => {
+    const documentTypes = new APIDocumentTypes(browser, context);
+    await documentTypes.testSvgDocumentNotAdded(page, testInfo, request);
   });
 
   test('breakoutWithoutParent', async () => {

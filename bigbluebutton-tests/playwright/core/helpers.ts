@@ -1,7 +1,14 @@
 import { env } from 'node:process';
 import { format } from 'node:util';
 
-import { type Browser, type ConsoleMessage, expect, test, type TestInfo } from '@playwright/test';
+import {
+  type APIRequestContext,
+  type Browser,
+  type ConsoleMessage,
+  expect,
+  test,
+  type TestInfo,
+} from '@playwright/test';
 import axios, { AxiosResponse } from 'axios';
 // This is version 4 of chalk, not version 5, which uses ESM
 import * as chalk from 'chalk';
@@ -142,6 +149,10 @@ export async function createMeeting(
   expect(response.status).toEqual(200);
   const xmlResponse = await xml2js.parseStringPromise(response.data);
   return xmlResponse.response.meetingID[0];
+}
+
+export async function endMeetings(request: APIRequestContext, meetingIDs: string[]): Promise<void> {
+  await Promise.all(meetingIDs.map((meetingID) => request.get(getApiCallUrl('end', { meetingID }))));
 }
 
 // Create a meeting sending an xml `<modules>` payload in the POST body (e.g.

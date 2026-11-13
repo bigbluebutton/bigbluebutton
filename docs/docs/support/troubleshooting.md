@@ -139,7 +139,7 @@ No. Scalability improves a lot with mediasoup, but there are still a couple of b
 bbb-webrtc-sfu runs with CPUSchedulingPolicy=fifo. In systems without appropriate capabilities (SYS_NICE), the application will fail to start.
 The error can be verified in journalctl logs as 214/SETSCHEDULER.
 
-Similar to [bbb-html5](#bbb-html5-fails-to-start-with-a-setscheduler-error), you can override this by running
+You can override this by running
 
 ```
 mkdir /etc/systemd/system/bbb-webrtc-sfu.service.d
@@ -718,7 +718,6 @@ This error occurs because the default systemd unit scripts for FreeSWITCH, bbb-h
 To get them working within an LXD container, follow the steps outlined in the following sections:
   - [FreeSWITCH fails to start with a SETSCHEDULER error](#freeswitch-fails-to-start-with-a-setscheduler-error)
   - [bbb-webrtc-sfu fails to start with a SETSCHEDULER error](#bbb-webrtc-sfu-fails-to-start-with-a-setscheduler-error)
-  - [bbb-html5 fails to start with a SETSCHEDULER error](#bbb-html5-fails-to-start-with-a-setscheduler-error)
 
 You can now run BigBlueButton within a LXD container.
 

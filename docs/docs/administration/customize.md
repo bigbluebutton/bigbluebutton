@@ -1352,11 +1352,11 @@ defaultWelcomeMessage=<default welcome message>
 defaultWelcomeMessageFooter=<default welcome message footer>
 ```
 
-When a front-end creates a BigBlueButton session, it may also pass a `welcome` parameter in the [create](/development/api#create) API call.
+When a front-end creates a BigBlueButton session, it may also pass a `welcome` parameter in the [create](/development/api#get-post-create) API call.
 
 The final welcome message shown to the user (as blue text in the Chat window) is a composite of `welcome` + `defaultWelcomeMessage` + `defaultWelcomeMessageFooter`.
 
-The welcome message is fixed for the duration of a meeting. If you want to see the effect of changing the `welcome` parameter, you must [end](/development/api#end) the current meeting or wait until the BigBlueButton server removes it from memory (which occurs about two minutes after the last person has left). You can overwrite these values in file `/etc/bigbluebutton/bbb-web.properties`, just remember to restart BigBlueButton with `sudo bbb-conf --restart` for the new values to take effect.
+The welcome message is fixed for the duration of a meeting. If you want to see the effect of changing the `welcome` parameter, you must [end](/development/api#get-post-end) the current meeting or wait until the BigBlueButton server removes it from memory (which occurs about two minutes after the last person has left). You can overwrite these values in file `/etc/bigbluebutton/bbb-web.properties`, just remember to restart BigBlueButton with `sudo bbb-conf --restart` for the new values to take effect.
 
 #### Modify localization for the client (override with the latest locale)
 
@@ -1551,7 +1551,7 @@ Ensure that the parameter `displayBrandingArea` is set to `true` in bbb-html5's 
 To update the default logo, navigate to the `images` folder located at `/var/www/bigbluebutton-default/assets/images/`, and replace the `logo.png` file with your new logo.
 
 ### Other meeting configs available
-These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table is synced with [`bigbluebutton.properties`](https://github.com/bigbluebutton/bigbluebutton/blob/develop/bigbluebutton-web/grails-app/conf/bigbluebutton.properties); items marked _`overwritable`_ can be replaced per meeting through the matching [`/create`](/development/api/#create) parameter.
+These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table is synced with [`bigbluebutton.properties`](https://github.com/bigbluebutton/bigbluebutton/blob/develop/bigbluebutton-web/grails-app/conf/bigbluebutton.properties); items marked _`overwritable`_ can be replaced per meeting through the matching [`/create`](/development/api/#get-post-create) parameter.
 
 | Parameter | Description | Options | Default value |
 |---|---|---|---|
@@ -1606,7 +1606,7 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 | `breakoutRoomsPrivateChatEnabled` | Enable private chat in breakout rooms | true/false | true _`overwritable`_ |
 | `breakoutRoomsMultiUserWhiteboardDefaultOn` | Enable multi-user whiteboard by default in breakout rooms | true/false | true |
 | `learningDashboardCleanupDelayInMinutes` | Minutes the Learning Dashboard remains available after the meeting ends | Integer (0=keep permanently) | 2 _`overwritable`_ |
-| `disabledFeatures` | Comma-separated list of features to disable (see [`/create` docs](/development/api/#create) for the full list of feature names) | csv | _(empty)_ _`overwritable`_ |
+| `disabledFeatures` | Comma-separated list of features to disable (see [`/create` docs](/development/api/#get-post-create) for the full list of feature names) | csv | _(empty)_ _`overwritable`_ |
 | `sharedNotesEditor` | Type of shared notes editor to use | etherpad, blockNote | etherpad _`overwritable`_ |
 | `maxSharedNotesInitialContentUrlPayloadSize` | Maximum size (in KiB) of the response fetched when seeding shared-notes initial content from `sharedNotesInitialContentJsonUrl` / `sharedNotesInitialContentMarkdownUrl` | Integer (KiB) | 1024 |
 | `allowOverrideClientSettingsOnCreateCall` | Allow `clientSettingsOverride` / `clientSettingsOverrideJsonUrl` to be passed on `/create` | true/false | false |
@@ -1627,7 +1627,7 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 
 #### `/create` parameters without a `bigbluebutton.properties` counterpart
 
-Some `/create` parameters set per-meeting state but have no default in `bigbluebutton.properties`. Examples include `name`, `meetingID`, `parentMeetingID`/`sequence`/`freeJoin`/`isBreakout` (breakout-only), `bannerText`/`bannerColor`, `moderatorOnlyMessage`, `notifyRecordingAppend`, `meta_*` metadata, `logo`, `multiUserWhiteboardEnabled`, presentation-upload parameters (`preUploadedPresentation*`, `presentationUploadExternalUrl`, `presentationUploadExternalDescription`), `sharedNotesInitialContentJsonUrl`, `disabledFeaturesExclude`, `clientSettingsOverride` / `clientSettingsOverrideJsonUrl`, and `pluginManifestsFetchUrl`. See [Create API parameters](/development/api/#create) for the complete list and descriptions.
+Some `/create` parameters set per-meeting state but have no default in `bigbluebutton.properties`. Examples include `name`, `meetingID`, `parentMeetingID`/`sequence`/`freeJoin`/`isBreakout` (breakout-only), `bannerText`/`bannerColor`, `moderatorOnlyMessage`, `notifyRecordingAppend`, `meta_*` metadata, `logo`, `multiUserWhiteboardEnabled`, presentation-upload parameters (`preUploadedPresentation*`, `presentationUploadExternalUrl`, `presentationUploadExternalDescription`), `sharedNotesInitialContentJsonUrl`, `disabledFeaturesExclude`, `clientSettingsOverride` / `clientSettingsOverrideJsonUrl`, and `pluginManifestsFetchUrl`. See [Create API parameters](/development/api/#get-post-create) for the complete list and descriptions.
 
 
 #### Passing user metadata to the client on join
@@ -1701,7 +1701,7 @@ Useful tools for development:
 | `userdata-bbb_multi_user_pen_only=` | If set to `true`, only the pen tool will be available to non-participants when multi-user whiteboard is enabled | `false`       |
 | `userdata-bbb_presenter_tools=`     | Pass in an array of permitted tools from `settings.yml`. The options we support are: `select`, `hand`, `draw`, `eraser`, `arrow`, `text`, `note`, `rectangle` and *`more`. Example: `userdata-bbb_presenter_tools=['eraser', 'note']` will allow only the eraser and note tools.                                                     | all enabled   |
 | `userdata-bbb_multi_user_tools=`    | Pass in an array of permitted tools for non-presenters from `settings.yml`. The options we support are: `select`, `hand`, `draw`, `eraser`, `arrow`, `text`, `note`, `rectangle` and *`more`. Example: `userdata-bbb_multi_user_tools=['eraser', 'note']` will allow only the eraser and note tools.                                          | all enabled   |
-| `userdata-bbb_initial_selected_tool=`     | Pass in the id of the tool to be initially selected when the user first joins a session. This option will not persist across page refreshs and may be overridden if the user selects another tool.                                                     | draw   |
+| `userdata-bbb_initial_selected_tool=`     | Pass in the id of the tool to be initially selected when the user first joins a session: one of the tools listed for `bbb_presenter_tools` other than `more`, or one of the shapes listed under *more below other than `laser`. Invalid or unavailable values use the configured initial tool, then `draw`, then the first available tool; if none is available, no drawing tool is selected. Tool restrictions still apply. A valid saved selection takes priority on reload, and the user can pick another tool at any time. | draw   |
 *more: More includes the rest of the extra shapes, those being: `rectangle`, `ellipse`, `diamond`, `triangle`, `trapezoid`, `rhombus`, `hexagon`, `cloud`, `star`, `oval`, `x-box`, `check-box`, `arrow-left`, `arrow-up`, `arrow-down`, `arrow-right`, `frame`, `line`, `laser`.
 
 The use of *more will include all shapes listed above.
