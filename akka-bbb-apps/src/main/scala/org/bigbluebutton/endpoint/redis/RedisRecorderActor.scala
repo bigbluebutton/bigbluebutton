@@ -75,7 +75,6 @@ class RedisRecorderActor(
       case m: SetPresentationDownloadableEvtMsg     => handleSetPresentationDownloadableEvtMsg(m)
       case m: SetCurrentPresentationEvtMsg          => handleSetCurrentPresentationEvtMsg(m)
       case m: CreateNewPresentationPodEvtMsg        => handleCreateNewPresentationPodEvtMsg(m)
-      case m: RemovePresentationPodEvtMsg           => handleRemovePresentationPodEvtMsg(m)
       case m: SetPresenterInPodRespMsg              => handleSetPresenterInPodRespMsg(m)
 
       // Whiteboard
@@ -122,7 +121,6 @@ class RedisRecorderActor(
 
       // Meeting
       case m: RecordingStatusChangedEvtMsg          => handleRecordingStatusChangedEvtMsg(m)
-      case m: RecordStatusResetSysMsg               => handleRecordStatusResetSysMsg(m)
       case m: WebcamsOnlyForModeratorChangedEvtMsg  => handleWebcamsOnlyForModeratorChangedEvtMsg(m)
       case m: MeetingEndingEvtMsg                   => handleMeetingEndingEvtMsg(m)
       case m: MeetingCreatedEvtMsg                  => handleStarterConfigurations(m)
@@ -299,14 +297,6 @@ class RedisRecorderActor(
     ev.setMeetingId(msg.header.meetingId)
     ev.setPodId(msg.body.podId)
     ev.setCurrentPresenter(msg.body.currentPresenterId)
-
-    record(msg.header.meetingId, ev.toMap.asJava)
-  }
-
-  private def handleRemovePresentationPodEvtMsg(msg: RemovePresentationPodEvtMsg) {
-    val ev = new RemovePresentationPodRecordEvent()
-    ev.setMeetingId(msg.header.meetingId)
-    ev.setPodId(msg.body.podId)
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }
@@ -701,15 +691,6 @@ class RedisRecorderActor(
 
   private def handleRecordingStatusChangedEvtMsg(msg: RecordingStatusChangedEvtMsg) {
     val ev = new RecordStatusRecordEvent()
-    ev.setMeetingId(msg.header.meetingId)
-    ev.setUserId(msg.body.setBy)
-    ev.setRecordingStatus(msg.body.recording)
-
-    record(msg.header.meetingId, ev.toMap.asJava)
-  }
-
-  private def handleRecordStatusResetSysMsg(msg: RecordStatusResetSysMsg) {
-    val ev = new RecordStatusResetEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setUserId(msg.body.setBy)
     ev.setRecordingStatus(msg.body.recording)

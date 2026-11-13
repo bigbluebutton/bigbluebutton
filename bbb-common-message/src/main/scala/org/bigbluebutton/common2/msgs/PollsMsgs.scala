@@ -2,14 +2,6 @@ package org.bigbluebutton.common2.msgs
 
 import org.bigbluebutton.common2.domain.{ PollVO, SimplePollOutVO, SimplePollResultOutVO }
 
-object GetCurrentPollReqMsg { val NAME = "GetCurrentPollReqMsg" }
-case class GetCurrentPollReqMsg(header: BbbClientMsgHeader, body: GetCurrentPollReqMsgBody) extends StandardMsg
-case class GetCurrentPollReqMsgBody(requesterId: String)
-
-object GetCurrentPollRespMsg { val NAME = "GetCurrentPollRespMsg" }
-case class GetCurrentPollRespMsg(header: BbbClientMsgHeader, body: GetCurrentPollRespMsgBody) extends BbbCoreMsg
-case class GetCurrentPollRespMsgBody(userId: String, hasPoll: Boolean, poll: Option[PollVO])
-
 object PollShowResultEvtMsg { val NAME = "PollShowResultEvtMsg" }
 case class PollShowResultEvtMsg(header: BbbClientMsgHeader, body: PollShowResultEvtMsgBody) extends BbbCoreMsg
 case class PollShowResultEvtMsgBody(userId: String, pollId: String, poll: SimplePollResultOutVO, showAnswer: Boolean)

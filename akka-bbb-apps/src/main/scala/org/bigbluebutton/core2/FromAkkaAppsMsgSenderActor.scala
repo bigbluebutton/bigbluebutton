@@ -84,8 +84,6 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
         msgSender.send("from-akka-apps-frontend-redis-channel", json)
 
       // Chat
-      case SendPublicMessageEvtMsg.NAME =>
-        msgSender.send(fromAkkaAppsChatRedisChannel, json)
       case ClearPublicChatHistoryEvtMsg.NAME =>
         msgSender.send(fromAkkaAppsChatRedisChannel, json)
 

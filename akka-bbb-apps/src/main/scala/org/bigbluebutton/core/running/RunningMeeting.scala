@@ -19,7 +19,6 @@ object RunningMeeting {
 class RunningMeeting(val props: DefaultProps, outGW: OutMessageGateway,
                      eventBus: InternalEventBus)(implicit val context: ActorContext) {
   private val externalVideoModel = new ExternalVideoModel()
-  private val chatModel = new ChatModel()
   private val layouts = new Layouts()
   private val pads = new Pads()
   private val wbModel = new WhiteboardModel()
@@ -61,7 +60,7 @@ class RunningMeeting(val props: DefaultProps, outGW: OutMessageGateway,
   // We extract the meeting handlers into this class so it is
   // easy to test.
   private val liveMeeting = new LiveMeeting(props, meetingStatux2x, deskshareModel, audioCaptions, timerModel,
-    chatModel, externalVideoModel, layouts, pads, registeredUsers, polls2x, wbModel, presModel,
+    externalVideoModel, layouts, pads, registeredUsers, polls2x, wbModel, presModel,
     webcams, voiceUsers, liveKitMemberships, users2x, guestsWaiting, clientSettings, plugins,
     presUploadRateLimiter, droppedPresentations)
 
