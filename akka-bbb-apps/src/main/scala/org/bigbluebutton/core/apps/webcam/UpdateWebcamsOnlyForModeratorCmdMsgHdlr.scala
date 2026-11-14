@@ -42,6 +42,11 @@ trait UpdateWebcamsOnlyForModeratorCmdMsgHdlr {
         bus.outGW,
         liveMeeting
       )
+    } else if (liveMeeting.props.meetingProp.disabledFeatures.contains("lockSettings")) {
+      log.warning(
+        "Ignoring webcams only for moderator change because the lockSettings feature is disabled for meeting {}",
+        meetingId
+      )
     } else {
       CameraHdlrHelpers.updateWebcamsOnlyForModerator(
         liveMeeting,

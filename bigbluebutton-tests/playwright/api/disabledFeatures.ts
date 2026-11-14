@@ -1,5 +1,6 @@
 import { type APIRequestContext, expect, type Page as PlaywrightPage, type TestInfo } from '@playwright/test';
 
+import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { getOwnUserId, graphql, readRows, sendMutation, waitForServerToCatchUp } from '../core/graphql';
 import { endMeetings, getRandomInt } from '../core/helpers';
 import { Page } from '../core/page';
@@ -34,6 +35,96 @@ const POLLS = 'subscription { poll { questionText } }';
 const TIMER = 'subscription { timer { active } }';
 export const PRIVATE_CHATS = 'subscription { chat(where: { public: { _eq: false } }) { chatId participantId } }';
 export const PRIVATE_MESSAGES = 'subscription { chat_message_private { message } }';
+
+// The requests the Permissions and Policies modal and the user list send to lock viewers
+const SET_LOCK_SETTINGS =
+  'mutation SetLockSettings($disableCam: Boolean!, $disableMic: Boolean!, $disablePrivChat: Boolean!, $disablePubChat: Boolean!, $disableNotes: Boolean!, $hideUserList: Boolean!, $hideViewersCursor: Boolean!, $lockOnJoin: Boolean!, $lockOnJoinConfigurable: Boolean!, $hideViewersAnnotation: Boolean!, $presenterPolicy: String!) { meetingLockSettingsSetProps(disableCam: $disableCam, disableMic: $disableMic, disablePrivChat: $disablePrivChat, disablePubChat: $disablePubChat, disableNotes: $disableNotes, hideUserList: $hideUserList, lockOnJoin: $lockOnJoin, lockOnJoinConfigurable: $lockOnJoinConfigurable, hideViewersCursor: $hideViewersCursor, hideViewersAnnotation: $hideViewersAnnotation, presenterPolicy: $presenterPolicy) }';
+const SET_WEBCAMS_ONLY_FOR_MODERATOR =
+  'mutation SetWebcamOnlyForModerator($webcamsOnlyForModerator: Boolean!) { meetingSetWebcamOnlyForModerator(webcamsOnlyForModerator: $webcamsOnlyForModerator) }';
+const SET_USER_LOCKED =
+  'mutation SetUserLocked($userId: String!, $locked: Boolean!) { userSetLocked(userId: $userId, locked: $locked) }';
+const EVERY_LOCK_REQUESTED = {
+  disableCam: true,
+  disableMic: true,
+  disablePrivChat: true,
+  disablePubChat: true,
+  disableNotes: true,
+  hideUserList: true,
+  hideViewersCursor: true,
+  hideViewersAnnotation: true,
+  lockOnJoin: true,
+  lockOnJoinConfigurable: false,
+  presenterPolicy: 'moderatorOnly',
+};
+// The same restrictions as create parameters
+const EVERY_LOCK_CREATE_PARAMETER = [
+  'lockSettingsDisableCam=true',
+  'lockSettingsDisableMic=true',
+  'lockSettingsDisablePrivateChat=true',
+  'lockSettingsDisablePublicChat=true',
+  'lockSettingsDisableNotes=true',
+  'lockSettingsHideUserList=true',
+  'lockSettingsHideViewersCursor=true',
+  'lockSettingsHideViewersAnnotation=true',
+  'lockSettingsLockOnJoin=true',
+  'lockSettingsPresenterPolicy=moderatorOnly',
+  'webcamsOnlyForModerator=true',
+].join('&');
+// The lock settings a participant reads (bbb-graphql-server v_meeting_lockSettings)
+const LOCK_SETTINGS = `subscription { meeting { lockSettings {
+  disableCam disableMic disablePrivateChat disablePublicChat disableNotes hideUserList hideViewersCursor
+  hideViewersAnnotation lockOnJoin presenterPolicy webcamsOnlyForModerator hasActiveLockSetting
+} } }`;
+const OWN_LOCK = 'subscription { user_current { locked } }';
+interface LockSettings {
+  disableCam: boolean;
+  disableMic: boolean;
+  disablePrivateChat: boolean;
+  disablePublicChat: boolean;
+  disableNotes: boolean;
+  hideUserList: boolean;
+  hideViewersCursor: boolean;
+  hideViewersAnnotation: boolean;
+  lockOnJoin: boolean;
+  presenterPolicy: string;
+  webcamsOnlyForModerator: boolean;
+  hasActiveLockSetting: boolean;
+}
+const NOTHING_LOCKED: LockSettings = {
+  disableCam: false,
+  disableMic: false,
+  disablePrivateChat: false,
+  disablePublicChat: false,
+  disableNotes: false,
+  hideUserList: false,
+  hideViewersCursor: false,
+  hideViewersAnnotation: false,
+  lockOnJoin: false,
+  presenterPolicy: 'requireApproval',
+  webcamsOnlyForModerator: false,
+  hasActiveLockSetting: false,
+};
+const EVERYTHING_LOCKED: LockSettings = {
+  disableCam: true,
+  disableMic: true,
+  disablePrivateChat: true,
+  disablePublicChat: true,
+  disableNotes: true,
+  hideUserList: true,
+  hideViewersCursor: true,
+  hideViewersAnnotation: true,
+  lockOnJoin: true,
+  presenterPolicy: 'moderatorOnly',
+  webcamsOnlyForModerator: true,
+  hasActiveLockSetting: true,
+};
+
+// What a participant reads about the locks: the meeting's lock settings and whether they bind them
+async function readLocks(page: Page): Promise<{ lockSettings?: LockSettings; locked?: boolean }> {
+  const [meeting] = await readRows<{ lockSettings: LockSettings }>(page, LOCK_SETTINGS, 'meeting');
+  const [user] = await readRows<{ locked: boolean }>(page, OWN_LOCK, 'user_current');
+  return { lockSettings: meeting?.lockSettings, locked: user?.locked };
+}
 
 // Starts a private chat as the client does: create it, then send the first
 // message, which is what makes it appear for the receiver. Returns once the
@@ -128,6 +219,57 @@ export class APIDisabledFeatures extends MultiUsers {
       ).not.toContain(message);
       const chats = await readRows<{ participantId: string }>(this.userPage2, PRIVATE_CHATS, 'chat');
       expect(chats, 'the second attendee should not get a private chat').toHaveLength(0);
+    });
+  }
+
+  // Sends, as the moderator, every request that locks viewers: the meeting's lock settings,
+  // "webcams only for moderators" and the lock of the attendee, flipped from `attendeeLocked`.
+  private async sendLockRequests(attendeeLocked: boolean) {
+    const attendeeId = await getOwnUserId(this.userPage);
+    await sendMutation(this.modPage, SET_LOCK_SETTINGS, 'meetingLockSettingsSetProps', EVERY_LOCK_REQUESTED);
+    await sendMutation(this.modPage, SET_WEBCAMS_ONLY_FOR_MODERATOR, 'meetingSetWebcamOnlyForModerator', {
+      webcamsOnlyForModerator: true,
+    });
+    await sendMutation(this.modPage, SET_USER_LOCKED, 'userSetLocked', {
+      userId: attendeeId,
+      locked: !attendeeLocked,
+    });
+    await waitForServerToCatchUp(this.userPage);
+  }
+
+  // disabledFeatures=lockSettings: the lock create parameters are not applied, and
+  // lock requests sent directly change nothing
+  async testLockSettingsStayOff(page: PlaywrightPage, testInfo: TestInfo, request: APIRequestContext) {
+    const createParameter = `disabledFeatures=lockSettings&${EVERY_LOCK_CREATE_PARAMETER}`;
+    await this.withMeeting(page, testInfo, request, { createParameter }, async () => {
+      expect(
+        await readLocks(this.userPage),
+        'the attendee should join a meeting without locks, whatever the lock create parameters say',
+      ).toEqual({ lockSettings: NOTHING_LOCKED, locked: false });
+
+      await this.sendLockRequests(false);
+      expect(
+        await readLocks(this.userPage),
+        'the attendee should see no lock after the moderator requested every one of them',
+      ).toEqual({ lockSettings: NOTHING_LOCKED, locked: false });
+    });
+  }
+
+  // Positive control for the test above: in a meeting without disabledFeatures
+  // the same lock requests take effect, so that test can fail.
+  async testLockRequestsTakeEffectWhenEnabled(page: PlaywrightPage, testInfo: TestInfo, request: APIRequestContext) {
+    await this.withMeeting(page, testInfo, request, {}, async () => {
+      // lockSettingsLockOnJoin defaults to true: the attendee joins bound by the locks to come
+      const { locked } = await readLocks(this.userPage);
+      expect(locked, 'the attendee should join locked').toBe(true);
+
+      await this.sendLockRequests(true);
+      await expect
+        .poll(() => readLocks(this.userPage), {
+          timeout: ELEMENT_WAIT_LONGER_TIME,
+          message: 'the attendee should see every lock the moderator requested, and their own lock lifted',
+        })
+        .toEqual({ lockSettings: EVERYTHING_LOCKED, locked: false });
     });
   }
 

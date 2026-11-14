@@ -25,6 +25,7 @@ import { getRemainingMeetingTime, isNewTimeValid } from '/imports/ui/core/utils/
 import {
   useIsImportPresentationWithAnnotationsFromBreakoutRoomsEnabled,
   useIsImportSharedNotesFromBreakoutRoomsEnabled,
+  useIsLockSettingsEnabled,
 } from '/imports/ui/services/features';
 import PanelHeader from '/imports/ui/components/common/panel-header/component';
 
@@ -337,6 +338,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
 
   const isImportPresentationWithAnnotationsEnabled = useIsImportPresentationWithAnnotationsFromBreakoutRoomsEnabled();
   const isImportSharedNotesEnabled = useIsImportSharedNotesFromBreakoutRoomsEnabled();
+  const isLockSettingsEnabled = useIsLockSettingsEnabled();
 
   // breakoutRoomsCaptureSlides / breakoutRoomsCaptureNotes from the create call pre-tick the options
   // too. bbb-web stores its fixed default (false) when they are not given, and the panel cannot tell
@@ -607,11 +609,11 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
       label: intl.formatMessage(intlMessages.inheritLockSettings),
       checked: inheritLockSettings,
       onChange: () => setInheritLockSettings(!inheritLockSettings),
-      allowed: true,
+      allowed: isLockSettingsEnabled,
     },
   ], [freeJoin, record, captureSlides, captureNotes, inviteMods, inheritLockSettings,
     isBreakoutRecordable, isImportPresentationWithAnnotationsEnabled,
-    isImportSharedNotesEnabled, offerRecordingForBreakouts, forceRecord]);
+    isImportSharedNotesEnabled, offerRecordingForBreakouts, forceRecord, isLockSettingsEnabled]);
 
   return (
     <Styled.PanelContent>
