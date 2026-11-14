@@ -437,6 +437,7 @@ const PresentationMenu = (props) => {
           key: 'list-item-screenshot',
           label: intl.formatMessage(intlMessages.snapshotLabel),
           dataTest: 'presentationSnapshot',
+          className: 'bbb-menu__item--snapshot',
           icon: 'video',
           onClick: async () => {
             setState({
@@ -491,6 +492,7 @@ const PresentationMenu = (props) => {
         {
           key: 'list-item-toolvisibility',
           dataTest: 'toolVisibility',
+          className: 'bbb-menu__item--toolbar-visibility',
           label: formattedVisibilityLabel(isToolbarVisible),
           icon: isToolbarVisible ? 'close' : 'pen_tool',
           onClick: () => {

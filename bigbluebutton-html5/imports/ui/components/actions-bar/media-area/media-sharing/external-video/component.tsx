@@ -81,7 +81,7 @@ const ExternalVideoView: React.FC<ExternalVideoViewProps> = ({
           </Styled.NoteContainer>
         </ModalStyled.SubViewContentText>
       </Styled.Content>
-      <ModalStyled.FooterContainer>
+      <ModalStyled.FooterContainer className="bbb-media-sharing__footer">
         <BBButton
           dataTest={!isSharingVideo ? 'ShareExternalVideo' : 'StopSharingExternalVideo'}
           label={!isSharingVideo

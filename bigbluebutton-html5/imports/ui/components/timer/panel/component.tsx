@@ -215,6 +215,7 @@ const TimerPanelComponent: React.FC<TimerPanelProps> = ({
     <Styled.ButtonWrapper>
       <BBButton
         variant="secondary"
+        className="bbb-action-button bbb-action-button--secondary"
         label={intl.formatMessage(intlMessages.deactivate)}
         onClick={handleDeactivate}
         dataTest="deactivateTimer"
@@ -229,6 +230,7 @@ const TimerPanelComponent: React.FC<TimerPanelProps> = ({
         <Styled.ButtonWrapper>
           <BBButton
             variant="secondary"
+            className="bbb-action-button bbb-action-button--secondary"
             label={intl.formatMessage(intlMessages.reset)}
             onClick={handleReset}
             dataTest="resetTimerStopWatch"
@@ -238,6 +240,7 @@ const TimerPanelComponent: React.FC<TimerPanelProps> = ({
           <BBButton
             variant="primary"
             color="danger"
+            className="bbb-action-button bbb-action-button--danger"
             label={intl.formatMessage(intlMessages.stop)}
             onClick={() => timerStop()}
             dataTest="startStopTimer"
@@ -251,6 +254,7 @@ const TimerPanelComponent: React.FC<TimerPanelProps> = ({
         <Styled.ButtonWrapper>
           <BBButton
             variant="secondary"
+            className="bbb-action-button bbb-action-button--secondary"
             label={intl.formatMessage(intlMessages.reset)}
             onClick={handleReset}
             dataTest="resetTimerStopWatch"
@@ -259,6 +263,7 @@ const TimerPanelComponent: React.FC<TimerPanelProps> = ({
         <Styled.ButtonWrapper>
           <BBButton
             variant="primary"
+            className="bbb-action-button bbb-action-button--primary"
             label={intl.formatMessage(intlMessages.start)}
             onClick={() => timerStart()}
             dataTest="startStopTimer"
@@ -273,6 +278,7 @@ const TimerPanelComponent: React.FC<TimerPanelProps> = ({
         <Styled.ButtonWrapper>
           <BBButton
             variant="primary"
+            className="bbb-action-button bbb-action-button--primary"
             label={intl.formatMessage(intlMessages.start)}
             onClick={() => timerStart()}
             dataTest="startStopTimer"

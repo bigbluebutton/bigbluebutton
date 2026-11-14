@@ -578,6 +578,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
             <MessageListWrapper>
               <MessageList
                 id="chat-list"
+                className="bbb-chat__list"
                 key="message-list-wrapper"
                 onMouseUp={() => {
                   setScrollToTailEventHandler();

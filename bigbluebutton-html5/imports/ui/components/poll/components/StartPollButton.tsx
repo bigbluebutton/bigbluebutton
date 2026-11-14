@@ -140,6 +140,7 @@ const StartPollButton: React.FC<StartPollButtonProps> = ({
     <Styled.StartPollButtonWrapper>
       <BBButton
         variant="primary"
+        className="bbb-action-button bbb-action-button--primary"
         dataTest="startPoll"
         ariaDescribedBy="start-poll-button"
         // eslint-disable-next-line max-len
