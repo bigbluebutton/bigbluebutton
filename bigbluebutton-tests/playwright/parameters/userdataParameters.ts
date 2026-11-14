@@ -11,6 +11,8 @@ const avatarImage = `${e.moderatorAvatar} img`;
 
 const raisedHandToast = (userName: string) =>
   getDefaultLocaleValue('app.statusNotifier.raisedHandDescOneUser').replace('{userNames}', userName);
+// how long the moderator with the parameter is watched for a toast once the raised hand has reached it
+const TOAST_LOOKOUT_TIME = 2000;
 
 // Never fetched from example.org: routeAvatarImage serves a core/media image for it.
 export const AVATAR_URL = 'https://example.org/bbb-test-avatar.png';
@@ -95,11 +97,17 @@ export class UserdataParameters extends MultiUsers {
       e.raisedHandsListItem,
       'should list the raised hand for the moderator who joined with the parameter',
     );
-    await this.modPage.hasElementCount(
-      e.toastContainer,
-      0,
-      'should not display any toast to the moderator who joined with the parameter',
-    );
+    // a toast closes itself after 5 s, so waiting until none is left would pass even if one had been shown:
+    // look for one now and for a moment after
+    const toastShown = await this.modPage.page
+      .locator(e.toastContainer)
+      .first()
+      .waitFor({ state: 'visible', timeout: TOAST_LOOKOUT_TIME })
+      .then(
+        () => true,
+        () => false,
+      );
+    expect(toastShown, 'should not display any toast to the moderator who joined with the parameter').toBe(false);
   }
 
   async preferDarkTheme() {

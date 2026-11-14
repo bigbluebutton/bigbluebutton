@@ -5,7 +5,7 @@ import { elements as e } from '../core/elements';
 import { getDefaultLocaleValue } from '../core/util';
 import { startScreenshare } from '../screenshare/util';
 import { MultiUsers } from '../user/multiusers';
-import { checkAvatarIcon } from '../user/util';
+import { checkAvatarIcon, userListRowOf } from '../user/util';
 
 const WELCOME_WITH_KEYWORDS = 'Welcome to %%CONFNAME%%, conference %%CONFNUM%%';
 const DIAL_NUMBER = '+1-613-555-0199';
@@ -16,8 +16,6 @@ const EXTERNAL_UPLOAD_DESCRIPTION = 'Choose a file from the course library';
 // Selectors core/elements.ts has no entry for
 // a camera tile of the video dock, by the name of the user sharing the camera
 const cameraTile = (userName: string) => `${e.webcamStreamItem}[data-user-name="${userName}"]`;
-// a row of the participants list, by the whole user name
-const userListItemOf = (userName: string) => `${e.userListItem}[aria-label="${userName}"]`;
 // the external upload block of the upload dialog carries no data-test, so it is found by its heading
 const externalUploadBlock = () =>
   `div[id="upload-modal"] > div:has-text("${getDefaultLocaleValue('app.presentationUploder.externalUploadTitle')}")`;
@@ -119,12 +117,12 @@ export class MeetingParameters extends MultiUsers {
   async promoteOptionOnGuest(guestCanBePromoted: boolean) {
     const promoteOption = `${e.promoteToModerator}:visible`;
     await this.modPage.waitAndClick(e.usersListSidebarButton);
-    await this.modPage.waitAndClick(`${userListItemOf(this.userPage.username)} ${e.moreOptionsUserItemButton}`);
+    await this.modPage.waitAndClick(`${userListRowOf(this.userPage.username)} ${e.moreOptionsUserItemButton}`);
     await this.modPage.hasElement(promoteOption, 'should offer to promote an attendee who is not a guest');
     await this.modPage.press('Escape');
     await this.modPage.wasRemoved(promoteOption, 'should close the options of the attendee');
 
-    await this.modPage.waitAndClick(`${userListItemOf(this.userPage2.username)} ${e.moreOptionsUserItemButton}`);
+    await this.modPage.waitAndClick(`${userListRowOf(this.userPage2.username)} ${e.moreOptionsUserItemButton}`);
     await this.modPage.hasElement(`${e.makePresenter}:visible`, 'should open the options of the guest');
     if (guestCanBePromoted) {
       await this.modPage.hasElement(promoteOption, 'should offer to promote the guest');
@@ -133,7 +131,10 @@ export class MeetingParameters extends MultiUsers {
       await this.modPage.waitAndClick(promoteOption);
       await checkAvatarIcon(this.userPage2);
     } else {
-      await this.modPage.wasRemoved(promoteOption, 'should not offer to promote the guest');
+      await this.modPage.wasRemoved(
+        promoteOption,
+        'should not offer to promote the guest (needs authenticatedGuest=true, the bbb-web default)',
+      );
     }
   }
 
