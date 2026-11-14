@@ -34,6 +34,8 @@ func TestExpand(t *testing.T) {
 		{`${urlencode("*~.-_")}`, "*%7E.-_"},
 		{`${urlencode(repeat("é", 2))}`, "%C3%A9%C3%A9"},
 		{`${checksum("sha1", "create", "a=1")}`, "sha1|create|a=1"},
+		{`${match("/textTrack/ab12/rec/x.vtt", "/textTrack/([0-9a-f]+)/")}`, "ab12"},
+		{`${match("rec-17", "[0-9]+")}`, "17"},
 		{`${repeat("q\"\\", 1)}`, `q"\`},
 		{"$", "$"},
 		{"$x {y}", "$x {y}"},
@@ -60,7 +62,8 @@ func TestParseErrors(t *testing.T) {
 
 func TestEvalErrors(t *testing.T) {
 	env := &Env{Vars: vars(nil)}
-	for _, in := range []string{"${nope}", `${nope("a")}`, `${repeat("a")}`, `${repeat("a", "x")}`, `${repeat("a", -1)}`, `${checksum("sha1", "c", "q")}`} {
+	for _, in := range []string{"${nope}", `${nope("a")}`, `${repeat("a")}`, `${repeat("a", "x")}`, `${repeat("a", -1)}`, `${checksum("sha1", "c", "q")}`,
+		`${match("abc", "x")}`, `${match("abc", "(")}`, `${match("b", "(a)|b")}`} {
 		if _, err := Expand(in, env); err == nil {
 			t.Errorf("Expand(%q) succeeded, want an error", in)
 		}

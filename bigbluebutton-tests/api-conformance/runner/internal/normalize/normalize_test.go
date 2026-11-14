@@ -336,6 +336,26 @@ body xml
 	}
 }
 
+func TestLoadSeveralFiles(t *testing.T) {
+	first := writeMasks(t, "masks: [{field: meetingName, as: token}]\ndrop: [{path: /response/extra, value: \"false\"}]\n")
+	second := writeMasks(t, "masks: [{field: meetingName, as: time}, {field: voiceBridge, as: token}]\n")
+	r, err := Load(first, second)
+	if err != nil {
+		t.Fatal(err)
+	}
+	o := obs(200, nil, `<response><meetingName>Secret</meetingName><voiceBridge>71234</voiceBridge><extra>false</extra></response>`)
+	// The first file's mask wins for meetingName, the second file adds
+	// voiceBridge's over the built-in one, and the first file's drop holds.
+	check(t, Response(o, ctx("bbbc-u0u0u0"), r), `
+status 200
+body xml
+/response/meetingName "<token>"
+/response/voiceBridge "<token>"`)
+	if _, err := Load(first, filepath.Join(t.TempDir(), "missing.yaml")); err == nil {
+		t.Error("Load with a missing file should fail")
+	}
+}
+
 func TestSuiteMasksFileLoads(t *testing.T) {
 	if _, err := Load("../../../masks.yaml"); err != nil {
 		t.Fatal(err)

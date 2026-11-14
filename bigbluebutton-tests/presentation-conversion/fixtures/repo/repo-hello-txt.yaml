@@ -1,0 +1,10 @@
+id: repo-hello-txt
+title: Plain text file converted by LibreOffice
+tier: repo
+file: ../../../playwright/core/media/helloWorld.txt
+issues: [25432]
+catalog: [LibreOffice process failures, Office pre-check]
+pages: 1
+expect: converted
+kind: any
+profiles: [defaults, office-precheck]

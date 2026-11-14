@@ -88,22 +88,17 @@ trait GuestsWaitingApprovedMsgHdlr extends HandlerHelpers with RightsManagementT
               case None => None
             }
           }
-          UsersApp.approveOrRejectGuest(liveMeeting, outGW, g, msg.body.approvedBy)
+          UsersApp.approveOrRejectGuest(liveMeeting, g, msg.body.approvedBy)
         }
       }
 
-      notifyModeratorsOfGuestsApproval(msg.body.guests, msg.body.approvedBy)
+      notifyBbbWebOfGuestsApproval(msg.body.guests, msg.body.approvedBy)
     }
   }
 
-  def notifyModeratorsOfGuestsApproval(guests: Vector[GuestApprovedVO], approvedBy: String): Unit = {
-    val mods = Users2x.findAll(liveMeeting.users2x).filter(p => p.role == Roles.MODERATOR_ROLE && p.clientType == ClientType.FLASH)
+  def notifyBbbWebOfGuestsApproval(guests: Vector[GuestApprovedVO], approvedBy: String): Unit = {
     val meetingId = liveMeeting.props.meetingProp.intId
-    mods foreach { m =>
-      val event = MsgBuilder.buildGuestsWaitingApprovedEvtMsg(meetingId, m.intId, guests, approvedBy)
-      outGW.send(event)
-    }
-    // Meteor should only listen for this single message
+    // bbb-web consumes this copy to keep the users' session guestStatus current
     val event = MsgBuilder.buildGuestsWaitingApprovedEvtMsg(meetingId, "nodeJSapp", guests, approvedBy)
     outGW.send(event)
   }

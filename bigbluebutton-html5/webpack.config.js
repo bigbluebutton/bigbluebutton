@@ -18,12 +18,17 @@ const isSafariTarget = process.env.TARGET === 'safari';
 
 process.stdout.write(`Building: ${process.env.TARGET}\n`);
 
+// With source maps on, webpack's filesystem cache stores each bundle and its
+// map under the bundle's file name. A new name per rebuild would keep every
+// old bundle and map (~100 MB each) in the cache until maxAge.
+const bundleFilename = env === prodEnv ? 'bundle.[fullhash].js' : 'bundle.js';
+
 const config = {
   entry: './client/main.tsx',
   output: {
     filename: isSafariTarget
       ? 'bundle.safari.js'
-      : 'bundle.[fullhash].js',
+      : bundleFilename,
     path: path.resolve(__dirname, 'dist'),
     publicPath: '',
   },
@@ -62,6 +67,9 @@ const config = {
       template: './client/main.html',
       filename: 'index.html',
       inject: false,
+      // Render the page on every rebuild. With the fixed dev bundle name, the
+      // plugin would keep its last page and an old build hash.
+      cache: false,
       templateParameters: (compilation, assets, assetTags, options) => {
         const fullhash = compilation.hash;
         return {

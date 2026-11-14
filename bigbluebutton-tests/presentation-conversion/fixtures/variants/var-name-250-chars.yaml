@@ -1,0 +1,11 @@
+id: var-name-250-chars
+title: File name of 250 characters
+tier: variant
+file: ../../../playwright/core/media/sample-with-mask.pdf
+upload: { method: insertDocument, name: "long-name-long-name-long-name-long-name-long-name-long-name-long-name-long-name-long-name-long-name-long-name-long-name-long-name-long-name-long-name-long-name-long-name-long-name-long-name-long-name-long-name-long-name-long-name-long-name-end.pdf" }
+issues: [25425]
+catalog: [Filenames]
+pages: 1
+expect: converted
+kind: vector
+checks: [outcome, pages, kind, aspect, served]

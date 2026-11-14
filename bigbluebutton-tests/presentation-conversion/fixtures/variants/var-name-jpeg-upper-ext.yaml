@@ -1,0 +1,11 @@
+id: var-name-jpeg-upper-ext
+title: JPEG photo with an upper-case .JPEG extension
+tier: variant
+file: ../../../../bigbluebutton-web/test/resources/sampleslide.jpeg
+upload: { method: insertDocument, name: "photo.JPEG" }
+issues: [9025, 13486]
+catalog: [File-type detection]
+pages: 1
+expect: converted
+kind: vector
+checks: [outcome, pages, kind, aspect]

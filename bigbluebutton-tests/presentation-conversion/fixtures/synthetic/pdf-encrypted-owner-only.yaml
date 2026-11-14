@@ -1,0 +1,18 @@
+id: pdf-encrypted-owner-only
+title: "pdf-base14-text-3p with owner password \"x\" and an empty user password"
+tier: synthetic
+file: pdf-encrypted-owner-only.pdf
+issues: []
+catalog: ["Encrypted PDF"]
+upload:
+  method: create
+pages: 3
+expect: converted
+kind: vector
+marker: false
+aspect: auto
+profiles: [defaults]
+notes: >-
+  RC4 128-bit (R=3), empty user password, so every poppler tool opens it without asking. Printing
+  is allowed; copying and editing are not (pdfinfo: print:yes copy:no change:no). poppler 24.02's
+  pdftotext ignores the copy restriction and extracts the text.

@@ -1,0 +1,9 @@
+id: repo-several-big-pages
+title: Five heavy letter pages (590 KB) from the old bbb-web test resources
+tier: repo
+file: ../../../../bigbluebutton-web/test/resources/SeveralBigPagesPresentation.pdf
+issues: [8555]
+catalog: [Oversized single page]
+pages: 5
+expect: converted
+kind: any

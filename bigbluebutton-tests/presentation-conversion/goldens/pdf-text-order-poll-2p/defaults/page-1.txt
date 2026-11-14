@@ -1,0 +1,8 @@
+Quick poll
+Which fruit do you eat (one per day)?
+  A. Apple
+  B. Banana
+  C. Cherry
+
+
+Area in m3

@@ -20,7 +20,6 @@ import {
   isValidSynchronizationLayout,
   LAYOUTS_SYNC,
 } from '../utils';
-import { updateSettings } from '/imports/ui/components/settings/service';
 import Session from '/imports/ui/services/storage/in-memory';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
@@ -123,12 +122,14 @@ const PushLayoutEngine = (props) => {
     const contextLayout = enforcedLayout || defaultLayout
       || meetingLayout || currentLayout;
 
-    Session.setItem('isGridEnabled', currentLayout === LAYOUT_TYPE.UNIFIED_LAYOUT && !presentationIsOpen);
-
-    setLayoutType(
+    // What follows keys off the layout this pass applied, not the one in effect before
+    // it: the two differ whenever the meeting layout arrives after the mount.
+    const appliedLayout = setLayoutType(
       contextLayout,
       setLocalSettings,
     );
+
+    Session.setItem('isGridEnabled', appliedLayout === LAYOUT_TYPE.UNIFIED_LAYOUT && !presentationIsOpen);
 
     const HIDE_PRESENTATION = window.meetingClientSettings.public.layout.hidePresentationOnJoin;
     const shouldOpenPresentation = shouldShowScreenshare || shouldShowExternalVideo;
@@ -142,7 +143,7 @@ const PushLayoutEngine = (props) => {
     MediaService.setPresentationIsOpen(layoutContextDispatch, presentationLastState);
     Session.setItem('presentationLastState', presentationLastState);
 
-    if (currentLayout === LAYOUT_TYPE.UNIFIED_LAYOUT) {
+    if (appliedLayout === LAYOUT_TYPE.UNIFIED_LAYOUT) {
       setTimeout(() => {
         layoutContextDispatch({
           type: ACTIONS.SET_FOCUSED_CAMERA_ID,
@@ -186,7 +187,7 @@ const PushLayoutEngine = (props) => {
         }
       }, 0);
     }
-    if (currentLayout === LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY) {
+    if (appliedLayout === LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY) {
       layoutContextDispatch({
         type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
         value: true,
@@ -212,7 +213,6 @@ const PushLayoutEngine = (props) => {
         || enforceLayoutDidChange;
     const layoutReplicateElements = LAYOUTS_SYNC[selectedLayout][SYNC.REPLICATE_ELEMENTS];
     const layoutPropagateElements = LAYOUTS_SYNC[selectedLayout][SYNC.PROPAGATE_ELEMENTS];
-    const Settings = getSettingsSingletonInstance();
 
     const replicateLayoutType = () => {
       const contextLayout = LAYOUT_TYPE[enforceLayoutResult] || meetingLayout;
@@ -284,17 +284,6 @@ const PushLayoutEngine = (props) => {
         });
       }
     };
-    // Sync local state of push layout
-    if ((isModerator || isPresenter)
-      && pushLayoutMeetingDidChange
-      && pushLayoutMeeting !== pushLayout) {
-      updateSettings({
-        layout: {
-          ...Settings.layout,
-          pushLayout: pushLayoutMeeting,
-        },
-      }, null, setLocalSettings);
-    }
 
     const notInitialValues = meetingLayoutSetByUserId && meetingLayoutSetByUserId !== 'system';
 
@@ -336,6 +325,14 @@ const PushLayoutEngine = (props) => {
       || focusedCamera !== prevProps.focusedCamera
       || enforceLayoutResult !== prevProps.enforceLayoutResult
       || presentationContentUpdatedAt !== prevProps.presentationContentUpdatedAt;
+    // A follower's presentation state is local (never propagated) and its restore
+    // memory may be stale: on becoming presenter, adopt what is being shown.
+    const becamePresenter = isPresenter && prevProps.isPresenter === false;
+    if (becamePresenter) {
+      Session.setItem('presentationLastState', presentationIsOpen);
+    }
+    const presenterStateDiverged = becamePresenter
+      && presentationIsOpen !== meetingPresentationIsOpen;
 
     if (pushLayoutMeeting !== undefined
       && pushLayout !== prevProps.pushLayout
@@ -356,7 +353,8 @@ const PushLayoutEngine = (props) => {
       // server and overwriting the meeting configured layout type.
       && hasInitiallyPropagated.current
     ) {
-      if (pushLayout && (layoutChanged || pushLayout !== prevProps.pushLayout)) {
+      if (pushLayout
+        && (layoutChanged || presenterStateDiverged || pushLayout !== prevProps.pushLayout)) {
         setMeetingLayout(pushLayout);
       }
     }

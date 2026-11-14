@@ -3,7 +3,7 @@ import { expect } from '@playwright/test';
 import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { getMeetingInfo } from '../core/endpoints';
-import { readRows } from '../core/graphql';
+import { graphql, readRows } from '../core/graphql';
 import { Page } from '../core/page';
 import {
   getCurrentSlideSrc,
@@ -24,8 +24,33 @@ const AUDIO_REJOIN_SETTLE_TIME = 3000;
 // every few seconds after that.
 const SHORTEST_BREAKOUT_END_TIME = 90000;
 
+// a public chat message sent the way the client sends it, and the public messages a participant reads
+const SEND_CHAT_MESSAGE =
+  'mutation SendChatMessage($chatId: String!, $message: String!) { chatSendMessage(chatId: $chatId, chatMessageInMarkdownFormat: $message) }';
+const PUBLIC_CHAT_MESSAGES = 'subscription { chat_message_public { message } }';
+const PUBLIC_CHAT_ID = 'MAIN-PUBLIC-GROUP-CHAT';
+
 // the room's own meeting row: the choice it took from its parent and the feature that enforces it
 const ROOM_PRIVATE_CHAT = 'subscription { meeting { disabledFeatures breakoutPolicies { privateChatEnabled } } }';
+// the capture choice and file names the room was created with
+const ROOM_CAPTURE_POLICIES =
+  'subscription { meeting { breakoutPolicies { captureSlides captureNotes captureSlidesFilename captureNotesFilename } } }';
+interface RoomCapturePolicies {
+  breakoutPolicies: {
+    captureSlides: boolean;
+    captureNotes: boolean;
+    captureSlidesFilename: string;
+    captureNotesFilename: string;
+  };
+}
+const PRESENTATION_NAMES = 'subscription { pres_presentation { name uploadCompleted } }';
+interface PresentationName {
+  name: string;
+  uploadCompleted: boolean;
+}
+// Converting the captured whiteboard and notes back in the parent meeting takes a while
+const CAPTURED_FILES_WAIT_TIME = 90000;
+
 interface RoomPrivateChat {
   disabledFeatures: string[];
   breakoutPolicies: { privateChatEnabled: boolean };
@@ -819,6 +844,28 @@ export class Join extends Create {
     );
   }
 
+  // Starts the recording as the moderator of the given meeting
+  protected static async startRecording(moderatorPage: Page, description = 'the moderator should start the recording') {
+    // Under LiveKit a page that closed the audio modal is joining audio muted, and the "You have joined the
+    // audio conference" toast of that join lands over the recording indicator. Wait for the audio controls
+    // to settle first: out of audio with the join button enabled, or in audio.
+    const audioControls = moderatorPage.page.locator(
+      `${e.joinAudio}:enabled, ${e.audioDropdownMenu}, ${e.muteMicButton}, ${e.unmuteMicButton}`,
+    );
+    await expect(audioControls.first(), 'the audio controls should settle before the recording starts').toBeVisible({
+      timeout: ELEMENT_WAIT_LONGER_TIME,
+    });
+    // toasts of a freshly joined meeting cover the recording indicator
+    await moderatorPage.closeAllToastNotifications();
+    await moderatorPage.waitAndClick(e.recordingIndicator);
+    await moderatorPage.waitAndClick(e.confirmRecordingButton);
+    await expect(moderatorPage.page.locator(`${e.recordingIndicator} button`), description).toHaveAttribute(
+      'aria-label',
+      'Pause recording',
+      { timeout: ELEMENT_WAIT_LONGER_TIME },
+    );
+  }
+
   // The rooms must have been created with the record option.
   async recordInBreakoutRoom() {
     if (!this?.modPage) throw new Error('modPage not initialized');
@@ -828,14 +875,7 @@ export class Join extends Create {
     const breakoutRoomIds = data.response.breakoutRooms?.[0]?.breakout ?? [];
 
     const breakoutModPage = new Page(this.browser, await this.joinFirstBreakoutRoomAsModerator());
-    // toasts of the freshly joined room cover the recording indicator
-    await breakoutModPage.closeAllToastNotifications();
-    await breakoutModPage.waitAndClick(e.recordingIndicator);
-    await breakoutModPage.waitAndClick(e.confirmRecordingButton);
-    await expect(
-      breakoutModPage.page.locator(`${e.recordingIndicator} button`),
-      'the moderator should be able to record inside the breakout room',
-    ).toHaveAttribute('aria-label', 'Pause recording', { timeout: ELEMENT_WAIT_LONGER_TIME });
+    await Join.startRecording(breakoutModPage, 'the moderator should be able to record inside the breakout room');
     await breakoutModPage.page.waitForTimeout(ELEMENT_WAIT_TIME);
     await this.endAllBreakoutRooms();
 
@@ -848,7 +888,7 @@ export class Join extends Create {
   }
 
   // Joins the room from the invitation the attendee got when the rooms were created
-  private async joinRoomFromInvitation(attendee: Page): Promise<Page> {
+  protected async joinRoomFromInvitation(attendee: Page): Promise<Page> {
     if (!this?.modPage) throw new Error('modPage not initialized');
 
     const breakoutTab = await attendee.handleNewTab(e.modalConfirmButton, attendee.page.context());
@@ -856,6 +896,77 @@ export class Join extends Create {
     await breakoutPage.hasElement(e.presentationTitle, 'should load the breakout room', ELEMENT_WAIT_EXTRA_LONG_TIME);
     await breakoutPage.closeAudioModal();
     return breakoutPage;
+  }
+
+  // The attendee is already in a room created without "inherit lock settings" when the moderator denies
+  // public chat and webcams there: the locks have to bind the attendee, as they do in the main room
+  async locksAppliedInRoomWithoutInheritanceBindAttendee() {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+    if (!this?.userPage) throw new Error('userPage not initialized');
+
+    await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 });
+    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+    await this.modPage.waitForSelector(e.attendeeNotAssigned, ELEMENT_WAIT_EXTRA_LONG_TIME);
+    await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
+    await this.modPage.hasText(e.breakoutBox1, this.userPage.username, 'should assign the attendee to the first room');
+    // unticked explicitly: public.app.breakouts.inheritLockSettingsByDefault sets the checkbox's initial state
+    await this.modPage.waitAndClick(e.moreOptionsToggle);
+    await Create.setCheckboxChecked(this.modPage.page, e.inheritLockSettingsCheckbox, false);
+    await this.modPage.waitAndClick(e.createBreakoutRoomsButton, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.setHeightWidthViewPortSize(); // reset to default size
+
+    const roomUserPage = await this.joinRoomFromInvitation(this.userPage);
+    await roomUserPage.hasElementEnabled(
+      e.chatBox,
+      'should let the attendee use the public chat of the room before any lock',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await roomUserPage.hasElementEnabled(e.joinVideo, 'should let the attendee share a webcam before any lock');
+
+    const roomModTab = await this.joinFirstBreakoutRoomAsModerator();
+    const roomModPage = new Page(this.browser, roomModTab, this.modPage.testInfo);
+    await Create.openLockViewersPermissions(roomModTab);
+    await Create.setPermissionAllowed(roomModTab, e.lockPublicChat, false);
+    await Create.setPermissionAllowed(roomModTab, e.lockShareWebcam, false);
+    await roomModPage.waitAndClick(e.applyLockSettings);
+    await roomModPage.wasRemoved(e.applyLockSettings, 'should close the lock viewers modal once applied');
+
+    await roomUserPage.hasElementDisabled(
+      e.chatBox,
+      'should disable the public chat input for the attendee once the moderator locks it in the room',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await roomUserPage.hasElementDisabled(
+      e.joinVideo,
+      'should disable the webcam button for the attendee once the moderator locks webcams in the room',
+    );
+
+    // The server has to refuse the attendee's message too, not only the client. akka-apps handles a meeting's
+    // messages in order, so once the moderator sees their own later message the attendee's has been handled.
+    const attendeeMessage = `attendee message ${Date.now()}`;
+    const moderatorMessage = `moderator message ${Date.now()}`;
+    for (const [sender, message] of [
+      [roomUserPage, attendeeMessage],
+      [roomModPage, moderatorMessage],
+    ] as const) {
+      const { data, errors } = await graphql(sender, SEND_CHAT_MESSAGE, { chatId: PUBLIC_CHAT_ID, message });
+      expect(errors, 'the GraphQL layer should pass the public chat message on').toBeUndefined();
+      expect(data?.chatSendMessage, 'the GraphQL layer should accept the public chat message').toBe(true);
+    }
+    const readPublicMessages = async () =>
+      (await readRows<{ message: string }>(roomModPage, PUBLIC_CHAT_MESSAGES, 'chat_message_public')).map(
+        ({ message }) => message,
+      );
+    await expect
+      .poll(readPublicMessages, {
+        message: 'the moderator should receive their own message',
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      })
+      .toContainEqual(expect.stringContaining(moderatorMessage));
+    expect(
+      (await readPublicMessages()).some((message) => message.includes(attendeeMessage)),
+      'the server should not deliver a public message from the locked attendee',
+    ).toBe(false);
   }
 
   // breakoutRoomsPrivateChatEnabled=false on the parent puts privateChat among the disabled features
@@ -877,20 +988,7 @@ export class Join extends Create {
     );
 
     // both attendees go to the first room
-    await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 });
-    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
-    await this.modPage.waitForSelector(e.attendeeNotAssigned, ELEMENT_WAIT_EXTRA_LONG_TIME);
-    // the unassigned users are listed by name, so both attendees come before the moderator
-    await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
-    await this.modPage.hasText(e.breakoutBox1, this.userPage.username, 'should assign the attendee to the first room');
-    await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
-    await this.modPage.hasText(
-      e.breakoutBox1,
-      this.userPage2.username,
-      'should assign the other attendee to the first room',
-    );
-    await this.modPage.waitAndClick(e.createBreakoutRoomsButton, ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.setHeightWidthViewPortSize(); // reset to default size
+    await this.createRoomsWith([this.userPage, this.userPage2]);
 
     const breakoutUserPage = await this.joinRoomFromInvitation(this.userPage);
     await this.joinRoomFromInvitation(this.userPage2);
@@ -914,5 +1012,106 @@ export class Join extends Create {
       privateChatWithSecondAttendee,
       'should not offer the attendee a private chat with the other attendee in the breakout room',
     );
+  }
+
+  // The rooms are created with the capture options the meeting asked for, without touching them,
+  // and the captured files come back named after breakoutRoomsCapture*Filename.
+  async capturedFilesFollowCreateParameters(slidesFilename: string, notesFilename: string) {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+    if (!this?.userPage) throw new Error('userPage not initialized');
+
+    await this.create();
+    const breakoutUserPage = await this.joinRoom();
+    const [room] = await readRows<RoomCapturePolicies>(breakoutUserPage, ROOM_CAPTURE_POLICIES, 'meeting');
+    expect(room?.breakoutPolicies, 'the room should capture what the meeting asked for, with its file names').toEqual({
+      captureSlides: true,
+      captureNotes: true,
+      captureSlidesFilename: slidesFilename,
+      captureNotesFilename: notesFilename,
+    });
+
+    // there is only something to capture with an annotation and a notes revision
+    await breakoutUserPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await breakoutUserPage.waitAndClick(e.wbShapesButton);
+    await breakoutUserPage.waitAndClick(e.wbLineShape);
+    const wbBreakout = await breakoutUserPage.page.$(e.whiteboard);
+    const wbBox = await wbBreakout?.boundingBox();
+    if (!wbBox) throw Error('Failed to get the bounding box of whiteboard breakout element');
+    await breakoutUserPage.page.mouse.move(wbBox.x + 0.3 * wbBox.width, wbBox.y + 0.3 * wbBox.height);
+    await breakoutUserPage.page.mouse.down();
+    await breakoutUserPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
+    await breakoutUserPage.page.mouse.up();
+    await breakoutUserPage.waitAndClick(e.sharedNotesSidebarButton);
+    const notesLocator = getBlockNoteEditorLocator(breakoutUserPage);
+    await notesLocator.click(); // BlockNote needs focus before typing
+    await notesLocator.pressSequentially(e.message);
+    // making sure there's enough time for the drawing and the typing to reach the server
+    await breakoutUserPage.page.waitForTimeout(2000);
+
+    await this.modPage.closeAllToastNotifications();
+    await this.modPage.waitAndClick(e.finishBreakoutButton);
+    await expect
+      .poll(
+        async () =>
+          (await readRows<PresentationName>(this.modPage, PRESENTATION_NAMES, 'pres_presentation'))
+            .filter((presentation) => presentation.uploadCompleted)
+            .map((presentation) => presentation.name)
+            .sort(),
+        {
+          message: 'the captured files should be named after the create parameters',
+          timeout: CAPTURED_FILES_WAIT_TIME,
+        },
+      )
+      .toEqual(['default.pdf', `${notesFilename}.pdf`, `${slidesFilename}.pdf`].sort());
+  }
+
+  // The moderator can still switch a capture option off: the room records what the panel sent.
+  async untickedCaptureOptionIsNotApplied() {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+
+    await this.createWithCaptureOptions(false, true);
+    const breakoutUserPage = await this.joinRoom();
+    const [room] = await readRows<RoomCapturePolicies>(breakoutUserPage, ROOM_CAPTURE_POLICIES, 'meeting');
+    expect(
+      room?.breakoutPolicies?.captureSlides,
+      'the room should not capture the whiteboard the moderator unticked',
+    ).toBe(false);
+    expect(room?.breakoutPolicies?.captureNotes, 'the room should capture the shared notes left ticked').toBe(true);
+  }
+
+  // Each room of the batch gets its own capture file names: the first keeps the create parameter,
+  // the next ones are numbered, even when one parameter is a prefix of the other.
+  async captureFilenamesAreNumberedPerRoom(notesFilename: string, slidesFilename: string) {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+    if (!this?.userPage) throw new Error('userPage not initialized');
+    if (!this?.userPage2) throw new Error('userPage2 not initialized');
+
+    await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 });
+    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+    await this.modPage.waitForSelector(e.attendeeNotAssigned, ELEMENT_WAIT_EXTRA_LONG_TIME);
+    // the unassigned users are listed by name, so both attendees come before the moderator
+    await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
+    await this.modPage.hasText(e.breakoutBox1, this.userPage.username, 'should assign the attendee to the first room');
+    await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox2);
+    await this.modPage.hasText(
+      e.breakoutBox2,
+      this.userPage2.username,
+      'should assign the other attendee to the second room',
+    );
+    await this.modPage.waitAndClick(e.createBreakoutRoomsButton, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.setHeightWidthViewPortSize(); // reset to default size
+
+    const firstRoomPage = await this.joinRoomFromInvitation(this.userPage);
+    const secondRoomPage = await this.joinRoomFromInvitation(this.userPage2);
+    const [firstRoom] = await readRows<RoomCapturePolicies>(firstRoomPage, ROOM_CAPTURE_POLICIES, 'meeting');
+    const [secondRoom] = await readRows<RoomCapturePolicies>(secondRoomPage, ROOM_CAPTURE_POLICIES, 'meeting');
+    expect(firstRoom?.breakoutPolicies, 'the first room should keep the names of the create parameters').toMatchObject({
+      captureNotesFilename: notesFilename,
+      captureSlidesFilename: slidesFilename,
+    });
+    expect(secondRoom?.breakoutPolicies, 'the second room should get the next number of each name').toMatchObject({
+      captureNotesFilename: `${notesFilename}(2)`,
+      captureSlidesFilename: `${slidesFilename}(2)`,
+    });
   }
 }

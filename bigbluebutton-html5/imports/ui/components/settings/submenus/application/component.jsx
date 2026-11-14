@@ -8,6 +8,7 @@ import Styled from './styles';
 import WakeLockService from '/imports/ui/components/wake-lock/service';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import Tooltip from '/imports/ui/components/common/tooltip/container';
 
 const MIN_FONTSIZE = 0;
 
@@ -67,6 +68,10 @@ const intlMessages = defineMessages({
   paginationEnabledLabel: {
     id: 'app.submenu.application.paginationEnabledLabel',
     description: 'enable/disable video pagination',
+  },
+  paginationModeratorOnlyTooltip: {
+    id: 'app.submenu.application.paginationModeratorOnlyTooltip',
+    description: 'why the video pagination switch is disabled for non-moderators',
   },
   wbToolbarsAutoHideLabel: {
     id: 'app.submenu.application.wbToolbarsAutoHideLabel',
@@ -199,23 +204,65 @@ class ApplicationMenu extends BaseMenu {
 
     if (!paginationToggleEnabled) return false;
 
-    const { intl, displaySettingsStatus } = this.props;
+    const { intl, displaySettingsStatus, paginationToggleLocked } = this.props;
     const { settings } = this.state;
+    const label = intl.formatMessage(intlMessages.paginationEnabledLabel);
+    const lockedReasonId = 'paginationToggleLockedReason';
+    const {
+      paginationEnabled: defaultPaginationEnabled,
+    } = window.meetingClientSettings.public.app.defaultSettings.application;
+    const checked = paginationToggleLocked
+      ? !!defaultPaginationEnabled
+      : settings.paginationEnabled;
 
+    // aria-disabled rather than disabled keeps the locked switch focusable, so keyboard
+    // users can reach it and hear why it is locked; Mui-disabled keeps the disabled look.
+    const toggle = (
+      <Styled.TooltipTarget>
+        <SubMenusStyle.MaterialSwitch
+          icons="false"
+          checked={checked}
+          classes={paginationToggleLocked ? { switchBase: 'Mui-disabled' } : undefined}
+          onChange={() => {
+            if (!paginationToggleLocked) this.handleToggle('paginationEnabled');
+          }}
+          inputProps={{
+            'aria-label': `${label} - ${displaySettingsStatus(checked, true)}`,
+            'data-test': 'paginationToggleBtn',
+            'aria-disabled': paginationToggleLocked || undefined,
+            'aria-describedby': paginationToggleLocked ? lockedReasonId : undefined,
+          }}
+        />
+        <Styled.Label style={{ marginLeft: '0.5rem' }}>
+          {label}
+        </Styled.Label>
+      </Styled.TooltipTarget>
+    );
+
+    if (!paginationToggleLocked) {
+      return (
+        <Styled.Row>
+          <Styled.Col>
+            <Styled.FormElementRight>
+              {toggle}
+            </Styled.FormElementRight>
+          </Styled.Col>
+        </Styled.Row>
+      );
+    }
+
+    const lockedReason = intl.formatMessage(intlMessages.paginationModeratorOnlyTooltip);
+
+    // The locked switch ignores pointer events, so the tooltip hangs off the wrapper, and
+    // focus does not bubble, so it listens for focusin from the switch inside.
     return (
       <Styled.Row>
         <Styled.Col>
           <Styled.FormElementRight>
-            <SubMenusStyle.MaterialSwitch
-              icons="false"
-              checked={settings.paginationEnabled}
-              onChange={() => this.handleToggle('paginationEnabled')}
-              aria-label={`${intl.formatMessage(intlMessages.paginationEnabledLabel)} - ${displaySettingsStatus(settings.paginationEnabled, true)}`}
-              inputProps={{ 'data-test': 'paginationToggleBtn' }}
-            />
-            <Styled.Label style={{ marginLeft: '0.5rem' }}>
-              {intl.formatMessage(intlMessages.paginationEnabledLabel)}
-            </Styled.Label>
+            <Tooltip title={lockedReason} trigger="mouseenter focusin">
+              {toggle}
+            </Tooltip>
+            <span id={lockedReasonId} hidden>{lockedReason}</span>
           </Styled.FormElementRight>
         </Styled.Col>
       </Styled.Row>
@@ -293,7 +340,7 @@ class ApplicationMenu extends BaseMenu {
                   allLocales={allLocales}
                   handleChange={(e) => this.handleSelectChange('locale', e)}
                   value={settings.locale}
-                  elementId="langSelector"
+                  dataTest="languageSelector"
                   ariaLabel={intl.formatMessage(intlMessages.languageLabel)}
                   selectMessage={intl.formatMessage(intlMessages.languageOptionLabel)}
                 />

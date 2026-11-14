@@ -193,15 +193,10 @@ export interface Transcription {
 }
 
 export interface DefaultSettings {
-  layout: LayoutSettings
   application: Application
   audio: Audio
   dataSaving: DataSaving
   transcription: Transcription
-}
-export interface LayoutSettings {
-  selectedLayout: string
-  pushLayout: boolean
 }
 
 export interface Application {
@@ -220,6 +215,7 @@ export interface Application {
   paginationEnabled: boolean
   whiteboardToolbarAutoHide: boolean
   recordingIndicatorAutoCollapse: boolean
+  selfViewDisable: boolean
   pushToTalkEnabled: boolean
   autoCloseReactionsBar: boolean
   darkTheme: boolean
@@ -499,6 +495,7 @@ export interface Poll {
 
 export interface Captions {
   background: string
+  maxTextLength: number
   font: Font
   lines: number
   time: number
@@ -725,6 +722,7 @@ export interface Audio2 {
 
 export interface Screenshare2 {
   showButtonForNonPresenters: boolean
+  enableOnMobile: boolean
 }
 
 export interface LocalEchoTest {

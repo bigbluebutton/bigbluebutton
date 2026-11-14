@@ -1,0 +1,19 @@
+id: pdf-recursive-dicts
+title: "Two pages whose /Resources dictionary holds a /Self reference to itself"
+tier: synthetic
+file: pdf-recursive-dicts.pdf
+issues: [12839]
+catalog: ["Child-process pipe fill"]
+upload:
+  method: create
+pages: 2
+expect: converted
+kind: vector
+marker: false
+aspect: auto
+profiles: [defaults]
+notes: >-
+  Each page's indirect /Resources dictionary has /Self pointing at its own object. Measured with
+  poppler 24.02: pdfinfo, pdfseparate, pdftocairo and pdftoppm print no warning and render
+  normally (every indirect reference starts a fresh recursion set in PDFDoc::markObject), so this
+  guards against regressions rather than reproducing the 'Found recursive dicts' flood of #12839.

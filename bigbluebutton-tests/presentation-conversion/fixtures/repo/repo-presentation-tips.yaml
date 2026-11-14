@@ -1,0 +1,8 @@
+id: repo-presentation-tips
+title: 21 A4 pages of text and pictures from the old bbb-web test resources
+tier: repo
+file: ../../../../bigbluebutton-web/test/resources/PresentationsTips.pdf
+pages: 21
+expect: converted
+kind: any
+checks: [outcome, pages, kind, aspect, exif, text]

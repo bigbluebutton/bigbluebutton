@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# putRecordingTextTrack checks, in this order: recordID, that the recording
+# is published or unpublished, kind (subtitles or captions), then lang,
+# which must have a locale's form (a language, and optionally a country,
+# with - or _). Each failure is a JSON error; nothing is written. These
+# run in parallel: the upload never gets that far.
+id: putRecordingTextTrack.errors.params
+title: putRecordingTextTrack fails with ${key} (${case})
+endpoint: putRecordingTextTrack
+class: contract
+tags: [ci]
+requires: [recordings-fs]
+defs:
+  base: &base {rid: 52388302b3d61ff0ce98e0d6192952f38e0604aa-1700032400000, kind: subtitles, lang: en}
+variants:
+  - {id: missing-record-id, vars: {<<: *base, case: no recordID, rid: null, key: paramError, msg: Missing param recordID.}}
+  - id: unknown
+    vars: {<<: *base, case: an unknown recording, rid: 0000000000000000000000000000000000000000-1700000000000, key: noRecordings,
+           msg: No recording was found for 0000000000000000000000000000000000000000-1700000000000}
+  - id: deleted
+    vars: {<<: *base, case: a deleted recording, rid: eb226ead35ff4ce5f368741d13015c9b648e49f2-1700010800000, key: noRecordings,
+           msg: No recording was found for eb226ead35ff4ce5f368741d13015c9b648e49f2-1700010800000}
+  - {id: missing-kind, vars: {<<: *base, case: no kind, kind: null, key: paramError, msg: Missing param kind.}}
+  - {id: bad-kind, vars: {<<: *base, case: an unknown kind, kind: chapters, key: invalidKind, msg: "Invalid kind parameter, expected='subtitles|captions' actual=chapters"}}
+  - {id: missing-lang, vars: {<<: *base, case: no lang, lang: null, key: paramError, msg: Missing param lang.}}
+  - {id: short-lang, vars: {<<: *base, case: a one-letter lang, lang: e, key: invalidLang, msg: "Malformed lang param, received=e"}}
+  - {id: digit-lang, vars: {<<: *base, case: a lang of digits, lang: "123", key: invalidLang, msg: "Malformed lang param, received=123"}}
+  - {id: script-lang, vars: {<<: *base, case: a lang with a script, lang: zh_Hant_TW, key: invalidLang, msg: "Malformed lang param, received=zh_Hant_TW"}}
+steps:
+  - call: putRecordingTextTrack
+    method: POST
+    params: {recordID: "${rid}", kind: "${kind}", lang: "${lang}"}
+    body:
+      multipart:
+        files:
+          - {field: file, filename: track.vtt, contentType: text/vtt, content: "WEBVTT\n\n00:00:01.000 --> 00:00:02.000\nHello.\n"}
+    expect: {format: json, returncode: FAILED, messageKey: "${key}", message: "${msg}"}

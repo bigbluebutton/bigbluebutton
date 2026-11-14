@@ -604,6 +604,36 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
     await customParam.hideParticipantsOnLogin();
   });
 
+  test('Hide Sidebar Navigation on Login', async ({ browser, context, page }, testInfo) => {
+    linkIssue(26358);
+    const customParam = new CustomParameters(browser, context);
+    await customParam.initModPage(page, { joinParameter: c.hideSidebarNavigation, testInfo });
+    await customParam.initModPage2(context, { testInfo });
+    await customParam.hideSidebarNavigation();
+  });
+
+  test('Hide Sidebar Navigation with Public Chat on Login', async ({ browser, context, page }, testInfo) => {
+    linkIssue(26358);
+    const customParam = new CustomParameters(browser, context);
+    await customParam.initModPage(page, {
+      joinParameter: c.hideSidebarNavigationAndShowPublicChatOnLogin,
+      testInfo,
+    });
+    await customParam.initModPage2(context, { testInfo });
+    await customParam.hideSidebarNavigation();
+  });
+
+  test('Hide Sidebar Navigation with Participants on Login', async ({ browser, context, page }, testInfo) => {
+    linkIssue(26358);
+    const customParam = new CustomParameters(browser, context);
+    await customParam.initModPage(page, {
+      joinParameter: c.hideSidebarNavigationAndShowParticipantsOnLogin,
+      testInfo,
+    });
+    await customParam.initModPage2(context, { testInfo });
+    await customParam.hideSidebarNavigation();
+  });
+
   // The participants panel follows the phone guard, not the mobile one: tablets open it
   // like a desktop does, phones open no panel at all.
   test.describe.parallel('Show Participants on Login per device', () => {

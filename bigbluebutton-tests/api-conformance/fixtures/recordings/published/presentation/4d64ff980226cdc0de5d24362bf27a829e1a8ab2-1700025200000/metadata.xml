@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<recording>
+  <id>4d64ff980226cdc0de5d24362bf27a829e1a8ab2-1700025200000</id>
+  <state>published</state>
+  <published>true</published>
+  <start_time>1700025200000</start_time>
+  <end_time>1700025300000</end_time>
+  <participants>1</participants>
+  <meeting id="4d64ff980226cdc0de5d24362bf27a829e1a8ab2-1700025200000" externalId="conform-rec-mut-pub" name="Conform Recordings Published" breakout="false"/>
+  <breakout/>
+  <breakoutRooms/>
+  <meta>
+    <conform-color>red</conform-color>
+    <isBreakout>false</isBreakout>
+    <meetingId>conform-rec-mut-pub</meetingId>
+    <meetingName>Conform Recordings Published</meetingName>
+  </meta>
+  <playback>
+    <format>presentation</format>
+    <link>https://recordings.test/playback/presentation/2.3/4d64ff980226cdc0de5d24362bf27a829e1a8ab2-1700025200000</link>
+    <processing_time>6980</processing_time>
+    <duration>95000</duration>
+    <size>204800</size>
+  </playback>
+  <raw_size>102400</raw_size>
+</recording>

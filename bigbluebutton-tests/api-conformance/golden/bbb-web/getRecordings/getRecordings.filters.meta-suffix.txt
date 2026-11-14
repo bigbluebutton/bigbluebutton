@@ -1,0 +1,35 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case getRecordings.filters.meta-suffix
+target bbb-web
+
+== step 1: call getRecordings
+status 200
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "SUCCESS"
+/response/recordings/recording/recordID "<sha1(?)>-<time>"
+/response/recordings/recording/meetingID "conform-rec-b"
+/response/recordings/recording/internalMeetingID "<sha1(?)>-<time>"
+/response/recordings/recording/name "Conform Recordings B"
+/response/recordings/recording/isBreakout "false"
+/response/recordings/recording/published "true"
+/response/recordings/recording/state "published"
+/response/recordings/recording/startTime "<time>"
+/response/recordings/recording/endTime "<time>"
+/response/recordings/recording/participants "1"
+/response/recordings/recording/rawSize "102400"
+/response/recordings/recording/metadata/conform-color "red"
+/response/recordings/recording/metadata/conform-tag "alpha-beta-gamma"
+/response/recordings/recording/metadata/isBreakout "false"
+/response/recordings/recording/metadata/meetingId "conform-rec-b"
+/response/recordings/recording/metadata/meetingName "Conform Recordings B"
+/response/recordings/recording/breakout/parentId "unknown"
+/response/recordings/recording/breakout/sequence "0"
+/response/recordings/recording/breakout/freeJoin "false"
+/response/recordings/recording/size "245760"
+/response/recordings/recording/playback/format/type "presentation"
+/response/recordings/recording/playback/format/url "https://recordings.test/playback/presentation/2.3/<sha1(?)>-<time>"
+/response/recordings/recording/playback/format/processingTime "6980"
+/response/recordings/recording/playback/format/length "2"
+/response/recordings/recording/playback/format/size "245760"
+/response/recordings/recording/data

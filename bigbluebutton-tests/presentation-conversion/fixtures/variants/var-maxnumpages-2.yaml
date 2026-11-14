@@ -1,0 +1,10 @@
+id: var-maxnumpages-2
+title: Ten-page PDF in a meeting created with maxNumPages=2
+tier: variant
+file: ../../../playwright/core/media/sample.pdf
+createParams: { maxNumPages: "2" }
+issues: [7202, 25817]
+catalog: [Page-count limit]
+pages: 0
+expect: "rejected:PAGE_COUNT_EXCEEDED"
+checks: [outcome]

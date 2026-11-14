@@ -14,6 +14,8 @@ export const elements = {
   sharePresentationButton: 'button[data-test="sharePresentationButton"]',
   mediaAreaButton: 'button[data-test="mediaAreaButton"]',
   mediaAreaItem: 'div[id="media-area-dropdown-menu"] ul li',
+  // what the media area button opens
+  mediaAreaMenu: 'div#mediaAreaDropUp',
   optionsButton: 'button[data-test="optionsButton"]',
   settings: 'li[data-test="settings"]',
   presenceToggle: 'div[data-test="presenceToggle"]',
@@ -123,6 +125,7 @@ export const elements = {
   audioHelpRetryMicButton: 'button[data-test="helpRetryMicBtn"]',
   microphonePermissionHelpLabel: 'We need access to your microphone',
   unmuteConsentTitle: 'A moderator is asking you to unmute',
+  onDeviceLanguageAvailable: 'div[data-test="onDeviceLanguageAvailable"]',
   onDeviceLanguageDownloadable: 'div[data-test="onDeviceLanguageDownloadable"]',
   onDeviceLanguageDownloading: 'div[data-test="onDeviceLanguageDownloading"]',
   onDeviceLanguageFailed: 'div[data-test="onDeviceLanguageFailed"]',
@@ -157,6 +160,8 @@ export const elements = {
   breakoutBox0: 'div[id="breakoutBox-0"]',
   breakoutBox1: 'div[id="breakoutBox-1"]',
   breakoutBox2: 'div[id="breakoutBox-2"]',
+  breakoutRoomBoxes: 'div[data-test="breakoutRoomList"] [id^="breakoutBox-"]',
+  unassignedUser: 'div[id="breakoutBox-0"] [data-test="draggableUser"]',
   breakoutOptionsMenu: 'button[data-test="breakoutOptionsMenu"]',
   openUpdateBreakoutUsersModal: 'li[data-test="openUpdateBreakoutUsersModal"]',
   attendeeNotAssigned: 'div[id="breakoutBox-0"] [data-test="draggableUser"]:first-child',
@@ -187,6 +192,7 @@ export const elements = {
   captureBreakoutWhiteboard: 'input[id="opt-captureSlides"]',
   recordBreakoutRooms: 'input[id="opt-record"]',
   inheritLockSettingsCheckbox: 'input[id="inheritLockSettingsCheckbox"]',
+  sendInvitationToModeratorsCheckbox: 'input[id="opt-inviteMods"]',
   selectBreakoutRoomBtn: '[data-test="selectBreakoutRoomBtn"]',
   roomOption: 'li[data-test="roomOption"]',
   changeSlideBreakoutRoom1: 'div[data-test="changeSlideBreakoutRoom1"]',
@@ -416,6 +422,7 @@ export const elements = {
   blockNoteSlashMenuItem: '.bn-suggestion-menu .bn-suggestion-menu-item',
   blockNoteMathBlock: '#bn-notes-scroll-container [data-content-type="mathBlock"]',
   blockNoteDiagram: '#bn-notes-scroll-container [data-content-type="diagram"]',
+  blockNoteSelectedPreview: '#bn-notes-scroll-container .bn-preview-with-source-popup.ProseMirror-selectednode',
   notesConnectionError: '[data-test="notesError"]',
   notesRetryButton: 'button[data-test="notesRetryButton"]',
 
@@ -605,12 +612,17 @@ export const elements = {
   saveSettingsButton: 'button[data-test="saveSettingsButton"]',
   unsavedChangesCancel: 'button[data-test="unsavedChangesCancel"]',
   unsavedChangesIgnore: 'button[data-test="unsavedChangesIgnore"]',
-  languageSelector: 'select[id="langSelector"]',
+  languageSelector: 'div[data-test="languageSelector"]',
+  languageSelectorInput: 'div[data-test="languageSelector"] input',
+  languageSelectorOption: 'ul[role="listbox"] li[role="option"]',
   messageTitle: 'h2[data-test="messageTitle"]',
   notesTitle: 'h2[data-test="notesTitle"]',
   dataSavingsTab: 'span[id="dataSaving"]',
   enableWebcamsToggleBtn: 'span[data-test="webcamToggleBtn"] input',
   enableDesktopSharingToggleBtn: 'span[data-test="desktopSharingToggleBtn"] input',
+  animationsToggleBtn: 'input[data-test="animationsToggleBtn"]',
+  selfViewDisableToggleBtn: 'input[data-test="selfViewDisableToggleBtn"]',
+  selfViewDisabledLabel: 'Self-view disabled',
   shortcutsTab: 'span[id="shortcutsTab"]',
   audioTab: 'span[id="audioTab"]',
   advancedFilteringRadio: 'input[data-test="advancedFilteringRadio"]',
@@ -625,6 +637,8 @@ export const elements = {
   usersListSidebarButton: 'div[data-test="usersListSidebarButton"]',
   audioCaptionsSidebarButton: 'div[data-test="audioCaptionsSidebarButton"]',
   audioCaptionsPanel: '[data-test="audioCaptionsTitle"]',
+  transcriptionToggle: 'input[data-test="transcriptionToggle"]',
+  transcriptionPanelLanguageSelect: 'div[id="speechSelect"]',
   toggleSidebarNavigation: 'button[data-test="toggleSidebarNavigation"], button[data-test="hasUnreadMessages"]',
   currentUser: 'div[data-test="userListItemCurrent"]',
   raisedHandsListItem: 'div[data-test="raisedHandsListItem"]',
@@ -682,6 +696,7 @@ export const elements = {
   // direct crowd-action button in the participants panel (replaced the
   // 3.0 gear dropdown's "mute all except presenter" item)
   muteAllUsers: 'button[data-test="muteAllUsers"]',
+  clearAllReactions: 'button[data-test="clearAllReactions"]',
 
   // Lock Viewers
   lockViewersButton: 'button[data-test="lockViewersButton"]',
@@ -839,17 +854,20 @@ export const elements = {
   wbToolbar: 'div[class^="tlui-toolbar__tools tlui-toolbar__tools__mobile"]',
   wbShapesButton: 'button[data-testid="tools.more"]',
   wbHandButton: 'button[data-testid="tools.hand"]',
+  wbSelectTool: 'button[data-testid="tools.select"]',
   wbRectangleShape: 'button[data-testid$=".rectangle"]',
   wbEllipseShape: 'button[data-testid="tools.more.ellipse"]',
   wbTriangleShape: 'button[data-testid="tools.more.triangle"]',
   wbLineShape: 'button[data-testid="tools.more.line"]',
   wbPencilShape: 'button[data-testid="tools.draw"]',
+  wbHighlighterShape: 'button[data-testid="tools.highlight"]',
   wbStickyNoteShape: 'button[data-testid="tools.note"]',
   wbTextShape: 'button[data-testid$=".text"]',
   wbTypedText: 'div[data-shape="text"]',
   wbTypedStickyNote: 'div[data-shape-type="note"]',
   wbDrawnShape: 'div[data-shape-type="geo"]',
   wbDraw: 'div[data-shape-type="draw"]',
+  wbHighlight: 'div[data-shape-type="highlight"]',
   wbPollShape: 'div[data-shape-type="poll"]',
   wbDrawnLine: 'div[data-shape-type="line"]',
   multiUsersWhiteboardOn: 'button[data-test="turnMultiUsersWhiteboardOn"]',
@@ -880,6 +898,8 @@ export const elements = {
   // tldraw renders this textarea only while a shape is actively being edited
   // (select.editing_shape state) - used to gate on "is editing", not just "has text"
   wbEditingTextArea: 'textarea.tl-text-input',
+  // the pointer tldraw draws for another user, with that user's name; whiteboard/styles.js styles it too
+  wbCollaboratorCursor: 'div.tl-collaborator__cursor',
   wbDrawnArrow: 'div[data-shape-type="arrow"]',
   wbAutoHideToggleBtn: 'input[data-test="whiteboardToolbarAutoHideToggleBtn"]',
   turnInfiniteWhiteboardOn: 'button[data-test="turnInfiniteWhiteboardOn"]',
@@ -901,6 +921,8 @@ export const elements = {
 
   // Layout
   cameraDock: 'div#cameraDock',
+  // the client writes the layout it is in on this element, as data-layout (layoutEngine.jsx)
+  layoutContainer: 'div#layout',
 
   // Font size
   increaseFontSize: 'button[data-test="increaseFontSize"]',

@@ -1,6 +1,9 @@
 import styled from 'styled-components';
 import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
-import { jumboPaddingY } from '/imports/ui/stylesheets/styled-components/general';
+import {
+  jumboPaddingY,
+  confirmationButtonMinWidth,
+} from '/imports/ui/stylesheets/styled-components/general';
 import { colorGray } from '/imports/ui/stylesheets/styled-components/palette';
 import { lineHeightBase } from '/imports/ui/stylesheets/styled-components/typography';
 
@@ -47,7 +50,7 @@ const Footer = styled.div`
 // room to grow into. Two floors plus a long label can be wider than a phone
 // screen, so the label wraps instead of overflowing.
 const FooterButton = styled(BBButton)`
-  min-width: 8.5rem;
+  min-width: ${confirmationButtonMinWidth};
   flex-grow: 1;
   white-space: normal;
 `;

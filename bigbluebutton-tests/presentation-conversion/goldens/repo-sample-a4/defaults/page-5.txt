@@ -1,0 +1,32 @@
+Chapter 1
+
+Template
+
+1.1     How to compile a .tex file to a .pdf file
+1.1.1 Tools
+To process the files you (may) need:
+
+   • pdflatex (for example from tetex package ≥ 0.9-6, which you can
+     get from Red Hat 5.2);
+
+   • acroread (a PDF viewer, available from http://www.adobe.com/);
+
+   • ghostscript ≥ 5.10 (for example from Red Hat Contrib) and ghostview
+     or gv (from RedHat Linux);
+
+   • efax package could be useful, if you plan to fax documents.
+
+
+1.1.2 How to use the tools
+Follow these steps:
+
+   1. put all source .tex files in one directory, then chdir to the directory (or put
+      some of them in the LATEXsearch path — if you know how to do this);
+
+   2. run “pdflatex file.tex” on the main file of the document three times
+      (three — to prepare valid table of contents);
+
+   3. to see or print the result use acroread (unfortunately some versions of
+      acroread may produce PostScript which is too complex), or
+
+                                         5

@@ -1,0 +1,21 @@
+id: pdf-image-slide-300k
+title: "One slide holding an 800x600 photo-like JPEG of about 300 KB"
+tier: synthetic
+file: pdf-image-slide-300k.pdf
+issues: []
+catalog: ["Oversized single page", "Preupload via create API"]
+upload:
+  method: create
+pages: 1
+expect: converted
+expectByProfile:
+  tight-limits: converted
+kind: { defaults: vector, tight-limits: blank }
+marker: false
+aspect: auto
+profiles: [defaults, tight-limits]
+goldenProfiles: [defaults, tight-limits]
+notes: >-
+  Seeded gradients, blobs and grain so the JPEG stays between 250 and 350 KB. Under tight-limits
+  the page exceeds maxBigPdfPageSize (50000), so bbb-web first downscales it, and its SVG exceeds
+  maxBigSvgSize (200000) and becomes the blank slide (observed on 4.0.0-rc.5).
