@@ -1,0 +1,65 @@
+name: "Presentation conversion - weekly"
+# Scheduled workflows only run from the repository's default branch (v4.0.x-develop today). This
+# dispatcher starts "Automated tests" with jobs=presentation-conversion on each active line, which
+# builds that line's packages, installs them and runs that line's presentation-conversion suite
+# against that line's goldens. A line without the suite is skipped with a notice.
+on:
+  schedule:
+    - cron: "0 3 * * 0"   # Sundays 03:00 UTC
+  workflow_dispatch:
+    inputs:
+      refs:
+        description: "Branches to test, comma-separated"
+        default: "v4.0.x-develop,v4.1.x-develop"
+permissions:
+  actions: write
+  contents: read
+concurrency:
+  group: presentation-conversion-weekly
+  cancel-in-progress: false
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      refs: ${{ steps.refs.outputs.json }}
+    steps:
+      - id: refs
+        env:
+          REFS: ${{ inputs.refs || 'v4.0.x-develop,v4.1.x-develop' }}
+        run: echo "json=$(jq -cn --arg s "$REFS" '$s | split(",") | map(gsub("^\\s+|\\s+$"; "")) | map(select(length > 0))')" >> "$GITHUB_OUTPUT"
+  dispatch:
+    needs: plan
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        ref: ${{ fromJSON(needs.plan.outputs.refs) }}
+    steps:
+      - name: Start "Automated tests" on ${{ matrix.ref }}
+        uses: actions/github-script@v8
+        env:
+          REF: ${{ matrix.ref }}
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const ref = process.env.REF;
+            const skip = async (why) => {
+              core.notice(`${ref}: skipped, ${why}`);
+              await core.summary.addRaw(`- ${ref}: skipped (${why})\n`).write();
+            };
+            try {
+              await github.rest.repos.getContent({ owner, repo, ref, path: 'bigbluebutton-tests/presentation-conversion/package.json' });
+            } catch (e) {
+              if (e.status === 404) return skip('the suite is not on this branch yet');
+              throw e;
+            }
+            try {
+              await github.rest.actions.createWorkflowDispatch({ owner, repo, ref, workflow_id: 'automated-tests.yml', inputs: { jobs: 'presentation-conversion' } });
+            } catch (e) {
+              if (e.status === 422) return skip(`automated-tests.yml on this branch does not accept the dispatch: ${e.message}`);
+              throw e;
+            }
+            await new Promise((r) => setTimeout(r, 15000));
+            const runs = await github.rest.actions.listWorkflowRuns({ owner, repo, workflow_id: 'automated-tests.yml', branch: ref, event: 'workflow_dispatch', per_page: 1 });
+            const run = runs.data.workflow_runs[0];
+            await core.summary.addRaw(`- ${ref}: ${run ? `[run ${run.id}](${run.html_url})` : 'dispatched'}\n`).write();
