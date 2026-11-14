@@ -1058,16 +1058,19 @@ class MeetingActor(
   var lastRecBreakSentOn = expiryTracker.startedOnInMs
 
   def setRecordingChapterBreak(): Unit = {
-    val now = System.currentTimeMillis()
-    val elapsedInMs = now - lastRecBreakSentOn
-    val elapsedInMin = TimeUtil.millisToMinutes(elapsedInMs)
+    val now = TimeUtil.timeNowInMs()
+    // Without full-duration media, starting or resuming the recording also starts a new audio file,
+    // so the chapter counts from there.
+    val chapterStartedOn =
+      if (props.recordProp.recordFullDurationMedia) lastRecBreakSentOn
+      else math.max(lastRecBreakSentOn, state.recordingTracker.startedOnInMs)
 
     if (props.recordProp.record &&
       (MeetingStatus2x.isRecording(liveMeeting.status) || props.recordProp.recordFullDurationMedia) &&
       recordingChapterBreakLengthInMinutes > 0 &&
-      elapsedInMin > recordingChapterBreakLengthInMinutes) {
+      now - chapterStartedOn >= TimeUtil.minutesToMillis(recordingChapterBreakLengthInMinutes)) {
       lastRecBreakSentOn = now
-      val event = MsgBuilder.buildRecordingChapterBreakSysMsg(props.meetingProp.intId, TimeUtil.timeNowInMs())
+      val event = MsgBuilder.buildRecordingChapterBreakSysMsg(props.meetingProp.intId, now)
       outGW.send(event)
 
       VoiceApp.stopRecordingVoiceConference(liveMeeting, outGW)
