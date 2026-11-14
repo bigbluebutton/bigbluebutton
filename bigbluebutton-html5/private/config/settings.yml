@@ -313,43 +313,33 @@ public:
         partialUtterances: true
         # The minumum length (in seconds) an utterance has to have for we to use it
         minUtteranceLength: 1
+    # Access key of each client shortcut (Alt + key; Shift + Alt + key on Firefox).
+    # The entry names are fixed: they are what userdata-bbb_shortcuts lists.
     shortcuts:
       openOptions:
         accesskey: O
-        descId: openOptions
       toggleUserList:
         accesskey: U
-        descId: toggleUserList
       openLeaveMenu:
         accesskey: X
-        descId: openLeaveMenu
       toggleMute:
         accesskey: M
-        descId: toggleMute
       joinAudio:
         accesskey: J
-        descId: joinAudio
       leaveAudio:
         accesskey: L
-        descId: leaveAudio
       togglePublicChat:
         accesskey: P
-        descId: togglePublicChat
       hidePrivateChat:
         accesskey: H
-        descId: hidePrivateChat
       closePrivateChat:
         accesskey: G
-        descId: closePrivateChat
       raiseHand:
         accesskey: R
-        descId: raiseHand
       openActions:
         accesskey: A
-        descId: openActions
       openDebugWindow:
         accesskey: K
-        descId: openDebugWindow
     branding:
       displayBrandingArea: true
     connectionTimeout: 60000

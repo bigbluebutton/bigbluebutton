@@ -269,7 +269,7 @@ const intlMessages = defineMessages({
 
 interface Shortcut {
   accesskey: string;
-  descId: string;
+  name: string;
 }
 
 const renderItem = (func: string, key: string) => {
@@ -332,9 +332,12 @@ const ShortcutHelpComponent: React.FC<ShortcutHelpComponentProps> = ({
   }
 
   const generalShortcutItems = shortcuts.map((shortcut) => {
-    if (!isChatEnabled && shortcut.descId.indexOf('Chat') !== -1) return null;
+    const name = shortcut.name.toLowerCase();
+    if (!isChatEnabled && name.includes('chat')) return null;
+    const description = intlMessages[name as keyof typeof intlMessages];
+    if (!description) return null;
     return renderItem(
-      `${intl.formatMessage(intlMessages[shortcut.descId.toLowerCase() as keyof typeof intlMessages])}`,
+      intl.formatMessage(description),
       `${accessMod} + ${shortcut.accesskey}`,
     );
   });

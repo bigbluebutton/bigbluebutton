@@ -251,62 +251,50 @@ export interface Shortcuts {
 
 export interface OpenOptions {
   accesskey: string
-  descId: string
 }
 
 export interface ToggleUserList {
   accesskey: string
-  descId: string
 }
 
 export interface OpenLeaveMenu {
   accesskey: string
-  descId: string
 }
 
 export interface ToggleMute {
   accesskey: string
-  descId: string
 }
 
 export interface JoinAudio {
   accesskey: string
-  descId: string
 }
 
 export interface LeaveAudio {
   accesskey: string
-  descId: string
 }
 
 export interface TogglePublicChat {
   accesskey: string
-  descId: string
 }
 
 export interface HidePrivateChat {
   accesskey: string
-  descId: string
 }
 
 export interface ClosePrivateChat {
   accesskey: string
-  descId: string
 }
 
 export interface RaiseHand {
   accesskey: string
-  descId: string
 }
 
 export interface OpenActions {
   accesskey: string
-  descId: string
 }
 
 export interface OpenDebugWindow {
   accesskey: string
-  descId: string
 }
 
 export interface Branding {

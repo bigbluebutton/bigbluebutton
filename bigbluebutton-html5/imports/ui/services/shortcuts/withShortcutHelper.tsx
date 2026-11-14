@@ -2,7 +2,7 @@ import React from 'react';
 import ShortcutsService from '/imports/ui/components/settings/submenus/shortcuts/service';
 
 interface Shortcut {
-  descId: string;
+  name: string;
   accesskey: string;
 }
 
@@ -17,14 +17,13 @@ const withShortcutHelper = <P extends WithShortcutHelperProps>(
   const Component = (props: Omit<P, keyof WithShortcutHelperProps>) => {
     const BASE_SHORTCUTS = ShortcutsService.BASE_SHORTCUTS();
     const ENABLED_SHORTCUTS = ShortcutsService.ENABLED_SHORTCUTS();
-    let shortcuts: Shortcut[] = Object.values(BASE_SHORTCUTS);
+    // Keyed by the shortcut's name, the name userdata-bbb_shortcuts refers to.
+    let shortcuts: Shortcut[] = Object.entries(BASE_SHORTCUTS)
+      .map(([name, { accesskey }]) => ({ name, accesskey }));
 
     if (ENABLED_SHORTCUTS) {
-      shortcuts = Object.values(BASE_SHORTCUTS).map((el) => {
-        const obj = { ...el };
-        obj.descId = obj.descId.toLowerCase();
-        return obj;
-      }).filter((el) => ENABLED_SHORTCUTS.includes(el.descId.toLowerCase()));
+      const enabled = ENABLED_SHORTCUTS.map((name) => name.toLowerCase());
+      shortcuts = shortcuts.filter((el) => enabled.includes(el.name.toLowerCase()));
     }
 
     let finalShortcuts: Shortcut[] | string | Record<string, string> = shortcuts;
@@ -32,15 +31,15 @@ const withShortcutHelper = <P extends WithShortcutHelperProps>(
     if (param !== undefined) {
       if (!Array.isArray(param)) {
         const found = shortcuts
-          .filter((el) => el.descId.toLowerCase() === param.toLowerCase())
+          .filter((el) => el.name.toLowerCase() === param.toLowerCase())
           .map((el) => el.accesskey)
           .pop();
         finalShortcuts = found || '';
       } else {
         finalShortcuts = shortcuts
-          .filter((el) => param.map((p) => p.toLowerCase()).includes(el.descId.toLowerCase()))
+          .filter((el) => param.map((p) => p.toLowerCase()).includes(el.name.toLowerCase()))
           .reduce((acc, current) => {
-            acc[current.descId.toLowerCase()] = current.accesskey;
+            acc[current.name.toLowerCase()] = current.accesskey;
             return acc;
           }, {} as Record<string, string>);
       }
