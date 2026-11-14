@@ -76,8 +76,8 @@ export class BreakoutLocks extends Join {
   }
 
   // The parent denies the five switches above and has lockOnJoin and lockOnJoinConfigurable on. With
-  // inheritance the room takes all seven; without it the room gets every lock setting false
-  // (CreateBreakoutRoomsCmdMsgHdlr.scala:98-104).
+  // inheritance the room takes all seven; without it every lock setting is false except lockOnJoin, which
+  // stays on so that the locks applied in the room bind the attendees (CreateBreakoutRoomsCmdMsgHdlr.scala:98-106).
   async otherLockSettingsFollowInheritance(inherit: boolean) {
     await BreakoutLocks.denyPermissions(
       this.modPage,
@@ -94,9 +94,8 @@ export class BreakoutLocks extends Join {
 
     const roomLocks = await readLockSettings(roomModPage);
     for (const setting of Object.keys(parentLocks) as LockSetting[]) {
-      expect(roomLocks?.[setting], `the room should ${inherit ? '' : 'not '}take ${setting} from the main room`).toBe(
-        inherit,
-      );
+      const expected = inherit || setting === 'lockOnJoin';
+      expect(roomLocks?.[setting], `the room should have ${setting}=${expected}`).toBe(expected);
     }
 
     await BreakoutLocks.openLockViewersPermissions(roomModPage.page);
