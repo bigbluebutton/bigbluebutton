@@ -1,6 +1,8 @@
 import React, { PureComponent } from 'react';
 import { FormattedTime, defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
+import { BBBScrollArea } from '@bigbluebutton/bbb-ui-components-react';
+import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import Icon from '/imports/ui/components/connection-status/icon/component';
 import Styled from './styles';
@@ -536,12 +538,16 @@ class ConnectionStatusComponent extends PureComponent {
               </div>
             </Styled.ConnectionTabPanel>
             <Styled.ConnectionTabPanel selectedClassName="is-selected">
-              <ul>{this.renderConnections()}</ul>
+              <BBBScrollArea fadeColor={colorWhite}>
+                <ul>{this.renderConnections()}</ul>
+              </BBBScrollArea>
             </Styled.ConnectionTabPanel>
             {amIModerator
               && (
                 <Styled.ConnectionTabPanel selectedClassName="is-selected">
-                  <ul>{this.renderConnections()}</ul>
+                  <BBBScrollArea fadeColor={colorWhite}>
+                    <ul>{this.renderConnections()}</ul>
+                  </BBBScrollArea>
                 </Styled.ConnectionTabPanel>
               )}
           </Styled.ConnectionTabs>
