@@ -64,6 +64,10 @@ object Users2x {
     users.toVector.filter(u => u.role == Roles.MODERATOR_ROLE && !u.userLeftFlag.left).length
   }
 
+  def numActiveAuthedUsers(users: Users2x): Int = {
+    users.toVector.filter(u => u.authed && !u.userLeftFlag.left).length
+  }
+
   def findNotPresenters(users: Users2x): Vector[UserState] = {
     users.toVector.filter(u => !u.presenter)
   }
