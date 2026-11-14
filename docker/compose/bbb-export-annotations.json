@@ -1,0 +1,6 @@
+{
+  "bbbWebAPI": "http://web:8090",
+  "redis": {
+    "host": "redis"
+  }
+}
