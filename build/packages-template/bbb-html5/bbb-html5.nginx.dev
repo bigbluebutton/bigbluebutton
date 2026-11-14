@@ -22,8 +22,7 @@ location /html5client/locales {
   autoindex on;
   autoindex_format json;
 
-  # Prevent browsers from caching
-  add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0";
-  add_header Pragma "no-cache";
-  add_header Expires 0;
+  # Make browsers check for changes on every load: an edited locale shows up
+  # at once, and an unchanged one costs a 304 instead of a full download
+  add_header Cache-Control "no-cache";
 }
