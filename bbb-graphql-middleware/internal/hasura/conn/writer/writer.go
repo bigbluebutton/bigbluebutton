@@ -13,6 +13,7 @@ import (
 
 	"bbb-graphql-middleware/config"
 	"bbb-graphql-middleware/internal/common"
+	"bbb-graphql-middleware/internal/subscriptionlimit"
 
 	"github.com/coder/websocket"
 	"github.com/graphql-go/graphql/language/ast"
@@ -141,6 +142,23 @@ RangeLoop:
 								browserConnection.ActiveSubscriptionsMutex.RUnlock()
 
 								if totalOfActiveSubscriptions >= config.GetConfig().Server.MaxConnectionConcurrentSubscriptions {
+									// Log what is holding the slots once per connection, so the cause can be
+									// identified without flooding the log on every rejected subscription.
+									if browserConnection.SubscriptionLimitLogged.CompareAndSwap(false, true) {
+										browserConnection.ActiveSubscriptionsMutex.RLock()
+										operationNames := make([]string, 0, len(browserConnection.ActiveSubscriptions))
+										for _, subscription := range browserConnection.ActiveSubscriptions {
+											operationNames = append(operationNames, subscription.OperationName)
+										}
+										browserConnection.ActiveSubscriptionsMutex.RUnlock()
+
+										browserConnection.Logger.
+											WithField("rejectedOperation", browserMessage.Payload.OperationName).
+											WithField("activeSubscriptions", len(operationNames)).
+											WithField("activeSubscriptionsByOperation", subscriptionlimit.SummarizeByOperation(operationNames)).
+											Warn("Concurrent subscription limit reached")
+									}
+
 									sendErrorMessage(
 										browserConnection,
 										queryId,
@@ -268,15 +286,13 @@ RangeLoop:
 					// hc.BrowserConn.Logger.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
 					browserConnection.ActiveSubscriptionsMutex.Unlock()
 
+					// Iterate the canonical list rather than naming the streams here, so a stream
+					// cannot be added to the list and missed in this teardown.
 					browserConnection.ActiveStreamingsMutex.Lock()
-					if removed, newActiveStreamings := removeValueFromSlice(browserConnection.ActiveStreamings, "getCursorCoordinatesStream", browserMessage.ID); removed {
-						browserConnection.ActiveStreamings = newActiveStreamings
-					}
-					if removed, newActiveStreamings := removeValueFromSlice(browserConnection.ActiveStreamings, "getNotificationStream", browserMessage.ID); removed {
-						browserConnection.ActiveStreamings = newActiveStreamings
-					}
-					if removed, newActiveStreamings := removeValueFromSlice(browserConnection.ActiveStreamings, "getChatMessageStream", browserMessage.ID); removed {
-						browserConnection.ActiveStreamings = newActiveStreamings
+					for _, operationName := range config.StreamingSubscriptionsManagedByMiddleware {
+						if removed, newActiveStreamings := removeValueFromSlice(browserConnection.ActiveStreamings, operationName, browserMessage.ID); removed {
+							browserConnection.ActiveStreamings = newActiveStreamings
+						}
 					}
 					browserConnection.ActiveStreamingsMutex.Unlock()
 				}
@@ -287,7 +303,7 @@ RangeLoop:
 					continue
 				}
 
-				if !hc.BrowserConn.CurrentlyInMeeting && // avoid sending to Hasura subscriptions that user doesn't have permission
+				if !hc.BrowserConn.IsCurrentlyInMeeting() && // avoid sending to Hasura subscriptions that user doesn't have permission
 					browserMessage.Type == "subscribe" &&
 					!slices.Contains(config.AllowedSubscriptionsForNotInMeetingUsers, browserMessage.Payload.OperationName) {
 					hc.BrowserConn.Logger.Debugf("Not sending to Hasura %s because the user is not in meeting", browserMessage.Payload.OperationName)

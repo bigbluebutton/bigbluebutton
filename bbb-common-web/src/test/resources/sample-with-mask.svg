@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200" viewBox="0 0 200 200">
+<defs>
+<filter id="filter-remove-color" x="0%" y="0%" width="100%" height="100%">
+<feColorMatrix color-interpolation-filters="sRGB" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0" />
+</filter>
+<filter id="filter-color-to-alpha" x="0%" y="0%" width="100%" height="100%">
+<feColorMatrix color-interpolation-filters="sRGB" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0.2126 0.7152 0.0722 0 0"/>
+</filter>
+<image id="source-7" x="0" y="0" width="8" height="8" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAAAAADhZOFXAAAAAmJLR0QA/4ePzL8AAAASSURBVAiZY2RQgQAmBiggjwEARHwBDNv1kzcAAAAASUVORK5CYII="/>
+<mask id="mask-0">
+<g filter="url(#filter-remove-color)">
+<use xlink:href="#source-7" filter="url(#filter-color-to-alpha)" transform="matrix(10, 0, 0, 10, 20, 60)"/>
+</g>
+</mask>
+<image id="source-6" x="0" y="0" width="8" height="8" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAABmJLR0QA/wD/AP+gvaeTAAAAGUlEQVQImWP4z8DAwPAfk8Qu+h8qNeh0AADpMD/Bhurz/AAAAABJRU5ErkJggg=="/>
+<image id="source-13" x="0" y="0" width="8" height="8" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAAAAADhZOFXAAAAAmJLR0QA/4ePzL8AAAASSURBVAiZY2RQgQAmBiggjwEARHwBDNv1kzcAAAAASUVORK5CYII="/>
+<mask id="mask-1">
+<g filter="url(#filter-remove-color)">
+<use xlink:href="#source-13" filter="url(#filter-color-to-alpha)" transform="matrix(7.5, 0, 0, 7.5, 120, 50)"/>
+</g>
+</mask>
+</defs>
+<path fill-rule="nonzero" fill="rgb(89.99939%, 89.99939%, 19.999695%)" fill-opacity="1" d="M 20 180 L 180 180 L 180 150 L 20 150 Z M 20 180 "/>
+<path fill-rule="nonzero" fill="rgb(19.999695%, 69.999695%, 39.99939%)" fill-opacity="1" d="M 20 40 L 180 40 L 180 20 L 20 20 Z M 20 40 "/>
+<g mask="url(#mask-0)">
+<use xlink:href="#source-6" transform="matrix(10, 0, 0, 10, 20, 60)"/>
+</g>
+<g mask="url(#mask-1)">
+<use xlink:href="#source-6" transform="matrix(7.5, 0, 0, 7.5, 120, 50)"/>
+</g>
+</svg>

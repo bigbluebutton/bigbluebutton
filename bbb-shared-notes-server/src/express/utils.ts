@@ -31,6 +31,7 @@ export function getUserInformation(headers: IncomingHttpHeaders): UserInformatio
     userName,
     meetingId: headers['meeting-id'] as string,
     userHasNotesEnabled: toBoolean(headers['user-notes-enabled'] as string),
+    userIsCurrentlyOnline: toBoolean(headers['user-currently-online'] as string),
   }
   return userInfo
 }

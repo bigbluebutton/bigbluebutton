@@ -30,7 +30,6 @@ const config = {
   cache: {
     type: 'filesystem',
     allowCollectingMemory: true,
-    maxAge: 86400000,
     // Only active during local yalc-based tldraw development. When the file exists,
     // webpack discards its cache on each rebuild so stale ENOENT errors can't persist.
     // Absent in production / CI (package comes from npm), so no effect there.
@@ -55,7 +54,8 @@ const config = {
   },
   devtool: 'source-map',
   plugins: [
-    new webpack.optimize.LimitChunkCountPlugin({
+    // Safari 14-15 build: one file, build.sh renames it (#22817)
+    isSafariTarget && new webpack.optimize.LimitChunkCountPlugin({
       maxChunks: 1,
     }),
     new HtmlWebpackPlugin({
@@ -105,10 +105,34 @@ const config = {
       '/imports': path.resolve(__dirname, '/imports/'),
       '@tiptap/core/jsx-runtime': path.resolve(__dirname, 'node_modules/@tiptap/core/dist/jsx-runtime/jsx-runtime.js'),
       yjs: path.resolve(__dirname, 'node_modules/yjs'),
+      mermaid$: path.resolve(__dirname, 'imports/ui/components/bn-shared-notes/mermaid-on-demand.ts'),
     },
   },
   module: {
+    // Dynamic imports stay in the bundle (#22817), except Mermaid's (lazy)
+    parser: {
+      javascript: {
+        dynamicImportMode: 'eager',
+      },
+    },
     rules: [
+      {
+        test: /[\\/]node_modules[\\/](mermaid|@mermaid-js[\\/][^\\/]+)[\\/]/,
+        parser: {
+          dynamicImportMode: 'lazy',
+        },
+        // Mermaid ships class static blocks, which Safari parses only from 16.4:
+        // compile its syntax down to the oldest Safari the client supports.
+        use: {
+          loader: 'babel-loader',
+          options: {
+            babelrc: false,
+            configFile: false,
+            sourceType: 'unambiguous',
+            presets: [['@babel/preset-env', { targets: { safari: '14' }, modules: false }]],
+          },
+        },
+      },
       {
         test: /\.(js|jsx|ts|tsx)$/,
         resolve: {

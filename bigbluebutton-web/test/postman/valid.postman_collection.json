@@ -392,59 +392,6 @@
 			"response": []
 		},
 		{
-			"name": "guestWait",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 200\", function () {",
-							"    pm.response.to.have.status(200);",
-							"});",
-							"",
-							"var jsonResponse = pm.response.json();",
-							"",
-							"console.log(jsonResponse)",
-							"",
-							"pm.test(\"Return code is SUCCESS\", function () {",
-							"    pm.expect(jsonResponse.response.returncode).to.eql(\"SUCCESS\");",
-							"});",
-							"",
-							"pm.test(\"Message Key\", function () {",
-							"    pm.expect(jsonResponse.response.messageKey).to.eql(\"seatWait\");",
-							"});",
-							"",
-							"pm.test(\"Guest status\", function () {",
-							"    pm.expect(jsonResponse.response.guestStatus).to.eql(\"WAIT\")",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{base_url}}/{{path}}/guestWait?{{param_session_token}}={{session_token}}",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"{{path}}",
-						"guestWait"
-					],
-					"query": [
-						{
-							"key": "{{param_session_token}}",
-							"value": "{{session_token}}"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "stuns",
 			"event": [
 				{

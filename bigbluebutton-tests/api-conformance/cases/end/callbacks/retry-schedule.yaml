@@ -1,0 +1,65 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# An end callback that keeps failing is tried five times in all, 30
+# seconds, 1, 2 and 5 minutes apart, and then given up: no sixth attempt
+# comes in the 6 minutes after the fifth, longer than the last gap.
+# api.md documents the callback, not its retries, so this is compat.
+id: end.callbacks.retry-schedule
+title: An end callback that keeps failing is tried five times, then given up
+endpoint: end
+class: compat
+tags: [slow]
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Callback, meta_endCallbackUrl: "${sinkUrl}/${uid}/ended?_status=500"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: end
+    params: {meetingID: "${uid}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+  # The first attempt. The others are due 30 s, 1 min 30 s, 3 min 30 s
+  # and 8 min 30 s after it: each window below ends at most 10 seconds
+  # before one is due, or starts at most 10 seconds after, so attempts
+  # sent back to back, or late, fail the count.
+  - sink: {key: "${uid}", within: 10s}
+    golden: off
+    expect: {method: GET}
+  - sink: {key: "${uid}", within: 20s}
+    golden: off
+    expect: {count: 1}
+  - sink: {key: "${uid}", within: 20s}
+    golden: off
+    expect: {count: 2}
+  - sink: {key: "${uid}", within: 40s}
+    golden: off
+    expect: {count: 2}
+  - sink: {key: "${uid}", within: 20s}
+    golden: off
+    expect: {count: 3}
+  - sink: {key: "${uid}", within: 100s}
+    golden: off
+    expect: {count: 3}
+  - sink: {key: "${uid}", within: 20s}
+    golden: off
+    expect: {count: 4}
+  - sink: {key: "${uid}", within: 280s}
+    golden: off
+    expect: {count: 4}
+  - sink: {key: "${uid}", within: 20s}
+    golden: off
+    expect: {count: 5}
+  # Given up: nothing in the 6 minutes after the fifth.
+  - sink: {key: "${uid}", within: 6m}
+    golden: off
+    expect: {count: 5}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

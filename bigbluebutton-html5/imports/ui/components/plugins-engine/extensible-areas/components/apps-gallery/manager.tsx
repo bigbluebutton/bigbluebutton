@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 
 import { ExtensibleAreaComponentManagerProps, ExtensibleAreaComponentManager } from '../../types';
@@ -23,38 +23,22 @@ const AppsGalleryPluginStateContainer = ((
 
   const { pluginName } = pluginApi;
 
-  const excludeById = useCallback(
-    (arr1: PluginSdk.GenericContentInterface[], arr2: PluginSdk.GenericContentInterface[]) => {
-      const idsSet = new Set(arr2.map((item) => item.id));
-      return arr1.filter((item) => !idsSet.has(item.id));
-    },
-    [],
-  );
-
-  const unregisterExcludedAppsGalleryItems = useCallback(
-    (
-      currentAppsGalleryItems: PluginSdk.AppsGalleryInterface[],
-      newAppsGalleryItems: PluginSdk.AppsGalleryInterface[],
-    ) => {
-      if (currentAppsGalleryItems.length === 0) return;
-      const excluded = excludeById(
-        currentAppsGalleryItems,
-        newAppsGalleryItems,
-      );
-      excluded.forEach((agi) => {
-        layoutContextDispatch({
-          type: ACTIONS.UNREGISTER_SIDEBAR_APP,
-          id: agi.id,
-        });
-      });
-    },
-    [],
-  );
+  // Sidebar apps this plugin currently has registered in the layout context.
+  const registeredAppIdsRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     if (pluginName === undefined) return;
     // Change this plugin provided apps gallery items
     extensibleAreaMap[uuid].appsGalleryItems = appsGalleryItems;
+
+    // Unregister only the apps that went away: unregistering one drops it from the
+    // pinned apps, and registering it again would send it to the end of that list.
+    const appIds = new Set(appsGalleryItems.map((agi) => agi.id));
+    registeredAppIdsRef.current.forEach((id) => {
+      if (appIds.has(id)) return;
+      layoutContextDispatch({ type: ACTIONS.UNREGISTER_SIDEBAR_APP, id });
+    });
+    registeredAppIdsRef.current = appIds;
 
     (appsGalleryItems as PluginSdk.AppsGalleryEntry[]).forEach((agi) => {
       layoutContextDispatch({
@@ -84,10 +68,7 @@ const AppsGalleryPluginStateContainer = ((
 
   pluginApi.setAppsGalleryItems = (items: PluginSdk.AppsGalleryInterface[]) => {
     const itemsWithId = items.map(generateItemWithId) as PluginSdk.AppsGalleryInterface[];
-    setAppsGalleryItems((currentAppsGalleryItems) => {
-      unregisterExcludedAppsGalleryItems(currentAppsGalleryItems, items);
-      return itemsWithId;
-    });
+    setAppsGalleryItems(itemsWithId);
     return itemsWithId.map((i) => i.id);
   };
   return null;

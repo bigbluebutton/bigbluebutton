@@ -48,6 +48,7 @@ const MEETING_SUBSCRIPTION = gql`
           cameraDockPlacement
           cameraWithFocus
           currentLayoutType
+          hideUsersWithoutCamera
           presentationMinimized
           propagateLayout
           setByUserId
@@ -84,7 +85,6 @@ const MEETING_SUBSCRIPTION = gql`
           hasSharedNotes
           hasTimer
           isSharedNotesPinned
-          isEtherpadSharedNotes
           showRemainingTime
           }
     }

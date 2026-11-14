@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import ReactPlayer from 'react-player';
 import React from 'react';
 import { lgBorderRadius } from '/imports/ui/stylesheets/styled-components/general';
+import { colorBlackSurface } from '/imports/ui/stylesheets/styled-components/palette';
 import Button from '/imports/ui/components/common/button/component';
 
 type VideoPlayerWrapperProps = {
@@ -17,7 +18,7 @@ type ContainerProps = {
 export const Container = styled.span<ContainerProps>`
   position: absolute;
   pointer-events: inherit;
-  background: var(--color-black);
+  background: ${colorBlackSurface};
   overflow: hidden;
   border-radius: ${lgBorderRadius};
 

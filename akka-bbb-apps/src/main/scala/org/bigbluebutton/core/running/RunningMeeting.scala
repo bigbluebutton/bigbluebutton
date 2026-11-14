@@ -28,8 +28,11 @@ class RunningMeeting(val props: DefaultProps, outGW: OutMessageGateway,
   private val meetingStatux2x = new MeetingStatus2x
   private val webcams = new Webcams
   private val voiceUsers = new VoiceUsers
+  private val liveKitMemberships = new LiveKitMemberships(props.meetingProp.intId)
   private val users2x = new Users2x
   private val polls2x = new Polls
+  private val presUploadRateLimiter = new PresentationUploadTokenRateLimiter
+  private val droppedPresentations = new DroppedPresentations
   private val guestsWaiting = new GuestsWaiting
   private val deskshareModel = new ScreenshareModel
   private val audioCaptions = new AudioCaptions
@@ -59,7 +62,8 @@ class RunningMeeting(val props: DefaultProps, outGW: OutMessageGateway,
   // easy to test.
   private val liveMeeting = new LiveMeeting(props, meetingStatux2x, deskshareModel, audioCaptions, timerModel,
     chatModel, externalVideoModel, layouts, pads, registeredUsers, polls2x, wbModel, presModel,
-    webcams, voiceUsers, users2x, guestsWaiting, clientSettings, plugins)
+    webcams, voiceUsers, liveKitMemberships, users2x, guestsWaiting, clientSettings, plugins,
+    presUploadRateLimiter, droppedPresentations)
 
   GuestsWaiting.setGuestPolicy(
     liveMeeting.props.meetingProp.intId,
@@ -70,6 +74,11 @@ class RunningMeeting(val props: DefaultProps, outGW: OutMessageGateway,
   Layouts.setCurrentLayout(
     liveMeeting.layouts,
     props.usersProp.meetingLayout,
+  )
+
+  Layouts.setHideUsersWithoutCamera(
+    liveMeeting.layouts,
+    props.usersProp.hideUsersWithoutCamera,
   )
 
   // Set initial multiUserWhiteboardEnabled state

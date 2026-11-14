@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test';
 
-import { ELEMENT_WAIT_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } from '../core/constants';
+import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { MultiUsers } from '../user/multiusers';
 import { checkNetworkStatus, openConnectionStatus } from './util';
@@ -31,7 +31,9 @@ export class ConnectionStatus extends MultiUsers {
 
     // Delay /rtt-check responses to simulate ~1500ms RTT ('danger' status).
     await this.modPage.page.route('**/rtt-check**', async (route) => {
-      await new Promise<void>((resolve) => { setTimeout(resolve, 1500); });
+      await new Promise<void>((resolve) => {
+        setTimeout(resolve, 1500);
+      });
       await route.continue();
     });
 
@@ -41,7 +43,11 @@ export class ConnectionStatus extends MultiUsers {
         'should not display empty item element with connection issues',
         ELEMENT_WAIT_EXTRA_LONG_TIME,
       );
-      await this.modPage.hasElementCount(e.connectionStatusItemUser, 1, 'should display one user with connection issues');
+      await this.modPage.hasElementCount(
+        e.connectionStatusItemUser,
+        1,
+        'should display one user with connection issues',
+      );
     } finally {
       await this.modPage.page.unroute('**/rtt-check**');
     }
@@ -73,12 +79,10 @@ export class ConnectionStatus extends MultiUsers {
   async copyStatsTest() {
     await openConnectionStatus(this.modPage);
     await this.modPage.hasElementEnabled(e.copyStats, 'should enable the copy stats button');
+    await this.modPage.grantClipboardPermissions();
     await this.modPage.waitAndClick(e.copyStats);
-    await this.modPage?.context?.grantPermissions(['clipboard-write', 'clipboard-read'], {
-      origin: process.env.BBB_URL,
-    });
-    const copiedText = await this.modPage.page.evaluate(async () => navigator.clipboard.readText());
-    const check = copiedText.includes('audioCurrentUploadRate');
-    await expect(check).toBeTruthy();
+    await expect
+      .poll(() => this.modPage.getCopiedText(), { message: 'should copy the connection stats to the clipboard' })
+      .toContain('audioCurrentUploadRate');
   }
 }

@@ -1,0 +1,9 @@
+# want: 9: steps[0].select[0]: '$.core.body.props.groups[0]' does not match pattern
+# want: 9: steps[0].select[1]: 'core.body' does not match pattern
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+steps:
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: i, within: 1s}
+    select: ["$.core.body.props.groups[0]", "core.body"]

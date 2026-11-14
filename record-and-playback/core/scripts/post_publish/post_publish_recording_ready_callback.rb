@@ -23,7 +23,6 @@
 require "optimist"
 require 'net/http'
 require "jwt"
-require "java_properties"
 require File.expand_path('../../../lib/recordandplayback', __FILE__)
 
 logger = Logger.new("/var/log/bigbluebutton/post_publish.log", 'weekly' )
@@ -73,7 +72,7 @@ begin
   unless callback_url.nil?
     BigBlueButton.logger.info("Making callback for recording ready notification")
 
-    props = JavaProperties::Properties.new(bbb_web_properties)
+    props = BigBlueButton.read_java_props(bbb_web_properties)
     secret = props[:securitySalt]
     external_meeting_id = BigBlueButton::Events.get_external_meeting_id(events_xml)
 
@@ -105,7 +104,7 @@ begin
 
 rescue => e
   BigBlueButton.logger.info("Rescued")
-  BigBlueButton.logger.info(e.to_s)
+  BigBlueButton.logger.info(e.full_message(highlight: false, order: :top).chomp)
 end
 
 BigBlueButton.logger.info("Recording Ready notify ends")

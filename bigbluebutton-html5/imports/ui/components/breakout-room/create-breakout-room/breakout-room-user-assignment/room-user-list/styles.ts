@@ -3,8 +3,9 @@ import Button from '/imports/ui/components/common/button/component';
 import { TextElipsis, TitleElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
 import {
   colorBorder,
-  colorWhite,
+  colorBorderMuted,
   colorGrayLight,
+  colorWhiteSurface,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { borderSize } from '/imports/ui/stylesheets/styled-components/general';
 import { lineHeightComputed } from '/imports/ui/stylesheets/styled-components/typography';
@@ -19,8 +20,8 @@ const Round = styled.span`
 
   & > label {
     margin-top: -10px;
-    background-color: #fff;
-    border: 1px solid #ccc;
+    background-color: ${colorWhiteSurface};
+    border: 1px solid ${colorBorderMuted};
     border-radius: 50%;
     cursor: pointer;
     height: 28px;
@@ -113,7 +114,7 @@ const SelectUserScreen = styled.div`
   display: block;
   height: 100vh;
   width: 100%;
-  background-color: ${colorWhite};
+  background-color: ${colorWhiteSurface};
   z-index: 1002;
   top: 0;
   bottom: 0;

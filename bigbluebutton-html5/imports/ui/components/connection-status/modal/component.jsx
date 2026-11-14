@@ -1,10 +1,8 @@
 import React, { PureComponent } from 'react';
 import { FormattedTime, defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import UserAvatar from '/imports/ui/components/user-avatar/component';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import Icon from '/imports/ui/components/connection-status/icon/component';
-import { getHelp } from '../service';
 import Styled from './styles';
 import ConnectionStatusHelper from '../status-helper/component';
 import Auth from '/imports/ui/services/auth';
@@ -28,10 +26,6 @@ const intlMessages = defineMessages({
   empty: {
     id: 'app.connection-status.empty',
     description: 'Connection status empty',
-  },
-  more: {
-    id: 'app.connection-status.more',
-    description: 'More about connectivity issues',
   },
   audioLabel: {
     id: 'app.settings.audioTab.label',
@@ -186,7 +180,6 @@ class ConnectionStatusComponent extends PureComponent {
 
     const { intl } = this.props;
 
-    this.help = getHelp();
     this.state = {
       selectedTab: 0,
       copyButtonText: intl.formatMessage(intlMessages.copy),
@@ -508,19 +501,17 @@ class ConnectionStatusComponent extends PureComponent {
       <Styled.ConnectionStatusModal
         priority="low"
         onRequestClose={() => setModalIsOpen(false)}
-        setIsOpen={setModalIsOpen}
-        hideBorder
+        title={intl.formatMessage(intlMessages.title)}
         isOpen={isModalOpen}
         contentLabel={intl.formatMessage(intlMessages.ariaTitle)}
-        data-test="connectionStatusModal"
+        dataTest="connectionStatusModal"
+        allowScroll={false}
+        shouldCloseOnOverlayClick
+        noFooter={false}
+        showDividers
+        footerContent={this.renderCopyDataButton()}
       >
         <Styled.Container>
-          <Styled.Header>
-            <Styled.Title>
-              {intl.formatMessage(intlMessages.title)}
-            </Styled.Title>
-          </Styled.Header>
-
           <Styled.ConnectionTabs
             onSelect={this.handleSelectTab}
             selectedIndex={selectedTab}
@@ -542,7 +533,6 @@ class ConnectionStatusComponent extends PureComponent {
             <Styled.ConnectionTabPanel selectedClassName="is-selected">
               <div>
                 {this.renderNetworkData()}
-                {this.renderCopyDataButton()}
               </div>
             </Styled.ConnectionTabPanel>
             <Styled.ConnectionTabPanel selectedClassName="is-selected">

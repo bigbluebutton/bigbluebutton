@@ -7,12 +7,10 @@ webrtc_recorder_screenshare_src: /var/lib/bbb-webrtc-recorder/screenshare
 webrtc_recorder_audio_src: /var/lib/bbb-webrtc-recorder/audio
 raw_deskshare_src: /var/bigbluebutton/deskshare
 raw_presentation_src: /var/bigbluebutton
-notes_endpoint: http://127.0.0.1:9002/p
-bn_notes_endpoint: http://127.0.0.1:8787/api/documents
-# Specify the notes formats we archive
-# txt, doc and odt are also supported
+bn_notes_endpoint: http://127.0.0.1:8787/loopback/api/documents
+# Specify the notes formats we archive. The shared notes server exports
+# html, pdf, txt, md, json and yjs.
 notes_formats:
-  - etherpad
   - html
   - pdf
 redis_host: 127.0.0.1
@@ -48,6 +46,13 @@ show_moderator_viewpoint: false
 # will start up multiple ffmpeg processes, and perform multi-threaded video encoding. The actual
 # number of physical CPU threads that will be used will typically be 2-4 times this number.
 video_compositing_parallel_workers: 2
+
+# FreeSWITCH voice recordings can be shorter than the meeting time they
+# cover, when it drops audio frames on an overloaded server. Such a file is
+# stretched to cover that time if it misses less than this fraction of it,
+# at most 0.5. Differences under 2 s or 0.3% are left as they are. Set to 0
+# to never stretch them.
+max_audio_length_mismatch: 0.2
 
 # Sequence of recording steps. Keys are the current step, values
 # are the next step(s). Examples:

@@ -1,0 +1,12 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case getMeetings.smoke.checksum-rejected-duplicate
+target fake
+
+== step 1: call getMeetings
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "FAILED"
+/response/messageKey "checksumError"
+/response/message "<missing-checksum message>"

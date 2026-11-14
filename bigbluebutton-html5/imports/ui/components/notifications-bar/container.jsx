@@ -38,6 +38,10 @@ const intlMessages = defineMessages({
     id: 'app.notificationBar.issueLoadingDataCode3006',
     description: 'Subscription failed alert',
   },
+  connectionCode3007: {
+    id: 'app.notificationBar.issueLoadingDataCode3007',
+    description: 'Subscription limit reached alert',
+  },
   reloadPage: {
     id: 'app.errorBoundary.reloadPage',
     defaultMessage: 'Reload Page',
@@ -66,6 +70,9 @@ const NotificationsBarContainer = () => {
   }));
 
   const subscriptionFailed = useReactiveVar(connectionStatus.getSubscriptionFailedVar());
+  const subscriptionLimitReached = useReactiveVar(
+    connectionStatus.getSubscriptionLimitReachedVar(),
+  );
   const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
   const serverIsResponding = useReactiveVar(connectionStatus.getServerIsRespondingVar());
   const pingIsComing = useReactiveVar(connectionStatus.getPingIsComingVar());
@@ -132,6 +139,22 @@ const NotificationsBarContainer = () => {
       return msg;
     }
 
+    // Checked before 3006: it is a specific, actionable cause of a failed subscription.
+    if (connected && serverIsResponding && pingIsComing && subscriptionLimitReached) {
+      const code = 3007;
+      const msg = intl.formatMessage(intlMessages.connectionCode3007);
+      const canShowTheMessage = checkIfAllowed(code);
+      logger.warn({
+        logCode: 'connection_subscription_limit_reached',
+        extraInfo: {
+          errorCode: code,
+          subscriptionLimitReached,
+          errorShownForUser: canShowTheMessage,
+        },
+      }, `NotificationsBar: ${msg} (subscriptionLimitReached=${subscriptionLimitReached})`);
+      if (canShowTheMessage) return msg;
+    }
+
     if (connected && serverIsResponding && pingIsComing && subscriptionFailed) {
       const code = 3006;
       const msg = intl.formatMessage(intlMessages.connectionCode3006);
@@ -156,6 +179,7 @@ const NotificationsBarContainer = () => {
     lastRttRequestSuccess,
     rttStatus,
     subscriptionFailed,
+    subscriptionLimitReached,
     intl,
   ]);
 

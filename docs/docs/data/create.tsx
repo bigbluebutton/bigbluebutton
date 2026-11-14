@@ -50,13 +50,13 @@ const createEndpointTableData = [
     "name": "dialNumber",
     "required": false,
     "type": "String",
-    "description": (<>The dial access number that participants can call in using regular phone. You can set a default dial number via <code className="language-plaintext highlighter-rouge">defaultDialAccessNumber</code> in <a href="https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-web/grails-app/conf/bigbluebutton.properties">bigbluebutton.properties</a></>)
+    "description": (<>The dial access number that participants can call in using regular phone. You can set a default dial number via <code className="language-plaintext highlighter-rouge">defaultDialAccessNumber</code> in <a href="https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-release/bigbluebutton-web/grails-app/conf/bigbluebutton.properties">bigbluebutton.properties</a></>)
   },
   {
     "name": "voiceBridge",
     "required": false,
     "type": "String",
-    "description": (<>Voice conference number for the FreeSWITCH voice conference associated with this meeting.  This must be a 5-digit number in the range 10000 to 99999.  If you <a href="/2.2/customize.html#add-a-phone-number-to-the-conference-bridge">add a phone number</a> to your BigBlueButton server, This parameter sets the personal identification number (PIN) that FreeSWITCH will prompt for a phone-only user to enter.  If you want to change this range, edit FreeSWITCH dialplan and <code className="language-plaintext highlighter-rouge">defaultNumDigitsForTelVoice</code> of <a href="https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-web/grails-app/conf/bigbluebutton.properties">bigbluebutton.properties</a>.<br /><br />The <code className="language-plaintext highlighter-rouge">voiceBridge</code> number must be different for every meeting.<br /><br />This parameter is optional. If you do not specify a <code className="language-plaintext highlighter-rouge">voiceBridge</code> number, then BigBlueButton will assign a random unused number for the meeting.<br /><br />If do you pass a <code className="language-plaintext highlighter-rouge">voiceBridge</code> number, then you must ensure that each meeting has a unique <code className="language-plaintext highlighter-rouge">voiceBridge</code> number; otherwise, reusing same <code className="language-plaintext highlighter-rouge">voiceBridge</code> number for two different meetings will cause users from one meeting to appear as phone users in the other, which will be very confusing to users in both meetings.</>)
+    "description": (<>Voice conference number for the FreeSWITCH voice conference associated with this meeting.  This must be a 5-digit numeric string in the range 00000 to 99999.  If you <a href="https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-release/docs/docs/administration/customize.md#add-a-phone-number-to-the-conference-bridge">add a phone number</a> to your BigBlueButton server, This parameter sets the personal identification number (PIN) that FreeSWITCH will prompt for a phone-only user to enter.  If you want to change this range, edit FreeSWITCH dialplan and <code className="language-plaintext highlighter-rouge">defaultNumDigitsForTelVoice</code> of <a href="https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-release/bigbluebutton-web/grails-app/conf/bigbluebutton.properties">bigbluebutton.properties</a>.<br /><br />The <code className="language-plaintext highlighter-rouge">voiceBridge</code> number must be different for every meeting.<br /><br />This parameter is optional. If you do not specify a <code className="language-plaintext highlighter-rouge">voiceBridge</code> number, then BigBlueButton will assign a random unused number for the meeting.<br /><br />If do you pass a <code className="language-plaintext highlighter-rouge">voiceBridge</code> number, then you must ensure that each meeting has a unique <code className="language-plaintext highlighter-rouge">voiceBridge</code> number; otherwise, reusing same <code className="language-plaintext highlighter-rouge">voiceBridge</code> number for two different meetings will cause users from one meeting to appear as phone users in the other, which will be very confusing to users in both meetings.</>)
   },
   {
     "name": "maxParticipants",
@@ -74,13 +74,19 @@ const createEndpointTableData = [
     "name": "logoutURL",
     "required": false,
     "type": "String",
-    "description": (<>The URL that the BigBlueButton client will go to after users click the OK button on the ‘You have been logged out message’.  This overrides the value for <code className="language-plaintext highlighter-rouge">bigbluebutton.web.logoutURL</code> in <a href="https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-web/grails-app/conf/bigbluebutton.properties">bigbluebutton.properties</a>.</>)
+    "description": (<>The URL that the BigBlueButton client will go to after users click the OK button on the ‘You have been logged out message’.  This overrides the value for <code className="language-plaintext highlighter-rouge">bigbluebutton.web.logoutURL</code> in <a href="https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-release/bigbluebutton-web/grails-app/conf/bigbluebutton.properties">bigbluebutton.properties</a>.</>)
+  },
+  {
+    "name": "meetingEndedURL",
+    "required": false,
+    "type": "String",
+    "description": (<>Server-to-server callback URL that BigBlueButton will invoke when the meeting ends. Useful for third-party integrations that need to react to meeting termination. (added 2.2).<br></br>See <a href="#meeting-ended-callback-url">Meeting Ended Callback URL</a> for usage instructions.</>)
   },
   {
     "name": "record",
     "required": false,
     "type": "Boolean",
-    "description": (<>Setting ‘record=true’ instructs the BigBlueButton server to record the media and events in the session for later playback. The default is false.<br /><br /> In order for a playback file to be generated, a moderator must click the Start/Stop Recording button at least once during the session; otherwise, in the absence of any recording marks, the record and playback scripts will not generate a playback file. See also the <code className="language-plaintext highlighter-rouge">autoStartRecording</code> and <code className="language-plaintext highlighter-rouge">allowStartStopRecording</code> parameters in <a href="https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-web/grails-app/conf/bigbluebutton.properties">bigbluebutton.properties</a>.</>)
+    "description": (<>Setting ‘record=true’ instructs the BigBlueButton server to record the media and events in the session for later playback. The default is false.<br /><br /> In order for a playback file to be generated, a moderator must click the Start/Stop Recording button at least once during the session; otherwise, in the absence of any recording marks, the record and playback scripts will not generate a playback file. See also the <code className="language-plaintext highlighter-rouge">autoStartRecording</code> and <code className="language-plaintext highlighter-rouge">allowStartStopRecording</code> parameters in <a href="https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-release/bigbluebutton-web/grails-app/conf/bigbluebutton.properties">bigbluebutton.properties</a>.</>)
   },
   {
     "name": "duration",
@@ -92,13 +98,13 @@ const createEndpointTableData = [
     "name": "isBreakout",
     "required": false,
     "type": "Boolean",
-    "description": (<>Must be set to <code className="language-plaintext highlighter-rouge">true</code> to create a breakout room.</>)
+    "description": (<>Must be set to <code className="language-plaintext highlighter-rouge">true</code> to create a breakout room. A breakout room does not end when it is empty or has no moderator, only when its own <code className="language-plaintext highlighter-rouge">duration</code> runs out or its parent meeting ends; see <code className="language-plaintext highlighter-rouge">parentMeetingID</code>.</>)
   },
   {
     "name": "parentMeetingID",
     "required": false,
     "type": "String",
-    "description": (<>The ID of the main room where the breakout was initiated. Must be provided when creating a breakout room, the parent room must be running.</>)
+    "description": (<>The ID of the main room where the breakout was initiated. Must be provided when creating a breakout room, the parent room must be running. The breakout room ends when its parent meeting ends, whether the parent is ended through <code className="language-plaintext highlighter-rouge">end</code> or ends on its own (<code className="language-plaintext highlighter-rouge">duration</code>, <code className="language-plaintext highlighter-rouge">meetingExpireIfNoUserJoinedInMinutes</code>, <code className="language-plaintext highlighter-rouge">meetingExpireWhenLastUserLeftInMinutes</code>, <code className="language-plaintext highlighter-rouge">endWhenNoModerator</code>). Users who join only the breakout room do not count as users of the parent, so a parent that nobody joins ends after <code className="language-plaintext highlighter-rouge">meetingExpireIfNoUserJoinedInMinutes</code> (5 minutes by default) and takes its breakout rooms with it.</>)
   },
   {
     "name": "sequence",
@@ -117,7 +123,7 @@ const createEndpointTableData = [
     "required": false,
     "type": "Boolean",
     "default": true,
-    "description": (<>If set to false, the private chat will be disabled in breakout rooms.</>)
+    "description": (<>If set to false, the private chat will be disabled in breakout rooms. As with <code>disabledFeatures=privateChat</code>, private chats that involve a moderator stay available.</>)
   },
   {
     "name": "breakoutRoomsRecord",
@@ -125,6 +131,30 @@ const createEndpointTableData = [
     "type": "Boolean",
     "default": false,
     "description": (<>If set to false, breakout rooms will not be recorded.</>)
+  },
+  {
+    "name": "breakoutRoomsCaptureSlides",
+    "required": false,
+    "type": "Boolean",
+    "description": (<>If set to <code className="language-plaintext highlighter-rouge">true</code>, the current slide (with annotations) from each breakout room is exported back to the parent meeting's presentation when the breakout ends. The server-side default is taken from <code className="language-plaintext highlighter-rouge">defaultBreakoutRoomsCaptureSlides</code>. (added 2.6)</>)
+  },
+  {
+    "name": "breakoutRoomsCaptureSlidesFilename",
+    "required": false,
+    "type": "String",
+    "description": (<>Filename template for slides captured from breakout rooms when <code className="language-plaintext highlighter-rouge">breakoutRoomsCaptureSlides=true</code>. (added 2.6)</>)
+  },
+  {
+    "name": "breakoutRoomsCaptureNotes",
+    "required": false,
+    "type": "Boolean",
+    "description": (<>If set to <code className="language-plaintext highlighter-rouge">true</code>, the shared notes from each breakout room are exported back to the parent meeting's presentation when the breakout ends. The server-side default is taken from <code className="language-plaintext highlighter-rouge">defaultBreakoutRoomsCaptureNotes</code>. (added 2.6)</>)
+  },
+  {
+    "name": "breakoutRoomsCaptureNotesFilename",
+    "required": false,
+    "type": "String",
+    "description": (<>Filename template for shared notes captured from breakout rooms when <code className="language-plaintext highlighter-rouge">breakoutRoomsCaptureNotes=true</code>. (added 2.6)</>)
   },
   {
     "name": "meta",
@@ -215,6 +245,13 @@ const createEndpointTableData = [
     "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> will allow participants to accept or decline when a moderator asks them to unmute. (added 4.0)</>)
   },
   {
+    "name": "allowModsToRequestCameraShare",
+    "required": false,
+    "type": "Boolean",
+    "default": "false",
+    "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> lets moderators ask a participant to share their webcam. The participant is prompted and may accept or decline; the webcam is never started without their consent. (added 4.1)</>)
+  },
+  {
     "name": "lockSettingsDisableCam",
     "required": false,
     "type": "Boolean",
@@ -303,7 +340,7 @@ const createEndpointTableData = [
     "required": false,
     "type": "Boolean",
     "default": false,
-    "description": (<>Defaults to the value of <code className="language-plaintext highlighter-rouge">defaultKeepEvents</code>. If <code className="language-plaintext highlighter-rouge">meetingKeepEvents</code> is true BigBlueButton saves meeting events even if the meeting is not recorded (added in 2.3)</>)
+    "description": (<>Defaults to the value of <code className="language-plaintext highlighter-rouge">defaultKeepEvents</code>. If <code className="language-plaintext highlighter-rouge">meetingKeepEvents</code> is true BigBlueButton saves meeting events even if the meeting is not recorded (added in 2.3)<p><i>Updated in 4.0:</i> breakout rooms always use the parent meeting's effective <code className="language-plaintext highlighter-rouge">meetingKeepEvents</code> value; an explicit parameter and the <code className="language-plaintext highlighter-rouge">defaultKeepEvents</code> fallback only apply to top-level meetings.</p></>)
   },
   {
     "name": "endWhenNoModerator",
@@ -325,6 +362,13 @@ const createEndpointTableData = [
     "type": "Enum",
     "default": "UNIFIED_LAYOUT",
     "description": (<>Will set the default layout for the meeting. Possible values are: UNIFIED_LAYOUT. (added 2.4) In version 3.0 a few more possible options were added: CAMERAS_ONLY, PRESENTATION_ONLY, PARTICIPANTS_AND_CHAT_ONLY, MEDIA_ONLY</>)
+  },
+  {
+    "name": "hideUsersWithoutCamera",
+    "required": false,
+    "type": "Boolean",
+    "default": "false",
+    "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> starts the meeting with participants without a camera hidden from the webcam grid, for everyone. Moderators and the presenter can turn it off from the "Layout view" button in the actions bar. (added 4.1)</>)
   },
   {
     "name": "learningDashboardCleanupDelayInMinutes",
@@ -362,6 +406,30 @@ const createEndpointTableData = [
     "description": (<>Setting to <code className="language-plaintext highlighter-rouge">0</code> will disable this threshold. Defines the max number of webcams a meeting can have simultaneously. (added 2.5.0)</>)
   },
   {
+    "name": "maxPinnedCameras",
+    "required": false,
+    "type": "Number",
+    "description": (<>Per-meeting override of the <code className="language-plaintext highlighter-rouge">maxPinnedCameras</code> property in <code className="language-plaintext highlighter-rouge">bigbluebutton.properties</code>. Caps how many cameras can be pinned simultaneously in this meeting. Only positive values are applied. (added 2.6)</>)
+  },
+  {
+    "name": "cameraBridge",
+    "required": false,
+    "type": "String",
+    "description": (<>Per-meeting override of the <code className="language-plaintext highlighter-rouge">cameraBridge</code> property. Selects the media bridge used for camera streams. Valid values: <code className="language-plaintext highlighter-rouge">bbb-webrtc-sfu</code>, <code className="language-plaintext highlighter-rouge">livekit</code>. (added 3.0)</>)
+  },
+  {
+    "name": "screenShareBridge",
+    "required": false,
+    "type": "String",
+    "description": (<>Per-meeting override of the <code className="language-plaintext highlighter-rouge">screenShareBridge</code> property. Selects the media bridge used for screen share streams. Valid values: <code className="language-plaintext highlighter-rouge">bbb-webrtc-sfu</code>, <code className="language-plaintext highlighter-rouge">livekit</code>. (added 3.0)</>)
+  },
+  {
+    "name": "audioBridge",
+    "required": false,
+    "type": "String",
+    "description": (<>Per-meeting override of the <code className="language-plaintext highlighter-rouge">audioBridge</code> property. Selects the media bridge used for audio streams. Valid values: <code className="language-plaintext highlighter-rouge">bbb-webrtc-sfu</code>, <code className="language-plaintext highlighter-rouge">livekit</code>. (added 3.0)</>)
+  },
+  {
     "name": "meetingExpireIfNoUserJoinedInMinutes",
     "required": false,
     "type": "Number",
@@ -373,7 +441,7 @@ const createEndpointTableData = [
     "required": false,
     "type": "Number",
     "default": 1,
-    "description": (<>Number of minutes to automatically end meeting after last user left. (added 2.5)<br />Setting to <code className="language-plaintext highlighter-rouge">0</code> will disable this function.</>)
+    "description": (<>Number of minutes to automatically end meeting after last user left. (added 2.5)<br />Setting to <code className="language-plaintext highlighter-rouge">0</code> ends the meeting as soon as the last user has left, so a meeting whose only user reloads the page or loses the connection can end.</>)
   },
   {
     "name": "groups",
@@ -388,29 +456,28 @@ const createEndpointTableData = [
     "description": (<>Pass a URL to an image which will then be visible in the area above the participants list if <code>displayBrandingArea</code> is set to <code>true</code> in bbb-html5's configuration</>)
   },
   {
-    "name": "sharedNotesEditor",
+    "name": "darklogo",
     "required": false,
     "type": "String",
-    "default": "blockNote",
-    "description": (<>Editor to be rendered in the shared-notes area: `blockNote` or `etherpad`</>)
+    "description": (<>Like <code className="language-plaintext highlighter-rouge">logo</code>, but used when the client is in dark mode. If only <code className="language-plaintext highlighter-rouge">logo</code> is provided, it is used in both light and dark modes. (added 3.0)</>)
   },
   {
     "name": "sharedNotesInitialContentJsonUrl",
     "required": false,
     "type": "String",
-    "description": (<>Url from which the shared-notes will fetch the initial content (Only applicable for when `sharedNotesEditor=blockNote`, ignored otherwise). The URL must be `https` (`fetchUrlSupportedProtocols`), is capped by `maxSharedNotesInitialContentUrlPayloadSize` (default 1024 KiB) and has a 6000 ms timeout; a URL that violates these yields empty initial content silently.</>)
+    "description": (<>Url from which the shared-notes will fetch the initial content. The URL must be `https` (`fetchUrlSupportedProtocols`), is capped by `maxSharedNotesInitialContentUrlPayloadSize` (default 1024 KiB) and has a 6000 ms timeout; a URL that violates these yields empty initial content silently.</>)
   },
   {
     "name": "sharedNotesInitialContentMarkdown",
     "required": false,
     "type": "String",
-    "description": (<>Raw markdown used as the shared-notes initial content (Only applicable for when `sharedNotesEditor=blockNote`, ignored otherwise). Takes precedence over `sharedNotesInitialContentMarkdownUrl` when both are provided.</>)
+    "description": (<>Raw markdown used as the shared-notes initial content. When `sharedNotesInitialContentMarkdownUrl` is also provided, the URL takes precedence over this inline value; this inline parameter in turn takes precedence over the `sharedNotesInitialContentMarkdown` POST module. (added 3.0.33)</>)
   },
   {
     "name": "sharedNotesInitialContentMarkdownUrl",
     "required": false,
     "type": "String",
-    "description": (<>Url from which the shared-notes will fetch the initial content as markdown (Only applicable for when `sharedNotesEditor=blockNote`, ignored otherwise). The URL must be `https` (`fetchUrlSupportedProtocols`), is capped by `maxSharedNotesInitialContentUrlPayloadSize` (default 1024 KiB) and has a 6000 ms timeout; a URL that violates these yields empty initial content silently.</>)
+    "description": (<>Url from which the shared-notes will fetch the initial content as markdown. When provided, it takes precedence over the inline `sharedNotesInitialContentMarkdown` create parameter and POST module. The URL must be `https` (`fetchUrlSupportedProtocols`), is capped by `maxSharedNotesInitialContentUrlPayloadSize` (default 1024 KiB) and has a 6000 ms timeout; a URL that violates these yields empty initial content silently. (added 3.0.33)</>)
   },
   {
     "name": "disabledFeatures",
@@ -508,9 +575,6 @@ const createEndpointTableData = [
                 <li>
                   <code className="language-plaintext highlighter-rouge">liveTranscription</code> - <b>Live Transcription</b>
                 </li>
-                <li>
-                  <code className="language-plaintext highlighter-rouge">captions</code> - <b>Closed Captions</b>
-                </li>
               </ul>
             </li>
             <li>
@@ -566,6 +630,12 @@ const createEndpointTableData = [
             <li>
               <code className="language-plaintext highlighter-rouge">multiFunctionalMode</code> - <b>Multi-Functional Mode - multiple sidebars</b>
             </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">webcamGrid</code> - <b>Enable/Disable the webcam grid, ie. the avatar tiles rendered for camera-less users while the presentation is minimized (added in BigBlueButton 4.0)</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">layoutView</code> - <b>Enable/Disable the "Layout view" button in the actions bar, which lets moderators and the presenter hide participants without camera. While disabled, the option keeps the value it was created with (see <code className="language-plaintext highlighter-rouge">hideUsersWithoutCamera</code>). Can also be disabled for the whole server with <code className="language-plaintext highlighter-rouge">public.layout.layoutViewEnabled: false</code> (added in BigBlueButton 4.1)</b>
+            </li>
           </ul>
         </>
     ),
@@ -589,6 +659,12 @@ const createEndpointTableData = [
     "type": "Boolean",
     "default": false,
     "description": (<>If it is true, a modal will be displayed to collect recording consent from users when meeting recording starts (only if <code className="language-plaintext highlighter-rouge">notifyRecordingIsOn=true</code>). By default it is false. (added 2.6)</>)
+  },
+  {
+    "name": "notifyRecordingAppend",
+    "required": false,
+    "type": "String",
+    "description": (<>Optional plain-text message appended after the standard recording notification description. It is shown only when recording notifications are enabled with <code className="language-plaintext highlighter-rouge">notifyRecordingIsOn=true</code>. If omitted or empty, the dialog is unchanged. HTML is displayed as text. (added 4.0)</>)
   },
   {
     "name": "presentationUploadExternalUrl",
@@ -619,7 +695,7 @@ const createEndpointTableData = [
     "name": "preUploadedPresentation",
     "required": false,
     "type": "String",
-    "description": (<>If passed with a valid presentation file url, this presentation will override the default presentation. To only upload but not set as default, also pass <code className="language-plaintext highlighter-rouge">preUploadedPresentationOverrideDefault=false</code> (added 2.7.2)</>)
+    "description": (<>If passed with a valid presentation file url, this presentation will override the default presentation. To only upload but not set as default, also pass <code className="language-plaintext highlighter-rouge">preUploadedPresentationOverrideDefault=false</code> (added 2.7.2). The file is downloaded and processed in the background: the create response does not wait for it, and download or conversion failures are reported to meeting clients rather than in the create response.</>)
   },
   {
     "name": "preUploadedPresentationName",
@@ -633,8 +709,8 @@ const createEndpointTableData = [
     "type": "JSON",
     "description": (
       <>
-        <p>A data structure containing settings which override values from the HTML5 client's <code>settings.yml</code> file. This data can also be provided in the body of a POST request, see <a href='#clientsettingsoverride'>clientSettingsOverride</a> for details.</p>
-        <p><i>Added:</i> 3.0.0-alpha.5</p>
+        <p>A data structure containing settings which override values from the HTML5 client's <code>settings.yml</code> file. It is not read from the query string or from form fields: send it as an XML module, <code>&lt;module name="clientSettingsOverride"&gt;</code>, in an <code>application/xml</code> POST body (see <a href='#clientsettingsoverride'>clientSettingsOverride</a>). The module is applied only when <code>allowOverrideClientSettingsOnCreateCall=true</code> is set in <code>/etc/bigbluebutton/bbb-web.properties</code> (default <code>false</code>). Integrations that can only send GET parameters can use <code>clientSettingsOverrideJsonUrl</code>, which takes precedence when both are present.</p>
+        <p><i>Added:</i> 3.0.0-alpha.1</p>
       </>
     )
   },

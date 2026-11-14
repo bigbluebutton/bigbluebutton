@@ -1,0 +1,7 @@
+id: getMeetings.report.capture-missing
+title: A capture that finds nothing fails the step
+endpoint: getMeetings
+class: contract
+steps:
+  - call: getMeetings
+    capture: {nope: /response/nope}

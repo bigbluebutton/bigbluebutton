@@ -84,13 +84,22 @@ public class PluginUtils {
         return parsedVersion.majorVersion() + "." + parsedVersion.minorVersion();
     }
 
+    // Semver: every 0.x minor is a breaking line of its own, while from 1.0 on the major alone defines compatibility
+    private String getPluginSdkMainVersion(String version) {
+        Version parsedVersion = Version.parse(version);
+        if (parsedVersion.majorVersion() == 0) {
+            return "0." + parsedVersion.minorVersion();
+        }
+        return String.valueOf(parsedVersion.majorVersion());
+    }
+
     public static boolean urlContainsMeetingIdPlaceholder(String url) {
         return url != null && url.contains(MEETING_ID);
     }
 
     public String replaceAllPlaceholdersInManifestUrls(String url, String meetingId) {
         return url.replace(HTML5_PLUGIN_SDK_VERSION, html5PluginSdkVersion)
-                .replace(HTML5_PLUGIN_SDK_MAIN_VERSION, getMainVersion(html5PluginSdkVersion))
+                .replace(HTML5_PLUGIN_SDK_MAIN_VERSION, getPluginSdkMainVersion(html5PluginSdkVersion))
                 .replace(BBB_VERSION, bbbVersion)
                 .replace(BBB_MAIN_VERSION, getMainVersion(bbbVersion))
                 .replace(MEETING_ID, meetingId);

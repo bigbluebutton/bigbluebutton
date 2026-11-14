@@ -7,6 +7,7 @@ interface State {
   currentVideoPageIndex: number;
   numberOfPages: number;
   pageSize: number;
+  paginationEnabled: boolean;
   userId: string | null;
 }
 
@@ -16,6 +17,7 @@ const videoState = makeVar<State>({
   currentVideoPageIndex: 0,
   numberOfPages: 0,
   pageSize: 0,
+  paginationEnabled: false,
   userId: null,
 });
 
@@ -52,10 +54,21 @@ const setConnectingStream = (stream: ConnectingStream | null) => {
 
 const getConnectingStream = () => connectingStream();
 
+// Cameras this client asked to stop (ie not server-initiated)
+const expectedStreamStops = new Set<string>();
+
+const expectStreamStop = (stream: string) => {
+  expectedStreamStops.add(stream);
+};
+
+const consumeExpectedStreamStop = (stream: string) => expectedStreamStops.delete(stream);
+
 export {
   useVideoState,
   setVideoState,
   getVideoState,
+  expectStreamStop,
+  consumeExpectedStreamStop,
   useConnectingStream,
   getConnectingStream,
   setConnectingStream,

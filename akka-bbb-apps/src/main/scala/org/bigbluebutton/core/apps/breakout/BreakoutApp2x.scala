@@ -22,6 +22,7 @@ trait BreakoutApp2x extends BreakoutRoomCreatedMsgHdlr
   with EndBreakoutRoomInternalMsgHdlr
   with UpdateBreakoutRoomTimeInternalMsgHdlr
   with EjectUserFromBreakoutInternalMsgHdlr
+  with UpdateBreakoutUserAccessInternalMsgHdlr
   with BreakoutRoomEndedInternalMsgHdlr
   with BreakoutRoomCallModeratorMsgHdlr {
 
@@ -71,10 +72,8 @@ object BreakoutRoomsUtil extends SystemConfiguration {
       breakoutMeetingId:   String,
       avatarURL:           String,
       webcamBackgroundURL: String,
-      role:                String,
       password:            String
   ): (collection.immutable.Map[String, String], collection.immutable.Map[String, String]) = {
-    val moderator = role == "MODERATOR"
     val params = collection.immutable.HashMap(
       "fullName" -> urlEncode(username),
       "userID" -> urlEncode(userId),
@@ -82,7 +81,6 @@ object BreakoutRoomsUtil extends SystemConfiguration {
       "meetingID" -> urlEncode(breakoutMeetingId),
       "avatarURL" -> urlEncode(avatarURL),
       "webcamBackgroundURL" -> urlEncode(webcamBackgroundURL),
-      "userdata-bbb_parent_room_moderator" -> urlEncode(moderator.toString()),
       "password" -> urlEncode(password),
       "redirect" -> urlEncode("true")
     )

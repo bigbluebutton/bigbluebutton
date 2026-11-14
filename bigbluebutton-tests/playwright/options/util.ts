@@ -3,10 +3,7 @@ import { join } from 'path';
 
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
-
-// Load default locale
-const defaultLocalePath = join(__dirname, '../../../bigbluebutton-html5/public/locales/en.json');
-const defaultLocale = JSON.parse(readFileSync(defaultLocalePath, 'utf8'));
+import { getDefaultLocale } from '../core/util';
 
 export async function openSettings(testPage: Page) {
   await testPage.waitAndClick(e.settingsSidebarButton);
@@ -38,9 +35,7 @@ export async function getLocaleValues(
     } catch {
       // Ignore import errors for missing locale files
     }
-    return generalLocale[currentKey]
-      ? generalLocale[currentKey]
-      : (defaultLocale as Record<string, string>)[currentKey];
+    return generalLocale[currentKey] ? generalLocale[currentKey] : getDefaultLocale()[currentKey];
   }
 
   for (const [element, key] of Object.entries(elements)) {
@@ -50,6 +45,23 @@ export async function getLocaleValues(
   }
 
   return currentValues;
+}
+
+export async function selectLocale(testPage: Page, locale: string) {
+  await openSettings(testPage);
+  await testPage.page.locator(e.languageSelector).selectOption({ value: locale });
+  await testPage.waitAndClick(e.saveSettingsButton);
+}
+
+export async function getHtmlFontSize(testPage: Page): Promise<string> {
+  return testPage.page.locator('html').evaluate((node) => getComputedStyle(node).fontSize);
+}
+
+// Horizontal center of an element, to tell which side of the viewport it sits on.
+export async function getCenterX(testPage: Page, selector: string): Promise<number> {
+  const box = await testPage.page.locator(selector).first().boundingBox();
+  if (!box) throw new Error(`${selector} has no bounding box`);
+  return box.x + box.width / 2;
 }
 
 export async function openAboutModal(testPage: Page) {

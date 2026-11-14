@@ -831,16 +831,34 @@
 					// set a different "title" attribute
 					acorn.$captionBtn.attr('title', text.captionsChoose);
 					
-					// markup for the Caption Selector
-					var captionList = '<ul><li><label><input type="radio" name="' + captionRadioName + '" checked="true" />None</label></li>';					
+					// Build the Caption Selector without interpreting track metadata as HTML.
+					var captionList = document.createElement('ul');
+					var noneItem = document.createElement('li');
+					var noneLabel = document.createElement('label');
+					var noneInput = document.createElement('input');
+					noneInput.setAttribute('type', 'radio');
+					noneInput.setAttribute('name', captionRadioName);
+					noneInput.setAttribute('checked', 'true');
+					noneLabel.appendChild(noneInput);
+					noneLabel.appendChild(document.createTextNode('None'));
+					noneItem.appendChild(noneLabel);
+					captionList.appendChild(noneItem);
+
 					acorn.$track.each(function() {
-						var tracksrc = $(this).attr('src');
-						captionList += '<li><label><input type="radio" name="' + captionRadioName + '" data-url="' + $(this).attr('src') + '" />' + $(this).attr('label') + '</label></li>';
+						var item = document.createElement('li');
+						var label = document.createElement('label');
+						var input = document.createElement('input');
+						input.setAttribute('type', 'radio');
+						input.setAttribute('name', captionRadioName);
+						input.setAttribute('data-url', $(this).attr('src'));
+						label.appendChild(input);
+						label.appendChild(document.createTextNode($(this).attr('label') || ''));
+						item.appendChild(label);
+						captionList.appendChild(item);
 					});
-					captionList += '</ul>';
 					
 					// append the generated markup
-					acorn.$captionSelector.html(captionList);
+					acorn.$captionSelector.empty().append(captionList);
 					
 					// change selected caption
 					var changeCaption = function() {

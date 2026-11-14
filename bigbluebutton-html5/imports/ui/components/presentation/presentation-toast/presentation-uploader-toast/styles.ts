@@ -14,12 +14,12 @@ import {
   iconLineHeight,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  colorPrimary,
-  colorWhite,
   colorDanger,
   colorGray,
+  colorGrayLightestText,
+  colorPrimary,
   colorSuccess,
-  colorGrayLightest,
+  colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 import ToastStyles from '/imports/ui/components/common/toast/styles';
@@ -88,7 +88,9 @@ const UploadToastHeader = styled.div`
   padding-bottom: ${smPaddingX};
 `;
 
-const UploadIcon = styled(Icon)`
+const UploadIcon = styled(Icon)<{
+  $error?: boolean;
+}>`
   background-color: ${colorPrimary};
   color: ${colorWhite};
   height: ${uploadIconSize};
@@ -102,6 +104,10 @@ const UploadIcon = styled(Icon)`
     margin-left: ${smPaddingX};
     margin-right: 0;
   }
+
+  ${({ $error }) => $error && `
+    background-color: ${colorDanger};
+  `}
 `;
 
 const UploadToastTitle = styled.span`
@@ -152,7 +158,7 @@ const ToastItemIcon = styled(Icon)<{
   `}
 
   ${({ loading, color }) => loading && css`
-    color: ${colorGrayLightest};
+    color: ${colorGrayLightestText};
     border: 1px solid;
     border-radius: 50%;
     border-right-color: ${color || colorGray};

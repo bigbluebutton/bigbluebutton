@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import { useLocalEcho } from '/imports/ui/components/media-setup/audio-test/hooks';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -13,12 +14,7 @@ const propTypes = {
     id: PropTypes.string,
   }),
   initialHearingState: PropTypes.bool,
-  playEchoStream: PropTypes.func.isRequired,
-  deattachEchoStream: PropTypes.func.isRequired,
-  shouldUseRTCLoopback: PropTypes.func.isRequired,
-  createAudioRTCLoopback: PropTypes.func.isRequired,
   outputDeviceId: PropTypes.string,
-  setAudioSink: PropTypes.func.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -36,48 +32,13 @@ const LocalEcho = ({
   intl,
   stream = null,
   initialHearingState = false,
-  playEchoStream,
-  deattachEchoStream,
-  shouldUseRTCLoopback,
-  createAudioRTCLoopback,
   outputDeviceId,
-  setAudioSink,
 }) => {
-  const loopbackAgent = useRef(null);
-  const [hearing, setHearing] = useState(initialHearingState);
+  const { hearing, setHearing } = useLocalEcho({ stream, outputDeviceId, initialHearingState });
   const Settings = getSettingsSingletonInstance();
   const { animations } = Settings.application;
   const icon = hearing ? 'no_audio' : 'listen';
   const label = hearing ? intlMessages.stopAudioFeedbackLabel : intlMessages.startAudioFeedback;
-
-  const applyHearingState = (_stream) => {
-    if (hearing) {
-      setAudioSink(outputDeviceId);
-      playEchoStream(_stream, loopbackAgent.current);
-    } else {
-      deattachEchoStream();
-    }
-  };
-
-  const cleanup = () => {
-    if (loopbackAgent.current) loopbackAgent.current.stop();
-    deattachEchoStream();
-  };
-
-  useEffect(() => {
-    if (shouldUseRTCLoopback()) {
-      loopbackAgent.current = createAudioRTCLoopback();
-    }
-    return cleanup;
-  }, []);
-
-  useEffect(() => {
-    applyHearingState(stream);
-  }, [stream, hearing]);
-
-  useEffect(() => {
-    if (outputDeviceId) setAudioSink(outputDeviceId);
-  }, [outputDeviceId]);
 
   return (
     <Styled.LocalEchoTestButton

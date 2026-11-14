@@ -6,9 +6,11 @@ import {
   borderSize,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  colorText,
   colorBorder,
+  colorBorderSurface,
   colorPrimary,
+  colorText,
+  colorWhiteSurface,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 import TextareaAutosize from 'react-autosize-textarea';
@@ -21,7 +23,7 @@ const Wrapper = styled.div`
 
 const TextArea = styled(TextareaAutosize)`
   flex: 1;
-  background: #fff;
+  background: ${colorWhiteSurface};
   background-clip: padding-box;
   margin: 0;
   color: ${colorText};
@@ -34,7 +36,7 @@ const TextArea = styled(TextareaAutosize)`
   min-height: 2.5rem;
   max-height: 10rem;
   border: 1px solid ${colorBorder};
-  box-shadow: 0 0 0 1px ${colorBorder};
+  box-shadow: 0 0 0 1px ${colorBorderSurface};
 
   &:hover {
     outline: transparent;

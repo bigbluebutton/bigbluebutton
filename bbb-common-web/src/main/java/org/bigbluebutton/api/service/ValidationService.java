@@ -38,12 +38,10 @@ public class ValidationService {
         GET_MEETING_INFO("getMeetingInfo", RequestType.GET),
         GET_MEETINGS("getMeetings", RequestType.GET),
         GET_SESSIONS("getSessions", RequestType.GET),
-        GUEST_WAIT("guestWait", RequestType.GET),
         STUNS("stuns", RequestType.GET),
         SIGN_OUT("signOut", RequestType.GET),
         LEARNING_DASHBOARD("learningDashboard", RequestType.GET),
         GET_JOIN_URL("getJoinUrl", RequestType.GET),
-        FEEDBACK("feedback", RequestType.GET),
         INSERT_DOCUMENT("insertDocument", RequestType.GET),
         SEND_CHAT_MESSAGE("sendChatMessage", RequestType.GET);
 
@@ -76,6 +74,12 @@ public class ValidationService {
         Map<String, String[]> params = servletRequest.getParameterMap();
         log.info("Validating {} request with query string {}", apiCall.getName(), queryString);
         params = sanitizeParams(params);
+
+        if (params.containsKey("checksum") && params.get("checksum").length > 1) {
+            Map<String, String> violations = new HashMap<>();
+            violations.put("checksumError", "Checksums do not match");
+            return violations;
+        }
 
         Request request = initializeRequest(apiCall, params, queryString, servletRequest);
         Map<String,String> violations = new HashMap<>();
@@ -124,12 +128,10 @@ public class ValidationService {
                 case GET_MEETINGS, GET_SESSIONS -> new SimpleRequest(checksum, servletRequest);
                 case INSERT_DOCUMENT -> new InsertDocument(checksum, servletRequest);
                 case SEND_CHAT_MESSAGE -> new SendChatMessage(checksum, servletRequest);
-                case GUEST_WAIT -> new GuestWait(servletRequest);
                 case STUNS -> new Stuns(servletRequest);
                 case SIGN_OUT -> new SignOut(servletRequest);
                 case LEARNING_DASHBOARD -> new LearningDashboard(servletRequest);
                 case GET_JOIN_URL -> new GetJoinUrl(servletRequest);
-                case FEEDBACK -> new Feedback(servletRequest);
             };
         }
 

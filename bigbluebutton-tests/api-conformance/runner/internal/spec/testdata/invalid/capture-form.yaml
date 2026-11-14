@@ -1,0 +1,11 @@
+# want: 9: steps[0]: unknown capture "body:text"
+# want: 11: steps[1]: a bus step captures with a JSONPath ($...), got "/x"
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+steps:
+  - call: create
+    capture: {a: "body:text"}
+  - bus: {name: M, meetingId: m, within: 1s}
+    capture: {b: /x}

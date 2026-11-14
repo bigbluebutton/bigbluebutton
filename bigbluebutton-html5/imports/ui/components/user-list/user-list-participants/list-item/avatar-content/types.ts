@@ -1,5 +1,3 @@
-import { User } from '/imports/ui/Types/user';
-
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace JSX {
@@ -14,6 +12,19 @@ export interface EmojiProps {
   size: number;
 }
 
+/**
+ * Only the fields the avatar content reads, so any list that shows a participant can reuse it
+ * without carrying the whole user around.
+ */
+export interface AvatarContentUser {
+  name: string;
+  avatar: string;
+  isDialIn: boolean;
+  away: boolean;
+  reactionEmoji: string;
+  lastBreakoutRoom?: { sequence: number; isUserCurrentlyInRoom: boolean } | null;
+}
+
 export interface AvatarContentProps {
-  user: User,
+  user: AvatarContentUser,
 }

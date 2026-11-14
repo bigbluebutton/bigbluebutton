@@ -1,11 +1,15 @@
 <include>
     <extension name="bbb_webrtc_call" continue="true">
+      <!-- bbb-webrtc-sfu only signals over WebSocket; plain SIP (5060) is for dial-in. -->
+      <condition field="${sip_via_protocol}" expression="^wss?$" break="on-false"/>
       <condition field="${sip_user_agent}" expression="^bbb-webrtc-sfu$" break="on-false">
         <action application="set" data="presence_data=from_bbb-webrtc-sfu"/>
         <action application="set" data="bbb_authorized=true"/>
         <action application="set" data="rtp_manual_rtp_bugs=ACCEPT_ANY_PACKETS"/>
         <action application="set" data="jb_use_timestamps=true"/>
-        <action application="transfer" data="${destination_number} XML default"/>
+        <condition field="destination_number" expression="^(\d{5,11})$" break="on-false">
+          <action application="transfer" data="$1 XML default"/>
+        </condition>
       </condition>
     </extension>
 </include>

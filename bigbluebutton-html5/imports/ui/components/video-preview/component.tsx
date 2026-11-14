@@ -7,8 +7,11 @@ import {
 import VirtualBgSelector from '/imports/ui/components/video-preview/virtual-background/component';
 import browserInfo from '/imports/utils/browserInfo';
 import { MutationFunction } from '@apollo/client';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import PreviewService from './service';
 import VideoService from '/imports/ui/components/video-provider/service';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
+import { ModalPriority } from '/imports/ui/components/common/modal/generic/component';
 import Styled from './styles';
 import deviceInfo from '/imports/utils/deviceInfo';
 import {
@@ -18,7 +21,6 @@ import {
 } from '/imports/ui/services/virtual-background/service';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Checkbox from '/imports/ui/components/common/checkbox/component';
-import AppService from '/imports/ui/components/app/service';
 import Session from '/imports/ui/services/storage/in-memory';
 import { useVideoPreview } from './hooks/useVideoPreview';
 import { CameraProfileProps } from './hooks/types';
@@ -38,8 +40,10 @@ interface VideoPreviewProps {
   cameraAsContentDeviceId?: string;
   isCamLocked?: boolean;
   forceOpen?: boolean;
+  // Shares the stored camera straight away, skipping this modal's UI.
+  skipPreview?: boolean;
   isOpen: boolean;
-  priority?: number;
+  priority?: ModalPriority;
   isVirtualBackgroundsEnabled: boolean;
   isCustomVirtualBackgroundsEnabled: boolean;
   hideNotificationToasts?: boolean;
@@ -165,6 +169,7 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
   cameraAsContentDeviceId,
   isCamLocked = false,
   forceOpen = false,
+  skipPreview = false,
   isOpen,
   priority,
   isVirtualBackgroundsEnabled,
@@ -213,6 +218,7 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
     isCameraAsContent: cameraAsContent,
     isCameraShared: !!isAlreadyShared(initialWebcamDeviceId),
     forceOpen,
+    skipPreview,
     startSharing,
     startSharingCameraAsContent,
   });
@@ -281,7 +287,7 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
       stopVirtualBackground(currentVideoStream.current);
     }
 
-    terminateCameraStream(currentVideoStream.current, webcamDeviceId);
+    terminateCameraStream(currentVideoStream.current);
     closeModal();
     if (resolve) resolve();
   }, [
@@ -571,43 +577,53 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
           <Styled.FooterContainer showStopAllButton={showStopAllButton}>
             {showStopAllButton && (
               <Styled.ExtraActions>
-                <Styled.StopAllButton
-                  color="danger"
-                  label={intl.formatMessage(intlMessages.stopSharingAllLabel)}
-                  onClick={handleStopSharingAll}
-                  disabled={shouldDisableButtons}
-                />
+                <Styled.ButtonWrapper>
+                  <BBButton
+                    variant="primary"
+                    color="danger"
+                    dataTest="stopSharingAllWebcams"
+                    label={intl.formatMessage(intlMessages.stopSharingAllLabel)}
+                    onClick={handleStopSharingAll}
+                    disabled={shouldDisableButtons}
+                  />
+                </Styled.ButtonWrapper>
               </Styled.ExtraActions>
             )}
             {!shared && camCapReached ? (
               <span>{intl.formatMessage(intlMessages.camCapReached)}</span>
             ) : (
               <div style={{ display: 'flex' }}>
-                <Styled.CancelButton
-                  data-test="cancelSharingWebcam"
-                  label={intl.formatMessage(intlMessages.cancelLabel)}
-                  onClick={closeModal}
-                />
-                <Styled.SharingButton
-                  data-test="startSharingWebcam"
-                  color={shared ? 'danger' : 'primary'}
-                  label={intl.formatMessage(shared ? intlMessages.stopSharingLabel : intlMessages.startSharingLabel)}
-                  onClick={() => {
-                    if (shared) {
-                      handleStopSharing();
-                    } else {
-                      handleStartSharing(webcamDeviceId as string);
-                      if (isAway) {
-                        setAway({
-                          variables: {
-                            away: false,
-                          },
-                        });
+                <Styled.ButtonWrapper>
+                  <BBButton
+                    variant="secondary"
+                    dataTest="cancelSharingWebcam"
+                    label={intl.formatMessage(intlMessages.cancelLabel)}
+                    onClick={closeModal}
+                  />
+                </Styled.ButtonWrapper>
+                <Styled.ButtonWrapper>
+                  <BBButton
+                    variant="primary"
+                    color={shared ? 'danger' : 'default'}
+                    dataTest="startSharingWebcam"
+                    label={intl.formatMessage(shared ? intlMessages.stopSharingLabel : intlMessages.startSharingLabel)}
+                    onClick={() => {
+                      if (shared) {
+                        handleStopSharing();
+                      } else {
+                        handleStartSharing(webcamDeviceId as string);
+                        if (isAway) {
+                          setAway({
+                            variables: {
+                              away: false,
+                            },
+                          });
+                        }
                       }
-                    }
-                  }}
-                  disabled={isCameraLoading || shouldDisableButtons}
-                />
+                    }}
+                    disabled={isCameraLoading || shouldDisableButtons}
+                  />
+                </Styled.ButtonWrapper>
               </div>
             )}
           </Styled.FooterContainer>
@@ -641,31 +657,33 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
   const BASE_NAME = window.meetingClientSettings.public.app.basename;
   const WebcamSettingsImg = `${BASE_NAME}/resources/images/webcam_settings.svg`;
   const WebcamBackgroundImg = `${BASE_NAME}/resources/images/webcam_background.svg`;
-  const darkThemeState = AppService.isDarkThemeEnabled();
 
   return (
-    <Styled.VideoPreviewModal
+    <ModalSimple
       onRequestClose={handleProceed}
       contentLabel={intl.formatMessage(intlMessages.webcamSettingsTitle)}
-      shouldShowCloseButton={allowCloseModal}
+      title={getModalTitle()}
+      contentStyle={deviceInfo.isPhone
+        ? { minWidth: '100%', minHeight: '100%', borderRadius: 0 }
+        : undefined}
       shouldCloseOnOverlayClick={allowCloseModal}
-      isPhone={deviceInfo.isPhone}
-      data-test="webcamSettingsModal"
-      {...{ isOpen, priority }}
+      dataTest="webcamSettingsModal"
+      isOpen={isOpen}
+      priority={priority}
     >
       <Styled.Container>
         <Styled.Header>
           <Styled.WebcamTabs onSelect={setSelectedTab} selectedIndex={selectedTab}>
             <Styled.WebcamTabList>
               <Styled.WebcamTabSelector selectedClassName="is-selected">
-                <Styled.IconSvg src={WebcamSettingsImg} darkThemeState={darkThemeState} />
+                <Styled.IconSvg src={WebcamSettingsImg} />
                 <span id="webcam-settings-title">{getModalTitle()}</span>
               </Styled.WebcamTabSelector>
               {shouldShowVirtualBackgroundsTab && (
                 <>
                   <Styled.HeaderSeparator />
                   <Styled.WebcamTabSelector selectedClassName="is-selected">
-                    <Styled.IconSvg src={WebcamBackgroundImg} darkThemeState={darkThemeState} />
+                    <Styled.IconSvg src={WebcamBackgroundImg} />
                     <span id="backgrounds-title">{intl.formatMessage(intlMessages.webcamVirtualBackgroundTitle)}</span>
                   </Styled.WebcamTabSelector>
                 </>
@@ -675,7 +693,7 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
         </Styled.Header>
         {deviceInfo.hasMediaDevices ? renderModalContent() : supportWarning()}
       </Styled.Container>
-    </Styled.VideoPreviewModal>
+    </ModalSimple>
   );
 };
 

@@ -15,7 +15,6 @@ case class MeetingProp(
     meetingCameraCap:                       Int,
     sharedNotesInitialContentJson:          Vector[AnyRef],
     sharedNotesInitialContentMarkdown:      String = "",
-    sharedNotesEditor:                        String,
     maxPinnedCameras:                       Int,
     cameraBridge:                           String,
     screenShareBridge:                      String,
@@ -23,6 +22,7 @@ case class MeetingProp(
     isBreakout:                             Boolean,
     disabledFeatures:                       Vector[String],
     notifyRecordingIsOn:                    Boolean,
+    notifyRecordingAppend:                  String,
     presentationUploadExternalDescription:  String,
     presentationUploadExternalUrl:          String,
 )
@@ -56,9 +56,11 @@ case class UsersProp(
     userCameraCap:                Int,
     guestPolicy:                  String,
     meetingLayout:                String,
+    hideUsersWithoutCamera:       Boolean,
     allowModsToUnmuteUsers:       Boolean,
     requireUserConsentBeforeUnmuting:     Boolean,
     allowModsToEjectCameras:      Boolean,
+    allowModsToRequestCameraShare: Boolean,
     authenticatedGuest:           Boolean,
     allowPromoteGuestToModerator: Boolean,
     waitingGuestUsersTimeout: Long

@@ -26,7 +26,6 @@ import groovy.xml.XmlSlurper
 import org.apache.commons.codec.binary.Base64
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FilenameUtils
-import org.apache.commons.lang3.RandomStringUtils
 import org.apache.commons.lang3.StringUtils
 import org.bigbluebutton.api.*
 import org.bigbluebutton.api.domain.GuestPolicy
@@ -36,6 +35,7 @@ import org.bigbluebutton.api.service.DownloadResult
 import org.bigbluebutton.api.service.ServiceUtils
 import org.bigbluebutton.api.service.ValidationService
 import org.bigbluebutton.api.util.ParamsUtil
+import org.bigbluebutton.api.util.RequestRateLimiter
 import org.bigbluebutton.api.util.ResponseBuilder
 import org.bigbluebutton.presentation.PresentationUrlDownloadService
 import org.bigbluebutton.presentation.SupportedFileTypes
@@ -45,7 +45,6 @@ import org.bigbluebutton.web.services.turn.RemoteIceCandidate
 import org.bigbluebutton.web.services.turn.StunServer
 import org.bigbluebutton.web.services.turn.StunTurnService
 import org.bigbluebutton.web.services.turn.TurnEntry
-import org.codehaus.groovy.util.ListHashMap
 import org.json.JSONArray
 
 import jakarta.servlet.ServletRequest
@@ -65,6 +64,15 @@ class ApiController {
   private static final String ERROR_MALFORMED_XML_MESSAGE = "The request body contains malformed XML."
   private static final String ERROR_INVALID_PRESENTATION_URL = "invalidPresentationUrl"
   private static final String ERROR_INVALID_PRESENTATION_URL_MESSAGE = "Presentation URL is malformed."
+
+  // Outcomes of prepareDocuments
+  private static final String DOCUMENTS_READY = "ready"
+  private static final String DOCUMENTS_DISABLED = "disabled"
+  private static final String DOCUMENTS_INVALID_FILENAME = "invalidFilename"
+
+  // SUCCESS messageKey of create and insertDocument when documents beyond maxPresentationsPerRequest were dropped
+  private static final String MSG_KEY_DOCUMENTS_DROPPED = "documentsDropped"
+
   private static final String URL_ENCODING = "UTF-8"
   protected static Boolean REDIRECT_RESPONSE = true
 
@@ -72,22 +80,24 @@ class ApiController {
   PresentationService presentationService
   ParamsProcessorUtil paramsProcessorUtil
   PresentationUrlDownloadService presDownloadService
+  RequestRateLimiter insertDocumentRateLimiter
   StunTurnService stunTurnService
   ResponseBuilder responseBuilder = initResponseBuilder()
   ValidationService validationService
 
 
-  def initResponseBuilder = {
+  private ResponseBuilder initResponseBuilder() {
     String protocol = this.getClass().getResource("").getProtocol();
     if (Objects.equals(protocol, "jar")) {
       // Application running inside a JAR file
-      responseBuilder = new ResponseBuilder(getClass().getClassLoader(), "/WEB-INF/freemarker")
+      return new ResponseBuilder(getClass().getClassLoader(), "/WEB-INF/freemarker")
     } else if (Objects.equals(protocol, "file")) {
       // Application unzipped and running outside a JAR file
       String templateLoc = ServletContextHolder.servletContext.getRealPath("/WEB-INF/freemarker")
       // We should never have a null `templateLoc`
-      responseBuilder = new ResponseBuilder(new File(templateLoc))
+      return new ResponseBuilder(new File(templateLoc))
     }
+    return null
   }
 
   /* general methods */
@@ -257,9 +267,24 @@ class ApiController {
     }
 
     if (meetingService.createMeeting(newMeeting)) {
-      respondWithConference(newMeeting, null, null)
       // See if the request came with pre-uploading of presentation.
-      uploadDocuments(xmlModules, newMeeting, false);  //
+      // The meeting is already created and running, so a failure in the
+      // synchronous portion of the upload handling must not turn a successful
+      // creation into a 500 — log it and still respond with success (the actual
+      // download/processing runs async and reports its own failures).
+      def documents = null
+      try {
+        documents = prepareDocuments(xmlModules, newMeeting, false)
+        documents.tasks.each { it() }
+      } catch (Exception e) {
+        log.error("Failed to handle pre-uploaded presentations for meeting [${newMeeting.getInternalId()}]", e)
+      }
+
+      if (documents != null && documents.dropped > 0) {
+        respondWithConference(newMeeting, MSG_KEY_DOCUMENTS_DROPPED, droppedDocumentsMessage(documents))
+      } else {
+        respondWithConference(newMeeting, null, null)
+      }
     } else {
       // Translate the external meeting id into an internal meeting id.
       String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(params.meetingID);
@@ -291,8 +316,7 @@ class ApiController {
         return
       } else {
         Meeting existingTelVoice = meetingService.getNotEndedMeetingWithTelVoice(newMeeting.getTelVoice());
-        Meeting existingWebVoice = meetingService.getNotEndedMeetingWithWebVoice(newMeeting.getWebVoice());
-        if (existingTelVoice != null || existingWebVoice != null) {
+        if (existingTelVoice != null) {
           log.error "VoiceBridge already in use by another meeting (different meetingId)"
           errors.nonUniqueVoiceBridgeError()
           respondWithErrors(errors)
@@ -455,17 +479,17 @@ class ApiController {
       withFormat {
         xml {
           render(text: responseBuilder.buildError("Params required", "You must either send the valid role of the user, or " +
-                  "the password, sould the meeting has one.", RESP_CODE_FAILED), contentType: "text/xml")
+                  "the password, should the meeting have one.", RESP_CODE_FAILED), contentType: "text/xml")
         }
         '*' {
           render(text: responseBuilder.buildError("Params required", "You must either send the valid role of the user, or " +
-                  "the password, sould the meeting has one.", RESP_CODE_FAILED), contentType: "text/xml")
+                  "the password, should the meeting have one.", RESP_CODE_FAILED), contentType: "text/xml")
         }
       }
       return
     }
 
-    // We preprend "w_" to our internal meeting Id to indicate that this is a web user.
+    // We prepend "w_" to our internal meeting Id to indicate that this is a web user.
     // For users joining using the phone, we will prepend "v_" so it will be easier
     // to distinguish users who doesn't have a web client. (ralam june 12, 2017)
     String internalUserID = "w_" + Util.randomAlphanumeric(12).toLowerCase()
@@ -534,7 +558,6 @@ class ApiController {
     us.conference = meeting.getInternalId()
     us.room = meeting.getInternalId()
     us.voicebridge = meeting.getTelVoice()
-    us.webvoiceconf = meeting.getWebVoice()
     us.mode = "LIVE"
     us.record = meeting.isRecord()
     us.welcome = meeting.getWelcomeMessage()
@@ -700,7 +723,7 @@ class ApiController {
       } catch (Exception ignored) {}
     }
 
-    String sessionToken = RandomStringUtils.randomAlphanumeric(16).toLowerCase()
+    String sessionToken = Util.randomAlphanumeric(16).toLowerCase()
     log.debug "Session token: " + sessionToken
 
     UserSession us = new UserSession();
@@ -717,7 +740,6 @@ class ApiController {
     us.conference = meeting.getInternalId()
     us.room = meeting.getInternalId()
     us.voicebridge = meeting.getTelVoice()
-    us.webvoiceconf = meeting.getWebVoice()
     us.mode = "LIVE"
     us.record = meeting.isRecord()
     us.welcome = meeting.getWelcomeMessage()
@@ -815,7 +837,7 @@ class ApiController {
     }
   }
 
-  String handleCreateUserClientUrl(String sessionToken, UserSession session) {
+  private String handleCreateUserClientUrl(String sessionToken, UserSession session) {
     String clientUrl = paramsProcessorUtil.getDefaultHTML5ClientUrl()
     String redirectUrl = clientUrl
     if (!StringUtils.isEmpty(session.getEnforceLayout())) {
@@ -1007,10 +1029,10 @@ class ApiController {
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
         xml {
-          render(text: responseBuilder.buildGetSessionsResponse(sssns, "noSessions", "no sessions were found on this serverr", RESP_CODE_SUCCESS), contentType: "text/xml")
+          render(text: responseBuilder.buildGetSessionsResponse(sssns, "noSessions", "no sessions were found on this server", RESP_CODE_SUCCESS), contentType: "text/xml")
         }
         '*' {
-          render(text: responseBuilder.buildGetSessionsResponse(sssns, "noSessions", "no sessions were found on this serverr", RESP_CODE_SUCCESS), contentType: "text/xml")
+          render(text: responseBuilder.buildGetSessionsResponse(sssns, "noSessions", "no sessions were found on this server", RESP_CODE_SUCCESS), contentType: "text/xml")
         }
       }
     } else {
@@ -1197,61 +1219,48 @@ class ApiController {
     Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
 
     if (meeting != null) {
+      // Keyed by the internal meeting ID, which is guaranteed unique. A meeting over the limit
+      // is turned away before the request body is read; otherwise a request is counted below,
+      // only once it is known to upload documents.
+      String internalMeetingId = meeting.getInternalId()
+      if (insertDocumentRateLimiter.isLimited(internalMeetingId, System.currentTimeMillis())) {
+        respondWithInsertDocumentRateLimited(externalMeetingId, internalMeetingId)
+        return
+      }
+
       String requestBody = request.inputStream == null ? null : request.inputStream.text
       requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody
 
+      // The XML body, the presentation URLs and the filenames are all validated before
+      // anything is downloaded, so an invalid request is reported as a failure instead of a
+      // misleading SUCCESS, and does not count against the rate limit.
       def xmlModules = processValidatedRequestXmlModules(requestBody)
       if (xmlModules == null) return
-      if (uploadDocuments(xmlModules, meeting, true)) {
-        withFormat {
-          xml {
-            render(text: responseBuilder.buildInsertDocumentResponse("Presentation is being uploaded", RESP_CODE_SUCCESS)
-                    , contentType: "text/xml")
-          }
-          '*' {
-            render(text: responseBuilder.buildInsertDocumentResponse("Presentation is being uploaded", RESP_CODE_SUCCESS)
-                    , contentType: "text/xml")
-          }
-        }
-      } else if (meetingService.isMeetingWithDisabledPresentation(meeting.getInternalId())) {
-        withFormat {
-          xml {
-            render(text: responseBuilder.buildInsertDocumentResponse("Presentation feature is disabled, ignoring.",
-                    RESP_CODE_FAILED), contentType: "text/xml")
-          }
-          '*' {
-            render(text: responseBuilder.buildInsertDocumentResponse("Presentation feature is disabled, ignoring.",
-                    RESP_CODE_FAILED), contentType: "text/xml")
-          }
-        }
+      def documents = prepareDocuments(xmlModules, meeting, true)
+
+      if (documents.status == DOCUMENTS_DISABLED) {
+        respondWithInsertDocument(RESP_CODE_FAILED, "presentationDisabled",
+                "Presentation feature is disabled, ignoring.")
+      } else if (documents.status == DOCUMENTS_INVALID_FILENAME) {
+        respondWithInsertDocument(RESP_CODE_FAILED, "invalidFilename",
+                "One or more documents could not be uploaded due to an invalid filename.")
+      } else if (documents.tasks.isEmpty()) {
+        respondWithInsertDocument(RESP_CODE_FAILED, "noDocuments",
+                "Request body must contain a presentation module with at least one document.")
+      } else if (!insertDocumentRateLimiter.allow(internalMeetingId, System.currentTimeMillis())) {
+        respondWithInsertDocumentRateLimited(externalMeetingId, internalMeetingId)
       } else {
-        withFormat {
-          xml {
-            render(text: responseBuilder.buildInsertDocumentResponse(
-                    "Request body must contain a presentation module with at least one document.",
-                    RESP_CODE_FAILED), contentType: "text/xml")
-          }
-          '*' {
-            render(text: responseBuilder.buildInsertDocumentResponse(
-                    "Request body must contain a presentation module with at least one document.",
-                    RESP_CODE_FAILED), contentType: "text/xml")
-          }
+        documents.tasks.each { it() }
+        if (documents.dropped > 0) {
+          respondWithInsertDocument(RESP_CODE_SUCCESS, MSG_KEY_DOCUMENTS_DROPPED, droppedDocumentsMessage(documents))
+        } else {
+          respondWithInsertDocument(RESP_CODE_SUCCESS, null, "Presentation is being uploaded")
         }
       }
-    }else {
+    } else {
       log.warn("Meeting with externalID ${externalMeetingId} doesn't exist.")
-      withFormat {
-        xml {
-          render(text: responseBuilder.buildInsertDocumentResponse(
-                  "Meeting with id [${externalMeetingId}] not found.", RESP_CODE_FAILED),
-                  contentType: "text/xml")
-        }
-        '*' {
-          render(text: responseBuilder.buildInsertDocumentResponse(
-                  "Meeting with id [${externalMeetingId}] not found.", RESP_CODE_FAILED),
-                  contentType: "text/xml")
-        }
-      }
+      respondWithInsertDocument(RESP_CODE_FAILED, "notFound",
+              "Meeting with id [${externalMeetingId}] not found.")
     }
   }
 
@@ -1343,94 +1352,103 @@ class ApiController {
         reject = true
         respMessage = "Meeting not found"
       }
+    }
 
-      if (reject) {
-        response.addHeader("Cache-Control", "no-cache")
-        withFormat {
-          json {
-            def builder = new JsonBuilder()
-            builder.response {
-              returncode RESP_CODE_FAILED
-              message respMessage
-              sessionToken
-            }
-            render(contentType: "application/json", text: builder.toPrettyString())
-          }
-        }
-      } else {
-        Map<String, Object> logData = new HashMap<String, Object>();
-        logData.put("meetingid", us.meetingID);
-        logData.put("extMeetingid", us.externMeetingID);
-        logData.put("name", us.fullname);
-        logData.put("userid", us.internalUserId);
-        logData.put("sessionToken", sessionToken);
-        logData.put("logCode", "getJoinUrl");
-        logData.put("description", "Request join URL");
-        Gson gson = new Gson();
-        String logStr = gson.toJson(logData);
+    if (reject) {
+      def builder = new JsonBuilder()
+      builder.response {
+        returncode RESP_CODE_FAILED
+        message respMessage
+        sessionToken
+      }
+      String responseText = builder.toPrettyString()
 
-        log.info(" --analytics-- data=" + logStr);
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {
+        json { render(contentType: "application/json", text: responseText) }
+        '*' { render(contentType: "application/json", text: responseText) }
+      }
+    } else {
+      Map<String, Object> logData = new HashMap<String, Object>();
+      logData.put("meetingid", us.meetingID);
+      logData.put("extMeetingid", us.externMeetingID);
+      logData.put("name", us.fullname);
+      logData.put("userid", us.internalUserId);
+      logData.put("sessionToken", sessionToken);
+      logData.put("logCode", "getJoinUrl");
+      logData.put("description", "Request join URL");
+      Gson gson = new Gson();
+      String logStr = gson.toJson(logData);
 
-        String method = 'join'
-        String externalMeetingId = validationService.encodeString(meeting.getExternalId())
-        String fullName = validationService.encodeString(us.fullname)
-        ListHashMap<String, String> queryParameters = new ListHashMap<>();
-        queryParameters.put("fullName", fullName);
-        queryParameters.put("meetingID", externalMeetingId);
-        queryParameters.put("role", us.role.equals(ROLE_MODERATOR) ? ROLE_MODERATOR : ROLE_ATTENDEE);
-        queryParameters.put("redirect", "true");
-        queryParameters.put("existingUserID", us.getInternalUserId());
+      log.info(" --analytics-- data=" + logStr);
 
-        // replaceSession: If this link is intended to replace the previous session of the user
-        if (!StringUtils.isEmpty(params.replaceSession) && Boolean.parseBoolean(params.replaceSession)) {
-          queryParameters.put("replaceSessionToken", sessionToken);
-        }
+      String method = 'join'
+      String externalMeetingId = validationService.encodeString(meeting.getExternalId())
+      String fullName = validationService.encodeString(us.fullname)
+      LinkedHashMap<String, String> queryParameters = new LinkedHashMap<>();
+      queryParameters.put("fullName", fullName);
+      queryParameters.put("meetingID", externalMeetingId);
+      queryParameters.put("role", us.role.equals(ROLE_MODERATOR) ? ROLE_MODERATOR : ROLE_ATTENDEE);
+      queryParameters.put("redirect", "true");
+      queryParameters.put("existingUserID", us.getInternalUserId());
 
-        if (!StringUtils.isEmpty(params.sessionName)) {
-          queryParameters.put("sessionName", params.sessionName);
-        }
+      // replaceSession: If this link is intended to replace the previous session of the user
+      if (!StringUtils.isEmpty(params.replaceSession) && Boolean.parseBoolean(params.replaceSession)) {
+        queryParameters.put("replaceSessionToken", sessionToken);
+      }
 
-        List<String> userdataBlocklistForViewers=Arrays.asList(paramsProcessorUtil.getGetJoinUrlUserdataBlocklist().split(","));
+      if (!StringUtils.isEmpty(params.sessionName)) {
+        queryParameters.put("sessionName", params.sessionName);
+      }
 
-        boolean isModerator = us.role?.equals(ROLE_MODERATOR);
-        boolean blockAllUserdataForViewers = userdataBlocklistForViewers.any { it.equalsIgnoreCase("all") };
+      List<String> userdataBlocklistForViewers=Arrays.asList(paramsProcessorUtil.getGetJoinUrlUserdataBlocklist().split(",")).collect { it.trim() };
 
-        request.getParameterMap()
-                .findAll { key, value ->
-                  // always allow `enforceLayout`
-                  if (key == "enforceLayout") return true
+      boolean isModerator = us.role?.equals(ROLE_MODERATOR);
+      boolean blockAllUserdataForViewers = userdataBlocklistForViewers.any { it.equalsIgnoreCase("all") };
 
-                  // For prefix userdata-
-                  if (key.startsWith("userdata-")) {
-                    if (isModerator && !meeting.isBreakout()) return true
-                    if (blockAllUserdataForViewers) return false
-                    return !userdataBlocklistForViewers.contains(key - "userdata-")
+      request.getParameterMap()
+              .findAll { key, value ->
+                // always allow `enforceLayout`
+                if (key == "enforceLayout") return true
+
+                // For prefix userdata-
+                if (key.startsWith("userdata-")) {
+                  String userdataName = key - "userdata-"
+                  if (!userdataName.matches(/[A-Za-z0-9_.]+/)) {
+                    log.warn("Ignoring malformed userdata parameter in getJoinUrl request: [{}]", ParamsUtil.sanitizeString(key))
+                    return false
                   }
 
-                  return false
+                  if (isModerator && !meeting.isBreakout()) return true
+                  if (blockAllUserdataForViewers) return false
+                  return !userdataBlocklistForViewers.any { it.equalsIgnoreCase(userdataName) }
                 }
-                .findAll { key, value -> !StringUtils.isEmpty(value[-1]) }
-                .each { key, value -> queryParameters.put(key, value[-1]) }
 
-        String httpQueryString = "";
-        for(String parameterName : queryParameters.keySet()) {
-          httpQueryString += ( queryParameters.isEmpty() ? "?" : "&" ) + parameterName + "=" + validationService.encodeString(queryParameters.get(parameterName));
-        }
+                return false
+              }
+              .findAll { key, value -> !StringUtils.isEmpty(value[-1]) }
+              .each { key, value -> queryParameters.put(key, value[-1]) }
 
-        String checksum = DigestUtils.sha1Hex(method + httpQueryString + validationService.getSecuritySalt())
-        String defaultServerUrl = paramsProcessorUtil.defaultServerUrl
-        response.addHeader("Cache-Control", "no-cache")
-        withFormat {
-          json {
-            def builder = new JsonBuilder()
-            builder.response {
-              returncode RESP_CODE_SUCCESS
-              message "Join URL provided successfully."
-              url "${defaultServerUrl}/bigbluebutton/api/${method}?${httpQueryString}&checksum=${checksum}"
-            }
-            render(contentType: "application/json", text: builder.toPrettyString())
-          }
-        }
+      String httpQueryString = "";
+      for(String parameterName : queryParameters.keySet()) {
+        httpQueryString += ( queryParameters.isEmpty() ? "?" : "&" ) + validationService.encodeString(parameterName) + "=" + validationService.encodeString(queryParameters.get(parameterName));
+      }
+
+      String checksum = DigestUtils.sha1Hex(method + httpQueryString + validationService.getSecuritySalt())
+      String defaultServerUrl = paramsProcessorUtil.defaultServerUrl
+
+      def builder = new JsonBuilder()
+      builder.response {
+        returncode RESP_CODE_SUCCESS
+        message "Join URL provided successfully."
+        url "${defaultServerUrl}/bigbluebutton/api/${method}?${httpQueryString}&checksum=${checksum}"
+      }
+      String responseText = builder.toPrettyString()
+
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {
+        json { render(contentType: "application/json", text: responseText) }
+        '*' { render(contentType: "application/json", text: responseText) }
       }
     }
   }
@@ -1548,12 +1566,15 @@ class ApiController {
     }
   }
 
-  private uploadDocuments(xmlModules, conf, isFromInsertAPI) {
+  // Validates the request's documents on the request thread, while failures are still tied to
+  // the request. Returns [status, tasks, requested, dropped]: running tasks submits the accepted
+  // documents for download and processing, which the caller does only once it accepts the request.
+  private Map prepareDocuments(xmlModules, conf, isFromInsertAPI) {
     if (conf.getDisabledFeatures().contains(MODULE_PRESENTATION)) {
       log.warn("Presentation feature is disabled.")
-      return false
+      return [status: DOCUMENTS_DISABLED, tasks: [], requested: 0, dropped: 0]
     }
-    log.debug("ApiController#uploadDocuments(${conf.getInternalId()})");
+    log.debug("ApiController#prepareDocuments(${conf.getInternalId()})");
 
     //sanitizeInput
     params.each {
@@ -1610,7 +1631,7 @@ class ApiController {
     if (!xmlModules.containsKey(MODULE_PRESENTATION)) {
       if (isFromInsertAPI) {
         log.warn("Insert Document API called without a payload - ignoring")
-        return false;
+        return [status: DOCUMENTS_READY, tasks: [], requested: 0, dropped: 0]
       }
 
      if (hasPresentationUrlInParameter) {
@@ -1655,6 +1676,30 @@ class ApiController {
       presentationListHasCurrent = hasCurrent;
     }
 
+    // The default presentation is added by the server, not by the request, so it is neither
+    // counted against maxPresentationsPerRequest nor dropped.
+    def isRequestedDocument = { !(it instanceof Map && it.name == "default") }
+    int requested = listOfPresentation.count(isRequestedDocument)
+    int dropped = 0
+    int maxPresentations = paramsProcessorUtil.getMaxPresentationsPerRequest()
+    if (maxPresentations > 0 && requested > maxPresentations) {
+      dropped = requested - maxPresentations
+      log.warn("Presentation count {} exceeds maxPresentationsPerRequest {} for meeting {} " +
+               "(isFromInsertAPI={}); processing first {} and dropping {}.",
+               requested, maxPresentations, conf.getInternalId(),
+               isFromInsertAPI, maxPresentations, dropped)
+      int kept = 0
+      listOfPresentation = listOfPresentation.findAll { !isRequestedDocument(it) || kept++ < maxPresentations }
+    }
+
+    // Filenames are validated synchronously (on the request thread) while the
+    // request is still in scope; the slow download/processing is only submitted
+    // afterwards, by the caller. Collect the submissions so that, for
+    // insertDocument, an invalid filename can be reported as a failed response
+    // instead of being silently skipped.
+    def pendingPresentationTasks = []
+    boolean invalidFilenameFound = false
+
     listOfPresentation.eachWithIndex { document, index ->
       def Boolean isCurrent = false;
       def Boolean isRemovable = true;
@@ -1667,9 +1712,23 @@ class ApiController {
           if (document.current) {
             isDefaultPresentation = true
           }
-          downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(),
-                  document.current /* default presentation */, '', false,
-                  true, isDefaultPresentation, isPreUploadedPresentationFromParameter, isFromInsertAPI);
+
+          // Validate the filename on the request thread; only then run the slow
+          // download and processing async for fast API responses
+          def defaultPresentationUrl = presentationService.defaultUploadedPresentation
+          def defaultPresFilename = resolvePresentationFilename(defaultPresentationUrl, '', false)
+          if (defaultPresFilename == null) {
+            log.error("Skipping default presentation: could not derive a valid filename from [${defaultPresentationUrl}]")
+            invalidFilenameFound = true
+          } else {
+            pendingPresentationTasks << {
+              presentationService.submitPresentationTask(conf.getInternalId(), "default presentation") {
+                downloadAndProcessDocument(defaultPresentationUrl, conf.getInternalId(),
+                        document.current /* default presentation */, defaultPresFilename, false,
+                        true, isDefaultPresentation, isPreUploadedPresentationFromParameter, isFromInsertAPI);
+              }
+            }
+          }
         } else {
           log.error "Default presentation could not be read, it is (" + presentationService.defaultUploadedPresentation + ")", "error"
         }
@@ -1703,19 +1762,56 @@ class ApiController {
             log.debug("user provided filename: [${document.@filename}]");
             fileName = document.@filename.toString();
           }
-          downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), isCurrent /* default presentation */,
-                  fileName, isDownloadable, isRemovable, isDefaultPresentation, isPreUploadedPresentationFromParameter, isFromInsertAPI);
+
+          // Validate the filename on the request thread, where failures are still
+          // tied to the request; only then run the slow download and processing async
+          def documentUrl = document.@url.toString()
+          def presOrigFilename = resolvePresentationFilename(documentUrl, fileName, isPreUploadedPresentationFromParameter)
+          if (presOrigFilename == null) {
+            log.error("Skipping presentation [${documentUrl}]: could not derive a valid filename")
+            invalidFilenameFound = true
+          } else {
+            pendingPresentationTasks << {
+              presentationService.submitPresentationTask(conf.getInternalId(), documentUrl) {
+                downloadAndProcessDocument(documentUrl, conf.getInternalId(), isCurrent /* default presentation */,
+                        presOrigFilename, isDownloadable, isRemovable, isDefaultPresentation, isPreUploadedPresentationFromParameter, isFromInsertAPI);
+              }
+            }
+          }
         } else if (!StringUtils.isEmpty(document.@name.toString())) {
-          def b64 = new Base64()
-          def decodedBytes = b64.decode(document.text().getBytes())
-          processDocumentFromRawBytes(decodedBytes, document.@name.toString(),
-                  conf.getInternalId(), isCurrent, isDownloadable, isRemovable/* default presentation */, isDefaultPresentation, isFromInsertAPI);
+          // Validate the document name on the request thread; only then run the
+          // slow processing async
+          def documentName = resolvePresentationFilename(null, document.@name.toString(), false)
+          if (documentName == null) {
+            log.error("Skipping raw-bytes presentation: invalid document name [${document.@name}]")
+            invalidFilenameFound = true
+          } else {
+            pendingPresentationTasks << {
+              // Decoded only once the request is accepted.
+              def b64 = new Base64()
+              def decodedBytes = b64.decode(document.text().getBytes())
+              presentationService.submitPresentationTask(conf.getInternalId(), documentName) {
+                processDocumentFromRawBytes(decodedBytes, documentName,
+                        conf.getInternalId(), isCurrent, isDownloadable, isRemovable/* default presentation */, isDefaultPresentation, isFromInsertAPI);
+              }
+            }
+          }
         } else {
           log.debug("presentation module config found, but it did not contain url or name attributes");
         }
       }
     }
-    return true
+
+    // For insertDocument, reject the whole request if any document had an invalid
+    // filename so the caller reports a failure rather than a misleading SUCCESS.
+    // For create, invalid documents are just skipped (logged above) and meeting
+    // creation still proceeds with the valid ones.
+    if (isFromInsertAPI && invalidFilenameFound) {
+      log.warn("insertDocument rejected for meeting [${conf.getInternalId()}]: one or more documents had an invalid filename")
+      return [status: DOCUMENTS_INVALID_FILENAME, tasks: [], requested: requested, dropped: dropped]
+    }
+
+    return [status: DOCUMENTS_READY, tasks: pendingPresentationTasks, requested: requested, dropped: dropped]
   }
 
   private Map processRequestXmlModules(String requestBody) {
@@ -1871,16 +1967,42 @@ class ApiController {
     }
   }
 
-  private downloadAndProcessDocument(address, meetingId, current, fileName, isDownloadable, isRemovable,
-                                 isDefaultPresentation, isPreUploadedPresentationFromParameter, isFromInsertAPI) {
-    log.debug("ApiController#downloadAndProcessDocument(${address}, ${meetingId}, ${fileName})");
-    String presOrigFilename;
-    if (StringUtils.isEmpty(fileName)) {
-      presOrigFilename = decodePresentationUrlFilename(address)
-      if (presOrigFilename == null) return
+  /**
+   * Derives and validates a presentation's original filename, either from the
+   * caller-provided name or from the last segment of the download address.
+   * Runs on the request thread, before the async download/processing task is
+   * submitted, so invalid filenames are detected while the request is still
+   * being handled. Returns null when no valid filename can be derived.
+   */
+  private String resolvePresentationFilename(address, String providedFilename, Boolean allowMissingExtension) {
+    String presOrigFilename
+    if (StringUtils.isEmpty(providedFilename)) {
+      try {
+        // Derive the name from the URL path only, dropping any query string or
+        // fragment (e.g. presigned S3 links carry ?X-Amz-... parameters that are
+        // not part of the filename), then percent-decode it.
+        String urlPath = new URL(address.toString()).getPath()
+        presOrigFilename = URLDecoder.decode(FilenameUtils.getName(urlPath), "UTF-8")
+      } catch (MalformedURLException | UnsupportedEncodingException | IllegalArgumentException e) {
+        log.error "Couldn't decode the uploaded file name from [${address}].", e
+        return null
+      }
     } else {
-      presOrigFilename = fileName;
+      presOrigFilename = providedFilename
     }
+
+    String presFilename = FilenameUtils.getName(presOrigFilename)
+    String filenameExt = FilenameUtils.getExtension(presOrigFilename)
+    if (StringUtils.isEmpty(presFilename) || (StringUtils.isEmpty(filenameExt) && !allowMissingExtension)) {
+      log.error("Invalid presentation filename [${presOrigFilename}]")
+      return null
+    }
+    return presOrigFilename
+  }
+
+  private downloadAndProcessDocument(address, meetingId, current, presOrigFilename, isDownloadable, isRemovable,
+                                 isDefaultPresentation, isPreUploadedPresentationFromParameter, isFromInsertAPI) {
+    log.debug("ApiController#downloadAndProcessDocument(${address}, ${meetingId}, ${presOrigFilename})");
 
     def uploadFailed = false
     def uploadFailReasons = new ArrayList<String>()
@@ -1920,7 +2042,7 @@ class ApiController {
             }
             break
           default:
-            log.error("Failed to download presentation=[${address}], meeting=[${meetingId}], fileName=[${fileName}]")
+            log.error("Failed to download presentation=[${address}], meeting=[${meetingId}], fileName=[${presOrigFilename}]")
             uploadFailReasons.add("failed_to_download_file")
             uploadFailed = true
         }
@@ -1995,13 +2117,28 @@ class ApiController {
     presentationService.processUploadedPresentation(uploadedPres);
   }
 
-  def beforeInterceptor = {
-    if (paramsProcessorUtil.isServiceEnabled() == false) {
-      log.info("apiNotEnabled: The API service and/or controller is not enabled on this server.  To use it, you must first enable it.")
-      // TODO: this doesn't stop the request - so it generates invalid XML
-      //      since the request continues and renders a second response
-      invalid("apiNotEnabled", "The API service and/or controller is not enabled on this server.  To use it, you must first enable it.")
+  private respondWithInsertDocument(String returnCode, String msgKey, String msg) {
+    withFormat {
+      xml {
+        render(text: responseBuilder.buildInsertDocumentResponse(msgKey, msg, returnCode), contentType: "text/xml")
+      }
+      '*' {
+        render(text: responseBuilder.buildInsertDocumentResponse(msgKey, msg, returnCode), contentType: "text/xml")
+      }
     }
+  }
+
+  private respondWithInsertDocumentRateLimited(String externalMeetingId, String internalMeetingId) {
+    log.warn("Rejecting insertDocument: rate limit exceeded. meetingID={} internalMeetingID={}",
+            externalMeetingId, internalMeetingId)
+    respondWithInsertDocument(RESP_CODE_FAILED, "rateLimitExceeded",
+            "Too many presentation upload requests, please try again later.")
+  }
+
+  private static String droppedDocumentsMessage(Map documents) {
+    int accepted = documents.requested - documents.dropped
+    return "Only the first ${accepted} of ${documents.requested} presentations are being uploaded; " +
+            "at most ${accepted} are accepted per request."
   }
 
   private respondWithConference(meeting, msgKey, msg) {
@@ -2102,8 +2239,6 @@ class ApiController {
     Boolean enabled = maxParticipants > 0;
     // Users refreshing page or reconnecting must be identified
     Boolean rejoin = meeting.getUserById(us.internalUserId) != null;
-    // Users that passed enter once, still not joined but somehow re-entered
-    Boolean reenter = meeting.getEnteredUserById(us.internalUserId) != null;
     // User are able to rejoin if he already joined previously with the same extId
     Boolean userExtIdAlreadyJoined = meeting.getUsersWithExtId(us.externUserID).size() > 0
     // Bot users should not be affected by max partiicpants limitation
@@ -2111,13 +2246,11 @@ class ApiController {
     // Users that already joined the meeting
     // It will count only unique users in order to avoid the same user from filling all slots
     int joinedUniqueUsers = meeting.countUniqueExtIds()
-    // Users that are entering the meeting
-    int enteredUsers = meeting.getEnteredUsers().size()
 
-    log.info("Entered users - ${enteredUsers}. Joined users - ${joinedUniqueUsers}")
+    log.info("Joined users - ${joinedUniqueUsers}")
 
     Boolean reachedMax = joinedUniqueUsers >= maxParticipants;
-    if (enabled && !rejoin && !reenter && !userExtIdAlreadyJoined && reachedMax && !isBot) {
+    if (enabled && !rejoin && !userExtIdAlreadyJoined && reachedMax && !isBot) {
       return true;
     }
 

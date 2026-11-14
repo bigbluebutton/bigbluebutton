@@ -116,6 +116,9 @@ if [ -f /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties ]; then
     SERVLET_DIR=/usr/share/bbb-web
 fi
 
+# The locations in /usr/share/bigbluebutton/nginx/ proxy to the named upstreams defined here
+NGINX_UPSTREAMS=/etc/nginx/conf.d/bbb-upstreams.conf
+
 
 get_properties_value() {
     key="$1"
@@ -126,6 +129,13 @@ get_properties_value() {
         return 0
     fi
     return 1
+}
+get_upstream_port() {
+    # Port of the server in "upstream <name> { ... }", read with the file joined into one line
+    # so the match stays inside that block; the port follows the last colon ([::1]:8090 too)
+    upstream="$1"
+    sed 's/#.*//' "$NGINX_UPSTREAMS" 2>/dev/null | tr '\n' ' ' \
+        | sed -nE "s/.*upstream[[:space:]]+${upstream}[[:space:]]*\{[^}]*server[[:space:]]+[^;[:space:]]*:([0-9]+)[;[:space:]].*/\1/p"
 }
 get_bbb_web_config_value() {
     key="$1"
@@ -173,6 +183,14 @@ else
     LIVEKIT_SERVER_CONFIG=$(yq-go e $LIVEKIT_SERVER_DEFAULT_CONFIG 2> /dev/null)
 fi
 
+LIVEKIT_SIP_DEFAULT_CONFIG=/usr/share/livekit-server/livekit-sip.yaml
+LIVEKIT_SIP_ETC_CONFIG=/etc/bigbluebutton/livekit-sip.yaml
+if [ -f $LIVEKIT_SIP_ETC_CONFIG ]; then
+    LIVEKIT_SIP_CONFIG=$(yq-go eval-all '. as $item ireduce ({}; . * $item )' $LIVEKIT_SIP_DEFAULT_CONFIG $LIVEKIT_SIP_ETC_CONFIG 2> /dev/null)
+else
+    LIVEKIT_SIP_CONFIG=$(yq-go e $LIVEKIT_SIP_DEFAULT_CONFIG 2> /dev/null)
+fi
+
 
 BBB_WEB_CONFIG="$SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties"
 BBB_WEB_ETC_CONFIG="/etc/bigbluebutton/bbb-web.properties"
@@ -180,10 +198,12 @@ BBB_WEB_ETC_CONFIG="/etc/bigbluebutton/bbb-web.properties"
 # Properties that have been retired and should no longer be set by administrators.
 # bbb-conf --check will warn if any of these are found in $BBB_WEB_ETC_CONFIG.
 RETIRED_BBB_WEB_PROPERTIES=(
+    allowDuplicateExtUserid           # Removed in BBB 4.0 (use maxUserConcurrentAccesses instead)
     lockSettingsDisableNote           # Renamed in BBB 2.5 (use lockSettingsDisableNotes instead)
     breakoutRoomsEnabled              # Removed in BBB 3.0
     learningDashboardEnabled          # Removed in BBB 3.0
     defaultGuestWaitURL               # Removed in BBB 3.0
+    virtualBackgroundsDisabled        # Removed in BBB 3.0
     pdfToSvgTimeout                   # Removed in BBB 3.0.13
     pngCreationWait                   # Removed in BBB 3.0.13
     maxConversionTime                 # Removed in BBB 3.0.15
@@ -192,6 +212,10 @@ RETIRED_BBB_WEB_PROPERTIES=(
     textFileCreationExecTimeoutInMs   # Renamed in BBB 3.0.17 (use textFileCreationExecTimeout instead)
     insertDocumentSupportedProtocols  # Renamed in BBB 3.0.23 (use fetchUrlSupportedProtocols instead)
     insertDocumentBlockedHosts        # Renamed in BBB 3.0.23 (use fetchUrlBlockedExternalHosts instead)
+    serviceEnabled                    # Removed in BBB 4.0.1 (no effect since BBB 2.2)
+    clientLogoutTimerInMinutes        # Removed in BBB 4.0
+    enteredUsersTimeout               # Removed in BBB 4.0
+    accessControlAllowOrigin          # Removed in BBB 4.0.1 (no effect since BBB 2.2; use grails.cors.* instead)
 )
 NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*server_name[ ]*//;s/;//;p}' | cut -d' ' -f1 | head -n 1)
 
@@ -415,20 +439,12 @@ display_bigbluebutton_status () {
         units="$units bbb-webrtc-recorder"
     fi
 
-    if [ -f /usr/share/etherpad-lite/settings.json ]; then
-        units="$units etherpad"
-    fi
-
     if [ -f /usr/lib/systemd/system/bbb-web.service ]; then
         units="$units bbb-web"
     fi
 
     if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
         units="$units bbb-webhooks"
-    fi
-
-    if [ -f /usr/lib/systemd/system/bbb-pads.service ]; then
-        units="$units bbb-pads"
     fi
 
     if [ -f /usr/lib/systemd/system/bbb-export-annotations.service ]; then
@@ -579,7 +595,7 @@ while [ $# -gt 0 ]; do
             echo "    Secret: $SECRET"
             echo
             echo "    Link to the API-Mate:"
-            echo "    https://mconf.github.io/api-mate/#server=$BBB_WEB_URL/bigbluebutton/&sharedSecret=$SECRET"
+            echo "    https://bigbluebutton.github.io/api-mate/#server=$BBB_WEB_URL/bigbluebutton/&sharedSecret=$SECRET"
             echo
             exit 0
         fi
@@ -653,7 +669,8 @@ fi
 #
 
 if [[ $PORT_RANGE ]]; then
-    if [[ "$PORT_RANGE" =~ ^([[:digit:]]+)-([[:digit:]]+)$ ]]; then
+    # No leading zeros: livekit-server reads them as octal, or does not start.
+    if [[ "$PORT_RANGE" =~ ^([1-9][[:digit:]]{0,4})-([1-9][[:digit:]]{0,4})$ ]] && (( BASH_REMATCH[1] < BASH_REMATCH[2] && BASH_REMATCH[2] <= 65535 )); then
         START_PORT=${BASH_REMATCH[1]}
         END_PORT=${BASH_REMATCH[2]}
 
@@ -674,8 +691,13 @@ if [[ $PORT_RANGE ]]; then
         fi
 
         if [ -f $LIVEKIT_SERVER_ETC_CONFIG ]; then
-            yq-go e -i ".rtc.port_range_start = \"$START_PORT\"" $LIVEKIT_SERVER_ETC_CONFIG
-            yq-go e -i ".rtc.port_range_end = \"$END_PORT\"" $LIVEKIT_SERVER_ETC_CONFIG
+            # Unquoted: livekit-server does not start when these are strings.
+            yq-go e -i ".rtc.port_range_start = $START_PORT" $LIVEKIT_SERVER_ETC_CONFIG
+            yq-go e -i ".rtc.port_range_end = $END_PORT" $LIVEKIT_SERVER_ETC_CONFIG
+        fi
+
+        if [ -f $LIVEKIT_SIP_ETC_CONFIG ]; then
+            yq-go e -i ".rtp_port = \"$START_PORT-$END_PORT\"" $LIVEKIT_SIP_ETC_CONFIG
         fi
 
         echo
@@ -688,7 +710,7 @@ if [[ $PORT_RANGE ]]; then
         echo
     else
         echo
-        echo "Warning: --set-port-range requires a numerical port range (default is 16384-32768)"
+        echo "Warning: --set-port-range requires a port range MIN-MAX, with 0 < MIN < MAX <= 65535 and no leading zeros (default is 16384-32768)"
         echo
         echo "Port range remains unchanged"
         echo
@@ -767,12 +789,12 @@ check_configuration() {
             echo
         fi
 
-        WEBHOOKS_PROXY_PORT=$(cat /usr/share/bigbluebutton/nginx/webhooks.nginx | grep -v '#' | grep '^[ \t]*proxy_pass[ \t]*' | sed 's|.*http[s]\?://[^:]*:\([^;]*\);.*|\1|g')
+        WEBHOOKS_PROXY_PORT=$(get_upstream_port bbb-webhooks)
         WEBHOOKS_APP_PORT=$(yq-go e '.modules."../out/webhooks/index.js".config.api.port' $WEBHOOKS_CONF)
 
         if [ "$WEBHOOKS_PROXY_PORT" != "$WEBHOOKS_APP_PORT" ]; then
             echo "# Warning: Webhooks port mismatch: "
-            echo "#  /usr/share/bigbluebutton/nginx/webhooks.nginx                   = $WEBHOOKS_PROXY_PORT"
+            echo "#  $NGINX_UPSTREAMS (bbb-webhooks)            = $WEBHOOKS_PROXY_PORT"
             echo "#  $WEBHOOKS_CONF = $WEBHOOKS_APP_PORT"
             echo
         fi
@@ -871,7 +893,7 @@ check_state() {
     #
     # Check if running development environment
     #
-    if ! grep 8090 /usr/share/bigbluebutton/nginx/web.nginx > /dev/null; then
+    if [ "$(get_upstream_port bbb-web)" != "8090" ]; then
         echo "# Warning: nginx is not serving BigBlueButton's web application"
         echo "# from port 8090"
         echo "#"
@@ -939,7 +961,7 @@ check_state() {
     #
     # Check if the user is running their own bbb-web
     #
-    if grep -q 8888 /usr/share/bigbluebutton/nginx/web.nginx; then
+    if [ "$(get_upstream_port bbb-web)" = "8888" ]; then
         if ! ss -ant | grep '8888' > /dev/null; then
             echo "# Warning: There is no application server listening to port 8888."
             echo
@@ -1299,6 +1321,9 @@ if [ $CHECK ]; then
         echo "                    livekit.rtc.port_range_start: $(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.rtc.port_range_start' -)"
         echo "                    livekit.rtc.port_range_end: $(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.rtc.port_range_end' -)"
     fi
+    if [ -n "$LIVEKIT_SIP_CONFIG" ]; then
+        echo "                    livekit-sip.rtp_port: $(echo "$LIVEKIT_SIP_CONFIG" | yq-go e '.rtp_port' -)"
+    fi
 
     if [ -f $RECORD_CONFIG ]; then
         echo
@@ -1335,9 +1360,13 @@ if [ $CHECK ]; then
 
     if [ -n "$LIVEKIT_SERVER_CONFIG" ]; then
         LIVEKIT_ENABLED_CODECS=$(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.room.enabled_codecs[] | .mime' -)
+        LIVEKIT_LOG_LEVEL=$(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.log_level // ""' -)
         echo
         echo "/etc/bigbluebutton/livekit.yaml (livekit-server)"
-        echo "               log_level: $(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.log_level' -)"
+        echo "               logging.level: $(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.logging.level' -)"
+        if [ -n "$LIVEKIT_LOG_LEVEL" ]; then
+            echo "               log_level: $LIVEKIT_LOG_LEVEL (overrides logging.level)"
+        fi
         echo "               port_range_start: $(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.rtc.port_range_start' -)"
         echo "               port_range_end: $(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.rtc.port_range_end' -)"
         echo "               room.enabled_codecs: $(echo "$LIVEKIT_ENABLED_CODECS" | awk -v ORS=", " '{ print $1 }' | sed 's/, $//')"
@@ -1558,7 +1587,6 @@ if [ -n "$HOST" ]; then
         touch $HTML5_ETC_CONFIG
     fi
     yq-go e -i ".public.kurento.wsUrl = \"wss://$HOST/bbb-webrtc-sfu\"" $HTML5_ETC_CONFIG
-    yq-go e -i ".public.pads.url = \"$PROTOCOL://$HOST/pad\"" $HTML5_ETC_CONFIG
 
     #
     # Update ESL passwords in three configuration files

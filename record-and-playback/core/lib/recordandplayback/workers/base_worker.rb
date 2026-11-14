@@ -189,7 +189,7 @@ module BigBlueButton
         @full_id = if @break_timestamp.nil?
                      @meeting_id
                    else
-                     "#{@meeting_id}-#{break_timestamp}"
+                     "#{@meeting_id}-#{@break_timestamp}"
                    end
 
         @logger = BigBlueButton.logger

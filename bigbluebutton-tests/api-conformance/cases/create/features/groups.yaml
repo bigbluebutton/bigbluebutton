@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# groups is a JSON array of {id, name, roster} objects, which reaches
+# akka-apps' props as {groupId, name, usersExtId}. A value that isn't an
+# array means no groups, and so does an element that isn't an object or
+# has no id; a missing name is empty.
+id: create.features.groups
+title: create with groups ${scenario}
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus]
+variants:
+  - {id: valid, vars: {scenario: given, groups: '[{"id":"g1","name":"Group one","roster":["u1","u2"]},{"id":"g2"}]'}}
+  - {id: object, vars: {scenario: as an object, groups: '{"id":"g1"}'}, class: compat}
+  - {id: number-element, vars: {scenario: holding a number, groups: '[1]'}, class: compat}
+  - {id: no-id, vars: {scenario: without an id, groups: '[{"name":"Nameless"}]'}, class: compat}
+  - {id: empty, vars: {scenario: empty, groups: ""}, class: compat}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Groups, groups: "${groups}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.props.groups]
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

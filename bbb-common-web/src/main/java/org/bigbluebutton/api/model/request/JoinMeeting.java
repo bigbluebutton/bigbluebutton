@@ -40,6 +40,7 @@ public class JoinMeeting extends RequestWithChecksum<JoinMeeting.Params> {
     private String userID;
 
     @NotEmpty(key = "missingParamFullName", message = "You must provide your name")
+    @Size(max = 255, key = "fullNameTooLong", message = "Param fullName must not exceed 255 characters")
     private String fullName;
 
     @PasswordConstraint

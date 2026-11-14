@@ -21,9 +21,13 @@ permissions:
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
+# Forks can pick their own runners with repository variables, each set
+# to one runner label. CI_HEAVY_RUNNER is for jobs that build packages,
+# pull the LibreOffice image or install BBB. CI_LIGHT_RUNNER is for the
+# rest.
 jobs:
   build-package:
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.CI_HEAVY_RUNNER || 'ubuntu-24.04' }}
     strategy:
       fail-fast: false
       matrix:
@@ -36,7 +40,6 @@ jobs:
             bbb-playback-record,
             bbb-graphql-server,
             bbb-shared-notes-server,
-            bbb-etherpad,
             bbb-web,
             bbb-fsesl-akka,
             bbb-html5,
@@ -54,7 +57,7 @@ jobs:
           - package: bbb-learning-dashboard
             cache-files-list: bbb-learning-dashboard
           - package: bbb-playback-record
-            build-list: bbb-playback bbb-playback-notes bbb-playback-podcast bbb-playback-presentation bbb-playback-screenshare bbb-playback-video bbb-record-core
+            build-list: bbb-playback bbb-playback-notes bbb-playback-podcast bbb-playback-presentation bbb-playback-presentation-legacy bbb-playback-screenshare bbb-playback-video bbb-record-core
             cache-files-list: bbb-playback.placeholder.sh bbb-presentation-video.placeholder.sh record-and-playback
           - package: bbb-graphql-server
             build-name: bbb-graphql-server
@@ -62,9 +65,6 @@ jobs:
             cache-files-list: bbb-graphql-server bbb-graphql-middleware bbb-graphql-actions
           - package: bbb-shared-notes-server
             cache-files-list: bbb-shared-notes-server
-          - package: bbb-etherpad
-            cache-files-list: bbb-etherpad.placeholder.sh
-            cache-urls-list: https://api.github.com/repos/mconf/ep_pad_ttl/commits https://api.github.com/repos/alangecker/bbb-etherpad-plugin/commits https://api.github.com/repos/mconf/ep_redis_publisher/commits https://api.github.com/repos/alangecker/bbb-etherpad-skin/commits
           - package: bbb-web
             cache-files-list: bigbluebutton-web bbb-common-message bbb-common-web
           - package: bbb-fsesl-akka
@@ -80,8 +80,8 @@ jobs:
             build-list: bbb-webrtc-sfu bbb-webrtc-recorder
             cache-files-list: bbb-webrtc-sfu.placeholder.sh bbb-webrtc-recorder.placeholder.sh
           - package: others
-            build-list: bbb-mkclean bbb-pads bbb-libreoffice-docker bbb-transcription-controller bbb-livekit bbb-webhooks bbb-yq-go
-            cache-files-list: bbb-pads.placeholder.sh bbb-libreoffice bbb-transcription-controller.placeholder.sh bbb-webhooks.placeholder.sh
+            build-list: bbb-mkclean bbb-libreoffice-docker bbb-transcription-controller bbb-livekit bbb-webhooks bbb-yq-go bbb-coturn
+            cache-files-list: bbb-libreoffice bbb-transcription-controller.placeholder.sh bbb-webhooks.placeholder.sh
     steps:
       - name: Checkout PR's source merged into its target branch
         if: github.event_name == 'pull_request'
@@ -97,7 +97,7 @@ jobs:
         run: |
           BUILD_DIRS="$(echo '${{ matrix.build-list || matrix.package }}' | sed 's/[^ ]\+/build\/packages-template\/&/g')"
           echo "Including build dirs: $BUILD_DIRS"
-          LIST="${{ matrix.cache-files-list }} $BUILD_DIRS .gitlab-ci.yml build/deb-helper.sh"
+          LIST="${{ matrix.cache-files-list }} $BUILD_DIRS .gitlab-ci.yml build/deb-helper.sh build/setup.sh build/setup-inside-docker.sh build/package-names.inc.sh build/opts-global.sh build/get_external_dependencies.sh"
           TREE_HASHES=$(echo $LIST | tr ' ' '\n' | xargs -I {} git rev-parse HEAD:{} 2>/dev/null)
           CACHE_DIGEST=$(printf "%s" "$TREE_HASHES" | (sha256sum 2>/dev/null || shasum -a 256) | awk '{print $1}')
           echo "CACHE_KEY_FILES=$CACHE_DIGEST" >> $GITHUB_ENV
@@ -155,7 +155,7 @@ jobs:
           name: artifacts_${{ matrix.package }}
           path: artifacts/
   bbb-libreoffice-image:
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.CI_HEAVY_RUNNER || 'ubuntu-24.04' }}
     steps:
       - name: Checkout PR's source merged into its target branch
         if: github.event_name == 'pull_request'
@@ -181,9 +181,141 @@ jobs:
         run: |
           docker pull docker.io/${{ env.BBB_LIBREOFFICE_IMAGE_NAME }}
           docker save docker.io/${{ env.BBB_LIBREOFFICE_IMAGE_NAME }} -o bbb-libreoffice.tar
+  # Whether the change touches what the API conformance suite tests: a PR's
+  # merge commit against its target branch, a push against the commit
+  # before it. That is anything that goes into the five debs Tier 1 runs,
+  # the package files it mirrors (env/tier1/copies.sha256), its
+  # configuration, and the suite itself.
+  api-conformance-changes:
+    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-24.04' }}
+    outputs:
+      run: ${{ steps.changes.outputs.run }}
+    steps:
+      - name: Checkout PR's source merged into its target branch
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v5
+        with:
+          ref: refs/pull/${{ github.event.number }}/merge
+          fetch-depth: 2
+      - name: Checkout commit/branch
+        if: github.event_name != 'pull_request'
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 2
+      - name: Check what the change touches
+        id: changes
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          base=HEAD^1
+          if [ "$GITHUB_EVENT_NAME" = push ]; then
+            base=$BEFORE
+            git fetch --quiet --depth=1 origin "$base" 2>/dev/null || base=
+          fi
+          if [ -z "$base" ] || ! files=$(git diff --name-only "$base" HEAD); then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if printf '%s\n' "$files" | grep -qE '^(bigbluebutton-tests/api-conformance/|bigbluebutton-web/|bbb-common-web/|bbb-common-message/|akka-bbb-apps/|bbb-graphql-server/|bbb-graphql-middleware/|bbb-graphql-actions/|bigbluebutton-config/|bigbluebutton-html5/private/config/settings\.yml$|bbb-libreoffice/(docker|assets)/|build/(setup|setup-inside-docker|package-names\.inc|opts-global|deb-helper|get_external_dependencies)\.sh$|build/packages-template/(bbb-web|bbb-apps-akka|bbb-graphql-server|bbb-graphql-middleware|bbb-graphql-actions|bbb-config)/|\.gitlab-ci\.yml$|\.github/workflows/automated-tests\.yml$)'; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+  # The API conformance suite (bigbluebutton-tests/api-conformance) against
+  # bbb-web on the suite's Tier 1 stack, which runs the debs build-package
+  # made: every answer is compared with the committed recordings, and a
+  # change to bbb-web's answers fails the job until its PR re-records the
+  # cases it changes (see the suite's README). The slow cases (callback
+  # retries, expiry timing) run in nightly-tests.yml.
+  api-conformance:
+    needs: [unify-artifacts, api-conformance-changes]
+    if: needs.api-conformance-changes.outputs.run == 'true'
+    runs-on: ${{ vars.CI_HEAVY_RUNNER || 'ubuntu-24.04' }}
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: bigbluebutton-tests/api-conformance
+    steps:
+      - name: Checkout PR's source merged into its target branch
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v5
+        with:
+          ref: refs/pull/${{ github.event.number }}/merge
+      - name: Checkout commit/branch
+        if: github.event_name != 'pull_request'
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.ref }}
+      # The stack's images and the build caches need more room than a
+      # GitHub-hosted runner leaves free. On a fork's own runner these
+      # directories may be in use, so they are left alone there.
+      - name: Free disk space
+        if: runner.environment == 'github-hosted'
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          df -h /
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: bigbluebutton-tests/api-conformance/runner/go.mod
+          cache-dependency-path: bigbluebutton-tests/api-conformance/runner/go.sum
+      # The five debs Tier 1 runs, from the packages unify-artifacts
+      # gathered (it deletes the per-package artifacts once it has).
+      - name: Download all-bbb-artifacts
+        uses: actions/download-artifact@v7
+        with:
+          name: all-bbb-artifacts
+          path: ${{ runner.temp }}/bbb-artifacts
+      - name: Pick Tier 1's debs
+        env:
+          ARTIFACTS: ${{ runner.temp }}/bbb-artifacts
+        run: |
+          mkdir -p env/.state/debs
+          for p in bbb-web bbb-apps-akka bbb-graphql-server bbb-graphql-middleware bbb-graphql-actions; do
+            cp "$ARTIFACTS/${p}"_*.deb env/.state/debs/
+          done
+          ls -l env/.state/debs
+      - name: Check the package files Tier 1 mirrors
+        run: env/tier1/check-copies.sh
+      - name: Bring up Tier 1
+        run: make -C env up
+      # Every case Tier 1 can run but the slow ones: all but full-stack and
+      # slow. A skipped case fails the run.
+      - name: Run the suite
+        run: |
+          vars=$(make -s -C env env)
+          eval "$vars"
+          mkdir -p out
+          cd runner
+          go run ./cmd/bbb-conform run --target ../targets/bbb-web.yaml --cases ../cases \
+            --golden ../golden/bbb-web --expect ../expectations/bbb-web.yaml \
+            --exclude-tags full-stack,slow --fail-on-skip --junit ../out/junit.xml --json ../out/results.json
+      - name: Write the gap matrix and the summary
+        if: always()
+        run: |
+          [ -f out/results.json ] || exit 0
+          # The counts, as an annotation on the run.
+          jq -r '"::notice title=API conformance::" + ([.counts | to_entries[] | "\(.value) \(.key)"] | join(", "))' out/results.json
+          cd runner
+          go run ./cmd/bbb-conform gap --results ../out/results.json --md ../out/gap.md --html ../out/gap.html
+          cat ../out/gap.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Collect the services' logs
+        if: failure()
+        run: |
+          mkdir -p out
+          make -s -C env logs TAIL=all > out/services.log 2>&1 || true
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: api-conformance-bbb-web
+          path: bigbluebutton-tests/api-conformance/out/
+          if-no-files-found: ignore
+      - name: Take Tier 1 down
+        if: always()
+        run: make -C env down
   unify-artifacts:
     needs: build-package
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.CI_HEAVY_RUNNER || 'ubuntu-24.04' }}
     steps:
       - name: Create all-artifacts directory
         run: mkdir -p all-artifacts
@@ -216,11 +348,6 @@ jobs:
         uses: actions/download-artifact@v7
         with:
           name: artifacts_bbb-graphql-server
-          path: all-artifacts
-      - name: Download artifacts_bbb-etherpad
-        uses: actions/download-artifact@v7
-        with:
-          name: artifacts_bbb-etherpad
           path: all-artifacts
       - name: Download artifacts_bbb-shared-notes-server
         uses: actions/download-artifact@v7
@@ -266,9 +393,9 @@ jobs:
           sudo apt-get install -y -qq equivs
 
           DEBS_DIR="all-artifacts"
-          PKGS="bbb-apps-akka bbb-config bbb-etherpad bbb-export-annotations
+          PKGS="bbb-apps-akka bbb-config bbb-export-annotations
                 bbb-freeswitch-core bbb-freeswitch-sounds bbb-fsesl-akka bbb-html5
-                bbb-learning-dashboard bbb-libreoffice-docker bbb-livekit bbb-mkclean bbb-pads
+                bbb-learning-dashboard bbb-libreoffice-docker bbb-livekit bbb-mkclean
                 bbb-shared-notes-server bbb-playback bbb-playback-presentation
                 bbb-record-core bbb-web bbb-webrtc-sfu bbb-webrtc-recorder"
 
@@ -306,6 +433,8 @@ jobs:
           Version: $META_VERSION
           Maintainer: Fred Dixon <ffdixon@bigbluebutton.org>
           Depends: $DEPENDENCIES
+          Conflicts: bbb-etherpad, bbb-pads
+          Replaces: bbb-etherpad, bbb-pads
           Architecture: amd64
           Description: Virtual Classroom
            BigBlueButton is a virtual classroom for online teaching and learning.
@@ -330,7 +459,6 @@ jobs:
             artifacts_bbb-learning-dashboard
             artifacts_bbb-playback-record
             artifacts_bbb-graphql-server
-            artifacts_bbb-etherpad
             artifacts_bbb-shared-notes-server
             artifacts_bbb-freeswitch
             artifacts_bbb-webrtc
@@ -343,7 +471,7 @@ jobs:
     needs:
       - unify-artifacts
       - bbb-libreoffice-image
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.CI_HEAVY_RUNNER || 'ubuntu-24.04' }}
     strategy:
       fail-fast: false
       matrix:
@@ -368,13 +496,14 @@ jobs:
       - uses: actions/setup-node@v5
         name: PLAYWRIGHT CACHE - Restore Playwright node modules from cache
         with:
+          node-version: 24
           cache: "npm"
           cache-dependency-path: bigbluebutton-tests/playwright/package-lock.json
       - name: PLAYWRIGHT CACHE - Restore Playwright binaries from cache
         id: cache
         uses: actions/cache@v5
         with:
-          path: /home/runner/.cache/ms-playwright/
+          path: ~/.cache/ms-playwright/
           key: ${{ runner.os }}-playwright-bins-${{ hashFiles('bigbluebutton-tests/playwright/package-lock.json') }}
       - name: Install test dependencies
         working-directory: ./bigbluebutton-tests/playwright
@@ -385,7 +514,7 @@ jobs:
           npx playwright install
       - name: Run tests
         working-directory: ./bigbluebutton-tests/playwright
-        timeout-minutes: 25
+        timeout-minutes: 40
         env:
           NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
           ACTIONS_RUNNER_DEBUG: true
@@ -471,7 +600,7 @@ jobs:
   push-debs-to-package-repo:
     needs: unify-artifacts
     if: github.event_name == 'push'
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-24.04' }}
     environment: apt-repo
     steps:
       - name: Download unified artifacts
@@ -498,6 +627,8 @@ jobs:
           case "${{ github.ref_name }}" in
             v4.0.x-release) CODENAME="noble-40-prerelease" ;;
             v4.0.x-develop) CODENAME="noble-40-dev" ;;
+            v4.1.x-release) CODENAME="noble-41-prerelease" ;;
+            v4.1.x-develop) CODENAME="noble-41-dev" ;;
             *) echo "Branch ${{ github.ref_name }} is not mapped to a package repo codename — skipping push."; exit 0 ;;
           esac
           rsync -avz -e "ssh -o ServerAliveInterval=60 -o ServerAliveCountMax=10" \
@@ -510,11 +641,23 @@ jobs:
     needs:
       - unify-artifacts
       - bbb-libreoffice-image
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.CI_HEAVY_RUNNER || 'ubuntu-24.04' }}
     strategy:
       fail-fast: false
     env:
-      SAMPLES_WITH_TESTS: "sample-action-button-dropdown-plugin sample-actions-bar-plugin sample-audio-settings-dropdown-plugin sample-camera-settings-dropdown-plugin sample-custom-subscription-hook sample-data-channel-plugin"
+      # --- Official plugin testing knobs (see .github/ci-tested-plugins.md) ---
+      # How many official plugins are downloaded, built and tested at once. They are
+      # independent of each other (each suite injects only its own manifest URL and
+      # creates meetings with random IDs), but they share a single BBB instance and a
+      # single runner, and each plugin's Playwright config runs one worker under CI -
+      # so keep this low. Set it to 1 to test one plugin at a time.
+      PLUGIN_PARALLELISM: 2
+      # Wall-clock cap for a single plugin's whole pipeline: download, npm ci, build,
+      # deploy and its Playwright run. Stops one hanging suite from eating the step.
+      PLUGIN_TIMEOUT_MINUTES: 15
+      # Fixed slack added on top of the computed per-wave budget, covering the step's
+      # own setup and the report handling around it.
+      PLUGIN_BUDGET_BASE_MINUTES: 10
     steps:
       - name: Checkout PR's source merged into its target branch
         if: github.event_name == 'pull_request'
@@ -529,6 +672,7 @@ jobs:
       - name: Install BBB
         timeout-minutes: 60
         uses: ./.github/actions/install-bbb
+      # PLUGIN_SDK_REPOSITORY, as owner/name, lets a fork use its own SDK copy.
       - name: Extract download URL of the SDK version information from bigbluebutton-html5/package.json
         working-directory: ./bigbluebutton-html5
         run: |
@@ -537,7 +681,7 @@ jobs:
             echo "SDK_URL=$SDK_DEP" >> $GITHUB_ENV
           else
             SDK_VERSION=$(jq -r '.packages["node_modules/bigbluebutton-html-plugin-sdk"]["version"]' package-lock.json)
-            echo "SDK_URL=https://github.com/${{ github.repository_owner }}/bigbluebutton-html-plugin-sdk/archive/refs/tags/v${SDK_VERSION}.tar.gz" >> $GITHUB_ENV
+            echo "SDK_URL=https://github.com/${{ vars.PLUGIN_SDK_REPOSITORY || 'bigbluebutton/bigbluebutton-html-plugin-sdk' }}/archive/refs/tags/v${SDK_VERSION}.tar.gz" >> $GITHUB_ENV
           fi
       - name: Plugins SDK - Download bigbluebutton-html-plugin-sdk.tar.gz
         working-directory: bigbluebutton-tests
@@ -545,9 +689,19 @@ jobs:
           wget -O bigbluebutton-html-plugin-sdk.tar.gz $SDK_URL
           mkdir -p bigbluebutton-html-plugin-sdk
           tar -xzf bigbluebutton-html-plugin-sdk.tar.gz -C bigbluebutton-html-plugin-sdk --strip-components=1
+          # the later steps build and serve every sample of this SDK version that has tests
+          samples=""
+          for dir in bigbluebutton-html-plugin-sdk/samples/*/tests; do
+            [ -d "$dir" ] || continue
+            sample=${dir%/tests}
+            samples="$samples ${sample##*/}"
+          done
+          echo "Samples with tests:$samples"
+          echo "SAMPLES_WITH_TESTS=${samples# }" >> "$GITHUB_ENV"
       - name: PLAYWRIGHT CACHE (Plugins SDK) - Restore Playwright node modules from cache
         uses: actions/setup-node@v5
         with:
+          node-version: 24
           cache: "npm"
           cache-dependency-path: |
             bigbluebutton-tests/bigbluebutton-html-plugin-sdk/package-lock.json
@@ -556,7 +710,7 @@ jobs:
         id: cache
         uses: actions/cache@v5
         with:
-          path: /home/runner/.cache/ms-playwright/
+          path: ~/.cache/ms-playwright/
           key: ${{ runner.os }}-playwright-bins-${{ hashFiles('bigbluebutton-tests/bigbluebutton-html-plugin-sdk/package-lock.json') }}
       - name: Plugins SDK - Install node dependencies
         working-directory: ./bigbluebutton-tests/bigbluebutton-html-plugin-sdk
@@ -658,6 +812,210 @@ jobs:
           else
             npm run test-chromium-ci
           fi
+      - name: Compute official plugin test budget
+        id: plugin-budget
+        run: |
+          # The step timeout has to grow with the plugin list, otherwise adding
+          # plugins silently walks CI into a timeout. Plugins run PLUGIN_PARALLELISM
+          # at a time, so the cost scales with the number of *waves*, not with the
+          # raw plugin count. Budgeting a full PLUGIN_TIMEOUT_MINUTES per wave means
+          # the step can never be killed before every plugin has had its own cap.
+          COUNT="$(jq 'length' .github/ci-tested-plugins.json)"
+          WAVES=$(( (COUNT + PLUGIN_PARALLELISM - 1) / PLUGIN_PARALLELISM ))
+          TIMEOUT=$(( PLUGIN_BUDGET_BASE_MINUTES + WAVES * PLUGIN_TIMEOUT_MINUTES ))
+          echo "$COUNT plugin(s), $PLUGIN_PARALLELISM at a time -> $WAVES wave(s) -> ${TIMEOUT}min step timeout"
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+          echo "timeout=$TIMEOUT" >> "$GITHUB_OUTPUT"
+      - name: Test official plugins
+        # fromJSON turns the output string into the number timeout-minutes expects.
+        timeout-minutes: ${{ fromJSON(steps.plugin-budget.outputs.timeout) }}
+        env:
+          NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
+          ACTIONS_RUNNER_DEBUG: true
+          BBB_URL: https://bbb-ci.test/bigbluebutton/
+          BBB_SECRET: bbbci
+        run: |
+          PLUGINS_JSON="$GITHUB_WORKSPACE/.github/ci-tested-plugins.json"
+          LOG_DIR="$(mktemp -d)"
+          mkdir -p bigbluebutton-tests/official-plugins
+
+          plugin_field() {
+            jq -r --arg name "$1" --arg field "$2" \
+              '.[] | select(.name == $name) | .[$field] // ""' "$PLUGINS_JSON"
+          }
+
+          normalize_flaky() {
+            grep -Ev '^[[:space:]]*(#|$)' \
+              | sed 's/\r$//' \
+              | sed -E 's/[][(){}.^$*+?|\]/\\&/g' \
+              | sed 's/ › /.*/g'
+          }
+
+          # Download, build, deploy and test one plugin. Inherits `set -e`, so it
+          # stops at the first failing command and the caller records the status.
+          test_plugin() {
+            local NAME="$1"
+            local REPO REF SERVE_PATH MANIFEST_URL FLAKY_PATTERN
+            REPO="$(plugin_field "$NAME" repo)"
+            REF="$(plugin_field "$NAME" ref)"
+            SERVE_PATH="$(plugin_field "$NAME" servePath)"
+
+            # servePath comes straight from ci-tested-plugins.json and is
+            # interpolated into `sudo mkdir -p` and `sudo cp` below, so a leading
+            # slash or a `..` would write outside the web root. Reject it before
+            # anything touches the filesystem.
+            case "$SERVE_PATH" in
+              "" | /* | *..*)
+                echo "Invalid servePath for $NAME: '$SERVE_PATH'" \
+                  "(must be relative to /var/www/bigbluebutton-default/ and contain no '..')"
+                exit 1
+                ;;
+            esac
+
+            echo "Downloading $NAME from $REPO at ref $REF"
+            mkdir -p "bigbluebutton-tests/official-plugins/$NAME"
+            wget --no-verbose -O "/tmp/${NAME}.tar.gz" "https://github.com/${REPO}/archive/${REF}.tar.gz"
+            tar -xzf "/tmp/${NAME}.tar.gz" -C "bigbluebutton-tests/official-plugins/$NAME" --strip-components=1
+
+            cd "bigbluebutton-tests/official-plugins/$NAME"
+
+            echo "Building $NAME"
+            npm ci
+            npm run build-bundle
+            sudo mkdir -p "/var/www/bigbluebutton-default/${SERVE_PATH}"
+            sudo cp -r dist "/var/www/bigbluebutton-default/${SERVE_PATH}/"
+
+            # A plugin suite that cannot fetch its manifest *skips* instead of
+            # failing, so a wrong servePath would produce a green run that tested
+            # nothing. Fetch the manifest exactly where the suites look for it
+            # (origin + /plugins/<name>/dist/manifest.json, nginx serves /plugins/
+            # from /var/www/bigbluebutton-default/assets/) and fail loudly here.
+            MANIFEST_URL="${BBB_URL%/bigbluebutton/}/${SERVE_PATH#assets/}/dist/manifest.json"
+            echo "Checking deployed manifest for $NAME at $MANIFEST_URL"
+            curl --cacert "$NODE_EXTRA_CA_CERTS" -fsS -o /dev/null "$MANIFEST_URL" || {
+              echo "Deployed manifest not reachable at $MANIFEST_URL" \
+                "- check servePath for $NAME in .github/ci-tested-plugins.json"
+              exit 1
+            }
+
+            # Every plugin writes to the same ~/.cache/ms-playwright, so the browser
+            # installs are serialised to avoid concurrent writes to one cache entry.
+            echo "Installing Playwright browsers for $NAME"
+            flock /tmp/playwright-install.lock npx playwright install chromium
+
+            FLAKY_PATTERN="$({
+              if [ -f "flaky-tests.txt" ]; then
+                normalize_flaky < flaky-tests.txt || true
+              fi
+              jq -r --arg name "$NAME" '.[] | select(.name == $name) | .flakyTests // [] | .[]' \
+                "$PLUGINS_JSON" \
+                | normalize_flaky
+            } | sort -u | paste -sd'|' -)"
+
+            echo "Running tests for $NAME"
+            if [ -n "$FLAKY_PATTERN" ]; then
+              npm run test-chromium-ci -- --grep-invert "$FLAKY_PATTERN"
+            else
+              npm run test-chromium-ci
+            fi
+          }
+
+          # `timeout` needs a command, so the helpers are exported and re-entered
+          # through a child bash below.
+          export -f test_plugin plugin_field normalize_flaky
+          export PLUGINS_JSON
+
+          # Fan out over the plugin list, at most $PLUGIN_PARALLELISM at a time. Each
+          # plugin's output is buffered to its own file and replayed as a collapsible
+          # group once everything finished, so concurrent runs don't interleave in the
+          # CI log.
+          while IFS= read -r NAME; do
+            while [ "$(jobs -rp | wc -l)" -ge "$PLUGIN_PARALLELISM" ]; do
+              # Frees up a slot. The reaped job's exit status is read back from its
+              # status file below, so discarding it here loses nothing.
+              wait -n || true
+            done
+            echo "Starting $NAME"
+            {
+              status=0
+              timeout -k 30s "${PLUGIN_TIMEOUT_MINUTES}m" \
+                bash -ec 'test_plugin "$1"' _ "$NAME" > "$LOG_DIR/$NAME.log" 2>&1 || status=$?
+              if [ "$status" -eq 124 ]; then
+                echo "Timed out after ${PLUGIN_TIMEOUT_MINUTES}m" >> "$LOG_DIR/$NAME.log"
+              fi
+              echo "$status" > "$LOG_DIR/$NAME.status"
+            } &
+          done < <(jq -r '.[].name' "$PLUGINS_JSON")
+          wait || true
+
+          overall_exit=0
+          while IFS= read -r NAME; do
+            status="$(cat "$LOG_DIR/$NAME.status" 2>/dev/null || echo 1)"
+            echo "::group::$NAME (exit $status)"
+            cat "$LOG_DIR/$NAME.log" 2>/dev/null || true
+            echo "::endgroup::"
+            if [ "$status" -ne 0 ]; then
+              echo "::error::Official plugin failed: $NAME (exit $status)"
+              overall_exit=1
+            fi
+          done < <(jq -r '.[].name' "$PLUGINS_JSON")
+          exit $overall_exit
+      - if: failure()
+        name: Collect official plugin blob reports
+        shell: bash
+        run: |
+          # publish-report merges every `blob-report-*` artifact with `playwright
+          # merge-reports`, which only reads report files at the top level of the
+          # folder it is given. Uploading a `**/blob-report` glob would produce a
+          # nested layout that gets silently dropped from the combined report, so the
+          # per-plugin blobs are flattened into a single directory here. Blob files
+          # are named `report-<n>.zip` in every plugin, hence the name prefix.
+          mkdir -p bigbluebutton-tests/official-plugins-blob-report
+          jq -r '.[].name' .github/ci-tested-plugins.json \
+          | while IFS= read -r NAME; do
+            BLOB_DIR="bigbluebutton-tests/official-plugins/$NAME/blob-report"
+            [ -d "$BLOB_DIR" ] || continue
+            for BLOB in "$BLOB_DIR"/*; do
+              [ -e "$BLOB" ] || continue
+              cp "$BLOB" "bigbluebutton-tests/official-plugins-blob-report/${NAME}-$(basename "$BLOB")"
+            done
+          done
+      - if: failure()
+        name: Upload official plugin blob reports
+        uses: actions/upload-artifact@v6
+        with:
+          name: blob-report-official-plugins
+          path: bigbluebutton-tests/official-plugins-blob-report
+          if-no-files-found: ignore
+      - if: failure()
+        name: Generate official plugin HTML reports from blob reports
+        shell: bash
+        run: |
+          jq -r '.[].name' .github/ci-tested-plugins.json \
+          | while IFS= read -r NAME; do
+            BLOB_DIR="bigbluebutton-tests/official-plugins/$NAME/blob-report"
+            if [ -d "$BLOB_DIR" ]; then
+              echo "Generating HTML report for $NAME"
+              (
+                cd "bigbluebutton-tests/official-plugins/$NAME"
+                npx playwright merge-reports --reporter html ./blob-report
+              )
+            fi
+          done
+      - if: failure()
+        name: Upload official plugin HTML reports
+        uses: actions/upload-artifact@v6
+        with:
+          name: test-report_official-plugins
+          path: bigbluebutton-tests/official-plugins/**/playwright-report
+          if-no-files-found: ignore
+      - if: always()
+        name: Upload official plugin logs
+        uses: actions/upload-artifact@v6
+        with:
+          name: browser-logs-official-plugins
+          path: bigbluebutton-tests/official-plugins/**/logs
+          if-no-files-found: ignore
       - if: failure()
         name: Upload blob report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v6
@@ -703,115 +1061,19 @@ jobs:
         with:
           name: bbb-logs-plugins
           path: ./bbb-logs.tar.gz
-  install-and-run-legacy-media-tests:
-    needs:
-      - unify-artifacts
-      - bbb-libreoffice-image
-    runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
-    steps:
-      - name: Checkout PR's source merged into its target branch
-        if: github.event_name == 'pull_request'
-        uses: actions/checkout@v5
-        with:
-          ref: refs/pull/${{ github.event.number }}/merge
-      - name: Checkout commit/branch
-        if: github.event_name != 'pull_request'
-        uses: actions/checkout@v5
-        with:
-          ref: ${{ github.ref }}
-      - name: Install BBB
-        timeout-minutes: 60
-        uses: ./.github/actions/install-bbb
-      - uses: actions/setup-node@v5
-        name: PLAYWRIGHT CACHE - Restore Playwright node modules from cache
-        with:
-          cache: "npm"
-          cache-dependency-path: bigbluebutton-tests/playwright/package-lock.json
-      - name: PLAYWRIGHT CACHE - Restore Playwright binaries from cache
-        id: cache
-        uses: actions/cache@v5
-        with:
-          path: /home/runner/.cache/ms-playwright/
-          key: ${{ runner.os }}-playwright-bins-${{ hashFiles('bigbluebutton-tests/playwright/package-lock.json') }}
-      - name: Install test dependencies
-        working-directory: ./bigbluebutton-tests/playwright
-        timeout-minutes: 25
-        run: |
-          npm ci
-          npx playwright install-deps
-          npx playwright install
-      # This job re-runs the @media-tagged tests against the legacy
-      # bbb-webrtc-sfu bridge, selected per-meeting via MEDIA_BRIDGE create params.
-      - name: Run legacy (bbb-webrtc-sfu) media tests
-        working-directory: ./bigbluebutton-tests/playwright
-        timeout-minutes: 25
-        env:
-          NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
-          ACTIONS_RUNNER_DEBUG: true
-          BBB_URL: https://bbb-ci.test/bigbluebutton/
-          BBB_SECRET: bbbci
-          MEDIA_BRIDGE: bbb-webrtc-sfu
-        run: npx playwright test --project=chromium --grep '(?=.*@ci)(?=.*@media)' --grep-invert '@flaky|@need-update|@only-headed|@setting-required'
-      - if: failure()
-        name: Upload blob report to GitHub Actions Artifacts
-        uses: actions/upload-artifact@v6
-        with:
-          name: blob-report-legacy
-          path: bigbluebutton-tests/playwright/blob-report
-          if-no-files-found: ignore
-      - if: failure()
-        name: Generate legacy media HTML report from blob report
-        shell: bash
-        working-directory: ./bigbluebutton-tests/playwright
-        run: |
-          if [ -d "./blob-report" ]; then
-            npx playwright merge-reports --reporter html ./blob-report
-          else
-            echo "blob-report directory not found, skipping HTML report generation"
-          fi
-      - if: failure()
-        name: Upload legacy media HTML report to GitHub Actions Artifacts
-        uses: actions/upload-artifact@v6
-        with:
-          name: test-report_legacy
-          path: bigbluebutton-tests/playwright/playwright-report
-      - if: always()
-        name: Upload logs folder
-        uses: actions/upload-artifact@v6
-        with:
-          name: browser-logs-legacy
-          path: bigbluebutton-tests/playwright/logs
-      - if: failure()
-        name: Prepare artifacts
-        uses: ./.github/actions/prepare-artifacts
-      - if: failure()
-        name: Upload bbb-configs artifact
-        uses: actions/upload-artifact@v6
-        with:
-          name: bbb-configs-legacy
-          path: configs
-      - if: failure()
-        name: Upload bbb-logs artifact
-        uses: actions/upload-artifact@v6
-        with:
-          name: bbb-logs-legacy
-          path: ./bbb-logs.tar.gz
   publish-report:
     if: always() && !contains(github.event.head_commit.message, 'Merge pull request')
     needs:
       - install-and-run-bbb-tests
       - install-and-run-plugin-tests
-      - install-and-run-legacy-media-tests
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-24.04' }}
     env:
-      hasFailure: ${{ needs.install-and-run-bbb-tests.result == 'failure' || needs.install-and-run-plugin-tests.result == 'failure' || needs.install-and-run-legacy-media-tests.result == 'failure' }}
+      hasFailure: ${{ needs.install-and-run-bbb-tests.result == 'failure' || needs.install-and-run-plugin-tests.result == 'failure' }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
         with:
-          node-version: 22
+          node-version: 24
       - name: Check if blob reports exist
         if: ${{ fromJSON(env.hasFailure) }}
         id: check-blob-reports
@@ -821,16 +1083,3 @@ jobs:
       - name: Merge and upload the blob reports
         if: ${{ fromJSON(env.hasFailure) && fromJSON(steps.check-blob-reports.outputs.result || 'false') }}
         uses: ./.github/actions/merge-and-upload-blob-reports
-      - name: Write PR data for auto-comment
-        if: github.event_name == 'pull_request'
-        working-directory: ./
-        run: |
-          mkdir -p ./pr-comment-data
-          echo ${{ github.event.number }} > ./pr-comment-data/pr_number
-          echo ${{ github.run_id }} > ./pr-comment-data/workflow_id
-      - name: Upload PR data for auto-comment
-        if: github.event_name == 'pull_request'
-        uses: actions/upload-artifact@v6
-        with:
-          name: pr-comment-data
-          path: pr-comment-data

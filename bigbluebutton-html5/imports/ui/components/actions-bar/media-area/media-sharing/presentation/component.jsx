@@ -6,6 +6,7 @@ import update from 'immutability-helper';
 import logger from '/imports/startup/client/logger';
 import { toast } from 'react-toastify';
 import { unique } from 'radash';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import Styled from './styles';
 import PresentationDownloadDropdown from './presentation-download-dropdown/component';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
@@ -23,6 +24,9 @@ const propTypes = {
   }).isRequired,
   handleSave: PropTypes.func.isRequired,
   dispatchChangePresentationDownloadable: PropTypes.func.isRequired,
+  fileUploadConstraintsHint: PropTypes.bool.isRequired,
+  fileSizeMax: PropTypes.number.isRequired,
+  filePagesMax: PropTypes.number.isRequired,
   fileValidMimeTypes: PropTypes.arrayOf(PropTypes.shape).isRequired,
   presentations: PropTypes.arrayOf(PropTypes.shape({
     presentationId: PropTypes.string.isRequired,
@@ -48,6 +52,10 @@ const defaultProps = {
 };
 
 const intlMessages = defineMessages({
+  extraHint: {
+    id: 'app.presentationUploder.extraHint',
+    description: 'message used to indicate upload file max sizes',
+  },
   dropzoneLabel: {
     id: 'app.presentationUploder.dropzoneLabel',
     description: 'message warning where drop files for upload',
@@ -78,7 +86,7 @@ const intlMessages = defineMessages({
   },
   408: {
     id: 'app.presentationUploder.upload.408',
-    description: 'error for token request timeout',
+    description: 'error when no upload token arrived',
   },
   404: {
     id: 'app.presentationUploder.upload.404',
@@ -649,6 +657,25 @@ class PresentationUploader extends Component {
     );
   }
 
+  renderExtraHint() {
+    const {
+      intl,
+      fileSizeMax,
+      filePagesMax,
+    } = this.props;
+
+    const options = {
+      maxFileSize: fileSizeMax / 1000000,
+      maxFilePages: filePagesMax,
+    };
+
+    return (
+      <Styled.ExtraHint data-test="uploadConstraintsHint">
+        {intl.formatMessage(intlMessages.extraHint, options)}
+      </Styled.ExtraHint>
+    );
+  }
+
   renderExternalUpload() {
     const { externalUploadData, intl } = this.props;
 
@@ -708,6 +735,7 @@ class PresentationUploader extends Component {
     const {
       isPresenter,
       currentPresentation,
+      fileUploadConstraintsHint,
       intl,
     } = this.props;
     if (!isPresenter) return null;
@@ -719,15 +747,17 @@ class PresentationUploader extends Component {
       <div id="upload-modal">
         {isMobile ? this.renderPicDropzone() : null}
         {this.renderDropzone()}
+        {fileUploadConstraintsHint ? this.renderExtraHint() : null}
         {this.renderExternalUpload()}
         {this.renderPresentationList()}
         <ModalStyled.FooterContainer>
-          <ModalStyled.ConfirmationButton
-            data-test="sharePresentationButton"
+          <BBButton
+            variant="primary"
+            dataTest="sharePresentationButton"
             label={intl.formatMessage(intlMessages.shareLabel)}
-            color="primary"
             onClick={this.handleConfirm}
             disabled={currentPresentation === activeThumbnailId || !activeThumbnailId}
+            fullWidth
           />
         </ModalStyled.FooterContainer>
       </div>

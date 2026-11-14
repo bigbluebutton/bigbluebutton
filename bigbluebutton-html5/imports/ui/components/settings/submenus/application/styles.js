@@ -3,7 +3,7 @@ import {
   colorBorder,
   colorGrayLabel,
   colorPrimary,
-  colorWhite,
+  colorWhiteSurface,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { borderSize, borderSizeLarge, lgBorderRadius } from '/imports/ui/stylesheets/styled-components/general';
 import SpinnerStyles from '/imports/ui/components/common/loading-screen/styles';
@@ -90,7 +90,7 @@ const LocalesDropdownSelect = styled.div`
   margin-top: 0.5rem;
 
   & > select {
-    background-color: ${colorWhite};
+    background-color: ${colorWhiteSurface};
     border: ${borderSize} solid ${colorBorder};
     border-radius: ${lgBorderRadius};  
     border-bottom: 0.1rem solid ${colorBorder};

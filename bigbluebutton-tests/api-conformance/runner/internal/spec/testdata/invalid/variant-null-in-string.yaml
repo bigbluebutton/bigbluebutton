@@ -1,0 +1,9 @@
+# want: 9: variant var v is null, so it can only stand alone as a mapping value or a list item
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+variants:
+  - {id: a, vars: {v: null}}
+steps:
+  - {call: create, params: {name: "x-${v}"}}

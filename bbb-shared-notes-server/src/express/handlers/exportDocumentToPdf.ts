@@ -6,6 +6,7 @@ import fs, { existsSync } from 'node:fs';
 import path from 'node:path';
 import { Logger } from '../../common/logger';
 import config from '../../config';
+import { renderMathForPdf } from '../../common/math';
 
 // Resolve to <project-root>/assets/twemoji/svg/ regardless of dev (tsx) or production
 // (compiled dist/). The server is always started from the project root, so process.cwd()
@@ -116,9 +117,11 @@ export async function exportHtmlToPdf(
     // Replace emoji Unicode characters with inline base64 SVG images so wkhtmltopdf
     // can render them (it lacks emoji font support but handles <img> elements fine).
     const htmlWithInlinedEmojis = await inlineEmojiImages(htmlContent);
+    // wkhtmltopdf does not render MathML either: typeset math with KaTeX.
+    const htmlForPdf = await renderMathForPdf(htmlWithInlinedEmojis);
 
     // Write HTML content to temporary file
-    await writeFile(htmlFilePath, htmlWithInlinedEmojis, 'utf-8');
+    await writeFile(htmlFilePath, htmlForPdf, 'utf-8');
     // Set ownership to bigbluebutton user
     logger.info('HTML content written to temporary file', { htmlFilePath });
 

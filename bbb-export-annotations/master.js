@@ -3,9 +3,9 @@ import WorkerStarter from './lib/utils/worker-starter.js';
 import fs from 'fs';
 import redis, {commandOptions} from 'redis';
 import path from 'path';
+import config from './lib/utils/config.js';
 
 const logger = new Logger('presAnn Master');
-const config = JSON.parse(fs.readFileSync('./config/settings.json', 'utf8'));
 
 logger.info('Running bbb-export-annotations');
 
