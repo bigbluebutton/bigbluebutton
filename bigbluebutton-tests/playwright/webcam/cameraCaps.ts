@@ -4,7 +4,7 @@ import { elements as e } from '../core/elements';
 import { MultiUsers } from '../user/multiusers';
 
 const SECOND_CAMERA_ID = 'second-fake-camera';
-const SECOND_CAMERA_LABEL = 'Second fake camera';
+export const SECOND_CAMERA_LABEL = 'Second fake camera';
 
 // Chromium's file-backed fake camera is the only video input, and the client only offers
 // a second camera when it lists two. This lists a second one that opens the same file.
@@ -50,9 +50,7 @@ export async function addSecondFakeCamera(page: PlaywrightPage) {
 export class CameraCaps extends MultiUsers {
   async userCameraCap() {
     await this.modPage.shareWebcam();
-    await this.modPage.waitAndClick(e.videoDropdownMenu);
-    await this.modPage.waitAndClick(e.advancedVideoSettingsBtn);
-    await this.modPage.hasElement(e.webcamSettingsModal, 'should open the webcam settings to add a camera');
+    await this.modPage.hasElement(e.webcamSettingsModal, 'should keep the webcam settings open to add a camera');
     await this.modPage.page.locator(e.webcamDeviceSelector).selectOption({ label: SECOND_CAMERA_LABEL });
     await this.modPage.hasText(
       e.webcamSettingsModal,

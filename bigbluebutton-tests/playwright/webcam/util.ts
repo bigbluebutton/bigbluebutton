@@ -32,6 +32,38 @@ export async function webcamContentCheck(testPage: Page) {
   return laterTime > initialTime;
 }
 
+// The webcam settings preview shows a running camera: a live stream with frames
+export async function expectPreviewLive(testPage: Page, description: string) {
+  await expect
+    .poll(
+      () =>
+        testPage.page.evaluate((selector) => {
+          const video = document.querySelector<HTMLVideoElement>(selector);
+          const stream = video?.srcObject as MediaStream | null | undefined;
+          return !!video && !!stream?.active && video.videoWidth > 0;
+        }, e.webcamMirroredVideoPreview),
+      { message: description, timeout: ELEMENT_WAIT_TIME },
+    )
+    .toBe(true);
+}
+
+// Own camera tiles playing a live stream
+export async function expectLocalCamerasLive(testPage: Page, count: number, description: string) {
+  await expect
+    .poll(
+      () =>
+        testPage.page.evaluate(
+          (selector) =>
+            Array.from(document.querySelectorAll<HTMLVideoElement>(selector)).filter(
+              (video) => !!(video.srcObject as MediaStream | null)?.active && !video.paused,
+            ).length,
+          e.currentUserLocalStreamVideo,
+        ),
+      { message: description, timeout: ELEMENT_WAIT_TIME },
+    )
+    .toBe(count);
+}
+
 // The receiving side: another user's page decodes the remote webcam. Needs
 // trackPeerConnections before that page loads.
 export async function remoteWebcamContentCheck(testPage: Page) {

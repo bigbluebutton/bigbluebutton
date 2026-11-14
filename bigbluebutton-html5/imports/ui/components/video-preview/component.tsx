@@ -208,6 +208,8 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
     terminateCameraStream,
     cleanupStreamAndVideo,
     handleStartSharing,
+    getInitialCameraStream,
+    displayPreview,
   } = useVideoPreview({
     initialDeviceId: initialWebcamDeviceId,
     initialProfileId: !cameraAsContent
@@ -252,18 +254,34 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
   const handleStopSharing = useCallback(() => {
     if (isCameraAsContentDevice(webcamDeviceId)) {
       stopSharingCameraAsContent();
-    } else {
-      PreviewService.deleteStream(webcamDeviceId as string);
-      stopSharing(webcamDeviceId as string);
-      cleanupStreamAndVideo();
+      if (resolve) resolve();
+      return;
     }
-    if (resolve) resolve();
+
+    const keepModalOpen = VideoService.isMultipleCamerasEnabled();
+    // Before deleteStream(): stops the preview only when it is not the shared stream
+    terminateCameraStream(currentVideoStream.current);
+    PreviewService.deleteStream(webcamDeviceId as string);
+    stopSharing(webcamDeviceId as string);
+    cleanupStreamAndVideo();
+
+    if (keepModalOpen) {
+      getInitialCameraStream(webcamDeviceId).then(() => {
+        if (isMounted.current) displayPreview();
+      });
+    } else if (resolve) {
+      resolve();
+    }
   }, [
     webcamDeviceId,
     isCameraAsContentDevice,
     stopSharing,
     stopSharingCameraAsContent,
+    terminateCameraStream,
+    currentVideoStream,
     cleanupStreamAndVideo,
+    getInitialCameraStream,
+    displayPreview,
     resolve,
   ]);
 
