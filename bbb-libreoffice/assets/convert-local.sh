@@ -3,7 +3,7 @@ set -e
 set -u
 PATH="/bin/:/usr/bin/"
 
-# Conversion of office files to Pdf using local docker bbb-soffice
+# Conversion of office files to Pdf using the bbb-libreoffice docker image
 
 # This script receives three params
 # Param 1: Input office file path (e.g. "/tmp/test.odt")
@@ -19,6 +19,10 @@ elif (( $# == 1 )); then
 	exit 1
 fi;
 
+
+# Image that runs soffice. The sudoers rule is rendered from the same file, so the
+# docker run line below must use it verbatim. docker run pulls it when it is missing.
+image="$(cat /usr/share/bbb-libreoffice/docker-image)"
 
 #Create tmp dir for conversion
 mkdir -p "/tmp/bbb-soffice-$(whoami)/"
@@ -44,5 +48,5 @@ then
 fi
 
 cp "${source}" "$tempDir/file"
-sudo /usr/bin/docker run --rm --memory=1g --memory-swap=1g --network none --env="HOME=/tmp/" -w /tmp/ --user=$(printf %05d `id -u`) -v "$tempDir/":/data/ -v /usr/share/fonts/:/usr/share/fonts/:ro -v /usr/share/fontconfig/:/usr/share/fontconfig/:ro -v /etc/fonts/:/etc/fonts/:ro -v /var/cache/fontconfig/:/var/cache/fontconfig/:ro --rm bbb-soffice sh -c "timeout $(printf %03d $timeoutSecs)s /usr/bin/soffice -env:UserInstallation=file:///tmp/ $convertToParam --outdir /data /data/file"
+sudo /usr/bin/docker run --rm --memory=1g --memory-swap=1g --network none --env="HOME=/tmp/" -w /tmp/ --user=$(printf %05d `id -u`) -v "$tempDir/":/data/ -v /usr/share/fonts/:/usr/share/fonts/:ro -v /usr/share/fontconfig/:/usr/share/fontconfig/:ro -v /etc/fonts/:/etc/fonts/:ro -v /var/cache/fontconfig/:/var/cache/fontconfig/:ro --rm "$image" sh -c "timeout $(printf %03d $timeoutSecs)s /usr/bin/soffice -env:UserInstallation=file:///tmp/ $convertToParam --outdir /data /data/file"
 cp "$tempDir/file.$convertTo" "${dest}"
