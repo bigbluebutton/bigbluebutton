@@ -1,7 +1,6 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { MdOutlineDelete } from 'react-icons/md';
-import { BBButton } from '@bigbluebutton/bbb-ui-components-react/Button';
 import { pollTypes } from '../service';
 import Styled from '../styles';
 import Tooltip from '/imports/ui/components/common/tooltip/container';
@@ -115,23 +114,21 @@ const PollInputs: React.FC<PollInputsProps> = ({
             )}
           </Styled.PollInputContainer>
           {optList.length > MIN_OPTIONS_LENGTH && (
-            <Styled.DeletePollOptionButton>
-              <BBButton
-                layout="squared"
-                icon={<MdOutlineDelete />}
-                // The legacy button showed this label as a tooltip whenever it was
-                // hidden; the library only does it when asked, so it is passed here.
-                tooltipLabel={intl.formatMessage(intlMessages.delete)}
-                ariaLabel={intl.formatMessage(intlMessages.delete)}
-                ariaDescribedBy={`option-${i}`}
-                dataTest="deletePollOption"
-                variant="tertiary"
-                color="default"
-                onClick={() => {
-                  handleRemoveOption(i);
-                }}
-              />
-            </Styled.DeletePollOptionButton>
+            <Styled.DeletePollOptionButton
+              layout="squared"
+              icon={<MdOutlineDelete />}
+              // The legacy button showed this label as a tooltip whenever it was
+              // hidden; the library only does it when asked, so it is passed here.
+              tooltipLabel={intl.formatMessage(intlMessages.delete)}
+              ariaLabel={intl.formatMessage(intlMessages.delete)}
+              ariaDescribedBy={`option-${i}`}
+              dataTest="deletePollOption"
+              variant="tertiary"
+              color="default"
+              onClick={() => {
+                handleRemoveOption(i);
+              }}
+            />
           )}
           <span className="sr-only" id={`option-${i}`}>
             {intl.formatMessage(
