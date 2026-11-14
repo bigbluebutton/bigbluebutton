@@ -1,4 +1,4 @@
-import React, { useContext, useRef } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 
 import {
@@ -16,58 +16,75 @@ import { PluginsContext } from '/imports/ui/components/components-data/plugin-co
 import { GenericContentType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/generic-content-item/enums';
 import GenericMainContent from './component';
 import { ACTIONS, PRESENTATION_AREA } from '/imports/ui/components/layout/enums';
-import getDifferenceBetweenLists from '../utils';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import useEjectPresentationAreaContent from '/imports/ui/core/hooks/useEjectPresentationAreaContent';
 import { GenericContentMainAreaContainerProps } from '../types';
+import { addsNewContent, startContentRestore } from './restored-content';
 
 const GenericContentMainAreaContainer: React.FC<GenericContentMainAreaContainerProps> = (
   props: GenericContentMainAreaContainerProps,
 ) => {
   const { genericMainContentId } = props;
 
-  const previousPluginGenericContainerContents = useRef<PluginSdk.GenericContentMainArea[]>([]);
   const {
     pluginsExtensibleAreasAggregatedState,
   } = useContext(PluginsContext);
   const layoutContextDispatch: DispatcherFunction = layoutDispatch();
+  const { data: currentUser } = useCurrentUser((u) => ({ presenter: u.presenter }));
+  const ejectPresentationAreaContent = useEjectPresentationAreaContent();
+  const previousMainAreaIds = useRef<string[]>([]);
   let genericContainerContentExtensibleArea = [] as PluginSdk.GenericContentMainArea[];
 
   if (pluginsExtensibleAreasAggregatedState.genericContentItems) {
-    const genericContainerContent = pluginsExtensibleAreasAggregatedState.genericContentItems
+    genericContainerContentExtensibleArea = pluginsExtensibleAreasAggregatedState.genericContentItems
       .filter((g) => g.type === GenericContentType.MAIN_AREA) as PluginSdk.GenericContentMainArea[];
-    genericContainerContentExtensibleArea = [
-      ...genericContainerContent,
-    ];
-    const [
-      genericContentItemsAdded,
-      genericContentItemsRemoved,
-    ] = getDifferenceBetweenLists(
-      previousPluginGenericContainerContents.current,
-      genericContainerContentExtensibleArea,
-    );
-    if (genericContentItemsAdded.length > 0 || genericContentItemsRemoved.length > 0) {
-      previousPluginGenericContainerContents.current = [...genericContainerContentExtensibleArea];
-      genericContentItemsRemoved.forEach((g) => {
-        layoutContextDispatch({
-          type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
-          value: {
-            content: PRESENTATION_AREA.GENERIC_CONTENT,
-            open: false,
-            genericContentId: g.id,
-          },
-        });
-      });
-      genericContentItemsAdded.forEach((g) => {
-        layoutContextDispatch({
-          type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
-          value: {
-            content: PRESENTATION_AREA.GENERIC_CONTENT,
-            open: true,
-            genericContentId: g.id,
-          },
-        });
-      });
-    }
   }
+
+  const mainAreaIds = genericContainerContentExtensibleArea.map((g) => g.id);
+  const mainAreaIdsKey = mainAreaIds.join(',');
+
+  // Before the effect below, so it knows from the first items what is restored
+  useEffect(startContentRestore, []);
+
+  useEffect(() => {
+    const previousIds = previousMainAreaIds.current;
+    previousMainAreaIds.current = mainAreaIds;
+    const added = mainAreaIds.filter((id) => !previousIds.includes(id));
+    const removed = previousIds.filter((id) => !mainAreaIds.includes(id));
+    if (added.length === 0 && removed.length === 0) return;
+
+    // Items without a stable id get a new one on every render of the plugin:
+    // an item swapped for another takes its place in the pile instead of
+    // jumping on top of the content shown over it
+    const replaced = Math.min(added.length, removed.length);
+    removed.slice(replaced).forEach((id) => {
+      layoutContextDispatch({
+        type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
+        value: {
+          content: PRESENTATION_AREA.GENERIC_CONTENT,
+          open: false,
+          genericContentId: id,
+        },
+      });
+    });
+    added.forEach((id, index) => {
+      layoutContextDispatch({
+        type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
+        value: {
+          content: PRESENTATION_AREA.GENERIC_CONTENT,
+          open: true,
+          genericContentId: id,
+          replacesGenericContentId: index < replaced ? removed[index] : undefined,
+        },
+      });
+    });
+
+    // Only more items than before is new content, which ejects core content
+    // like core features do among themselves
+    if (addsNewContent(previousIds.length, mainAreaIds.length) && currentUser?.presenter) {
+      ejectPresentationAreaContent('pluginContent');
+    }
+  }, [mainAreaIdsKey]);
 
   const genericContentLayoutInformation: GenericContentMainAreaFromLayout = layoutSelectOutput(
     (i: Output) => i.genericMainContent,

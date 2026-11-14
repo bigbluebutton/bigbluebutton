@@ -525,6 +525,12 @@ jobs:
           npm ci
           npx playwright install-deps
           npx playwright install
+      - name: Serve a stub plugin manifest for the plugin content tests
+        run: |
+          SDK_VERSION=$(grep -oP '^html5PluginSdkVersion=\K.*' bigbluebutton-web/grails-app/conf/bigbluebutton.properties)
+          sudo mkdir -p /var/www/bigbluebutton-default/assets/plugins
+          echo "{\"name\":\"E2eStubPlugin\",\"javascriptEntrypointUrl\":\"E2eStubPlugin.js\",\"requiredSdkVersion\":\"$SDK_VERSION\"}" \
+            | sudo tee /var/www/bigbluebutton-default/assets/plugins/E2eStubPlugin.json > /dev/null
       - name: Run tests
         working-directory: ./bigbluebutton-tests/playwright
         timeout-minutes: 40
@@ -533,6 +539,7 @@ jobs:
           ACTIONS_RUNNER_DEBUG: true
           BBB_URL: https://bbb-ci.test/bigbluebutton/
           BBB_SECRET: bbbci
+          PLUGIN_STUB_MANIFEST_URL: https://bbb-ci.test/plugins/E2eStubPlugin.json
         run: npm run test-chromium-ci -- --shard=${{ env.shard }}
       - name: Run Firefox tests
         working-directory: ./bigbluebutton-tests/playwright
