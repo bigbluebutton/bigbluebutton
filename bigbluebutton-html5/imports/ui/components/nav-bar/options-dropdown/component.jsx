@@ -96,6 +96,7 @@ const propTypes = {
   noIOSFullscreen: PropTypes.bool,
   amIModerator: PropTypes.bool,
   shortcuts: PropTypes.string,
+  withShortcut: PropTypes.func,
   isBreakoutRoom: PropTypes.bool,
   isConnected: PropTypes.bool.isRequired,
   isDropdownOpen: PropTypes.bool,
@@ -115,6 +116,7 @@ const defaultProps = {
   noIOSFullscreen: true,
   amIModerator: false,
   shortcuts: '',
+  withShortcut: (label) => label,
   isBreakoutRoom: false,
   isDropdownOpen: false,
   audioCaptionsEnabled: false,
@@ -299,7 +301,7 @@ class OptionsDropdown extends PureComponent {
 
   render() {
     const {
-      intl, shortcuts: OPEN_OPTIONS_AK, isDropdownOpen, isMobile, isRTL,
+      intl, shortcuts: OPEN_OPTIONS_AK, isDropdownOpen, isMobile, isRTL, withShortcut,
     } = this.props;
     const customStyles = { top: '1rem' };
 
@@ -313,6 +315,10 @@ class OptionsDropdown extends PureComponent {
               className="bbb-options-button"
               state={isDropdownOpen ? 'open' : 'closed'}
               label={intl.formatMessage(intlMessages.optionsLabel)}
+              tooltipLabel={withShortcut(
+                intl.formatMessage(intlMessages.optionsLabel),
+                OPEN_OPTIONS_AK,
+              )}
               icon="more"
               data-test="optionsButton"
               color="dark"

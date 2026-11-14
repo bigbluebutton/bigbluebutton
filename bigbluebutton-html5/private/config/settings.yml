@@ -313,6 +313,10 @@ public:
         partialUtterances: true
         # The minumum length (in seconds) an utterance has to have for we to use it
         minUtteranceLength: 1
+    # Append the keyboard shortcut of a button to its tooltip, e.g. "Mute (Alt + M)".
+    # The modifier shown follows the user's browser/OS (Alt, Alt + Shift, Control + Option).
+    # Not shown on mobile devices. Can be overridden per user with userdata-bbb_show_shortcuts_in_tooltips
+    showShortcutsInTooltips: true
     shortcuts:
       openOptions:
         accesskey: O

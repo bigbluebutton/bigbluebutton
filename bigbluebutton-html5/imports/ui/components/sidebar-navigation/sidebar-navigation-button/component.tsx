@@ -7,6 +7,7 @@ import { layoutDispatch, layoutSelectInput } from '/imports/ui/components/layout
 import { Input } from '/imports/ui/components/layout/layoutTypes';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
+import useShortcutTooltip from '/imports/ui/core/hooks/useShortcutTooltip';
 import { SidebarNavigationButtonProps } from './types';
 import Styled from './styles';
 import { useIsMultiFunctionalModeEnabled } from '/imports/ui/services/features';
@@ -37,6 +38,7 @@ const SidebarNavigationButton: React.FC<SidebarNavigationButtonProps> = ({
   } = sidebarContentAuxiliaryInput;
   const isInAuxiliaryPanel = isAuxiliaryOpen && sidebarContentPanelAuxiliary === panel;
   const isMultiFunctionalModeEnabled = useIsMultiFunctionalModeEnabled();
+  const withShortcut = useShortcutTooltip();
 
   const togglePanel = useCallback(() => {
     const willOpen = !isOpened;
@@ -89,7 +91,7 @@ const SidebarNavigationButton: React.FC<SidebarNavigationButtonProps> = ({
 
   return (
     <TooltipContainer
-      title={label}
+      title={withShortcut(label, accessKey)}
       position="right"
     >
       <Styled.ListItem
