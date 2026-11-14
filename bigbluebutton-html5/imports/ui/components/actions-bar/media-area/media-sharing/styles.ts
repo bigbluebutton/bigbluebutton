@@ -11,6 +11,7 @@ import { fontSizeBase, headingsFontWeight } from '/imports/ui/stylesheets/styled
 import ExpandCircleDownIcon from '@mui/icons-material/ExpandCircleDown';
 
 const MODAL_WIDTH = '26.25rem';
+const MODAL_VIEWPORT_MARGIN = '1rem';
 
 // This overlay covers the entire viewport and is used to catch outside clicks.
 const Overlay = styled.div`
@@ -37,13 +38,23 @@ const ModalContainer = styled.div<{
   z-index: 1100;
   bottom: ${({ actionsBarHeight }) => actionsBarHeight}px;
   border-radius: ${lgBorderRadius};
+  /* Never taller than the space above the actions bar: the content scrolls
+     inside instead of pushing the header off the top of the screen. dvh is
+     what the mobile browser bars leave visible; vh is the fallback. */
+  max-height: calc(100vh - ${({ actionsBarHeight }) => actionsBarHeight}px - ${MODAL_VIEWPORT_MARGIN});
+  max-height: calc(100dvh - ${({ actionsBarHeight }) => actionsBarHeight}px - ${MODAL_VIEWPORT_MARGIN});
 
   ${({
     isMobile, isRTL,
   }) => (isMobile ? `
-    width: 70%;
-    right: 6%;
-    left: auto;
+    width: min(${MODAL_WIDTH}, 92%);
+    ${isRTL ? `
+      left: 4%;
+      right: auto;
+    ` : `
+      right: 4%;
+      left: auto;
+    `}
   ` : `
     width: ${MODAL_WIDTH};
     ${isRTL ? `
@@ -59,6 +70,7 @@ const ModalContainer = styled.div<{
 // Header container to hold the title and close button.
 const HeaderContainer = styled.div`
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: space-between;
   padding: 1rem;
@@ -77,6 +89,7 @@ const ContentContainer = styled.div`
   display: flex;
   flex-direction: column;
   flex-grow: 1; /* Allows content to fill available space if modal has fixed height */
+  min-height: 0; /* Lets it shrink below its content, so it scrolls instead of overflowing the modal */
   overflow-y: auto; /* Add scroll if content overflows */
 `;
 
@@ -92,6 +105,7 @@ const MediaGrid = styled.div<{ isMobile: boolean }>`
 
 // Footer container for the start/stop sharing button.
 const FooterContainer = styled.div`
+  flex-shrink: 0;
   padding: 1rem;
   border-top: 1px solid ${appsGalleryOutlineColor};
   display: flex;
@@ -102,11 +116,14 @@ const FooterContainer = styled.div`
 const SubViewWrapper = styled.div`
   display: flex;
   flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
   width: 100%;
 `;
 
 const SubHeader = styled.div`
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   padding: 1rem;
 `;
@@ -138,6 +155,10 @@ const SubHeaderIconContainer = styled.div`
 `;
 
 const SubViewContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
   text-align: center;
 
   p {
