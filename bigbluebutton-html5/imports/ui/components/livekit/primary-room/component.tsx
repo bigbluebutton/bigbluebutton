@@ -117,7 +117,9 @@ const PrimaryObserver: React.FC<PrimaryObserverProps> = ({ room, url, usingAudio
       speakingIsFrozen.current = false;
     }
 
-    setUserTalking({ variables: { talking: isSpeaking } });
+    // isSpeaking lags a mute by one LiveKit speaker update, so the re-run on
+    // mute would report a muted user as talking.
+    setUserTalking({ variables: { talking: isSpeaking && !isMuted } });
 
     return undefined;
   }, [isSpeaking, isMuted, usingAudio, isRoomConnected]);
