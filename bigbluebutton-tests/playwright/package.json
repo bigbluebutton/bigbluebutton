@@ -10,11 +10,11 @@
     "quarantine": "@flaky|@need-update|@only-headed|@setting-required|@known-issue"
   },
   "scripts": {
-    "test": "npx playwright test",
-    "test:ssh": "set -e; fn () { target=$1; shift; secret=$(ssh $target sudo bbb-conf --secret); env=$(echo \"$secret\" | sed -e 's/^ *URL: /BBB_URL=/' -e 's/^ *Secret: /BBB_SECRET=/' -e '/^BBB/p' -e d); env $env npx playwright test $@; }; fn",
-    "test:filter": "npx playwright test -g",
-    "test:headed": "npx playwright test --headed",
-    "test:debug": "npx playwright test --debug -g",
+    "test": "npx playwright test --project=chromium",
+    "test:ssh": "set -e; fn () { target=$1; shift; secret=$(ssh $target sudo bbb-conf --secret); env=$(echo \"$secret\" | sed -e 's/^ *URL: /BBB_URL=/' -e 's/^ *Secret: /BBB_SECRET=/' -e '/^BBB/p' -e d); env $env npx playwright test --project=chromium $@; }; fn",
+    "test:filter": "npx playwright test --project=chromium -g",
+    "test:headed": "npx playwright test --project=chromium --headed",
+    "test:debug": "npx playwright test --project=chromium --debug -g",
     "test-chromium": "npx playwright test --project=chromium --grep @ci --grep-invert \"$npm_package_config_quarantine|@nightly\"",
     "test-firefox": "npx playwright test --project=firefox --grep @ci --grep-invert \"$npm_package_config_quarantine|@nightly\"",
     "test-chromium-ci": "export CI='true' && npx playwright test --project=chromium --grep @ci --grep-invert \"$npm_package_config_quarantine|@nightly\"",

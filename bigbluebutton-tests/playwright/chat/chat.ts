@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test';
 
-import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
+import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 import { checkTextContent } from '../core/util';
@@ -214,10 +214,14 @@ export class Chat extends MultiUsers {
       chatMessagesBox.x + chatMessagesBox.width / 2,
       chatMessagesBox.y + chatMessagesBox.height / 2,
     );
+    // Firefox scrolls one wheel event by about the list height at most, so it takes several to reach the top
     await expect(async () => {
       await this.userPage.page.mouse.wheel(0, -2000);
-      await expect(firstMessage).toBeVisible({ timeout: 1000 });
-    }, 'should load the oldest message when scrolling up').toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
+      await expect(firstMessage).toBeVisible({ timeout: 500 });
+    }, 'should load the oldest message when scrolling up').toPass({
+      intervals: [100],
+      timeout: ELEMENT_WAIT_EXTRA_LONG_TIME,
+    });
     await expect(receivedMessages, 'should show the whole history').toHaveCount(messages.length);
     expect((await receivedMessages.allInnerTexts()).sort(), 'should show every message of the history').toEqual(
       [...messages].sort(),

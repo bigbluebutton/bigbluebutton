@@ -17,9 +17,7 @@ test.describe.parallel('Ejected user GraphQL streams', { tag: '@ci' }, () => {
     browser,
     context,
     page,
-    browserName,
   }, testInfo) => {
-    test.skip(browserName === 'firefox', 'Frame-level routing is only exercised on chromium in CI.');
     test.setTimeout(SPEC_TIMEOUT);
     const ejected = new EjectedStreams(browser, context);
     await ejected.initModPage(page, { testInfo });
@@ -29,8 +27,7 @@ test.describe.parallel('Ejected user GraphQL streams', { tag: '@ci' }, () => {
   test(
     'Ejected user stops receiving the voice activity stream',
     { tag: '@media' },
-    async ({ browser, context, page, browserName }, testInfo) => {
-      test.skip(browserName === 'firefox', 'Firefox does not support fake audio to simulate the audio.');
+    async ({ browser, context, page }, testInfo) => {
       test.setTimeout(SPEC_TIMEOUT);
       const ejected = new EjectedStreams(browser, context);
       await ejected.initModPage(page, { testInfo });

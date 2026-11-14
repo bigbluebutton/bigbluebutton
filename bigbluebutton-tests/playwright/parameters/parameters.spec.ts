@@ -838,7 +838,8 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
       await customParam.hidePresentationOnJoin();
     });
 
-    test('After Sharing Screen', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
+    test('After Sharing Screen', { tag: '@media' }, async ({ browser, browserName, context, page }, testInfo) => {
+      test.skip(browserName === 'firefox', 'Screenshare tests not able in Firefox browser without desktop');
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, { joinParameter: c.hidePresentationOnJoin, testInfo });
       await customParam.initUserPage(context, {
