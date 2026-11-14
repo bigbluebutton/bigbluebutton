@@ -1,10 +1,31 @@
 package org.bigbluebutton.core.apps.polls
 
 import org.bigbluebutton.common2.domain.SimplePollResultOutVO
-import org.bigbluebutton.common2.msgs.{ BbbClientMsgHeader, BbbCommonEnvCoreMsg, BbbCoreEnvelope, MessageTypes, PollUpdatedEvtMsg, PollUpdatedEvtMsgBody, Routing, UserRespondedToPollRecordMsg, UserRespondedToPollRecordMsgBody, UserRespondedToPollRespMsg, UserRespondedToPollRespMsgBody, UserRespondedToTypedPollRespMsg, UserRespondedToTypedPollRespMsgBody }
+import org.bigbluebutton.common2.msgs.{ BbbClientMsgHeader, BbbCommonEnvCoreMsg, BbbCoreEnvelope, MessageTypes, PollUpdatedEvtMsg, PollUpdatedEvtMsgBody, Routing, StartCustomPollReqMsgBody, StartPollReqMsgBody, UserRespondedToPollRecordMsg, UserRespondedToPollRecordMsgBody, UserRespondedToPollRespMsg, UserRespondedToPollRespMsgBody, UserRespondedToTypedPollRespMsg, UserRespondedToTypedPollRespMsgBody }
 import org.bigbluebutton.core.running.OutMsgRouter
 
 object PollHdlrHelpers {
+
+  // Default lengths, used when the meeting's client settings do not carry the
+  // public.poll.maxQuestionLength / maxOptionLength / maxTypedAnswerLength entries.
+  val DefaultMaxQuestionLength = 500
+  val DefaultMaxOptionLength = 100
+  val DefaultMaxTypedAnswerLength = 100
+
+  // Cuts the question to the configured length, so the server never stores a
+  // question longer than the client lets the presenter type.
+  def limitStartPollBody(body: StartPollReqMsgBody, maxQuestionLength: Int): StartPollReqMsgBody =
+    body.copy(question = body.question.take(maxQuestionLength))
+
+  // Same for a custom poll, whose options also have a configured length. The
+  // correct answer of a quiz names one of the options, so it is cut the same way
+  // to keep matching it.
+  def limitStartCustomPollBody(body: StartCustomPollReqMsgBody, maxQuestionLength: Int, maxOptionLength: Int): StartCustomPollReqMsgBody =
+    body.copy(
+      question = body.question.take(maxQuestionLength),
+      answers = body.answers.map(_.take(maxOptionLength)),
+      correctAnswer = body.correctAnswer.take(maxOptionLength)
+    )
 
   // Selects the answer ids that will actually be recorded for a poll vote.
   //

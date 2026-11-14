@@ -59,7 +59,7 @@ const PollInputs: React.FC<PollInputsProps> = ({
 }) => {
   const POLL_SETTINGS = window.meetingClientSettings.public.poll;
   const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
-  const MAX_INPUT_CHARS = POLL_SETTINGS.maxTypedAnswerLength;
+  const MAX_INPUT_CHARS = POLL_SETTINGS.maxOptionLength;
   const MIN_OPTIONS_LENGTH = 2;
   const intl = useIntl();
   let hasVal = false;
@@ -88,7 +88,8 @@ const PollInputs: React.FC<PollInputsProps> = ({
           )}
           <Styled.PollInputContainer>
             <Styled.PollOptionInput
-              type="text"
+              // Grows with the text, so a long option stays readable while it is edited.
+              multiline
               value={o.val}
               placeholder={intl.formatMessage(intlMessages.customPlaceholder)}
               $isCorrect={isQuiz && correctAnswer.index === i}
@@ -99,6 +100,8 @@ const PollInputs: React.FC<PollInputsProps> = ({
                 htmlInput: {
                   'data-test': 'pollOptionItem',
                   maxLength: MAX_INPUT_CHARS,
+                  // An option is a single line: Enter must not break it.
+                  onKeyDown: (e: React.KeyboardEvent) => { if (e.key === 'Enter') e.preventDefault(); },
                   onPaste: (e: React.ClipboardEvent) => { e.stopPropagation(); },
                   onCut: (e: React.ClipboardEvent) => { e.stopPropagation(); },
                   onCopy: (e: React.ClipboardEvent) => { e.stopPropagation(); },

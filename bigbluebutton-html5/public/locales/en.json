@@ -85,6 +85,8 @@
     "app.chat.header.tooltipReact": "React to message",
     "app.chat.content.pollVote": "vote",
     "app.chat.content.pollVotes": "votes",
+    "app.chat.content.pollShowMore": "Show more",
+    "app.chat.content.pollShowLess": "Show less",
     "app.chat.pollResult.copy": "Copy results",
     "app.chat.pollResult.copySuccess": "Copied!",
     "app.chat.pollResult.download": "Download as PNG",
