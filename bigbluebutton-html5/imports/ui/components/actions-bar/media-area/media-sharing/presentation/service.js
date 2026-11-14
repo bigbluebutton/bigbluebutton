@@ -343,8 +343,50 @@ function handleFiledrop(files, files2, that, intl, intlMessages) {
   }
 }
 
+// Uploads files dropped straight onto the presentation area, skipping the uploader
+// modal. The first accepted file is uploaded as the current presentation, so it is
+// shown to everyone as soon as its conversion finishes. Progress and conversion errors
+// are reported by the uploader toast, which follows the presentations of the meeting.
+const uploadDroppedPresentations = (files, {
+  fileValidMimeTypes,
+  fileSizeMax,
+  onUploadTimeout,
+}) => {
+  const validMimes = fileValidMimeTypes.map((fileValid) => fileValid.mime);
+  const validExtentions = fileValidMimeTypes.map((fileValid) => fileValid.extension);
+  const [validFiles, rejected] = partition(files, (f) => (
+    validMimes.includes(f.type)
+    || validExtentions.includes(`.${f.name.split('.').pop().toLowerCase()}`)
+  ));
+  const [tooLarge, accepted] = partition(validFiles, (f) => f.size > fileSizeMax);
+
+  const presentationsToUpload = accepted.map((file, index) => ({
+    file,
+    name: file.name,
+    presentationId: uniqueId(uuid()),
+    downloadable: false,
+    current: index === 0,
+    onUpload: (upload) => {
+      // Same case as in handleFiledrop: no token arrived and no reason was recorded.
+      if (upload.error && !upload.reported && upload.status === 408) onUploadTimeout();
+    },
+  }));
+
+  if (presentationsToUpload.length > 0) {
+    const PRESENTATION_CONFIG = window.meetingClientSettings.public.presentation;
+    uploadAndConvertPresentations(
+      presentationsToUpload,
+      Auth.meetingID,
+      PRESENTATION_CONFIG.uploadEndpoint,
+    );
+  }
+
+  return { accepted, rejected, tooLarge };
+};
+
 export default {
   handleSavePresentation,
+  uploadDroppedPresentations,
   persistPresentationChanges,
   requestPresentationUploadToken,
   uploadAndConvertPresentation,

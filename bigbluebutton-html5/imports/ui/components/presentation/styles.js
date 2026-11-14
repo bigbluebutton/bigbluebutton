@@ -12,6 +12,7 @@ import {
   colorWhite,
   colorGrayLightest,
   colorOffWhite,
+  colorGrayDark,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   fontSizeLarger,
@@ -128,6 +129,35 @@ const PresentationContainer = styled.div`
   bottom: 0;
 `;
 
+// Shown while the presenter drags files over the presentation area. It takes no pointer
+// events: the drag is tracked on the container, so the overlay must not become its target.
+const FileDropOverlay = styled.div`
+  position: absolute;
+  inset: ${smPaddingX};
+  z-index: 1000;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: ${smPaddingY};
+  padding: ${smPaddingX};
+  text-align: center;
+  color: ${colorPrimary};
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 3px dashed ${colorPrimary};
+  border-radius: ${lgBorderRadius};
+`;
+
+const FileDropTitle = styled.span`
+  font-size: ${fontSizeLarger};
+  font-weight: 600;
+`;
+
+const FileDropHint = styled.span`
+  color: ${colorGrayDark};
+`;
+
 const Presentation = styled.div`
   order: 1;
   display: flex;
@@ -227,6 +257,9 @@ export default {
   PresentationName,
   ToastDownload,
   PresentationContainer,
+  FileDropOverlay,
+  FileDropTitle,
+  FileDropHint,
   Presentation,
   SvgContainer,
   WhiteboardSizeAvailable,

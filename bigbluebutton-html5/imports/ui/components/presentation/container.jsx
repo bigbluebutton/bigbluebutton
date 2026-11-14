@@ -36,6 +36,7 @@ import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import usePresentationFitToWidth from '/imports/ui/components/presentation/hooks/usePresentationFitToWidth';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
+import PresentationUploaderService from '/imports/ui/components/actions-bar/media-area/media-sharing/presentation/service';
 
 const fetchedpresentation = {};
 const FORCE_RESTORE_PRESENTATION_ON_NEW_EVENTS = 'bbb_force_restore_presentation_on_new_events';
@@ -287,6 +288,18 @@ const PresentationContainer = ({
 
   if (layoutType === 'videoFocus' && presentation?.width === 0) return null;
 
+  const uploadDroppedFiles = (files, onUploadTimeout) => {
+    const PRESENTATION_CONFIG = window.meetingClientSettings.public.presentation;
+    const result = PresentationUploaderService.uploadDroppedPresentations(files, {
+      fileValidMimeTypes: PRESENTATION_CONFIG.uploadValidMimeTypes,
+      fileSizeMax: PRESENTATION_CONFIG.mirroredFromBBBCore.uploadSizeMax,
+      onUploadTimeout,
+    });
+    // Same as picking a presentation in the uploader: the new one starts fitted to the page.
+    if (result.accepted.length > 0) setPresentationFitToWidth(false);
+    return result;
+  };
+
   const multiUserWhiteboardEnabled = currentMeeting?.usersPolicies?.multiUserWhiteboardEnabled
     ?? false;
 
@@ -320,6 +333,7 @@ const PresentationContainer = ({
           totalPages: currentPresentationPage?.totalPages || 0,
           notify,
           zoomSlide,
+          uploadDroppedFiles,
           restoreOnUpdate: shouldRestoreOnUpdate,
           setMultiUserWhiteboardEnabled,
           setMultiUserWhiteboardDisabled,
