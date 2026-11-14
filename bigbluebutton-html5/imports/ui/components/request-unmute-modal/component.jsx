@@ -71,28 +71,32 @@ const RequestUnmuteComponent = ({
       priority="high"
       title={intl.formatMessage(intlMessages.modalTitle)}
       onRequestClose={handleDeny}
+      footerContent={(
+        // Same layout as the client's other modals: the dismissive action on
+        // the left and the call to action on the right, aligned to the end.
+        <Styled.Footer>
+          <BBButton
+            label={denyLabel}
+            dataTest="denyUnmute"
+            iconStart={<Icon iconName="mute" />}
+            onClick={handleDeny}
+            variant="secondary"
+            color="danger"
+          />
+          <BBButton
+            label={intl.formatMessage(intlMessages.confirmButtonLabel)}
+            dataTest="confirmUnmute"
+            iconStart={<Icon iconName="unmute" />}
+            onClick={handleConfirm}
+            variant="primary"
+            color="default"
+          />
+        </Styled.Footer>
+      )}
     >
       <Styled.Subtitle>
         <FormattedMessage {...intlMessages.modalSubtitle} />
       </Styled.Subtitle>
-      <Styled.RequestModalContent>
-        <BBButton
-          label={intl.formatMessage(intlMessages.confirmButtonLabel)}
-          dataTest="confirmUnmute"
-          iconStart={<Icon iconName="unmute" />}
-          onClick={handleConfirm}
-          variant="primary"
-          color="default"
-        />
-        <BBButton
-          label={denyLabel}
-          dataTest="denyUnmute"
-          iconStart={<Icon iconName="mute" />}
-          onClick={handleDeny}
-          variant="secondary"
-          color="danger"
-        />
-      </Styled.RequestModalContent>
     </ModalSimple>
   );
 };
