@@ -45,55 +45,55 @@ trait MuteUserCmdMsgHdlr extends RightsManagementTrait {
         if (requester.role != Roles.MODERATOR_ROLE
           && permissions.disableMic
           && requester.locked
-          && u.muted &&
+          && !msg.body.mute &&
           msg.body.userId == msg.header.userId) {
           // unmuting self while not moderator and mic disabled. Do not allow.
         } else {
-          if (u.muted != msg.body.mute) {
-            log.info("Send mute user request. meetingId=" + meetingId + " userId=" + u.intId + " user=" + u)
+          // Confirmed voice state can lag a previous command. Always forward
+          // an authorized request so a quick mute can cancel an unmute in flight.
+          log.info("Send mute user request. meetingId=" + meetingId + " userId=" + u.intId + " user=" + u)
 
-            val isUnmuting = !msg.body.mute
-            val isActingOnOtherUser = msg.body.userId != msg.header.userId
-            val requireUserConsentBeforeUnmuting = liveMeeting.props.usersProp.requireUserConsentBeforeUnmuting
-            // Voice-only participants have no client, so a consent prompt can
-            // never be answered. VoiceUserState carries no client type, so the
-            // dial-in intId prefix is checked first and Users2x is consulted as
-            // a fallback; a missing user record also means voice-only.
-            val isVoiceOnlyUser = if (u.intId.startsWith(IntIdPrefixType.DIAL_IN)) {
-              true
-            } else {
-              Users2x.findWithIntId(liveMeeting.users2x, u.intId) match {
-                case Some(tu) => tu.clientType == ClientType.DIAL_IN
-                case None     => true
-              }
+          val isUnmuting = !msg.body.mute
+          val isActingOnOtherUser = msg.body.userId != msg.header.userId
+          val requireUserConsentBeforeUnmuting = liveMeeting.props.usersProp.requireUserConsentBeforeUnmuting
+          // Voice-only participants have no client, so a consent prompt can
+          // never be answered. VoiceUserState carries no client type, so the
+          // dial-in intId prefix is checked first and Users2x is consulted as
+          // a fallback; a missing user record also means voice-only.
+          val isVoiceOnlyUser = if (u.intId.startsWith(IntIdPrefixType.DIAL_IN)) {
+            true
+          } else {
+            Users2x.findWithIntId(liveMeeting.users2x, u.intId) match {
+              case Some(tu) => tu.clientType == ClientType.DIAL_IN
+              case None     => true
             }
-            // shouldRequestUnmute: whether we need consent before unmuting a
-            // remote user. This is controlled by two factors:
-            //  - bbb-web's requireUserConsentBeforeUnmuting setting
-            //  - If the audio bridge is LiveKit, which will _always_ require
-            //    user consent before unmuting due to technical limitations.
-            //    Voice-only participants are exempt: they keep publishing while
-            //    muted, so the server can unmute them directly.
-            val shouldRequestUnmute = isUnmuting &&
-              isActingOnOtherUser &&
-              (requireUserConsentBeforeUnmuting ||
-                (isUsingLiveKitAudio(liveMeeting) && !isVoiceOnlyUser))
+          }
+          // shouldRequestUnmute: whether we need consent before unmuting a
+          // remote user. This is controlled by two factors:
+          //  - bbb-web's requireUserConsentBeforeUnmuting setting
+          //  - If the audio bridge is LiveKit, which will _always_ require
+          //    user consent before unmuting due to technical limitations.
+          //    Voice-only participants are exempt: they keep publishing while
+          //    muted, so the server can unmute them directly.
+          val shouldRequestUnmute = isUnmuting &&
+            isActingOnOtherUser &&
+            (requireUserConsentBeforeUnmuting ||
+              (isUsingLiveKitAudio(liveMeeting) && !isVoiceOnlyUser))
 
-            if (shouldRequestUnmute) {
-              log.info("Requesting user to unmute. meetingId=" + meetingId + " userId=" + u.intId)
-              VoiceApp.requestUnmute(
-                liveMeeting,
-                u.intId
-              )
-            } else {
-              log.info("Directly muting/unmuting user. meetingId=" + meetingId + " userId=" + u.intId + " mute=" + msg.body.mute)
-              VoiceApp.muteUserInVoiceConf(
-                liveMeeting,
-                outGW,
-                u.intId,
-                msg.body.mute
-              )
-            }
+          if (shouldRequestUnmute) {
+            log.info("Requesting user to unmute. meetingId=" + meetingId + " userId=" + u.intId)
+            VoiceApp.requestUnmute(
+              liveMeeting,
+              u.intId
+            )
+          } else {
+            log.info("Directly muting/unmuting user. meetingId=" + meetingId + " userId=" + u.intId + " mute=" + msg.body.mute)
+            VoiceApp.muteUserInVoiceConf(
+              liveMeeting,
+              outGW,
+              u.intId,
+              msg.body.mute
+            )
           }
         }
       }

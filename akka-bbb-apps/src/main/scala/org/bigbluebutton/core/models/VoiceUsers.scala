@@ -66,6 +66,14 @@ object VoiceUsers {
     users.removeFromCache(intId)
   }
 
+  // Keep the requested state separate from bridge events: a late LiveKit
+  // publication can report unmuted after the mute command was acknowledged.
+  def setMuteRequested(users: VoiceUsers, intId: String, muted: Boolean): Unit = {
+    findWithIntId(users, intId).foreach { u =>
+      users.save(u.copy(muteRequested = muted, unmuteOnUndeafen = !muted && u.deafened))
+    }
+  }
+
   def userMuted(users: VoiceUsers, voiceUserId: String, muted: Boolean): Option[VoiceUserState] = {
     for {
       u <- findWithVoiceUserId(users, voiceUserId)
@@ -282,5 +290,7 @@ case class VoiceUserState(
     floor:                 Boolean,
     lastFloorTime:         String,
     hold:                  Boolean,
-    uuid:                  String
+    uuid:                  String,
+    muteRequested:         Boolean = false,
+    unmuteOnUndeafen:       Boolean = false
 )

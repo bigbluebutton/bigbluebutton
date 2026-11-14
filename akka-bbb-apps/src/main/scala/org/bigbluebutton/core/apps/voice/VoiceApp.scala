@@ -8,7 +8,7 @@ import org.bigbluebutton.core.bus.InternalEventBus
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.running.{LiveMeeting, MeetingActor, OutMsgRouter}
+import org.bigbluebutton.core.running.{HandlerHelpers, LiveMeeting, MeetingActor, OutMsgRouter}
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.apps.users.UsersApp
 import org.bigbluebutton.core.db.{MeetingVoiceDAO, UserDAO, UserVoiceDAO}
@@ -162,6 +162,16 @@ object VoiceApp extends SystemConfiguration {
       voiceUserId: String,
       muted:       Boolean
   )(implicit context: ActorContext): Unit = {
+    VoiceUsers.findWithVoiceUserId(liveMeeting.voiceUsers, voiceUserId) match {
+      case Some(u) if !muted && (u.muteRequested || u.unmuteOnUndeafen) =>
+        // A microphone published by an earlier unmute must not overwrite a
+        // newer mute or open while an unmute waits for undeafening. This is
+        // enforcement, not a new request: preserve any pending unmute.
+        muteUserInVoiceConf(liveMeeting, outGW, u.intId, muted = true, recordMuteRequest = false)
+        return
+      case _ =>
+    }
+
     for {
       mutedUser <- VoiceUsers.userMuted(liveMeeting.voiceUsers, voiceUserId, muted)
     } yield {
@@ -858,7 +868,8 @@ object VoiceApp extends SystemConfiguration {
     liveMeeting:  LiveMeeting,
     outGW:        OutMsgRouter,
     userId:       String,
-    muted:         Boolean
+    muted:         Boolean,
+    recordMuteRequest: Boolean = true
   )(implicit context: ActorContext): Unit = {
     for {
       u <- VoiceUsers.findWithIntId(
@@ -866,7 +877,19 @@ object VoiceApp extends SystemConfiguration {
         userId
       )
       } yield {
-        if (u.muted != muted && (muted || !u.deafened)) {
+        // LiveKit keeps the voice session when audio is left. Its restore
+        // request can arrive before undeafening, so retain that unmute until
+        // it can be applied. A newer mute cancels the pending unmute.
+        // Dial-in users can also change mute state outside the web client.
+        if (recordMuteRequest && HandlerHelpers.isUsingLiveKitAudio(liveMeeting)
+          && !u.intId.startsWith(IntIdPrefixType.DIAL_IN)
+          && Users2x.findWithIntId(liveMeeting.users2x, u.intId).exists(_.clientType != ClientType.DIAL_IN)) {
+          VoiceUsers.setMuteRequested(liveMeeting.voiceUsers, u.intId, muted)
+        }
+
+        // A matching confirmed state does not mean there is no opposite
+        // command in flight. The voice bridge must receive the latest request.
+        if (muted || !u.deafened) {
           val muteEvent = MsgBuilder.buildMuteUserInVoiceConfSysMsg(
             liveMeeting.props.meetingProp.intId,
             liveMeeting.props.voiceProp.voiceConf,
@@ -980,6 +1003,11 @@ object VoiceApp extends SystemConfiguration {
 
       if (deafened && !du.muted) {
         muteUserInVoiceConf(liveMeeting, outGW, du.intId, true)
+      } else if (!deafened && du.unmuteOnUndeafen) {
+        // Recheck the microphone lock in case it changed while audio was left.
+        val micLocked = Users2x.findWithIntId(liveMeeting.users2x, du.intId)
+          .exists(user => LockSettingsUtil.isMicrophoneSharingLocked(user, liveMeeting))
+        muteUserInVoiceConf(liveMeeting, outGW, du.intId, muted = micLocked)
       }
     }
   }
