@@ -1,7 +1,7 @@
 [Unit]
 Description=BigBlueButton WebRTC Recorder
 Wants=redis-server.service
-After=syslog.target network.target redis-server.service
+After=syslog.target network.target redis-server.service livekit-server.service
 PartOf=bigbluebutton.target
 
 [Service]

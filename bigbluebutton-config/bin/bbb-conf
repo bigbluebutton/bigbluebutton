@@ -841,6 +841,236 @@ check_configuration() {
 
 }
 
+print_docs_link() {
+    echo "#"
+    echo "#   https://docs.bigbluebutton.org/$1"
+    echo "#"
+}
+
+is_private_ipv4() {
+    case "$1" in
+        10.*|192.168.*|172.1[6-9].*|172.2[0-9].*|172.3[01].*) return 0 ;;
+        # 100.64.0.0/10, carrier-grade NAT
+        100.6[4-9].*|100.[7-9][0-9].*|100.1[01][0-9].*|100.12[0-7].*) return 0 ;;
+    esac
+    return 1
+}
+
+# livekit-server's YAML parser reads YAML 1.1 forms such as yes and on as true
+# for a bool, so they count as true here too.
+livekit_bool() {
+    case "$(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e "$1 // false" -)" in
+        true|True|TRUE|y|Y|yes|Yes|YES|on|On|ON) echo true ;;
+        *) echo false ;;
+    esac
+}
+
+# Prints a variable's value from an EnvironmentFile, read the way systemd reads
+# a plain value.
+env_file_value() {
+    sed -n "s/^[[:space:]]*$1[[:space:]]*=[[:space:]]*//p" "$2" 2> /dev/null | tail -n 1 \
+        | sed -e 's/[[:space:]]*$//' -e 's/^"\(.*\)"$/\1/' -e "s/^'\(.*\)'$/\1/"
+}
+
+env_file_has() {
+    grep -q "^[[:space:]]*$1[[:space:]]*=" "$2" 2> /dev/null
+}
+
+# bbb-webrtc-recorder loads only the first of these files it finds; it does not
+# merge them.
+webrtc_recorder_config_file() {
+    for f in /etc/bigbluebutton/bbb-webrtc-recorder.yaml /etc/bigbluebutton/bbb-webrtc-recorder.yml \
+        /etc/bbb-webrtc-recorder/bbb-webrtc-recorder.yaml /etc/bbb-webrtc-recorder/bbb-webrtc-recorder.yml; do
+        if [ -f "$f" ]; then
+            echo "$f"
+            return
+        fi
+    done
+}
+
+# Warns and returns 1 when a component's copy of a LiveKit API key differs
+# from the keys livekit-server uses. It prints no key: a key and secret
+# swapped by mistake would print the secret.
+check_livekit_key() {
+    if [ -z "$2" ]; then
+        echo "# Warning: $1 has no LiveKit API key"
+    elif [ -z "$LIVEKIT_KEYS" ]; then
+        return 0
+    else
+        LIVEKIT_EXPECTED_SECRET=$(echo "$LIVEKIT_KEYS" | KEY="$2" yq-go e '.[strenv(KEY)] // ""' - 2> /dev/null)
+        if [ "$LIVEKIT_EXPECTED_SECRET" == "$3" ] && [ -n "$3" ]; then
+            return 0
+        elif [ -z "$LIVEKIT_EXPECTED_SECRET" ]; then
+            echo "# Warning: $1 uses a LiveKit API key that $LIVEKIT_KEYS_FROM does not list"
+        else
+            echo "# Warning: $1's LiveKit API secret differs from $LIVEKIT_KEYS_FROM"
+        fi
+    fi
+    print_docs_link "support/troubleshooting#livekit-api-keys-and-webhooks"
+    return 1
+}
+
+check_livekit() {
+    if [ -z "$LIVEKIT_SERVER_CONFIG" ] || ! systemctl is-enabled --quiet livekit-server 2> /dev/null; then
+        return
+    fi
+
+    LIVEKIT_HOST=$(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.bind_addresses[0] // ""' -)
+    case "$LIVEKIT_HOST" in
+        ""|0.0.0.0|::) LIVEKIT_HOST=127.0.0.1 ;;
+        *:*) LIVEKIT_HOST="[$LIVEKIT_HOST]" ;;
+    esac
+    LIVEKIT_HEALTH_URL="http://$LIVEKIT_HOST:$(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.port // 7880' -)/"
+    # livekit-server may still be starting after --restart
+    LIVEKIT_DEADLINE=$((SECONDS + 15))
+    while true; do
+        LIVEKIT_HEALTH=$(curl --noproxy '*' -s -m 2 "$LIVEKIT_HEALTH_URL")
+        if [ "$LIVEKIT_HEALTH" == "OK" ] || [ $SECONDS -ge $LIVEKIT_DEADLINE ]; then
+            break
+        fi
+        sleep 1
+    done
+    if [ "$LIVEKIT_HEALTH" != "OK" ]; then
+        if [ -z "$LIVEKIT_HEALTH" ]; then
+            echo "# Error: livekit-server does not answer at $LIVEKIT_HEALTH_URL"
+        else
+            echo "# Error: livekit-server answers \"${LIVEKIT_HEALTH%%$'\n'*}\" at $LIVEKIT_HEALTH_URL"
+        fi
+        print_docs_link "support/troubleshooting#livekit-server-fails-its-health-check"
+    fi
+
+    LIVEKIT_NODE_IP=$(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.rtc.node_ip // ""' -)
+    LIVEKIT_NODE_IP4=$(echo "$LIVEKIT_NODE_IP" | tr ',' '\n' | tr -d ' ' | grep -m 1 -E '^[0-9]+(\.[0-9]+){3}$')
+    LIVEKIT_ICE_LITE=$(livekit_bool .rtc.use_ice_lite)
+    LIVEKIT_ADVERTISE_INTERNAL=$(livekit_bool .rtc.advertise_internal_ip)
+    LIVEKIT_USE_EXTERNAL=$(livekit_bool .rtc.use_external_ip)
+    LOCAL_IPV4S=$(ip -o -4 address show | awk '{ split($4, a, "/"); print a[1] }')
+    LOCAL_PUBLIC_IPV4S=$(for a in $LOCAL_IPV4S; do case "$a" in 127.*|169.254.*) ;; *) is_private_ipv4 "$a" || echo "$a" ;; esac; done)
+    NIC_IPV4S=$(ip -o -4 address show | awk '$2 != "lo" { split($4, a, "/"); print a[1] }')
+
+    # With ICE-lite, LiveKit sends no connectivity checks of its own, so the
+    # recorder and livekit-sip connect only through the addresses it announces.
+    if [ "$LIVEKIT_ICE_LITE" == "true" ] && [ "$LIVEKIT_ADVERTISE_INTERNAL" != "true" ]; then
+        # With use_external_ip, LiveKit announces the address it learns over STUN.
+        if [ "$LIVEKIT_USE_EXTERNAL" == "true" ]; then
+            if is_private_ipv4 "$IP" && [ -z "$LOCAL_PUBLIC_IPV4S" ]; then
+                echo "# Warning: LiveKit uses ICE-lite and announces the public address it learns over STUN,"
+                echo "# but no interface of this server holds a public IPv4 address. bbb-webrtc-recorder and"
+                echo "# livekit-sip then reach LiveKit only if the network sends that traffic back to this server."
+                print_docs_link "support/troubleshooting#livekit-ice-lite-address-is-not-on-this-server"
+            fi
+        elif [ -n "$LIVEKIT_NODE_IP4" ] && ! echo "$LOCAL_IPV4S" | grep -qxF "$LIVEKIT_NODE_IP4"; then
+            echo "# Warning: LiveKit uses ICE-lite and announces rtc.node_ip $LIVEKIT_NODE_IP4 as its only IPv4"
+            echo "# address, but no interface of this server holds it. bbb-webrtc-recorder and livekit-sip"
+            echo "# then reach LiveKit only if the network sends traffic for $LIVEKIT_NODE_IP4 back to this server."
+            print_docs_link "support/troubleshooting#livekit-ice-lite-address-is-not-on-this-server"
+        fi
+    fi
+
+    if [ "$LIVEKIT_USE_EXTERNAL" == "true" ] \
+        && is_private_ipv4 "$IP" && [ -n "$(ip -6 route show default 2> /dev/null)" ] \
+        && ip -6 address show scope global 2> /dev/null | grep -v -E 'inet6 f[cd]' | grep -q inet6; then
+        echo "# Warning: rtc.use_external_ip is true on a server behind NAT with an IPv6 route."
+        echo "# livekit-server can then announce no public IPv4 address, and IPv4-only"
+        echo "# clients cannot connect."
+        print_docs_link "support/troubleshooting#livekit-address-settings"
+    fi
+
+    LIVEKIT_PEER_IPV4S=$( {
+        echo "$WEBRTC_SFU_CONFIG" | yq-go e '.mediasoup.webrtc.listenIps[] | .announcedIp // ""' -
+        xmlstarlet sel -t -m '//X-PRE-PROCESS[@cmd="set" and starts-with(@data, "external_rtp_ip=")]' -v @data $FREESWITCH_VARS | sed 's/external_rtp_ip=//'
+    } 2> /dev/null | grep -E '^[0-9]+(\.[0-9]+){3}$' | sort -u)
+    if [ "$LIVEKIT_USE_EXTERNAL" == "true" ]; then
+        LIVEKIT_PEER_IPV4S=""
+    fi
+    for PEER_IPV4 in $LIVEKIT_PEER_IPV4S; do
+        if [ -n "$LIVEKIT_NODE_IP4" ]; then
+            if [ "$PEER_IPV4" != "$LIVEKIT_NODE_IP4" ]; then
+                echo "# Warning: LiveKit announces rtc.node_ip $LIVEKIT_NODE_IP4, but mediasoup or FreeSWITCH announce $PEER_IPV4"
+                print_docs_link "support/troubleshooting#livekit-address-settings"
+            fi
+        elif [ -n "$LIVEKIT_NODE_IP" ]; then
+            echo "# Warning: rtc.node_ip has no IPv4 address, but mediasoup or FreeSWITCH announce $PEER_IPV4"
+            print_docs_link "support/troubleshooting#livekit-address-settings"
+        elif ! echo "$NIC_IPV4S" | grep -qxF "$PEER_IPV4"; then
+            echo "# Warning: mediasoup or FreeSWITCH announce $PEER_IPV4, which no interface other than lo holds,"
+            if [ "$LIVEKIT_ICE_LITE" == "true" ]; then
+                echo "# but rtc.node_ip is not set. With ICE-lite, LiveKit then announces only this server's"
+                echo "# own addresses, which clients outside the NAT reach only through TURN."
+            else
+                echo "# but rtc.node_ip is not set. LiveKit then depends on outside STUN servers to learn its"
+                echo "# public address."
+            fi
+            print_docs_link "support/troubleshooting#livekit-address-settings"
+        fi
+    done
+
+    # With key_file set, livekit-server uses only that file's keys and ignores
+    # the keys map in livekit.yaml.
+    LIVEKIT_KEY_FILE=$(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.key_file // ""' -)
+    if [ -n "$LIVEKIT_KEY_FILE" ]; then
+        # livekit-server expands ~ and $VAR, and resolves a relative path from /.
+        if [[ "$LIVEKIT_KEY_FILE" != /* && "$LIVEKIT_KEY_FILE" != "~"* && "$LIVEKIT_KEY_FILE" != *\$* ]]; then
+            LIVEKIT_KEY_FILE="/$LIVEKIT_KEY_FILE"
+        fi
+        LIVEKIT_KEYS_FROM=$LIVEKIT_KEY_FILE
+        LIVEKIT_KEYS=""
+        if [[ "$LIVEKIT_KEY_FILE" != /* || "$LIVEKIT_KEY_FILE" == *\$* ]]; then
+            echo "# Warning: bbb-conf cannot resolve key_file $LIVEKIT_KEY_FILE as livekit-server does,"
+            echo "# so the LiveKit API key copies are not checked"
+        elif [ "$(yq-go e 'length' "$LIVEKIT_KEY_FILE" 2> /dev/null)" -gt 0 ] 2> /dev/null; then
+            LIVEKIT_KEYS=$(yq-go e '.' "$LIVEKIT_KEY_FILE" 2> /dev/null)
+        else
+            echo "# Warning: cannot read key_file $LIVEKIT_KEY_FILE, or it holds no keys, so the LiveKit"
+            echo "# API key copies are not checked"
+        fi
+    else
+        LIVEKIT_KEYS_FROM=$LIVEKIT_SERVER_ETC_CONFIG
+        LIVEKIT_KEYS=$(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.keys // {}' - 2> /dev/null)
+    fi
+
+    if systemctl is-enabled --quiet bbb-webrtc-recorder 2> /dev/null; then
+        WEBRTC_RECORDER_FILE=$(webrtc_recorder_config_file)
+        WEBRTC_RECORDER_KEY=$(env_file_value BBBRECORDER_LIVEKIT_APIKEY /etc/default/bbb-webrtc-recorder)
+        WEBRTC_RECORDER_SECRET=$(env_file_value BBBRECORDER_LIVEKIT_APISECRET /etc/default/bbb-webrtc-recorder)
+        if ! env_file_has BBBRECORDER_LIVEKIT_APIKEY /etc/default/bbb-webrtc-recorder && [ -n "$WEBRTC_RECORDER_FILE" ]; then
+            WEBRTC_RECORDER_KEY=$(yq-go e '.livekit.apiKey // ""' "$WEBRTC_RECORDER_FILE")
+        fi
+        if ! env_file_has BBBRECORDER_LIVEKIT_APISECRET /etc/default/bbb-webrtc-recorder && [ -n "$WEBRTC_RECORDER_FILE" ]; then
+            WEBRTC_RECORDER_SECRET=$(yq-go e '.livekit.apiSecret // ""' "$WEBRTC_RECORDER_FILE")
+        fi
+        check_livekit_key bbb-webrtc-recorder "$WEBRTC_RECORDER_KEY" "$WEBRTC_RECORDER_SECRET"
+    fi
+
+    if [ -n "$LIVEKIT_SIP_CONFIG" ] && systemctl is-enabled --quiet livekit-sip 2> /dev/null; then
+        check_livekit_key livekit-sip "$(echo "$LIVEKIT_SIP_CONFIG" | yq-go e '.api_key // ""' -)" \
+            "$(echo "$LIVEKIT_SIP_CONFIG" | yq-go e '.api_secret // ""' -)"
+    fi
+
+    if [ "$(echo "$WEBRTC_SFU_CONFIG" | yq-go e '.livekit.enabled' - 2> /dev/null)" == "true" ]; then
+        WEBRTC_SFU_KEY=$(echo "$WEBRTC_SFU_CONFIG" | yq-go e '.livekit.key // ""' -)
+        # livekit-server signs webhooks with webhook.api_key, and the SFU checks
+        # them against its own key.
+        if check_livekit_key bbb-webrtc-sfu "$WEBRTC_SFU_KEY" "$(echo "$WEBRTC_SFU_CONFIG" | yq-go e '.livekit.secret // ""' -)" \
+            && [ "$(echo "$WEBRTC_SFU_CONFIG" | yq-go e '.livekit.eventSource // "webhook"' -)" == "webhook" ]; then
+            WEBRTC_SFU_PATH=$(echo "$WEBRTC_SFU_CONFIG" | yq-go e '.livekit.webhook.path // "/livekit-webhook"' -)
+            WEBRTC_SFU_HOOK=":$(echo "$WEBRTC_SFU_CONFIG" | yq-go e '.livekit.webhook.port // 3040' -)${WEBRTC_SFU_PATH%/}"
+            # bbb-webrtc-sfu serves plain HTTP, and its router ignores case and a trailing slash.
+            WEBRTC_SFU_HOOK_RE=$(printf '%s' "$WEBRTC_SFU_HOOK" | sed "s/[][\\.*^\$()+?{}|]/\\\\&/g")
+            if ! echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.webhook.urls[]' - 2> /dev/null \
+                | grep -qiE "^http://[^/]+$WEBRTC_SFU_HOOK_RE/?(\?.*)?$"; then
+                echo "# Warning: webhook.urls in $LIVEKIT_SERVER_ETC_CONFIG has no URL of the form"
+                echo "# http://<host>$WEBRTC_SFU_HOOK, so bbb-webrtc-sfu gets no LiveKit events"
+                print_docs_link "support/troubleshooting#livekit-api-keys-and-webhooks"
+            elif [ "$WEBRTC_SFU_KEY" != "$(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.webhook.api_key // ""' -)" ]; then
+                echo "# Warning: bbb-webrtc-sfu's LiveKit API key is not webhook.api_key in $LIVEKIT_SERVER_ETC_CONFIG,"
+                echo "# so bbb-webrtc-sfu rejects LiveKit's webhooks"
+                print_docs_link "support/troubleshooting#livekit-api-keys-and-webhooks"
+            fi
+        fi
+    fi
+}
+
 check_state() {
     echo
     print_header
@@ -1126,6 +1356,8 @@ check_state() {
       fi
     fi
 
+    check_livekit
+
     if [ ! -z "$STUN" ]; then
       for i in $STUN; do
         STUN_SERVER="$(xmlstarlet sel -N x="http://www.springframework.org/schema/beans" -t -m "_:beans/_:bean[@id=\"$i\"]/_:constructor-arg[@index=\"0\"]" -v @value $TURN | sed 's/stun://g')"
@@ -1359,6 +1591,11 @@ if [ $CHECK ]; then
         fi
         echo "               port_range_start: $(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.rtc.port_range_start' -)"
         echo "               port_range_end: $(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.rtc.port_range_end' -)"
+        echo "               rtc.node_ip: $(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.rtc.node_ip' -)"
+        echo "               rtc.advertise_internal_ip: $(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.rtc.advertise_internal_ip // false' -)"
+        echo "               rtc.use_external_ip: $(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.rtc.use_external_ip // false' -)"
+        echo "               rtc.use_ice_lite: $(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.rtc.use_ice_lite // false' -)"
+        echo "               rtc.enable_loopback_candidate: $(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.rtc.enable_loopback_candidate // false' -)"
         echo "               room.enabled_codecs: $(echo "$LIVEKIT_ENABLED_CODECS" | awk -v ORS=", " '{ print $1 }' | sed 's/, $//')"
         echo "               webrtc-sfu.livekit.enabled: $(echo "$WEBRTC_SFU_CONFIG" | yq-go e '.livekit.enabled' -)"
         echo "               webrtc-sfu.livekit.keyIsSet: $(echo "$WEBRTC_SFU_CONFIG" | yq-go e '.livekit.key != null' -)"
