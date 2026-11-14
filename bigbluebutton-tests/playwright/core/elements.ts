@@ -421,6 +421,8 @@ export const elements = {
   blockNoteAlignTextLeftButton: 'div[data-test="blockNoteToolbar"] button[aria-label="Align text left"]',
   blockNoteSlashMenuItem: '.bn-suggestion-menu .bn-suggestion-menu-item',
   blockNoteMathBlock: '#bn-notes-scroll-container [data-content-type="mathBlock"]',
+  blockNoteOpenInlineEquation:
+    '#bn-notes-scroll-container [data-inline-content-type="math"] .bn-preview-with-source-popup[data-open="true"]',
   blockNoteDiagram: '#bn-notes-scroll-container [data-content-type="diagram"]',
   blockNoteSelectedPreview: '#bn-notes-scroll-container .bn-preview-with-source-popup.ProseMirror-selectednode',
   notesConnectionError: '[data-test="notesError"]',
