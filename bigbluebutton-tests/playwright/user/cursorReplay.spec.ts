@@ -1,17 +1,13 @@
 import { expect } from '@playwright/test';
 
-import { APOLLO_CLIENT_SETTINGS_OVERRIDE, getOwnUserId, isApolloClientExposed } from '../core/apolloProbe';
-import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
+import { APOLLO_CLIENT_SETTINGS_OVERRIDE, expectApolloClientExposed, getOwnUserId } from '../core/apolloProbe';
+import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 import { test } from '../core/setup/fixtures';
 import { recordStreamFrames } from '../core/streamRecorder';
 import { MultiUsers } from './multiusers';
 import { drawArrow, openLockViewers } from './util';
-
-const APOLLO_EXPOSURE_SKIP_REASON =
-  'requires window.__APOLLO_CLIENT__ to read user ids ' +
-  '(dev bundle or enableApolloDevTools provisioned via clientSettingsOverride)';
 
 /** The userId of every row in a cursor stream frame. */
 const cursorRowUserIds = (frameText: string): string[] => {
@@ -36,7 +32,7 @@ class CursorReplay extends MultiUsers {
    */
   async lockedJoinerStillGetsTheModeratorCursor() {
     await this.modPage.waitForSelector(e.whiteboard);
-    test.skip(!(await isApolloClientExposed(this.modPage.page, ELEMENT_WAIT_TIME)), APOLLO_EXPOSURE_SKIP_REASON);
+    await expectApolloClientExposed(this.modPage.page);
     await this.modPage.waitAndClick(e.multiUsersWhiteboardOn);
 
     // A viewer cursor in the cache: the row the lock must withhold.

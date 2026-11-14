@@ -1,7 +1,6 @@
 import { type Browser, type BrowserContext, type Page as PlaywrightPage, type TestInfo } from '@playwright/test';
 
-import { isApolloClientExposed } from '../core/apolloProbe';
-import { ELEMENT_WAIT_TIME } from '../core/constants';
+import { expectApolloClientExposed } from '../core/apolloProbe';
 import { exposeLiveKitRooms, isLiveKit } from '../core/livekit';
 import { trackPeerConnections } from '../core/rtcStatsProbe';
 import { test } from '../core/setup/fixtures';
@@ -32,9 +31,6 @@ import { Listen } from './listen';
 //
 // See: docs/docs/testing/release-testing.md (Breakout Rooms)
 
-const APOLLO_EXPOSURE_SKIP_REASON =
-  'requires window.__APOLLO_CLIENT__ for the LiveKit membership probe ' +
-  '(dev bundle or enableApolloDevTools provisioned via clientSettingsOverride)';
 const LIVEKIT_SKIP_REASON = 'listen-to-breakout is a LiveKit-only (multi-room) feature';
 
 const initListen = async (
@@ -49,7 +45,7 @@ const initListen = async (
   // client's room registry, which is only exposed on opt-in, before load.
   await exposeLiveKitRooms(page);
   await listen.initModAndUser(page, testInfo);
-  test.skip(!(await isApolloClientExposed(listen.modPage.page, ELEMENT_WAIT_TIME)), APOLLO_EXPOSURE_SKIP_REASON);
+  await expectApolloClientExposed(listen.modPage.page);
   return listen;
 };
 
