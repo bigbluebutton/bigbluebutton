@@ -8,6 +8,7 @@ import {
   colorWhite,
   userListBg,
   colorSuccess,
+  colorDanger,
   colorUserModerator,
   colorUserYou,
   colorUserViewer,
@@ -167,6 +168,52 @@ const Avatar = styled.div`
   `}
 `;
 
+// Badge on the bottom corner of the avatar with the audio state of the user. The colors
+// follow the 3.0 user list: green in audio (microphone or listen only), red when muted,
+// and an empty circle in the color of the panel behind the list when not in the audio.
+const AUDIO_STATE_COLORS = {
+  unmuted: colorSuccess,
+  muted: colorDanger,
+  listenOnly: colorSuccess,
+  none: colorWhite,
+};
+
+const AudioState = styled.div`
+  position: absolute;
+  bottom: ${userIndicatorsOffset};
+  right: ${userIndicatorsOffset};
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 1.2rem;
+  height: 1.2rem;
+  border: 1.5px solid ${userListBg};
+  border-radius: 50%;
+  background-color: ${({ state }) => AUDIO_STATE_COLORS[state]};
+  color: ${colorWhite};
+  font-size: .65rem;
+  line-height: 1;
+
+  ${({ state }) => state === 'none' && `
+    border-color: ${colorWhite};
+  `}
+
+  [dir="rtl"] & {
+    right: auto;
+    left: ${userIndicatorsOffset};
+  }
+
+  ${({ animations }) => animations && `
+    transition: background-color .3s ease-in-out;
+  `}
+
+  & > i {
+    line-height: 1;
+  }
+`;
+
 const Skeleton = styled.div`
   & .react-loading-skeleton {    
     height: 2.25rem;
@@ -180,5 +227,6 @@ export default {
   Img,
   Talking,
   Avatar,
+  AudioState,
   Skeleton,
 };
