@@ -9,6 +9,7 @@ import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/ap
 import getSizeWithUnit from '/imports/utils/getSizeWithUnit';
 import { getPresentationUploadToken } from './queries';
 import { requestPresentationUploadTokenMutation } from './mutation';
+import { PRESENTATION_REMOVE } from '/imports/ui/components/presentation/mutations';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
 const TOKEN_TIMEOUT = 5000;
@@ -25,7 +26,10 @@ const futch = (url, opts = {}, onProgress) => new Promise((res, rej) => {
 
   xhr.onload = (e) => {
     if (e.target.status !== 200) {
-      return rej(new Error({ code: e.target.status, message: e.target.statusText }));
+      return rej(Object.assign(
+        new Error(e.target.statusText || `HTTP ${e.target.status}`),
+        { code: e.target.status },
+      ));
     }
 
     return res(e.target.responseText);
@@ -37,7 +41,8 @@ const futch = (url, opts = {}, onProgress) => new Promise((res, rej) => {
   xhr.send(opts.body);
 });
 
-const requestPresentationUploadToken = (
+// Resolves with the upload token and the id of the presentation the server created for it.
+const requestPresentationUpload = (
   temporaryPresentationId,
   meetingId,
   filename,
@@ -69,14 +74,14 @@ const requestPresentationUploadToken = (
       if (result.data.pres_presentation_uploadToken.length > 0) {
         clearTimeout(recursiveTimeout);
         clearTimeout(timeout);
-        const { uploadToken } = result.data.pres_presentation_uploadToken[0];
+        const { uploadToken, presentationId } = result.data.pres_presentation_uploadToken[0];
         if (!uploadToken) {
           // The request was refused and the reason was recorded on the presentation, which
           // the uploader toast shows. There is nothing to upload to.
           reject(Object.assign(new Error('requestPresentationUploadToken rejected'), { reported: true }));
           return;
         }
-        resolve(uploadToken);
+        resolve({ uploadToken, presentationId });
       }
     });
     recursiveTimeout = setTimeout(() => {
@@ -85,6 +90,31 @@ const requestPresentationUploadToken = (
   };
   setTimeout(getData, 100);
 });
+
+const requestPresentationUploadToken = (
+  temporaryPresentationId,
+  meetingId,
+  filename,
+) => requestPresentationUpload(temporaryPresentationId, meetingId, filename)
+  .then(({ uploadToken }) => uploadToken);
+
+// The presentation exists on the server from the moment its upload token is issued. When the
+// upload itself then fails (refused by the server, or the connection dropped), nothing marks
+// that presentation as failed, so every presenter would see it as uploading until the meeting
+// ends. Remove it instead; the caller tells the presenter the upload failed.
+const removeFailedUpload = (presentationId) => {
+  if (!presentationId) return Promise.resolve(false);
+  return apolloContextHolder.getClient().mutate({
+    mutation: PRESENTATION_REMOVE,
+    variables: { presentationId },
+  }).then(() => true).catch((error) => {
+    logger.warn({
+      logCode: 'presentation_uploader_remove_failed_upload_error',
+      extraInfo: { presentationId, errorMessage: error?.message },
+    }, 'Could not remove the presentation of a failed upload');
+    return false;
+  });
+};
 
 const uploadAndConvertPresentation = (
   filename,
@@ -117,8 +147,13 @@ const uploadAndConvertPresentation = (
     body: data,
   };
 
-  return requestPresentationUploadToken(temporaryPresentationId, meetingId, filename)
-    .then((token) => futch(endpoint.replace('upload', `${token}/upload`), opts, onProgress))
+  let serverPresentationId = null;
+
+  return requestPresentationUpload(temporaryPresentationId, meetingId, filename)
+    .then(({ uploadToken, presentationId }) => {
+      serverPresentationId = presentationId;
+      return futch(endpoint.replace('upload', `${uploadToken}/upload`), opts, onProgress);
+    })
     // Trap the error so we can have parallel upload
     .catch((error) => {
       logger.debug({
@@ -127,10 +162,19 @@ const uploadAndConvertPresentation = (
           error,
         },
       }, 'Generic presentation upload exception catcher');
-      onUpload({
-        error: true, done: true, status: error?.code, reported: !!error?.reported,
+      // Set only once the token arrived, so this is a failure of the upload request itself.
+      const uploadRequestFailed = !!serverPresentationId;
+      return removeFailedUpload(serverPresentationId).then(() => {
+        if (onUpload) {
+          onUpload({
+            error: true,
+            done: true,
+            status: error?.code,
+            reported: !!error?.reported,
+            uploadRequestFailed,
+          });
+        }
       });
-      return Promise.resolve();
     });
 };
 
@@ -303,6 +347,11 @@ function handleFiledrop(files, files2, that, intl, intlMessages) {
           // stops recording reasons past a number of refusals per window, hence "wait a moment".
           if (upload.error && !upload.reported && upload.status === 408) {
             notify(intl.formatMessage(intlMessages[408]), 'error');
+          }
+          // The upload request failed after the token was issued. Its presentation was
+          // removed, so the uploader toast has nothing to show for it.
+          if (upload.error && upload.uploadRequestFailed) {
+            notify(`${file.name}: ${intl.formatMessage(intlMessages.uploadFailed)}`, 'error');
           }
         },
         onDone: (newId) => {
