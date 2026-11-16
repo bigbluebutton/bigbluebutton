@@ -78,11 +78,11 @@ def load_tables():
     return tables
 
 
-def scan_filter(node, table, tables, out_vars, out_tables):
-    """Collect session variables and referenced tables from a boolean expression."""
+def scan_filter(node, table, tables, out_vars, out_tables, out_unresolved):
+    """Collect session variables, referenced tables and unresolved relationships from a boolean expression."""
     if isinstance(node, list):
         for item in node:
-            scan_filter(item, table, tables, out_vars, out_tables)
+            scan_filter(item, table, tables, out_vars, out_tables, out_unresolved)
         return
     if isinstance(node, str):
         if node.lower().startswith("x-hasura-"):
@@ -92,20 +92,24 @@ def scan_filter(node, table, tables, out_vars, out_tables):
         return
     for key, value in node.items():
         if key in BOOL_OPS:
-            scan_filter(value, table, tables, out_vars, out_tables)
+            scan_filter(value, table, tables, out_vars, out_tables, out_unresolved)
         elif key == "_exists":
             target = value.get("_table", {}).get("name")
             if target:
                 out_tables.add(target)
             # the _where is evaluated against the _exists table
-            scan_filter(value.get("_where", {}), target, tables, out_vars, out_tables)
+            scan_filter(value.get("_where", {}), target, tables, out_vars, out_tables, out_unresolved)
         elif table in tables and tables[table]["rels"].get(key):
             remote = tables[table]["rels"][key]
             out_tables.add(remote)
-            scan_filter(value, remote, tables, out_vars, out_tables)
+            scan_filter(value, remote, tables, out_vars, out_tables, out_unresolved)
+        elif table in tables and key in tables[table]["rels"]:
+            # a relationship whose target is unknown: its permission cannot be checked
+            out_unresolved.add((table, key, tables[table]["file"]))
+            scan_filter(value, table, tables, out_vars, out_tables, out_unresolved)
         else:
             # column comparison: {"_eq": "X-Hasura-..."} etc.
-            scan_filter(value, table, tables, out_vars, out_tables)
+            scan_filter(value, table, tables, out_vars, out_tables, out_unresolved)
 
 
 def main():
@@ -118,7 +122,7 @@ def main():
     # below its relationships, at any depth), so their relationships are walked too.
     # Tables only referenced inside a filter are checked, but nothing is selected from them.
     pending = [(ROOT_TABLE, True)]
-    seen, followed, violations, unresolved = set(), set(), [], []
+    seen, followed, violations, unresolved = set(), set(), [], set()
     while pending:
         name, follow = pending.pop()
         info = tables.get(name)
@@ -126,7 +130,7 @@ def main():
             seen.add(name)
             if info is not None and info["filter"] is not None:
                 found_vars, ref_tables = set(), set()
-                scan_filter(info["filter"], name, tables, found_vars, ref_tables)
+                scan_filter(info["filter"], name, tables, found_vars, ref_tables, unresolved)
                 bad = sorted(v for v in found_vars if v.lower() not in MEETING_SCOPED_VARS)
                 if bad:
                     violations.append((name, info["file"], bad))
@@ -139,7 +143,7 @@ def main():
             if (name, rel) in SKIPPED_RELATIONSHIPS:
                 continue
             if remote is None:
-                unresolved.append((name, rel, info["file"]))
+                unresolved.add((name, rel, info["file"]))
                 continue
             pending.append((remote, (name, rel) not in NOT_FOLLOWED_RELATIONSHIPS))
 
@@ -152,7 +156,7 @@ def main():
         print()
         print("ERROR: cannot resolve the target table of relationships reachable from the user list.")
         print("Declare them with manual_configuration so their permission can be checked.")
-        for table, rel, fname in unresolved:
+        for table, rel, fname in sorted(unresolved):
             print(f"  - {table}.{rel} ({fname})")
         if not violations:
             return 1
