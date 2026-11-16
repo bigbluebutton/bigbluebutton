@@ -1659,7 +1659,7 @@ To take a server out of service:
 What the call doesn't cover:
 
 - Post-script results. A failed post-script, such as the transfer to Scalelite, is only logged, so a recording whose transfer failed counts as done.
-- A job interrupted because `bbb-rap-resque-worker` was stopped or crashed while it ran. Resque moves the job to its failed jobs without the marker of a failed step, so the recording counts as neither running nor failed. Don't restart the worker while a server drains.
+- A job interrupted because `bbb-rap-resque-worker` was stopped or crashed while it ran. Resque moves the job to its failed jobs (after a crash, once the worker starts again) without the marker of a failed step, so the recording then counts as neither running nor failed. Don't restart the worker while a server drains.
 - Workers that use another Redis than bbb-web does (`redis_workers_host` in the recording configuration). The call reads the queues from the Redis that `bbb-web.properties` sets.
 - Meetings that are still running: `getMeetings` lists them.
 

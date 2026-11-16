@@ -1,12 +1,17 @@
 # yaml-language-server: $schema=../../../runner/schema/case.schema.json
 # bbb-web hands an ended recorded meeting to record-and-playback before it
 # forgets the meeting, so once getMeetingInfo can't find it, its recording
-# is queued: a caller draining a server waits for getMeetings to empty, then
-# for processing to be false. Nothing processes recordings on Tier 1, so
-# what other cases recorded is queued too (the count is masked) and nothing
-# runs. failedCount is the fixture tree's one .fail marker (A2's video).
+# is queued or running: a caller draining a server waits for getMeetings to
+# empty, then for processing to be false. failedCount includes the fixture
+# tree's .fail marker (A2's video).
+#
+# The counts depend on the server: on Tier 1 nothing processes recordings, so
+# what other cases recorded stays queued and nothing runs; on a full install
+# record-and-playback may already be running this recording, and other
+# cases' recordings may be queued, running or failed. So expect pins what
+# holds on any test server, and the recording only documents Tier 1's answer.
 id: getRecordingProcessingInfo.response.queued
-title: getRecordingProcessingInfo shows an ended recorded meeting's recording queued
+title: getRecordingProcessingInfo shows an ended recorded meeting's recording processing
 endpoint: getRecordingProcessingInfo
 class: contract
 tags: [ci]
@@ -23,11 +28,11 @@ steps:
     ignoreResult: true
     eventually: {within: 5s, every: 100ms, until: {messageKey: notFound}}
   - call: getRecordingProcessingInfo
+    golden: document
     expect:
       returncode: SUCCESS
       xpath:
         /response/processing: "true"
-        /response/queuedCount: {regex: '^[1-9][0-9]*$'}
-        /response/runningCount: "0"
-        /response/failedCount: "1"
-        /response/oldestQueuedTime: {type: int}
+        /response/queuedCount: {type: int}
+        /response/runningCount: {type: int}
+        /response/failedCount: {regex: '^[1-9][0-9]*$'}

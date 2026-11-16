@@ -185,8 +185,10 @@ func (rec *recordings) restore(data *os.Root, id string) error {
 		if err != nil {
 			return err
 		}
+		// On a server these directories hold a marker for every recording
+		// it has made: test the prefix before the patterns.
 		for _, name := range names {
-			if rec.markerOf(name) == id {
+			if strings.HasPrefix(name, id) && rec.markerOf(name) == id {
 				if err := data.Remove(path.Join(st, name)); err != nil && !errors.Is(err, fs.ErrNotExist) {
 					return err
 				}
