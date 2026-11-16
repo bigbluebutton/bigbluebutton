@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# bbb-web hands an ended recorded meeting to record-and-playback before it
+# forgets the meeting, so once getMeetingInfo can't find it, its recording
+# is queued: a caller draining a server waits for getMeetings to empty, then
+# for processing to be false. Nothing processes recordings on Tier 1, so
+# what other cases recorded is queued too (the count is masked) and nothing
+# runs. failedCount is the fixture tree's one .fail marker (A2's video).
+id: getRecordingProcessingInfo.response.queued
+title: getRecordingProcessingInfo shows an ended recorded meeting's recording queued
+endpoint: getRecordingProcessingInfo
+class: contract
+tags: [ci]
+requires: [akka, recordings-fs]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Processing info, record: "true"}
+    golden: off
+    expect: {returncode: SUCCESS}
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 5s, every: 100ms, until: {messageKey: notFound}}
+  - call: getRecordingProcessingInfo
+    expect:
+      returncode: SUCCESS
+      xpath:
+        /response/processing: "true"
+        /response/queuedCount: {regex: '^[1-9][0-9]*$'}
+        /response/runningCount: "0"
+        /response/failedCount: "1"
+        /response/oldestQueuedTime: {type: int}

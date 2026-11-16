@@ -9,6 +9,7 @@ import (
 	"path"
 	"regexp"
 	"sort"
+	"strings"
 )
 
 // recordingStates are the directories under the data directory that hold
@@ -21,13 +22,23 @@ var recordingStates = []string{"published", "unpublished", "deleted", "recording
 // caption files only for record IDs like these.
 var recordIDPattern = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
 
+// statusDirs are the record-and-playback status directories in which a
+// step leaves a marker for a recording: <record ID>.done or .fail, or
+// <record ID>-<format>.done or .fail for a step run per format.
+var statusDirs = []string{"recording/status/archived", "recording/status/sanity",
+	"recording/status/processed", "recording/status/published"}
+
+// markerSuffix is what follows the record ID in a status marker's name.
+var markerSuffix = regexp.MustCompile(`^(-[a-z]+)?\.(done|fail)$`)
+
 // recordings holds the fixture recordings a tap installs into the data
 // directory: a tree laid out like it, with recordings under the state
-// directories and caption files under captions/<record ID>/.
+// directories, their status markers under the status directories and
+// caption files under captions/<record ID>/.
 type recordings struct {
 	dir   string
 	root  *os.Root
-	paths map[string][]string // record ID -> its directories in the tree
+	paths map[string][]string // record ID -> its directories and markers in the tree
 	uid   int                 // owner given to what is written, or -1
 	gid   int
 }
@@ -84,7 +95,55 @@ func openRecordings(dir string) (*recordings, error) {
 		root.Close()
 		return nil, fmt.Errorf("fixture recordings: no recordings under %s", dir)
 	}
+	// Markers last, so that each can be matched to a recording above.
+	for _, st := range statusDirs {
+		names, err := files(root, st)
+		if err != nil {
+			root.Close()
+			return nil, err
+		}
+		for _, name := range names {
+			id := rec.markerOf(name)
+			if id == "" {
+				root.Close()
+				return nil, fmt.Errorf("fixture recordings: %s: a status marker must be <record ID>[-<format>].done or .fail, for a fixture recording",
+					path.Join(st, name))
+			}
+			rec.paths[id] = append(rec.paths[id], path.Join(st, name))
+		}
+	}
 	return rec, nil
+}
+
+// markerOf returns the fixture recording a status marker's name is for, or
+// "" if it is for none. A record ID may start with another one (rec-a,
+// rec-a-2), so the longest that fits wins.
+func (rec *recordings) markerOf(name string) string {
+	best := ""
+	for id := range rec.paths {
+		if len(id) > len(best) && strings.HasPrefix(name, id) && markerSuffix.MatchString(name[len(id):]) {
+			best = id
+		}
+	}
+	return best
+}
+
+// files lists the regular files in dir, sorted; none if dir is missing.
+func files(root *os.Root, dir string) ([]string, error) {
+	entries, err := fs.ReadDir(root.FS(), dir)
+	if errors.Is(err, fs.ErrNotExist) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	var out []string
+	for _, e := range entries {
+		if e.Type().IsRegular() {
+			out = append(out, e.Name())
+		}
+	}
+	return out, nil
 }
 
 // subdirs lists the directories in dir, sorted; none if dir is missing.
@@ -117,10 +176,23 @@ func (rec *recordings) ids() []string {
 
 // restore puts the recording id back into data as the fixture tree has
 // it: every copy of it in data goes, in any state and format, with its
-// caption files, anything uploaded for it to the captions inbox and
-// record-and-playback's work directory for such an upload; then the tree's
-// copy goes in.
+// status markers, its caption files, anything uploaded for it to the
+// captions inbox and record-and-playback's work directory for such an
+// upload; then the tree's copy goes in.
 func (rec *recordings) restore(data *os.Root, id string) error {
+	for _, st := range statusDirs {
+		names, err := files(data, st)
+		if err != nil {
+			return err
+		}
+		for _, name := range names {
+			if rec.markerOf(name) == id {
+				if err := data.Remove(path.Join(st, name)); err != nil && !errors.Is(err, fs.ErrNotExist) {
+					return err
+				}
+			}
+		}
+	}
 	for _, st := range recordingStates {
 		formats, err := subdirs(data, st)
 		if err != nil {
