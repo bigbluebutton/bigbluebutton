@@ -5,7 +5,12 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { SET_LOCK_SETTINGS_PROPS, SET_WEBCAM_ONLY_FOR_MODERATOR } from './mutations';
 import { SET_POLICY, SET_LOBBY_MESSAGE } from '../user-list/guest-management/waiting-users/mutations';
 import useMeeting from '../../core/hooks/useMeeting';
-import { useIsChatEnabled, useIsPrivateChatEnabled, useIsSharedNotesEnabled } from '../../services/features';
+import {
+  useIsChatEnabled,
+  useIsLockSettingsEnabled,
+  useIsPrivateChatEnabled,
+  useIsSharedNotesEnabled,
+} from '../../services/features';
 
 const LockViewersContainer = (props) => {
   const { data: currentUserData } = useCurrentUser((user) => ({
@@ -69,6 +74,7 @@ const LockViewersContainer = (props) => {
   const isChatEnabled = useIsChatEnabled();
   const isPrivateChatEnabled = useIsPrivateChatEnabled();
   const isSharedNotesEnabled = useIsSharedNotesEnabled();
+  const isLockSettingsEnabled = useIsLockSettingsEnabled();
 
   const guestLobbyMessage = meeting?.usersPolicies?.guestLobbyMessage || '';
 
@@ -84,6 +90,7 @@ const LockViewersContainer = (props) => {
       isChatEnabled={isChatEnabled}
       isPrivateChatEnabled={isPrivateChatEnabled}
       isSharedNotesEnabled={isSharedNotesEnabled}
+      isLockSettingsEnabled={isLockSettingsEnabled}
       {...props}
     />
   );
