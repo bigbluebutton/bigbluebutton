@@ -10,10 +10,10 @@ O(users^2) per meeting.
 
 This script walks the `bbb_client` select permissions of `v_user` (the
 `user` root field used by Patched_UserListSubscription, RaisedHandUsers,
-AudioOnlyUsers, GridUsers, ...), of every table reachable through its
-relationships, and of every table referenced inside those filters
-(relationship paths and `_exists`), and fails if any filter uses a session
-variable outside MEETING_SCOPED_VARS.
+AudioOnlyUsers, GridUsers, ...), of every table that can be selected through
+its relationships at any depth (`user { cameras { voice } }`), and of every
+table referenced inside those filters (relationship paths and `_exists`), and
+fails if any filter uses a session variable outside MEETING_SCOPED_VARS.
 
 Own-row data ("the current user can always see their own X") must be served
 through `user_current` and its dedicated `v_user_current_*` views instead.
@@ -35,12 +35,18 @@ MEETING_SCOPED_VARS = {
     "x-hasura-presenterinmeeting",
 }
 BOOL_OPS = {"_and", "_or", "_not"}
-# Relationships of ROOT_TABLE that are inherently own-row only and that NO user-root
-# subscription may select. They are skipped here but listed on every run so they are
-# never forgotten. Do not add entries to make this check pass: move the data to
+# Relationships, as (table, relationship), that are inherently own-row only and that NO
+# user-root subscription may select. They are skipped here but listed on every run so
+# they are never forgotten. Do not add entries to make this check pass: move the data to
 # user_current instead.
-SKIPPED_ROOT_RELATIONSHIPS = {
-    "connectionStatus": "self-only (userId + sessionToken); use user_current.connectionStatus",
+SKIPPED_RELATIONSHIPS = {
+    ("v_user", "connectionStatus"): "self-only (userId + sessionToken); use user_current.connectionStatus",
+}
+# Relationships, as (table, relationship), whose target permission is checked but whose
+# own relationships are not followed. Same rule: listed on every run, and no user-root
+# subscription may select anything below them.
+NOT_FOLLOWED_RELATIONSHIPS = {
+    ("v_user", "meeting"): "v_meeting leads to per-user data (polls...); use the meeting root field",
 }
 
 here = os.path.dirname(os.path.abspath(__file__))
@@ -61,8 +67,9 @@ def load_tables():
                 remote = using.get("manual_configuration", {}).get("remote_table")
                 if remote is None and isinstance(using.get("foreign_key_constraint_on"), dict):
                     remote = using["foreign_key_constraint_on"].get("table")
-                if isinstance(remote, dict):
-                    rels[rel["name"]] = remote["name"]
+                # None: the target could not be resolved (e.g. foreign_key_constraint_on
+                # given as a column name). It is reported if the relationship is reachable.
+                rels[rel["name"]] = remote["name"] if isinstance(remote, dict) else None
         filt = None
         for perm in doc.get("select_permissions") or []:
             if perm.get("role") == ROLE:
@@ -92,7 +99,7 @@ def scan_filter(node, table, tables, out_vars, out_tables):
                 out_tables.add(target)
             # the _where is evaluated against the _exists table
             scan_filter(value.get("_where", {}), target, tables, out_vars, out_tables)
-        elif table in tables and key in tables[table]["rels"]:
+        elif table in tables and tables[table]["rels"].get(key):
             remote = tables[table]["rels"][key]
             out_tables.add(remote)
             scan_filter(value, remote, tables, out_vars, out_tables)
@@ -107,29 +114,48 @@ def main():
         print(f"ERROR: {ROOT_TABLE} metadata not found in {tables_dir}")
         return 2
 
-    # v_user itself + everything selectable through its relationships
-    pending = [ROOT_TABLE] + [
-        remote for rel, remote in tables[ROOT_TABLE]["rels"].items() if rel not in SKIPPED_ROOT_RELATIONSHIPS
-    ]
-    seen, violations = set(), []
+    # (table, follow): follow=True for tables that can be selected (v_user and everything
+    # below its relationships, at any depth), so their relationships are walked too.
+    # Tables only referenced inside a filter are checked, but nothing is selected from them.
+    pending = [(ROOT_TABLE, True)]
+    seen, followed, violations, unresolved = set(), set(), [], []
     while pending:
-        name = pending.pop()
-        if name in seen:
-            continue
-        seen.add(name)
+        name, follow = pending.pop()
         info = tables.get(name)
-        if info is None or info["filter"] is None:
+        if name not in seen:
+            seen.add(name)
+            if info is not None and info["filter"] is not None:
+                found_vars, ref_tables = set(), set()
+                scan_filter(info["filter"], name, tables, found_vars, ref_tables)
+                bad = sorted(v for v in found_vars if v.lower() not in MEETING_SCOPED_VARS)
+                if bad:
+                    violations.append((name, info["file"], bad))
+                pending.extend((ref, False) for ref in ref_tables)
+        # a table without a permission for ROLE cannot be selected: nothing below it either
+        if not follow or name in followed or info is None or info["filter"] is None:
             continue
-        found_vars, ref_tables = set(), set()
-        scan_filter(info["filter"], name, tables, found_vars, ref_tables)
-        bad = sorted(v for v in found_vars if v.lower() not in MEETING_SCOPED_VARS)
-        if bad:
-            violations.append((name, info["file"], bad))
-        pending.extend(ref_tables)
+        followed.add(name)
+        for rel, remote in info["rels"].items():
+            if (name, rel) in SKIPPED_RELATIONSHIPS:
+                continue
+            if remote is None:
+                unresolved.append((name, rel, info["file"]))
+                continue
+            pending.append((remote, (name, rel) not in NOT_FOLLOWED_RELATIONSHIPS))
 
-    for rel, why in SKIPPED_ROOT_RELATIONSHIPS.items():
-        print(f"NOTE: {ROOT_TABLE}.{rel} is not checked ({why}); never select it in a user-root subscription.")
+    for (table, rel), why in SKIPPED_RELATIONSHIPS.items():
+        print(f"NOTE: {table}.{rel} is not checked ({why}); never select it in a user-root subscription.")
+    for (table, rel), why in NOT_FOLLOWED_RELATIONSHIPS.items():
+        print(f"NOTE: relationships below {table}.{rel} are not checked ({why}); never select them in a user-root subscription.")
     print(f"Checked {len(seen)} tables reachable from {ROOT_TABLE} ({ROLE}): {', '.join(sorted(seen))}")
+    if unresolved:
+        print()
+        print("ERROR: cannot resolve the target table of relationships reachable from the user list.")
+        print("Declare them with manual_configuration so their permission can be checked.")
+        for table, rel, fname in unresolved:
+            print(f"  - {table}.{rel} ({fname})")
+        if not violations:
+            return 1
     if violations:
         print()
         print("ERROR: per-user session variables found in permissions reachable from the user list.")
