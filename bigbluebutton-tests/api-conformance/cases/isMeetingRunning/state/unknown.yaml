@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A meeting the server doesn't know isn't running. That's an answer, not an
+# error.
+id: isMeetingRunning.state.unknown
+title: isMeetingRunning reports an unknown meeting as not running
+endpoint: isMeetingRunning
+class: contract
+tags: [ci]
+steps:
+  - call: isMeetingRunning
+    params: {meetingID: conform-no-such-meeting}
+    expect:
+      returncode: SUCCESS
+      xpath: {/response/running: "false"}

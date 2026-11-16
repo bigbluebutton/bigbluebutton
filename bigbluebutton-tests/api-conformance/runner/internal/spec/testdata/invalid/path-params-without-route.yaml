@@ -1,0 +1,8 @@
+# want: 8: steps[0]: pathParams only goes with route
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+steps:
+  - call: create
+    pathParams: {id: x}

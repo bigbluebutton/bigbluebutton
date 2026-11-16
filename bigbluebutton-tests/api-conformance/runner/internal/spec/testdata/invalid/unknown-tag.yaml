@@ -1,0 +1,9 @@
+# want: 7: unknown tag "fast"
+# want: 8: unknown capability "akka-apps"
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+tags: [ci, fast]
+requires: [akka-apps]
+steps: [{call: create}]

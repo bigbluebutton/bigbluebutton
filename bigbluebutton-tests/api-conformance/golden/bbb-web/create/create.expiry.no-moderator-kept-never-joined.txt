@@ -1,0 +1,6 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.expiry.no-moderator-kept-never-joined
+target bbb-web
+
+== step 7: bus MeetingEndingEvtMsg
+$ null

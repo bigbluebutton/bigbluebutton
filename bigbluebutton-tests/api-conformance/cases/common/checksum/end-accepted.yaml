@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A valid checksum is accepted, with the shortest and the longest digest (sha256 signs
+# every other case). Algorithms, upper-case hex and placement are covered on getMeetings.
+id: end.checksum.accepted
+title: end accepts a valid ${alg} checksum
+endpoint: end
+class: contract
+tags: [ci]
+variants:
+  - {id: sha1, vars: {alg: sha1}}
+  - {id: sha512, vars: {alg: sha512}}
+steps:
+  - call: end
+    params: {meetingID: "${uid}"}
+    sign: "${alg}"
+    expect: {returncode: FAILED, messageKey: notFound}

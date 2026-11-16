@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# The record values create accepts, and whether the meeting is then
+# recorded, as getMeetingInfo says. Upper case reads as true; an empty value
+# keeps the default, off. With disableRecordingDefault (the alt-defaults
+# profile) no meeting is recorded, whatever record says. record=1 is in
+# record-one.yaml.
+id: create.validation.record-accepted
+title: create with record=${value}${under}
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka]
+variants:
+  - {id: "true", vars: {value: "true", under: "", recording: "true"}}
+  - {id: upper-case, vars: {value: "TRUE", under: "", recording: "true"}, class: compat}
+  - {id: "false", vars: {value: "false", under: "", recording: "false"}}
+  - {id: zero, vars: {value: "0", under: "", recording: "false"}, class: compat}
+  - {id: empty, vars: {value: "", under: "", recording: "false"}, class: compat}
+  - {id: recording-disabled, vars: {value: "true", under: " under disableRecordingDefault", recording: "false"}, profile: alt-defaults, tags: [disruptive]}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Record, record: "${value}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: getMeetingInfo
+    params: {meetingID: "${uid}"}
+    expect:
+      returncode: SUCCESS
+      xpath: {/response/recording: "${recording}"}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

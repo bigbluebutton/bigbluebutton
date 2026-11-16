@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 import {
-  borderSize,
   borderSizeSmall,
   mobileNavbarButtonSize,
   mobileNavigationSidebarToggleButtonSize,
@@ -16,9 +15,7 @@ import {
   navigationSidebarMargin,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  colorGrayDark,
   colorWhite,
-  colorDanger,
   notificationBadgeBg,
   colorBackground,
 } from '/imports/ui/stylesheets/styled-components/palette';
@@ -162,24 +159,17 @@ const Bottom = styled(PositionedDiv)`
   justify-content: flex-end;
 `;
 
-const BadgeCircle = styled.div`
-  position: absolute;
-  border-radius: 50%;
-  width: 12px;
-  height: 12px;
-  bottom: ${borderSize};
-  right: 3px;
-  background-color: ${colorDanger};
-  border: ${borderSize} solid ${colorGrayDark};
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: .7rem;
-  color: white;
-`;
-
+// A section whose buttons all render nothing is left empty in the DOM, so the
+// separators next to it are hidden from what actually rendered.
 const Separator = styled(BaseSeparator)`
-    width: 50%;
+  width: 50%;
+
+  ${Top}:empty + &,
+  ${Center}:empty + &,
+  &:has(+ ${Center}:empty),
+  &:has(+ ${Bottom}:empty) {
+    display: none;
+  }
 `;
 
 export default {
@@ -190,6 +180,5 @@ export default {
   Top,
   Center,
   Bottom,
-  BadgeCircle,
   Separator,
 };

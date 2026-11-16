@@ -13,6 +13,8 @@ import {
   CapturedAudioConstraints,
   captureGetUserMediaAudioConstraints,
   getCapturedAudioConstraints,
+  getProcessorPortMessages,
+  observeProcessorPorts,
 } from './audioProcessingMode';
 
 // getAudioConstraints()/getConstraintsForMode() determine the raw getUserMedia
@@ -23,6 +25,9 @@ import {
 // is the only reliable signal for that mode.
 const NO_AUDIO_CONTEXT =
   'Advanced filtering needs a running AudioContext; headless Firefox without an audio output device cannot start one';
+
+// BBBA_PARAM.INTENSITY in audio-processor/providers/bbba.js
+const BBBA_INTENSITY_PARAM = 7;
 
 test.describe('Audio processing mode - actual getUserMedia constraints', { tag: ['@ci', '@media'] }, () => {
   test('applies the configured media.audio.microphoneConstraints for Standard filtering', async ({
@@ -110,9 +115,10 @@ test.describe('Audio processing mode - actual getUserMedia constraints', { tag: 
     test.skip(browserName === 'firefox' && !(await canStartAudioContext(page)), NO_AUDIO_CONTEXT);
     const audioProcessingMode = new AudioProcessingMode(browser, context);
     await audioProcessingMode.trackWasmProcessorRequests(page);
+    await observeProcessorPorts(page);
     await audioProcessingMode.initModPage(page, {
       testInfo,
-      clientSettingsOverrides: audioProcessingModeOverrides(true, 'advanced'),
+      clientSettingsOverrides: audioProcessingModeOverrides(true, 'advanced', undefined, undefined, 'bbba'),
     });
 
     await audioProcessingMode.joinWithMicrophone();
@@ -120,6 +126,43 @@ test.describe('Audio processing mode - actual getUserMedia constraints', { tag: 
     await expect(async () => {
       expect(audioProcessingMode.wasmProcessorWasLoaded()).toBe(true);
     }).toPass();
+    // a worklet that fails still requests the .wasm; only 'loaded' shows it runs
+    await expect
+      .poll(async () => (await getProcessorPortMessages(page)).filter((m) => m.direction === 'in').map((m) => m.type))
+      .toContain('loaded');
+  });
+
+  test('runs the BBBA/WASM processor at full intensity for Voice Isolation', async ({
+    browser,
+    browserName,
+    context,
+    page,
+  }, testInfo) => {
+    test.skip(browserName === 'firefox' && !(await canStartAudioContext(page)), NO_AUDIO_CONTEXT);
+    const audioProcessingMode = new AudioProcessingMode(browser, context);
+    await observeProcessorPorts(page);
+    await audioProcessingMode.initModPage(page, {
+      testInfo,
+      clientSettingsOverrides: audioProcessingModeOverrides(true, 'voiceIsolation', undefined, undefined, 'bbba'),
+    });
+
+    await audioProcessingMode.joinWithMicrophone();
+
+    // The worklet gets the provider default (95) on 'loaded', then the
+    // intensity of the mode. Every processor that loaded must end at 100.
+    await expect(async () => {
+      const messages = await getProcessorPortMessages(page);
+      const loadedNodes = messages.filter((m) => m.direction === 'in' && m.type === 'loaded').map((m) => m.node);
+      expect(loadedNodes.length, 'a BBBA processor should have loaded').toBeGreaterThan(0);
+      const lastIntensities = loadedNodes.map(
+        (node) =>
+          messages
+            .filter((m) => m.node === node && m.direction === 'out' && m.type === 'param')
+            .filter((m) => m.index === BBBA_INTENSITY_PARAM)
+            .pop()?.value,
+      );
+      expect(lastIntensities).toEqual(loadedNodes.map(() => 100));
+    }).toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
   });
 
   test('applies media.audio.audioWasmProcessing.constraints, not microphoneConstraints, for Advanced filtering', async ({

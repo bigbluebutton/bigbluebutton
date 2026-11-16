@@ -366,8 +366,8 @@ Webcams will be moved when mouse is released. (Note: When only one webcam is sha
 
 3. As each user, open Settings > Application.
 
-    - The moderator should see the "Video pagination" switch
-    - The viewers should not see it
+    - The moderator should see the "Video pagination" switch, enabled
+    - The viewers should see it disabled, showing the `public.app.defaultSettings.application.paginationEnabled` default, with a tooltip saying only moderators can change it
 
 4. As the viewer without a webcam, look at the webcam area.
 
@@ -379,7 +379,7 @@ Webcams will be moved when mouse is released. (Note: When only one webcam is sha
 
 6. Demote the user back to viewer.
 
-    - The switch should disappear from their Settings
+    - The switch should be disabled again in their Settings, showing the default
     - The webcams should be paginated again, even though they turned pagination off as a moderator
 
 ### Share camera as content [(Partially automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-develop/bigbluebutton-tests/playwright/presentation/presentation.spec.ts)
@@ -1540,12 +1540,12 @@ Note :
 
 1. Open the "Audio" tab of the Settings.
 
-    - You should see the "Microphone audio processing" options "Standard Filtering" (selected by default) and "Original Audio", plus "Advanced Filtering" when it is enabled on the server (disabled with "Not supported by your browser." where the browser cannot run it)
+    - You should see the "Microphone audio processing" options "Standard Filtering" (selected by default) and "Original Audio", plus "Advanced Filtering" and "Voice Isolation" when they are enabled on the server (disabled with "Not supported by your browser." where the browser cannot run them; "Voice Isolation" also needs the `bbba` provider, the default)
 
 2. Join audio with microphone, choose another option and click Save to Validate your new Settings.
 
     - Your microphone should stay connected and keep its mute state
-    - Other users should hear the difference: "Standard Filtering" and "Advanced Filtering" reduce background noise, "Original Audio" transmits your sound without any processing
+    - Other users should hear the difference: "Standard Filtering" and "Advanced Filtering" reduce background noise, "Voice Isolation" removes it, "Original Audio" transmits your sound without any processing
 
 ### Notifications
 
@@ -1767,7 +1767,7 @@ Client should apply user metadata according to the descriptions from [here](/dev
 
 ### Override default presentation on CREATE meeting API call [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-develop/bigbluebutton-tests/playwright/parameters/parameters.spec.ts)
 
-(for more information, see the documentation [here](/new-features/#override-default-presentation-on-create-via-url))
+(for more information, see the documentation [here](/development/api#get-post-create))
 
 1. When creating a meeting, use the following settings (required):
 ```sh

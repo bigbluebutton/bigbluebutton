@@ -614,7 +614,7 @@ export class MessageActions extends Chat {
     ).toBeInViewport();
   }
 
-  async pinAndUnpinMessage() {
+  async pinAndUnpinMessage(onlyPin = false) {
     await openPublicChat(this.userPage);
     await this.userPage.fill(e.chatBox, e.message);
     await this.userPage.waitAndClick(e.sendButton);
@@ -627,6 +627,20 @@ export class MessageActions extends Chat {
       lastMessageItem.locator(e.messageToolbar),
       'should display the message toolbar when hovering a message',
     ).toBeVisible();
+    if (onlyPin) {
+      await expect(lastMessageItem.locator(`${e.messageToolbar} button`), 'should display only Pin').toHaveCount(1);
+      await expect(
+        this.modPage.page.locator(`${e.chatMessages} [role="list"]`),
+        'should keep the message list reachable by keyboard when only Pin is available',
+      ).toHaveAttribute('tabindex', '0');
+      const viewerMessage = this.userPage.page.locator(e.chatMessageItem).last();
+      await viewerMessage.hover();
+      await expect(
+        viewerMessage.locator(e.messageToolbar),
+        'should not display an empty toolbar for viewers',
+      ).toHaveCount(0);
+      await lastMessageItem.hover();
+    }
     await lastMessageItem.locator(e.pinMessageButton).click();
     await this.modPage.hasElement(e.simpleModal, 'should display the pin message confirmation modal');
     await this.modPage.waitAndClick(e.confirmPinMessageButton);

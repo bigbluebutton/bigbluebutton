@@ -53,6 +53,19 @@ class PresentationController {
     '/bigbluebutton/presentation/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)/pdf/([A-Za-z0-9]+)/annotated_slides\\.pdf'
   )
 
+  private static final Pattern UPLOAD_URI_PATTERN = Pattern.compile(
+    '/bigbluebutton/presentation/([A-Za-z0-9_-]+)/upload'
+  )
+
+  private static final int MAX_LOGGED_PARAM_LENGTH = 64
+
+  private static String sanitizeForLog(Object value) {
+    if (value == null) return "null"
+    String sanitized = String.valueOf(value).replaceAll('[^A-Za-z0-9_./-]', '?')
+    return sanitized.length() > MAX_LOGGED_PARAM_LENGTH ?
+            sanitized.substring(0, MAX_LOGGED_PARAM_LENGTH) + "..." : sanitized
+  }
+
   def checkPresentationAuthorization = {
     try {
       def uri = request.getHeader("x-original-uri")
@@ -204,8 +217,18 @@ class PresentationController {
       } else {
         log.debug "NO SUCCESS \n"
 
-        //Send upload error message
+        // An unknown or already used token is refused as such: there is no upload to report a
+        // file size error on, and without x-file-too-large nginx answers 403 rather than 413.
         PresentationUploadToken presUploadToken = meetingService.getPresentationUploadToken(presentationToken);
+        if (presUploadToken == null) {
+          response.setStatus(403);
+          response.addHeader("Cache-Control", "no-cache")
+          response.contentType = 'text/plain'
+          response.outputStream << 'invalid auth token';
+          return;
+        }
+
+        //Send upload error message
         meetingService.sendPresentationUploadMaxFilesizeMessage(presUploadToken, originalContentLength, maxUploadFileSize as int);
 
         response.setStatus(403);
@@ -220,9 +243,27 @@ class PresentationController {
   }
 
   def upload = {
-    PresentationUploadToken presUploadToken = meetingService.consumePresentationUploadToken(params.authzToken)
+    // The token is taken from the request path, which is the only form the upload endpoint is
+    // reachable through. Anything else is refused without consuming a token.
+    def requestUri = request.requestURI == null ? "" : request.requestURI.split('\\?')[0]
+    def uriMatcher = UPLOAD_URI_PATTERN.matcher(requestUri)
+    if (!uriMatcher.matches()) {
+      log.debug("Refusing presentation upload that did not arrive on the upload path." +
+              " uri=" + sanitizeForLog(requestUri))
+      response.setStatus(403)
+      response.addHeader("Cache-Control", "no-cache")
+      response.contentType = 'text/plain'
+      response.outputStream << 'invalid auth token'
+      return
+    }
+    def authzToken = uriMatcher.group(1)
+
+    // Atomically validate and consume the single-use authorization token.
+    // Only the first concurrent POST with a given token gets a non-null result;
+    // any replay (or an unknown token) gets null and is rejected.
+    PresentationUploadToken presUploadToken = meetingService.consumePresentationUploadToken(authzToken)
     if (presUploadToken == null) {
-      log.debug "Presentation upload authorization token was not valid for meetingId=" + params.conference
+      log.debug "WARNING! AuthzToken=" + sanitizeForLog(authzToken) + " was not valid (or already used) in meetingId=" + sanitizeForLog(params.conference)
       response.setStatus(403)
       response.addHeader("Cache-Control", "no-cache")
       response.contentType = 'text/plain'
@@ -231,7 +272,7 @@ class PresentationController {
     }
 
     if (!presUploadToken.isValidFor(params.conference)) {
-      log.warn "Presentation upload token scope mismatch for requested meetingId=" + params.conference
+      log.warn "Presentation upload token scope mismatch for requested meetingId=" + sanitizeForLog(params.conference)
       response.setStatus(403)
       response.addHeader("Cache-Control", "no-cache")
       response.contentType = 'text/plain'
@@ -267,6 +308,13 @@ class PresentationController {
 
     def isDownloadable = params.boolean('is_downloadable') //instead of params.is_downloadable
     def podId = presUploadToken.podId
+    if (params.pod_id != null && params.pod_id != podId) {
+      log.warn("Ignoring pod_id parameter that does not match the upload token." +
+              " meetingId=" + meetingId +
+              " presentationId=" + presUploadToken.presentationId +
+              " tokenPodId=" + podId +
+              " requestedPodId=" + sanitizeForLog(params.pod_id))
+    }
 
     // Defaults current to false (optional upload parameter)
     def current = false
@@ -275,7 +323,7 @@ class PresentationController {
       current = params.current.toBoolean()
     }
     
-    log.debug "@Default presentation pod" + podId
+    log.debug "Presentation pod from upload token: " + podId
 
     def uploadFailed = false
     def uploadFailReasons = new ArrayList<String>()
@@ -301,7 +349,7 @@ class PresentationController {
     }
 
     if (presFilename == "" || filenameExt == "") {
-      log.debug("Upload failed. Invalid filename " + presOrigFilename)
+      log.debug("Upload failed. Invalid filename " + sanitizeForLog(presOrigFilename))
       uploadFailReasons.add("invalid_filename")
       uploadFailed = true
     } else {
@@ -314,7 +362,7 @@ class PresentationController {
       }
     }
 
-    log.debug("processing file upload " + presFilename + " (presId: " + presId + ")")
+    log.debug("processing file upload " + sanitizeForLog(presFilename) + " (presId: " + presId + ")")
     def presentationBaseUrl = presentationService.presentationBaseUrl
     def isPresentationMimeTypeValid = SupportedFileTypes.isPresentationMimeTypeValid(pres, filenameExt)
     UploadedPresentation uploadedPres = new UploadedPresentation(
@@ -325,10 +373,11 @@ class PresentationController {
             presFilename,
             presentationBaseUrl,
             current,
-            params.authzToken,
+            authzToken,
             uploadFailed,
             uploadFailReasons
     )
+    uploadedPres.setSystemUpload(presUploadToken.isSystemUpload())
     if (isPresentationMimeTypeValid) {
       if (isDownloadable) {
         log.debug "@Setting file to be downloadable..."
@@ -336,7 +385,7 @@ class PresentationController {
       }
       uploadedPres.setUploadedFile(pres);
       presentationService.processUploadedPresentation(uploadedPres)
-      log.debug("file upload success " + presFilename)
+      log.debug("file upload success " + sanitizeForLog(presFilename))
       response.addHeader("Cache-Control", "no-cache")
       response.contentType = 'text/plain'
       response.outputStream << 'upload-success'
@@ -344,7 +393,7 @@ class PresentationController {
       def mimeType = SupportedFileTypes.detectMimeType(pres)
       presentationService.sendDocConversionFailedOnMimeType(uploadedPres, mimeType, filenameExt)
       org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlingErrors(pres)
-      log.debug("file upload failed " + presFilename)
+      log.debug("file upload failed " + sanitizeForLog(presFilename))
       response.addHeader("Cache-Control", "no-cache")
       response.contentType = 'text/plain'
       response.outputStream << 'upload-failed'

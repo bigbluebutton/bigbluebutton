@@ -1,0 +1,45 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# In the user's logout URL, %%MEETINGID%% becomes the internal meeting ID,
+# %%USERID%% the internal user ID and %%USERNAME%% the URL-encoded full
+# name, whether the URL is create's logoutURL or join's.
+# logout-url-override.yaml has join's URL replacing create's, and
+# logout-url-username.yaml join's %%USERNAME%%.
+id: join.user-state.logout-url
+title: "The placeholders in ${which} logoutURL are filled in for the user"
+endpoint: join
+class: contract
+tags: [ci, presence]
+requires: [akka, presence]
+variants:
+  - id: create
+    vars:
+      which: create's
+      createUrl: "https://example.com/out?m=%%MEETINGID%%&u=%%USERID%%&n=%%USERNAME%%"
+      joinUrl: null
+      name: "&n=Ann+Bee"
+  - id: join
+    vars:
+      which: join's
+      createUrl: "https://example.com/meeting"
+      joinUrl: "https://example.com/out?m=%%MEETINGID%%&u=%%USERID%%"
+      name: ""
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: User state, logoutURL: "${createUrl}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann Bee, role: moderator, logoutURL: "${joinUrl}"}}
+    golden: off
+    capture: {annId: $.userId}
+  - graphql: {as: ann, query: "query Me { user_current { logoutUrl } }"}
+    expect: {jsonpath: {"$.data.user_current[0].logoutUrl": "https://example.com/out?m=${intId}&u=${annId}${name}"}}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

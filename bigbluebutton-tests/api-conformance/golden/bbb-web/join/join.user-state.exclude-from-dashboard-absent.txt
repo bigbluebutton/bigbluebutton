@@ -1,0 +1,6 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case join.user-state.exclude-from-dashboard-absent
+target bbb-web
+
+== step 4: bus UserRegisteredRespMsg select $.core.body.excludeFromDashboard
+$.core.body.excludeFromDashboard false

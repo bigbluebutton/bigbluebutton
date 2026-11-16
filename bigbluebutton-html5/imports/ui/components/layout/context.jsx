@@ -1734,9 +1734,10 @@ const reducer = (state, action) => {
       } else {
         let indexesOfOpenedContent = presentationAreaContentActions.reduce((indexes, p, index) => {
           if (action.value.content === PRESENTATION_AREA.GENERIC_CONTENT) {
+            // Not filtered by open: minimizing the presentation area marks its top
+            // item as closed, and that item must still go away when the plugin removes it
             if (
               p.value.content === action.value.content
-              && p.value.open
               && p.value.genericContentId === action.value.genericContentId
             ) {
               indexes.push(index);
@@ -1958,9 +1959,13 @@ const LayoutContextProvider = (props) => {
   const previousLayoutType = usePrevious(layoutType);
 
   useEffect(() => {
+    const currentPile = layoutContextState.presentationAreaContentActions;
+    const previousPile = previousPresentationAreaContentActions.current;
+    const topGenericContentId = (pile) => pile[pile.length - 1]?.value?.genericContentId;
     if (
-      layoutContextState.presentationAreaContentActions.length
-      !== previousPresentationAreaContentActions.current.length
+      currentPile.length !== previousPile.length
+      // A plugin replacing its generic content in a single render keeps the pile size
+      || topGenericContentId(currentPile) !== topGenericContentId(previousPile)
     ) {
       updatePresentationAreaContent(
         layoutContextState,

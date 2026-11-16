@@ -6,6 +6,7 @@ import { defineMessages } from 'react-intl';
 import { usePreviousValue } from '/imports/ui/hooks/usePreviousValue';
 import { notify } from '/imports/ui/services/notification';
 import Session from '/imports/ui/services/storage/in-memory';
+import getSizeWithUnit from '/imports/utils/getSizeWithUnit';
 
 const EXPORT_STATUSES = {
   RUNNING: 'RUNNING',
@@ -17,6 +18,10 @@ const EXPORT_STATUSES = {
 
 const TIMEOUT_CLOSE_TOAST = 2; // second
 
+// Numbers the converting toasts across mounts, so a new mount cannot reuse the id of the
+// previous mount's toast while that one is still closing.
+let convertingToastCount = 0;
+
 const intlMessages = defineMessages({
   uploading: {
     id: 'app.presentationUploder.uploading',
@@ -25,6 +30,14 @@ const intlMessages = defineMessages({
   uploadingPlural: {
     id: 'app.presentationUploder.uploadingPlural',
     description: 'uploading label for toast notification (plural)',
+  },
+  uploadFailed: {
+    id: 'app.presentationUploder.uploadFailed',
+    description: 'failed upload label for toast notification',
+  },
+  uploadFailedPlural: {
+    id: 'app.presentationUploder.uploadFailedPlural',
+    description: 'failed uploads label for toast notification (plural)',
   },
   uploadStatus: {
     id: 'app.presentationUploder.uploadStatus',
@@ -70,6 +83,10 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.conversion.invalidMimeType',
     description: 'warns user that the file\'s mime type is not supported or it doesn\'t match the extension',
   },
+  PAGE_COUNT_FAILED: {
+    id: 'app.presentationUploder.conversion.pageCountFailed',
+    description: 'warns the user that the number of pages of the file could not be determined',
+  },
   PAGE_COUNT_EXCEEDED: {
     id: 'app.presentationUploder.conversion.pageCountExceeded',
     description: 'warns the user that the conversion failed because of the page count',
@@ -77,6 +94,22 @@ const intlMessages = defineMessages({
   PDF_HAS_BIG_PAGE: {
     id: 'app.presentationUploder.conversion.pdfHasBigPage',
     description: 'warns the user that the conversion failed because of the pdf page siz that exceeds the allowed limit',
+  },
+  PRESENTATION_UPLOAD_POD_LIMIT_REACHED: {
+    id: 'app.presentationUploder.conversion.podLimitReached',
+    description: 'warns the user that the presentation area already holds the maximum number of presentations',
+  },
+  CONVERSION_RATE_LIMIT_EXCEEDED: {
+    id: 'app.presentationUploder.conversion.rateLimitExceeded',
+    description: 'warns the user that too many presentations were uploaded recently',
+  },
+  PRESENTATION_UPLOAD_RATE_LIMIT_EXCEEDED: {
+    id: 'app.presentationUploder.upload.rateLimitExceeded',
+    description: 'warns the user that they requested too many uploads in a short time',
+  },
+  PRESENTATION_UPLOAD_UNKNOWN_POD: {
+    id: 'app.presentationUploder.conversion.unknownPod',
+    description: 'warns the user that the upload could not be assigned to a presentation area',
   },
   OFFICE_DOC_CONVERSION_INVALID: {
     id: 'app.presentationUploder.conversion.officeDocConversionInvalid',
@@ -156,15 +189,6 @@ const intlMessages = defineMessages({
   },
 });
 
-function getSizeWithUnit(size) {
-  // If the size in MB is negligible (0.00), switch to kB for better precision
-  const mbString = (size / 1000000).toFixed(2);
-  const kbString = (size / 1000).toFixed(2);
-  return (mbString === '0.00' || mbString === '0,00')
-    ? `${kbString} kB`
-    : `${mbString} MB`;
-}
-
 function renderPresentationItemStatus(item, intl) {
   if ((('progress' in item) && item.progress === 0) || (('upload' in item) && item.upload.progress === 0 && !item.upload.error)) {
     return intl.formatMessage(intlMessages.fileToUpload);
@@ -190,7 +214,7 @@ function renderPresentationItemStatus(item, intl) {
 
   if (('uploadErrorMsgKey' in item) && item.uploadErrorMsgKey) {
     const errorMessage = intlMessages[item.uploadErrorMsgKey]
-      || intlMessages.genericConversionStatus;
+      || intlMessages.genericError;
 
     switch (item.uploadErrorMsgKey) {
       case 'CONVERSION_TIMEOUT':
@@ -211,6 +235,9 @@ function renderPresentationItemStatus(item, intl) {
       case 'INVALID_MIME_TYPE':
         constraint['extension'] = item.uploadErrorDetailsJson.fileExtension;
         constraint['contentType'] = item.uploadErrorDetailsJson.fileMime;
+        break;
+      case 'PRESENTATION_UPLOAD_POD_LIMIT_REACHED':
+        constraint['maxPresentationsPerPod'] = item.uploadErrorDetailsJson.maxPresentationsPerPod;
         break;
       default:
         break;
@@ -284,6 +311,7 @@ function renderToastItem(item, intl) {
 
 const renderToastList = (presentations, intl) => {
   let converted = 0;
+  let failed = 0;
 
   const presentationsSorted = presentations
     .sort((a, b) => a.uploadCompleted - b.uploadCompleted);
@@ -292,6 +320,7 @@ const renderToastList = (presentations, intl) => {
     .forEach((p) => {
       const presDone = p?.totalPages !== 0 && p?.totalPagesUploaded === p?.totalPages;
       if (presDone) converted += 1;
+      if (p?.uploadErrorMsgKey) failed += 1;
       return p;
     });
 
@@ -318,10 +347,20 @@ const renderToastList = (presentations, intl) => {
     });
   }
 
+  // Only refused or failed uploads are left (e.g. after a burst or a reload): none is uploading.
+  const allFailed = failed > 0 && failed === presentationsSorted.length;
+  if (allFailed) {
+    toastHeading = failed > 1
+      ? intl.formatMessage(intlMessages.uploadFailedPlural, {
+        numberOfPresentations: failed,
+      })
+      : intl.formatMessage(intlMessages.uploadFailed);
+  }
+
   return (
     <Styled.ToastWrapper data-test="presentationUploadProgressToast">
       <Styled.UploadToastHeader>
-        <Styled.UploadIcon iconName="upload" />
+        <Styled.UploadIcon iconName={allFailed ? 'close' : 'upload'} $error={allFailed} />
         <Styled.UploadToastTitle>{toastHeading}</Styled.UploadToastTitle>
       </Styled.UploadToastHeader>
       <Styled.InnerToast>
@@ -458,6 +497,18 @@ export const PresentationUploaderToast = ({
   const exportToastIdRef = useRef('presentationUploaderExportPresentationId');
   const convertingToastIdRef = useRef('presentationUploaderConvertingPresentationId');
   const closeTimeoutReference = useRef();
+  // Ids of failed uploads the converting toast has displayed and that are not yet notified
+  const shownErrorIdsRef = useRef(null);
+  if (!shownErrorIdsRef.current) shownErrorIdsRef.current = new Set();
+  // Ids of uploads being marked as notified, until they leave presentationsToBeShowed
+  const notifyingIdsRef = useRef(null);
+  if (!notifyingIdsRef.current) notifyingIdsRef.current = new Set();
+
+  const rememberShownErrors = (pres) => {
+    pres.forEach((p) => {
+      if (p.uploadErrorMsgKey) shownErrorIdsRef.current.add(p.presentationId);
+    });
+  };
 
   const addPressIdToDismissed = (presId) => {
     setDismissedItems((prev) => {
@@ -516,6 +567,7 @@ export const PresentationUploaderToast = ({
   useEffect(() => {
     setForceShowToast(false);
     return () => {
+      clearTimeout(closeTimeoutReference.current);
       // Dismiss toast if active when unmounting (presenter status is lost)
       if (toast.isActive(convertingToastIdRef.current)) {
         handleDismissToast(convertingToastIdRef.current);
@@ -523,48 +575,78 @@ export const PresentationUploaderToast = ({
     };
   }, []);
 
+  // An error is marked as notified only once the toast has displayed it, so errors that already
+  // existed when this mounted (after a reload, or when this user became presenter) are shown.
   useEffect(() => {
     if (showToast) return;
     presentationsToBeShowed.filter(
-      (p) => (p.uploadCompleted || p.uploadErrorMsgKey),
-    ).forEach(
-      (p) => setPresentationUploadCompletionNotified(
+      (p) => (p.uploadErrorMsgKey
+        ? shownErrorIdsRef.current.has(p.presentationId)
+        : p.uploadCompleted),
+    ).forEach((p) => {
+      shownErrorIdsRef.current.delete(p.presentationId);
+      notifyingIdsRef.current.add(p.presentationId);
+      setPresentationUploadCompletionNotified(
         { variables: { presentationId: p.presentationId } },
-      ),
-    );
+      );
+    });
   }, [showToast]);
 
   useEffect(() => {
-    const allPresentationsDone = presentationsToBeShowed.every(
+    // Closing the toast marks its rows as notified one mutation at a time. Rows still waiting
+    // for theirs must not reopen it, or it comes back until the last mutation lands.
+    const ids = new Set(presentationsToBeShowed.map((p) => p.presentationId));
+    notifyingIdsRef.current.forEach((id) => {
+      if (!ids.has(id)) notifyingIdsRef.current.delete(id);
+    });
+    const pending = presentationsToBeShowed.filter(
+      (p) => !notifyingIdsRef.current.has(p.presentationId),
+    );
+    const allPresentationsDone = pending.every(
       (p) => (p.uploadCompleted && !p.uploadErrorMsgKey),
     );
     // Forcing to show toast will only work if there are any presentations to show
-    setShowToast(presentationsToBeShowed.length > 0 && (!allPresentationsDone || forceShowToast));
+    setShowToast(pending.length > 0 && (!allPresentationsDone || forceShowToast));
   }, [presentationsToBeShowed]);
 
   useEffect(() => {
+    // Closing the toast marks every finished or failed upload in it as notified, so a close
+    // scheduled while it had nothing left to show must not run once new uploads arrive.
+    if (showToast && closeTimeoutReference.current) {
+      clearTimeout(closeTimeoutReference.current);
+      closeTimeoutReference.current = null;
+    }
     if (showToast && !toast.isActive(convertingToastIdRef.current)) {
+      // A new id for each toast, so one still closing can neither block this one nor close it.
+      convertingToastCount += 1;
+      const toastId = `presentationUploaderConvertingPresentationId-${convertingToastCount}`;
+      convertingToastIdRef.current = toastId;
       toast(() => renderToastList(presentationsToBeShowed, intl), {
         hideProgressBar: true,
         autoClose: false,
         newestOnTop: true,
         closeOnClick: true,
         className: 'presentationUploaderToast toastClass',
-        toastId: convertingToastIdRef.current,
+        toastId,
         onClose: () => {
+          if (convertingToastIdRef.current !== toastId) return;
           setShowToast(false);
           Session.setItem('presentationUploaderToastId', null);
         },
       });
-    } else if (!showToast && toast.isActive(convertingToastIdRef.current)) {
+      rememberShownErrors(presentationsToBeShowed);
+    } else if (!showToast && toast.isActive(convertingToastIdRef.current)
+      && !closeTimeoutReference.current) {
+      const toastId = convertingToastIdRef.current;
       closeTimeoutReference.current = setTimeout(() => {
         closeTimeoutReference.current = null;
-        handleDismissToast(convertingToastIdRef.current);
+        handleDismissToast(toastId);
       }, TIMEOUT_CLOSE_TOAST * 1000);
-    } else if (presentationsToBeShowed.length > 0) {
+    } else if (presentationsToBeShowed.length > 0 && toast.isActive(convertingToastIdRef.current)) {
       toast.update(convertingToastIdRef.current, {
         render: renderToastList(presentationsToBeShowed, intl),
       });
+      rememberShownErrors(presentationsToBeShowed);
     }
   }, [showToast, presentationsToBeShowed, intl]);
 

@@ -27,7 +27,7 @@ const CustomLogo = () => {
 
   return (
     <div>
-      <Styled.Branding data-test="brandingArea">
+      <Styled.Branding className="bbb-navigation__logo" data-test="brandingArea">
         <img src={logoUrl} alt="custom branding logo" />
       </Styled.Branding>
     </div>

@@ -151,24 +151,17 @@ const Content = styled.div`
   }
 `;
 
-const Background = styled.span`
-  ${({ isBlurred }) => isBlurred
-    && css`
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    backdrop-filter: blur(10px);
-    z-index: 998;
-    `}
-`;
+// Blurs the meeting behind the audio modal opened on join. Applied to the
+// modal's own overlay so it always sits beneath the modal content.
+const autoJoinOverlayStyle = {
+  backdropFilter: 'blur(10px)',
+};
 
 export default {
   AudioOptions,
   AudioModalButton,
   AudioDial,
-  Background,
+  autoJoinOverlayStyle,
   Connecting,
   ConnectingAnimation,
   ConnectingSubtext,

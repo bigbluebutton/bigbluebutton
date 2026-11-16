@@ -63,7 +63,7 @@ test.describe.parallel('Recording', { tag: '@ci' }, () => {
   });
 });
 
-test.describe('Recording with audio', { tag: ['@ci', '@media'] }, () => {
+test.describe('Recording with audio', { tag: ['@nightly', '@media'] }, () => {
   test('Generate a recording that captures microphone audio', async ({ browser }) => {
     const context = await browser.newContext();
     const page = await context.newPage();
@@ -75,7 +75,7 @@ test.describe('Recording with audio', { tag: ['@ci', '@media'] }, () => {
   });
 });
 
-test.describe('Recording with screenshare', { tag: ['@ci', '@media'] }, () => {
+test.describe('Recording with screenshare', { tag: ['@nightly', '@media'] }, () => {
   test.beforeEach(({ browserName }) => {
     test.skip(browserName === 'firefox', 'Screenshare tests not able in Firefox browser without desktop');
   });

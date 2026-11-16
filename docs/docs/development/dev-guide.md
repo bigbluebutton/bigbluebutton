@@ -297,7 +297,7 @@ sudo bbb-conf --restart
 Edit `/usr/share/bigbluebutton/nginx/bbb-html5.nginx` and comment the line that includes `bbb-html5.nginx.static`, then uncomment the line that includes `bbb-html5.nginx.dev`.
 After that, restart nginx with: `sudo systemctl restart nginx`
 
-Remember to revert the change when you stop using the development client.
+This is a development-only change to a packaged file (`run-dev.sh` makes the same switch, and `deploy.sh` switches back); the next `bbb-html5` package upgrade restores the static include. Remember to revert the change when you stop using the development client.
 
 Install the npm dependencies.
 
@@ -357,7 +357,7 @@ cd ~/dev/bigbluebutton/akka-bbb-apps
 ./run.sh
 ```
 
-Don't forget to modify service-bbbWebAPI, service-sharedSecret in ~/dev/bigbluebutton/akka-bbb-apps/src/universal/conf/application.conf, to get it work properly. For instance, these are necessary for starting the breakout rooms.
+Don't forget to modify `services.bbbWebAPI` and `services.sharedSecret` in /etc/bigbluebutton/bbb-apps-akka.conf, to get it work properly. For instance, these are necessary for starting the breakout rooms.
 
 You can deploy locally akka-apps by building a simple .deb package using `sbt` and deploying it right away:
 

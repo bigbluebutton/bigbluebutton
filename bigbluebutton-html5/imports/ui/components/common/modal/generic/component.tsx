@@ -58,6 +58,12 @@ export interface GenericModalProps {
   priority?: ModalPriority;
   /** Custom inline styles applied directly to the modal content element. */
   contentStyle?: React.CSSProperties;
+  /**
+   * Custom inline styles applied to the backdrop overlay (the content's parent),
+   * e.g. a `backdropFilter`. The overlay is drawn beneath the content, so
+   * effects set here never cover the modal itself.
+   */
+  overlayStyle?: React.CSSProperties;
   /** Test identifier rendered as `data-testid` and the legacy `data-test` on the modal content element. */
   dataTest?: string;
   /** Test identifier of the close button. Defaults to `closeModal`, the id every legacy modal header used. */
@@ -142,6 +148,7 @@ const GenericModal: React.FC<GenericModalProps> = ({
   children,
   priority,
   contentStyle,
+  overlayStyle,
   anchorElement,
   dataTest,
   closeButtonDataTest = 'closeModal',
@@ -166,8 +173,9 @@ const GenericModal: React.FC<GenericModalProps> = ({
   // The ReactModal content element (BBBModal forwards `contentRef`), styled
   // imperatively because BBBModal owns its inline `style`.
   const [contentNode, setContentNode] = useState<HTMLDivElement | null>(null);
-  // Serialized so an inline `contentStyle` literal does not re-apply every render.
+  // Serialized so inline style literals do not re-apply every render.
   const contentStyleKey = contentStyle ? JSON.stringify(contentStyle) : '';
+  const overlayStyleKey = overlayStyle ? JSON.stringify(overlayStyle) : '';
 
   useLayoutEffect(() => {
     if (!contentNode) return undefined;
@@ -189,6 +197,19 @@ const GenericModal: React.FC<GenericModalProps> = ({
       style.cssText = baseCssText;
     };
   }, [contentNode, anchorElement, contentStyleKey]);
+
+  useLayoutEffect(() => {
+    const overlayNode = contentNode?.parentElement;
+    if (!overlayNode || !overlayStyle) return undefined;
+
+    const { style } = overlayNode;
+    const baseCssText = style.cssText;
+    Object.assign(style, overlayStyle);
+
+    return () => {
+      style.cssText = baseCssText;
+    };
+  }, [contentNode, overlayStyleKey]);
 
   // BBBModal hardcodes its close button's aria-label to "close" and gives it no
   // tooltip, so its own button stays hidden and a translated one is portaled

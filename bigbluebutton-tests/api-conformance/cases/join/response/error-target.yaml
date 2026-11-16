@@ -1,0 +1,51 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# Where a validation error sends the browser: to errorRedirectUrl if given,
+# else to join's logoutURL, else to the server's default logout URL. The errors
+# query param is appended to any query the URL has. In logoutURL the
+# %%MEETINGID%%, %%USERID%% and %%USERNAME%% placeholders are emptied. The
+# error itself is an empty fullName.
+id: join.response.error-target
+title: A join validation error redirects to ${dest}
+endpoint: join
+class: contract
+tags: [ci]
+requires: [akka]
+defs:
+  base: &base {errorRedirectUrl: null, logoutURL: null, host: null, path: null, from: null, m: null, u: null, n: null}
+variants:
+  - id: error-redirect-url
+    vars: {<<: *base, dest: errorRedirectUrl, errorRedirectUrl: "https://errors.example/back", logoutURL: "https://logout.example/bye", host: errors.example, path: /back}
+  - id: logout-url
+    vars: {<<: *base, dest: logoutURL, logoutURL: "https://logout.example/bye", host: logout.example, path: /bye}
+  - id: default
+    # The default logout URL is the server's URL; its host is in the recording.
+    vars: {<<: *base, dest: the default logout URL, path: ""}
+  - id: existing-query
+    vars: {<<: *base, dest: an errorRedirectUrl with a query, errorRedirectUrl: "https://errors.example/back?from=bbb", host: errors.example, path: /back, from: bbb}
+  - id: placeholders
+    vars: {<<: *base, dest: a logoutURL with placeholders, logoutURL: "https://logout.example/bye?m=%%MEETINGID%%&u=%%USERID%%&n=%%USERNAME%%", host: logout.example, path: /bye, m: "", u: "", n: ""}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Join response}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: join
+    params: {meetingID: "${uid}", fullName: "", role: viewer, errorRedirectUrl: "${errorRedirectUrl}", logoutURL: "${logoutURL}"}
+    expect:
+      status: 302
+      redirect:
+        host: "${host}"
+        path: "${path}"
+        query:
+          errors: {contains: '"key":"missingParamFullName"'}
+          from: "${from}"
+          m: "${m}"
+          u: "${u}"
+          n: "${n}"
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

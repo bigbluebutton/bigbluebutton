@@ -110,7 +110,7 @@ const propTypes = {
     microphoneConstraints: PropTypes.objectOf(Object),
   }).isRequired,
   audio: PropTypes.shape({
-    processingMode: PropTypes.oneOf(['advanced', 'standard', 'original']),
+    processingMode: PropTypes.oneOf(['voiceIsolation', 'advanced', 'standard', 'original']),
   }).isRequired,
   updateSettings: PropTypes.func.isRequired,
   availableLocales: PropTypes.objectOf(PropTypes.arrayOf(PropTypes.shape({}))).isRequired,
@@ -276,11 +276,11 @@ class Settings extends Component {
       isPresenter,
       showGuestNotification,
       layoutContextDispatch,
-      selectedLayout,
       isScreenSharingEnabled,
       isVideoEnabled,
       isReactionsEnabled,
       paginationToggleEnabled,
+      paginationToggleLocked,
       isChatEnabled,
     } = this.props;
 
@@ -303,10 +303,10 @@ class Settings extends Component {
             settings={current.application}
             displaySettingsStatus={this.displaySettingsStatus}
             layoutContextDispatch={layoutContextDispatch}
-            selectedLayout={selectedLayout}
             isPresenter={isPresenter}
             isReactionsEnabled={isReactionsEnabled}
             paginationToggleEnabled={paginationToggleEnabled}
+            paginationToggleLocked={paginationToggleLocked}
           />
         ),
       },

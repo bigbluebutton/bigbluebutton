@@ -1,0 +1,11 @@
+id: repo-bbb-pptx
+title: Six-slide PowerPoint deck used by the Playwright upload tests
+tier: repo
+file: ../../../playwright/core/media/BBB.pptx
+issues: [25432]
+catalog: [Office pre-check, Fonts in the conversion environment]
+pages: 6
+expect: converted
+kind: any
+tolerance: { maxDiffPixelRatio: 0.04 }
+profiles: [defaults, office-precheck]

@@ -170,7 +170,7 @@ const UserNameWithSubs: React.FC<UserNameWithSubsProps> = ({
 
   return (
     <Styled.UserNameContainer>
-      <Styled.UserName>
+      <Styled.UserName className="bbb-user-list-item__name">
         <TooltipContainer title={subjectUser.name}>
           {isMe(subjectUser.userId) ? (
             <Styled.StrongName>

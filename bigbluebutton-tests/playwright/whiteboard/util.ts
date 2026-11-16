@@ -3,10 +3,14 @@ import { expect, type JSHandle, type Page as PlaywrightPage } from 'playwright/t
 import { CI } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
+import { prepareForScreenshot, screenshotMask } from '../core/screenshots';
 
 export type TldrawCamera = { pageId: string; x: number; y: number; z: number };
 
 export type TldrawEditor = {
+  getCurrentToolId: () => string;
+  getInstanceState: () => { stylesForNextShape: Record<string, unknown> };
+  getCurrentPageShapes: () => { type: string; props: { geo?: string } }[];
   getCamera: () => { x: number; y: number; z: number };
   getCurrentPageId: () => string;
   getViewportScreenBounds: () => { w: number; h: number };
@@ -91,15 +95,17 @@ export async function openClearAnnotations(testPage: Page) {
 
 export async function snapshotComparison(modPage: Page, userPage: Page, snapshotName: string) {
   if (!CI) {
-    // close all toast notifications before taking the screenshot
-    await modPage.closeAllToastNotifications();
-    await userPage.closeAllToastNotifications();
-    // compare the snapshots
+    const restoreModFocus = await prepareForScreenshot(modPage);
+    const restoreUserFocus = await prepareForScreenshot(userPage);
     await expect(modPage.page).toHaveScreenshot(`moderator-${snapshotName}.png`, {
       maxDiffPixels: 1000,
+      mask: screenshotMask(modPage.page),
     });
     await expect(userPage.page).toHaveScreenshot(`viewer-${snapshotName}.png`, {
       maxDiffPixels: 1000,
+      mask: screenshotMask(userPage.page),
     });
+    await restoreModFocus();
+    await restoreUserFocus();
   }
 }

@@ -1,0 +1,64 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# The boolean create params that set akka-apps' user props (usersProp), each
+# with true and false, upper case, 1, yes and an empty value. Only true, in
+# any case, is true: 1 and yes read as false, and an empty value keeps the
+# configured default. All of usersProp is recorded, so a param that moved
+# another prop would show.
+id: create.booleans.users
+title: create with ${param}=${value}
+endpoint: create
+class: compat
+tags: [ci]
+requires: [akka, bus]
+variants:
+  - {id: "webcams-only-for-moderator-true", vars: {param: webcamsOnlyForModerator, value: "true"}, class: contract}
+  - {id: "webcams-only-for-moderator-false", vars: {param: webcamsOnlyForModerator, value: "false"}, class: contract}
+  - {id: "webcams-only-for-moderator-upper-case", vars: {param: webcamsOnlyForModerator, value: "TRUE"}}
+  - {id: "webcams-only-for-moderator-one", vars: {param: webcamsOnlyForModerator, value: "1"}}
+  - {id: "webcams-only-for-moderator-yes", vars: {param: webcamsOnlyForModerator, value: "yes"}}
+  - {id: "webcams-only-for-moderator-empty", vars: {param: webcamsOnlyForModerator, value: ""}}
+  - {id: "multi-user-whiteboard-enabled-true", vars: {param: multiUserWhiteboardEnabled, value: "true"}, class: contract}
+  - {id: "multi-user-whiteboard-enabled-false", vars: {param: multiUserWhiteboardEnabled, value: "false"}, class: contract}
+  - {id: "multi-user-whiteboard-enabled-upper-case", vars: {param: multiUserWhiteboardEnabled, value: "TRUE"}}
+  - {id: "multi-user-whiteboard-enabled-one", vars: {param: multiUserWhiteboardEnabled, value: "1"}}
+  - {id: "multi-user-whiteboard-enabled-yes", vars: {param: multiUserWhiteboardEnabled, value: "yes"}}
+  - {id: "multi-user-whiteboard-enabled-empty", vars: {param: multiUserWhiteboardEnabled, value: ""}}
+  - {id: "allow-promote-guest-to-moderator-true", vars: {param: allowPromoteGuestToModerator, value: "true"}, class: contract}
+  - {id: "allow-promote-guest-to-moderator-false", vars: {param: allowPromoteGuestToModerator, value: "false"}, class: contract}
+  - {id: "allow-promote-guest-to-moderator-upper-case", vars: {param: allowPromoteGuestToModerator, value: "TRUE"}}
+  - {id: "allow-promote-guest-to-moderator-one", vars: {param: allowPromoteGuestToModerator, value: "1"}}
+  - {id: "allow-promote-guest-to-moderator-yes", vars: {param: allowPromoteGuestToModerator, value: "yes"}}
+  - {id: "allow-promote-guest-to-moderator-empty", vars: {param: allowPromoteGuestToModerator, value: ""}}
+  - {id: "allow-mods-to-unmute-users-true", vars: {param: allowModsToUnmuteUsers, value: "true"}, class: contract}
+  - {id: "allow-mods-to-unmute-users-false", vars: {param: allowModsToUnmuteUsers, value: "false"}, class: contract}
+  - {id: "allow-mods-to-unmute-users-upper-case", vars: {param: allowModsToUnmuteUsers, value: "TRUE"}}
+  - {id: "allow-mods-to-unmute-users-one", vars: {param: allowModsToUnmuteUsers, value: "1"}}
+  - {id: "allow-mods-to-unmute-users-yes", vars: {param: allowModsToUnmuteUsers, value: "yes"}}
+  - {id: "allow-mods-to-unmute-users-empty", vars: {param: allowModsToUnmuteUsers, value: ""}}
+  - {id: "require-user-consent-before-unmuting-true", vars: {param: requireUserConsentBeforeUnmuting, value: "true"}, class: contract}
+  - {id: "require-user-consent-before-unmuting-false", vars: {param: requireUserConsentBeforeUnmuting, value: "false"}, class: contract}
+  - {id: "require-user-consent-before-unmuting-upper-case", vars: {param: requireUserConsentBeforeUnmuting, value: "TRUE"}}
+  - {id: "require-user-consent-before-unmuting-one", vars: {param: requireUserConsentBeforeUnmuting, value: "1"}}
+  - {id: "require-user-consent-before-unmuting-yes", vars: {param: requireUserConsentBeforeUnmuting, value: "yes"}}
+  - {id: "require-user-consent-before-unmuting-empty", vars: {param: requireUserConsentBeforeUnmuting, value: ""}}
+  - {id: "allow-mods-to-eject-cameras-true", vars: {param: allowModsToEjectCameras, value: "true"}, class: contract}
+  - {id: "allow-mods-to-eject-cameras-false", vars: {param: allowModsToEjectCameras, value: "false"}, class: contract}
+  - {id: "allow-mods-to-eject-cameras-upper-case", vars: {param: allowModsToEjectCameras, value: "TRUE"}}
+  - {id: "allow-mods-to-eject-cameras-one", vars: {param: allowModsToEjectCameras, value: "1"}}
+  - {id: "allow-mods-to-eject-cameras-yes", vars: {param: allowModsToEjectCameras, value: "yes"}}
+  - {id: "allow-mods-to-eject-cameras-empty", vars: {param: allowModsToEjectCameras, value: ""}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Booleans, "${param}": "${value}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.props.usersProp]
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

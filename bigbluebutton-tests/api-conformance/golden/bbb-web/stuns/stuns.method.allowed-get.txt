@@ -1,0 +1,12 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case stuns.method.allowed-get
+target bbb-web
+
+== step 1: call stuns
+status 200
+header Cache-Control no-cache
+header Content-Type application/json;charset=utf-8
+body json
+$.logoutURL "${baseUrl}"
+$.message "Could not find conference."
+$.returncode "FAILED"

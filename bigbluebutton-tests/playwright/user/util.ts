@@ -23,8 +23,23 @@ export const AUDIO_ONLY_TILE_SETTINGS_OVERRIDE: ClientSettingsOverrides = {
   },
 };
 
-export function emojiRainSettingsOverride(enabled: boolean): ClientSettingsOverrides {
-  return { public: { app: { emojiRain: { enabled, numberOfEmojis: 5 } } } };
+// Selects LiveKit's client-side audio state instead of BBB's. The shipped default is false
+// (settings.yml), and the two are served by different talking-indicator paths, so any test
+// that cares which one is in use has to pin it rather than inherit the server's setting.
+export const LIVEKIT_AUDIO_STATE_OVERRIDE: ClientSettingsOverrides = {
+  public: {
+    media: {
+      livekit: {
+        audio: {
+          useLiveKitAudioState: true,
+        },
+      },
+    },
+  },
+};
+
+export function emojiRainSettingsOverride(enabled: boolean, numberOfEmojis: number = 5): ClientSettingsOverrides {
+  return { public: { app: { emojiRain: { enabled, numberOfEmojis } } } };
 }
 
 // The server expires reactions, checking every 5 seconds, so only the meeting's clientSettingsOverride
@@ -43,6 +58,11 @@ export function audioOnlyTilesLocator(testPage: Page): Locator {
     .locator(`${e.webcamItem}, ${e.webcamItemTalkingUser}`)
     .filter({ has: testPage.page.locator(e.webcamConnecting) });
 }
+
+// a row of the participants list, by the whole user name
+export const userListRowOf = (userName: string) => `${e.userListItem}[aria-label="${userName}"]`;
+// the private chat option of that row
+export const privateChatOptionOf = (userName: string) => `${userListRowOf(userName)} ${e.startPrivateChat}`;
 
 export async function openLockViewers(testPage: Page) {
   const isLockViewersButtonVisible = await testPage.page
@@ -153,6 +173,21 @@ export async function hasUserListMicState(
     .locator(e.userListItem, { hasText: userName })
     .locator(state === 'unmuted' ? e.audioStateUnmuted : e.audioStateMuted);
   await expect(audioState, description).toBeVisible({ timeout });
+}
+
+export async function openUserListIfClosed(testPage: Page) {
+  // Open the user list panel if it is collapsed, so the moderator crowd-action area is reachable.
+  // Note: locator.isVisible() ignores its `timeout` option and returns the current snapshot, which
+  // is racy right after join; wait for the panel state instead of probing it synchronously.
+  const isPanelOpen = await testPage.page
+    .locator(e.userListPanel)
+    .waitFor({ state: 'visible', timeout: ELEMENT_WAIT_TIME })
+    .then(() => true)
+    .catch(() => false);
+  if (!isPanelOpen) {
+    await testPage.waitAndClick(e.usersListSidebarButton);
+    await testPage.hasElement(e.userListPanel, 'should open the user list panel');
+  }
 }
 
 export async function setGuestPolicyOption(testPage: Page, option: string) {

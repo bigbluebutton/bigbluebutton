@@ -5,6 +5,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import cx from 'classnames';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import KEYS from '/imports/utils/keys';
 import deviceInfo, { isMobile } from '/imports/utils/deviceInfo';
@@ -386,6 +387,9 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
   return (
     <>
       <Styled.RecordingIndicator
+        className={cx('bbb-recording-indicator', {
+          'bbb-recording-indicator--recording': recording,
+        })}
         data-test="recordingIndicator"
         isPhone={isMobile}
         recording={recording}

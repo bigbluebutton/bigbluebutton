@@ -3,16 +3,7 @@ import { join } from 'path';
 
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
-
-// Load the default locale on first use, so a missing file fails only the tests that need it
-let defaultLocale: Record<string, string> | undefined;
-function getDefaultLocale(): Record<string, string> {
-  if (!defaultLocale) {
-    const defaultLocalePath = join(__dirname, '../../../bigbluebutton-html5/public/locales/en.json');
-    defaultLocale = JSON.parse(readFileSync(defaultLocalePath, 'utf8')) as Record<string, string>;
-  }
-  return defaultLocale;
-}
+import { getDefaultLocale } from '../core/util';
 
 export async function openSettings(testPage: Page) {
   await testPage.waitAndClick(e.settingsSidebarButton);
@@ -58,7 +49,8 @@ export async function getLocaleValues(
 
 export async function selectLocale(testPage: Page, locale: string) {
   await openSettings(testPage);
-  await testPage.page.locator(e.languageSelector).selectOption({ value: locale });
+  await testPage.waitAndClick(e.languageSelector);
+  await testPage.waitAndClick(`${e.languageSelectorOption}[data-value="${locale}"]`);
   await testPage.waitAndClick(e.saveSettingsButton);
 }
 

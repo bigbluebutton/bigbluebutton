@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# notifyRecordingIsOn, a boolean create param that sets akka-apps' meeting
+# props (meetingProp), with true and false, upper case, 1, yes and an empty
+# value. Only true, in any case, is true: 1 and yes read as false, and an
+# empty value keeps the configured default. All of meetingProp is recorded,
+# so a param that moved another prop would show.
+id: create.booleans.notify-recording-is-on
+title: create with ${param}=${value}
+endpoint: create
+class: compat
+tags: [ci]
+requires: [akka, bus]
+variants:
+  - {id: "true", vars: {param: notifyRecordingIsOn, value: "true"}, class: contract}
+  - {id: "false", vars: {param: notifyRecordingIsOn, value: "false"}, class: contract}
+  - {id: "upper-case", vars: {param: notifyRecordingIsOn, value: "TRUE"}}
+  - {id: "one", vars: {param: notifyRecordingIsOn, value: "1"}}
+  - {id: "yes", vars: {param: notifyRecordingIsOn, value: "yes"}}
+  - {id: "empty", vars: {param: notifyRecordingIsOn, value: ""}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Booleans, "${param}": "${value}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.props.meetingProp]
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

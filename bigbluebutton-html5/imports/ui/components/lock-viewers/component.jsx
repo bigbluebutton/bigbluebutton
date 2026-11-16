@@ -189,6 +189,7 @@ const propTypes = {
   isChatEnabled: PropTypes.bool.isRequired,
   isPrivateChatEnabled: PropTypes.bool.isRequired,
   isSharedNotesEnabled: PropTypes.bool.isRequired,
+  isLockSettingsEnabled: PropTypes.bool.isRequired,
   isOpen: PropTypes.bool,
   priority: PropTypes.string,
 };
@@ -262,6 +263,7 @@ class LockViewersComponent extends Component {
       updateWebcamsOnlyForModerator,
       changeGuestPolicy,
       setLobbyMessage,
+      isLockSettingsEnabled,
     } = this.props;
 
     const {
@@ -272,11 +274,13 @@ class LockViewersComponent extends Component {
       presentationPolicy,
     } = this.state;
 
-    const finalLockSettings = { ...lockSettingsProps };
-    finalLockSettings.presenterPolicy = presentationPolicy;
+    if (isLockSettingsEnabled) {
+      const finalLockSettings = { ...lockSettingsProps };
+      finalLockSettings.presenterPolicy = presentationPolicy;
 
-    updateLockSettings(finalLockSettings);
-    updateWebcamsOnlyForModerator(usersProp.webcamsOnlyForModerator);
+      updateLockSettings(finalLockSettings);
+      updateWebcamsOnlyForModerator(usersProp.webcamsOnlyForModerator);
+    }
     changeGuestPolicy(guestPolicy);
 
     if (!lobbyMessageEnabled) {
@@ -583,6 +587,7 @@ class LockViewersComponent extends Component {
       isOpen,
       priority,
       closeModal,
+      isLockSettingsEnabled,
     } = this.props;
 
     const { selectedTab, unsavedModalOpen } = this.state;
@@ -597,23 +602,27 @@ class LockViewersComponent extends Component {
       );
     }
 
+    // the participant permissions and the presentation policy are both lock settings
     const tabs = [
       {
         label: intlMessages.participantPermissionsTab,
         icon: 'lock_viewers',
         dataTest: 'participantPermissionsTab',
+        allowed: isLockSettingsEnabled,
       },
       {
         label: intlMessages.guestPolicyTab,
         icon: 'guest_policy',
         dataTest: 'guestPolicyTab',
+        allowed: true,
       },
       {
         label: intlMessages.presentationPermissionsTab,
         icon: 'presentation_permission',
         dataTest: 'presentationPermissionsTab',
+        allowed: isLockSettingsEnabled,
       },
-    ];
+    ].filter((tab) => tab.allowed);
 
     return (
       <Styled.LockViewersModal
@@ -661,15 +670,19 @@ class LockViewersComponent extends Component {
               </Styled.SettingsTabSelector>
             ))}
           </Styled.SettingsTabList>
-          <Styled.SettingsTabPanel selectedClassName="is-selected">
-            {this.renderParticipantPermissionsTab()}
-          </Styled.SettingsTabPanel>
+          {isLockSettingsEnabled && (
+            <Styled.SettingsTabPanel selectedClassName="is-selected">
+              {this.renderParticipantPermissionsTab()}
+            </Styled.SettingsTabPanel>
+          )}
           <Styled.SettingsTabPanel selectedClassName="is-selected">
             {this.renderGuestPolicyTab()}
           </Styled.SettingsTabPanel>
-          <Styled.SettingsTabPanel selectedClassName="is-selected">
-            {this.renderPresentationPermissionsTab()}
-          </Styled.SettingsTabPanel>
+          {isLockSettingsEnabled && (
+            <Styled.SettingsTabPanel selectedClassName="is-selected">
+              {this.renderPresentationPermissionsTab()}
+            </Styled.SettingsTabPanel>
+          )}
         </Styled.SettingsTabs>
       </Styled.LockViewersModal>
     );

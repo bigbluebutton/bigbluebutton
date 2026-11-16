@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# bbb-web calls back https:// URLs only (fetchUrlSupportedProtocols): an
+# http:// end callback URL is never called. The https meetingEndedURL of
+# the same meeting is, which shows the server reaches the sink. With http
+# allowed (the fetch-http profile), the http URL is called too, which
+# shows the sink's plain-HTTP listener would have seen the request.
+id: end.callbacks.http
+title: "An http:// end callback URL ${outcome}"
+endpoint: end
+class: contract
+tags: [ci]
+requires: [akka]
+variants:
+  - {id: refused, vars: {outcome: "isn't called", n: "0"}}
+  - {id: allowed, vars: {outcome: "is called when http is allowed (fetch-http)", n: "1"}, profile: fetch-http, tags: [disruptive]}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Callback, meta_endCallbackUrl: "${sinkHttpUrl}/${uid}/ended", meetingEndedURL: "${sinkUrl}/${uid}-https/ended"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: end
+    params: {meetingID: "${uid}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - sink: {key: "${uid}-https", within: 10s}
+    golden: off
+    expect: {method: GET}
+  - sink: {key: "${uid}", within: 5s}
+    expect: {count: "${n}"}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

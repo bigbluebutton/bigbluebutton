@@ -91,6 +91,11 @@ export const constants = {
   showParticipantsAndPublicChatOnLogin:
     'userdata-bbb_show_participants_on_login=true&userdata-bbb_show_public_chat_on_login=true',
   hideParticipantsOnLogin: 'userdata-bbb_show_participants_on_login=false',
+  hideSidebarNavigation: 'userdata-bbb_hide_sidebar_navigation=true',
+  hideSidebarNavigationAndShowPublicChatOnLogin:
+    'userdata-bbb_hide_sidebar_navigation=true&userdata-bbb_show_public_chat_on_login=true',
+  hideSidebarNavigationAndShowParticipantsOnLogin:
+    'userdata-bbb_hide_sidebar_navigation=true&userdata-bbb_show_participants_on_login=true',
   showSessionDetailsOnJoin: 'userdata-bbb_show_session_details_on_join=true',
   hideActionsBar: 'userdata-bbb_hide_actions_bar=true',
   overrideDefaultLocale: 'userdata-bbb_override_default_locale=pt-br',
@@ -104,9 +109,12 @@ export const constants = {
   speechRecognitionDisabled: 'disabledFeatures=liveTranscription',
   captionsDisabled: 'disabledFeatures=liveTranscription',
   chatDisabled: 'disabledFeatures=chat',
+  privateChatDisabled: 'disabledFeatures=privateChat',
   externalVideosDisabled: 'disabledFeatures=externalVideos',
   learningDashboardDisabled: 'disabledFeatures=learningDashboard',
   pollsDisabled: 'disabledFeatures=polls',
+  lockSettingsDisabled: 'disabledFeatures=lockSettings',
+  lockSettingsDisabledWithChatLock: 'disabledFeatures=lockSettings&lockSettingsDisablePublicChat=true',
   screenshareDisabled: 'disabledFeatures=screenshare',
   sharedNotesDisabled: 'disabledFeatures=sharedNotes',
   virtualBackgroundsDisabled: 'disabledFeatures=virtualBackgrounds',
@@ -125,10 +133,13 @@ export const constants = {
     'disabledFeatures=breakoutRooms,presentation,chat,liveTranscription&disabledFeaturesExclude=liveTranscription',
   captionsExclude: 'disabledFeatures=liveTranscription,presentation,chat&disabledFeaturesExclude=liveTranscription',
   chatExclude: 'disabledFeatures=presentation,chat&disabledFeaturesExclude=chat',
+  chatExcludeWithSpace: 'disabledFeatures=polls,chat&disabledFeaturesExclude=polls,%20chat',
+  privateChatExclude: 'disabledFeatures=presentation,privateChat&disabledFeaturesExclude=privateChat',
   externalVideosExclude: 'disabledFeatures=presentation,chat,externalVideos&disabledFeaturesExclude=externalVideos',
   learningDashboardExclude:
     'disabledFeatures=presentation,chat,learningDashboard&disabledFeaturesExclude=learningDashboard',
   pollsExclude: 'disabledFeatures=layouts,polls&disabledFeaturesExclude=polls',
+  lockSettingsExclude: 'disabledFeatures=chat,lockSettings&disabledFeaturesExclude=lockSettings',
   screenshareExclude: 'disabledFeatures=presentation,chat,screenshare&disabledFeaturesExclude=screenshare',
   sharedNotesExclude: 'disabledFeatures=presentation,chat,sharedNotes&disabledFeaturesExclude=sharedNotes',
   virtualBackgroundsExclude:

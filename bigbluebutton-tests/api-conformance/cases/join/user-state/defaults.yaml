@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# Without avatarURL or webcamBackgroundURL, a user's avatar and webcam
+# background are empty as shipped (useDefaultAvatar and
+# useDefaultWebcamBackground are off), and firstName, lastName and
+# enforceLayout are null. A bot gets defaultBotAvatarURL whatever the
+# setting. With the settings on (alt-defaults), the defaults are
+# defaultAvatarURL and defaultWebcamBackgroundURL.
+id: join.user-state.defaults
+title: "A user who joins without avatar or background params gets the defaults: ${who}"
+endpoint: join
+class: contract
+tags: [ci, presence]
+requires: [akka, presence]
+variants:
+  - {id: shipped, vars: {who: none as shipped, bot: null, avatar: "^$", background: "^$"}}
+  - {id: bot, vars: {who: a bot, bot: "true", avatar: "/html5client/resources/images/bot-avatar[.]png$", background: "^$"}}
+  - {id: alt-defaults, vars: {who: the configured ones (alt-defaults), bot: null, avatar: "/html5client/resources/images/avatar[.]png$", background: "/virtual-backgrounds/board[.]jpg$"}, profile: alt-defaults, tags: [disruptive]}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: User state}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: moderator, bot: "${bot}"}}
+    golden: off
+  - graphql: {as: ann, query: "query Me { user_current { avatar webcamBackground firstName lastName enforceLayout bot } }"}
+    expect:
+      jsonpath:
+        "$.data.user_current[0].avatar": {regex: "${avatar}"}
+        "$.data.user_current[0].webcamBackground": {regex: "${background}"}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

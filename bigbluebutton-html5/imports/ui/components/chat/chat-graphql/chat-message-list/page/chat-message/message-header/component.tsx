@@ -42,7 +42,10 @@ const ChatMessageHeader: React.FC<ChatMessageHeaderProps> = ({
   return (
     <Styled.HeaderContent role={role}>
       <Styled.ChatHeaderText>
-        <Styled.ChatUserName currentlyInMeeting={currentlyInMeeting}>
+        <Styled.ChatUserName
+          className="bbb-chat-message__name"
+          currentlyInMeeting={currentlyInMeeting}
+        >
           {name}
         </Styled.ChatUserName>
         {
@@ -71,7 +74,7 @@ const ChatMessageHeader: React.FC<ChatMessageHeaderProps> = ({
             <Icon iconName="delete" />
           </Styled.EditLabel>
         )}
-        <Styled.ChatTime>
+        <Styled.ChatTime className="bbb-chat-message__time">
           <FormattedTime value={dateTime} />
         </Styled.ChatTime>
       </Styled.ChatHeaderText>

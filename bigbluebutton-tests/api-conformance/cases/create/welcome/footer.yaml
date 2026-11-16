@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# defaultWelcomeMessageFooter is added to every welcome message, the meeting's
+# own as well as the default one, unless the setting is empty (the
+# alt-defaults profile). The default message is in the response defaults
+# case.
+id: create.welcome.footer
+title: create with a welcome message${under}
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus]
+variants:
+  - {id: shipped, vars: {under: ""}}
+  - {id: alt-defaults, vars: {under: " (alt-defaults)"}, profile: alt-defaults, tags: [disruptive]}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Footer, welcome: Our own welcome.}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.props.welcomeProp]
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

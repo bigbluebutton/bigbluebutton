@@ -3,7 +3,6 @@ import { FormattedTime, defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import Icon from '/imports/ui/components/connection-status/icon/component';
-import { getHelp } from '../service';
 import Styled from './styles';
 import ConnectionStatusHelper from '../status-helper/component';
 import Auth from '/imports/ui/services/auth';
@@ -27,10 +26,6 @@ const intlMessages = defineMessages({
   empty: {
     id: 'app.connection-status.empty',
     description: 'Connection status empty',
-  },
-  more: {
-    id: 'app.connection-status.more',
-    description: 'More about connectivity issues',
   },
   audioLabel: {
     id: 'app.settings.audioTab.label',
@@ -185,7 +180,6 @@ class ConnectionStatusComponent extends PureComponent {
 
     const { intl } = this.props;
 
-    this.help = getHelp();
     this.state = {
       selectedTab: 0,
       copyButtonText: intl.formatMessage(intlMessages.copy),

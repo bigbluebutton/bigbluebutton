@@ -1,0 +1,112 @@
+                                                                                                                 Energy and Climate Courses at Stanford
+
+
+                                                                                                      Upper                                      CO2 separation from syngas and flue gas for gasification
+                                                                                                       level                                     and combustion processes. Transportation of CO2 in
+                                                                                 Lecture w/         undergrad                                    pipelines and sequestration in deep underground geological
+                                                                                    brief             uate &                                     formations. Pipeline specifications, monitoring, safety                      (see attached
+    ENERGY           Carbon Capture and                                                                                                          engineering, and costs for long distance transport of CO2.
+                                                                                   weekly   Enginee graduate                     Benson, S;                                                                                   document for
+    153/253            Sequestration          --     3       Aut        --                                           --                          Comparison of options for geological sequestration in oil             None
+                                                                                 discussion   ring     (~1/3                      Wilcox, J                                                                                       course
+                                                                                   section          Undergra                                     and gas reservoirs, deep unmineable coal beds, and saline                      highlights)
+                                                                                    (18)              d, 2/3                                     aquifers. Life cycle analysis.
+                                                                                                      Grad)
+
+                                                             Aut,                                                 Written                        On-the-job practical training under the guidance of on-site
+                   Undergraduate Report on
+  ENERGY 155                                                 Win,                Independe Enginee Undergra       consent                        supervisors. Required report detailing work activities,
+                   Energy Industry Training   --   1 to 3               --                                                          Staff                                                                              None
+                                                             Spr,                  nt work   ring   duate            of                          problems, assignments and key results.
+                                                             Sum                                                 instructor
+                                                                                                                                               Appraisal of development and remedial work on oil and gas
+                  Engineering Valuation and
+                                                                                                                                               wells; appraisal of producing properties; estimation of
+    ENERGY         Appraisal of Oil and Gas                            DB-                             Junior,
+                                                                                  Lecture   Enginee                           Kourt, W; Pande, productive capacity, reserves; operating costs, depletion,
+    167/267         Wells, Facilities, and    --     3       Win    EngrAppSc                          Senior,       --                                                                                                None
+                                                                                   (25)       ring                                    K        and depreciation; value of future profits, taxation, fair market
+                          Properties                                    i                             Graduate
+                                                                                                                                               value; original or guided research problems on economic
+                                                                                                                                               topics with report. Prerequisite: consent of instructor.
+                                                                                                                                                 Lectures, problems. Application of solutions of unsteady
+  ENERGY 175          Well Test Analysis                                          Lecture   Enginee                                              flow in porous media to transient pressure analysis of oil,
+                                              --     3       Spr        --                             Senior        --           Horne, R                                                                             None
+                                                                                  (25-30)     ring                                               gas, water, and geothermal wells. Pressure buildup analysis
+                                                                                                                                                 and drawdown. Design of well tests. Computer-aided
+                                                                                                                 ENERGY                          Design and analysis of production systems for oil and gas
+                                                                                                                   120.                          reservoirs. Topics: well completion, single-phase and multi-
+    ENERGY          Oil and Gas Production                              DB-
+                                                            Alternat                        Enginee              Recomm                          phase flow in wells and gathering systems, artificial lift and
+    180/280               Engineering         --     3               EngrAppSc
+                                                            e Years                           ring                ended:                         field processing, well stimulation, inflow performance.
+                                                                         i
+                                                                                                                 ENERGY
+                                                                                                                   130
+                                                             Aut,                                                                                None                                                                           May be
+                   Special Topics in Energy
+  ENERGY 194                                                 Win,                           Enginee                                                                                                                           repeated for
+                     and Mineral Fluids       --   1 to 3               --                                           --             Staff
+                                                             Spr,                             ring                                                                                                                               credit.
+                                                             Sum
+                                                                                                                                                 Multiphase flow in porous media. Wettability, capillary
+                                                                                                                                                 pressure, imbibition and drainage, Leverett J-function,
+                                                                                                                                                 transition zone, vertical equilibrium. Relative permeabilities,
+                                                                                                    Undergra                                     Darcy's law for multiphase flow, fractional flow equation,
+    ENERGY             Fundamentals of                                                      Enginee                                              effects of gravity, Buckley-Leverett theory, recovery
+                                              --     3       Win                                    duate and                   H, Tchelepi
+    121/221            Multiphase Flow                                                        ring                                               predictions, volumetric linear scaling, JBN and Jones-
+                                                                                                    Graduate
+                                                                                                                                                 Rozelle determination of relative permeability. Frontal
+                                                                                                                                                 advance equation, Buckley-Leverett equation as frontal
+                                                                                                                                                 advance solution, tracers in multiphase flow, adsorption,
+                                                                                                                                                 three-phase relative permeabilities.
+                                                                                                                                                 Lectures, problems. General flow equations, tensor
+                                                                                                                                                 permeabilities, steady state radial flow, skin, and succession
+                                                                                                                                                 of steady states. Injectivity during fill-up of a depleted
+                     Advanced Reservoir                                                                                                          reservoir, injectivity for liquid-filled reservoirs. Flow potential
+  ENERGY 222                                                                      Lecture   Enginee           ENERGY
+                        Engineering           --     3       Spr        --                          Graduates                   Durlofsky, L     and gravity forces, coning. Displacements in layered                  None
+                                                                                   (20)       ring              221
+                                                                                                                                                 reservoirs. Transient radial flow equation, primary drainage
+                                                                                                                                                 of a cylindrical reservoir, line source solution, pseudo-
+                                                                                                                                                 steady state. May be repeated for credit.
+                                                                                                              ENERGY                             Fundamentals of petroleum reservoir simulation. Equations
+                                                                                                               221 and                           for multicomponent, multiphase flow between gridblocks
+                                                                                                                246, or                          comprising a petroleum reservoir. Relationships between
+                                                                                                               consent                           black-oil and compositional models. Techniques for
+                                                                                                                                Durlofsky, L;    developing black-oil, compositional, thermal, and dual-                      Code black oil
+  ENERGY 223         Reservoir Simulation                                                   Enginee                of
+                                              --   3 or 4    Win        --                          Graduates                   Tchelepi, H;     porosity models. Practical considerations in the use of                          model
+                                                                                              ring            instructor.
+                                                                                                                                Gerritsen, M     simulators for predicting reservoir performance. Class                         simulator
+                                                                                                               Recomm
+                                                                                                                ended:                           project.
+                                                                                                              CME 206
+
+                                                                                                                                         Topics include modeling of complex wells, coupling of
+                                                                                                              ENERGY
+                                                                                                                                         surface facilities, compositional modeling, dual porosity                               May be
+                     Advanced Reservoir                                                                         223 or   Durlofsky, L;
+  ENERGY 224                                                                                Enginee                                      models, treatment of full tensor permeability and grid                               repeated for
+                         Simulation           --     3       Aut        --                          Graduates consent Tchelepi, H; Aziz,
+                                                                                              ring                                       nonorthogonality, local grid refinement, higher order                                   credit.
+                                                                                                                  of          K
+                                                                                                                                         methods, streamline simulation, upscaling, algebraic
+                                                                                                              instructor
+                                                                                                                                         multigrid solvers, unstructured grid solvers, history
+                                                                                                                                         matching, problems.
+                                                                                                                                         Lectures,  other selected  topics.
+                                                                                                                                                               Theory  of multicomponent, multiphase
+                                                                                                                                                 flow in porous media. Miscible displacement: diffusion and
+                                                                                                                                                                                                                                May be
+  ENERGY 225        Theory of Gas Injection                                       Lecture   Enginee                                              dispersion, convection-dispersion equations and its
+                                              --     3       Win        --                          Graduates CME 200              Orr, F                                                                              None   repeated for
+                         Processes                                                 (10)       ring                                               solutions. Method of characteristic calculations of
+                                                                                                                                                                                                                                 credit.
+                                                                                                                                                 chromatographic transport of multicomponent mixtures.
+                                                                                                                                                 Development of miscibility and interaction of phase behavior
+                                                                                                                                                 with heterogeneity.
+
+
+Last updated: March 17, 2009                                                                                                                                                                                                          Send additions and corrections to leighj@stanford.edu

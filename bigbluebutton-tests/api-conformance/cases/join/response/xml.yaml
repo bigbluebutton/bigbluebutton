@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# With redirect=false a successful join answers with XML instead of sending the
+# browser to the client. The ID formats are pinned here, as well as recorded:
+# the internal user ID is w_ and 12 lowercase letters or digits, and the
+# internal meeting ID is the SHA-1 of the meetingID, a dash and the create time.
+id: join.response.xml
+title: join with redirect=false answers with XML
+endpoint: join
+class: contract
+tags: [ci]
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Join response}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: join
+    params: {meetingID: "${uid}", fullName: Ann, role: viewer, redirect: "false"}
+    expect:
+      returncode: SUCCESS
+      messageKey: successfullyJoined
+      xpath:
+        /response/meeting_id: {regex: "^[0-9a-f]{40}-[0-9]+$"}
+        /response/user_id: {regex: "^w_[a-z0-9]{12}$"}
+        /response/auth_token: {exists: true}
+        /response/session_token: {exists: true}
+        /response/guestStatus: ALLOW
+        /response/url: {regex: "/html5client/\\?sessionToken="}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

@@ -1,0 +1,24 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A createTime that isn't the meeting's is refused, which keeps a join URL from
+# working for a later meeting with the same meetingID.
+id: join.create-time.mismatch
+title: join with another createTime is refused
+endpoint: join
+class: contract
+tags: [ci]
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Join createTime}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: join
+    params: {meetingID: "${uid}", fullName: Ann, role: viewer, createTime: "1"}
+    expect: {status: 302, redirect: {query: {errors: {contains: '"key":"mismatchCreateTimeParam"'}}}}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

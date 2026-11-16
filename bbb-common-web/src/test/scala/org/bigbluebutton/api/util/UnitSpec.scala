@@ -1,7 +1,8 @@
 package org.bigbluebutton.api.util
 
-import org.scalatest.FlatSpec
 import org.scalatest.BeforeAndAfterAll
-import org.scalatest.Matchers
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-abstract class UnitSpec extends FlatSpec with Matchers with BeforeAndAfterAll
+// scalatest >= 3.2 package layout; the aliases this used to import were removed there.
+abstract class UnitSpec extends AnyFlatSpec with Matchers with BeforeAndAfterAll

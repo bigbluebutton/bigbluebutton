@@ -13,6 +13,7 @@ import {
   shareScreen,
   screenshareHasEnded,
   useIsCameraAsContentBroadcasting,
+  useIsScreenshareAllowedOnDevice,
   useShowButtonForNonPresenters,
 } from '/imports/ui/components/screenshare/service';
 import { SCREENSHARING_ERRORS } from '/imports/api/screenshare/client/bridge/errors';
@@ -21,8 +22,7 @@ import { listItemBgHover } from '/imports/ui/stylesheets/styled-components/palet
 import { EXTERNAL_VIDEO_STOP } from '../../external-video-player/mutations';
 import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 
-const { isMobile } = deviceInfo;
-const { isSafari, isTabletApp } = browserInfo;
+const { isSafari } = browserInfo;
 
 const propTypes = {
   intl: PropTypes.objectOf(Object).isRequired,
@@ -222,9 +222,10 @@ const ScreenshareButton = ({
   }
 
   const showButtonForNonPresenters = useShowButtonForNonPresenters();
+  const isScreenshareAllowedOnDevice = useIsScreenshareAllowedOnDevice();
 
   const shouldAllowScreensharing = enabled
-    && (!isMobile || isTabletApp)
+    && isScreenshareAllowedOnDevice
     && (amIPresenter || showButtonForNonPresenters);
 
   const dataTest = isScreenBroadcasting ? 'stopScreenShare' : 'startScreenShare';

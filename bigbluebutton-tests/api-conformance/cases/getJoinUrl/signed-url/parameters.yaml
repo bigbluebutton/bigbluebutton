@@ -1,0 +1,74 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# getJoinUrl signs a join URL for the caller's own session. The URL carries
+# fullName, meetingID, role and existingUserID from the session, and
+# redirect=true. It also carries the request's userdata params whose names
+# are made of [A-Za-z0-9_.] and that getJoinUrlUserdataBlocklist allows; the
+# blocklist doesn't apply to moderators, except in breakout rooms.
+# enforceLayout and sessionName go in too, and replaceSession=true adds
+# replaceSessionToken; this case sends none of them. Nothing else from the
+# request goes in: not a role, meetingID, fullName, redirect or
+# existingUserID of its own, and not a userdata name with any other
+# character. Those names are percent-encoded below, so that '&' and '='
+# stay part of the name.
+#
+# The regex pins every parameter and its value: bbb-web's own in its order,
+# then the userdata in the order the request sent them. It leaves two
+# things open: the checksum's algorithm (bbb-web always signs with sha1) and
+# a '&' before the first parameter (bbb-web adds one). join accepting the
+# URL shows the checksum is right, since join.checksum.rejected shows join
+# refuses a wrong one.
+id: getJoinUrl.signed-url.parameters
+title: getJoinUrl signs exactly the ${role}'s own parameters
+endpoint: getJoinUrl
+class: contract
+tags: [ci, presence]
+requires: [akka, presence]
+variants:
+  - id: viewer
+    vars:
+      role: viewer
+      signedRole: VIEWER
+      strayRole: MODERATOR
+      userdata: '&userdata-bbb_show_session_details_on_join=false'
+  - id: moderator
+    vars:
+      role: moderator
+      signedRole: MODERATOR
+      strayRole: VIEWER
+      userdata: '&userdata-bbb_show_session_details_on_join=false&userdata-bbb_presenter_tools=pencil'
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Join URL}
+    golden: off
+    expect: {returncode: SUCCESS}
+  # getJoinUrl answers only while the meeting is running, which takes a user
+  # in it.
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: "${role}"}}
+    golden: off
+    capture: {annId: $.userId, annToken: $.sessionToken}
+  # bbb-web learns of the join from akka-apps a moment later.
+  - call: getJoinUrl
+    client: ann
+    raw_query: 'sessionToken=${annToken}&role=${strayRole}&meetingID=other&fullName=Mallory&redirect=false&existingUserID=w_other&userdata-a%26b%3Dc%26d=1&userdata-x%3Dy=1&userdata-bbb_presenter_tools-=1&userdata-bbb_show_session_details_on_join=false&userdata-bbb_presenter_tools=pencil'
+    eventually: {within: 10s, every: 200ms, until: {returncode: SUCCESS}}
+    expect:
+      format: json
+      returncode: SUCCESS
+      jsonpath:
+        $.response.url: {regex: '^\Q${baseUrl}\E/bigbluebutton/api/join\?&?fullName=Ann&meetingID=${uid}&role=${signedRole}&redirect=true&existingUserID=${annId}${userdata}&checksum=([0-9a-f]{40}|[0-9a-f]{64}|[0-9a-f]{96}|[0-9a-f]{128})$'}
+    capture: {joinUrl: $.response.url}
+  - url: "${joinUrl}"
+    client: bob
+    expect:
+      status: 302
+      redirect:
+        path: {regex: /html5client/}
+        query:
+          sessionToken: {exists: true}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

@@ -1,0 +1,7 @@
+id: repo-sampleslide-jpeg
+title: JPEG photo slide uploaded as a presentation
+tier: repo
+file: ../../../../bigbluebutton-web/test/resources/sampleslide.jpeg
+pages: 1
+expect: converted
+kind: vector

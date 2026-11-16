@@ -15,11 +15,10 @@ export const MAX_GRID_SIZE = Number(process.env.GRID_TILE_COUNT_MAX_GRID_SIZE) |
 
 export const TARGET_GRID_SIZE = 4;
 
-// Pagination config these scenarios encode, provisioned per-meeting as a
-// clientSettingsOverride create module (bbb-web only reads the inline
-// override from the POST body); the spec guards skip (naming the remedies)
-// when it doesn't take effect.
-const PAGINATION_SETTINGS_JSON = JSON.stringify({
+// Pagination config these scenarios encode, provisioned per meeting through the
+// clientSettingsOverride create module (createClientSettingsOverride in Page.init,
+// which fails the test with the remedy when the server ignored it).
+export const PAGINATION_CLIENT_SETTINGS_OVERRIDE: ClientSettingsOverrides = {
   public: {
     kurento: {
       pagination: {
@@ -36,31 +35,21 @@ const PAGINATION_SETTINGS_JSON = JSON.stringify({
       },
     },
   },
-});
-
-export const PAGINATION_CLIENT_SETTINGS_MODULE = [
-  '<modules><module name="clientSettingsOverride"><![CDATA[',
-  PAGINATION_SETTINGS_JSON,
-  ']]></module></modules>',
-].join('');
+};
 
 // The geometry scenario is grid-size-agnostic, so it provisions the smallest
 // grid that exercises the mechanism: 3 participants instead of 5.
 export const GEOMETRY_GRID_SIZE = 2;
 
-export const GEOMETRY_CLIENT_SETTINGS_MODULE = [
-  '<modules><module name="clientSettingsOverride"><![CDATA[',
-  JSON.stringify({
-    public: {
-      kurento: {
-        pagination: {
-          desktopGridSizes: { moderator: GEOMETRY_GRID_SIZE, viewer: GEOMETRY_GRID_SIZE },
-        },
+export const GEOMETRY_CLIENT_SETTINGS_OVERRIDE: ClientSettingsOverrides = {
+  public: {
+    kurento: {
+      pagination: {
+        desktopGridSizes: { moderator: GEOMETRY_GRID_SIZE, viewer: GEOMETRY_GRID_SIZE },
       },
     },
-  }),
-  ']]></module></modules>',
-].join('');
+  },
+};
 
 export const BOT_LABEL_SETTINGS: ClientSettingsOverrides = {
   public: { user: { label: { bot: true } } },

@@ -5,6 +5,7 @@ import Styled from './styles';
 import MediaAreaContainer from './media-area/container';
 import { PluginButtonIcon } from '/imports/ui/components/plugins/plugin-icon/styles';
 import AudioCaptionsButtonContainer from '/imports/ui/components/audio/audio-graphql/audio-captions/button/component';
+import LocatedErrorBoundary from '/imports/ui/components/common/error-boundary/located-error-boundary/component';
 import ScreenshareButtonContainer from '/imports/ui/components/actions-bar/screenshare/container';
 import AudioControlsContainer from '../audio/audio-graphql/audio-controls/component';
 import JoinVideoOptionsContainer from '../video-provider/video-button/container';
@@ -25,6 +26,9 @@ const intlMessages = defineMessages({
     description: 'Aria-label for ActionsBar Section',
   },
 });
+
+// Hide the captions button rather than leaving error text in the toolbar
+const AudioCaptionsFallback = () => null;
 
 class ActionsBar extends PureComponent {
   constructor(props) {
@@ -172,6 +176,7 @@ class ActionsBar extends PureComponent {
 
     return shouldRenderActionBar && (
       <Styled.ActionsBarWrapper
+        className="bbb-actions-bar"
         id="ActionsBar"
         role="region"
         aria-label={intl.formatMessage(intlMessages.actionsBarLabel)}
@@ -198,12 +203,14 @@ class ActionsBar extends PureComponent {
             }
           }
         >
-          <Styled.Left>
+          <Styled.Left className="bbb-actions-bar__left">
             {this.renderPluginsActionBarItems(ActionsBarPosition.LEFT)}
-            <AudioCaptionsButtonContainer />
+            <LocatedErrorBoundary Fallback={AudioCaptionsFallback}>
+              <AudioCaptionsButtonContainer />
+            </LocatedErrorBoundary>
 
           </Styled.Left>
-          <Styled.Center>
+          <Styled.Center className="bbb-actions-bar__center">
             <AudioControlsContainer />
             {shouldShowVideoButton && enableVideo
               ? (
@@ -221,8 +228,8 @@ class ActionsBar extends PureComponent {
             {isRaiseHandEnabled && <RaiseHandButtonContainer />}
             {this.renderPluginsActionBarItems(ActionsBarPosition.RIGHT)}
           </Styled.Center>
-          <Styled.Right>
-            <Styled.PresentationButtonsWrapper>
+          <Styled.Right className="bbb-actions-bar__right">
+            <Styled.PresentationButtonsWrapper className="bbb-actions-bar__media-buttons">
               {shouldShowPresentationButton && shouldShowOptionsButton
                 && (
                   <PresentationOptionsContainer

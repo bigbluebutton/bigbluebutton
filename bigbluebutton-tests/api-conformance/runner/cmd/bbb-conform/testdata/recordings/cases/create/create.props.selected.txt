@@ -1,0 +1,10 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.props.selected
+target fake
+
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.voiceProp, $.core.body.props.noSuchProp
+$.core.body.props.voiceProp.dialNumber "613-555-1234"
+$.core.body.props.voiceProp.muteOnStart true
+$.core.body.props.voiceProp.telVoice "<random>"
+$.core.body.props.voiceProp.voiceConf "<random>"
+$.core.body.props.noSuchProp (absent)

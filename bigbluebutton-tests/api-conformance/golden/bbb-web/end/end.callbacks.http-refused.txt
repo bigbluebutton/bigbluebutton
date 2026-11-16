@@ -1,0 +1,6 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case end.callbacks.http-refused
+target bbb-web
+
+== step 5: sink ${uid}
+$ null

@@ -21,7 +21,7 @@ test.describe.parallel('Options', { tag: '@ci' }, () => {
     await options.openHelp();
   });
 
-  test('Locales', async () => {
+  test('Locales', { tag: '@nightly' }, async () => {
     await options.localesTest();
   });
 
@@ -50,8 +50,7 @@ test.describe.parallel('Options', { tag: '@ci' }, () => {
     await options.darkModeKeptAfterReload();
   });
 
-  // the layout observer resets the page font size to public.app.desktopFontSize on every load, ignoring the saved one
-  test('Font size kept after reload', { tag: '@known-issue' }, async () => {
+  test('Font size kept after reload', async () => {
     linkIssue(26129);
     await options.fontSizeKeptAfterReload();
   });

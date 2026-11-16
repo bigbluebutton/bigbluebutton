@@ -17,7 +17,7 @@ import sha from 'sha.js';
 import * as xml2js from 'xml2js';
 
 import { MultiUsers } from '../user/multiusers';
-import { Page } from './page';
+import { type ClientSettingsOverrides, Page } from './page';
 import { parameters } from './parameters';
 
 dotenv.config();
@@ -187,9 +187,15 @@ export function createMeetingUrl(createParameter?: string, customMeetingId?: str
   const meetingID = customMeetingId || `random-${getRandomInt(1000000, 10000000).toString()}`;
   const mp = parameters.moderatorPW;
   const ap = parameters.attendeePW;
-  const baseQuery =
-    `name=${meetingID}&meetingID=${meetingID}&attendeePW=${ap}&moderatorPW=${mp}` +
-    `&allowStartStopRecording=true&autoStartRecording=false&welcome=${parameters.welcome}`;
+  // bbb-web answers a repeated parameter with HTTP 500 (#26359), so the test's own allowStartStopRecording,
+  // autoStartRecording or welcome replaces the default; name, meetingID and the passwords cannot be overridden
+  const overridden = new URLSearchParams(createParameter);
+  const defaults = ['allowStartStopRecording=true', 'autoStartRecording=false', `welcome=${parameters.welcome}`].filter(
+    (pair) => !overridden.has(pair.split('=')[0]),
+  );
+  const baseQuery = [`name=${meetingID}&meetingID=${meetingID}&attendeePW=${ap}&moderatorPW=${mp}`, ...defaults].join(
+    '&',
+  );
   const query = createParameter !== undefined ? `${baseQuery}&${createParameter}` : baseQuery;
   const apiCall = `create${query}${parameters.secret}`;
   const checksum = getChecksum(apiCall, parameters.secret!);
@@ -212,6 +218,13 @@ export function createMeetingPromise(
     });
   }
   return axios.get(url, { adapter: 'http' });
+}
+
+// Wraps a client-settings override as the `clientSettingsOverride` create module (POST
+// body). bbb-web drops the module unless allowOverrideClientSettingsOnCreateCall=true, so
+// Page.init checks the delivered settings after join (expectServerClientSettingsOverride).
+export function buildClientSettingsOverrideModule(overrides: ClientSettingsOverrides): string {
+  return `<modules><module name="clientSettingsOverride"><![CDATA[${JSON.stringify(overrides)}]]></module></modules>`;
 }
 
 export async function createMeeting(

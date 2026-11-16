@@ -36,8 +36,6 @@ is not:
 * It is also *not* tied to Scalelite. You can choose any other BigBlueButton
   loadbalancer of your choice.
 
-**Note:** The cluster proxy setup requires BigBlueButton 2.4.0 or later!
-
 ## Basic principle
 
 The following image visualizes the conceptual dependencies. Note that it is not
@@ -165,22 +163,16 @@ BigBlueButton server and the proxy._
 
 ---
 
-Add a route for the locales handler for the guest lobby. The guest lobby is served directly from the BBB node.
-
-```
-# /etc/bigbluebutton/nginx/bbb-cluster.nginx
-location =/html5client/locale {
-  return 301 /bbb-01$request_uri;
-}
-```
-
----
-
-Create the file `/etc/systemd/system/bbb-web.service.d/override.conf` and add the following Environment setting:
+Add the following line to `/etc/bigbluebutton/bbb-web.env` (the `bbb-web` service reads this file as its environment; create it if it does not exist). If the file already sets `JDK_JAVA_OPTIONS`, add these options to that line instead, since only the last assignment takes effect:
 
 ```shell
-[Service]
-Environment="JDK_JAVA_OPTIONS=-Dgrails.cors.enabled=true -Dgrails.cors.allowCredentials=true -Dgrails.cors.allowedOrigins=https://bbb-proxy.example.com,https://bbb-01.example.com"
+JDK_JAVA_OPTIONS=-Dgrails.cors.enabled=true -Dgrails.cors.allowCredentials=true -Dgrails.cors.allowedOrigins=https://bbb-proxy.example.com,https://bbb-01.example.com
+```
+
+If your proxy server uses a different root domain than your BBB server, the session cookie must also be sent cross-site. Append these two options to the same `JDK_JAVA_OPTIONS` line:
+
+```shell
+-Dserver.servlet.session.cookie.secure=true -Dserver.servlet.session.cookie.same-site=none
 ```
 
 ---
@@ -208,22 +200,9 @@ _**Note:** This one includes the protocol._
 
 ---
 
-If your proxy server uses a different root domain than your BBB server, you’ll need an additional configuration.
-Add the following settings to `/usr/share/bbb-web/WEB-INF/classes/application.properties`:
+Restart BigBlueButton:
 
 ```shell
-server.servlet.session.cookie.secure=true
-server.servlet.session.cookie.SameSite=none
-```
-
-_**Note:** This change will be reverted with subsequent bbb-web updates. If you rely on the override, look to include it in a post-installation routine._
-
----
-
-Reload systemd and restart BigBlueButton:
-
-```shell
-# systemctl daemon-reload
 # bbb-conf --restart
 ```
 

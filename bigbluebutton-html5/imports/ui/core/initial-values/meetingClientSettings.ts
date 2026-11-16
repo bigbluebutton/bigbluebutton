@@ -51,11 +51,8 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       },
       allowDefaultLogoutUrl: true,
       skipMeetingEnded: false,
-      dynamicGuestPolicy: true,
       enableGuestLobbyMessage: true,
       showGuestLobbyWaitingQueuePosition: true,
-      guestPolicyExtraAllowOptions: false,
-      alwaysShowWaitingRoomUI: true,
       enableLimitOfViewersInWebcam: false,
       enableMultipleCameras: true,
       enableCameraAsContent: true,
@@ -73,6 +70,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         enabled: false,
         mobile: false,
         provider: 'webspeech',
+        speechProcessing: 'cloud',
         showInSidebarNavigation: false,
         microphoneAlert: {
           enabled: true,
@@ -130,7 +128,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       },
       emojiRain: {
         enabled: false,
-        intervalEmojis: 2000,
         numberOfEmojis: 5,
         emojiSize: 2,
       },
@@ -138,10 +135,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       enableCopyNetworkStatsButton: true,
       userSettingsStorage: 'session',
       defaultSettings: {
-        layout: {
-          selectedLayout: 'unified',
-          pushLayout: false,
-        },
         application: {
           animations: true,
           chatAudioAlerts: false,
@@ -158,6 +151,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           paginationEnabled: true,
           whiteboardToolbarAutoHide: false,
           recordingIndicatorAutoCollapse: false,
+          selfViewDisable: false,
           pushToTalkEnabled: false,
           autoCloseReactionsBar: true,
           darkTheme: false,
@@ -522,6 +516,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
     },
     captions: {
       background: '#000000',
+      maxTextLength: 8192,
       font: {
         color: '#ffffff',
         family: 'Calibri',
@@ -653,6 +648,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         audioWasmProcessing: {
           enabled: false,
           provider: 'bbba',
+          intensity: 95,
           constraints: {
             echoCancellation: true,
             autoGainControl: true,
@@ -690,6 +686,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       muteAudioOutputWhenAway: false,
       screenshare: {
         showButtonForNonPresenters: false,
+        enableOnMobile: false,
       },
       livekit: {
         url: `wss://${window.location.hostname}/livekit`,
@@ -697,6 +694,14 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           enabled: true,
           audioSubscriptionPoolSize: 0,
           muteDebounceMs: 2500,
+          lastN: {
+            enabled: false,
+            audibleSize: 3,
+            standbySize: 12,
+            speechHoldMs: 1500,
+            minAudibleMs: 2000,
+            standbyGraceMs: 5000,
+          },
         },
         logLevel: LogLevel.warn,
         reconnectOnFatalFailures: true,
@@ -756,7 +761,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         'danger',
         'critical',
       ],
-      help: 'STATS_HELP_URL',
     },
     presentation: {
       allowDownloadOriginal: true,

@@ -6,6 +6,7 @@ import { v4 as uuid } from 'uuid';
 import { uniqueId } from '/imports/utils/string-utils';
 import { notify } from '/imports/ui/services/notification';
 import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
+import getSizeWithUnit from '/imports/utils/getSizeWithUnit';
 import { getPresentationUploadToken } from './queries';
 import { requestPresentationUploadTokenMutation } from './mutation';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
@@ -52,7 +53,7 @@ const requestPresentationUploadToken = (
   });
 
   const timeout = setTimeout(() => {
-    reject(new Error({ code: 408, message: 'requestPresentationUploadToken timeout' }));
+    reject(Object.assign(new Error('requestPresentationUploadToken timeout'), { code: 408 }));
   }, TOKEN_TIMEOUT);
 
   const getData = (n = 0) => {
@@ -68,7 +69,14 @@ const requestPresentationUploadToken = (
       if (result.data.pres_presentation_uploadToken.length > 0) {
         clearTimeout(recursiveTimeout);
         clearTimeout(timeout);
-        resolve(result.data.pres_presentation_uploadToken[0].uploadToken);
+        const { uploadToken } = result.data.pres_presentation_uploadToken[0];
+        if (!uploadToken) {
+          // The request was refused and the reason was recorded on the presentation, which
+          // the uploader toast shows. There is nothing to upload to.
+          reject(Object.assign(new Error('requestPresentationUploadToken rejected'), { reported: true }));
+          return;
+        }
+        resolve(uploadToken);
       }
     });
     recursiveTimeout = setTimeout(() => {
@@ -119,7 +127,9 @@ const uploadAndConvertPresentation = (
           error,
         },
       }, 'Generic presentation upload exception catcher');
-      onUpload({ error: true, done: true, status: error.code });
+      onUpload({
+        error: true, done: true, status: error?.code, reported: !!error?.reported,
+      });
       return Promise.resolve();
     });
 };
@@ -243,15 +253,17 @@ function handleFiledrop(files, files2, that, intl, intlMessages) {
   if (that) {
     const {
       fileValidMimeTypes,
+      fileSizeMax,
     } = that.props;
     const { toUploadCount } = that.state;
     const validMimes = fileValidMimeTypes.map((fileValid) => fileValid.mime);
     const validExtentions = fileValidMimeTypes.map((fileValid) => fileValid.extension);
-    const [accepted, rejected] = partition(
+    const [validFiles, rejected] = partition(
       files.concat(files2), (f) => (
         validMimes.includes(f.type) || validExtentions.includes(`.${f.name.split('.').pop()}`)
       ),
     );
+    const [tooLarge, accepted] = partition(validFiles, (f) => f.size > fileSizeMax);
 
     const presentationsToUpload = accepted.map((file) => {
       const id = uniqueId(uuid());
@@ -286,6 +298,12 @@ function handleFiledrop(files, files2, that, intl, intlMessages) {
         },
         onUpload: (upload) => {
           that.deepMergeUpdateFileKey(id, 'upload', upload);
+          // No upload token arrived and no reason was recorded for the uploader toast to show,
+          // so nothing else would tell the presenter the upload failed. The upload rate limit
+          // stops recording reasons past a number of refusals per window, hence "wait a moment".
+          if (upload.error && !upload.reported && upload.status === 408) {
+            notify(intl.formatMessage(intlMessages[408]), 'error');
+          }
         },
         onDone: (newId) => {
           that.updateFileKey(id, 'id', newId);
@@ -315,6 +333,12 @@ function handleFiledrop(files, files2, that, intl, intlMessages) {
 
     if (rejected.length > 0) {
       notify(intl.formatMessage(intlMessages.rejectedError), 'error');
+    }
+
+    if (tooLarge.length > 0) {
+      const maxFileSize = getSizeWithUnit(fileSizeMax);
+      const names = tooLarge.map((file) => file.name).join(', ');
+      notify(`${names}: ${intl.formatMessage(intlMessages[413], { maxFileSize })}`, 'error');
     }
   }
 }

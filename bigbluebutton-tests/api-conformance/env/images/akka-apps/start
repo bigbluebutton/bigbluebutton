@@ -1,0 +1,7 @@
+#!/bin/sh
+# Starts akka-apps as bbb-apps-akka.service does, as bigbluebutton.
+set -eu
+# setpriv keeps root's environment.
+export HOME=/home/bigbluebutton USER=bigbluebutton
+cd /usr/share/bbb-apps-akka
+exec setpriv --reuid=bigbluebutton --regid=bigbluebutton --init-groups bin/bbb-apps-akka

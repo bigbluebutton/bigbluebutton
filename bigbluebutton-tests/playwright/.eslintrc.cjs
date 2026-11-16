@@ -89,6 +89,7 @@ module.exports = {
             tabWidth: 2, // Number of spaces per tab
             ignoreUrls: true, // Ignore long URLs
             ignoreStrings: true, // Ignore long strings
+            ignoreTemplateLiterals: true, // Ignore long template literals (Prettier cannot wrap them either)
           },
         ],
       },
