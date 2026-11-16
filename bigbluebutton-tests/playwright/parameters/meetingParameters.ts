@@ -20,7 +20,7 @@ const cameraTile = (userName: string) => `${e.webcamStreamItem}[data-user-name="
 const userListItemOf = (userName: string) => `${e.userListItem}[aria-label="${userName}"]`;
 // the external upload block of the upload dialog carries no data-test, so it is found by its heading
 const externalUploadBlock = () =>
-  `div[id="upload-modal"] > div:has-text("${getDefaultLocaleValue('app.presentationUploder.externalUploadTitle')}")`;
+  `div[id="upload-modal"] > div > div:has-text("${getDefaultLocaleValue('app.presentationUploder.externalUploadTitle')}")`;
 
 // the signalling socket of bbb-webrtc-sfu, which a LiveKit meeting only opens for media routed there
 const isSfuSocket = (url: string) => url.includes('/bbb-webrtc-sfu');

@@ -72,6 +72,14 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.browseFilesLabel',
     description: 'message use on the file browser',
   },
+  dropzoneImagesLabel: {
+    id: 'app.presentationUploder.dropzoneImagesLabel',
+    description: 'message warning where drop images for upload',
+  },
+  browseImagesLabel: {
+    id: 'app.presentationUploder.browseImagesLabel',
+    description: 'message use on the image browser',
+  },
   rejectedError: {
     id: 'app.presentationUploder.rejectedError',
     description: 'some files rejected, please check the file mime types',
@@ -721,10 +729,10 @@ class PresentationUploader extends Component {
       >
         <Styled.UploadIcon />
         <Styled.DropzoneMessage>
-          {intl.formatMessage(intlMessages.dropzoneLabel)}
+          {intl.formatMessage(intlMessages.dropzoneImagesLabel)}
           &nbsp;
           <Styled.DropzoneLink>
-            {intl.formatMessage(intlMessages.browseFilesLabel)}
+            {intl.formatMessage(intlMessages.browseImagesLabel)}
           </Styled.DropzoneLink>
         </Styled.DropzoneMessage>
       </Styled.UploaderDropzone>
@@ -744,12 +752,14 @@ class PresentationUploader extends Component {
     } = this.state;
 
     return (
-      <div id="upload-modal">
-        {isMobile ? this.renderPicDropzone() : null}
-        {this.renderDropzone()}
-        {fileUploadConstraintsHint ? this.renderExtraHint() : null}
-        {this.renderExternalUpload()}
-        {this.renderPresentationList()}
+      <Styled.UploadModal id="upload-modal">
+        <Styled.UploadScrollArea>
+          {isMobile ? this.renderPicDropzone() : null}
+          {this.renderDropzone()}
+          {fileUploadConstraintsHint ? this.renderExtraHint() : null}
+          {this.renderExternalUpload()}
+          {this.renderPresentationList()}
+        </Styled.UploadScrollArea>
         <ModalStyled.FooterContainer>
           <BBButton
             variant="primary"
@@ -760,7 +770,7 @@ class PresentationUploader extends Component {
             fullWidth
           />
         </ModalStyled.FooterContainer>
-      </div>
+      </Styled.UploadModal>
     );
   }
 }
