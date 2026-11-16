@@ -4,6 +4,7 @@ import grails.web.context.ServletContextHolder
 import groovy.json.JsonBuilder
 import org.bigbluebutton.api.MeetingService
 import org.bigbluebutton.api.ParamsProcessorUtil
+import org.bigbluebutton.api.domain.RecordingProcessingInfo
 import org.bigbluebutton.api.util.ResponseBuilder
 import org.bigbluebutton.api.ApiErrors
 import org.bigbluebutton.api.ApiParams
@@ -122,6 +123,47 @@ class RecordingController {
     withFormat {
       xml {
         render(text: getRecordingsResult, contentType: "text/xml")
+      }
+    }
+  }
+
+  /******************************************************
+   * GET_RECORDING_PROCESSING_INFO API
+   ******************************************************/
+  def getRecordingProcessingInfoHandler = {
+    String API_CALL = "getRecordingProcessingInfo"
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+    //sanitizeInput
+    params.each {
+      key, value -> params[key] = sanitizeInput(value)
+    }
+
+    if (StringUtils.isEmpty(params.checksum)) {
+      invalid("checksumError", "You did not pass the checksum security check")
+      return
+    }
+
+    if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+      invalid("checksumError", "You did not pass the checksum security check")
+      return
+    }
+
+    // A caller drains a server by waiting for processing to be false, so
+    // state that can't be read must never answer that.
+    RecordingProcessingInfo info
+    try {
+      info = meetingService.getRecordingProcessingInfo()
+    } catch (Exception e) {
+      log.error("Could not read the recording processing state", e)
+      invalid("recordingStatusUnavailable", "The recording processing state could not be read")
+      return
+    }
+
+    response.addHeader("Cache-Control", "no-cache")
+    withFormat {
+      xml {
+        render(text: responseBuilder.buildGetRecordingProcessingInfo(info, RESP_CODE_SUCCESS), contentType: "text/xml")
       }
     }
   }
