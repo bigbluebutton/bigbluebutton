@@ -629,6 +629,21 @@ Requires the LiveKit audio bridge (the default). A viewer must be in a breakout 
 4. Click the microphone button repeatedly
     - You should change between unmuted and muted states and the button should indicate it
 
+### Moderator unmutes a participant [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-develop/bigbluebutton-tests/playwright/audio/audio.spec.ts)
+
+1. Create a meeting with `allowModsToUnmuteUsers=true`. Join as a moderator and, in another browser, as a viewer.
+
+2. As the viewer, join audio with the microphone muted.
+
+3. As the moderator, open the viewer's menu in the user list and click "Unmute user".
+
+    - With `requireUserConsentBeforeUnmuting=false` (the default), the viewer is unmuted without a prompt. On LiveKit they also see "A moderator unmuted your microphone". The moderator hears the viewer and sees them unmuted.
+    - With `requireUserConsentBeforeUnmuting=true`, the viewer is asked first. "Stay Muted" keeps them muted; "Unmute" unmutes them.
+
+4. As the moderator, mute the viewer, then unmute them again right away and once more after a few seconds.
+
+    - Each unmute behaves as in step 3. The viewer's microphone button, the user list and the audio always agree.
+
 ### Leave audio [(Partially automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-develop/bigbluebutton-tests/playwright/audio/audio.spec.ts)
 
 1. Join meeting with audio.
