@@ -223,6 +223,7 @@ const App: React.FC<AppProps> = ({
           height: '100%',
         }}
       >
+        <ConnectionStatusContainer />
         <ScreenReaderAlertContainer />
         <PresentationContainer
           darkTheme={darkTheme}
