@@ -28,6 +28,11 @@ trait LockUserInMeetingCmdMsgHdlr extends RightsManagementTrait {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to lock user in meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
+    } else if (liveMeeting.props.meetingProp.disabledFeatures.contains("lockSettings")) {
+      log.warning(
+        "Ignoring lock user request because the lockSettings feature is disabled for meeting {}",
+        liveMeeting.props.meetingProp.intId
+      )
     } else {
       for {
         uvo <- Users2x.setUserLocked(liveMeeting.users2x, msg.body.userId, msg.body.lock)

@@ -119,6 +119,16 @@ When `allowModsToUnmuteUsers` is enabled, BigBlueButton 4.0 can optionally ask t
 
 A new **Multi-Functional Mode** adds an auxiliary sidebar content panel, allowing a second panel to be open alongside the primary one (for example, chat and the user list at the same time). It is disabled by default and enabled with `public.multiFunctionalMode.enabled` in `settings.yml`, and it can be disabled per meeting with the `multiFunctionalMode` value of `disabledFeatures`.
 
+#### Disable lock settings per meeting
+
+Added in BigBlueButton 4.0.3. Lock settings can be turned off for a meeting with the new `lockSettings` value of `disabledFeatures`. No viewer restriction then applies in the meeting or in its breakout rooms:
+
+- The `lockSettings*` create parameters, `webcamsOnlyForModerator` and their defaults in `bbb-web.properties` are ignored. Viewers join unlocked, `webcamsOnlyForModerator` is off and `lockSettingsPresenterPolicy` stays at `requireApproval`.
+- The "Permissions and Policies" dialog keeps only its "Guest Policy" tab. The "Participant Permissions" and "Presentation Policy" tabs are removed, and so is the "Propagate the current lock settings" option for breakout rooms.
+- The server ignores requests to change the lock settings, to lock or unlock a user and to switch `webcamsOnlyForModerator`.
+
+Moderators can still lock the public chat for a single user from the user list.
+
 #### Larger emoji-only chat messages (jumbomoji)
 
 A chat message that contains only emoji (up to three emoji, whitespace ignored) is now rendered at a larger font size — matching the "jumbomoji" behavior familiar from popular messengers. Messages with any accompanying text keep the normal size.
@@ -415,6 +425,7 @@ The deprecated REST endpoint `/api/rest/clientSettings` has been removed. Client
 - `html5PluginSdkVersion` bumped from `0.1.17` to `1.0.0-beta.3`. Plugins whose `requiredSdkVersion` only covers the `0.x` SDK no longer load; see [Plugin SDK 1.0 pre-release](#plugin-sdk-10-pre-release).
 - `disabledFeatures` accepts a new value: `pinChatMessage` (alongside the existing chat-related options).
 - `disabledFeatures` no longer lists `captions` as an option. It has had no effect since BBB 3.0, when typed captions moved to a plugin. A server that still sets it in `bbb-web.properties` keeps working: the value is accepted and ignored. Use `liveTranscription` to disable automatic transcription.
+- `disabledFeatures` accepts a new value: `lockSettings`, added in BBB 4.0.3 (no viewer restriction applies; see [Disable lock settings per meeting](#disable-lock-settings-per-meeting)).
 - `cameraBridge`, `screenShareBridge`, and `audioBridge` default changed from `bbb-webrtc-sfu` to `livekit` (see [LiveKit is the default media framework](#livekit-is-the-default-media-framework)).
 - `getJoinUrlUserdataBlocklist` no longer lists `bbb_fullaudio_bridge`, in BBB 4.0.2. The client has not read that parameter since BBB 3.0 (the audio bridge comes from the `audioBridge` `/create` parameter), so nothing changes in practice.
 
