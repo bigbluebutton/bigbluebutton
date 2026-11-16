@@ -119,6 +119,16 @@ When `allowModsToUnmuteUsers` is enabled, BigBlueButton 4.0 can optionally ask t
 
 A new **Multi-Functional Mode** adds an auxiliary sidebar content panel, allowing a second panel to be open alongside the primary one (for example, chat and the user list at the same time). It is disabled by default and enabled with `public.multiFunctionalMode.enabled` in `settings.yml`, and it can be disabled per meeting with the `multiFunctionalMode` value of `disabledFeatures`.
 
+#### Disable lock settings per meeting
+
+Added in BigBlueButton 4.0.3. Lock settings can be turned off for a meeting with the new `lockSettings` value of `disabledFeatures`. No viewer restriction then applies in the meeting or in its breakout rooms:
+
+- The `lockSettings*` create parameters, `webcamsOnlyForModerator` and their defaults in `bbb-web.properties` are ignored. Viewers join unlocked, `webcamsOnlyForModerator` is off and `lockSettingsPresenterPolicy` stays at `requireApproval`.
+- The "Permissions and Policies" dialog keeps only its "Guest Policy" tab. The "Participant Permissions" and "Presentation Policy" tabs are removed, and so is the "Propagate the current lock settings" option for breakout rooms.
+- The server ignores requests to change the lock settings, to lock or unlock a user and to switch `webcamsOnlyForModerator`.
+
+Moderators can still lock the public chat for a single user from the user list.
+
 #### Larger emoji-only chat messages (jumbomoji)
 
 A chat message that contains only emoji (up to three emoji, whitespace ignored) is now rendered at a larger font size — matching the "jumbomoji" behavior familiar from popular messengers. Messages with any accompanying text keep the normal size.
@@ -415,6 +425,7 @@ The deprecated REST endpoint `/api/rest/clientSettings` has been removed. Client
 - `html5PluginSdkVersion` bumped from `0.1.17` to `1.0.0-beta.3`. Plugins whose `requiredSdkVersion` only covers the `0.x` SDK no longer load; see [Plugin SDK 1.0 pre-release](#plugin-sdk-10-pre-release).
 - `disabledFeatures` accepts a new value: `pinChatMessage` (alongside the existing chat-related options).
 - `disabledFeatures` no longer lists `captions` as an option. It has had no effect since BBB 3.0, when typed captions moved to a plugin. A server that still sets it in `bbb-web.properties` keeps working: the value is accepted and ignored. Use `liveTranscription` to disable automatic transcription.
+- `disabledFeatures` accepts a new value: `lockSettings`, added in BBB 4.0.3 (no viewer restriction applies; see [Disable lock settings per meeting](#disable-lock-settings-per-meeting)).
 - `cameraBridge`, `screenShareBridge`, and `audioBridge` default changed from `bbb-webrtc-sfu` to `livekit` (see [LiveKit is the default media framework](#livekit-is-the-default-media-framework)).
 - `getJoinUrlUserdataBlocklist` no longer lists `bbb_fullaudio_bridge`, in BBB 4.0.2. The client has not read that parameter since BBB 3.0 (the audio bridge comes from the `audioBridge` `/create` parameter), so nothing changes in practice.
 
@@ -446,6 +457,7 @@ These changes apply to the client configuration file (`/etc/bigbluebutton/bbb-ht
 - `public.app.audioFilterStorage` (default `session`) - where the user's audio-processing pick in Settings > Audio is kept: `session` scopes it to the browser session and the current meeting, `local` makes it follow `public.app.userSettingsStorage` like the other settings. Added in BBB 4.0.1.
 - `public.chat.announceUserAwayStatusInChat` (default `true`) - whether bbb-apps-akka posts a system message in the public chat when a user sets or clears the away status. Set it to `false` to keep these changes out of the chat; the away status itself is unchanged. Added in BBB 4.0.1.
 - `public.media.livekit.selectiveSubscription.lastN` (default `enabled: false`) - plays only the most relevant microphones on the LiveKit audio bridge: `audibleSize` (default `3`) microphones are heard at once, `standbySize` (default `12`) stay subscribed but paused, `speechHoldMs` (default `1500`) is the silence after which an audible speaker can be replaced, `minAudibleMs` (default `2000`) the minimum time a microphone stays audible and `standbyGraceMs` (default `5000`) the delay before a standby track is unsubscribed. When enabled it replaces `audioSubscriptionPoolSize`. See [Last-N audio for the LiveKit bridge](#last-n-audio-for-the-livekit-bridge-experimental). Added in BBB 4.0.1.
+- `public.kurento.userProfileEagerCameraPrompt` (default `true`) - whether the Profile panel opens the camera, prompting for camera access, as soon as it's opened. When `false` and the browser hasn't granted camera access yet, the panel shows an "Enable webcam" button instead. The camera is opened, and access requested, only after the user clicks it.
 - `public.multiFunctionalMode.enabled` (default `false`) - enables the auxiliary/dual sidebar content panel.
 - `public.userList.searchBar.enabled` (default `true`) - enables the user list search field.
 - `public.app.appsGallery.maxPinnedApps` (default `3`) - maximum number of apps a user can pin in the Apps Gallery.
@@ -494,6 +506,7 @@ These changes apply to the client configuration file (`/etc/bigbluebutton/bbb-ht
 - The SIP.js / legacy-audio client settings, removed together with the SIP.js audio bridge now that LiveKit is the default audio path. Under `public.media`: `callTransferTimeout`, `callHangupTimeout`, `callHangupMaximumRetries`, `iceGatheringTimeout`, `audioConnectionTimeout`, `audioReconnectionDelay`, `audioReconnectionAttempts`, `sipjsHackViaWs`, `sipjsAllowMdns`, `sip_ws_host`, `websocketKeepAliveInterval`, `websocketKeepAliveDebounce`, `traceSip`, `sdpSemantics`; plus `public.app.ipv4FallbackDomain`. Any of these still set in `bbb-html5.yml` are now silently ignored.
 - `public.pads.url` (the Etherpad URL), removed together with Etherpad. Earlier 4.0 pre-releases wrote it into `bbb-html5.yml`; the upgrade removes the `public.pads` entry from that file (see [Removed Etherpad](#removed-etherpad)).
 - `public.app.dynamicGuestPolicy`, `public.app.guestPolicyExtraAllowOptions`, `public.app.alwaysShowWaitingRoomUI`, `public.app.emojiRain.intervalEmojis` and `public.stats.help`, removed in BBB 4.0.2. None of them had any effect: the first three lost their last reader with the [redesigned guest management panel](#redesigned-guest-management-panel), and the other two had been unused for years. A leftover value in `/etc/bigbluebutton/bbb-html5.yml` is reported as an unknown key: a warning by default, and a refused `bbb-apps-akka` start with `clientSettingsOverrideStrictValidation=true`. See [Validating client settings overrides](/administration/customize#validating-client-settings-overrides).
+- `public.presentation.panZoomThrottle`, removed in BBB 4.0.3. Nothing ever read it: zoom and pan changes are sent by the whiteboard and the presentation toolbar, neither of which used it. A leftover value in `/etc/bigbluebutton/bbb-html5.yml` is reported as an unknown key: a warning by default, and a refused `bbb-apps-akka` start with `clientSettingsOverrideStrictValidation=true`. See [Validating client settings overrides](/administration/customize#validating-client-settings-overrides).
 
 
 ## Development

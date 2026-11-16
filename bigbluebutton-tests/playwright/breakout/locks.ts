@@ -4,6 +4,7 @@ import { ELEMENT_WAIT_LONGER_TIME, VIDEO_LOADING_WAIT_TIME } from '../core/const
 import { elements as e } from '../core/elements';
 import { getOwnUserId, readRows } from '../core/graphql';
 import { Page } from '../core/page';
+import { openUserListIfClosed } from '../user/util';
 import { Join } from './join';
 
 // The meeting's lock settings as the client reads them (bbb-graphql-server v_meeting_lockSettings)
@@ -106,6 +107,32 @@ export class BreakoutLocks extends Join {
         `should ${inherit ? 'deny' : 'allow'} "${label}" in the room's lock viewers modal`,
       ).toBeChecked({ checked: !inherit, timeout: ELEMENT_WAIT_LONGER_TIME });
     }
+  }
+
+  // A room is created with its parent's disabledFeatures, so the rooms of a meeting with lockSettings
+  // disabled have no lock settings either. akka-apps still asks for lockOnJoin in a room that does not
+  // inherit (CreateBreakoutRoomsCmdMsgHdlr.scala), and bbb-web drops it like any other lock parameter.
+  async roomsOfMeetingWithoutLockSettings() {
+    await this.createRoomsWith([this.userPage]);
+    await this.userPage.waitAndClick(e.modalDismissButton);
+    const roomModPage = await this.joinFirstRoomAsModerator();
+
+    const roomLocks = await readLockSettings(roomModPage);
+    expect(roomLocks, 'the room should have lock settings to read').toBeDefined();
+    expect(
+      Object.entries(roomLocks ?? {})
+        .filter(([, locked]) => locked)
+        .map(([setting]) => setting),
+      'the room should have no lock setting on',
+    ).toEqual([]);
+
+    await openUserListIfClosed(roomModPage);
+    await roomModPage.waitAndClick(e.lockViewersButton, ELEMENT_WAIT_LONGER_TIME);
+    await roomModPage.hasElement(e.guestPolicyTab, 'should offer the guest policy tab in the room');
+    await roomModPage.wasRemoved(
+      e.participantPermissionsTab,
+      'should not offer the participant permissions tab in the room',
+    );
   }
 
   // The parent denies public chat and shared notes; the attendee in the room is bound by them only when

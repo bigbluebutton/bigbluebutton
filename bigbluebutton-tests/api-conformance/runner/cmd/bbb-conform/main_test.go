@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 )
@@ -139,5 +140,99 @@ func TestLoopbackOnly(t *testing.T) {
 		if got := loopbackOnly(addr); got != want {
 			t.Errorf("%s: %v", addr, got)
 		}
+	}
+}
+
+func TestLoadRulesMasksDir(t *testing.T) {
+	dir := t.TempDir()
+	write := func(name, body string) string {
+		t.Helper()
+		p := filepath.Join(dir, name)
+		if err := os.MkdirAll(filepath.Dir(p), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(p, []byte(body), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		return p
+	}
+	cases := filepath.Join(dir, "cases")
+	suite := write("masks.yaml", "masks: [{field: meetingName, as: token}]\n")
+	write("masks.d/b.yaml", "drop: [{path: /response/extra, value: \"false\"}]\n")
+	write("masks.d/a.yaml", "masks: [{field: meetingName, as: time}]\n")
+	write("masks.d/notes.txt", "not rules\n")
+
+	// maskOf returns the kind of the first mask for field, the one that
+	// applies, and whether the masks.d drop rule is loaded.
+	maskOf := func(field string, masksFile string) (as string, dropped bool) {
+		t.Helper()
+		r, err := loadRules(masksFile, cases)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, m := range r.Masks {
+			if m.Field == field && as == "" {
+				as = m.As
+			}
+		}
+		for _, d := range r.Drop {
+			if d.Path == "/response/extra" {
+				dropped = true
+			}
+		}
+		return as, dropped
+	}
+
+	// masks.d's files come first, in name order, then masks.yaml.
+	if as, dropped := maskOf("meetingName", ""); as != "time" || !dropped {
+		t.Errorf("default rules: meetingName as %q, extra dropped %v; want time, true", as, dropped)
+	}
+	// --masks replaces masks.yaml and masks.d alike.
+	if as, dropped := maskOf("meetingName", suite); as != "token" || dropped {
+		t.Errorf("--masks rules: meetingName as %q, extra dropped %v; want token, false", as, dropped)
+	}
+	// A bad file in masks.d fails like a bad masks.yaml.
+	write("masks.d/c.yaml", "drop: [{value: x}]\n")
+	if _, err := loadRules("", cases); err == nil || !strings.Contains(err.Error(), "c.yaml") {
+		t.Errorf("bad masks.d file: error = %v, want it to name c.yaml", err)
+	}
+}
+
+func TestLoadRulesMasksDirPathAndErrors(t *testing.T) {
+	// A directory name with glob metacharacters is taken literally.
+	dir := filepath.Join(t.TempDir(), "suite[1")
+	if err := os.MkdirAll(filepath.Join(dir, "masks.d"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "masks.d", "a.yaml"), []byte("drop: [{path: /response/extra}]\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	r, err := loadRules("", filepath.Join(dir, "cases"))
+	if err != nil {
+		t.Fatalf("cases under %q: %v", dir, err)
+	}
+	found := false
+	for _, d := range r.Drop {
+		if d.Path == "/response/extra" {
+			found = true
+		}
+	}
+	if !found {
+		t.Errorf("cases under %q: masks.d's rules not loaded", dir)
+	}
+
+	// An unreadable masks.d fails instead of loading no rules.
+	if runtime.GOOS == "windows" {
+		t.Skip("chmod does not block directory reads on Windows")
+	}
+	if os.Geteuid() == 0 {
+		t.Skip("root reads any directory")
+	}
+	if err := os.Chmod(filepath.Join(dir, "masks.d"), 0o000); err != nil {
+		t.Fatal(err)
+	}
+	defer os.Chmod(filepath.Join(dir, "masks.d"), 0o755)
+	if _, err := loadRules("", filepath.Join(dir, "cases")); err == nil {
+		t.Error("an unreadable masks.d should fail")
 	}
 }

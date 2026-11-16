@@ -37,6 +37,11 @@ test.describe.parallel('API', () => {
     await API.testJoinLongFullNameAccepted();
   });
 
+  test('concurrentJoinsRetainUserMetadata', { tag: '@ci' }, async () => {
+    linkIssue(26028);
+    await API.testConcurrentJoinsRetainUserMetadata();
+  });
+
   test('joinFullNameOverLimitRejected', { tag: '@ci' }, async () => {
     linkIssue(25682);
     await API.testJoinFullNameOverLimitRejected();
@@ -408,9 +413,19 @@ test.describe.parallel('API', () => {
       await disabledFeatures.testPrivateChatNotCreated(page, testInfo, request);
     });
 
+    test('disabledLockSettingsStayOff', async ({ browser, context, page, request }, testInfo) => {
+      const disabledFeatures = new APIDisabledFeatures(browser, context);
+      await disabledFeatures.testLockSettingsStayOff(page, testInfo, request);
+    });
+
     test('enabledFeaturesControl', async ({ browser, context, page, request }, testInfo) => {
       const disabledFeatures = new APIDisabledFeatures(browser, context);
       await disabledFeatures.testRequestsTakeEffectWhenEnabled(page, testInfo, request);
+    });
+
+    test('enabledLockSettingsControl', async ({ browser, context, page, request }, testInfo) => {
+      const disabledFeatures = new APIDisabledFeatures(browser, context);
+      await disabledFeatures.testLockRequestsTakeEffectWhenEnabled(page, testInfo, request);
     });
   });
 });
