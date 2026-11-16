@@ -2,7 +2,6 @@ import React, {
   useMemo,
   useRef,
   useState,
-  useCallback,
   memo,
 } from 'react';
 import PropTypes from 'prop-types';
@@ -30,7 +29,7 @@ import {
 } from '/imports/ui/components/whiteboard/queries';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import { PRESENTATION_SET_ZOOM, USER_SET_WHITEBOARD_WRITE_ACCESS } from './mutations';
+import { USER_SET_WHITEBOARD_WRITE_ACCESS } from './mutations';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
@@ -133,7 +132,6 @@ const PresentationContainer = ({
     },
   });
 
-  const [presentationSetZoom] = useMutation(PRESENTATION_SET_ZOOM);
   const [fitToWidth, setPresentationFitToWidth] = usePresentationFitToWidth();
   const [userSetWhiteboardWriteAccess] = useMutation(USER_SET_WHITEBOARD_WRITE_ACCESS);
 
@@ -167,22 +165,6 @@ const PresentationContainer = ({
       },
     });
   };
-
-  const zoomSlide = useCallback((widthRatio, heightRatio, xOffset, yOffset) => {
-    const { presentationId, pageId, num } = currentPresentationPage;
-
-    presentationSetZoom({
-      variables: {
-        presentationId,
-        pageId,
-        pageNum: num,
-        xOffset,
-        yOffset,
-        widthRatio,
-        heightRatio,
-      },
-    });
-  }, [currentPresentationPage, presentationSetZoom]);
 
   const meeting = useMeeting((m) => ({
     lockSettings: m?.lockSettings,
@@ -319,7 +301,6 @@ const PresentationContainer = ({
           currentPresentationId: currentPresentationPage?.presentationId,
           totalPages: currentPresentationPage?.totalPages || 0,
           notify,
-          zoomSlide,
           restoreOnUpdate: shouldRestoreOnUpdate,
           setMultiUserWhiteboardEnabled,
           setMultiUserWhiteboardDisabled,
