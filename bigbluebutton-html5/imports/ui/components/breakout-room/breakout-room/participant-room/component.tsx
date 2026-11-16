@@ -279,6 +279,7 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
             {intl.formatMessage(intlMessages.youAreInRoom, { roomName: userRoomName })}
           </Styled.InfoText>
           <Styled.CardButton
+            labelOverflow="wrap"
             variant="primary"
             dataTest={isCurrentlyInRoom ? 'alreadyConnected' : 'joinRoom'}
             label={isCurrentlyInRoom
@@ -345,6 +346,7 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
                     </Styled.FreeJoinRoomCount>
                   </Styled.FreeJoinRoomCardHeader>
                   <Styled.CardButton
+                    labelOverflow="wrap"
                     variant={isCurrent ? 'primary' : 'secondary'}
                     label={(() => {
                       if (breakout.isUserCurrentlyInRoom) return intl.formatMessage(intlMessages.alreadyConnected);
@@ -366,12 +368,14 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
       {isInBreakout && (
         <Styled.BottomBar>
           <Styled.BottomBarButton
+            labelOverflow="ellipsis"
             variant="primary"
             label={intl.formatMessage(intlMessages.callModerator)}
             onClick={handleCallModerator}
             dataTest="callModeratorButton"
           />
           <Styled.BottomBarButton
+            labelOverflow="ellipsis"
             variant="secondary"
             label={intl.formatMessage(intlMessages.returnToMainSession)}
             onClick={handleReturnToMainSession}

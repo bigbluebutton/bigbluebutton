@@ -36,40 +36,19 @@ const Separator = styled(BaseSeparator)``;
 
 const PanelContent = styled(BasePanelContent)``;
 
-// A bottom bar's button. The pair drops to one per line before the buttons get narrow
-// enough to truncate; a label that still doesn't fit ellipsizes. Only for rows: in a
-// column the 10rem basis becomes a height. BBButton can't truncate a label yet
-// (bigbluebutton/bbb-ui-components-react#106), so this reaches its label span.
+// A bottom bar's button, used with labelOverflow="ellipsis". The pair drops to one per
+// line before the buttons get narrow enough to truncate. Only for rows: in a column the
+// 10rem basis becomes a height.
 const BottomBarButton = styled(BBButton)`
   flex: 1 1 10rem;
-  min-width: 0;
-  max-width: 100%;
-
-  & > span {
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    min-width: 0;
-  }
 `;
 
-// A room card's button. A card can be as narrow as 7.5rem, so its label wraps instead of
-// being cut, hyphenating a word that doesn't fit where the browser can. The button fills
-// its card's spare height, so the buttons of one row of cards match. BBButton keeps a
-// label on one line (bigbluebutton/bbb-ui-components-react#105), so this reaches its
-// label span.
+// A room card's button, used with labelOverflow="wrap". A card can be as narrow as
+// 7.5rem, so a word that doesn't fit is hyphenated where the browser can. The button
+// fills its card's spare height, so the buttons of one row of cards match.
 const CardButton = styled(BBButton)`
   flex-grow: 1;
-  min-width: 0;
-  max-width: 100%;
-
-  & > span {
-    min-width: 0;
-    white-space: normal;
-    overflow-wrap: anywhere;
-    hyphens: auto;
-  }
+  hyphens: auto;
 `;
 
 const BreakoutActions = styled.div`

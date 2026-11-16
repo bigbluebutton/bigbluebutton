@@ -41,14 +41,10 @@ const RequestModalContent = styled.div`
   }
 `;
 
-// On a phone the pair stacks at full width (the component drops the icons there).
-// BBButton never wraps its label; bigbluebutton/bbb-ui-components-react#105.
+// On a phone the pair stacks at full width, and the component drops the icons and
+// lets the labels wrap there.
 const RequestButton = styled(BBButton)`
   min-width: ${confirmationButtonMinWidth};
-
-  @media ${smallOnly} {
-    white-space: normal;
-  }
 `;
 
 export default {

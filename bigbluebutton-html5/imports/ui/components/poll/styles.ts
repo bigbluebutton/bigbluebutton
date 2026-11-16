@@ -272,10 +272,8 @@ const PollCheckbox = styled.div`
   margin-bottom: ${$2xlPadding};
 `;
 
-// BBButton never wraps its label; bigbluebutton/bbb-ui-components-react#105.
 const AddItemButton = styled(BBButton)`
   align-self: center;
-  white-space: pre-wrap;
   ${pollButtonText}
 `;
 
