@@ -65,7 +65,6 @@ const ShortcutsTabList = styled(TabList)`
   margin-top: 1rem;
   padding: 0;
   width: calc(100% / 3);
-  height: 100%;
   overflow-y: auto;
 
   @media ${smallOnly} {
