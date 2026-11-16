@@ -131,8 +131,8 @@ const ExternalUploadButton = styled(Button)`
   margin-left: 2rem;
 `;
 
-// The uploader is a column that fits the media sharing modal: the upload areas
-// and the share button keep their height, and the list takes what is left.
+// The uploader is a column that fits the media sharing modal: the share button
+// keeps its height and the rest scrolls above it.
 const UploadModal = styled.div`
   display: flex;
   flex-direction: column;
@@ -140,21 +140,29 @@ const UploadModal = styled.div`
   min-height: 0;
 `;
 
-// A grid that wraps and scrolls vertically, so every presentation can be
-// reached on a narrow screen and the share button stays in view.
+// Everything between the sub-header and the share button scrolls as one area,
+// so the share button stays in view and the upload areas scroll away on short
+// screens instead of squeezing the list.
+const UploadScrollArea = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+`;
+
+// A two-column grid that wraps, so every presentation can be reached on a
+// narrow screen. The panel is at most 26.25rem wide, so two columns is what
+// fits at every size, including small phones and larger font sizes.
 const PresentationsContainer = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   align-content: start;
   padding-top: 1.5rem;
   padding-right: 1.5rem;
   padding-bottom: 0.5rem;
   padding-left: 1.5rem;
   gap: 1rem;
-  flex: 1 1 auto;
-  min-height: 9rem;
-  overflow-x: hidden;
-  overflow-y: auto;
 `;
 
 const PresentationItemContainer = styled.div`
@@ -222,6 +230,7 @@ const PresentationItemName = styled.div`
 
 export default {
   UploadModal,
+  UploadScrollArea,
   PresentationsContainer,
   PresentationItemContainer,
   PresentationThumbnail,

@@ -12,6 +12,9 @@ import ExpandCircleDownIcon from '@mui/icons-material/ExpandCircleDown';
 
 const MODAL_WIDTH = '26.25rem';
 const MODAL_VIEWPORT_MARGIN = '1rem';
+// On desktop the panel stays a compact popover: about the height the slides
+// view had with a single row of presentations. The other views are shorter.
+const MODAL_DESKTOP_MAX_HEIGHT = '37rem';
 
 // This overlay covers the entire viewport and is used to catch outside clicks.
 const Overlay = styled.div`
@@ -45,7 +48,7 @@ const ModalContainer = styled.div<{
   max-height: calc(100dvh - ${({ actionsBarHeight }) => actionsBarHeight}px - ${MODAL_VIEWPORT_MARGIN});
 
   ${({
-    isMobile, isRTL,
+    isMobile, isRTL, actionsBarHeight,
   }) => (isMobile ? `
     width: min(${MODAL_WIDTH}, 92%);
     ${isRTL ? `
@@ -57,6 +60,8 @@ const ModalContainer = styled.div<{
     `}
   ` : `
     width: ${MODAL_WIDTH};
+    max-height: min(calc(100vh - ${actionsBarHeight}px - ${MODAL_VIEWPORT_MARGIN}), ${MODAL_DESKTOP_MAX_HEIGHT});
+    max-height: min(calc(100dvh - ${actionsBarHeight}px - ${MODAL_VIEWPORT_MARGIN}), ${MODAL_DESKTOP_MAX_HEIGHT});
     ${isRTL ? `
       left: 24px;
       right: auto;

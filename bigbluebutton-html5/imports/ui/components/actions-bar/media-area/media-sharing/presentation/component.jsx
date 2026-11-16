@@ -753,11 +753,13 @@ class PresentationUploader extends Component {
 
     return (
       <Styled.UploadModal id="upload-modal">
-        {isMobile ? this.renderPicDropzone() : null}
-        {this.renderDropzone()}
-        {fileUploadConstraintsHint ? this.renderExtraHint() : null}
-        {this.renderExternalUpload()}
-        {this.renderPresentationList()}
+        <Styled.UploadScrollArea>
+          {isMobile ? this.renderPicDropzone() : null}
+          {this.renderDropzone()}
+          {fileUploadConstraintsHint ? this.renderExtraHint() : null}
+          {this.renderExternalUpload()}
+          {this.renderPresentationList()}
+        </Styled.UploadScrollArea>
         <ModalStyled.FooterContainer>
           <BBButton
             variant="primary"
