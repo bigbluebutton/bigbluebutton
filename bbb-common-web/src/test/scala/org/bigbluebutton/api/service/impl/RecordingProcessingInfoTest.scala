@@ -162,6 +162,14 @@ class RecordingProcessingInfoTest extends AnyFlatSpec with Matchers with BeforeA
     i.queuedCount shouldBe 2
   }
 
+  it should "still count a worker's job it can't read as running" in {
+    jobs(running = Seq("not json", """{"run_at":"2026-11-16T12:00:00Z"}"""))
+
+    val i = processingInfo
+    i.processing shouldBe true
+    i.runningCount shouldBe 2
+  }
+
   it should "fail rather than answer when Resque can't be read" in {
     service.setRedisStorageService(new RedisStorageService {
       override def readResqueJobs(queuePrefix: String): ResqueJobs = throw new RuntimeException("connection refused")

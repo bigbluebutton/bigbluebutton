@@ -198,7 +198,10 @@ public class RecordingServiceFileImpl implements RecordingService {
         }
         for (String work : jobs.running()) {
             JsonNode running = readJson(work);
-            if (running.path("queue").asText().startsWith(RAP_QUEUE_PREFIX)) {
+            // Only a job known to be on another queue is left out: one that
+            // can't be read may be a recording's step.
+            JsonNode queue = running.path("queue");
+            if (!queue.isTextual() || queue.asText().startsWith(RAP_QUEUE_PREFIX)) {
                 counter.running(jobName(running.path("payload").path("args").path(0), work));
             }
         }
