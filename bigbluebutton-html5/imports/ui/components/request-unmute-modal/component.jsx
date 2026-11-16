@@ -79,6 +79,7 @@ const RequestUnmuteComponent = ({
           label={intl.formatMessage(intlMessages.confirmButtonLabel)}
           dataTest="confirmUnmute"
           iconStart={isSmallViewport ? undefined : <Icon iconName="unmute" />}
+          labelOverflow={isSmallViewport ? 'wrap' : undefined}
           onClick={handleConfirm}
           variant="primary"
           color="default"
@@ -87,6 +88,7 @@ const RequestUnmuteComponent = ({
           label={denyLabel}
           dataTest="denyUnmute"
           iconStart={isSmallViewport ? undefined : <Icon iconName="mute" />}
+          labelOverflow={isSmallViewport ? 'wrap' : undefined}
           onClick={handleDeny}
           variant="secondary"
           color="danger"

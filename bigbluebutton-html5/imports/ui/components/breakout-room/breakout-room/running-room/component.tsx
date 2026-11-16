@@ -605,6 +605,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
       )}
       <Styled.BottomBar>
         <Styled.BottomBarButton
+          labelOverflow="ellipsis"
           variant="secondary"
           label={intl.formatMessage(intlMessages.megaphoneLabel)}
           tooltipLabel={intl.formatMessage(intlMessages.megaphoneTooltip)}
@@ -612,6 +613,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
           dataTest="megaphoneButton"
         />
         <Styled.BottomBarButton
+          labelOverflow="ellipsis"
           variant="primary"
           color="danger"
           label={intl.formatMessage(intlMessages.finishLabel)}

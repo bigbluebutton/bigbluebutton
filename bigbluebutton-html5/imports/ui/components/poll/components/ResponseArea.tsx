@@ -110,6 +110,7 @@ const ResponseArea: React.FC<ResponseAreaProps> = ({
             ariaDescribedBy="add-item-button"
             variant="subtle"
             color="default"
+            labelOverflow="wrap"
             iconStart={<MdAddCircle />}
             disabled={optList.length >= MAX_CUSTOM_FIELDS}
             onClick={() => handleAddOption()}
