@@ -1643,7 +1643,7 @@ http&#58;//yourserver.com/bigbluebutton/api/getRecordingProcessingInfo?checksum=
 | `queuedCount` | Recordings with work waiting: a recorded meeting that has ended but hasn't been picked up for archiving yet, a job waiting in a queue for its next step, a caption track upload that hasn't been processed yet, or the events of an ended meeting created with `meetingKeepEvents=true` that are still to be kept. |
 | `runningCount` | Recordings with a step running now (archive, sanity, events, captions, process or publish). This includes the post-archive, post-process and post-publish scripts, which run inside those steps. |
 | `failedCount` | Recordings stopped at a failed step that haven't been rebuilt or deleted since. They never finish on their own, and taking the server out of service loses their raw data. |
-| `oldestQueuedTime` | When the oldest queued work was queued, in milliseconds since the epoch like `createTime`. Left out when `queuedCount` is 0. It tells a busy server from a stuck one, for example one where `bbb-rap-resque-worker` is stopped. A job queued by a BigBlueButton older than 4.0.3 doesn't record when it was queued; the recording's start time stands in for it, which is earlier. |
+| `oldestQueuedTime` | When the oldest queued work was queued, in milliseconds since the epoch like `createTime`. Left out when `queuedCount` is 0. It helps tell a busy server from a stuck one, for example one where `bbb-rap-resque-worker` is stopped: work that has waited much longer than processing normally takes is a reason to look at the server. A job queued by a BigBlueButton older than 4.0.3 doesn't record when it was queued; the recording's start time stands in for it, which is earlier. |
 
 The counts are of recordings (record IDs), not jobs: a recording whose presentation and video formats are both queued counts once, and a recording with one step running and another one queued counts as running. A failed recording that has work queued or running again, after a rebuild for example, counts as queued or running.
 
@@ -1652,7 +1652,7 @@ If the server can't read the state of its recordings, for example because Redis 
 To take a server out of service:
 
 1. Stop sending new meetings to it, for example by disabling it in Scalelite.
-2. Wait until `getMeetings` returns no meetings. bbb-web hands an ended recorded meeting to the recording pipeline before it drops the meeting from `getMeetings`, so this call sees the recording as soon as the meeting is gone.
+2. Wait until `getMeetings` returns no meetings. bbb-web hands an ended recorded meeting to the recording pipeline before it drops the meeting from `getMeetings`, so this call sees the recording as soon as the meeting is gone, unless bbb-web couldn't write the marker that hands it over (see below).
 3. Wait until `processing` is `false`, and confirm it with a second call a few seconds later: one call can miss a job that a worker is taking from its queue. If `oldestQueuedTime` is older than processing normally takes, the pipeline may be stuck: look at the server rather than wait. Work queued behind a long recording, with a single worker, can also make it old.
 4. If `failedCount` is above 0, decide for each failed recording whether to rebuild it (`bbb-record --rebuild`) or accept losing it.
 
