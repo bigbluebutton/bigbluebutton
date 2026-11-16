@@ -1,7 +1,4 @@
 import styled from 'styled-components';
-import {
-  smPaddingX,
-} from '/imports/ui/stylesheets/styled-components/general';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import {
   colorGrayDark,
@@ -19,14 +16,6 @@ import {
   Tab, Tabs, TabList, TabPanel,
 } from 'react-tabs';
 import Icon from '/imports/ui/components/common/icon/component';
-
-const ToggleLabel = styled.span`
-  margin-right: ${smPaddingX};
-
-  [dir="rtl"] & {
-    margin: 0 0 0 ${smPaddingX};
-  }
-`;
 
 const SettingsTabs = styled(Tabs)`
   display: flex;
@@ -169,7 +158,6 @@ const SettingsTabPanel = styled(TabPanel)`
 `;
 
 export default {
-  ToggleLabel,
   SettingsTabs,
   SettingsTabList,
   SettingsTabSelector,

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
+import SubMenusStyle from '../styles';
 import Styled from './styles';
 
 const intlMessages = defineMessages({
@@ -75,10 +76,10 @@ class About extends Component {
     } = settings;
 
     return (
-      <div tabIndex="-1">
-        <Styled.Form>
-          <Styled.Content>
-            <Styled.Title>{intl.formatMessage(intlMessages.title)}</Styled.Title>
+      <SubMenusStyle.Section tabIndex="-1">
+        <SubMenusStyle.Section>
+          <SubMenusStyle.Title>{intl.formatMessage(intlMessages.title)}</SubMenusStyle.Title>
+          <SubMenusStyle.Group>
             <Styled.Text>
               {`${intl.formatMessage(intlMessages.copyright)} ${copyright}`}
             </Styled.Text>
@@ -90,10 +91,12 @@ class About extends Component {
                 {`${intl.formatMessage(intlMessages.version_label)} ${bbbServerVersion}`}
               </Styled.Text>
             )}
-          </Styled.Content>
+          </SubMenusStyle.Group>
+        </SubMenusStyle.Section>
 
-          <Styled.Content>
-            <Styled.Title as="h3">{intl.formatMessage(intlMessages.helpTitle)}</Styled.Title>
+        <SubMenusStyle.Section>
+          <SubMenusStyle.Title>{intl.formatMessage(intlMessages.helpTitle)}</SubMenusStyle.Title>
+          <SubMenusStyle.Group>
             <Styled.Text>
               {intl.formatMessage(intlMessages.beforeLink)}
               {' '}
@@ -106,10 +109,9 @@ class About extends Component {
                 {intl.formatMessage(intlMessages.link)}
               </Styled.Link>
             </Styled.Text>
-          </Styled.Content>
-
-        </Styled.Form>
-      </div>
+          </SubMenusStyle.Group>
+        </SubMenusStyle.Section>
+      </SubMenusStyle.Section>
     );
   }
 }

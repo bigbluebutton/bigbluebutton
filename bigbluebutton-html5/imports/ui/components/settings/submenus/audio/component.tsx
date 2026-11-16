@@ -1,6 +1,7 @@
 import React from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
+import SubMenusStyle from '../styles';
 import Styled from './styles';
 import {
   AudioFilterMode, AudioFilterOption, AudioMenuProps, AudioMenuState,
@@ -237,17 +238,17 @@ class AudioMenu extends BaseMenu {
     } = this.props;
 
     return (
-      <Styled.AudioMenuContainer>
-        <Styled.AudioTitle id={AUDIO_SECTION_TITLE_ID}>
-          {intl.formatMessage(intlMessages.audioTabTitle)}
-        </Styled.AudioTitle>
-        <Styled.AudioSubtitle>
-          {intl.formatMessage(intlMessages.audioTabSubtitle)}
-        </Styled.AudioSubtitle>
-        <Styled.Form>
-          {this.renderAudioFilters()}
-        </Styled.Form>
-      </Styled.AudioMenuContainer>
+      <SubMenusStyle.Section>
+        <SubMenusStyle.Group>
+          <Styled.AudioTitle id={AUDIO_SECTION_TITLE_ID}>
+            {intl.formatMessage(intlMessages.audioTabTitle)}
+          </Styled.AudioTitle>
+          <Styled.AudioSubtitle>
+            {intl.formatMessage(intlMessages.audioTabSubtitle)}
+          </Styled.AudioSubtitle>
+        </SubMenusStyle.Group>
+        {this.renderAudioFilters()}
+      </SubMenusStyle.Section>
     );
   }
 }

@@ -1,4 +1,5 @@
 import React from 'react';
+import { BBBToggle } from '@bigbluebutton/bbb-ui-components-react/Toggle';
 import Button from '/imports/ui/components/common/button/component';
 import SubMenusStyle from '../styles';
 import LocalesDropdown from '/imports/ui/components/common/locales-dropdown/component';
@@ -8,7 +9,6 @@ import Styled from './styles';
 import WakeLockService from '/imports/ui/components/wake-lock/service';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
-import Tooltip from '/imports/ui/components/common/tooltip/container';
 
 const MIN_FONTSIZE = 0;
 
@@ -199,126 +199,39 @@ class ApplicationMenu extends BaseMenu {
     this.handleUpdateSettings('application', obj.settings);
   }
 
-  renderPaginationToggle() {
-    const { paginationToggleEnabled } = this.props;
-
-    if (!paginationToggleEnabled) return false;
-
-    const { intl, displaySettingsStatus, paginationToggleLocked } = this.props;
-    const { settings } = this.state;
-    const label = intl.formatMessage(intlMessages.paginationEnabledLabel);
-    const lockedReasonId = 'paginationToggleLockedReason';
-    const {
-      paginationEnabled: defaultPaginationEnabled,
-    } = window.meetingClientSettings.public.app.defaultSettings.application;
-    const checked = paginationToggleLocked
-      ? !!defaultPaginationEnabled
-      : settings.paginationEnabled;
-
-    // aria-disabled rather than disabled keeps the locked switch focusable, so keyboard
-    // users can reach it and hear why it is locked; Mui-disabled keeps the disabled look.
-    const toggle = (
-      <Styled.TooltipTarget>
-        <SubMenusStyle.MaterialSwitch
-          icons="false"
-          checked={checked}
-          classes={paginationToggleLocked ? { switchBase: 'Mui-disabled' } : undefined}
-          onChange={() => {
-            if (!paginationToggleLocked) this.handleToggle('paginationEnabled');
-          }}
-          inputProps={{
-            'aria-label': `${label} - ${displaySettingsStatus(checked, true)}`,
-            'data-test': 'paginationToggleBtn',
-            'aria-disabled': paginationToggleLocked || undefined,
-            'aria-describedby': paginationToggleLocked ? lockedReasonId : undefined,
-          }}
-        />
-        <Styled.Label style={{ marginLeft: '0.5rem' }}>
-          {label}
-        </Styled.Label>
-      </Styled.TooltipTarget>
-    );
-
-    if (!paginationToggleLocked) {
-      return (
-        <Styled.Row>
-          <Styled.Col>
-            <Styled.FormElementRight>
-              {toggle}
-            </Styled.FormElementRight>
-          </Styled.Col>
-        </Styled.Row>
-      );
-    }
-
-    const lockedReason = intl.formatMessage(intlMessages.paginationModeratorOnlyTooltip);
-
-    // The locked switch ignores pointer events, so the tooltip hangs off the wrapper, and
-    // focus does not bubble, so it listens for focusin from the switch inside.
-    return (
-      <Styled.Row>
-        <Styled.Col>
-          <Styled.FormElementRight>
-            <Tooltip title={lockedReason} trigger="mouseenter focusin">
-              {toggle}
-            </Tooltip>
-            <span id={lockedReasonId} hidden>{lockedReason}</span>
-          </Styled.FormElementRight>
-        </Styled.Col>
-      </Styled.Row>
-    );
-  }
-
-  renderDarkThemeToggle() {
-    const { intl, displaySettingsStatus } = this.props;
-    const { settings } = this.state;
-
-    const isDarkThemeEnabled = window.meetingClientSettings.public.app.darkTheme.enabled;
-    if (!isDarkThemeEnabled) return null;
-
-    return (
-      <Styled.Row>
-        <Styled.Col>
-          <Styled.FormElementRight>
-            <SubMenusStyle.MaterialSwitch
-              icons="false"
-              checked={settings.darkTheme}
-              onChange={() => this.handleToggle('darkTheme')}
-              aria-label={`${intl.formatMessage(intlMessages.darkThemeLabel)} - ${displaySettingsStatus(settings.darkTheme, true)}`}
-              inputProps={{ 'data-test': 'darkModeToggleBtn' }}
-            />
-            <Styled.Label style={{ marginLeft: '0.5rem' }}>
-              {intl.formatMessage(intlMessages.darkThemeLabel)}
-            </Styled.Label>
-          </Styled.FormElementRight>
-        </Styled.Col>
-      </Styled.Row>
-    );
-  }
-
-  renderWakeLockToggle() {
-    if (!WakeLockService.isSupported()) return null;
-
+  renderToggle(settingKey, labelMessage, dataTest) {
     const { intl } = this.props;
     const { settings } = this.state;
 
     return (
-      <Styled.Row>
-        <Styled.Col>
-          <Styled.FormElementRight>
-            <SubMenusStyle.MaterialSwitch
-              icons="false"
-              checked={settings.wakeLock}
-              onChange={() => this.handleToggle('wakeLock')}
-              aria-label={intl.formatMessage(intlMessages.wakeLockEnabledLabel)}
-              inputProps={{ 'data-test': 'wakeLockToggleBtn' }}
-            />
-            <Styled.Label style={{ marginLeft: '0.5rem' }}>
-              {intl.formatMessage(intlMessages.wakeLockEnabledLabel)}
-            </Styled.Label>
-          </Styled.FormElementRight>
-        </Styled.Col>
-      </Styled.Row>
+      <BBBToggle
+        checked={!!settings[settingKey]}
+        onChange={() => this.handleToggle(settingKey)}
+        helperText={intl.formatMessage(labelMessage)}
+        slotProps={{ input: { 'data-test': dataTest } }}
+      />
+    );
+  }
+
+  renderPaginationToggle() {
+    const { intl, paginationToggleLocked } = this.props;
+
+    if (!paginationToggleLocked) {
+      return this.renderToggle('paginationEnabled', intlMessages.paginationEnabledLabel, 'paginationToggleBtn');
+    }
+
+    const {
+      paginationEnabled: defaultPaginationEnabled,
+    } = window.meetingClientSettings.public.app.defaultSettings.application;
+
+    return (
+      <BBBToggle
+        checked={!!defaultPaginationEnabled}
+        disabled
+        helperText={intl.formatMessage(intlMessages.paginationEnabledLabel)}
+        tooltipLabel={intl.formatMessage(intlMessages.paginationModeratorOnlyTooltip)}
+        slotProps={{ input: { 'data-test': 'paginationToggleBtn' } }}
+      />
     );
   }
 
@@ -330,31 +243,25 @@ class ApplicationMenu extends BaseMenu {
     const Settings = getSettingsSingletonInstance();
     const animations = Settings?.application?.animations;
 
+    if (!showSelect) {
+      return (
+        <Styled.SpinnerOverlay animations={animations}>
+          <Styled.Bounce1 animations={animations} />
+          <Styled.Bounce2 animations={animations} />
+          <div />
+        </Styled.SpinnerOverlay>
+      );
+    }
+
     return (
-      <Styled.Row>
-        <Styled.Col>
-          <Styled.FormElementRight>
-            {showSelect ? (
-              <Styled.LocalesDropdownSelect>
-                <LocalesDropdown
-                  allLocales={allLocales}
-                  handleChange={(e) => this.handleSelectChange('locale', e)}
-                  value={settings.locale}
-                  dataTest="languageSelector"
-                  ariaLabel={intl.formatMessage(intlMessages.languageLabel)}
-                  selectMessage={intl.formatMessage(intlMessages.languageOptionLabel)}
-                />
-              </Styled.LocalesDropdownSelect>
-            ) : (
-              <Styled.SpinnerOverlay animations={animations}>
-                <Styled.Bounce1 animations={animations} />
-                <Styled.Bounce2 animations={animations} />
-                <div />
-              </Styled.SpinnerOverlay>
-            )}
-          </Styled.FormElementRight>
-        </Styled.Col>
-      </Styled.Row>
+      <LocalesDropdown
+        allLocales={allLocales}
+        handleChange={(e) => this.handleSelectChange('locale', e)}
+        value={settings.locale}
+        dataTest="languageSelector"
+        ariaLabel={intl.formatMessage(intlMessages.languageLabel)}
+        selectMessage={intl.formatMessage(intlMessages.languageOptionLabel)}
+      />
     );
   }
 
@@ -377,204 +284,88 @@ class ApplicationMenu extends BaseMenu {
     });
 
     return (
-      <Styled.Row style={{ alignItems: 'center' }}>
-        <Styled.Col style={{ justifyContent: 'flex-start' }}>
-          <Styled.ExampleText style={{ fontSize: settings.fontSize }}>
-            {intl.formatMessage(intlMessages.exampleTextLabel)}
-          </Styled.ExampleText>
-        </Styled.Col>
-
-        <Styled.Col style={{ justifyContent: 'flex-end' }}>
-          <Styled.PullContentRight>
-            <Styled.Col>
-              <Button
-                onClick={(e) => {
-                  e.currentTarget.blur();
-                  this.handleDecreaseFontSize();
-                }}
-                size="lg"
-                icon="text_decrease"
-                hideLabel
-                label={intl.formatMessage(intlMessages.decreaseFontBtnLabel)}
-                aria-label={`${intl.formatMessage(intlMessages.decreaseFontBtnLabel)}, ${ariaValueLabel}`}
-                disabled={isSmallestFontSize}
-                data-test="decreaseFontSize"
-              />
-            </Styled.Col>
-            <Styled.Col>
-              <Styled.BoldLabel>
-                {`${pixelPercentage[settings.fontSize]}`}
-              </Styled.BoldLabel>
-            </Styled.Col>
-            <Styled.Col>
-              <Button
-                onClick={(e) => {
-                  e.currentTarget.blur();
-                  this.handleIncreaseFontSize();
-                }}
-                size="lg"
-                icon="text_increase"
-                hideLabel
-                label={intl.formatMessage(intlMessages.increaseFontBtnLabel)}
-                aria-label={`${intl.formatMessage(intlMessages.increaseFontBtnLabel)}, ${ariaValueLabel}`}
-                disabled={isLargestFontSize}
-                data-test="increaseFontSize"
-              />
-            </Styled.Col>
-          </Styled.PullContentRight>
-        </Styled.Col>
-      </Styled.Row>
-    );
-  }
-
-  renderPushToTalkToggle() {
-    const { intl, displaySettingsStatus } = this.props;
-    const { settings } = this.state;
-
-    return (
-      <Styled.Row>
-        <Styled.Col>
-          <Styled.FormElementRight>
-            <SubMenusStyle.MaterialSwitch
-              icons="false"
-              checked={settings.pushToTalkEnabled}
-              onChange={() => this.handleToggle('pushToTalkEnabled')}
-              aria-label={`${intl.formatMessage(intlMessages.pushToTalkLabel)} - ${displaySettingsStatus(settings.pushToTalkEnabled, true)}`}
-              inputProps={{ 'data-test': 'pushToTalkToggleBtn' }}
-            />
-            <Styled.Label style={{ marginLeft: '0.5rem' }}>
-              {intl.formatMessage(intlMessages.pushToTalkLabel)}
-            </Styled.Label>
-          </Styled.FormElementRight>
-        </Styled.Col>
-      </Styled.Row>
+      <SubMenusStyle.Row>
+        <Styled.ExampleText style={{ fontSize: settings.fontSize }}>
+          {intl.formatMessage(intlMessages.exampleTextLabel)}
+        </Styled.ExampleText>
+        <Button
+          onClick={(e) => {
+            e.currentTarget.blur();
+            this.handleDecreaseFontSize();
+          }}
+          size="lg"
+          icon="text_decrease"
+          hideLabel
+          label={intl.formatMessage(intlMessages.decreaseFontBtnLabel)}
+          aria-label={`${intl.formatMessage(intlMessages.decreaseFontBtnLabel)}, ${ariaValueLabel}`}
+          disabled={isSmallestFontSize}
+          data-test="decreaseFontSize"
+        />
+        <Styled.BoldLabel>
+          {`${pixelPercentage[settings.fontSize]}`}
+        </Styled.BoldLabel>
+        <Button
+          onClick={(e) => {
+            e.currentTarget.blur();
+            this.handleIncreaseFontSize();
+          }}
+          size="lg"
+          icon="text_increase"
+          hideLabel
+          label={intl.formatMessage(intlMessages.increaseFontBtnLabel)}
+          aria-label={`${intl.formatMessage(intlMessages.increaseFontBtnLabel)}, ${ariaValueLabel}`}
+          disabled={isLargestFontSize}
+          data-test="increaseFontSize"
+        />
+      </SubMenusStyle.Row>
     );
   }
 
   render() {
     const {
       intl,
-      displaySettingsStatus,
       isReactionsEnabled,
+      paginationToggleEnabled,
     } = this.props;
 
-    const { settings } = this.state;
+    const isDarkThemeEnabled = window.meetingClientSettings.public.app.darkTheme.enabled;
 
     return (
-      <div>
-        <Styled.AplicationContainer>
-          <Styled.ApplicationTitle>
+      <SubMenusStyle.Section>
+        <SubMenusStyle.Section>
+          <SubMenusStyle.Title>
             {intl.formatMessage(intlMessages.applicationSectionTitle)}
-          </Styled.ApplicationTitle>
-          <Styled.Form>
-            <Styled.Row>
-              <Styled.Col>
-                <Styled.FormElementRight>
-                  <SubMenusStyle.MaterialSwitch
-                    icons="false"
-                    checked={settings.animations}
-                    onChange={() => this.handleToggle('animations')}
-                    aria-label={`${intl.formatMessage(intlMessages.animationsLabel)} - ${displaySettingsStatus(settings.animations, true)}`}
-                    inputProps={{ 'data-test': 'animationsToggleBtn' }}
-                  />
-                  <Styled.Label style={{ marginLeft: '0.5rem' }}>
-                    {intl.formatMessage(intlMessages.animationsLabel)}
-                  </Styled.Label>
-                </Styled.FormElementRight>
-              </Styled.Col>
-            </Styled.Row>
+          </SubMenusStyle.Title>
+          <Styled.ToggleGroup>
+            {this.renderToggle('animations', intlMessages.animationsLabel, 'animationsToggleBtn')}
+            {this.renderToggle('pushToTalkEnabled', intlMessages.pushToTalkLabel, 'pushToTalkToggleBtn')}
+            {paginationToggleEnabled && this.renderPaginationToggle()}
+            {isDarkThemeEnabled
+              && this.renderToggle('darkTheme', intlMessages.darkThemeLabel, 'darkModeToggleBtn')}
+            {WakeLockService.isSupported()
+              && this.renderToggle('wakeLock', intlMessages.wakeLockEnabledLabel, 'wakeLockToggleBtn')}
+            {this.renderToggle('whiteboardToolbarAutoHide', intlMessages.wbToolbarsAutoHideLabel, 'whiteboardToolbarAutoHideToggleBtn')}
+            {this.renderToggle('recordingIndicatorAutoCollapse', intlMessages.recordingIndicatorAutoCollapseLabel, 'recordingIndicatorAutoCollapseToggleBtn')}
+            {this.renderToggle('selfViewDisable', intlMessages.disableLabel, 'selfViewDisableToggleBtn')}
+            {isReactionsEnabled
+              && this.renderToggle('autoCloseReactionsBar', intlMessages.autoCloseReactionsBarLabel, 'autoCloseReactionsBarToggleBtn')}
+          </Styled.ToggleGroup>
+        </SubMenusStyle.Section>
 
-            {this.renderPushToTalkToggle()}
-            {this.renderPaginationToggle()}
-            {this.renderDarkThemeToggle()}
-            {this.renderWakeLockToggle()}
-
-            <Styled.Row>
-              <Styled.Col>
-                <Styled.FormElementRight>
-                  <SubMenusStyle.MaterialSwitch
-                    icons="false"
-                    checked={settings.whiteboardToolbarAutoHide}
-                    onChange={() => this.handleToggle('whiteboardToolbarAutoHide')}
-                    aria-label={`${intl.formatMessage(intlMessages.wbToolbarsAutoHideLabel)} - ${displaySettingsStatus(settings.whiteboardToolbarAutoHide, true)}`}
-                    inputProps={{ 'data-test': 'whiteboardToolbarAutoHideToggleBtn' }}
-                  />
-                  <Styled.Label style={{ marginLeft: '0.5rem' }}>
-                    {intl.formatMessage(intlMessages.wbToolbarsAutoHideLabel)}
-                  </Styled.Label>
-                </Styled.FormElementRight>
-              </Styled.Col>
-            </Styled.Row>
-
-            <Styled.Row>
-              <Styled.Col>
-                <Styled.FormElementRight>
-                  <SubMenusStyle.MaterialSwitch
-                    icons="false"
-                    checked={!!settings.recordingIndicatorAutoCollapse}
-                    onChange={() => this.handleToggle('recordingIndicatorAutoCollapse')}
-                    aria-label={`${intl.formatMessage(intlMessages.recordingIndicatorAutoCollapseLabel)} - ${displaySettingsStatus(!!settings.recordingIndicatorAutoCollapse, true)}`}
-                    inputProps={{ 'data-test': 'recordingIndicatorAutoCollapseToggleBtn' }}
-                  />
-                  <Styled.Label style={{ marginLeft: '0.5rem' }}>
-                    {intl.formatMessage(intlMessages.recordingIndicatorAutoCollapseLabel)}
-                  </Styled.Label>
-                </Styled.FormElementRight>
-              </Styled.Col>
-            </Styled.Row>
-
-            <Styled.Row>
-              <Styled.Col>
-                <Styled.FormElementRight>
-                  <SubMenusStyle.MaterialSwitch
-                    icons="false"
-                    checked={settings.selfViewDisable}
-                    onChange={() => this.handleToggle('selfViewDisable')}
-                    aria-label={`${intl.formatMessage(intlMessages.disableLabel)} - ${displaySettingsStatus(settings.selfViewDisable, false)}`}
-                    inputProps={{ 'data-test': 'selfViewDisableToggleBtn' }}
-                  />
-                  <Styled.Label style={{ marginLeft: '0.5rem' }}>
-                    {intl.formatMessage(intlMessages.disableLabel)}
-                  </Styled.Label>
-                </Styled.FormElementRight>
-              </Styled.Col>
-            </Styled.Row>
-
-            {isReactionsEnabled && (
-              <Styled.Row>
-                <Styled.Col>
-                  <Styled.FormElementRight>
-                    <SubMenusStyle.MaterialSwitch
-                      icons="false"
-                      checked={settings.autoCloseReactionsBar}
-                      onChange={() => this.handleToggle('autoCloseReactionsBar')}
-                      aria-label={`${intl.formatMessage(intlMessages.autoCloseReactionsBarLabel)} - ${displaySettingsStatus(settings.autoCloseReactionsBar, false)}`}
-                      inputProps={{ 'data-test': 'autoCloseReactionsBarToggleBtn' }}
-                    />
-                    <Styled.Label style={{ marginLeft: '0.5rem' }}>
-                      {intl.formatMessage(intlMessages.autoCloseReactionsBarLabel)}
-                    </Styled.Label>
-                  </Styled.FormElementRight>
-                </Styled.Col>
-              </Styled.Row>
-            )}
-          </Styled.Form>
-        </Styled.AplicationContainer>
-
-        <Styled.LanguageContainer>
-          <Styled.Title>
+        <SubMenusStyle.Section>
+          <SubMenusStyle.Title>
             {intl.formatMessage(intlMessages.languageLabel)}
-          </Styled.Title>
+          </SubMenusStyle.Title>
           {this.renderLanguageSelector()}
-        </Styled.LanguageContainer>
+        </SubMenusStyle.Section>
 
-        <Styled.FontContainer>
-          <Styled.Title>
+        <SubMenusStyle.Section>
+          <SubMenusStyle.Title>
             {intl.formatMessage(intlMessages.fontSizeControlLabel)}
-          </Styled.Title>
+          </SubMenusStyle.Title>
           {this.renderFontSizeControl()}
-        </Styled.FontContainer>
-      </div>
+        </SubMenusStyle.Section>
+      </SubMenusStyle.Section>
     );
   }
 }

@@ -255,18 +255,10 @@ class Settings extends Component {
     setIsOpen(false);
   }
 
-  displaySettingsStatus(status, textOnly = false) {
+  displaySettingsStatus(status) {
     const { intl } = this.props;
-    if (textOnly) {
-      return status ? intl.formatMessage(intlMessages.on)
-        : intl.formatMessage(intlMessages.off);
-    }
-    return (
-      <Styled.ToggleLabel aria-hidden>
-        {status ? intl.formatMessage(intlMessages.on)
-          : intl.formatMessage(intlMessages.off)}
-      </Styled.ToggleLabel>
-    );
+    return status ? intl.formatMessage(intlMessages.on)
+      : intl.formatMessage(intlMessages.off);
   }
 
   renderModalContent() {
@@ -301,7 +293,6 @@ class Settings extends Component {
             allLocales={allLocales}
             handleUpdateSettings={this.handleUpdateSettings}
             settings={current.application}
-            displaySettingsStatus={this.displaySettingsStatus}
             layoutContextDispatch={layoutContextDispatch}
             isPresenter={isPresenter}
             isReactionsEnabled={isReactionsEnabled}
@@ -343,7 +334,6 @@ class Settings extends Component {
           <DataSaving
             settings={current.dataSaving}
             handleUpdateSettings={this.handleUpdateSettings}
-            displaySettingsStatus={this.displaySettingsStatus}
             isScreenSharingEnabled={isScreenSharingEnabled}
             isVideoEnabled={isVideoEnabled}
           />
@@ -356,7 +346,6 @@ class Settings extends Component {
           <Transcription
             handleUpdateSettings={this.handleUpdateSettings}
             settings={current.transcription}
-            displaySettingsStatus={this.displaySettingsStatus}
           />
         ),
       },
