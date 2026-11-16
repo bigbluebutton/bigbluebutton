@@ -68,6 +68,8 @@ object LockSettingsUtil {
           // Make sure that user is muted when lock settings has mic disabled. (ralam dec 6, 2019
           if (!voiceUser.muted) {
             muteUserInVoiceConf(liveMeeting, outGW, voiceUser, true)
+          } else {
+            VoiceApp.withdrawUnmuteRequest(liveMeeting, voiceUser.intId)
           }
         }
       }

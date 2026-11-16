@@ -49,6 +49,8 @@ trait MuteUserCmdMsgHdlr extends RightsManagementTrait {
           msg.body.userId == msg.header.userId) {
           // unmuting self while not moderator and mic disabled. Do not allow.
         } else {
+          if (msg.body.mute) VoiceApp.withdrawUnmuteRequest(liveMeeting, u.intId)
+
           if (u.muted != msg.body.mute) {
             log.info("Send mute user request. meetingId=" + meetingId + " userId=" + u.intId + " user=" + u)
 
