@@ -1091,7 +1091,7 @@ starting with `_`, which the sink keeps for itself.
 | Key | Meaning |
 |---|---|
 | `call` | An API call name, sent to the target's API prefix. `""` is the version endpoint. |
-| `route`, `pathParams` | A non-API route (presentation, connection, textTrack), mapped per target. A route served off `baseUrl` sends the client's `baseUrl` cookies and keeps none ([routes](#target-files)). |
+| `route`, `pathParams` | A non-API route (presentation, connection, textTrack), mapped per target. A `subrequest` route sends the client's `baseUrl` cookies and keeps none; any other route keeps and sends cookies as an API call does ([routes](#target-files)). |
 | `url` | An absolute URL sent as it is, e.g. a link getJoinUrl returned. |
 | `method` | A HEAD response has no body, so a HEAD step can only check `status`, `headers` and `redirect`, and capture headers. |
 | `params` | Query parameters, in the order written. |
