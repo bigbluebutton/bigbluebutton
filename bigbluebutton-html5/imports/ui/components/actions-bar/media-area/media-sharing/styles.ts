@@ -98,12 +98,14 @@ const ContentContainer = styled.div`
   overflow-y: auto; /* Add scroll if content overflows */
 `;
 
-// Grid layout for displaying media options.
+// Grid layout for displaying media options. Two columns give each label room
+// for its translation: at four (three on a phone) a cell is about 5rem wide,
+// and a long word such as "Bildschirmfreigabe" is cut off at any line count.
 const MediaGrid = styled.div<{ isMobile: boolean }>`
   padding: ${({ isMobile }) => (isMobile ? '0.5rem' : '1rem')};
   gap: ${({ isMobile }) => (isMobile ? '0.5rem' : '1rem')};
   display: grid;
-  grid-template-columns: ${({ isMobile }) => (isMobile ? 'repeat(3, 1fr)' : 'repeat(4, 1fr)')};
+  grid-template-columns: repeat(2, 1fr);
   text-align: center;
   justify-items: center;
 `;
