@@ -36,6 +36,14 @@ module BigBlueButton
     # processed.
     class WorkerNoRecordHalt < WorkerHalt; end
 
+    # Queues a job for klass, with the time it was queued in queued_at
+    # (milliseconds since the epoch). bbb-web's getRecordingProcessingInfo
+    # reads it to tell how long the oldest queued work has waited.
+    def self.enqueue(klass, opts)
+      queued_at = Process.clock_gettime(Process::CLOCK_REALTIME, :millisecond)
+      ::Resque.enqueue(klass, opts.merge(queued_at: queued_at))
+    end
+
     class BaseWorker
       @queue = 'rap:base'
 
@@ -169,7 +177,7 @@ module BigBlueButton
 
             @logger.info("Enqueueing #{step_name} worker with #{opts.inspect}")
             klass = Object.const_get("BigBlueButton::Resque::#{step_name.capitalize}Worker")
-            ::Resque.enqueue(klass, opts)
+            BigBlueButton::Resque.enqueue(klass, opts)
           end
         end
       end
