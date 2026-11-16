@@ -181,39 +181,9 @@ const TileNewLabel = styled(NewLabel)`
   }
 `;
 
+// BBBSearch takes no className, so the wrapper keeps the panel spacing.
 const SearchWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
   margin: 1rem ${contentSidebarPadding};
-  padding: 0.4rem 0.75rem;
-  border: 1px solid ${colorBorder};
-  border-radius: ${lgBorderRadius};
-  background-color: ${colorWhite};
-
-  &:focus-within {
-    box-shadow: 0 0 0 0.2rem ${colorBorder};
-  }
-
-  > i {
-    color: ${unpinnedAppIconColor};
-    font-size: 115%;
-    flex-shrink: 0;
-  }
-`;
-
-const SearchInput = styled.input`
-  flex: 1;
-  min-width: 0;
-  border: none;
-  outline: none;
-  background: transparent;
-  font-size: ${fontSizeBase};
-  color: inherit;
-
-  &::placeholder {
-    color: ${unpinnedAppIconColor};
-  }
 `;
 
 const SectionSeparator = styled.hr`
@@ -392,7 +362,6 @@ export default {
   NewLabel,
   TileNewLabel,
   SearchWrapper,
-  SearchInput,
   SectionSeparator,
   ViewToggleWrapper,
   ViewToggleButton,
