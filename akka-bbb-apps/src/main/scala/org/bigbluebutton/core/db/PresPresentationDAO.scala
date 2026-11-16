@@ -307,6 +307,26 @@ object PresPresentationDAO {
     )
   }
 
+  // Presentations of this user whose upload token was issued but whose file never arrived:
+  // not converting, not completed and without an error. A converting presentation has
+  // uploadInProgress set, and a refused request has no token and carries its error.
+  def awaitingUploadQuery(meetingId: String, userId: String) = {
+    TableQuery[PresPresentationDbTableDef]
+      .filter(p => p.meetingId === meetingId &&
+        p.uploadUserId === userId &&
+        p.uploadToken =!= "" &&
+        !p.uploadInProgress &&
+        !p.uploadCompleted &&
+        p.uploadErrorMsgKey.isEmpty)
+  }
+
+  // Called when the uploader's client is gone, so nothing will finish or cancel these uploads
+  // and every presenter would otherwise see them as uploading until the meeting ends.
+  // Should a file still arrive, updateConversionStarted inserts its row again.
+  def deleteAwaitingUpload(meetingId: String, userId: String) = {
+    DatabaseConnection.enqueue(awaitingUploadQuery(meetingId, userId).delete)
+  }
+
   def delete(meetingId: String, presentationId: String) = {
     DatabaseConnection.enqueue(
       TableQuery[PresPresentationDbTableDef]

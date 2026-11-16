@@ -2,6 +2,7 @@ package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs.UserLeaveReqMsg
 import org.bigbluebutton.core.api.UserClosedAllGraphqlConnectionsInternalMsg
+import org.bigbluebutton.core.db.PresPresentationDAO
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.graphql.GraphqlMiddleware
 import org.bigbluebutton.core.models.{ RegisteredUsers, Users2x }
@@ -24,6 +25,10 @@ trait UserLeaveReqMsgHdlr extends HandlerHelpers {
     } yield {
       RegisteredUsers.updateUserConnectedToGraphql(liveMeeting.registeredUsers, regUser, graphqlConnected = false)
     }
+
+    // An upload this client had not finished sending died with its connection. The ids are
+    // not remembered as removed: a file that still arrives is converted as usual.
+    PresPresentationDAO.deleteAwaitingUpload(liveMeeting.props.meetingProp.intId, msg.userId)
 
     handleUserLeaveReq(msg.userId, liveMeeting.props.meetingProp.intId, loggedOut = false, state)
   }
