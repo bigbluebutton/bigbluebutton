@@ -59,31 +59,3 @@ select_permissions:
                           _eq: false
       query_root_fields: []
       subscription_root_fields: []
-  - role: bbb_client_not_in_meeting
-    permission:
-      columns:
-        - callerName
-        - callerNum
-        - callingWith
-        - endTime
-        - floor
-        - joined
-        - lastFloorTime
-        - listenOnly
-        - muted
-        - listenOnlyInputDevice
-        - deafened
-        - spoke
-        - startTime
-        - talking
-        - userId
-        - voiceConf
-        - voiceUserId
-      filter:
-        _and:
-          - meetingId:
-              _eq: X-Hasura-MeetingId
-          - userId:
-              _eq: X-Hasura-UserId
-      query_root_fields: []
-      subscription_root_fields: []

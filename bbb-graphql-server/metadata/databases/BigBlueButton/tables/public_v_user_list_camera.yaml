@@ -60,21 +60,3 @@ select_permissions:
       allow_aggregations: true
       query_root_fields: []
       subscription_root_fields: []
-  - role: bbb_client_not_in_meeting
-    permission:
-      columns:
-        - contentType
-        - hasAudio
-        - meetingId
-        - showAsContent
-        - streamId
-        - userId
-      filter:
-        _and:
-          - meetingId:
-              _eq: X-Hasura-MeetingId
-          - userId:
-              _eq: X-Hasura-UserId
-      allow_aggregations: true
-      query_root_fields: []
-      subscription_root_fields: []
