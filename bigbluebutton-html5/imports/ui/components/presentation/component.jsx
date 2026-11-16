@@ -19,6 +19,7 @@ import { throttle } from '/imports/utils/throttle';
 import LocatedErrorBoundary from '/imports/ui/components/common/error-boundary/located-error-boundary/component';
 import FallbackView from '/imports/ui/components/common/fallback-errors/fallback-view/component';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
+import getSizeWithUnit from '/imports/utils/getSizeWithUnit';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -45,6 +46,26 @@ const intlMessages = defineMessages({
     id: 'app.presentation.emptySlideContent',
     description: 'No content available for slide',
   },
+  dropFilesLabel: {
+    id: 'app.presentation.dropFilesLabel',
+    description: 'label shown over the presentation area while the presenter drags files over it',
+  },
+  dropFilesHint: {
+    id: 'app.presentation.dropFilesHint',
+    description: 'explains what dropping files over the presentation area does',
+  },
+  dropRejectedError: {
+    id: 'app.presentationUploder.rejectedError',
+    description: 'some dropped files have a type that cannot be uploaded',
+  },
+  dropTooLargeError: {
+    id: 'app.presentationUploder.upload.413',
+    description: 'some dropped files are larger than the upload limit',
+  },
+  dropUploadTimeoutError: {
+    id: 'app.presentationUploder.upload.408',
+    description: 'the upload of a dropped file could not start',
+  },
   presentationHeader: {
     id: 'playback.player.presentation.wrapper.aria',
     description: 'Aria label for header navigation',
@@ -68,6 +89,9 @@ const getToolbarHeight = () => {
 
 const IGNORE_PRESENTATION_RESTORATION_TIMEOUT = 5000;
 
+// True for a drag carrying files from outside the page (not a shape or text selection).
+const isFileDrag = (e) => Array.from(e.dataTransfer?.types || []).includes('Files');
+
 class Presentation extends PureComponent {
   constructor() {
     super();
@@ -83,7 +107,12 @@ class Presentation extends PureComponent {
       isToolbarVisible: true,
       hadPresentation: false,
       ignorePresentationRestoring: true,
+      isDraggingFiles: false,
     };
+
+    // dragenter/dragleave fire for every element the pointer crosses, so the drag is
+    // over only when the leaves have caught up with the enters.
+    this.fileDragDepth = 0;
 
     const PAN_ZOOM_INTERV = window.meetingClientSettings.public.presentation.panZoomInterval || 200;
 
@@ -100,6 +129,10 @@ class Presentation extends PureComponent {
     this.setIsToolbarVisible = this.setIsToolbarVisible.bind(this);
     this.handlePanShortcut = this.handlePanShortcut.bind(this);
     this.renderPresentationMenu = this.renderPresentationMenu.bind(this);
+    this.handleFileDragEnter = this.handleFileDragEnter.bind(this);
+    this.handleFileDragOver = this.handleFileDragOver.bind(this);
+    this.handleFileDragLeave = this.handleFileDragLeave.bind(this);
+    this.handleFileDrop = this.handleFileDrop.bind(this);
 
     this.onResize = () => setTimeout(this.handleResize.bind(this), 0);
     this.setPresentationRef = this.setPresentationRef.bind(this);
@@ -370,6 +403,61 @@ class Presentation extends PureComponent {
       }
     }
     return null;
+  }
+
+  // Only the presenter can upload, so for everyone else file drags are left alone.
+  acceptsFileDrag(e) {
+    const { userIsPresenter } = this.props;
+    if (!userIsPresenter || !isFileDrag(e)) return false;
+    // Handled here, in the capture phase, so the whiteboard never sees the drag.
+    e.preventDefault();
+    e.stopPropagation();
+    return true;
+  }
+
+  handleFileDragEnter(e) {
+    if (!this.acceptsFileDrag(e)) return;
+    this.fileDragDepth += 1;
+    this.setState({ isDraggingFiles: true });
+  }
+
+  handleFileDragOver(e) {
+    if (!this.acceptsFileDrag(e)) return;
+    e.dataTransfer.dropEffect = 'copy';
+  }
+
+  handleFileDragLeave(e) {
+    if (!this.acceptsFileDrag(e)) return;
+    this.fileDragDepth = Math.max(0, this.fileDragDepth - 1);
+    if (this.fileDragDepth === 0) this.setState({ isDraggingFiles: false });
+  }
+
+  handleFileDrop(e) {
+    if (!this.acceptsFileDrag(e)) return;
+    const { uploadDroppedFiles, intl, notify } = this.props;
+    this.fileDragDepth = 0;
+    this.setState({ isDraggingFiles: false });
+
+    const files = Array.from(e.dataTransfer.files || []);
+    if (files.length === 0) return;
+
+    const { rejected, tooLarge } = uploadDroppedFiles(files, () => {
+      notify(intl.formatMessage(intlMessages.dropUploadTimeoutError), 'error');
+    });
+
+    if (rejected.length > 0) {
+      notify(intl.formatMessage(intlMessages.dropRejectedError), 'error');
+    }
+
+    if (tooLarge.length > 0) {
+      const { uploadSizeMax } = window.meetingClientSettings.public.presentation.mirroredFromBBBCore;
+      const maxFileSize = getSizeWithUnit(uploadSizeMax);
+      const names = tooLarge.map((file) => file.name).join(', ');
+      notify(
+        `${names}: ${intl.formatMessage(intlMessages.dropTooLargeError, { maxFileSize })}`,
+        'error',
+      );
+    }
   }
 
   handleResize() {
@@ -691,6 +779,7 @@ class Presentation extends PureComponent {
       tldrawAPI,
       isToolbarVisible,
       presentationWidth,
+      isDraggingFiles,
     } = this.state;
 
     let viewBoxDimensions;
@@ -747,6 +836,10 @@ class Presentation extends PureComponent {
             this.refPresentationContainer = ref;
           }}
           isRTL={isRTL}
+          onDragEnterCapture={this.handleFileDragEnter}
+          onDragOverCapture={this.handleFileDragOver}
+          onDragLeaveCapture={this.handleFileDragLeave}
+          onDropCapture={this.handleFileDrop}
           style={{
             top: presentationBounds.top,
             left: presentationBounds.left,
@@ -760,6 +853,16 @@ class Presentation extends PureComponent {
           }}
         >
           <h2 className="sr-only">{intl.formatMessage(intlMessages.presentationHeader)}</h2>
+          {isDraggingFiles && userIsPresenter && (
+            <Styled.FileDropOverlay data-test="presentationFileDropOverlay">
+              <Styled.FileDropTitle>
+                {intl.formatMessage(intlMessages.dropFilesLabel)}
+              </Styled.FileDropTitle>
+              <Styled.FileDropHint>
+                {intl.formatMessage(intlMessages.dropFilesHint)}
+              </Styled.FileDropHint>
+            </Styled.FileDropOverlay>
+          )}
           <Styled.Presentation
             className="bbb-presentation__content"
             ref={(ref) => {
@@ -917,6 +1020,7 @@ Presentation.propTypes = {
     presentationAreaHeight: PropTypes.number.isRequired,
   }),
   zoomSlide: PropTypes.func.isRequired,
+  uploadDroppedFiles: PropTypes.func.isRequired,
   setMultiUserWhiteboardEnabled: PropTypes.func.isRequired,
   setMultiUserWhiteboardDisabled: PropTypes.func.isRequired,
   multiUserSize: PropTypes.number.isRequired,

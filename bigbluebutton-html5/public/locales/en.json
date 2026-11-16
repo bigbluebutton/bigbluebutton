@@ -361,6 +361,8 @@
     "app.presentation.hide": "Hide presentation",
     "app.presentation.newCurrentPresentationNotification": "The current presentation is now: {presentationName}",
     "app.presentation.downloadEnabledNotification": "You can now download the presentation",
+    "app.presentation.dropFilesLabel": "Drop files here",
+    "app.presentation.dropFilesHint": "They will be uploaded and the first one shown as the current presentation",
     "app.presentation.downloadLabel": "Download",
     "app.presentation.actionsLabel": "Actions",
     "app.presentation.slideContent": "Slide Content",
