@@ -158,6 +158,7 @@ Updated in 4.0:
   - **Changed:** Every `FAILED` response carries a `messageKey` (added in 4.0.1): an unknown meeting, an invalid filename, a disabled presentation feature and a request without documents now return `notFound`, `invalidFilename`, `presentationDisabled` and `noDocuments`, with the same messages as before. See [insertDocument](#post-insertdocument).
 - **end**
   - **Changed:** Ending a meeting now also ends the breakout rooms created through `create` with `isBreakout=true` (previously only the rooms created from the client's breakout panel ended with their parent).
+- **getRecordingProcessingInfo** endpoint was first introduced (added in 4.0.3). It tells whether the server still has recordings to process, so that it can be taken out of service without losing any. See [getRecordingProcessingInfo](#get-post-getrecordingprocessinginfo).
 - **clientSettings** - The deprecated REST endpoint `/api/rest/clientSettings` was **removed**. Client settings are now served through the GraphQL stack.
 
 ## API Data Types
@@ -316,6 +317,7 @@ The following section describes the monitoring calls
 | updateRecordings       | Updates metadata in a recording.                              |
 | getRecordingTextTracks | Get a list of the caption/subtitle.                           |
 | putRecordingTextTrack  | Upload a caption or subtitle file to add it to the recording. |
+| getRecordingProcessingInfo | Tell whether the server still has recordings to process.  |
 
 ## API Calls
 
@@ -1605,6 +1607,61 @@ Missing parameter error
 }
 ```
 
+
+### `GET` `POST` getRecordingProcessingInfo
+
+Tells whether this server still has recordings to process. Before a server is taken out of service (to scale in a load-balanced pool, to replace it, or for an OS upgrade), every recording on it has to finish processing: the raw data of a recording still in the pipeline is lost with the server. This call summarizes the recording pipeline, from a recorded meeting that has ended but hasn't been picked up yet to the last publish step.
+
+**Resource URL:**
+
+http&#58;//yourserver.com/bigbluebutton/api/getRecordingProcessingInfo?checksum=[checksum]
+
+**Parameters:**
+
+None. The checksum is computed over the call name and an empty query string.
+
+**Example Requests:**
+
+http&#58;//yourserver.com/bigbluebutton/api/getRecordingProcessingInfo?checksum=1234
+
+**Example Response:**
+
+```xml
+<response>
+  <returncode>SUCCESS</returncode>
+  <processing>true</processing>
+  <queuedCount>2</queuedCount>
+  <runningCount>1</runningCount>
+  <failedCount>1</failedCount>
+  <oldestQueuedTime>1763035200000</oldestQueuedTime>
+</response>
+```
+
+| Element | Meaning |
+| :--- | :--- |
+| `processing` | `true` while `queuedCount` or `runningCount` is above 0. Failed recordings don't keep it `true`. |
+| `queuedCount` | Recordings with work waiting: a recorded meeting that has ended but hasn't been picked up for archiving yet, a job waiting in a queue for its next step, a caption track upload that hasn't been processed yet, or the events of an ended meeting created with `meetingKeepEvents=true` that are still to be kept. |
+| `runningCount` | Recordings with a step running now (archive, sanity, events, captions, process or publish). This includes the post-archive, post-process and post-publish scripts, which run inside those steps. |
+| `failedCount` | Recordings stopped at a failed step that haven't been rebuilt or deleted since. They never finish on their own, and taking the server out of service loses their raw data. |
+| `oldestQueuedTime` | When the oldest queued work was queued, in milliseconds since the epoch like `createTime`. Left out when `queuedCount` is 0. It tells a busy server from a stuck one, for example one where `bbb-rap-resque-worker` is stopped. |
+
+The counts are of recordings (record IDs), not jobs: a recording whose presentation and video formats are both queued counts once, and a recording with one step running and another one queued counts as running. A failed recording that has work queued or running again, after a rebuild for example, counts as queued or running.
+
+If the server can't read the state of its recordings, for example because Redis can't be reached, the call fails with the `messageKey` `recordingStatusUnavailable` rather than answer `processing=false`.
+
+To take a server out of service:
+
+1. Stop sending new meetings to it, for example by disabling it in Scalelite.
+2. Wait until `getMeetings` returns no meetings. bbb-web hands an ended recorded meeting to the recording pipeline before it drops the meeting from `getMeetings`, so this call sees the recording as soon as the meeting is gone.
+3. Wait until `processing` is `false`, and confirm it with a second call a few seconds later: one call can miss a job that a worker is taking from its queue. If `oldestQueuedTime` is older than processing normally takes, the pipeline is stuck: look at the server rather than wait.
+4. If `failedCount` is above 0, decide for each failed recording whether to rebuild it (`bbb-record --rebuild`) or accept losing it.
+
+What the call doesn't cover:
+
+- Post-script results. A failed post-script, such as the transfer to Scalelite, is only logged, so a recording whose transfer failed counts as done.
+- A job interrupted because `bbb-rap-resque-worker` was stopped or crashed while it ran. Resque moves the job to its failed jobs without the marker of a failed step, so the recording counts as neither running nor failed. Don't restart the worker while a server drains.
+- Workers that use another Redis than bbb-web does (`redis_workers_host` in the recording configuration). The call reads the queues from the Redis that `bbb-web.properties` sets.
+- Meetings that are still running: `getMeetings` lists them.
 
 ### `GET` sendChatMessage
 

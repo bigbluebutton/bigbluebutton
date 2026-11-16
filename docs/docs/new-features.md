@@ -359,6 +359,10 @@ It is an **optional** package, not a dependency of the `bigbluebutton` meta-pack
 See [Play recordings made with BigBlueButton 0.81 or 0.9](/administration/customize#play-recordings-made-with-bigbluebutton-081-or-09) for details.
 
 
+#### New API call: getRecordingProcessingInfo
+
+A server can be taken out of service only once every recording on it has finished processing, or the raw data of the rest is lost. The new [getRecordingProcessingInfo](/development/api#get-post-getrecordingprocessinginfo) API call tells whether the server still has recordings queued, running or failed in the recording pipeline, and how long the oldest queued work has waited, so that a script can drain a server, for example one taken out of a Scalelite pool, without a shell on it.
+
 #### New administration tool: bbbctl
 
 The `bbb-config` package now ships [bbbctl](https://github.com/defnull/bbbctl) (v0.5.1), a community-maintained command-line tool by [@defnull](https://github.com/defnull) for interacting with a BigBlueButton server from the shell. Installed as `/usr/bin/bbbctl`, it talks to the server's own API and lets administrators list, inspect, and end meetings and work with recordings without crafting signed API calls by hand. Thank you for developing it, defnull!
