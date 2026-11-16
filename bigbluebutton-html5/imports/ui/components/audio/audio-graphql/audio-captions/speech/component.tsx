@@ -20,6 +20,7 @@ import {
 import logger from '/imports/startup/client/logger';
 import AudioManager from '/imports/ui/services/audio-manager';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
+import browserInfo from '/imports/utils/browserInfo';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import {
   isWebSpeechApi,
@@ -61,6 +62,9 @@ const speechHasStarted = {
 // Without a track the browser transcribes its own default microphone, which is not
 // necessarily the one in use in the meeting
 const getInputTrack = (stream: MediaStream | null): MediaStreamTrack | null => {
+  // Edge accepts a track in start(), but then transcribes next to nothing
+  if (browserInfo.isEdge) return null;
+
   const track = stream?.getAudioTracks()[0];
 
   // start() rejects a muted track just like an ended one
