@@ -190,6 +190,7 @@ RangeLoop:
 											Warn("Concurrent subscription limit reached")
 									}
 
+									recordSubscriptionLimitRejection(subscriptionTypeOf(query), browserMessage.Payload.OperationName)
 									sendErrorMessage(
 										browserConnection,
 										queryId,
@@ -230,7 +231,7 @@ RangeLoop:
 								streamCursorInitialValue = existingSubscriptionData.StreamCursorCurrValue
 							}
 
-							if strings.Contains(query, "_stream(") && strings.Contains(query, "cursor: {") {
+							if isStreamingQuery(query) {
 								messageType = common.Streaming
 								if !queryIdExists {
 									streamCursorField, streamCursorVariableName, streamCursorInitialValue = common.GetStreamCursorPropsFromBrowserMessage(browserMessage)
@@ -244,7 +245,7 @@ RangeLoop:
 								}
 							}
 
-							if strings.Contains(query, "_aggregate") && strings.Contains(query, "aggregate {") {
+							if isAggregateQuery(query) {
 								messageType = common.SubscriptionAggregate
 							}
 						}
@@ -285,6 +286,10 @@ RangeLoop:
 					}
 					// hc.BrowserConn.Logger.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
 					browserConnection.ActiveSubscriptionsMutex.Unlock()
+
+					if messageType != common.Query && messageType != common.Mutation && config.GetConfig().Server.MaxConnectionConcurrentSubscriptions > 0 {
+						logOnTwoThirdsOfLimit(browserConnection, config.GetConfig().Server.MaxConnectionConcurrentSubscriptions)
+					}
 
 					// Add Prometheus Metrics
 					recordSubscriptionStart(messageType, operationNameLabel, alreadyActive)
@@ -595,4 +600,58 @@ func recordSubscriptionStart(messageType common.QueryType, operationNameLabel st
 			"operationName": operationNameLabel,
 		}).
 		Inc()
+}
+
+func isStreamingQuery(query string) bool {
+	return strings.Contains(query, "_stream(") && strings.Contains(query, "cursor: {")
+}
+
+func isAggregateQuery(query string) bool {
+	return strings.Contains(query, "_aggregate") && strings.Contains(query, "aggregate {")
+}
+
+// subscriptionTypeOf is the type a subscription query is given below, for a subscription that
+// is rejected before it gets there.
+func subscriptionTypeOf(query string) common.QueryType {
+	switch {
+	case isAggregateQuery(query):
+		return common.SubscriptionAggregate
+	case isStreamingQuery(query):
+		return common.Streaming
+	}
+	return common.Subscription
+}
+
+// recordSubscriptionLimitRejection counts a subscription rejected by the per-connection limit of
+// concurrent subscriptions.
+func recordSubscriptionLimitRejection(messageType common.QueryType, operationName string) {
+	common.GqlSubscriptionLimitRejectedCounter.
+		WithLabelValues(string(messageType), common.MetricOperationName(operationName)).
+		Inc()
+}
+
+// logOnTwoThirdsOfLimit logs, once per connection, what holds a connection's subscriptions when
+// their number reaches two thirds of the limit: early enough to see a leak before subscriptions
+// are rejected.
+func logOnTwoThirdsOfLimit(browserConnection *common.BrowserConnection, limit int) {
+	browserConnection.ActiveSubscriptionsMutex.RLock()
+	activeSubscriptions := len(browserConnection.ActiveSubscriptions)
+	browserConnection.ActiveSubscriptionsMutex.RUnlock()
+
+	if activeSubscriptions < limit*2/3 || !browserConnection.SubscriptionTwoThirdsLogged.CompareAndSwap(false, true) {
+		return
+	}
+
+	browserConnection.ActiveSubscriptionsMutex.RLock()
+	operationNames := make([]string, 0, len(browserConnection.ActiveSubscriptions))
+	for _, subscription := range browserConnection.ActiveSubscriptions {
+		operationNames = append(operationNames, subscription.OperationName)
+	}
+	browserConnection.ActiveSubscriptionsMutex.RUnlock()
+
+	browserConnection.Logger.
+		WithField("activeSubscriptions", len(operationNames)).
+		WithField("limit", limit).
+		WithField("activeSubscriptionsByOperation", subscriptionlimit.SummarizeByOperation(operationNames)).
+		Warn("Concurrent subscription count reached two thirds of the limit")
 }

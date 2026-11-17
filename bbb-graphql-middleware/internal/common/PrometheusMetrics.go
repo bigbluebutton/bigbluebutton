@@ -49,6 +49,13 @@ var (
 		},
 		[]string{"type", "operationName"},
 	)
+	GqlSubscriptionLimitRejectedCounter = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "gql_subscription_limit_rejected_total",
+			Help: "Total number of Graphql subscriptions rejected by the per-connection limit",
+		},
+		[]string{"type", "operationName"},
+	)
 	GqlMutationRateLimitExceededCounter = prometheus.NewCounter(prometheus.CounterOpts{
 		Name: "gql_mutation_rate_limit_exceeded_total",
 		Help: "Total number of mutations rejected by the mutation rate limiter",
@@ -126,6 +133,7 @@ func RegisterMetrics() {
 	prometheus.MustRegister(WsConnectionRejectedCounter)
 	prometheus.MustRegister(GqlSubscribeCounter)
 	prometheus.MustRegister(GqlSubscriptionRetransmittedCounter)
+	prometheus.MustRegister(GqlSubscriptionLimitRejectedCounter)
 	prometheus.MustRegister(GqlReceivedDataCounter)
 	prometheus.MustRegister(GqlMutationsCounter)
 	prometheus.MustRegister(GqlMutationRateLimitExceededCounter)

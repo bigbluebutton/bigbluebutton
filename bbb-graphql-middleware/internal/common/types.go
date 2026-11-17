@@ -59,6 +59,7 @@ type BrowserConnection struct {
 	ActiveSubscriptions                map[string]GraphQlSubscription // active subscriptions of this connection (start, but no stop)
 	ActiveSubscriptionsMutex           sync.RWMutex                   // mutex to control the map usage
 	SubscriptionLimitLogged            atomic.Bool                    // indicate if active subscriptions were already logged on reaching the concurrent limit
+	SubscriptionTwoThirdsLogged        atomic.Bool                    // indicate if active subscriptions were already logged on reaching two thirds of the concurrent limit
 	ActiveStreamings                   map[string][]string            // active streamings managed by Middleware of this connection
 	PendingStreamReplays               map[string][]string            // replays withheld until the connection is a meeting member
 	ActiveStreamingsMutex              sync.RWMutex                   // mutex to control both maps above
