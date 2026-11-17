@@ -2,7 +2,6 @@ import styled from 'styled-components';
 import { barsPadding, mobileNavbarButtonGap, lgPadding } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorWhite,
-  colorBackground,
   colorGray,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeBase, fontSizeSmall } from '/imports/ui/stylesheets/styled-components/typography';
@@ -14,7 +13,6 @@ const Navbar = styled.header`
   flex-direction: column;
   text-align: center;
   font-size: 1.5rem;
-  background-color: ${colorBackground};
   padding: ${barsPadding} ${barsPadding} 0 ${barsPadding};
 `;
 
