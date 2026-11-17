@@ -49,6 +49,10 @@ var (
 		},
 		[]string{"type", "operationName"},
 	)
+	GqlMutationRateLimitExceededCounter = prometheus.NewCounter(prometheus.CounterOpts{
+		Name: "gql_mutation_rate_limit_exceeded_total",
+		Help: "Total number of mutations rejected by the mutation rate limiter",
+	})
 	GqlMutationsCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "gql_mutation_total",
@@ -124,6 +128,7 @@ func RegisterMetrics() {
 	prometheus.MustRegister(GqlSubscriptionRetransmittedCounter)
 	prometheus.MustRegister(GqlReceivedDataCounter)
 	prometheus.MustRegister(GqlMutationsCounter)
+	prometheus.MustRegister(GqlMutationRateLimitExceededCounter)
 	prometheus.MustRegister(GqlReceivedDataPayloadSize)
 	if AdvancedMetricsEnabled() {
 		prometheus.MustRegister(GqlReceivedDataPayloadLength)
