@@ -117,6 +117,13 @@ var (
 		},
 		[]string{"type", "operationName", "reason"},
 	)
+	GqlHasuraReconnectionCounter = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "gql_hasura_reconnection_total",
+			Help: "Total number of reconnections from the middleware to Hasura, by reason",
+		},
+		[]string{"reason"},
+	)
 	GqlSubscriptionFirstDataDuration = prometheus.NewHistogramVec(
 		prometheus.HistogramOpts{
 			Name:    "gql_subscription_first_data_duration_seconds",
@@ -213,6 +220,7 @@ func RegisterMetrics() {
 	prometheus.MustRegister(GqlSubscriptionRemovedCounter)
 	prometheus.MustRegister(WsConnectionSubscriptionsPeak)
 	prometheus.MustRegister(GqlSubscriptionFirstDataDuration)
+	prometheus.MustRegister(GqlHasuraReconnectionCounter)
 	prometheus.MustRegister(GqlReceivedDataCounter)
 	prometheus.MustRegister(GqlMutationsCounter)
 	prometheus.MustRegister(GqlMutationRateLimitExceededCounter)
@@ -242,5 +250,8 @@ func createClosedLabelSeries() {
 	}
 	for _, queryType := range []QueryType{Query, Subscription, Streaming, SubscriptionAggregate, Mutation} {
 		GqlSubscriptionFirstDataDuration.WithLabelValues(string(queryType))
+	}
+	for _, reason := range reconnectionReasons() {
+		GqlHasuraReconnectionCounter.WithLabelValues(reason)
 	}
 }

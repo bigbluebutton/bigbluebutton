@@ -192,26 +192,7 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	// Ensure a hasura client is running while the browser is connected
 	go func() {
 		thisConnection.Logger.Debugf("starting hasura client")
-
-	BrowserConnectedLoop:
-		for {
-			select {
-			case <-browserConnectionContext.Done():
-				break BrowserConnectedLoop
-			default:
-				{
-					thisConnection.Logger.Debugf("creating hasura client")
-					BrowserConnectionsMutex.RLock()
-					thisBrowserConnection := BrowserConnections[browserConnectionId]
-					BrowserConnectionsMutex.RUnlock()
-					if thisBrowserConnection != nil {
-						thisConnection.Logger.Infof("created hasura client")
-						hasura.HasuraClient(thisBrowserConnection)
-					}
-					time.Sleep(100 * time.Millisecond)
-				}
-			}
-		}
+		keepConnectedToHasura(browserConnectionContext, &thisConnection, hasura.HasuraClient)
 	}()
 
 	// Ensure a gql-actions client is running while the browser is connected
@@ -304,6 +285,7 @@ func invalidateHasuraConnectionForSessionToken(browserConnection *common.Browser
 
 	// Cancel the Hasura connection context to clean up resources.
 	if hasuraConnection != nil && hasuraConnection.ContextCancelFunc != nil {
+		hasuraConnection.SetCloseReason(common.ReconnectionReason(reason))
 		hasuraConnection.ContextCancelFunc()
 	}
 
@@ -624,6 +606,47 @@ func maxActiveSubscriptions() float64 {
 		return true
 	})
 	return float64(highest)
+}
+
+// keepConnectedToHasura connects to Hasura for the browser connection with client, and again each
+// time that connection ends, while the browser is connected. Each connection after the first is
+// counted as a reconnection, with the reason the previous one ended, when it is made: after the
+// pause between connections and the check that the browser is still connected.
+func keepConnectedToHasura(
+	browserConnectionContext context.Context,
+	thisConnection *common.BrowserConnection,
+	client func(*common.BrowserConnection) (string, error),
+) {
+	closeReason := "" // why the last connection to Hasura ended; empty before the first one
+
+BrowserConnectedLoop:
+	for {
+		select {
+		case <-browserConnectionContext.Done():
+			break BrowserConnectedLoop
+		default:
+			{
+				thisConnection.Logger.Debugf("creating hasura client")
+				BrowserConnectionsMutex.RLock()
+				thisBrowserConnection := BrowserConnections[thisConnection.Id]
+				BrowserConnectionsMutex.RUnlock()
+				if thisBrowserConnection != nil {
+					thisConnection.Logger.Infof("created hasura client")
+					if closeReason != "" {
+						recordHasuraReconnection(closeReason)
+					}
+					closeReason, _ = client(thisBrowserConnection)
+				}
+				time.Sleep(100 * time.Millisecond)
+			}
+		}
+	}
+}
+
+// recordHasuraReconnection counts a connection to Hasura made again for a browser connection, with
+// the reason the previous one ended.
+func recordHasuraReconnection(reason string) {
+	common.GqlHasuraReconnectionCounter.WithLabelValues(reason).Inc()
 }
 
 // errClosedBeforeInit is the init error of a browser that left before it sent its

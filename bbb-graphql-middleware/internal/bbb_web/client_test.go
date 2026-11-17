@@ -14,6 +14,8 @@ func TestBBBWebCheckAuthorizationMeasuresEachRequest(t *testing.T) {
 	answer := `{"response":"authorized","X-MeetingId":"m1","X-UserId":"u1"}`
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.Write([]byte(answer)) }))
 	defer server.Close()
+	saved := authHookUrl
+	t.Cleanup(func() { authHookUrl = saved })
 	authHookUrl = server.URL
 
 	requests := func(result string) float64 {

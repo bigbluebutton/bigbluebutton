@@ -35,6 +35,9 @@ func HasuraConnectionReader(hc *common.HasuraConnection, wg *sync.WaitGroup) {
 		var closeError *websocket.CloseError
 
 		if err != nil {
+			if !errors.Is(err, context.Canceled) {
+				hc.SetCloseReason(common.ReconnectionHasuraReadError)
+			}
 			if errors.Is(err, context.Canceled) {
 				hc.BrowserConn.Logger.Debugf("Closing Hasura ws connection as Context was cancelled!")
 			} else if errors.As(err, &closeError) {

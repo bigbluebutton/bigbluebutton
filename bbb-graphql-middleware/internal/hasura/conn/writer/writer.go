@@ -64,6 +64,7 @@ func HasuraConnectionWriter(hc *common.HasuraConnection, wg *sync.WaitGroup, ini
 	err := hc.Websocket.Write(hc.Context, websocket.MessageText, initMessage)
 	if err != nil {
 		hc.BrowserConn.Logger.Errorf("error on write authentication (init) message (we're disconnected from hasura): %v", err)
+		hc.SetCloseReason(common.ReconnectionHasuraWriteError)
 		return
 	}
 
@@ -84,6 +85,7 @@ RangeLoop:
 				err := json.Unmarshal(fromBrowserMessage, &browserMessage)
 				if err != nil {
 					hc.BrowserConn.Logger.Errorf("failed to unmarshal message: %v", err)
+					hc.SetCloseReason(common.ReconnectionInvalidBrowserMessage)
 					return
 				}
 
@@ -358,6 +360,7 @@ RangeLoop:
 					if errWrite != nil {
 						if !errors.Is(errWrite, context.Canceled) {
 							hc.BrowserConn.Logger.Errorf("error on write (we're disconnected from hasura): %v", errWrite)
+							hc.SetCloseReason(common.ReconnectionHasuraWriteError)
 						}
 						return
 					}
