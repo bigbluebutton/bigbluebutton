@@ -40,6 +40,13 @@ auth_hook:
 session_vars_hook:
   url: http://127.0.0.1:8901/userInfo
 prometheus_advanced_metrics_enabled: false
+# Most distinct operation names that become values of the operationName label of the metrics;
+# any other name is labeled (other). Read once at start, so a change needs a restart. A missing
+# value or one below 1 means the default, 500.
+# If you change this, you probably also want to change HASURA_GRAPHQL_METRICS_OPERATION_NAME_LIMIT
+# of bbb-graphql-server, in /etc/default/bbb-graphql-server or its override
+# /etc/bigbluebutton/bbb-graphql-server.env.
+prometheus_operation_name_limit: 500
 log_level: INFO
 # If set, all received queries will be dumped to the specified path, e.g /tmp/queries-dump
 dump_queries_dir:

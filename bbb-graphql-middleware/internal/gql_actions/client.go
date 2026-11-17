@@ -82,7 +82,7 @@ RangeLoop:
 							mutationFuncName = funcName
 							if err = SendGqlActionsRequest(funcName, inputs, browserConnection.BBBWebSessionVariables, browserConnection.Logger); err == nil {
 								// Add Prometheus Metrics
-								common.GqlMutationsCounter.With(prometheus.Labels{"operationName": browserMessage.Payload.OperationName}).Inc()
+								common.GqlMutationsCounter.With(prometheus.Labels{"operationName": common.MetricOperationName(browserMessage.Payload.OperationName)}).Inc()
 							} else {
 								sendErrorMessage(
 									browserConnection,

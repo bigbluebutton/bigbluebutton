@@ -111,6 +111,8 @@ RangeLoop:
 					streamCursorField := ""
 					streamCursorVariableName := ""
 					var streamCursorInitialValue interface{}
+					queryIdExists := false
+					var existingSubscriptionData common.GraphQlSubscription
 
 					query := browserMessage.Payload.Query
 
@@ -139,7 +141,7 @@ RangeLoop:
 					if query != "" {
 						if strings.HasPrefix(query, "subscription") {
 							browserConnection.ActiveSubscriptionsMutex.RLock()
-							existingSubscriptionData, queryIdExists := browserConnection.ActiveSubscriptions[queryId]
+							existingSubscriptionData, queryIdExists = browserConnection.ActiveSubscriptions[queryId]
 							browserConnection.ActiveSubscriptionsMutex.RUnlock()
 
 							if !queryIdExists && config.GetConfig().Server.MaxConnectionConcurrentSubscriptions > 0 {
@@ -236,11 +238,17 @@ RangeLoop:
 						jsonPatchSupported = true
 					}
 
+					operationNameLabel := existingSubscriptionData.OperationNameLabel
+					if !queryIdExists {
+						operationNameLabel = common.MetricOperationName(browserMessage.Payload.OperationName)
+					}
+
 					browserConnection.ActiveSubscriptionsMutex.Lock()
 					browserConnection.ActiveSubscriptions[queryId] = common.GraphQlSubscription{
 						Id:                         queryId,
 						Message:                    fromBrowserMessage,
 						OperationName:              browserMessage.Payload.OperationName,
+						OperationNameLabel:         operationNameLabel,
 						StreamCursorField:          streamCursorField,
 						StreamCursorVariableName:   streamCursorVariableName,
 						StreamCursorCurrValue:      streamCursorInitialValue,
@@ -257,7 +265,7 @@ RangeLoop:
 					common.GqlSubscribeCounter.
 						With(prometheus.Labels{
 							"type":          string(messageType),
-							"operationName": browserMessage.Payload.OperationName,
+							"operationName": operationNameLabel,
 						}).
 						Inc()
 
