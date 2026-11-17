@@ -117,8 +117,11 @@ routes:
   as the nginx-internal hooks that cases call on bbb-web directly.
 - With `subrequest: true`, a step on the route is sent as nginx sends an
   `auth_request` subrequest, which carries the browser's cookies:
-  - it carries the cookies its `client` holds for the same path under
-    `baseUrl`, such as the JSESSIONID a `join` set;
+  - it carries the cookies its `client` holds under `baseUrl`, such as the
+    JSESSIONID a `join` set. They are the cookies for the path in the
+    step's `X-Original-URI` header, without its query (nginx sets that
+    header to the browser's request), or for the route's own path when
+    the header is missing or isn't a path;
   - the cookies the answer sets aren't kept, because a subrequest's answer
     never reaches the browser (the recording still shows them);
   - a `Cookie` in the step's `headers` replaces the client's cookies, and
