@@ -80,6 +80,18 @@ var (
 		},
 		[]string{"result"},
 	)
+	SessionVarsHookRequestDuration = prometheus.NewHistogram(prometheus.HistogramOpts{
+		Name:    "session_vars_hook_request_duration_seconds",
+		Help:    "Duration of each session variables request to akka-apps (/userInfo), in seconds",
+		Buckets: TimeBucketsSeconds,
+	})
+	SessionVarsHookRequestCounter = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "session_vars_hook_request_total",
+			Help: "Total number of session variables requests to akka-apps (/userInfo)",
+		},
+		[]string{"result"},
+	)
 	HttpConnectionRateLimitWait = prometheus.NewHistogram(prometheus.HistogramOpts{
 		Name:    "http_connection_rate_limit_wait_seconds",
 		Help:    "Time a new connection waited in the server connection rate limiter, in seconds",
@@ -181,6 +193,8 @@ func RegisterMetrics() {
 	prometheus.MustRegister(GqlMutationRateLimitExceededCounter)
 	prometheus.MustRegister(AuthHookRequestDuration)
 	prometheus.MustRegister(AuthHookRequestCounter)
+	prometheus.MustRegister(SessionVarsHookRequestDuration)
+	prometheus.MustRegister(SessionVarsHookRequestCounter)
 	prometheus.MustRegister(HttpConnectionRateLimitWait)
 	prometheus.MustRegister(HttpConnectionRateLimitExceededCounter)
 	prometheus.MustRegister(GqlQueryRateLimitWait)
@@ -199,5 +213,6 @@ func RegisterMetrics() {
 func createClosedLabelSeries() {
 	for _, result := range []string{HookRequestOk, HookRequestUnauthorized, HookRequestError} {
 		AuthHookRequestCounter.WithLabelValues(result)
+		SessionVarsHookRequestCounter.WithLabelValues(result)
 	}
 }
