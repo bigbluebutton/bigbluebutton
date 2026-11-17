@@ -120,11 +120,15 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	BrowserConnectionsMutex.Lock()
 	BrowserConnections[browserConnectionId] = &thisConnection
 	BrowserConnectionsMutex.Unlock()
+	openConnectionSubscriptions.Store(browserConnectionId, &thisConnection.ActiveSubscriptionsCount)
 
 	thisConnection.Logger.Infof("browser connection stored")
 
+	// Set once the connection init is accepted; read when the connection closes.
+	acceptedAtInit := false
 	defer func() {
-		common.RecordConnectionSubscriptionsRemoved(&thisConnection)
+		openConnectionSubscriptions.Delete(browserConnectionId)
+		recordConnectionClose(&thisConnection, acceptedAtInit)
 
 		sessionTokenRemoved := ""
 		BrowserConnectionsMutex.Lock()
@@ -162,6 +166,7 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	// Check authorization and obtain user session variables from bbb-web
 	errorOnInitConnection, errorMessageId := connectionInitHandler(&thisConnection)
 	recordConnectionInit(errorOnInitConnection, errorMessageId)
+	acceptedAtInit = errorOnInitConnection == nil
 	if errors.Is(errorOnInitConnection, errConnectionInitTimeout) {
 		// 4408 is the graphql-transport-ws code for this case. Clients retry it, unlike a refusal.
 		connectionLogger.Infof("closing browser connection, reason: %v", errorOnInitConnection)
@@ -588,6 +593,39 @@ func connectionInitHandler(browserConnection *common.BrowserConnection) (error, 
 	return nil, ""
 }
 
+// openConnectionSubscriptions holds, for each open browser connection, its number of active
+// subscriptions (BrowserConnection.ActiveSubscriptionsCount), so the collection of
+// ws_connection_subscriptions_max reads them without taking any lock of the application.
+var openConnectionSubscriptions sync.Map // browser connection id -> *atomic.Int64
+
+// RegisterConnectionMetrics registers the metrics computed from the open connections when they
+// are collected.
+func RegisterConnectionMetrics() {
+	prometheus.MustRegister(prometheus.NewGaugeFunc(prometheus.GaugeOpts{
+		Name: "ws_connection_subscriptions_max",
+		Help: "Highest number of active subscriptions held by a single Websocket connection",
+	}, maxActiveSubscriptions))
+	// The reasons are a closed set: their series exist from the start, at zero.
+	for _, reason := range append(slices.Clone(rejectionReasons), rejectionClosedBeforeInit, rejectionOther) {
+		common.WsConnectionRejectedCounter.WithLabelValues(reason)
+	}
+}
+
+// maxActiveSubscriptions is the highest number of active subscriptions among the open
+// connections. It takes no lock of the application: a collection runs inside the Prometheus
+// registry, and a lock taken here could wait on a connection that is itself waiting on the
+// registry.
+func maxActiveSubscriptions() float64 {
+	var highest int64
+	openConnectionSubscriptions.Range(func(_, count any) bool {
+		if n := count.(*atomic.Int64).Load(); n > highest {
+			highest = n
+		}
+		return true
+	})
+	return float64(highest)
+}
+
 // errClosedBeforeInit is the init error of a browser that left before it sent its
 // connection_init.
 var errClosedBeforeInit = errors.New("error on receiving init connection")
@@ -630,6 +668,16 @@ func recordConnectionInit(errorOnInitConnection error, errorMessageId string) {
 		return
 	}
 	common.WsConnectionAcceptedCounter.Inc()
+}
+
+// recordConnectionClose counts, when a connection closes, the subscriptions it still held and,
+// for a connection accepted at init, the highest number of subscriptions it held. A connection
+// rejected at init (or gone before it) never held any, and is left out of the peak.
+func recordConnectionClose(browserConnection *common.BrowserConnection, acceptedAtInit bool) {
+	common.RecordConnectionSubscriptionsRemoved(browserConnection)
+	if acceptedAtInit {
+		common.RecordConnectionSubscriptionsPeak(browserConnection)
+	}
 }
 
 func disconnectWithError(

@@ -11,9 +11,10 @@ func rejectedConnections(reason string) float64 {
 	return metricstest.Value(common.WsConnectionRejectedCounter.WithLabelValues(reason))
 }
 
-// A connection rejected at init: counted as rejected with its reason, and not as accepted.
+// A connection rejected at init: counted as rejected with its reason, not as accepted, and left out
+// of the peak.
 func TestRejectedConnectionMetrics(t *testing.T) {
-	accepted, rejected := metricstest.Value(common.WsConnectionAcceptedCounter), rejectedConnections("param_missing")
+	accepted, rejected, peaks := metricstest.Value(common.WsConnectionAcceptedCounter), rejectedConnections("param_missing"), metricstest.Value(common.WsConnectionSubscriptionsPeak)
 
 	browser := connectBrowser(t)
 	browser.init(t, map[string]string{"X-ClientSessionUUID": "uuid-no-token"}) // no X-Session-Token
@@ -24,6 +25,9 @@ func TestRejectedConnectionMetrics(t *testing.T) {
 	}
 	if got := metricstest.Value(common.WsConnectionAcceptedCounter); got != accepted {
 		t.Errorf("the rejected connection was counted as accepted: %v -> %v", accepted, got)
+	}
+	if got := metricstest.Value(common.WsConnectionSubscriptionsPeak); got != peaks {
+		t.Errorf("the rejected connection was observed in the peak: %v -> %v", peaks, got)
 	}
 }
 

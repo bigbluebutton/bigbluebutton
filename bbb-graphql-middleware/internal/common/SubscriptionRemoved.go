@@ -26,6 +26,7 @@ func (bc *BrowserConnection) RemoveActiveSubscription(queryId string) (GraphQlSu
 	subscription, active := bc.ActiveSubscriptions[queryId]
 	if active {
 		delete(bc.ActiveSubscriptions, queryId)
+		bc.NoteActiveSubscriptionsLocked()
 	}
 	return subscription, active
 }
@@ -43,6 +44,7 @@ func RecordConnectionSubscriptionsRemoved(browserConnection *BrowserConnection) 
 		delete(browserConnection.ActiveSubscriptions, queryId)
 	}
 	browserConnection.ActiveSubscriptionsClosed = true
+	browserConnection.NoteActiveSubscriptionsLocked()
 	browserConnection.ActiveSubscriptionsMutex.Unlock()
 
 	for _, subscription := range removed {

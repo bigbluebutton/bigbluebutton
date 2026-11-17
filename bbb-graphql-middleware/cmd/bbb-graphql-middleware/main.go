@@ -35,6 +35,7 @@ func main() {
 
 	common.RegisterMetrics()
 	common.InitMetricOperationNames()
+	websrv.RegisterConnectionMetrics()
 
 	common.InitUniqueID()
 	log = log.WithField("graphql-middleware-uid", common.GetUniqueID())

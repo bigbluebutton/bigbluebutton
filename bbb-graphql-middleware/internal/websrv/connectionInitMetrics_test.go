@@ -42,3 +42,18 @@ func TestRecordConnectionInitLabelsRejectionsByMessageId(t *testing.T) {
 		t.Errorf("the error text is still used as the reason: %v", got)
 	}
 }
+
+func TestConnectionClosePeakOnlyForAcceptedConnections(t *testing.T) {
+	peaks := func() float64 { return metricstest.Value(common.WsConnectionSubscriptionsPeak) }
+	connection := &common.BrowserConnection{ActiveSubscriptions: map[string]common.GraphQlSubscription{}}
+
+	before := peaks()
+	recordConnectionClose(connection, false)
+	if got := peaks(); got != before {
+		t.Fatalf("a connection rejected at init was observed in the peak: %v -> %v", before, got)
+	}
+	recordConnectionClose(connection, true)
+	if got := peaks(); got != before+1 {
+		t.Fatalf("an accepted connection was not observed in the peak: %v -> %v", before, got)
+	}
+}

@@ -117,6 +117,13 @@ var (
 		},
 		[]string{"type", "operationName", "reason"},
 	)
+	WsConnectionSubscriptionsPeak = prometheus.NewHistogram(prometheus.HistogramOpts{
+		Name: "ws_connection_subscriptions_peak",
+		Help: "Highest number of active subscriptions a Websocket connection held, observed when it closes",
+		// Past 150, the default max_connection_concurrent_subscriptions: the limit can be raised, and
+		// the peak can pass it, since it never rejects a resend or a query.
+		Buckets: []float64{10, 20, 30, 40, 50, 75, 100, 125, 150, 175, 200, 250, 300, 500},
+	})
 	GqlMutationRateLimitExceededCounter = prometheus.NewCounter(prometheus.CounterOpts{
 		Name: "gql_mutation_rate_limit_exceeded_total",
 		Help: "Total number of mutations rejected by the mutation rate limiter",
@@ -196,6 +203,7 @@ func RegisterMetrics() {
 	prometheus.MustRegister(GqlSubscriptionRetransmittedCounter)
 	prometheus.MustRegister(GqlSubscriptionLimitRejectedCounter)
 	prometheus.MustRegister(GqlSubscriptionRemovedCounter)
+	prometheus.MustRegister(WsConnectionSubscriptionsPeak)
 	prometheus.MustRegister(GqlReceivedDataCounter)
 	prometheus.MustRegister(GqlMutationsCounter)
 	prometheus.MustRegister(GqlMutationRateLimitExceededCounter)
