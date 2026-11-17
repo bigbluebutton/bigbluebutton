@@ -56,6 +56,18 @@ masks:
     as: regex
     regex: '-[0-9]{13}-track\.'
     replace: '-<ms>-track.'
+  # getRecordingProcessingInfo counts every recording still queued on the
+  # server, and on Tier 1, where nothing processes them, that is every
+  # recorded meeting the run has ended so far. The oldest queued work's
+  # queue time and the oldest running step's start time are times.
+  - path: /response/queuedCount
+    as: regex
+    regex: '^[0-9]+$'
+    replace: '<count>'
+  - field: oldestQueuedTime
+    as: time
+  - field: oldestRunningTime
+    as: time
 # getRecordings lists recordings, and each recording's playback
 # formats, in the order the server's file system lists their directories.
 unordered:

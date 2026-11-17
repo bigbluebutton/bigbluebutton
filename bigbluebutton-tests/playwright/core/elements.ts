@@ -125,6 +125,7 @@ export const elements = {
   audioHelpRetryMicButton: 'button[data-test="helpRetryMicBtn"]',
   microphonePermissionHelpLabel: 'We need access to your microphone',
   unmuteConsentTitle: 'A moderator is asking you to unmute',
+  unmutedByModeratorToast: 'A moderator unmuted your microphone',
   onDeviceLanguageAvailable: 'div[data-test="onDeviceLanguageAvailable"]',
   onDeviceLanguageDownloadable: 'div[data-test="onDeviceLanguageDownloadable"]',
   onDeviceLanguageDownloading: 'div[data-test="onDeviceLanguageDownloading"]',
@@ -426,6 +427,9 @@ export const elements = {
   notesConnectionError: '[data-test="notesError"]',
   notesRetryButton: 'button[data-test="notesRetryButton"]',
 
+  // Plugins
+  e2ePluginMainContent: 'div[data-test="container-e2ePluginMainContent"]',
+
   // Notifications
   smallToastMsg: 'div[data-test="toastSmallMsg"]',
   closeToastBtn: 'i[data-test="closeToastBtn"]',
@@ -574,6 +578,7 @@ export const elements = {
   // the media-sharing view's confirm button (was startNewVideo before the
   // external video share moved into the media area)
   startShareVideoBtn: 'button[data-test="ShareExternalVideo"]',
+  mediaAreaStopSharing: 'button[data-test="StopSharing"]',
   videoPlayer: 'div[data-test="videoPlayer"]',
   externalVideo: 'div[data-test="videoPlayer"] video',
   presentationTitle: 'h1[data-test="presentationTitle"]',
@@ -685,6 +690,7 @@ export const elements = {
   userBannedMessage2: 'div[id="app"] >> div >> div:nth-child(2)',
   meetingEndedModalTitle: 'div[data-test="meetingEndedModal"]',
   unmuteUser: 'div[data-test="unmuteUser"]',
+  muteUser: 'div[data-test="muteUser"]',
   audioStateUnmuted: 'div[data-test="audioStateUnmuted"]',
   // prefix match: the client writes this data-test with a trailing space
   audioStateMuted: 'div[data-test^="audioStateMuted"]',

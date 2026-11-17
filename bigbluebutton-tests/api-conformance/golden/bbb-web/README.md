@@ -68,7 +68,10 @@ there compares like with like.
   from v4.0.x-develop of 2026-11-10; only the host changed in them. On
   2026-11-13 `getRecordings.all.fetch-all-off` was re-recorded without its
   limited listing, whose formats depend on the file system's order, from a
-  stack running the same packages.
+  stack running the same packages. On 2026-11-16 the getRecordingProcessingInfo
+  cases (`getRecordingProcessingInfo/`, and their checksum and method cases)
+  were added, recorded from a fresh stack (`make reset`) running a bbb-web
+  built from this tree that day and the other packages of 2026-11-10.
 
 ## Reviewing
 

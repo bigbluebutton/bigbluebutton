@@ -24,6 +24,7 @@ select_permissions:
         - userCameraCap
         - webcamsOnlyForModerator
         - multiUserWhiteboardEnabled
+        - requireUserConsentBeforeUnmuting
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId
@@ -44,6 +45,7 @@ select_permissions:
         - userCameraCap
         - webcamsOnlyForModerator
         - multiUserWhiteboardEnabled
+        - requireUserConsentBeforeUnmuting
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId

@@ -18,10 +18,11 @@ steps:
       message: No recordings found. This may occur if you attempt to retrieve all recordings.
       xpath:
         /response/recordings: {absent: true}
-  # With a limit, bbb-web keeps one of A1's two formats, whichever the file
-  # system lists first (getRecordings.pagination.formats), so the listing
-  # isn't recorded. Its record IDs are checked instead: every published and
-  # unpublished fixture recording, once each.
+  # With a limit, bbb-web keeps one format of each recording that has two
+  # (A1, mut-unpub and mut-pub), whichever the file system lists first
+  # (getRecordings.pagination.formats), so the listing isn't recorded. Its
+  # record IDs are checked instead: every published and unpublished fixture
+  # recording, once each.
   - call: getRecordings
     params: {limit: "100"}
     golden: off

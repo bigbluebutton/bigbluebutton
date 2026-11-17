@@ -115,6 +115,10 @@ id=$(sha1 "$ext")-1700003600000 start=1700003600000 end=1700004200000 participan
 state=unpublished
 meta "$ext" "$name" false conform-color green
 write unpublished presentation 595000 500113
+# Its video format failed to process: the marker record-and-playback
+# leaves, which getRecordingProcessingInfo counts in failedCount.
+mkdir -p "$here/recording/status/processed"
+: >"$here/recording/status/processed/$id-video.fail"
 
 # B: published, with a value for the meta wildcard filters.
 ext=conform-rec-b name="Conform Recordings B"
