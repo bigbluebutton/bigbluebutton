@@ -15,6 +15,13 @@ func AdvancedMetricsEnabled() bool {
 	return config.GetConfig().PrometheusAdvancedMetricsEnabled
 }
 
+// Values of the result label of the hook request counters.
+const (
+	HookRequestOk           = "ok"
+	HookRequestUnauthorized = "unauthorized"
+	HookRequestError        = "error"
+)
+
 // TimeBucketsSeconds are the buckets of the middleware's time histograms in seconds; they
 // resolve the 150 ms and 333 ms poll intervals of Hasura.
 var TimeBucketsSeconds = []float64{0.01, 0.05, 0.1, 0.15, 0.25, 0.333, 0.5, 1, 2, 5, 10}
@@ -59,6 +66,18 @@ var (
 			Help: "Total number of Graphql subscriptions rejected by the per-connection limit",
 		},
 		[]string{"type", "operationName"},
+	)
+	AuthHookRequestDuration = prometheus.NewHistogram(prometheus.HistogramOpts{
+		Name:    "auth_hook_request_duration_seconds",
+		Help:    "Duration of each authorization request to bbb-web, in seconds",
+		Buckets: TimeBucketsSeconds,
+	})
+	AuthHookRequestCounter = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "auth_hook_request_total",
+			Help: "Total number of authorization requests to bbb-web",
+		},
+		[]string{"result"},
 	)
 	HttpConnectionRateLimitWait = prometheus.NewHistogram(prometheus.HistogramOpts{
 		Name:    "http_connection_rate_limit_wait_seconds",
@@ -159,6 +178,8 @@ func RegisterMetrics() {
 	prometheus.MustRegister(GqlReceivedDataCounter)
 	prometheus.MustRegister(GqlMutationsCounter)
 	prometheus.MustRegister(GqlMutationRateLimitExceededCounter)
+	prometheus.MustRegister(AuthHookRequestDuration)
+	prometheus.MustRegister(AuthHookRequestCounter)
 	prometheus.MustRegister(HttpConnectionRateLimitWait)
 	prometheus.MustRegister(HttpConnectionRateLimitExceededCounter)
 	prometheus.MustRegister(GqlQueryRateLimitWait)
