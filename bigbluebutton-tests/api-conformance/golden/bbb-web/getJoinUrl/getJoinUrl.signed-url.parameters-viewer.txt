@@ -1,0 +1,18 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case getJoinUrl.signed-url.parameters-viewer
+target bbb-web
+
+== step 3: call getJoinUrl
+status 200
+header Cache-Control no-cache
+header Content-Type application/json;charset=utf-8
+body json
+$.response.message "Join URL provided successfully."
+$.response.returncode "SUCCESS"
+$.response.url "${baseUrl}${apiPrefix}join?checksum=<token>&existingUserID=w_<id>&fullName=Ann&meetingID=${uid}&redirect=true&role=VIEWER&userdata-bbb_show_session_details_on_join=false"
+
+== step 4: url ${joinUrl}
+status 302
+header Set-Cookie JSESSIONID=<token>; HttpOnly; Path=/; Secure
+location ${baseUrl}/html5client/?sessionToken=<token>
+body (redirect)

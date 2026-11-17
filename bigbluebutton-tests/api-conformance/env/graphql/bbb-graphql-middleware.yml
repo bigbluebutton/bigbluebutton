@@ -1,0 +1,7 @@
+# /etc/bigbluebutton/bbb-graphql-middleware.yml on the Tier 1 stack, merged
+# over the package's config.yml.
+server:
+  # graphql.nginx passes the Host without its port, and the websocket
+  # library compares it with the Origin's host and port, so a server on a
+  # port other than 443 names its origin, as one behind a proxy does.
+  authorized_cross_origin: 'localhost:8443'

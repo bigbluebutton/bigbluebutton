@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A call without a checksum should always say so: "You must provide the
+# checksum". bbb-web answers either that or "Checksums do not match", at
+# random from one request to the next, since two of its checks put their
+# messages under the same error key (masks.yaml hides the difference from
+# the recordings). Sixteen requests all get the right message about once
+# in 65,000 runs, so this defect case fails on bbb-web
+# (expectations/bbb-web.yaml).
+id: getMeetings.checksum.missing-message
+title: getMeetings without a checksum always says the checksum is missing
+endpoint: getMeetings
+class: defect
+tags: [ci]
+defs:
+  ask: &ask
+    call: getMeetings
+    sign: none
+    golden: document
+    expect: {returncode: FAILED, messageKey: checksumError, message: You must provide the checksum}
+steps:
+  - *ask
+  - *ask
+  - *ask
+  - *ask
+  - *ask
+  - *ask
+  - *ask
+  - *ask
+  - *ask
+  - *ask
+  - *ask
+  - *ask
+  - *ask
+  - *ask
+  - *ask
+  - *ask

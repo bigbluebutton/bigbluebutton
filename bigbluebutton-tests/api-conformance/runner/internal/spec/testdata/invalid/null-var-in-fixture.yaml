@@ -1,0 +1,12 @@
+# want: 12: in bodies/named-document.xml: variant var filename is null, so a fixture can't use it
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+variants:
+  - {id: named, vars: {filename: b.txt}}
+  - {id: unnamed, vars: {filename: null}}
+steps:
+  - call: create
+    method: POST
+    body: {xmlFile: bodies/named-document.xml}

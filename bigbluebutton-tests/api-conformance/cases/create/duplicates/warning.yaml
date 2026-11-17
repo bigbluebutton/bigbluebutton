@@ -1,0 +1,50 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# Creating a meeting that already exists, with the same passwords or with
+# none either time, answers duplicateWarning with the existing meeting: its
+# internal ID, create time, voiceBridge, passwords (also generated ones) and
+# duration. The new name and duration are ignored, as getMeetingInfo shows.
+id: create.duplicates.warning
+title: create again with ${scenario}
+endpoint: create
+class: compat
+tags: [ci]
+requires: [akka]
+variants:
+  - {id: same-passwords, vars: {scenario: the same passwords, ap: ap, mp: mp}}
+  - {id: no-passwords, vars: {scenario: no passwords, ap: null, mp: null}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: First, duration: "10", attendeePW: "${ap}", moderatorPW: "${mp}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture:
+      intId: /response/internalMeetingID
+      createTime: /response/createTime
+      voiceBridge: /response/voiceBridge
+      attendeePW: /response/attendeePW
+      moderatorPW: /response/moderatorPW
+  - call: create
+    params: {meetingID: "${uid}", name: Second, duration: "20", attendeePW: "${ap}", moderatorPW: "${mp}"}
+    expect:
+      returncode: SUCCESS
+      messageKey: duplicateWarning
+      xpath:
+        /response/internalMeetingID: "${intId}"
+        /response/createTime: "${createTime}"
+        /response/voiceBridge: "${voiceBridge}"
+        /response/attendeePW: "${attendeePW}"
+        /response/moderatorPW: "${moderatorPW}"
+        /response/duration: "10"
+  - call: getMeetingInfo
+    params: {meetingID: "${uid}"}
+    golden: off
+    expect:
+      returncode: SUCCESS
+      xpath: {/response/meetingName: First, /response/duration: "10"}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

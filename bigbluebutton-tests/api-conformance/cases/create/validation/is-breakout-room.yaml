@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# isBreakoutRoom is checked as a boolean, although create never reads it:
+# breakout rooms are made with isBreakout. Old integrations may still send
+# it, so the check stays.
+id: create.validation.is-breakout-room
+title: create rejects isBreakoutRoom=yes
+endpoint: create
+class: compat
+tags: [ci]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Breakout flag, isBreakoutRoom: "yes"}
+    expect: {returncode: FAILED, messageKey: validationError}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

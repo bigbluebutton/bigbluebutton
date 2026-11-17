@@ -143,7 +143,11 @@ class MutedAlert extends Component {
         position="top"
       >
         <Styled.MuteWarning
-          onClick={() => this.closeAlert()}
+          onClick={(e) => {
+            // Keep the click from reaching the audio options menu trigger
+            e.stopPropagation();
+            this.closeAlert();
+          }}
           $mobile={isMobile}
         >
           <span>

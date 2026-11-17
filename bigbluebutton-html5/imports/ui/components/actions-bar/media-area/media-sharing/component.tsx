@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useMutation } from '@apollo/client';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import SvgIcon from '@mui/material/SvgIcon';
@@ -18,6 +19,7 @@ import PresentationUploaderContainer from './presentation/container';
 import ExternalVideoView from './external-video/component';
 import CameraAsContentView from './camera-as-content/component';
 import { MediaButtonPluginItem } from '../types';
+import { EXTERNAL_VIDEO_STOP } from '/imports/ui/components/external-video-player/mutations';
 import { layoutSelectOutput } from '/imports/ui/components/layout/context';
 import { Output } from '/imports/ui/components/layout/layoutTypes';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
@@ -40,7 +42,6 @@ interface MediaSharingModalProps {
   isPresentationEnabled: boolean;
   isSharingVideo: boolean;
   allowExternalVideo: boolean;
-  stopExternalVideoShare: () => void;
   isMobile: boolean;
   isRTL: boolean;
   isRequestingPresenter?: boolean;
@@ -156,7 +157,6 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
   isPresentationEnabled,
   isSharingVideo,
   allowExternalVideo,
-  stopExternalVideoShare,
   isMobile,
   isRTL,
   isRequestingPresenter = false,
@@ -166,6 +166,7 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
   const animations = getSettingsSingletonInstance().application?.animations ?? true;
   const actionsBarStyle = layoutSelectOutput((i: Output) => i.actionBar);
   const { screenIsShared: isScreenGloballyBroadcasting } = useIsScreenGloballyBroadcasting();
+  const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
   const [currentView, setCurrentView] = useState<'main' | 'presentation' | 'externalVideo' | 'cameraAsContent'>('main');
   const [localRequestingPresenter, setLocalRequestingPresenter] = useState(false);
 
@@ -320,7 +321,6 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
           intl={intl}
           onActionCompleted={handleBackClick}
           isSharingVideo={isSharingVideo}
-          stopExternalVideoShare={stopExternalVideoShare}
         />
       );
     } else if (currentView === 'cameraAsContent') {
@@ -331,7 +331,6 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
           intl={intl}
           hasCameraAsContent={hasCameraAsContent}
           onActionCompleted={handleBackClick}
-          stopExternalVideoShare={stopExternalVideoShare}
         />
       );
     }

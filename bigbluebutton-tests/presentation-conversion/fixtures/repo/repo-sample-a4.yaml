@@ -1,0 +1,9 @@
+id: repo-sample-a4
+title: Ten A4 portrait pages used by the Playwright aspect-ratio test
+tier: repo
+file: ../../../playwright/core/media/sample.pdf
+issues: [25450]
+catalog: [Slide dimensions]
+pages: 10
+expect: converted
+kind: vector

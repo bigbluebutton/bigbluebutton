@@ -1,0 +1,19 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case join.checksum.accepted-sha512
+target bbb-web
+
+== step 2: call join
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+header Set-Cookie JSESSIONID=<token>; HttpOnly; Path=/; Secure
+body xml
+/response/returncode "SUCCESS"
+/response/messageKey "successfullyJoined"
+/response/message "You have joined successfully."
+/response/meeting_id "<sha1(meetingID)>-<time>"
+/response/user_id "w_<id>"
+/response/auth_token "<token>"
+/response/session_token "<token>"
+/response/guestStatus "ALLOW"
+/response/url "${baseUrl}/html5client/?sessionToken=<token>"

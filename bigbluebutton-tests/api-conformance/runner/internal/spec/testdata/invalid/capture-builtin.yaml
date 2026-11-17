@@ -1,0 +1,8 @@
+# want: 8: steps[0]: capture "uid" would hide a built-in variable
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+steps:
+  - call: create
+    capture: {uid: /response/meetingID}

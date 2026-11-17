@@ -1,0 +1,47 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# With endWhenNoModerator, what counts is the moderator role, not who is
+# in the meeting: when the only moderator makes themselves a viewer, the
+# meeting ends at akka-apps' next audit (every 10 seconds) with the reason
+# ENDED_DUE_TO_NO_MODERATOR, though nobody left.
+id: create.expiry.no-moderator-demoted
+title: A meeting with endWhenNoModerator ends when its only moderator becomes a viewer
+endpoint: create
+class: contract
+tags: [ci, presence]
+requires: [akka, presence]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Expiry, endWhenNoModerator: "true", endWhenNoModeratorDelayInMinutes: "0"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: MODERATOR}}
+    golden: off
+    capture: {annId: $.userId}
+  - presence: {action: join, as: vic, args: {meetingID: "${uid}", fullName: Vic, role: VIEWER}}
+    golden: off
+  - graphql:
+      as: ann
+      query: "mutation SetRole($id: String!, $role: String!) { userSetRole(userId: $id, role: $role) }"
+      variables: {id: "${annId}", role: VIEWER}
+    golden: off
+  # akka-apps made the change.
+  - bus: {name: UserRoleChangedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+    expect: {jsonpath: {$.core.body.userId: "${annId}", $.core.body.role: VIEWER}}
+  - bus: {name: MeetingEndingEvtMsg, meetingId: "${intId}", within: 15s}
+    expect:
+      jsonpath: {$.core.body.reason: ENDED_DUE_TO_NO_MODERATOR}
+  - call: getMeetingInfo
+    params: {meetingID: "${uid}"}
+    eventually: {within: 5s, every: 200ms, until: {messageKey: notFound}}
+    expect: {returncode: FAILED, messageKey: notFound}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

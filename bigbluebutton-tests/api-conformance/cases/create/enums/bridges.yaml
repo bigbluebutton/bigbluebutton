@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# The media bridges, livekit or bbb-webrtc-sfu, are stored as they were sent,
+# in akka-apps' meeting props: create doesn't check them or change their
+# case.
+id: create.enums.bridges
+title: create with ${param}=${value}
+endpoint: create
+class: compat
+tags: [ci]
+requires: [akka, bus]
+variants:
+  - {id: camera-valid, vars: {param: cameraBridge, value: bbb-webrtc-sfu}, class: contract}
+  - {id: camera-upper-case, vars: {param: cameraBridge, value: BBB-WEBRTC-SFU}}
+  - {id: camera-unknown, vars: {param: cameraBridge, value: no-such-bridge}}
+  - {id: screen-share-valid, vars: {param: screenShareBridge, value: bbb-webrtc-sfu}, class: contract}
+  - {id: screen-share-upper-case, vars: {param: screenShareBridge, value: BBB-WEBRTC-SFU}}
+  - {id: screen-share-unknown, vars: {param: screenShareBridge, value: no-such-bridge}}
+  - {id: audio-valid, vars: {param: audioBridge, value: bbb-webrtc-sfu}, class: contract}
+  - {id: audio-upper-case, vars: {param: audioBridge, value: BBB-WEBRTC-SFU}}
+  - {id: audio-unknown, vars: {param: audioBridge, value: no-such-bridge}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Enums, "${param}": "${value}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.props.meetingProp.cameraBridge, $.core.body.props.meetingProp.screenShareBridge, $.core.body.props.meetingProp.audioBridge]
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

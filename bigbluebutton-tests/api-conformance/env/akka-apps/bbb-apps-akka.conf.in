@@ -1,0 +1,8 @@
+// /etc/bigbluebutton/bbb-apps-akka.conf on the Tier 1 stack, as the
+// package's preinst writes it, with the stack's API URL and salt.
+include "/usr/share/bbb-apps-akka/conf/application.conf"
+
+services {
+  bbbWebAPI="https://localhost:8443/bigbluebutton/api"
+  sharedSecret="@SALT@"
+}

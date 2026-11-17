@@ -1,0 +1,24 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# When a filter leaves nothing, bbb-web answers SUCCESS with an empty
+# recordings element and noRecordings. (With no filter at all and
+# allowFetchAllRecordings off, the answer has no recordings element:
+# getRecordings.all.fetch-all-off.)
+id: getRecordings.filters.no-match
+title: getRecordings that matches nothing answers noRecordings with an empty list
+endpoint: getRecordings
+class: contract
+tags: [ci]
+requires: [recordings-fs]
+variants:
+  - {id: meeting-id, vars: {param: meetingID, value: conform-rec-none}}
+  - {id: record-id, vars: {param: recordID, value: 0000000000000000000000000000000000000000-1700000000000}}
+steps:
+  - call: getRecordings
+    params: {"${param}": "${value}"}
+    expect:
+      returncode: SUCCESS
+      messageKey: noRecordings
+      message: There are no recordings for the meeting(s).
+      xpath:
+        /response/recordings: {exists: true}
+        /response/recordings/recording: {count: 0}

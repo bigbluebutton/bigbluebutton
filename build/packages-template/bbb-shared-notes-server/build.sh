@@ -42,13 +42,12 @@ cp config/default.yml staging/usr/share/bbb-shared-notes-server/config
 cp -r node_modules staging/usr/share/bbb-shared-notes-server
 cp -r assets staging/usr/share/bbb-shared-notes-server
 
-# Copy script to run commands through `system-run --user`
-cp run-in-systemd.sh staging/usr/share/bbb-shared-notes-server
 chmod 755 staging/usr/share/bbb-shared-notes-server
 
-# Setup service
+# Setup service, and the socket-activated service that converts notes to PDF
 mkdir -p staging/usr/lib/systemd/system
 cp bbb-shared-notes-server.service staging/usr/lib/systemd/system
+cp bbb-shared-notes-conversion.socket bbb-shared-notes-conversion@.service staging/usr/lib/systemd/system
 
 . ./opts-$DISTRO.sh
 

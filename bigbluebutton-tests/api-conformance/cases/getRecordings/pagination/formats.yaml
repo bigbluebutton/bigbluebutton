@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A recording published in two formats is one recording with two formats,
+# paged or not. With limit, bbb-web drops all but the first directory it
+# finds for each record ID before it merges them, so the recording loses
+# its other formats; which one it keeps depends on the order the file
+# system lists them, so the step isn't recorded. A defect
+# (expectations/bbb-web.yaml). A1 is published as presentation and video.
+id: getRecordings.pagination.formats
+title: getRecordings with limit keeps every format of a recording
+endpoint: getRecordings
+class: defect
+tags: [ci]
+requires: [recordings-fs]
+steps:
+  - call: getRecordings
+    params: {recordID: e633b9434f359d31c1be30832b42a91ac0fb0e92-1700000000000}
+    expect:
+      returncode: SUCCESS
+      xpath:
+        /response/recordings/recording/playback/format: {count: 2}
+  - call: getRecordings
+    params: {recordID: e633b9434f359d31c1be30832b42a91ac0fb0e92-1700000000000, limit: "10"}
+    golden: off
+    expect:
+      returncode: SUCCESS
+      xpath:
+        /response/totalElements: "1"
+        /response/recordings/recording/playback/format: {count: 2}

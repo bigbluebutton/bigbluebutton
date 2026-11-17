@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A meetingID must be 2 to 256 characters long; the error's message is in the
+# recording.
+id: create.validation.meeting-id-length
+title: create rejects a ${len}-character meetingID
+endpoint: create
+class: contract
+tags: [ci]
+variants:
+  - {id: too-short, vars: {len: 1}}
+  - {id: too-long, vars: {len: 257}}
+steps:
+  - call: create
+    params: {meetingID: '${repeat("z", len)}', name: Meeting ID}
+    expect: {returncode: FAILED, messageKey: sizeError}

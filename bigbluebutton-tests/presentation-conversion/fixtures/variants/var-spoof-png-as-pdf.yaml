@@ -1,0 +1,11 @@
+id: var-spoof-png-as-pdf
+title: PNG bytes uploaded with a .pdf extension
+tier: variant
+file: ../../../playwright/core/media/uploadTest.png
+upload: { method: insertDocument, name: "spoofed.pdf" }
+catalog: [File-type detection]
+pages: 0
+expect: dropped
+kind: any
+checks: [outcome]
+notes: "API uploads whose content does not match the extension are deleted without any message (ApiController.processDocumentFromRawBytes); the client upload path reports INVALID_MIME_TYPE instead."

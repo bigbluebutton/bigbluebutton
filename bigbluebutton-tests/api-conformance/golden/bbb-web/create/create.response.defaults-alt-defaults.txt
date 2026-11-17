@@ -1,0 +1,117 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.response.defaults-alt-defaults
+target bbb-web
+
+== step 1: call create
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "SUCCESS"
+/response/meetingID "${uid}"
+/response/internalMeetingID "<sha1(meetingID)>-<time>"
+/response/parentMeetingID "bbb-none"
+/response/attendeePW "<random>"
+/response/moderatorPW "<random>"
+/response/createTime "<time>"
+/response/voiceBridge "<random>"
+/response/dialNumber "613-555-0199"
+/response/createDate "<date>"
+/response/hasUserJoined "false"
+/response/duration "45"
+/response/hasBeenForciblyEnded "false"
+/response/messageKey
+/response/message
+
+== step 2: bus MeetingCreatedEvtMsg
+$.channel "from-akka-apps-redis-channel"
+$.core.body.props.breakoutProps.breakoutRooms []
+$.core.body.props.breakoutProps.captureNotes false
+$.core.body.props.breakoutProps.captureNotesFilename "%%CONFNAME%%"
+$.core.body.props.breakoutProps.captureSlides false
+$.core.body.props.breakoutProps.captureSlidesFilename "%%CONFNAME%%"
+$.core.body.props.breakoutProps.freeJoin false
+$.core.body.props.breakoutProps.parentId "bbb-none"
+$.core.body.props.breakoutProps.privateChatEnabled false
+$.core.body.props.breakoutProps.record true
+$.core.body.props.breakoutProps.sequence 0
+$.core.body.props.durationProps.createdDate "<date>"
+$.core.body.props.durationProps.createdTime "<time>"
+$.core.body.props.durationProps.duration 45
+$.core.body.props.durationProps.endWhenNoModerator true
+$.core.body.props.durationProps.endWhenNoModeratorDelayInMinutes 4
+$.core.body.props.durationProps.meetingExpireIfNoUserJoinedInMinutes 7
+$.core.body.props.durationProps.meetingExpireWhenLastUserLeftInMinutes 3
+$.core.body.props.durationProps.userActivitySignResponseDelayInMinutes 6
+$.core.body.props.durationProps.userInactivityInspectTimerInMinutes 7
+$.core.body.props.durationProps.userInactivityThresholdInMinutes 31
+$.core.body.props.groups []
+$.core.body.props.lockSettingsProps.disableCam true
+$.core.body.props.lockSettingsProps.disableMic true
+$.core.body.props.lockSettingsProps.disableNotes true
+$.core.body.props.lockSettingsProps.disablePrivateChat true
+$.core.body.props.lockSettingsProps.disablePublicChat true
+$.core.body.props.lockSettingsProps.hideUserList true
+$.core.body.props.lockSettingsProps.hideViewersAnnotation true
+$.core.body.props.lockSettingsProps.hideViewersCursor true
+$.core.body.props.lockSettingsProps.lockOnJoin false
+$.core.body.props.lockSettingsProps.lockOnJoinConfigurable true
+$.core.body.props.lockSettingsProps.presenterPolicy "moderatorOnly"
+$.core.body.props.meetingProp.audioBridge "bbb-webrtc-sfu"
+$.core.body.props.meetingProp.cameraBridge "bbb-webrtc-sfu"
+$.core.body.props.meetingProp.disabledFeatures[] "chat"
+$.core.body.props.meetingProp.disabledFeatures[] "polls"
+$.core.body.props.meetingProp.extId "${uid}"
+$.core.body.props.meetingProp.intId "<sha1(meetingID)>-<time>"
+$.core.body.props.meetingProp.isBreakout false
+$.core.body.props.meetingProp.maxPinnedCameras 5
+$.core.body.props.meetingProp.meetingCameraCap 4
+$.core.body.props.meetingProp.name "Defaults"
+$.core.body.props.meetingProp.notifyRecordingAppend ""
+$.core.body.props.meetingProp.notifyRecordingIsOn true
+$.core.body.props.meetingProp.presentationUploadExternalDescription ""
+$.core.body.props.meetingProp.presentationUploadExternalUrl ""
+$.core.body.props.meetingProp.screenShareBridge "bbb-webrtc-sfu"
+$.core.body.props.meetingProp.sharedNotesInitialContentJson []
+$.core.body.props.meetingProp.sharedNotesInitialContentMarkdown ""
+$.core.body.props.metadataProp.metadata {}
+$.core.body.props.overrideClientSettings ""
+$.core.body.props.password.learningDashboardAccessToken "<token>"
+$.core.body.props.password.moderatorPass "<random>"
+$.core.body.props.password.viewerPass "<random>"
+$.core.body.props.pluginProp {}
+$.core.body.props.recordProp.allowStartStopRecording false
+$.core.body.props.recordProp.autoStartRecording true
+$.core.body.props.recordProp.keepEvents true
+$.core.body.props.recordProp.record false
+$.core.body.props.recordProp.recordFullDurationMedia true
+$.core.body.props.systemProps.bannerColor ""
+$.core.body.props.systemProps.bannerText ""
+$.core.body.props.systemProps.customDarkLogoURL "${baseUrl}/images/darklogo.png"
+$.core.body.props.systemProps.customLogoURL "${baseUrl}/images/logo.png"
+$.core.body.props.systemProps.html5PluginSdkVersion "<version>"
+$.core.body.props.systemProps.loginUrl ""
+$.core.body.props.systemProps.logoutUrl "https://logout.example/alt"
+$.core.body.props.usersProp.allowModsToEjectCameras true
+$.core.body.props.usersProp.allowModsToUnmuteUsers true
+$.core.body.props.usersProp.allowPromoteGuestToModerator true
+$.core.body.props.usersProp.authenticatedGuest false
+$.core.body.props.usersProp.guestPolicy "ASK_MODERATOR"
+$.core.body.props.usersProp.maxUserConcurrentAccesses 5
+$.core.body.props.usersProp.maxUsers 25
+$.core.body.props.usersProp.meetingLayout "CUSTOM_LAYOUT"
+$.core.body.props.usersProp.multiUserWhiteboardEnabled false
+$.core.body.props.usersProp.requireUserConsentBeforeUnmuting true
+$.core.body.props.usersProp.userCameraCap 2
+$.core.body.props.usersProp.waitingGuestUsersTimeout 31000
+$.core.body.props.usersProp.webcamsOnlyForModerator true
+$.core.body.props.voiceProp.dialNumber "613-555-0199"
+$.core.body.props.voiceProp.muteOnStart false
+$.core.body.props.voiceProp.telVoice "<random>"
+$.core.body.props.voiceProp.voiceConf "<random>"
+$.core.body.props.welcomeProp.welcomeMsg "Alternative welcome to Defaults, dial 613-555-0199."
+$.core.body.props.welcomeProp.welcomeMsgForModerators ""
+$.core.header.name "MeetingCreatedEvtMsg"
+$.envelope.name "MeetingCreatedEvtMsg"
+$.envelope.routing.sender "bbb-apps-akka"
+$.envelope.timestamp "<time>"

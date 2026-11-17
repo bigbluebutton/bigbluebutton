@@ -1,0 +1,6 @@
+id: getMeetings.report.transport-error
+title: A request that can't be sent is an error
+endpoint: getMeetings
+class: contract
+steps:
+  - url: "http://127.0.0.1:1/bigbluebutton/api"

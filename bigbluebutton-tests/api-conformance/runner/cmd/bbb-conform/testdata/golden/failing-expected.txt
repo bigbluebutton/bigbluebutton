@@ -1,0 +1,40 @@
+ERROR getMeetings.report.bad-position (0s)
+      step 1 (line 6): position middle needs at least two other params, got 1
+FAIL  getMeetings.report.capture-missing (0s)
+      step 1 (line 6): capture /response/nope: nothing matched
+FAIL  isMeetingRunning.report.eventually-timeout (0s)
+      step 2 (line 10): eventually: not within 500ms (N attempts): xpath /response/running: expected "true", got "false"
+      line 10: xpath /response/running: expected "true", got "false"
+XPASS getMeetings.report.ignored (0s)
+      passed, but ../../testdata/expectations/failing.yaml expects it to fail (an exact entry for a passing case): remove the entry
+      line 6: returncode: expected "FAILED", got "SUCCESS"
+      warning: step 1 (line 6), ignored: returncode: expected "FAILED", got "SUCCESS"
+SKIP  getMeetings.report.needs-clamav
+      target lacks clamav
+SKIP  getMeetings.report.no-sink
+      not-configured: sinkUrl
+XFAIL getMeetings.report.not-json (0s)
+      a glob over a failing case (step 1 (line 6): format: expected json, got xml)
+      line 6: format: expected json, got xml
+      line 6: jsonpath $.response.returncode: expected "SUCCESS", got the response is not JSON: invalid character '<' looking for beginning of value
+SKIP  getMeetings.report.route
+      not-routed: presentation-download
+FAIL  getMeetings.report.salt-redacted (0s)
+      step 1 (line 6): message: expected "[salt]", got "no meetings were found on this server"
+      line 6: message: expected "[salt]", got "no meetings were found on this server"
+SKIP  getMeetings.report.schema
+      unimplemented: schema
+PASS  getMeetings.report.teardown-warning (0s)
+      line 8: returncode: expected "FAILED", got "SUCCESS"
+      warning: teardown step 1 (line 8): returncode: expected "FAILED", got "SUCCESS"
+ERROR getMeetings.report.transport-error (0s)
+      step 1 (line 6): Get "http://127.0.0.1:1/bigbluebutton/api": dial tcp 127.0.0.1:1: connect: connection refused
+ERROR getMeetings.report.undefined-target-var (0s)
+      step 1 (line 6): undefined variable target.sinkHost
+XFAIL getMeetings.report.wrong-value (0s)
+      an exact entry for a failing case (step 1 (line 6): returncode: expected "FAILED", got "SUCCESS")
+      line 6: returncode: expected "FAILED", got "SUCCESS"
+      line 6: messageKey: expected one of "a", "b", got "noMeetings"
+warning: ../../testdata/expectations/failing.yaml: getMeetings.report.never-written matches no case
+
+14 case(s): 1 passed, 3 failed, 3 errors, 4 skipped, 2 expected failures, 1 passed unexpectedly (0s)

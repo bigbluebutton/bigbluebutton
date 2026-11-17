@@ -1,0 +1,43 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# The user who joins a full meeting with a userID already in it
+# (same-user-id.yaml) is in the meeting, but bbb-web, which adds users
+# only while fewer distinct userIDs than maxParticipants are in, leaves
+# them out of getMeetingInfo's attendees. Recorded, not compared: still to
+# be decided (the triage tag).
+id: join.max-participants.same-user-id-listed
+title: getMeetingInfo's attendees after a userID already in a full meeting joins again
+endpoint: join
+class: compat
+tags: [triage, presence]
+requires: [akka, presence]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Max participants, maxParticipants: "1"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: moderator, userID: ann}}
+    golden: off
+  # bbb-web learns of the join from akka-apps a moment later.
+  - call: getMeetingInfo
+    params: {meetingID: "${uid}"}
+    golden: off
+    eventually: {within: 10s, every: 200ms, until: {xpath: {/response/participantCount: "1"}}}
+    expect: {xpath: {/response/participantCount: "1"}}
+  - presence: {action: join, as: ann2, args: {meetingID: "${uid}", fullName: Ann again, role: viewer, userID: ann}}
+    golden: off
+  # Long enough for bbb-web to hear of the join, as it does in under a
+  # second when it lists the user.
+  - wait: 3s
+  - call: getMeetingInfo
+    params: {meetingID: "${uid}"}
+    golden: document
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

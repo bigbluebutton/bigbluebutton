@@ -1,0 +1,16 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case getSessions.users.after-leave
+target bbb-web
+
+== step 9: call getSessions
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "SUCCESS"
+/response/sessions/meeting/meetingID "<sha1(meetingID)>-<time>"
+/response/sessions/meeting/meetingName "Users"
+/response/sessions/meeting/userName "Ann"
+/response/sessions/meeting/meetingID "<sha1(meetingID)>-<time>"
+/response/sessions/meeting/meetingName "Users"
+/response/sessions/meeting/userName "Vic"

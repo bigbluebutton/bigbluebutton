@@ -1,0 +1,16 @@
+# want: 9: steps[0]: a triage case records what the server answers without comparing it
+# want: 11: steps[2]: a triage case records what the server answers without comparing it
+id: create.x.y
+title: t
+endpoint: create
+class: compat
+tags: [triage]
+steps:
+  - call: create
+  - wait: 1s
+  - call: end
+    golden: compare
+  - call: getMeetings
+    golden: document
+  - call: isMeetingRunning
+    ignoreResult: true

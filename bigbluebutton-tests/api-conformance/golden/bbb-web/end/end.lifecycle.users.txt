@@ -1,0 +1,21 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case end.lifecycle.users
+target bbb-web
+
+== step 6: graphql query getMeetingEndData as ann
+$.data.user_current[].currentlyInMeeting false
+$.data.user_current[].loggedOut true
+$.data.user_current[].meeting.ended true
+$.data.user_current[].meeting.endedReasonCode "ENDED_FROM_API"
+
+== step 7: bus DisconnectAllClientsSysMsg
+$.channel "from-akka-apps-redis-channel"
+$.core.body.meetingId "<sha1(meetingID)>-<time>"
+$.core.body.reason "meeting-destroyed"
+$.core.header.meetingId "<sha1(meetingID)>-<time>"
+$.core.header.name "DisconnectAllClientsSysMsg"
+$.envelope.name "DisconnectAllClientsSysMsg"
+$.envelope.routing.meetingId "<sha1(meetingID)>-<time>"
+$.envelope.routing.msgType "SYSTEM"
+$.envelope.routing.userId "not-used"
+$.envelope.timestamp "<time>"

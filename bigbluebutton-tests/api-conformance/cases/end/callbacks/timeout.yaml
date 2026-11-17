@@ -1,0 +1,45 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# bbb-web gives an end callback 10 seconds to answer. One that takes longer
+# counts as failed and is tried again 30 seconds later; one that answers
+# within the 10 seconds isn't. The sink delays the first attempt only.
+# bbb-web makes its callbacks one at a time, so a slow one holds up every
+# other: these run alone. api.md documents the callback, not its timeout
+# or retries, so this is compat.
+id: end.callbacks.timeout
+title: "An end callback that answers after ${delay} ${outcome}"
+endpoint: end
+class: compat
+tags: [slow, serial]
+requires: [akka]
+variants:
+  - {id: over, vars: {delay: 12s, outcome: "is tried again", n: "2"}}
+  - {id: under, vars: {delay: 8s, outcome: "isn't tried again", n: "1"}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Callback, meta_endCallbackUrl: "${sinkUrl}/${uid}/ended?_delay=${delay}&_first=1"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: end
+    params: {meetingID: "${uid}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - sink: {key: "${uid}", within: 10s}
+    golden: off
+    expect: {method: GET}
+  # A retry comes 30 seconds after the 10-second timeout, give or take 10.
+  - sink: {key: "${uid}", within: 30s}
+    golden: off
+    expect: {count: 1}
+  - sink: {key: "${uid}", within: 20s}
+    golden: off
+    expect: {count: "${n}"}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

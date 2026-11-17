@@ -1,0 +1,12 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.method.allowed-get
+target bbb-web
+
+== step 1: call create
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "FAILED"
+/response/messageKey "nullError"
+/response/message "You must provide a meeting name"

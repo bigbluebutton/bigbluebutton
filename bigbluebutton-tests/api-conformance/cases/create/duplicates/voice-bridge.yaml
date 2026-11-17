@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A meeting can't take a voiceBridge another meeting is using. The error
+# comes as an error list, <errors><error>, not as a messageKey.
+id: create.duplicates.voice-bridge
+title: create with a voiceBridge another meeting uses
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: First}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {voiceBridge: /response/voiceBridge}
+  - call: create
+    params: {meetingID: "${uid}-b", name: Second, voiceBridge: "${voiceBridge}"}
+    expect:
+      returncode: FAILED
+      xpath: {/response/errors/error/key: nonUniqueVoiceBridge}
+teardown:
+  # Again until bbb-web no longer knows each meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}-b"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

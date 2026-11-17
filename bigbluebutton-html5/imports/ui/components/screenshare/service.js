@@ -8,6 +8,7 @@ import logger from '/imports/startup/client/logger';
 import AudioService from '/imports/ui/components/audio/service';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import browserInfo from '/imports/utils/browserInfo';
+import deviceInfo from '/imports/utils/deviceInfo';
 import { SCREENSHARE_SUBSCRIPTION } from './queries';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import useMeeting from '../../core/hooks/useMeeting';
@@ -269,6 +270,14 @@ export const useShowButtonForNonPresenters = () => {
   return MEDIA_CONFIG.screenshare.showButtonForNonPresenters;
 };
 
+export const useIsScreenshareAllowedOnDevice = () => {
+  const SCREENSHARE_CONFIG = window.meetingClientSettings.public.media.screenshare;
+
+  return !deviceInfo.isMobile
+    || browserInfo.isTabletApp
+    || (SCREENSHARE_CONFIG.enableOnMobile && BridgeService.HAS_DISPLAY_MEDIA);
+};
+
 export const attachLocalPreviewStream = (mediaElement) => {
   const { isTabletApp } = browserInfo;
   if (isTabletApp) {
@@ -315,7 +324,7 @@ export const setOutputDeviceId = (outputDeviceId) => {
 
 export const shareScreen = async (
   isCameraAsContentBroadcasting,
-  stopWatching,
+  onStarted,
   isPresenter,
   onFail,
   options = {},
@@ -353,8 +362,8 @@ export const shareScreen = async (
       return;
     }
 
-    // stop external video share if running
-    stopWatching();
+    // eject other presentation area content (external video, pinned notes, ...)
+    onStarted();
 
     setSharingContentType(contentType);
     setIsSharing(true);
