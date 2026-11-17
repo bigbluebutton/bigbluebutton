@@ -119,8 +119,8 @@ func Default() *Rules {
 			{Field: "replaceSessionToken", As: "token"},
 			{Field: "checksum", As: "token"},
 			{Field: "JSESSIONID", As: "token"},
-			// stuns: TURN credentials are "<expiry>:<user>" and an HMAC of it.
-			{Path: "turnServers[]/username", As: "regex", Regex: `^\d+:`, Replace: "<expiry>:"},
+			// stuns: TURN credentials are "<expiry>:<user ID>" and an HMAC of it.
+			{Path: "turnServers[]/username", As: "regex", Regex: `^\d+:.+$`, Replace: "<expiry>:<user ID>"},
 			{Path: "turnServers[]/password", As: "token"},
 		},
 		Unordered: []Unordered{

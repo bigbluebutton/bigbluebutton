@@ -1076,3 +1076,85 @@ func TestAddSecrets(t *testing.T) {
 		t.Errorf("%q, want %q", got, want)
 	}
 }
+
+// turnCase checks a TURN credential the way the stuns cases do: the
+// password is the HMAC of the username, which holds the expiry.
+const turnCase = `steps:
+  - {call: create, params: {meetingID: "${uid}", name: Turn}}
+  - call: join
+    params: {meetingID: "${uid}", fullName: Ann, redirect: "false"}
+    capture: {tok: /response/session_token, ann: /response/user_id}
+  - call: stuns
+    params: {sessionToken: "${tok}"}
+    expect:
+      jsonpath:
+        $.turnServers[0].username: {regex: "^[0-9]+:${ann}$"}
+        $.turnServers[0].ttl: {between: [1, 604800]}
+    capture: {user: "$.turnServers[0].username", pass: "$.turnServers[0].password", ttl: "$.turnServers[0].ttl"}
+  - check:
+      - {value: "${pass}", expect: '${hmac("sha1", target.turnSecret, user)}'}
+      - {value: '${match(user, "^([0-9]+):")}', expect: {between: ["${add(add(now(), ttl), -60)}", "${add(add(now(), ttl), 60)}"]}}
+`
+
+// runTurn runs turnCase with the given secret and clock.
+func runTurn(t *testing.T, secret string, now func() time.Time) *report.CaseResult {
+	t.Helper()
+	srv := httptest.NewServer(fakebbb.New(salt))
+	defer srv.Close()
+	cases, probs := spec.LoadBytes("case.yaml", []byte("id: stuns.x.y\ntitle: t\nendpoint: stuns\nclass: contract\n"+turnCase), spec.Options{FixturesDir: fixtures})
+	if len(probs) > 0 {
+		t.Fatalf("problems: %v", probs)
+	}
+	tg := &target.Target{Name: "fake", BaseURL: srv.URL, APIPrefix: "/bigbluebutton/api/", Salt: salt, DefaultSign: "sha1",
+		Vars: map[string]target.Var{"turnSecret": {Value: secret, Secret: true}}}
+	r, err := NewRunner(tg, fixtures, "test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	r.Now = now
+	return r.RunCase(context.Background(), cases[0], "uid-1")
+}
+
+func TestCheckStep(t *testing.T) {
+	if res := runTurn(t, fakebbb.TurnSecret, nil); res.Status != report.Pass {
+		t.Fatalf("status %s: %s", res.Status, res.Reason)
+	}
+	// A check step records its comparisons like any step, secrets redacted.
+	res := runTurn(t, "wrong-secret", nil)
+	if res.Status != report.Fail || !strings.Contains(res.Reason, "step 4") {
+		t.Fatalf("a wrong secret: status %s, reason %q; want a FAIL at the check step", res.Status, res.Reason)
+	}
+	last := res.Steps[len(res.Steps)-1]
+	if len(last.Assertions) != 2 || last.Assertions[0].OK || !last.Assertions[1].OK {
+		t.Errorf("assertions %+v; want the HMAC to fail and the expiry to pass", last.Assertions)
+	}
+	if strings.Contains(res.Reason+last.Assertions[0].Expected, "wrong-secret") {
+		t.Errorf("the secret leaked: %q", res.Reason)
+	}
+	// now() reads the runner's clock: an hour on, the expiry is too early.
+	res = runTurn(t, fakebbb.TurnSecret, func() time.Time { return time.Now().Add(time.Hour) })
+	if res.Status != report.Fail || !strings.Contains(res.Reason, "an integer from") {
+		t.Errorf("a clock an hour ahead: status %s, reason %q; want the expiry check to fail", res.Status, res.Reason)
+	}
+}
+
+func TestBetween(t *testing.T) {
+	for _, tt := range []struct {
+		value  string
+		status report.Status
+	}{{"5", report.Pass}, {"1", report.Pass}, {"9", report.Pass}, {"0", report.Fail}, {"10", report.Fail}, {"x", report.Fail}, {"5.0", report.Fail}} {
+		res, _ := runYAML(t, header(`steps:
+  - check: [{value: "`+tt.value+`", expect: {between: [1, "${add(4, 5)}"]}}]
+`))
+		if res.Status != tt.status {
+			t.Errorf("%s between 1 and 9: status %s (%s), want %s", tt.value, res.Status, res.Reason, tt.status)
+		}
+	}
+	// A bound that isn't a number is an error in the case, not a failed check.
+	res, _ := runYAML(t, header(`steps:
+  - check: [{value: "5", expect: {between: [1, '${urlencode("x")}']}}]
+`))
+	if res.Status != report.Error {
+		t.Errorf("a bound that isn't a number: status %s, want ERROR", res.Status)
+	}
+}

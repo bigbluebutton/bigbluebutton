@@ -47,6 +47,7 @@ const (
 	KindSink     StepKind = "sink"
 	KindEnv      StepKind = "env"
 	KindRestore  StepKind = "restore"
+	KindCheck    StepKind = "check"
 )
 
 // Capability returns the target capability a step type needs, or "".
@@ -82,6 +83,7 @@ type Step struct {
 	Redis    *RedisStep    // KindRedis
 	Sink     *SinkStep     // KindSink
 	Restore  []string      // KindRestore: the fixture recordings' record IDs
+	Check    []CheckItem   // KindCheck
 
 	// Config is the step-type mapping of the kinds implemented by later
 	// tickets (env), as plain values. Their tickets give them types.
@@ -269,13 +271,22 @@ type RedirectExpect struct {
 }
 
 // Matcher compares one value. Op is eq, exists, absent, regex, type, oneOf,
-// count or contains. Arg and Args may hold templates.
+// count, contains or between (Args: the inclusive integer bounds). Arg and
+// Args may hold templates.
 type Matcher struct {
 	Op   string
 	Arg  string
 	Args []string
 	N    int
 	Line int
+}
+
+// CheckItem is one comparison of a check step: a templated value, typically
+// made of earlier steps' captures, against a matcher.
+type CheckItem struct {
+	Value string
+	M     Matcher
+	Line  int
 }
 
 // NamedMatcher applies a matcher to the value Key selects.

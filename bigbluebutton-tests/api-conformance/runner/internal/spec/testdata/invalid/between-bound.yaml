@@ -1,0 +1,8 @@
+# want: 8: between: bound "x" isn't an integer
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+steps:
+  - check:
+      - {value: "5", expect: {between: ["x", 2]}}
