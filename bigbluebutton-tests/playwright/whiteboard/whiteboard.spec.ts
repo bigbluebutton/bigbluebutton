@@ -274,9 +274,10 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
 
   test(
     'Toolbar-zoomed slide is restored after a fit-to-width slide',
-    { tag: '@nightly' },
+    { tag: '@known-issue' },
     async ({ browser, context, page }, testInfo) => {
       linkIssue(25866);
+      linkIssue(26590);
       const slidePosition = new SlidePosition(browser, context);
       await slidePosition.initPages(page, testInfo);
       await slidePosition.restoresToolbarZoomAfterFitToWidthChange();
