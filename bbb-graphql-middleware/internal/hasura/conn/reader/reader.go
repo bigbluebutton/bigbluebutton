@@ -36,22 +36,25 @@ func HasuraConnectionReader(hc *common.HasuraConnection, wg *sync.WaitGroup) {
 		if err != nil {
 			if errors.Is(err, context.Canceled) {
 				hc.BrowserConn.Logger.Debugf("Closing Hasura ws connection as Context was cancelled!")
-			} else if errors.As(err, &closeError) {
-				hc.WebsocketCloseError = closeError
-				hc.BrowserConn.Logger.Debugf("Hasura WebSocket connection closed: status = %v, reason = %s", closeError.Code, closeError.Reason)
-				// TODO check if it should send {"type":"connection_error","payload":"Authentication hook unauthorized this request"}
 			} else {
-				if websocket.CloseStatus(err) == -1 {
-					// It doesn't have a CloseError, it will reconnect do Hasura
+				hc.SetCloseReason(common.ReconnectionHasuraReadError)
+				if errors.As(err, &closeError) {
+					hc.WebsocketCloseError = closeError
+					hc.BrowserConn.Logger.Debugf("Hasura WebSocket connection closed: status = %v, reason = %s", closeError.Code, closeError.Reason)
+					// TODO check if it should send {"type":"connection_error","payload":"Authentication hook unauthorized this request"}
 				} else {
-					// In case Hasura sent an CloseError, it will forward it to browser and disconnect
-					hc.WebsocketCloseError = &websocket.CloseError{
-						Code:   websocket.CloseStatus(err),
-						Reason: "Graphql connection closed with error" + err.Error(),
+					if websocket.CloseStatus(err) == -1 {
+						// It doesn't have a CloseError, it will reconnect do Hasura
+					} else {
+						// In case Hasura sent an CloseError, it will forward it to browser and disconnect
+						hc.WebsocketCloseError = &websocket.CloseError{
+							Code:   websocket.CloseStatus(err),
+							Reason: "Graphql connection closed with error" + err.Error(),
+						}
 					}
-				}
 
-				hc.BrowserConn.Logger.Debugf("Error reading message from Hasura: %v", err)
+					hc.BrowserConn.Logger.Debugf("Error reading message from Hasura: %v", err)
+				}
 			}
 			return
 		}

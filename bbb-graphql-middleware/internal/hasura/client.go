@@ -26,10 +26,11 @@ var (
 	hasuraEndpoint         = config.GetConfig().Hasura.Url
 )
 
-// Hasura client connection
+// HasuraClient connects to Hasura for a browser connection and returns, when that connection
+// ends, why it ended.
 func HasuraClient(
 	browserConnection *common.BrowserConnection,
-) error {
+) (string, error) {
 	// Obtain id for this connection
 	id := atomic.AddUint64(&lastHasuraConnectionId, 1)
 	hasuraConnectionId := "HC" + fmt.Sprintf("%010d", id)
@@ -45,11 +46,11 @@ func HasuraClient(
 	// Create cookie jar
 	jar, err := cookiejar.New(nil)
 	if err != nil {
-		return xerrors.Errorf("failed to create cookie jar: %w", err)
+		return common.ReconnectionOther, xerrors.Errorf("failed to create cookie jar: %w", err)
 	}
 	parsedURL, err := url.Parse(hasuraEndpoint)
 	if err != nil {
-		return xerrors.Errorf("failed to parse url: %w", err)
+		return common.ReconnectionOther, xerrors.Errorf("failed to parse url: %w", err)
 	}
 	parsedURL.Scheme = "http"
 	jar.SetCookies(parsedURL, browserConnection.BrowserRequestCookies)
@@ -95,7 +96,8 @@ func HasuraClient(
 	// Make the connection
 	hasuraWsConn, _, err := websocket.Dial(hasuraConnectionContext, hasuraEndpoint, &dialOptions)
 	if err != nil {
-		return xerrors.Errorf("error connecting to hasura: %v", err)
+		thisConnection.SetCloseReason(common.ReconnectionDialError)
+		return thisConnection.CloseReason(), xerrors.Errorf("error connecting to hasura: %v", err)
 	}
 	defer hasuraWsConn.Close(websocket.StatusInternalError, "the sky is falling")
 
@@ -121,5 +123,5 @@ func HasuraClient(
 	// Wait
 	wg.Wait()
 
-	return nil
+	return thisConnection.CloseReason(), nil
 }

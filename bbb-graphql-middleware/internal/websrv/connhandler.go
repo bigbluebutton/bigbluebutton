@@ -198,7 +198,8 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 					BrowserConnectionsMutex.RUnlock()
 					if thisBrowserConnection != nil {
 						thisConnection.Logger.Infof("created hasura client")
-						hasura.HasuraClient(thisBrowserConnection)
+						closeReason, _ := hasura.HasuraClient(thisBrowserConnection)
+						recordHasuraReconnection(browserConnectionContext, closeReason)
 					}
 					time.Sleep(100 * time.Millisecond)
 				}
@@ -296,6 +297,7 @@ func invalidateHasuraConnectionForSessionToken(browserConnection *common.Browser
 
 	// Cancel the Hasura connection context to clean up resources.
 	if hasuraConnection != nil && hasuraConnection.ContextCancelFunc != nil {
+		hasuraConnection.SetCloseReason(common.ReconnectionReason(reason))
 		hasuraConnection.ContextCancelFunc()
 	}
 
@@ -598,6 +600,15 @@ func maxActiveSubscriptions() float64 {
 		browserConnection.ActiveSubscriptionsMutex.RUnlock()
 	}
 	return float64(highest)
+}
+
+// recordHasuraReconnection counts a connection to Hasura that ended while the browser is still
+// connected: the middleware connects to Hasura again.
+func recordHasuraReconnection(browserConnectionContext context.Context, reason string) {
+	if browserConnectionContext.Err() != nil {
+		return
+	}
+	common.GqlHasuraReconnectionCounter.WithLabelValues(reason).Inc()
 }
 
 // rejectionReasons are the errorMessageIds a connection can be rejected with here; any other id

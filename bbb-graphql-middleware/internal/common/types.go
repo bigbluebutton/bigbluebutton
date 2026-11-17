@@ -82,12 +82,13 @@ type BrowserConnection struct {
 }
 
 type HasuraConnection struct {
-	Id                  string                // hasura connection id
-	BrowserConn         *BrowserConnection    // browser connection that originated this hasura connection
-	Websocket           *websocket.Conn       // websocket used to connect to Hasura
-	WebsocketCloseError *websocket.CloseError // closeError received from Hasura
-	Context             context.Context       // hasura connection context (child of browser connection context)
-	ContextCancelFunc   context.CancelFunc    // function to cancel the hasura context (and so, the hasura connection)
+	Id                  string                 // hasura connection id
+	BrowserConn         *BrowserConnection     // browser connection that originated this hasura connection
+	Websocket           *websocket.Conn        // websocket used to connect to Hasura
+	WebsocketCloseError *websocket.CloseError  // closeError received from Hasura
+	Context             context.Context        // hasura connection context (child of browser connection context)
+	ContextCancelFunc   context.CancelFunc     // function to cancel the hasura context (and so, the hasura connection)
+	closeReason         atomic.Pointer[string] // why the connection is ending; see SetCloseReason
 }
 
 type HasuraMessage struct {

@@ -13,6 +13,8 @@ func TestAkkaAppsGetSessionVariablesMeasuresEachRequest(t *testing.T) {
 	answer := `{"response":"authorized","X-Hasura-Role":"bbb_client","X-Hasura-UserId":"u1"}`
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.Write([]byte(answer)) }))
 	defer server.Close()
+	saved := sessionVarsHookUrl
+	t.Cleanup(func() { sessionVarsHookUrl = saved })
 	sessionVarsHookUrl = server.URL
 
 	requests := func(result string) float64 {
