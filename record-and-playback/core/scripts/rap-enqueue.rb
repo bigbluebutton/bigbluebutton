@@ -65,10 +65,32 @@ begin
       exit 1
     end
 
+  failed = false
   ARGV.each do |meeting_id|
     unless meeting_id_valid?(meeting_id)
       warn "Meeting ID #{meeting_id} is not correctly formatted"
+      failed = true
       next
+    end
+
+    # The worker pipeline only checks meta_bbb-disable-recording-formats when it
+    # schedules the next step itself, so check it before enqueuing a format here.
+    unless step_format.nil?
+      events_xml = File.join(props['recording_dir'], 'raw', meeting_id, 'events.xml')
+      begin
+        events = File.open(events_xml, 'r') { |io| Nokogiri::XML(io) }
+      rescue SystemCallError => e
+        warn "Cannot read events.xml for meeting #{meeting_id}, not enqueuing: #{e.message}"
+        failed = true
+        next
+      end
+
+      if BigBlueButton::Events.disabled_recording_formats(events).include?(step_format.downcase)
+        warn "Format #{step_format} is disabled for meeting #{meeting_id} " \
+             'by meta_bbb-disable-recording-formats, not enqueuing'
+        failed = true
+        next
+      end
     end
 
     opts = common_opts.merge('meeting_id': meeting_id)
@@ -76,4 +98,6 @@ begin
     warn "Enqueing #{step_name} worker with #{opts.inspect}"
     ::Resque.enqueue(klass, opts)
   end
+
+  exit 1 if failed
 end
