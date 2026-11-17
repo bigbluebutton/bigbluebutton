@@ -125,6 +125,7 @@ export const elements = {
   audioHelpRetryMicButton: 'button[data-test="helpRetryMicBtn"]',
   microphonePermissionHelpLabel: 'We need access to your microphone',
   unmuteConsentTitle: 'A moderator is asking you to unmute',
+  unmutedByModeratorToast: 'A moderator unmuted your microphone',
   onDeviceLanguageAvailable: 'div[data-test="onDeviceLanguageAvailable"]',
   onDeviceLanguageDownloadable: 'div[data-test="onDeviceLanguageDownloadable"]',
   onDeviceLanguageDownloading: 'div[data-test="onDeviceLanguageDownloading"]',
@@ -689,6 +690,7 @@ export const elements = {
   userBannedMessage2: 'div[id="app"] >> div >> div:nth-child(2)',
   meetingEndedModalTitle: 'div[data-test="meetingEndedModal"]',
   unmuteUser: 'div[data-test="unmuteUser"]',
+  muteUser: 'div[data-test="muteUser"]',
   audioStateUnmuted: 'div[data-test="audioStateUnmuted"]',
   // prefix match: the client writes this data-test with a trailing space
   audioStateMuted: 'div[data-test^="audioStateMuted"]',

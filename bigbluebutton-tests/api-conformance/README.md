@@ -345,7 +345,8 @@ BBB_TAP_TOKEN=$(openssl rand -hex 16) ./bbb-conform tap --listen 10.0.0.5:8099
   To reach it from another host, listen on a private interface with a
   token, or use an SSH tunnel (`ssh -L 8099:127.0.0.1:8099 server`). Never
   expose it on a public interface. It never writes to redis, and writes
-  files only with `--recordings`, and only the fixture recordings.
+  files only with `--recordings`, and only the fixture recordings and
+  their status markers.
   It answers only requests addressed to an IP address, `localhost` or one
   of its `--hosts`; any other host name gets HTTP 421.
 - **What it keeps:**
@@ -385,20 +386,24 @@ use it ERROR at once.
 
 getRecordings and the calls that change recordings need recordings to
 work on. `fixtures/recordings/` (see its README) is a tree laid out like
-`/var/bigbluebutton`, with recordings in every state and caption tracks.
+`/var/bigbluebutton`, with recordings in every state, caption tracks and
+the status markers record-and-playback leaves for a recording
+(`recording/status/<step>/<record ID>[-<format>].done` or `.fail`, for the
+archived, sanity, processed and published steps).
 A tap started with `--recordings fixtures/recordings`:
 - writes every recording in the tree into the data directory when it
   starts, replacing any copy of it there, in whatever state;
 - puts recordings back on `POST /recordings/restore?id=<record ID>&id=...`,
   which `restore` steps send: every copy of each recording goes, in any
-  state and format, with its caption files, anything uploaded for it to
-  the captions inbox and record-and-playback's work directory for such an
-  upload (`recording/caption/inbox/<record ID>`), and the tree's copy goes
-  in. A record ID that isn't in the tree is refused. `?all=1` puts every
-  recording back: the runner asks for that before a run with cases that
-  need the recordings, so each run starts from the tree whatever an
-  earlier one left. A restore of several recordings that fails partway
-  says which one it stopped at and how many it had put back;
+  state and format, with its status markers, its caption files, anything
+  uploaded for it to the captions inbox and record-and-playback's work
+  directory for such an upload (`recording/caption/inbox/<record ID>`),
+  and the tree's copy goes in. A record ID that isn't in the tree is
+  refused. A marker in the tree must belong to one of its recordings.
+  `?all=1` puts every recording back: the runner asks for that before a
+  run with cases that need the recordings, so each run starts from the
+  tree whatever an earlier one left. A restore of several recordings that
+  fails partway says which one it stopped at and how many it had put back;
 - writes as the data directory's owner when it runs as root, so bbb-web
   can move what it wrote.
 

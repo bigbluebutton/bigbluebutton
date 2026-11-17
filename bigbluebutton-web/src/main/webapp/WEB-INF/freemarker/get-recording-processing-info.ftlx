@@ -1,0 +1,17 @@
+<#ftl output_format="XML" auto_esc=true>
+<#compress>
+<response>
+    <#-- Where code is a 'SUCCESS' String -->
+    <returncode>${returnCode}</returncode>
+    <processing>${info.processing()?c}</processing>
+    <queuedCount>${info.queuedCount()?c}</queuedCount>
+    <runningCount>${info.runningCount()?c}</runningCount>
+    <failedCount>${info.failedCount()?c}</failedCount>
+    <#if info.oldestQueuedTime()??>
+    <oldestQueuedTime>${info.oldestQueuedTime()?c}</oldestQueuedTime>
+    </#if>
+    <#if info.oldestRunningTime()??>
+    <oldestRunningTime>${info.oldestRunningTime()?c}</oldestRunningTime>
+    </#if>
+</response>
+</#compress>

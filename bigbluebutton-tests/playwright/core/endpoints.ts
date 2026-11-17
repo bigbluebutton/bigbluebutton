@@ -63,3 +63,20 @@ export function getMeetingInfo(meetingID: string): Promise<AxiosResponse<GetMeet
 export function getRecordings(meetingID: string): Promise<AxiosResponse> {
   return apiCall('getRecordings', { meetingID });
 }
+
+interface GetRecordingProcessingInfoResponse {
+  response: {
+    returncode: string[];
+    processing?: string[];
+    queuedCount?: string[];
+    runningCount?: string[];
+    failedCount?: string[];
+    oldestQueuedTime?: string[];
+    oldestRunningTime?: string[];
+    messageKey?: string[];
+  };
+}
+
+export function getRecordingProcessingInfo(): Promise<AxiosResponse<GetRecordingProcessingInfoResponse>> {
+  return apiCall<GetRecordingProcessingInfoResponse>('getRecordingProcessingInfo');
+}
