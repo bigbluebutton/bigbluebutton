@@ -11,22 +11,27 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// cursorInitialValueRePattern matches the cursor argument of a streaming subscription, such as
+// `cursor: {initial_value: {updatedAt: $updatedAt}, ordering: ASC}`. The other fields of the cursor
+// (ordering) may come before or after initial_value. Groups: the fields before initial_value, the
+// cursor field, its initial value (a literal or a variable) and the fields after initial_value.
+var cursorInitialValueRePattern = regexp.MustCompile(`cursor\s*:\s*\{([^{}]*?)initial_value\s*:\s*\{\s*([^:{}\s]+)\s*:\s*([^{}]*?)\s*\}([^{}]*)\}`)
+
 func GetStreamCursorPropsFromBrowserMessage(browserMessage BrowserSubscribeMessage) (string, string, interface{}) {
 	streamCursorField := ""
 	streamCursorVariableName := ""
 	var streamCursorInitialValue interface{}
 
-	cursorInitialValueRePattern := regexp.MustCompile(`cursor:\s*\{\s*initial_value\s*:\s*\{\s*([^:]+):\s*([^}]+)\s*}\s*}`)
 	matches := cursorInitialValueRePattern.FindStringSubmatch(browserMessage.Payload.Query)
 	if matches != nil {
-		streamCursorField = matches[1]
-		if strings.HasPrefix(matches[2], "$") {
-			streamCursorVariableName, _ = strings.CutPrefix(matches[2], "$")
+		streamCursorField = matches[2]
+		if strings.HasPrefix(matches[3], "$") {
+			streamCursorVariableName, _ = strings.CutPrefix(matches[3], "$")
 			if targetVariableValue, okTargetVariableValue := browserMessage.Payload.Variables[streamCursorVariableName]; okTargetVariableValue {
 				streamCursorInitialValue = targetVariableValue
 			}
 		} else {
-			streamCursorInitialValue = matches[2]
+			streamCursorInitialValue = matches[3]
 		}
 	}
 
@@ -108,7 +113,6 @@ func PatchQuerySettingLastCursorValue(subscription GraphQlSubscription) []byte {
 		browserMessage.Payload.Variables[subscription.StreamCursorVariableName] = subscription.StreamCursorCurrValue
 	} else {
 		/**** This stream has its cursor value set through inline value (not variables) ****/
-		cursorInitialValueRePattern := regexp.MustCompile(`cursor:\s*\{\s*initial_value\s*:\s*\{\s*([^:]+:\s*[^}]+)\s*}\s*}`)
 		newValue := ""
 
 		replaceInitialValueFunc := func(match string) string {
@@ -135,8 +139,10 @@ func PatchQuerySettingLastCursorValue(subscription GraphQlSubscription) []byte {
 			}
 
 			if newValue != "" {
+				// Keep the other fields of the cursor (ordering) as they were
+				parts := cursorInitialValueRePattern.FindStringSubmatch(match)
 				replacement := subscription.StreamCursorField + ": " + newValue
-				return fmt.Sprintf("cursor: {initial_value: {%s}}", replacement)
+				return fmt.Sprintf("cursor: {%sinitial_value: {%s}%s}", parts[1], replacement, parts[4])
 			} else {
 				return match
 			}
