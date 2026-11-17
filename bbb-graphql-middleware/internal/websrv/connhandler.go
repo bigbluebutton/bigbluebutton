@@ -575,22 +575,26 @@ func connectionInitHandler(browserConnection *common.BrowserConnection) (error, 
 	return nil, ""
 }
 
+var registerConnectionMetricsOnce sync.Once
+
 // openConnectionSubscriptions holds, for each open browser connection, its number of active
 // subscriptions (BrowserConnection.ActiveSubscriptionsCount), so the collection of
 // ws_connection_subscriptions_max reads them without taking any lock of the application.
 var openConnectionSubscriptions sync.Map // browser connection id -> *atomic.Int64
 
 // RegisterConnectionMetrics registers the metrics computed from the open connections when they
-// are collected.
+// are collected, once however many times it is called.
 func RegisterConnectionMetrics() {
-	prometheus.MustRegister(prometheus.NewGaugeFunc(prometheus.GaugeOpts{
-		Name: "ws_connection_subscriptions_max",
-		Help: "Highest number of active subscriptions held by a single Websocket connection",
-	}, maxActiveSubscriptions))
-	// The reasons are a closed set: their series exist from the start, at zero.
-	for _, reason := range append(slices.Clone(rejectionReasons), rejectionClosedBeforeInit, rejectionOther) {
-		common.WsConnectionRejectedCounter.WithLabelValues(reason)
-	}
+	registerConnectionMetricsOnce.Do(func() {
+		prometheus.MustRegister(prometheus.NewGaugeFunc(prometheus.GaugeOpts{
+			Name: "ws_connection_subscriptions_max",
+			Help: "Highest number of active subscriptions held by a single Websocket connection",
+		}, maxActiveSubscriptions))
+		// The reasons are a closed set: their series exist from the start, at zero.
+		for _, reason := range append(slices.Clone(rejectionReasons), rejectionClosedBeforeInit, rejectionOther) {
+			common.WsConnectionRejectedCounter.WithLabelValues(reason)
+		}
+	})
 }
 
 // maxActiveSubscriptions is the highest number of active subscriptions among the open

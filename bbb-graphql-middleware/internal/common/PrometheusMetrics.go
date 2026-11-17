@@ -1,6 +1,8 @@
 package common
 
 import (
+	"sync"
+
 	"bbb-graphql-middleware/config"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -205,11 +207,18 @@ var (
 	)
 )
 
-// RegisterMetrics registers the collectors with the default Prometheus registry.
+var registerMetricsOnce sync.Once
+
+// RegisterMetrics registers the collectors with the default Prometheus registry, once however
+// many times it is called (main calls it once; tests may call it again).
 //
-// Called once from main. It is not an init() because the advanced-metrics decision below reads
-// the config, and package initialisation must stay free of file I/O.
+// It is not an init() because the advanced-metrics decision below reads the config, and package
+// initialisation must stay free of file I/O.
 func RegisterMetrics() {
+	registerMetricsOnce.Do(registerMetrics)
+}
+
+func registerMetrics() {
 	prometheus.MustRegister(HttpConnectionGauge)
 	prometheus.MustRegister(HttpConnectionCounter)
 	prometheus.MustRegister(WsConnectionAcceptedCounter)
