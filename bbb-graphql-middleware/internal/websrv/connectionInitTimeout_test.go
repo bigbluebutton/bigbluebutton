@@ -14,8 +14,9 @@ import (
 	"github.com/coder/websocket"
 )
 
-// initTimeoutReason is the reason ws_connection_rejected counts a connection_init timeout under.
-const initTimeoutReason = "connection_init not received in time"
+// initTimeoutReason is the reason ws_connection_rejected counts a connection_init timeout under:
+// its init error has no message id.
+const initTimeoutReason = "other"
 
 // A browser that sends no connection_init before the init timeout is closed with 4408, and the
 // handler goes on after the close; the connection is counted as rejected, and not as accepted.

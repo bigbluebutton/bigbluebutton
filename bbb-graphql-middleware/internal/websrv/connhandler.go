@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"slices"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -84,7 +85,7 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	connectionLogger.Infof("browser connection accepted")
 
 	if common.HasReachedMaxGlobalConnections() {
-		common.WsConnectionRejectedCounter.With(prometheus.Labels{"reason": "limit of server connections exceeded"}).Inc()
+		common.WsConnectionRejectedCounter.With(prometheus.Labels{"reason": rejectionReason("connections_limit_exceeded")}).Inc()
 		disconnectWithError(
 			browserWsConn,
 			browserConnectionContext,
@@ -466,7 +467,7 @@ func connectionInitHandler(browserConnection *common.BrowserConnection) (error, 
 		}
 		if !ok {
 			// Received all messages. Channel is closed
-			return fmt.Errorf("error on receiving init connection"), "param_missing"
+			return errClosedBeforeInit, "param_missing"
 		}
 		if bytes.Contains(fromBrowserMessage, []byte("\"connection_init\"")) {
 			var fromBrowserMessageAsMap map[string]interface{}
@@ -585,11 +586,45 @@ func connectionInitHandler(browserConnection *common.BrowserConnection) (error, 
 	return nil, ""
 }
 
+// errClosedBeforeInit is the init error of a browser that left before it sent its
+// connection_init.
+var errClosedBeforeInit = errors.New("error on receiving init connection")
+
+// rejectionClosedBeforeInit is the reason label of a connection whose browser left before it sent
+// its connection_init: it is answered with param_missing, but nothing was missing from it.
+const rejectionClosedBeforeInit = "closed_before_init"
+
+// rejectionOther is the reason label of a rejection with an errorMessageId outside rejectionReasons.
+const rejectionOther = "other"
+
+// rejectionReasons are the errorMessageIds a connection can be rejected with here; any other id
+// (one forwarded from akka-apps, for instance) is counted as rejectionOther.
+var rejectionReasons = []string{
+	"param_missing",
+	"too_many_connections",
+	"check_authorization_error",
+	"meeting_not_found",
+	"user_not_found",
+	"connections_limit_exceeded",
+}
+
+// rejectionReason is the reason label of ws_connection_rejected for an errorMessageId.
+func rejectionReason(errorMessageId string) string {
+	if slices.Contains(rejectionReasons, errorMessageId) {
+		return errorMessageId
+	}
+	return rejectionOther
+}
+
 // recordConnectionInit counts the outcome of a connection's init: rejected with its reason, or
 // accepted. A rejected connection is not counted as accepted.
 func recordConnectionInit(errorOnInitConnection error, errorMessageId string) {
+	if errors.Is(errorOnInitConnection, errClosedBeforeInit) {
+		common.WsConnectionRejectedCounter.With(prometheus.Labels{"reason": rejectionClosedBeforeInit}).Inc()
+		return
+	}
 	if errorOnInitConnection != nil {
-		common.WsConnectionRejectedCounter.With(prometheus.Labels{"reason": errorOnInitConnection.Error()}).Inc()
+		common.WsConnectionRejectedCounter.With(prometheus.Labels{"reason": rejectionReason(errorMessageId)}).Inc()
 		return
 	}
 	common.WsConnectionAcceptedCounter.Inc()
