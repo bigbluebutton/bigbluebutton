@@ -92,7 +92,7 @@ RangeLoop:
 
 					// Rate limiter from config max_connection_queries_per_minute
 					ctxRateLimiter, cancelRateLimiter := context.WithTimeout(hc.Context, 30*time.Second)
-					errRateLimiter := hc.BrowserConn.FromBrowserToHasuraRateLimiter.Wait(ctxRateLimiter)
+					errRateLimiter := common.WaitForRateLimiter(ctxRateLimiter, hc.BrowserConn.FromBrowserToHasuraRateLimiter, common.GqlQueryRateLimitWait, common.GqlQueryRateLimitExceededCounter)
 					cancelRateLimiter()
 					if errRateLimiter != nil {
 						sendErrorMessage(
