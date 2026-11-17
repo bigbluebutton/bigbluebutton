@@ -124,6 +124,8 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	thisConnection.Logger.Infof("browser connection stored")
 
 	defer func() {
+		common.RecordConnectionSubscriptionsRemoved(&thisConnection)
+
 		sessionTokenRemoved := ""
 		BrowserConnectionsMutex.Lock()
 		if _, bcExists := BrowserConnections[browserConnectionId]; bcExists {

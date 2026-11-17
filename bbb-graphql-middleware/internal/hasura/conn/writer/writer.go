@@ -295,6 +295,9 @@ RangeLoop:
 				if browserMessage.Type == "complete" {
 					// Remove subscriptions from ActivitiesOverview here once Hasura-Reader will ignore "complete" msg for them
 					browserConnection.ActiveSubscriptionsMutex.Lock()
+					if subscription, ok := browserConnection.ActiveSubscriptions[browserMessage.ID]; ok {
+						common.RecordSubscriptionRemoved(subscription, common.RemovedByClient)
+					}
 					delete(browserConnection.ActiveSubscriptions, browserMessage.ID)
 					// hc.BrowserConn.Logger.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
 					browserConnection.ActiveSubscriptionsMutex.Unlock()

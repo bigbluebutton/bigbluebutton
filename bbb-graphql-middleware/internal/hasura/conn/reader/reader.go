@@ -223,8 +223,12 @@ func handleStreamingMessage(hc *common.HasuraConnection, message []byte, subscri
 
 func handleCompleteMessage(hc *common.HasuraConnection, queryId string) {
 	hc.BrowserConn.ActiveSubscriptionsMutex.Lock()
-	queryType := hc.BrowserConn.ActiveSubscriptions[queryId].Type
-	operationName := hc.BrowserConn.ActiveSubscriptions[queryId].OperationName
+	subscription, active := hc.BrowserConn.ActiveSubscriptions[queryId]
+	queryType := subscription.Type
+	operationName := subscription.OperationName
+	if active {
+		common.RecordSubscriptionRemoved(subscription, common.RemovedByHasura)
+	}
 	delete(hc.BrowserConn.ActiveSubscriptions, queryId)
 	hc.BrowserConn.ActiveSubscriptionsMutex.Unlock()
 	hc.BrowserConn.Logger.Debugf("%s (%s) with Id %s finished by Hasura.", queryType, operationName, queryId)
