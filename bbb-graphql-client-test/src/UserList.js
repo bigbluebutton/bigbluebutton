@@ -94,9 +94,6 @@ function UserList({myUser}) {
           shortName
           currentlyInRoom
         }
-        connectionStatus {
-            connectionAliveAt
-        }
       }
     }`
   );
@@ -122,7 +119,6 @@ function UserList({myUser}) {
             <th>Muted</th>
             <th>Locked</th>
             <th>Last BreakoutRoom</th>
-            <th>connectionAliveAt</th>
             <th>Disconnected (leftFlag)</th>
             <th>LoggedOut</th>
         </tr>
@@ -156,7 +152,6 @@ function UserList({myUser}) {
                   <td style={{backgroundColor: user.lastBreakoutRoom?.currentlyInRoom === true ? '#A0DAA9' : ''}}>
                       {user.lastBreakoutRoom?.shortName}{user.lastBreakoutRoom?.currentlyInRoom === true ? ' (Online)' : ''}
                   </td>
-                  <td>{user?.connectionStatus?.connectionAliveAt}</td>
                   <td style={{backgroundColor: user.disconnected === true ? '#A0DAA9' : ''}}>{user.disconnected === true ? 'Yes' : 'No'}</td>
                   <td style={{backgroundColor: user.loggedOut === true ? '#A0DAA9' : ''}}>{user.loggedOut === true ? 'Yes' : 'No'}
                       <br />
