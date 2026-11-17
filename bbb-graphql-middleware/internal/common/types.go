@@ -34,8 +34,10 @@ type GraphQlSubscription struct {
 	StreamCursorCurrValue      interface{}
 	LastReceivedData           HasuraMessage
 	LastReceivedDataChecksum   uint32
-	JsonPatchSupported         bool   // indicate if client support Json Patch for this subscription
-	LastSeenOnHasuraConnection string // id of the hasura connection that this query was active
+	JsonPatchSupported         bool      // indicate if client support Json Patch for this subscription
+	LastSeenOnHasuraConnection string    // id of the hasura connection that this query was active
+	FirstDataPendingSince      time.Time // when the subscription was sent to Hasura, while its first data has not arrived
+	FirstDataReceived          bool      // its first data arrived
 }
 
 type BrowserConnection struct {

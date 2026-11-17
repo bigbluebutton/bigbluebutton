@@ -262,10 +262,7 @@ RangeLoop:
 						jsonPatchSupported = true
 					}
 
-					operationNameLabel := existingSubscriptionData.OperationNameLabel
-					if !queryIdExists {
-						operationNameLabel = common.MetricOperationName(browserMessage.Payload.OperationName)
-					}
+					operationNameLabel := common.MetricOperationName(browserMessage.Payload.OperationName)
 
 					browserConnection.ActiveSubscriptionsMutex.Lock()
 					if browserConnection.ActiveSubscriptionsClosed {
@@ -289,6 +286,7 @@ RangeLoop:
 						Type:                       messageType,
 						LastReceivedDataChecksum:   lastReceivedDataChecksum,
 						LastReceivedData:           lastReceivedData,
+						FirstDataReceived:          existingSubscriptionData.FirstDataReceived,
 					}
 					browserConnection.NoteActiveSubscriptionsLocked()
 					// hc.BrowserConn.Logger.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
@@ -352,6 +350,9 @@ RangeLoop:
 					continue
 				} else {
 					// Sending to Hasura
+					if browserMessage.Type == "subscribe" {
+						startFirstDataWait(browserConnection, browserMessage.ID)
+					}
 					hc.BrowserConn.Logger.Tracef("sending to hasura: %s", string(fromBrowserMessage))
 					errWrite := hc.Websocket.Write(hc.Context, websocket.MessageText, fromBrowserMessage)
 					if errWrite != nil {
@@ -606,6 +607,21 @@ func recordSubscriptionStart(messageType common.QueryType, operationNameLabel st
 			"operationName": operationNameLabel,
 		}).
 		Inc()
+}
+
+// startFirstDataWait starts the wait for a subscription's first data each time it is forwarded
+// to Hasura, until that data arrives. A record is written without a start, so a subscription
+// held while the user is not in the meeting does not wait meanwhile, and a retransmission after
+// a reconnection waits from the resend.
+func startFirstDataWait(browserConnection *common.BrowserConnection, queryId string) {
+	browserConnection.ActiveSubscriptionsMutex.Lock()
+	defer browserConnection.ActiveSubscriptionsMutex.Unlock()
+	subscription, ok := browserConnection.ActiveSubscriptions[queryId]
+	if !ok || subscription.FirstDataReceived {
+		return
+	}
+	subscription.FirstDataPendingSince = time.Now()
+	browserConnection.ActiveSubscriptions[queryId] = subscription
 }
 
 func isStreamingQuery(query string) bool {

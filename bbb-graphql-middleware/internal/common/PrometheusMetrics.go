@@ -117,6 +117,14 @@ var (
 		},
 		[]string{"type", "operationName", "reason"},
 	)
+	GqlSubscriptionFirstDataDuration = prometheus.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:    "gql_subscription_first_data_duration_seconds",
+			Help:    "Time from forwarding a subscription to Hasura until its first data message, in seconds",
+			Buckets: TimeBucketsSeconds,
+		},
+		[]string{"type"},
+	)
 	WsConnectionSubscriptionsPeak = prometheus.NewHistogram(prometheus.HistogramOpts{
 		Name: "ws_connection_subscriptions_peak",
 		Help: "Highest number of active subscriptions a Websocket connection held, observed when it closes",
@@ -204,6 +212,7 @@ func RegisterMetrics() {
 	prometheus.MustRegister(GqlSubscriptionLimitRejectedCounter)
 	prometheus.MustRegister(GqlSubscriptionRemovedCounter)
 	prometheus.MustRegister(WsConnectionSubscriptionsPeak)
+	prometheus.MustRegister(GqlSubscriptionFirstDataDuration)
 	prometheus.MustRegister(GqlReceivedDataCounter)
 	prometheus.MustRegister(GqlMutationsCounter)
 	prometheus.MustRegister(GqlMutationRateLimitExceededCounter)
@@ -230,5 +239,8 @@ func createClosedLabelSeries() {
 	for _, result := range []string{HookRequestOk, HookRequestUnauthorized, HookRequestError} {
 		AuthHookRequestCounter.WithLabelValues(result)
 		SessionVarsHookRequestCounter.WithLabelValues(result)
+	}
+	for _, queryType := range []QueryType{Query, Subscription, Streaming, SubscriptionAggregate, Mutation} {
+		GqlSubscriptionFirstDataDuration.WithLabelValues(string(queryType))
 	}
 }
