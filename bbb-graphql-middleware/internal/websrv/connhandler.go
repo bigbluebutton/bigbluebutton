@@ -157,14 +157,14 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	// Check authorization and obtain user session variables from bbb-web
-	if errorOnInitConnection, errorMessageId := connectionInitHandler(&thisConnection); errors.Is(errorOnInitConnection, errConnectionInitTimeout) {
-		common.WsConnectionRejectedCounter.With(prometheus.Labels{"reason": errorOnInitConnection.Error()}).Inc()
+	errorOnInitConnection, errorMessageId := connectionInitHandler(&thisConnection)
+	recordConnectionInit(errorOnInitConnection, errorMessageId)
+	if errors.Is(errorOnInitConnection, errConnectionInitTimeout) {
 		// 4408 is the graphql-transport-ws code for this case. Clients retry it, unlike a refusal.
 		connectionLogger.Infof("closing browser connection, reason: %v", errorOnInitConnection)
 		browserWsConn.Close(websocket.StatusCode(4408), "Connection initialisation timeout")
 		browserConnectionContextCancel()
 	} else if errorOnInitConnection != nil {
-		common.WsConnectionRejectedCounter.With(prometheus.Labels{"reason": errorOnInitConnection.Error()}).Inc()
 		disconnectWithError(
 			browserWsConn,
 			browserConnectionContext,
@@ -177,8 +177,6 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 			connectionLogger)
 		return
 	}
-
-	common.WsConnectionAcceptedCounter.Inc()
 
 	common.AddUserConnection(thisConnection.SessionToken)
 	defer common.RemoveUserConnection(thisConnection.SessionToken)
@@ -585,6 +583,16 @@ func connectionInitHandler(browserConnection *common.BrowserConnection) (error, 
 	}
 
 	return nil, ""
+}
+
+// recordConnectionInit counts the outcome of a connection's init: rejected with its reason, or
+// accepted. A rejected connection is not counted as accepted.
+func recordConnectionInit(errorOnInitConnection error, errorMessageId string) {
+	if errorOnInitConnection != nil {
+		common.WsConnectionRejectedCounter.With(prometheus.Labels{"reason": errorOnInitConnection.Error()}).Inc()
+		return
+	}
+	common.WsConnectionAcceptedCounter.Inc()
 }
 
 func disconnectWithError(
