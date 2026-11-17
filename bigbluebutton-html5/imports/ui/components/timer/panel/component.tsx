@@ -27,6 +27,7 @@ import logger from '/imports/startup/client/logger';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import Auth from '/imports/ui/services/auth';
 import PanelHeader from '/imports/ui/components/common/panel-header/component';
+import usePanelClose from '/imports/ui/components/common/panel-header/usePanelClose';
 import TimerTimeSection from './timer-time-section/component';
 
 const MILLI_IN_MINUTE = 60000;
@@ -348,8 +349,15 @@ const TimerPanelContaier: React.FC = () => {
   const [timerActivate] = useMutation(TIMER_ACTIVATE);
   const { data: timerData } = useTimer();
   const { data: currentUser } = useCurrentUser();
+  const { closePanel } = usePanelClose(PANELS.TIMER);
 
-  const amIModerator = !!currentUser?.isModerator;
+  const amIModerator = currentUser?.isModerator;
+
+  useEffect(() => {
+    if (amIModerator === false) {
+      closePanel();
+    }
+  }, [amIModerator, closePanel]);
 
   const activateTimer = useCallback(() => {
     if ((timerData?.active) || !amIModerator) return;
@@ -386,7 +394,7 @@ const TimerPanelContaier: React.FC = () => {
 
   const currentTimer = timerData;
 
-  if (currentTimer?.active) {
+  if (amIModerator && currentTimer?.active) {
     const {
       stopwatch,
       songTrack,
