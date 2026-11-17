@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A userdata param given twice is signed once, with its last value; one
+# with an empty value isn't signed.
+id: getJoinUrl.userdata.values
+title: getJoinUrl signs a repeated userdata param once and drops an empty one
+endpoint: getJoinUrl
+class: contract
+tags: [ci, presence]
+requires: [akka, presence]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Userdata}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: "viewer"}}
+    golden: off
+    capture: {annId: $.userId, annToken: $.sessionToken}
+  # bbb-web learns of the join from akka-apps a moment later.
+  - call: getJoinUrl
+    client: ann
+    raw_query: 'sessionToken=${annToken}&userdata-lang=fr&userdata-lang=de&userdata-bbb_custom_style_url='
+    eventually: {within: 10s, every: 200ms, until: {returncode: SUCCESS}}
+    expect:
+      format: json
+      returncode: SUCCESS
+      jsonpath:
+        $.response.url: {regex: '^\Q${baseUrl}\E/bigbluebutton/api/join\?&?fullName=Ann&meetingID=${uid}&role=VIEWER&redirect=true&existingUserID=${annId}\Q&userdata-lang=de\E&checksum=[0-9a-f]{128}$'}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

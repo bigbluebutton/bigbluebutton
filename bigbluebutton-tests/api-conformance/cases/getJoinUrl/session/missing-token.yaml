@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A call without a sessionToken should always say so: "You must provide a
+# session token". bbb-web answers either that or "Invalid session token", at
+# random from one request to the next, since both of its session checks
+# fail and only one message is kept; so the answers aren't recorded.
+# Sixteen requests all get the right message about once in 65,000 runs, so
+# this defect case fails on bbb-web (expectations/bbb-web.yaml).
+id: getJoinUrl.session.missing-token
+title: getJoinUrl without a session token always says it is missing
+endpoint: getJoinUrl
+class: defect
+tags: [ci]
+defs:
+  ask: &ask
+    call: getJoinUrl
+    golden: off
+    expect: {format: json, returncode: FAILED, message: You must provide a session token}
+steps:
+  - *ask
+  - *ask
+  - *ask
+  - *ask
+  - *ask
+  - *ask
+  - *ask
+  - *ask
+  - *ask
+  - *ask
+  - *ask
+  - *ask
+  - *ask
+  - *ask
+  - *ask
+  - *ask

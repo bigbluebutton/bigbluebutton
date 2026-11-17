@@ -1,0 +1,42 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# sendChatMessage's message is 1 to 500 characters: an empty or longer
+# one is refused with sizeError, and a missing one with
+# missingParamMessage. Validation comes before the meeting is looked up.
+id: sendChatMessage.params.message
+title: sendChatMessage takes a message of 1 to 500 characters
+endpoint: sendChatMessage
+class: contract
+tags: [ci, presence]
+requires: [akka, presence]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Chat}
+    golden: off
+    expect: {returncode: SUCCESS}
+  # sendChatMessage needs a running meeting: someone in it.
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: moderator}}
+    golden: off
+  # bbb-web learns of the join from akka-apps a moment later.
+  - call: sendChatMessage
+    params: {meetingID: "${uid}", message: a}
+    eventually: {within: 10s, every: 200ms, until: {returncode: SUCCESS}}
+    expect: {returncode: SUCCESS}
+  - call: sendChatMessage
+    params: {meetingID: "${uid}", message: '${repeat("m", 500)}'}
+    expect: {returncode: SUCCESS}
+  - call: sendChatMessage
+    params: {meetingID: "${uid}", message: '${repeat("m", 501)}'}
+    expect: {returncode: FAILED, messageKey: sizeError, message: Param message must be between 1 and 500 characters}
+  - call: sendChatMessage
+    params: {meetingID: "${uid}", message: ""}
+    expect: {returncode: FAILED, messageKey: sizeError, message: Param message must be between 1 and 500 characters}
+  - call: sendChatMessage
+    params: {meetingID: "${uid}"}
+    expect: {returncode: FAILED, messageKey: missingParamMessage, message: You must provide the param message}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

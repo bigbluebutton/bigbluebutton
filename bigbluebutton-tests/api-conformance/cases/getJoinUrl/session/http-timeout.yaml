@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# The HTTP session a join makes lasts defaultHttpSessionTimeout seconds
+# without a request (60 in the short-http-session profile). After that,
+# its cookie no longer vouches for the session token.
+id: getJoinUrl.session.http-timeout
+title: getJoinUrl refuses a session token once the join's HTTP session has timed out
+endpoint: getJoinUrl
+class: contract
+tags: [slow, disruptive]
+requires: [akka]
+profile: short-http-session
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Timeout}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: join
+    client: ann
+    params: {meetingID: "${uid}", fullName: Ann, role: moderator, redirect: "false"}
+    golden: off
+    capture: {annToken: /response/session_token}
+  - call: getJoinUrl
+    client: ann
+    params: {sessionToken: "${annToken}"}
+    expect: {format: json, returncode: FAILED, message: Meeting not found}
+  - wait: 70s
+  - call: getJoinUrl
+    client: ann
+    params: {sessionToken: "${annToken}"}
+    expect: {format: json, returncode: FAILED, message: Invalid Session}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

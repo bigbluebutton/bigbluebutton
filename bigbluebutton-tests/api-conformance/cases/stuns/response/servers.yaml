@@ -1,0 +1,52 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# stuns gives a session its STUN and TURN servers, and a TURN credential
+# for each TURN server: the username is "<expiry>:<user ID>", the expiry
+# being now plus the server's ttl in Unix seconds, and the password is the
+# Base64 HMAC-SHA1 of the username, keyed with the TURN server's shared
+# secret. The check step recomputes both: the target gives the secret
+# (TURN_SECRET), or the case is skipped. The servers are the target's own,
+# so the answer is recorded without being compared.
+id: stuns.response.servers
+title: stuns hands out TURN credentials made with the TURN server's secret
+endpoint: stuns
+class: contract
+tags: [ci]
+requires: [akka, turn]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Stuns}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: join
+    client: ann
+    params: {meetingID: "${uid}", fullName: Ann, role: moderator, redirect: "false"}
+    golden: off
+    capture: {annId: /response/user_id, annToken: /response/session_token}
+  - call: stuns
+    client: ann
+    params: {sessionToken: "${annToken}"}
+    golden: document
+    expect:
+      format: json
+      jsonpath:
+        $.returncode: {absent: true}
+        $.stunServers[0].url: {exists: true}
+        $.turnServers[0].url: {exists: true}
+        $.turnServers[0].username: {regex: '^[0-9]+:${annId}$'}
+        $.turnServers[0].ttl: {type: int}
+        $.remoteIceCandidates: {exists: true}
+    capture: {user: "$.turnServers[0].username", password: "$.turnServers[0].password", ttl: "$.turnServers[0].ttl"}
+  - check:
+      - value: "${password}"
+        expect: '${hmac("sha1", target.turnSecret, user)}'
+      # The expiry is the server's now plus ttl: ours, within a minute
+      # either way for the time the call took and the two clocks.
+      - value: '${match(user, "^([0-9]+):")}'
+        expect: {between: ['${add(add(now(), ttl), -60)}', '${add(add(now(), ttl), 60)}']}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

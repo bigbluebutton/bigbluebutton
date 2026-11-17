@@ -62,7 +62,13 @@ there compares like with like.
   v4.0.x-develop of 2026-11-10; only the host changed in them. On
   2026-11-13 `getRecordings.all.fetch-all-off` was re-recorded without its
   limited listing, whose formats depend on the file system's order, from a
-  stack running the same packages.
+  stack running the same packages. On 2026-11-17 the session-token calls'
+  cases (`getJoinUrl/`, `stuns/`, `signOut/`, `learningDashboard/`,
+  `sendChatMessage/`, `join.session.ignored-params` and
+  `create.breakouts.sequence`) were recorded from a stack running packages
+  built from v4.0.x-develop of that day (3fc5b07e3d), and
+  `getJoinUrl.signed-url.parameters` was recorded again for its new check
+  step; its answers didn't change.
 
 ## Reviewing
 
