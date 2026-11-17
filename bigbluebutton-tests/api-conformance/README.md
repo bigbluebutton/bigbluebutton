@@ -87,7 +87,7 @@ fixtureUrl: https://sink.test:8444/fixtures   # for ${fixtureUrl}
 graphqlUrl: wss://bbb.example.com/graphql  # the default: baseUrl's host at /graphql; keep that host, for the join's cookie
 tapUrl: http://10.0.0.5:8099         # the server's tap, for bus, fs and redis steps
 vars:
-  turnSecret: {env: TURN_SECRET, secret: true}   # ${target.turnSecret}
+  turnSecret: {env: TURN_SECRET, secret: true, capability: turn}   # ${target.turnSecret}
 ```
 
 Blank fields fall back to the variables the Playwright suite uses: `BBB_URL`
@@ -97,6 +97,13 @@ Blank fields fall back to the variables the Playwright suite uses: `BBB_URL`
 `targets/bbb-api.yaml` are set up that way. The tap's and the sink's tokens
 come only from `BBB_TAP_TOKEN` and `BBB_SINK_TOKEN`, never a target file;
 like the salt, they are redacted from what the runner writes.
+
+A var's `capability` is a capability the target has while the var has a
+value, so the cases that need the value are skipped, not failed, on a
+server that doesn't give it: `targets/bbb-web.yaml` has the `turn`
+capability, for the stuns cases that check TURN credentials, while
+`TURN_SECRET` holds the TURN servers' shared secret. Listing the capability
+without the var's value is an error.
 
 A target with a tap has the `bus`, `fs` and `redis` capabilities, and one
 with a sink the `callbacks` capability. Listing them without one is an
@@ -207,7 +214,7 @@ go run ./cmd/bbb-conform run --target ../targets/bbb-web.yaml --cases ../cases -
 |---|---|
 | `debs` | Builds the five packages the stack runs (bbb-web, bbb-apps-akka, bbb-graphql-server, bbb-graphql-middleware, bbb-graphql-actions) with their own build scripts, in the image CI builds them in. `PKGS=bbb-web` builds one. About 20 minutes cold. |
 | `up` | Renders the configuration, builds what changed and starts the stack, then waits until every service is healthy (about a minute). `CLAMAV=1` adds a ClamAV daemon. |
-| `env` | Prints the variables the runner reads: `BBB_URL`, `BBB_SECRET`, `BBB_TAP_URL`, `BBB_TAP_TOKEN`, `BBB_SINK_URL`, `BBB_SINK_READ_URL`, `BBB_SINK_HTTP_URL`, `BBB_SINK_TOKEN`, `BBB_FIXTURE_URL`, `BBB_WEB_DIRECT_URL`, `BBB_PROFILE_CMD` and `SSL_CERT_FILE`. The tokens are made once, in `env/.state/tokens.env`. |
+| `env` | Prints the variables the runner reads: `BBB_URL`, `BBB_SECRET`, `BBB_TAP_URL`, `BBB_TAP_TOKEN`, `BBB_SINK_URL`, `BBB_SINK_READ_URL`, `BBB_SINK_HTTP_URL`, `BBB_SINK_TOKEN`, `BBB_FIXTURE_URL`, `BBB_WEB_DIRECT_URL`, `TURN_SECRET` (read from `env/bbb-web/turn-stun-servers.xml`), `BBB_PROFILE_CMD` and `SSL_CERT_FILE`. The tokens are made once, in `env/.state/tokens.env`. |
 | `profile` | `NAME=reveal-version` switches bbb-web to a profile in `env/bbb-web/profiles/`, `NAME=default` back; without `NAME`, prints the one in force. Cases use it through `BBB_PROFILE_CMD`. |
 | `reset` | Starts again from nothing: no meetings, an empty data directory, the default profile. A profile switch waits until it is done. |
 | `check-copies` | Warns about the package files Tier 1 mirrors by hand that changed since it last followed them (see below). |
@@ -581,7 +588,7 @@ Values that change from run to run are masked:
 | userID, user_id, internalUserID, existingUserID, and GraphQL's userId and extId | `w_<id>` |
 | attendeePW, moderatorPW, voiceBridge, and the bus's moderatorPass, viewerPass, voiceConf and telVoice | `<random>`, unless the case sent that value |
 | session and auth tokens, checksum, JSESSIONID, and the token in a learning-dashboard file's path | `<token>` |
-| stuns TURN username and password | `<expiry>:…` and `<token>` |
+| stuns TURN username and password | `<expiry>:<user ID>` and `<token>` |
 | a redis key's `ttl`, when it has one | `<set>` (-1, no expiry, and -2, missing, stay) |
 
 After masking:
@@ -612,9 +619,9 @@ the same way.
 those with `value` if it is given) and `headers`. Only a mask can override a
 built-in rule, for the same field; the others only add, so the built-in
 `noMeetings` drop can't be turned off. The suite's `masks.yaml` masks the
-missing-checksum message bbb-web picks at random, and the version
-endpoint's `bbbVersion` and `html5PluginSdkVersion`, which change with each
-release.
+missing-checksum message bbb-web picks at random, learningDashboard's data,
+and the version endpoint's `bbbVersion` and `html5PluginSdkVersion`, which
+change with each release.
 
 The `*.yaml` files in `masks.d`, next to `masks.yaml`, add rules the same
 way, in name order and ahead of `masks.yaml`, so their masks win over its.
@@ -832,6 +839,7 @@ Each step has exactly one step-type key.
 | `redis` | `{key, within}`: a redis key. `expect: {exists, absent, hash, members, ttl}`. | yes |
 | `sink` | `{key, within}`: the requests the target's sink recorded under a key. `expect: {method, path, query, headers, absent, count}`. See [Callbacks and fetches](#callbacks-and-fetches-sink). | yes |
 | `env` | `{action: stop\|start\|restart\|reset, service}`. | not yet |
+| `check` | `[{value, expect}, ...]`: compares values the case already has, typically earlier steps' captures run through template functions, with no request: `value` is a template and `expect` a [matcher](#checking-responses-expect) other than `exists`, `absent` and `count`. For what a server derives from its own answer, such as a TURN credential's HMAC or a URL's checksum. Takes no `capture` or `golden`, and records nothing. | yes |
 | `restore` | `{recordings: [<record ID>, ...]}`: puts [fixture recordings](#fixture-recordings) back as the tree has them, through the tap. Record IDs are written out (a variant var works; a template doesn't). Takes no `expect`, `capture` or `golden`. A case that changes recordings restores them in its first step and in `teardown`. A case with a `restore` step must be tagged `serial` (`validate` checks), so the cases that list recordings never see it half done. | yes |
 
 - A case that uses a step type that isn't implemented yet is skipped as
@@ -1172,6 +1180,7 @@ must select exactly one node. Anything else is a map with one key:
 /response/attendees/attendee: {count: 2}
 /response/message: {contains: unknown}
 /response/messageKey: {oneOf: [idNotUnique, duplicateWarning]}
+$.turnServers[0].ttl: {between: [1, 604800]} # an integer, bounds included; bounds may be templates
 ```
 
 ### Capturing values: `capture`
@@ -1210,7 +1219,11 @@ Any string can contain `${...}`.
   - `match(s, regex)`, the first group of regex's first match in s, or the
     whole match when regex has no group; no match, or a first group that
     took no part in it, is an error. For a part of a captured value, e.g.
-    the token in a URL.
+    the token in a URL;
+  - `hmac(alg, key, data)`, the Base64 of an HMAC (alg sha1, sha256, sha384
+    or sha512), as a TURN credential's password;
+  - `now()`, the current Unix time in seconds;
+  - `add(a, b)`, the sum of two integers, e.g. `add(now(), ttl)`.
 
   Arguments are `"strings"`, integers, variables or nested calls.
 - **Escaping:** `$${` is a literal `${`.
