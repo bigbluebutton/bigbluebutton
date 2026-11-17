@@ -570,13 +570,17 @@ func connectionInitHandler(browserConnection *common.BrowserConnection) (error, 
 	return nil, ""
 }
 
+var registerConnectionMetricsOnce sync.Once
+
 // RegisterConnectionMetrics registers the metrics computed from the open connections when they
-// are collected.
+// are collected, once however many times it is called.
 func RegisterConnectionMetrics() {
-	prometheus.MustRegister(prometheus.NewGaugeFunc(prometheus.GaugeOpts{
-		Name: "ws_connection_subscriptions_max",
-		Help: "Highest number of active subscriptions held by a single Websocket connection",
-	}, maxActiveSubscriptions))
+	registerConnectionMetricsOnce.Do(func() {
+		prometheus.MustRegister(prometheus.NewGaugeFunc(prometheus.GaugeOpts{
+			Name: "ws_connection_subscriptions_max",
+			Help: "Highest number of active subscriptions held by a single Websocket connection",
+		}, maxActiveSubscriptions))
+	})
 }
 
 // maxActiveSubscriptions is the highest number of active subscriptions among the open
