@@ -51,6 +51,10 @@ const intlMessages = defineMessages({
     id: 'app.timer.preset.minutes',
     description: 'Preset label for minutes with abbreviation (e.g., 5min)',
   },
+  presetsLabel: {
+    id: 'app.timer.presets.label',
+    description: 'Visible label explaining that presets set the timer duration',
+  },
   setTimerTo: {
     id: 'app.timer.aria.setTo',
     description: 'Aria label for preset buttons: Set timer to {label}',
@@ -182,6 +186,7 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
   };
 
   const handleHoursBlur = () => {
+    setFocusedUnit(null);
     syncTimeWithBackend(localHours, localMinutes, localSeconds);
   };
 
@@ -202,6 +207,7 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
   };
 
   const handleMinutesBlur = () => {
+    setFocusedUnit(null);
     syncTimeWithBackend(localHours, localMinutes, localSeconds);
   };
 
@@ -225,6 +231,7 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
   };
 
   const handleSecondsBlur = () => {
+    setFocusedUnit(null);
     syncTimeWithBackend(localHours, localMinutes, localSeconds);
   };
 
@@ -327,45 +334,51 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
 
   return (
     <>
-      <Styled.TimerPresetsRow>
-        <Styled.PresetArrowButton
-          role="button"
-          aria-label={intl.formatMessage(intlMessages.prevPreset)}
-          color="default"
-          icon="left_arrow"
-          size="sm"
-          onClick={prevPreset}
-          disabled={running}
-          hideLabel
-          data-test="prevPreset"
-        />
-        {visiblePresets.map(({ secs, isActive, idx }) => (
-          <Styled.TimerPresetButton
-            key={`preset-${secs}-${idx}`}
-            isActive={isActive}
-            onClick={() => setAbsoluteTime(secs)}
+      <Styled.TimerPresets role="group" aria-labelledby="timer-presets-label">
+        <Styled.TimerPresetsLabel id="timer-presets-label">
+          {intl.formatMessage(intlMessages.presetsLabel)}
+        </Styled.TimerPresetsLabel>
+        <Styled.TimerPresetsRow>
+          <Styled.PresetArrowButton
+            role="button"
+            aria-label={intl.formatMessage(intlMessages.prevPreset)}
+            color="default"
+            icon="left_arrow"
+            size="sm"
+            onClick={prevPreset}
             disabled={running}
-            aria-label={intl.formatMessage(
-              intlMessages.setTimerTo,
-              { label: formatPresetLabel(secs) },
-            )}
-            data-test={`preset-${secs}`}
-          >
-            {formatPresetLabel(secs)}
-          </Styled.TimerPresetButton>
-        ))}
-        <Styled.PresetArrowButton
-          role="button"
-          aria-label={intl.formatMessage(intlMessages.nextPreset)}
-          color="default"
-          icon="right_arrow"
-          size="sm"
-          onClick={nextPreset}
-          disabled={running}
-          hideLabel
-          data-test="nextPreset"
-        />
-      </Styled.TimerPresetsRow>
+            hideLabel
+            data-test="prevPreset"
+          />
+          <Styled.TimerPresetOptions>
+            {visiblePresets.map(({ secs, idx }) => (
+              <Styled.TimerAdjustmentButton
+                key={`preset-${secs}-${idx}`}
+                onClick={() => setAbsoluteTime(secs)}
+                disabled={running}
+                aria-label={intl.formatMessage(
+                  intlMessages.setTimerTo,
+                  { label: formatPresetLabel(secs) },
+                )}
+                data-test={`preset-${secs}`}
+              >
+                {formatPresetLabel(secs)}
+              </Styled.TimerAdjustmentButton>
+            ))}
+          </Styled.TimerPresetOptions>
+          <Styled.PresetArrowButton
+            role="button"
+            aria-label={intl.formatMessage(intlMessages.nextPreset)}
+            color="default"
+            icon="right_arrow"
+            size="sm"
+            onClick={nextPreset}
+            disabled={running}
+            hideLabel
+            data-test="nextPreset"
+          />
+        </Styled.TimerPresetsRow>
+      </Styled.TimerPresets>
       <Styled.TimeInputWrapper>
         <Styled.TimeInputGroup>
           <Styled.TimeUnitContainer>
@@ -381,11 +394,12 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
               onBlur={handleHoursBlur}
               onFocus={() => setFocusedUnit('hours')}
               ref={hoursInputRef}
+              id="timer-hours"
               data-test="timerHoursInput"
               isSelected={!running && focusedUnit === 'hours'}
               tabIndex={running ? -1 : 0}
             />
-            <Styled.InputArrows disabled={running} aria-hidden={running} isSelected={!running && focusedUnit === 'hours'}>
+            <Styled.InputArrows disabled={running} aria-hidden={running}>
               <Styled.InputArrowButton
                 role="button"
                 aria-label={intl.formatMessage(intlMessages.incrementHours, { amount: 1 })}
@@ -411,7 +425,7 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
                 isSelected={!running && focusedUnit === 'hours'}
               />
             </Styled.InputArrows>
-            <Styled.TimeUnitLabel>
+            <Styled.TimeUnitLabel htmlFor="timer-hours">
               {intl.formatMessage(intlMessages.hours)}
             </Styled.TimeUnitLabel>
           </Styled.TimeUnitContainer>
@@ -428,11 +442,12 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
               onBlur={handleMinutesBlur}
               onFocus={() => setFocusedUnit('minutes')}
               ref={minutesInputRef}
+              id="timer-minutes"
               data-test="timerMinutesInput"
               isSelected={!running && focusedUnit === 'minutes'}
               tabIndex={running ? -1 : 0}
             />
-            <Styled.InputArrows disabled={running} aria-hidden={running} isSelected={!running && focusedUnit === 'minutes'}>
+            <Styled.InputArrows disabled={running} aria-hidden={running}>
               <Styled.InputArrowButton
                 role="button"
                 aria-label={intl.formatMessage(intlMessages.incrementMinutes, { amount: 1 })}
@@ -458,7 +473,7 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
                 isSelected={!running && focusedUnit === 'minutes'}
               />
             </Styled.InputArrows>
-            <Styled.TimeUnitLabel>
+            <Styled.TimeUnitLabel htmlFor="timer-minutes">
               {intl.formatMessage(intlMessages.minutes)}
             </Styled.TimeUnitLabel>
           </Styled.TimeUnitContainer>
@@ -475,11 +490,12 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
               onBlur={handleSecondsBlur}
               onFocus={() => setFocusedUnit('seconds')}
               ref={secondsInputRef}
+              id="timer-seconds"
               data-test="timerSecondsInput"
               isSelected={!running && focusedUnit === 'seconds'}
               tabIndex={running ? -1 : 0}
             />
-            <Styled.InputArrows disabled={running} aria-hidden={running} isSelected={!running && focusedUnit === 'seconds'}>
+            <Styled.InputArrows disabled={running} aria-hidden={running}>
               <Styled.InputArrowButton
                 role="button"
                 aria-label={intl.formatMessage(intlMessages.incrementSeconds, { amount: 1 })}
@@ -505,7 +521,7 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
                 isSelected={!running && focusedUnit === 'seconds'}
               />
             </Styled.InputArrows>
-            <Styled.TimeUnitLabel>
+            <Styled.TimeUnitLabel htmlFor="timer-seconds">
               {intl.formatMessage(intlMessages.seconds)}
             </Styled.TimeUnitLabel>
           </Styled.TimeUnitContainer>
@@ -531,14 +547,14 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
                 key={testId}
                 title={tooltipMessage}
               >
-                <Styled.TimerAddButton
+                <Styled.TimerAdjustmentButton
                   onClick={() => changeTime(addSeconds)}
                   disabled={running}
                   aria-label={tooltipMessage}
                   data-test={testId}
                 >
                   {displayLabel}
-                </Styled.TimerAddButton>
+                </Styled.TimerAdjustmentButton>
               </TooltipContainer>
             );
           })}
