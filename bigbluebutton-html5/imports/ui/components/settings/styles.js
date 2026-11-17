@@ -33,14 +33,13 @@ const SettingsTabs = styled(Tabs)`
   flex-direction: row;
   width: 100%;
   height: 100%;
-  overflow: hidden;
+  min-width: 0;
 
   @media ${smallOnly} {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
     width: 100%;
-    overflow-x: hidden;
   }
 `;
 
@@ -55,13 +54,12 @@ const SettingsTabList = styled(TabList)`
     width: 100%;
     display: grid;
     grid-auto-flow: column;
-    grid-auto-columns: 1fr;
+    grid-auto-columns: minmax(0, 1fr);
     height: auto;
     border: none;
     padding: 0;
     margin: 0 0 0.5rem 0;
     background: transparent;
-    overflow-y: hidden;
   }
 `;
 
@@ -71,6 +69,7 @@ const SettingsTabSelector = styled(Tab)`
   align-items: center;
   font-size: ${fontSizeMedium};
   flex: none;
+  min-width: 0;
   padding: 1rem;
   color: ${colorGrayDark};
   cursor: pointer;
@@ -142,8 +141,9 @@ const SettingsIcon = styled(Icon)`
 const SettingsTabPanel = styled(TabPanel)`
   display: none;
   flex-grow: 1;
-  // BBBModal already pads the outer edge, so only the side next to the tab list gets 3rem.
-  ${({ $noPadding }) => !$noPadding && 'padding-block: 1.5rem; padding-inline: 3rem 1.5rem'};
+  // The modal body and submenu already provide spacing below the last control.
+  ${({ $noPadding }) => !$noPadding && 'padding-block: 1.5rem 0; padding-inline: 3rem 1.5rem'};
+  min-width: 0;
   border-left: 1px solid ${colorBorder};
   width: calc(100% / 3 * 2);
 
@@ -164,7 +164,6 @@ const SettingsTabPanel = styled(TabPanel)`
     height: auto;
     flex-grow: 1;
     flex-basis: 0;
-    overflow-x: hidden;
   }
 `;
 
