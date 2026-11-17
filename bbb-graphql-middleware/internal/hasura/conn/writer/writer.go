@@ -91,8 +91,10 @@ RangeLoop:
 					queryId := browserMessage.ID
 
 					// Rate limiter from config max_connection_queries_per_minute
-					ctxRateLimiter, _ := context.WithTimeout(hc.Context, 30*time.Second)
-					if err := hc.BrowserConn.FromBrowserToHasuraRateLimiter.Wait(ctxRateLimiter); err != nil {
+					ctxRateLimiter, cancelRateLimiter := context.WithTimeout(hc.Context, 30*time.Second)
+					errRateLimiter := hc.BrowserConn.FromBrowserToHasuraRateLimiter.Wait(ctxRateLimiter)
+					cancelRateLimiter()
+					if errRateLimiter != nil {
 						sendErrorMessage(
 							browserConnection,
 							queryId,
@@ -405,7 +407,7 @@ func traverseSelectionSet(selectionSet *ast.SelectionSet, currentDepth int) int 
 }
 
 func sendErrorMessage(browserConnection *common.BrowserConnection, messageId string, errorMessage string) {
-	browserConnection.Logger.Errorf(errorMessage)
+	browserConnection.Logger.Error(errorMessage)
 
 	// Error on sending action, return error msg to client
 	browserResponseData := map[string]interface{}{
