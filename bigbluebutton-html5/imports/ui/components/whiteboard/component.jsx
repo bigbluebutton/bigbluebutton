@@ -1167,6 +1167,8 @@ const Whiteboard = React.memo((props) => {
         && scaledHeight > 0
         && tlEditorRef.current
       ) {
+        // A wheel pan still animating would overwrite the camera written below.
+        tlEditorRef.current.stopCameraAnimation();
         let baseZoom = calculateZoomValueRef.current(scaledWidth, scaledHeight);
         throwIfInvalid(baseZoom, 'baseZoom');
 
