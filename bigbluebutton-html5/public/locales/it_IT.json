@@ -593,6 +593,7 @@
     "app.unmute.modal.confirm.label": "Riattiva l'audio",
     "app.unmute.modal.deny.label": "Rimani mutato",
     "app.unmute.modal.deny.label.mobile": "Annulla",
+    "app.unmute.byModerator.toast": "Un moderatore ha riattivato il tuo microfono",
     "app.requestPresenter.notification.title": "Rendi presentatore",
     "app.requestPresenter.notification.description": "{userName} sta chiedendo di presentare durante la sessione",
     "app.requestPresenter.notification.confirm.label": "Consenti",
