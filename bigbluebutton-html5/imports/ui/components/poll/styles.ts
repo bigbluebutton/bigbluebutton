@@ -327,27 +327,6 @@ const PollFooter = styled.div`
   }
 `;
 
-// Start and Cancel share one row and one width, the way the timer panel pairs its own two
-// actions. Both keep the library's own sizing so they stay identical; the white fill and
-// the plain (not underlined) label come from the `secondary` variant at the call site.
-const PollActionsRow = styled.div`
-  display: flex;
-  width: 100%;
-  gap: ${$2xlPadding};
-
-  & > * {
-    flex: 1;
-  }
-`;
-
-const CancelPollBtn = styled.div`
-  display: flex;
-
-  & > button {
-    width: 100%;
-  }
-`;
-
 const NoSlidePanelContainer = styled.div`
   color: ${colorGrayDark};
   text-align: center;
@@ -705,6 +684,10 @@ const InfoBoxContainer = styled.div<InfoBoxContainerProps>`
   background-color: ${colorBlueLightest};
   border: 1px solid ${colorPrimary};
 
+  & > p {
+    margin: 0;
+  }
+
   ${({ isQuiz }) => isQuiz && `
     background-color: ${colorInfoBoxQuizBg};
     border: 1px solid ${colorInfoBoxQuizBorder};
@@ -776,8 +759,6 @@ export default {
   Row,
   StartPollButtonWrapper,
   PollFooter,
-  PollActionsRow,
-  CancelPollBtn,
   LiveResultActionsRow,
   NoSlidePanelContainer,
   DragAndDropPollContainer,
