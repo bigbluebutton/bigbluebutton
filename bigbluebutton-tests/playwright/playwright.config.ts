@@ -2,7 +2,7 @@ import { defineConfig } from '@playwright/test';
 import dotenv from 'dotenv';
 
 import { CI, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from './core/constants';
-import { chromiumConfig } from './core/setup/browsersConfig';
+import { chromiumConfig, firefoxConfig } from './core/setup/browsersConfig';
 
 dotenv.config();
 
@@ -33,15 +33,16 @@ export default defineConfig({
       ...chromiumConfig,
       dependencies: ['setup'],
     },
+    // The npm scripts pass --project=chromium; run Firefox with --project=firefox.
+    {
+      ...firefoxConfig,
+      dependencies: ['setup'],
+    },
     /**
-     * ! avoiding following browsers since not fully supported yet
-     * When support is added, uncomment the code and use imports at the top
+     * ! WebKit is not supported yet
+     * When support is added, uncomment the code and import webkitConfig at the top
      * also update mention on README (bigbluebutton/bigbluebutton-tests/playwright/README.md)
      */
-    // {
-    //   ...firefoxConfig,
-    //   dependencies: ['setup'],
-    // },
     // {
     //   ...webkitConfig,
     //   dependencies: ['setup'],

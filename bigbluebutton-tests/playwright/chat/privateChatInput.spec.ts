@@ -50,9 +50,14 @@ test.use({
 test.describe('Private chat input visual evidence', { tag: '@ci' }, () => {
   test('Reproduce the placeholder and caret transition when clearing a narrow private chat input', async ({
     browser,
+    browserName,
     context,
     page,
   }, testInfo) => {
+    test.skip(
+      browserName !== 'chromium',
+      'Detects the clipped placeholder through scrollWidth, which Firefox does not grow for a placeholder',
+    );
     await page.setViewportSize(VIEWPORT);
     const chat = new Chat(browser, context);
 

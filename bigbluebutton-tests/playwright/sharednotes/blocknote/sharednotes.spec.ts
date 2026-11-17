@@ -28,8 +28,7 @@ test.describe.parallel('Shared Notes - BlockNote', { tag: '@ci' }, () => {
     await sharedNotes.formatTextInSharedNotes();
   });
 
-  test('Export shared notes as PDF', async ({ browser, context, browserName }, testInfo) => {
-    test.skip(browserName === 'firefox', 'window.open popup handling differs on Firefox');
+  test('Export shared notes as PDF', async ({ browser, context }, testInfo) => {
     const sharedNotes = new BlockNoteSharedNotes(browser, context);
     await initializePages(sharedNotes, browser, { isMultiUser: true, testInfo });
     await sharedNotes.exportSharedNotesAsPDF();
@@ -75,16 +74,14 @@ test.describe.parallel('Shared Notes - BlockNote', { tag: '@ci' }, () => {
   // different failures in CI and local
   // local: not able to click on "unpin" button
   // CI: not restoring presentation for viewer after unpinning notes
-  test('Pin and unpin notes onto whiteboard', async ({ browser, context, browserName }, testInfo) => {
-    test.skip(browserName === 'firefox', 'Webcams does not work properly, due to heavy firefox for testing');
+  test('Pin and unpin notes onto whiteboard', async ({ browser, context }, testInfo) => {
     const sharedNotes = new BlockNoteSharedNotes(browser, context);
     await initializePages(sharedNotes, browser, { isMultiUser: true, testInfo });
     await sharedNotes.pinAndUnpinNotesOntoWhiteboard();
   });
 
-  test('Pinned header exposes permitted notes actions', async ({ browser, context, browserName }, testInfo) => {
+  test('Pinned header exposes permitted notes actions', async ({ browser, context }, testInfo) => {
     linkIssue(25584);
-    test.skip(browserName === 'firefox', 'Webcams does not work properly, due to heavy firefox for testing');
     const sharedNotes = new BlockNoteSharedNotes(browser, context);
     await initializePages(sharedNotes, browser, { isMultiUser: true, testInfo });
     await sharedNotes.pinnedHeaderActions();

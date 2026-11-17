@@ -30,8 +30,7 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
     await chat.clearChat();
   });
 
-  test('Copy chat', async ({ browser, context, page, browserName }, testInfo) => {
-    test.skip(browserName === 'firefox', 'Firefox does not support clipboard-write and clipboard-read');
+  test('Copy chat', async ({ browser, context, page }, testInfo) => {
     const chat = new Chat(browser, context);
     await chat.initPages(page, testInfo);
     await chat.copyChat();
@@ -82,8 +81,7 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
     await chat.sendEmoji();
   });
 
-  test('Copy chat with emoji', { tag: '@nightly' }, async ({ browser, context, page, browserName }, testInfo) => {
-    test.skip(browserName === 'firefox', 'Firefox does not support clipboard-write and clipboard-read');
+  test('Copy chat with emoji', { tag: '@nightly' }, async ({ browser, context, page }, testInfo) => {
     const chat = new Chat(browser, context);
     await chat.initModPage(page, { testInfo, clientSettingsOverrides: EMOJI_PICKER_SETTINGS_OVERRIDE });
     await chat.initUserPage(context, { testInfo, clientSettingsOverrides: EMOJI_PICKER_SETTINGS_OVERRIDE });
@@ -128,16 +126,11 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
     await chat.autoConvertEmojiEscapePublicChat();
   });
 
-  test(
-    'Copy chat with auto converted emoji',
-    { tag: '@nightly' },
-    async ({ browser, context, page, browserName }, testInfo) => {
-      test.skip(browserName === 'firefox', 'Firefox does not support clipboard-write and clipboard-read');
-      const chat = new Chat(browser, context);
-      await chat.initPages(page, testInfo);
-      await chat.autoConvertEmojiCopyChat();
-    },
-  );
+  test('Copy chat with auto converted emoji', { tag: '@nightly' }, async ({ browser, context, page }, testInfo) => {
+    const chat = new Chat(browser, context);
+    await chat.initPages(page, testInfo);
+    await chat.autoConvertEmojiCopyChat();
+  });
 
   test('Auto convert emoji save chat', { tag: '@nightly' }, async ({ browser, context, page }, testInfo) => {
     const chat = new Chat(browser, context);

@@ -54,8 +54,7 @@ test.describe.parallel('Webcam', { tag: ['@ci', '@media'] }, () => {
     await webcam.mirrorWebcam();
   });
 
-  test('Pinning and unpinning webcams', async ({ browser, context, page, browserName }, testInfo) => {
-    test.skip(browserName === 'firefox', 'It only works manually on Firefox');
+  test('Pinning and unpinning webcams', async ({ browser, context, page }, testInfo) => {
     const webcam = new MultiUsers(browser, context);
     await webcam.initModPage(page, { testInfo });
     await webcam.initUserPage(context, { testInfo });
@@ -136,8 +135,12 @@ test.describe.parallel('Webcam', { tag: ['@ci', '@media'] }, () => {
       await webcam.keepBackgroundWhenRejoin(context);
     });
 
-    test('Virtual background toggle is disabled on unsupported devices (iPhone)', async ({ browser }, testInfo) => {
+    test('Virtual background toggle is disabled on unsupported devices (iPhone)', async ({
+      browser,
+      browserName,
+    }, testInfo) => {
       linkIssue(23756);
+      test.skip(browserName === 'firefox', 'Device emulation is not supported in Firefox browser');
       const iPhone11 = devices['iPhone 11'];
       const context = await browser.newContext({ ...iPhone11 });
       const mobilePage = await context.newPage();

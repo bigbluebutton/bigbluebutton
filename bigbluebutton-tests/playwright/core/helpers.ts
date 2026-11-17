@@ -424,6 +424,15 @@ export function linkIssue(issueNumber: number): void {
   });
 }
 
+// For a test whose outcome is checked only by toHaveScreenshot(): screenshots are not
+// compared outside Chromium (see browsersConfig.ts), where it would pass without checking anything.
+export function skipScreenshotOnlyTestOutsideChromium(): void {
+  test.skip(
+    test.info().project.use.browserName !== 'chromium',
+    'Verified only by screenshot comparison, which runs on Chromium only',
+  );
+}
+
 export async function initializePages(
   testInstance: MultiUsers,
   browser: Browser,

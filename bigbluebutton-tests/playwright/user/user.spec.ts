@@ -365,7 +365,7 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
 
       // https://docs.bigbluebutton.org/3.0/testing/release-testing/#microphone
       test('Lock Share microphone', { tag: '@media' }, async ({ browser, context, page, browserName }, testInfo) => {
-        test.skip(browserName === 'firefox', 'It only workss in manual testing');
+        test.skip(browserName === 'firefox', 'Selects the fake "default" microphone, which only Chromium lists');
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page, testInfo);
         await lockViewers.lockShareMicrophone();
@@ -424,7 +424,10 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       });
 
       test('Lock see other viewers cursor', async ({ browser, context, page, browserName }, testInfo) => {
-        test.skip(browserName === 'firefox', 'The test is inconsistent on Firefox, due to the heavy browser.');
+        test.skip(
+          browserName === 'firefox',
+          "Firefox pages of one context share the mouse: the moderator's clicks move the viewer's pointer off the whiteboard, which withdraws the viewer's cursor",
+        );
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page, testInfo);
         await lockViewers.lockSeeOtherViewersCursor();
@@ -447,8 +450,7 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       test(
         'Hide user list suppresses talking indicator name for locked viewer',
         { tag: '@media' },
-        async ({ browser, context, page, browserName }, testInfo) => {
-          test.skip(browserName === 'firefox', 'Firefox does not support fake audio to simulate the audio.');
+        async ({ browser, context, page }, testInfo) => {
           const lockViewers = new LockViewers(browser, context);
           await lockViewers.initModPage(page, { testInfo });
           await lockViewers.hideUserListSuppressesTalkingIndicator();
@@ -461,8 +463,7 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       test(
         'Hide user list suppresses talking indicator name applied mid-talk',
         { tag: ['@media', '@nightly'] },
-        async ({ browser, context, page, browserName }, testInfo) => {
-          test.skip(browserName === 'firefox', 'Firefox does not support fake audio to simulate the audio.');
+        async ({ browser, context, page }, testInfo) => {
           const lockViewers = new LockViewers(browser, context);
           await lockViewers.initModPage(page, { testInfo });
           await lockViewers.hideUserListSuppressesTalkingIndicatorAppliedMidTalk();
@@ -475,8 +476,7 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       test(
         'Hide user list suppresses talking indicator name for locked viewer (LiveKit audio state)',
         { tag: ['@media', '@nightly'] },
-        async ({ browser, context, page, browserName }, testInfo) => {
-          test.skip(browserName === 'firefox', 'Firefox does not support fake audio to simulate the audio.');
+        async ({ browser, context, page }, testInfo) => {
           const lockViewers = new LockViewers(browser, context);
           await lockViewers.initModPage(page, { testInfo, clientSettingsOverrides: LIVEKIT_AUDIO_STATE_OVERRIDE });
           await lockViewers.hideUserListSuppressesTalkingIndicator(LIVEKIT_AUDIO_STATE_OVERRIDE);
@@ -486,8 +486,7 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       test(
         'Hide user list suppresses talking indicator name applied mid-talk (LiveKit audio state)',
         { tag: ['@media', '@nightly'] },
-        async ({ browser, context, page, browserName }, testInfo) => {
-          test.skip(browserName === 'firefox', 'Firefox does not support fake audio to simulate the audio.');
+        async ({ browser, context, page }, testInfo) => {
           const lockViewers = new LockViewers(browser, context);
           await lockViewers.initModPage(page, { testInfo, clientSettingsOverrides: LIVEKIT_AUDIO_STATE_OVERRIDE });
           await lockViewers.hideUserListSuppressesTalkingIndicatorAppliedMidTalk(LIVEKIT_AUDIO_STATE_OVERRIDE);

@@ -405,7 +405,9 @@ export class Page {
     return locator.count();
   }
 
+  // Firefox has no clipboard permissions to grant; it copies on a click and reads back what the page copied
   async grantClipboardPermissions(): Promise<void> {
+    if (this.browser.browserType().name() !== 'chromium') return;
     console.log('==> Granting clipboard permissions');
     await this.context!.grantPermissions(['clipboard-write', 'clipboard-read'], { origin: process.env.BBB_URL });
   }

@@ -67,7 +67,12 @@ export class Reconnection extends MultiUsers {
 
     // audio connection should keep connected
     await this.modPage.hasElement(e.muteMicButton, 'user audio should keep connected after reconnection');
-    await this.modPage.hasElement(e.isTalking, 'user audio should be kept capturing after reconnection');
+    // the indicator shows "was talking" for its 6 s timeout once the graphql connection is back
+    await this.modPage.hasElement(
+      e.isTalking,
+      'user audio should be kept capturing after reconnection',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
   }
 
   // Regression: after a reconnection the annotation-history stream is subscribed

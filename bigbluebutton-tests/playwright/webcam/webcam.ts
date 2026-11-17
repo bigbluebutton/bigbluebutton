@@ -237,7 +237,12 @@ export class Webcam extends Page {
     await this.waitAndClick(e.dropdownWebcamButton);
     await this.waitAndClick(e.selfViewDisableBtn);
 
+    await expect(
+      this.page.locator(e.currentUserLocalStreamVideo),
+      'should hide the own webcam video when self-view is disabled',
+    ).toBeHidden();
     const webcamVideoLocator = await this.page.locator(e.webcamConnecting);
+    await expect(webcamVideoLocator, 'should display the webcam placeholder instead of the video').toBeVisible();
     await expect(webcamVideoLocator).toHaveScreenshot('disable-self-view.png');
   }
 

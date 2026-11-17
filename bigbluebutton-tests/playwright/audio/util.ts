@@ -79,3 +79,15 @@ export async function areRemoteAudioElementsPlaying(testPage: Page): Promise<boo
     return remote.length > 0 && remote.every((audio) => !audio.paused && !audio.muted);
   });
 }
+
+// Firefox has no fake audio outputs: it lists the host's real ones, once the page has used the microphone.
+export async function countAudioOutputDevices(testPage: Page): Promise<number> {
+  // Firefox holds enumerateDevices() until the tab is the selected one
+  await testPage.page.bringToFront();
+  return testPage.page.evaluate(async () => {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    stream.getTracks().forEach((track) => track.stop());
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    return devices.filter((device) => device.kind === 'audiooutput').length;
+  });
+}

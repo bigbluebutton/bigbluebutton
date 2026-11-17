@@ -5,6 +5,11 @@ import { constants as c } from '../parameters/constants';
 import { RecordedMeeting, RecordedPlayback } from './recordedPlayback';
 
 test.describe('Recorded media', { tag: ['@nightly', '@media'] }, () => {
+  // the recorded meeting includes a screenshare
+  test.skip(
+    ({ browserName }) => browserName === 'firefox',
+    'Screenshare tests not able in Firefox browser without desktop',
+  );
   let recorded: RecordedMeeting;
 
   test.beforeAll(async ({ browser }) => {

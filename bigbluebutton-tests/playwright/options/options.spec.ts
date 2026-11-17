@@ -69,7 +69,8 @@ test.describe.parallel('Options', { tag: '@ci' }, () => {
       await options.enableOtherParticipantsWebcams();
     });
 
-    test('Desktop sharing settings', { tag: '@media' }, async () => {
+    test('Desktop sharing settings', { tag: '@media' }, async ({ browserName }) => {
+      test.skip(browserName === 'firefox', 'Screenshare tests not able in Firefox browser without desktop');
       await options.initUserPage(options.modPage.context);
       await options.enableOtherParticipantsDesktopSharing();
     });

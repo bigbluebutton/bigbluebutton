@@ -1,6 +1,6 @@
 import path from 'path';
 
-import { linkIssue } from '../core/helpers';
+import { linkIssue, skipScreenshotOnlyTestOutsideChromium } from '../core/helpers';
 import { chromiumBaseArgs } from '../core/setup/browsersConfig';
 import { test } from '../core/setup/fixtures';
 import { ExportedAnnotationsOverlap } from './exportedAnnotationsOverlap';
@@ -86,8 +86,7 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     await presentation.presentationFullscreen();
   });
 
-  test('Presentation snapshot', async ({ browser, context, page, browserName }, testInfo) => {
-    test.skip(browserName === 'firefox', 'Firefox does not support download.');
+  test('Presentation snapshot', async ({ browser, context, page }, testInfo) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page, testInfo);
     await presentation.presentationSnapshot();
@@ -110,6 +109,7 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
   // matches its baseline on any server - needs a baseline/approach refresh
   test('Select Slide', { tag: '@need-update' }, async ({ browser, context, page }, testInfo) => {
     linkIssue(24367);
+    skipScreenshotOnlyTestOutsideChromium();
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page, testInfo);
     await presentation.selectSlide();
