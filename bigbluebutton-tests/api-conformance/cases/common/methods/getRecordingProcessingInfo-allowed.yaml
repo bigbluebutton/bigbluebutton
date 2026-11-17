@@ -1,0 +1,25 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# The methods this route maps (UrlMappings.groovy). Each gets the endpoint's own answer
+# rather than the fallback an unmapped method gets. The counts depend on what other
+# cases left for record-and-playback, so expect pins the answer's shape and nothing is
+# recorded.
+id: getRecordingProcessingInfo.method.allowed
+title: getRecordingProcessingInfo answers ${method} with its own handler
+endpoint: getRecordingProcessingInfo
+class: contract
+tags: [ci]
+variants:
+  - {id: get, vars: {method: GET}}
+  - {id: post, vars: {method: POST}}
+steps:
+  - call: getRecordingProcessingInfo
+    method: "${method}"
+    golden: off
+    expect:
+      returncode: SUCCESS
+      headers: {Content-Type: {regex: '^text/xml'}}
+      xpath:
+        /response/processing: {oneOf: ["true", "false"]}
+        /response/queuedCount: {type: int}
+        /response/runningCount: {type: int}
+        /response/failedCount: {type: int}

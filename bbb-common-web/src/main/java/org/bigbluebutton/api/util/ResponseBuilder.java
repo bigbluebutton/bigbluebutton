@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.bigbluebutton.api.domain.Meeting;
 import org.bigbluebutton.api.domain.RecordingMetadata;
+import org.bigbluebutton.api.domain.RecordingProcessingInfo;
 import org.bigbluebutton.api.domain.UserSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -178,6 +179,18 @@ public class ResponseBuilder {
         data.put("isRunning", isRunning);
 
         processData(getTemplate("is-meeting-running.ftlx"), data, xmlText);
+
+        return xmlText.toString();
+    }
+
+    public String buildGetRecordingProcessingInfo(RecordingProcessingInfo info, String returnCode) {
+        StringWriter xmlText = new StringWriter();
+
+        Map<String, Object> data = new HashMap<String, Object>();
+        data.put("returnCode", returnCode);
+        data.put("info", info);
+
+        processData(getTemplate("get-recording-processing-info.ftlx"), data, xmlText);
 
         return xmlText.toString();
     }

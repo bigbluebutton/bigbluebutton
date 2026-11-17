@@ -96,7 +96,7 @@ begin
     opts = common_opts.merge('meeting_id': meeting_id)
 
     warn "Enqueing #{step_name} worker with #{opts.inspect}"
-    ::Resque.enqueue(klass, opts)
+    BigBlueButton::Resque.enqueue(klass, opts)
   end
 
   exit 1 if failed

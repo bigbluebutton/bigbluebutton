@@ -233,10 +233,70 @@ func TestRestoreRefuses(t *testing.T) {
 	}
 }
 
+// A fixture recording's status markers are installed and restored with it,
+// and a marker of any other recording is left alone.
+func TestRecordingStatusMarkers(t *testing.T) {
+	fixtures, data := t.TempDir(), t.TempDir()
+	tree := map[string]string{
+		"published/presentation/rec-a-2/metadata.xml":          "a recording whose ID starts with rec-a-",
+		"recording/status/archived/rec-a.done":                 "",
+		"recording/status/processed/rec-b-video.fail":          "",
+		"recording/status/published/rec-a-2-presentation.fail": "",
+	}
+	for name, body := range fixtureTree {
+		tree[name] = body
+	}
+	writeTree(t, fixtures, tree)
+	writeTree(t, data, map[string]string{
+		"recording/status/processed/rec-a-presentation.done": "left by an earlier run",
+		"recording/status/archived/other.fail":               "another recording's",
+		"recording/status/sanity/rec-a-2.done":               "left by an earlier run",
+	})
+	_, c := startRecordingsTap(t, fixtures, data)
+
+	for _, installed := range []string{"recording/status/archived/rec-a.done", "recording/status/processed/rec-b-video.fail",
+		"recording/status/published/rec-a-2-presentation.fail"} {
+		if !exists(data, installed) {
+			t.Errorf("%s wasn't installed", installed)
+		}
+	}
+	for _, gone := range []string{"recording/status/processed/rec-a-presentation.done", "recording/status/sanity/rec-a-2.done"} {
+		if exists(data, gone) {
+			t.Errorf("%s is still there", gone)
+		}
+	}
+	if !exists(data, "recording/status/archived/other.fail") {
+		t.Error("another recording's marker was removed")
+	}
+
+	// A rebuild removes rec-b's marker; restoring rec-a must leave rec-a-2's alone.
+	if err := os.Remove(filepath.Join(data, "recording/status/processed/rec-b-video.fail")); err != nil {
+		t.Fatal(err)
+	}
+	writeTree(t, data, map[string]string{"recording/status/sanity/rec-a-2.done": "rec-a-2's"})
+	if err := c.Restore(ctx(t), []string{"rec-a", "rec-b"}); err != nil {
+		t.Fatal(err)
+	}
+	if !exists(data, "recording/status/processed/rec-b-video.fail") {
+		t.Error("restoring rec-b didn't put its marker back")
+	}
+	if !exists(data, "recording/status/sanity/rec-a-2.done") {
+		t.Error("restoring rec-a removed rec-a-2's marker")
+	}
+}
+
 func TestRecordingsTreeChecked(t *testing.T) {
 	for name, tree := range map[string]map[string]string{
 		"bad ID": {"published/presentation/a.b/metadata.xml": "x"},
 		"empty":  {"published/presentation/metadata.xml": "a file, not a recording"},
+		"marker of no recording": {
+			"published/presentation/rec-a/metadata.xml":   "x",
+			"recording/status/processed/rec-z-video.fail": "",
+		},
+		"marker name": {
+			"published/presentation/rec-a/metadata.xml":   "x",
+			"recording/status/processed/rec-a-Video.fail": "",
+		},
 	} {
 		t.Run(name, func(t *testing.T) {
 			fixtures := t.TempDir()

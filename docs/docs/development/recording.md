@@ -260,6 +260,8 @@ Internal MeetingID                   Time   APVD APVDE RAS Slides Processed Publ
 --
 ```
 
+To check from outside the server whether it still has recordings to process, for example before taking it out of service, use the [getRecordingProcessingInfo](/development/api#get-post-getrecordingprocessinginfo) API call. It counts the recordings queued, running and failed, and needs no shell on the server.
+
 #### Rebuild a recording
 
 This options makes a recording go through the Process and Publish phases again.
