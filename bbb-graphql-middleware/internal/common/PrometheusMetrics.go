@@ -15,6 +15,10 @@ func AdvancedMetricsEnabled() bool {
 	return config.GetConfig().PrometheusAdvancedMetricsEnabled
 }
 
+// TimeBucketsSeconds are the buckets of the middleware's time histograms in seconds; they
+// resolve the 150 ms and 333 ms poll intervals of Hasura.
+var TimeBucketsSeconds = []float64{0.01, 0.05, 0.1, 0.15, 0.25, 0.333, 0.5, 1, 2, 5, 10}
+
 var (
 	HttpConnectionGauge = prometheus.NewGauge(prometheus.GaugeOpts{
 		Name: "http_connection_active",
@@ -56,6 +60,24 @@ var (
 		},
 		[]string{"type", "operationName"},
 	)
+	HttpConnectionRateLimitWait = prometheus.NewHistogram(prometheus.HistogramOpts{
+		Name:    "http_connection_rate_limit_wait_seconds",
+		Help:    "Time a new connection waited in the server connection rate limiter, in seconds",
+		Buckets: TimeBucketsSeconds,
+	})
+	HttpConnectionRateLimitExceededCounter = prometheus.NewCounter(prometheus.CounterOpts{
+		Name: "http_connection_rate_limit_exceeded_total",
+		Help: "Total number of connections that timed out in the rate limiter",
+	})
+	GqlQueryRateLimitWait = prometheus.NewHistogram(prometheus.HistogramOpts{
+		Name:    "gql_query_rate_limit_wait_seconds",
+		Help:    "Time a subscribe message waited in the per-connection query rate limiter, in seconds",
+		Buckets: TimeBucketsSeconds,
+	})
+	GqlQueryRateLimitExceededCounter = prometheus.NewCounter(prometheus.CounterOpts{
+		Name: "gql_query_rate_limit_exceeded_total",
+		Help: "Total number of subscribe messages that timed out in the rate limiter",
+	})
 	GqlMutationRateLimitExceededCounter = prometheus.NewCounter(prometheus.CounterOpts{
 		Name: "gql_mutation_rate_limit_exceeded_total",
 		Help: "Total number of mutations rejected by the mutation rate limiter",
@@ -137,6 +159,10 @@ func RegisterMetrics() {
 	prometheus.MustRegister(GqlReceivedDataCounter)
 	prometheus.MustRegister(GqlMutationsCounter)
 	prometheus.MustRegister(GqlMutationRateLimitExceededCounter)
+	prometheus.MustRegister(HttpConnectionRateLimitWait)
+	prometheus.MustRegister(HttpConnectionRateLimitExceededCounter)
+	prometheus.MustRegister(GqlQueryRateLimitWait)
+	prometheus.MustRegister(GqlQueryRateLimitExceededCounter)
 	prometheus.MustRegister(GqlReceivedDataPayloadSize)
 	if AdvancedMetricsEnabled() {
 		prometheus.MustRegister(GqlReceivedDataPayloadLength)
