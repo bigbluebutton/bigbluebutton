@@ -27,6 +27,8 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -164,11 +166,18 @@ public class RecordingServiceFileImpl implements RecordingService {
      * removes its marker only once it runs, so work is seen in one place or
      * the other.
      *
-     * @throws RuntimeException if the markers or Resque's jobs can't be read
+     * @throws RuntimeException if the markers or Resque's jobs can't be read,
+     *         or the status directory is missing
      */
     public RecordingProcessingInfo getRecordingProcessingInfo() {
         if (redisStorageService == null) {
             throw new IllegalStateException("No Redis connection to read the recording queues from");
+        }
+        // bbb-record-core's install creates the status directories. Without
+        // them (a recording volume that isn't mounted, for example) nothing
+        // can be told, whereas each missing directory below would read as empty.
+        if (!new File(recordStatusDir).isDirectory()) {
+            throw new IllegalStateException("No recording status directory at " + recordStatusDir);
         }
         RecordingProcessingCounter counter = new RecordingProcessingCounter();
         File statusDir = new File(recordStatusDir).getParentFile();
@@ -202,7 +211,7 @@ public class RecordingServiceFileImpl implements RecordingService {
             // can't be read may be a recording's step.
             JsonNode queue = running.path("queue");
             if (!queue.isTextual() || queue.asText().startsWith(RAP_QUEUE_PREFIX)) {
-                counter.running(jobName(running.path("payload").path("args").path(0), work));
+                counter.running(jobName(running.path("payload").path("args").path(0), work), startedAt(running));
             }
         }
         return counter.result();
@@ -213,6 +222,16 @@ public class RecordingServiceFileImpl implements RecordingService {
     private static String jobName(JsonNode args, String job) {
         String meetingId = args.path("meeting_id").asText();
         return meetingId.isEmpty() ? job : meetingId;
+    }
+
+    // When the worker started the job (Resque's run_at, ISO 8601), in
+    // milliseconds since the epoch, or null if it doesn't say.
+    private static Long startedAt(JsonNode running) {
+        try {
+            return OffsetDateTime.parse(running.path("run_at").asText()).toInstant().toEpochMilli();
+        } catch (DateTimeParseException e) {
+            return null;
+        }
     }
 
     private static JsonNode readJson(String json) {

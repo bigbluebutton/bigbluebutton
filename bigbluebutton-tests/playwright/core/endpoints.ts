@@ -72,6 +72,7 @@ interface GetRecordingProcessingInfoResponse {
     runningCount?: string[];
     failedCount?: string[];
     oldestQueuedTime?: string[];
+    oldestRunningTime?: string[];
     messageKey?: string[];
   };
 }

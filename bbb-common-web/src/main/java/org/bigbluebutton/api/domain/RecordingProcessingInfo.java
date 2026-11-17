@@ -22,10 +22,12 @@ package org.bigbluebutton.api.domain;
 /**
  * Where this server's recordings are in the record-and-playback pipeline,
  * as getRecordingProcessingInfo reports it. Each count is of recordings,
- * not jobs. oldestQueuedTime is when the oldest queued work was queued, in
- * milliseconds since the epoch, and null when nothing is queued.
+ * not jobs. oldestQueuedTime is when the oldest queued work was queued, and
+ * oldestRunningTime when the oldest running step started, in milliseconds
+ * since the epoch; each is null when nothing is queued, or running.
  */
-public record RecordingProcessingInfo(int queuedCount, int runningCount, int failedCount, Long oldestQueuedTime) {
+public record RecordingProcessingInfo(int queuedCount, int runningCount, int failedCount,
+        Long oldestQueuedTime, Long oldestRunningTime) {
 
     /** Whether work is still queued or running. Failed recordings don't count: they never finish on their own. */
     public boolean processing() {

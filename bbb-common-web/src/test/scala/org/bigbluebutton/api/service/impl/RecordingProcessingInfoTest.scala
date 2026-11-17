@@ -61,8 +61,8 @@ class RecordingProcessingInfoTest extends AnyFlatSpec with Matchers with BeforeA
     s"""{"class":"BigBlueButton::Resque::ProcessWorker","args":[{"meeting_id":"$meetingId","single_step":false,"format_name":"presentation"$at}]}"""
   }
 
-  private def runningJob(meetingId: String, queue: String = "rap:publish"): String =
-    s"""{"queue":"$queue","run_at":"2026-11-16T12:00:00Z","payload":{"class":"BigBlueButton::Resque::PublishWorker","args":[{"meeting_id":"$meetingId","format_name":"presentation"}]}}"""
+  private def runningJob(meetingId: String, queue: String = "rap:publish", runAt: String = "2026-11-16T12:00:00Z"): String =
+    s"""{"queue":"$queue","run_at":"$runAt","payload":{"class":"BigBlueButton::Resque::PublishWorker","args":[{"meeting_id":"$meetingId","format_name":"presentation"}]}}"""
 
   private def processingInfo: RecordingProcessingInfo = service.getRecordingProcessingInfo
 
@@ -73,6 +73,7 @@ class RecordingProcessingInfoTest extends AnyFlatSpec with Matchers with BeforeA
     i.processing shouldBe false
     counts(i) shouldBe ((0, 0, 0))
     i.oldestQueuedTime shouldBe null
+    i.oldestRunningTime shouldBe null
   }
 
   it should "count a recorded meeting rap-starter hasn't queued, once with its chapter breaks, from its oldest marker" in {
@@ -139,6 +140,21 @@ class RecordingProcessingInfoTest extends AnyFlatSpec with Matchers with BeforeA
     i.processing shouldBe true
     counts(i) shouldBe ((0, 1, 0))
     i.oldestQueuedTime shouldBe null
+    i.oldestRunningTime shouldBe 1794830400000L
+  }
+
+  it should "report when the oldest running step started, from Resque's run_at" in {
+    jobs(running = Seq(runningJob(A), runningJob(C, runAt = "2026-11-16T11:30:00Z")))
+
+    val i = processingInfo
+    counts(i) shouldBe ((0, 2, 0))
+    i.oldestRunningTime shouldBe 1794828600000L
+  }
+
+  it should "take the recording's start time for a running step whose run_at it can't read" in {
+    jobs(running = Seq(runningJob(A), runningJob(B, runAt = "yesterday")))
+
+    processingInfo.oldestRunningTime shouldBe 1700007200000L
   }
 
   it should "count a failed recording that is queued again as queued" in {
@@ -176,6 +192,12 @@ class RecordingProcessingInfoTest extends AnyFlatSpec with Matchers with BeforeA
     })
 
     a[RuntimeException] should be thrownBy processingInfo
+  }
+
+  it should "fail rather than answer when the status directory is missing" in {
+    FileUtils.deleteDirectory(new File(root, "recording/status"))
+
+    an[IllegalStateException] should be thrownBy processingInfo
   }
 
   it should "fail rather than answer without a Redis connection" in {

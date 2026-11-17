@@ -19,6 +19,7 @@
 
 package org.bigbluebutton.api.service.impl;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -43,7 +44,7 @@ public final class RecordingProcessingCounter {
     private static final Pattern RECORD_ID = Pattern.compile("^([0-9a-f]{40})-([0-9]{13})");
 
     private final Map<String, Long> queued = new HashMap<>();
-    private final Set<String> running = new HashSet<>();
+    private final Map<String, Long> running = new HashMap<>();
     private final Set<String> failed = new HashSet<>();
 
     /** The record ID a name starts with, or the name itself if it starts with none. */
@@ -59,16 +60,20 @@ public final class RecordingProcessingCounter {
      */
     public void queued(String name, Long queuedAt) {
         String id = recordId(name);
-        long at = queuedAt != null ? queuedAt : startTime(id, System.currentTimeMillis());
-        queued.merge(id, at, Math::min);
+        queued.merge(id, timeOr(queuedAt, id), Math::min);
     }
 
-    /** A step of the recording is running. */
-    public void running(String name) {
-        running.add(recordId(name));
+    /**
+     * A step of the recording is running, started at startedAt
+     * (milliseconds since the epoch). When that is unknown, the recording's
+     * start time stands in for it, as for queued work.
+     */
+    public void running(String name, Long startedAt) {
+        String id = recordId(name);
+        running.merge(id, timeOr(startedAt, id), Math::min);
     }
 
-    /** A step of the recording failed and hasn't been rebuilt or deleted since. */
+    /** A step of the recording failed and hasn't been rebuilt or removed with bbb-record --delete since. */
     public void failed(String name) {
         failed.add(recordId(name));
     }
@@ -77,7 +82,7 @@ public final class RecordingProcessingCounter {
         int queuedCount = 0;
         Long oldestQueuedTime = null;
         for (Map.Entry<String, Long> e : queued.entrySet()) {
-            if (running.contains(e.getKey())) {
+            if (running.containsKey(e.getKey())) {
                 continue;
             }
             queuedCount++;
@@ -87,11 +92,16 @@ public final class RecordingProcessingCounter {
         }
         int failedCount = 0;
         for (String id : failed) {
-            if (!running.contains(id) && !queued.containsKey(id)) {
+            if (!running.containsKey(id) && !queued.containsKey(id)) {
                 failedCount++;
             }
         }
-        return new RecordingProcessingInfo(queuedCount, running.size(), failedCount, oldestQueuedTime);
+        Long oldestRunningTime = running.isEmpty() ? null : Collections.min(running.values());
+        return new RecordingProcessingInfo(queuedCount, running.size(), failedCount, oldestQueuedTime, oldestRunningTime);
+    }
+
+    private static long timeOr(Long time, String recordId) {
+        return time != null ? time : startTime(recordId, System.currentTimeMillis());
     }
 
     private static long startTime(String recordId, long otherwise) {

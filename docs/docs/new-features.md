@@ -361,7 +361,7 @@ See [Play recordings made with BigBlueButton 0.81 or 0.9](/administration/custom
 
 #### New API call: getRecordingProcessingInfo
 
-A server can be taken out of service only once every recording on it has finished processing, or the raw data of the rest is lost. The new [getRecordingProcessingInfo](/development/api#get-post-getrecordingprocessinginfo) API call tells whether the server still has recordings queued, running or failed in the recording pipeline, and how long the oldest queued work has waited, so that a script can drain a server, for example one taken out of a Scalelite pool, without a shell on it.
+A server can be taken out of service only once every recording on it has finished processing, or the raw data of the rest is lost. The new [getRecordingProcessingInfo](/development/api#get-post-getrecordingprocessinginfo) API call tells whether the server still has recordings queued, running or failed in the recording pipeline, how long the oldest queued work has waited and how long the oldest running step has run, so that a script can drain a server, for example one taken out of a Scalelite pool, without a shell on it.
 
 #### New administration tool: bbbctl
 

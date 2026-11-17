@@ -20,7 +20,7 @@ class RecordingControllerSpec extends Specification implements ControllerUnitTes
   static final String API_CALL = "getRecordingProcessingInfo"
 
   // What the stubbed MeetingService reports, or null to throw as an unreachable Redis does.
-  RecordingProcessingInfo pipeline = new RecordingProcessingInfo(0, 0, 0, null)
+  RecordingProcessingInfo pipeline = new RecordingProcessingInfo(0, 0, 0, null, null)
 
   def setup() {
     ParamsProcessorUtil paramsProcessorUtil = new ParamsProcessorUtil()
@@ -78,7 +78,7 @@ class RecordingControllerSpec extends Specification implements ControllerUnitTes
     checksum << ["0" * 64, sign("getRecordings")]
   }
 
-  def "An empty pipeline answers processing=false, zero counts and no oldestQueuedTime"() {
+  def "An empty pipeline answers processing=false, zero counts and no oldest times"() {
     when:
     def xml = call(sign())
 
@@ -89,13 +89,14 @@ class RecordingControllerSpec extends Specification implements ControllerUnitTes
     xml.runningCount == "0"
     xml.failedCount == "0"
     xml.oldestQueuedTime.size() == 0
+    xml.oldestRunningTime.size() == 0
     response.contentType.startsWith("text/xml")
     response.getHeader("Cache-Control") == "no-cache"
   }
 
-  def "A busy pipeline answers its counts and when the oldest queued work was queued"() {
+  def "A busy pipeline answers its counts, when the oldest queued work was queued and when the oldest running step started"() {
     given:
-    pipeline = new RecordingProcessingInfo(2, 1, 3, 1700000000000L)
+    pipeline = new RecordingProcessingInfo(2, 1, 3, 1700000000000L, 1700000100000L)
 
     when:
     def xml = call(sign())
@@ -107,11 +108,12 @@ class RecordingControllerSpec extends Specification implements ControllerUnitTes
     xml.runningCount == "1"
     xml.failedCount == "3"
     xml.oldestQueuedTime == "1700000000000"
+    xml.oldestRunningTime == "1700000100000"
   }
 
   def "Failed recordings alone don't keep processing true"() {
     given:
-    pipeline = new RecordingProcessingInfo(0, 0, 1, null)
+    pipeline = new RecordingProcessingInfo(0, 0, 1, null, null)
 
     when:
     def xml = call(sign())

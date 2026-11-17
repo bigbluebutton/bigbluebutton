@@ -10,5 +10,8 @@
     <#if info.oldestQueuedTime()??>
     <oldestQueuedTime>${info.oldestQueuedTime()?c}</oldestQueuedTime>
     </#if>
+    <#if info.oldestRunningTime()??>
+    <oldestRunningTime>${info.oldestRunningTime()?c}</oldestRunningTime>
+    </#if>
 </response>
 </#compress>
