@@ -1378,7 +1378,9 @@ That's all! The font will be available on next presentations.
 
 #### Disable the extraction of presentation speaker notes
 
-When a PowerPoint (`.pptx`) or OpenDocument (`.odp`) presentation is converted to PDF, BigBlueButton saves the speaker notes for each visible slide as a UTF-8 file under `speakernotes/slide-N.txt` in the presentation directory. `N` is the corresponding page number in the converted PDF. Hidden slides are skipped, and the notes are discarded if the number of visible slides differs from the number of PDF pages. A failure to extract notes does not prevent presentation conversion.
+When a PowerPoint (`.ppt`, `.pptx`) or OpenDocument (`.odp`) presentation is converted to PDF, the same LibreOffice run that creates the PDF also saves the speaker notes of each visible slide as a UTF-8 file under `speakernotes/slide-N.txt` in the presentation directory. `N` is the corresponding page number in the converted PDF. Hidden slides are skipped, and the notes are discarded if their number differs from the number of PDF pages. A failure to save notes does not prevent presentation conversion.
+
+Speaker notes require the default local LibreOffice conversion (`/usr/share/bbb-libreoffice-conversion/convert-local.sh`). The remote conversion scripts (`convert-remote.sh`, `convert-cool.sh`) only create the PDF, so presentations converted with them have no speaker notes.
 
 The notes are available through the GraphQL `pres_page_speakerNotes.speakerNotes` field to the current presenter and moderators in the meeting.
 

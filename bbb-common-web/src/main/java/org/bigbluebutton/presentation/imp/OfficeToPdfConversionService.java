@@ -32,6 +32,7 @@ import java.util.concurrent.Semaphore;
 
 public class OfficeToPdfConversionService {
   private static Logger log = LoggerFactory.getLogger(OfficeToPdfConversionService.class);
+  public static final String SPEAKER_NOTES_DIRECTORY = "speakernotes";
   private OfficeDocumentValidator2 officeDocumentValidator;
   private boolean skipOfficePrecheck = false;
   private String presOfficeConversionExec = null;
@@ -110,7 +111,7 @@ public class OfficeToPdfConversionService {
         }
         presOfficeConversionSemaphore.acquire();
 
-        success = Office2PdfPageConverter.convert(pres.getUploadedFile(), pdfOutput, 0, pres,
+        success = Office2PdfPageConverter.convert(pres.getUploadedFile(), pdfOutput, speakerNotesDirectory(pres), pres,
                 presOfficeConversionExec, presOfficeConversionTimeout);
 
       } catch (Exception e) {
@@ -129,6 +130,17 @@ public class OfficeToPdfConversionService {
     }
 
     return success;
+  }
+
+  /*
+   * The same conversion run saves the speaker notes of each visible slide as
+   * speakernotes/slide-N.txt next to the uploaded file, N being the PDF page.
+   */
+  private File speakerNotesDirectory(UploadedPresentation pres) {
+    if (!pres.isExtractSpeakerNotes()) {
+      return null;
+    }
+    return new File(pres.getUploadedFile().getParentFile(), SPEAKER_NOTES_DIRECTORY);
   }
 
   private void makePdfTheUploadedFileAndSetStepAsSuccess(UploadedPresentation pres, File pdf) {

@@ -35,7 +35,7 @@ public final class UploadedPresentation {
   private String uploadedFileHash;
   private String fileType = "unknown";
   private int numberOfPages = 0;
-  private Integer speakerNotesVisibleSlideCount;
+  private boolean extractSpeakerNotes = false;
   private String conversionStatus;
   private String filenameConverted;
   private final String baseUrl;
@@ -171,12 +171,12 @@ public final class UploadedPresentation {
     this.numberOfPages = numberOfPages;
   }
 
-  public Integer getSpeakerNotesVisibleSlideCount() {
-    return speakerNotesVisibleSlideCount;
+  public boolean isExtractSpeakerNotes() {
+    return extractSpeakerNotes;
   }
 
-  public void setSpeakerNotesVisibleSlideCount(Integer speakerNotesVisibleSlideCount) {
-    this.speakerNotesVisibleSlideCount = speakerNotesVisibleSlideCount;
+  public void setExtractSpeakerNotes(boolean extractSpeakerNotes) {
+    this.extractSpeakerNotes = extractSpeakerNotes;
   }
 
   public String getConversionStatus() {

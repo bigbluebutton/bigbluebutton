@@ -10,6 +10,9 @@ PATH="/bin/:/usr/bin/"
 # Param 2: Output pdf file path (e.g. "/tmp/test.pdf")
 # Param 3: Output format (pdf default)
 # Param 4: Timeout (secs) (optional)
+# Param 5: Speaker notes output directory (optional, PDF output only). When set,
+#          the same LibreOffice run that creates the PDF also saves the notes
+#          of every visible slide as <dir>/slide-N.txt
 
 if (( $# == 0 )); then
 	echo "Missing parameter 1 (Input office file path)";
@@ -43,6 +46,24 @@ then
 	convertToParam="$convertToParam --writer"
 fi
 
+#If the speaker notes directory is missing, do not save notes
+speakerNotesDest="${5:-}"
+
 cp "${source}" "$tempDir/file"
-sudo /usr/bin/docker run --rm --memory=1g --memory-swap=1g --network none --env="HOME=/tmp/" -w /tmp/ --user=$(printf %05d `id -u`) -v "$tempDir/":/data/ -v /usr/share/fonts/:/usr/share/fonts/:ro -v /usr/share/fontconfig/:/usr/share/fontconfig/:ro -v /etc/fonts/:/etc/fonts/:ro -v /var/cache/fontconfig/:/var/cache/fontconfig/:ro --rm bbb-soffice sh -c "timeout $(printf %03d $timeoutSecs)s /usr/bin/soffice -env:UserInstallation=file:///tmp/ $convertToParam --outdir /data /data/file"
+if [ -n "$speakerNotesDest" ] && [ "$convertTo" == "pdf" ]
+then
+	#A failure here falls back to the plain conversion below
+	sudo /usr/bin/docker run --rm --memory=1g --memory-swap=1g --network none --env="HOME=/tmp/" -w /tmp/ --user=$(printf %05d `id -u`) -v "$tempDir/":/data/ -v /usr/share/fonts/:/usr/share/fonts/:ro -v /usr/share/fontconfig/:/usr/share/fontconfig/:ro -v /etc/fonts/:/etc/fonts/:ro -v /var/cache/fontconfig/:/var/cache/fontconfig/:ro --rm bbb-soffice sh -c "timeout $(printf %03d $timeoutSecs)s /usr/local/bin/bbb-soffice-convert-with-speaker-notes" || true
+fi
+if [ ! -f "$tempDir/file.$convertTo" ]
+then
+	rm -rf "$tempDir/speakernotes"
+	sudo /usr/bin/docker run --rm --memory=1g --memory-swap=1g --network none --env="HOME=/tmp/" -w /tmp/ --user=$(printf %05d `id -u`) -v "$tempDir/":/data/ -v /usr/share/fonts/:/usr/share/fonts/:ro -v /usr/share/fontconfig/:/usr/share/fontconfig/:ro -v /etc/fonts/:/etc/fonts/:ro -v /var/cache/fontconfig/:/var/cache/fontconfig/:ro --rm bbb-soffice sh -c "timeout $(printf %03d $timeoutSecs)s /usr/bin/soffice -env:UserInstallation=file:///tmp/ $convertToParam --outdir /data /data/file"
+fi
 cp "$tempDir/file.$convertTo" "${dest}"
+if [ -n "$speakerNotesDest" ] && [ -d "$tempDir/speakernotes" ]
+then
+	rm -rf "$speakerNotesDest"
+	mkdir -p "$speakerNotesDest"
+	cp -r "$tempDir/speakernotes/." "$speakerNotesDest/" || rm -rf "$speakerNotesDest"
+fi
