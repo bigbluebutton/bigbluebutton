@@ -15,6 +15,7 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
+	"golang.org/x/time/rate"
 )
 
 var graphqlActionsUrl = config.GetConfig().GraphqlActions.Url
@@ -64,7 +65,7 @@ RangeLoop:
 					}
 
 					// Rate limiter from config max_connection_mutations_per_minute
-					if !browserConnection.FromBrowserToGqlActionsRateLimiter.Allow() {
+					if !mutationAllowed(browserConnection.FromBrowserToGqlActionsRateLimiter) {
 						sendErrorMessage(
 							browserConnection,
 							browserMessage.ID,
@@ -282,4 +283,14 @@ func sendErrorMessage(browserConnection *common.BrowserConnection, messageId str
 	}
 	jsonDataComplete, _ := json.Marshal(browserResponseComplete)
 	browserConnection.FromHasuraToBrowserChannel.SendWait(browserConnection.Context, jsonDataComplete)
+}
+
+// mutationAllowed takes a token from the connection's mutation rate limiter, counting the
+// mutations it rejects.
+func mutationAllowed(limiter *rate.Limiter) bool {
+	if limiter.Allow() {
+		return true
+	}
+	common.GqlMutationRateLimitExceededCounter.Inc()
+	return false
 }
