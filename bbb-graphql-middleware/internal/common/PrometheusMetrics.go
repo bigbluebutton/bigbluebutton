@@ -110,6 +110,13 @@ var (
 		Name: "gql_query_rate_limit_exceeded_total",
 		Help: "Total number of subscribe messages that timed out in the rate limiter",
 	})
+	GqlSubscriptionRemovedCounter = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "gql_subscription_removed_total",
+			Help: "Total number of Graphql subscriptions removed, by reason",
+		},
+		[]string{"type", "operationName", "reason"},
+	)
 	GqlMutationRateLimitExceededCounter = prometheus.NewCounter(prometheus.CounterOpts{
 		Name: "gql_mutation_rate_limit_exceeded_total",
 		Help: "Total number of mutations rejected by the mutation rate limiter",
@@ -188,6 +195,7 @@ func RegisterMetrics() {
 	prometheus.MustRegister(GqlSubscribeCounter)
 	prometheus.MustRegister(GqlSubscriptionRetransmittedCounter)
 	prometheus.MustRegister(GqlSubscriptionLimitRejectedCounter)
+	prometheus.MustRegister(GqlSubscriptionRemovedCounter)
 	prometheus.MustRegister(GqlReceivedDataCounter)
 	prometheus.MustRegister(GqlMutationsCounter)
 	prometheus.MustRegister(GqlMutationRateLimitExceededCounter)

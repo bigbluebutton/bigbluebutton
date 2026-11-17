@@ -60,6 +60,7 @@ type BrowserConnection struct {
 	ActiveSubscriptionsMutex           sync.RWMutex                   // mutex to control the map usage
 	SubscriptionLimitLogged            atomic.Bool                    // indicate if active subscriptions were already logged on reaching the concurrent limit
 	SubscriptionTwoThirdsLogged        atomic.Bool                    // indicate if active subscriptions were already logged on reaching two thirds of the concurrent limit
+	ActiveSubscriptionsClosed          bool                           // the connection closed and its subscriptions were removed, under ActiveSubscriptionsMutex
 	ActiveStreamings                   map[string][]string            // active streamings managed by Middleware of this connection
 	PendingStreamReplays               map[string][]string            // replays withheld until the connection is a meeting member
 	ActiveStreamingsMutex              sync.RWMutex                   // mutex to control both maps above

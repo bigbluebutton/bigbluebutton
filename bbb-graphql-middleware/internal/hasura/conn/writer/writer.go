@@ -268,6 +268,12 @@ RangeLoop:
 					}
 
 					browserConnection.ActiveSubscriptionsMutex.Lock()
+					if browserConnection.ActiveSubscriptionsClosed {
+						// The browser connection closed while this message was handled, and its
+						// subscriptions were already removed and counted: nothing would remove this one.
+						browserConnection.ActiveSubscriptionsMutex.Unlock()
+						continue
+					}
 					// A record of this id, whatever its type, makes this message a resend.
 					_, alreadyActive := browserConnection.ActiveSubscriptions[queryId]
 					browserConnection.ActiveSubscriptions[queryId] = common.GraphQlSubscription{
@@ -317,10 +323,9 @@ RangeLoop:
 
 				if browserMessage.Type == "complete" {
 					// Remove subscriptions from ActivitiesOverview here once Hasura-Reader will ignore "complete" msg for them
-					browserConnection.ActiveSubscriptionsMutex.Lock()
-					delete(browserConnection.ActiveSubscriptions, browserMessage.ID)
-					// hc.BrowserConn.Logger.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
-					browserConnection.ActiveSubscriptionsMutex.Unlock()
+					if subscription, removed := browserConnection.RemoveActiveSubscription(browserMessage.ID); removed {
+						common.RecordSubscriptionRemoved(subscription, common.RemovedByClient)
+					}
 
 					// Iterate the canonical list rather than naming the streams here, so a stream
 					// cannot be added to the list and missed in this teardown.
