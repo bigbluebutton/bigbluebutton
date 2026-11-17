@@ -11,6 +11,7 @@ import { hasCurrentPresentationToastElement } from './util';
 
 const pptxFixturePath = path.resolve(__dirname, '../core/media/speaker-notes.pptx');
 const odpFixturePath = path.resolve(__dirname, '../core/media/speaker-notes.odp');
+const pptFixturePath = path.resolve(__dirname, '../core/media/speaker-notes.ppt');
 
 const uploadPresentation = async (presenter: Page, fixturePath: string): Promise<void> => {
   await presenter.waitAndClick(e.mediaAreaButton);
@@ -80,17 +81,22 @@ test.describe('Speaker notes privacy', { tag: '@ci' }, () => {
       .toEqual(expectedNotes);
   });
 
-  test('ODP speaker notes preserve visible slide order', async ({ browser, page }, testInfo) => {
-    const presenter = new Page(browser, page, testInfo);
-    await presenter.init(true, {
-      fullName: 'Presenter',
-      createClientSettingsOverride: APOLLO_CLIENT_SETTINGS_OVERRIDE,
-      testInfo,
-    });
-    await uploadPresentation(presenter, odpFixturePath);
+  for (const [format, fixturePath] of [
+    ['ODP', odpFixturePath],
+    ['PPT', pptFixturePath],
+  ]) {
+    test(`${format} speaker notes preserve visible slide order`, async ({ browser, page }, testInfo) => {
+      const presenter = new Page(browser, page, testInfo);
+      await presenter.init(true, {
+        fullName: 'Presenter',
+        createClientSettingsOverride: APOLLO_CLIENT_SETTINGS_OVERRIDE,
+        testInfo,
+      });
+      await uploadPresentation(presenter, fixturePath);
 
-    await expect
-      .poll(async () => uploadedPresentationNotes(presenter.page), { timeout: ELEMENT_WAIT_LONGER_TIME })
-      .toEqual(['First paragraph\nSecond paragraph', '', '', '', '', '', '', '', '', '', '']);
-  });
+      await expect
+        .poll(async () => uploadedPresentationNotes(presenter.page), { timeout: ELEMENT_WAIT_LONGER_TIME })
+        .toEqual(['First paragraph\nSecond paragraph', '', '', '', '', '', '', '', '', '', '']);
+    });
+  }
 });
