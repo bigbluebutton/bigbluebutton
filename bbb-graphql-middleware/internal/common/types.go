@@ -58,6 +58,7 @@ type BrowserConnection struct {
 	BrowserRequestCookies              []*http.Cookie
 	ActiveSubscriptions                map[string]GraphQlSubscription // active subscriptions of this connection (start, but no stop)
 	ActiveSubscriptionsMutex           sync.RWMutex                   // mutex to control the map usage
+	ActiveSubscriptionsPeak            int                            // highest number of active subscriptions held, under ActiveSubscriptionsMutex
 	SubscriptionLimitLogged            atomic.Bool                    // indicate if active subscriptions were already logged on reaching the concurrent limit
 	SubscriptionTwoThirdsLogged        atomic.Bool                    // indicate if active subscriptions were already logged on reaching two thirds of the concurrent limit
 	ActiveStreamings                   map[string][]string            // active streamings managed by Middleware of this connection

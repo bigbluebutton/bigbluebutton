@@ -261,6 +261,7 @@ RangeLoop:
 						LastReceivedDataChecksum:   lastReceivedDataChecksum,
 						LastReceivedData:           lastReceivedData,
 					}
+					browserConnection.NoteActiveSubscriptionsLocked()
 					// hc.BrowserConn.Logger.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
 					browserConnection.ActiveSubscriptionsMutex.Unlock()
 
