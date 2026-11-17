@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"slices"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -84,7 +85,7 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	connectionLogger.Infof("browser connection accepted")
 
 	if common.HasReachedMaxGlobalConnections() {
-		common.WsConnectionRejectedCounter.With(prometheus.Labels{"reason": "limit of server connections exceeded"}).Inc()
+		common.WsConnectionRejectedCounter.With(prometheus.Labels{"reason": rejectionReason("connections_limit_exceeded")}).Inc()
 		disconnectWithError(
 			browserWsConn,
 			browserConnectionContext,
@@ -562,11 +563,30 @@ func connectionInitHandler(browserConnection *common.BrowserConnection) (error, 
 	return nil, ""
 }
 
+// rejectionReasons are the errorMessageIds a connection can be rejected with here; any other id
+// (one forwarded from akka-apps, for instance) is counted as "other".
+var rejectionReasons = []string{
+	"param_missing",
+	"too_many_connections",
+	"check_authorization_error",
+	"meeting_not_found",
+	"user_not_found",
+	"connections_limit_exceeded",
+}
+
+// rejectionReason is the reason label of ws_connection_rejected for an errorMessageId.
+func rejectionReason(errorMessageId string) string {
+	if slices.Contains(rejectionReasons, errorMessageId) {
+		return errorMessageId
+	}
+	return "other"
+}
+
 // recordConnectionInit counts the outcome of a connection's init: rejected with its reason, or
 // accepted. A rejected connection is not counted as accepted.
 func recordConnectionInit(errorOnInitConnection error, errorMessageId string) {
 	if errorOnInitConnection != nil {
-		common.WsConnectionRejectedCounter.With(prometheus.Labels{"reason": errorOnInitConnection.Error()}).Inc()
+		common.WsConnectionRejectedCounter.With(prometheus.Labels{"reason": rejectionReason(errorMessageId)}).Inc()
 		return
 	}
 	common.WsConnectionAcceptedCounter.Inc()

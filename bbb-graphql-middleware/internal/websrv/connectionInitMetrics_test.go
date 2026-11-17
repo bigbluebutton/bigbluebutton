@@ -21,3 +21,24 @@ func TestRecordConnectionInitCountsOnlyAcceptedConnections(t *testing.T) {
 		t.Fatalf("an accepted connection was not counted: %v -> %v", accepted, got)
 	}
 }
+
+func TestRecordConnectionInitLabelsRejectionsByMessageId(t *testing.T) {
+	rejected := func(reason string) float64 {
+		return metricstest.Value(common.WsConnectionRejectedCounter.WithLabelValues(reason))
+	}
+	cases := []struct{ errorMessageId, reason string }{
+		{"meeting_not_found", "meeting_not_found"},
+		{"param_missing", "param_missing"},
+		{"some_id_from_akka_apps", "other"},
+	}
+	for _, c := range cases {
+		before := rejected(c.reason)
+		recordConnectionInit(errors.New("error on trying to check authorization"), c.errorMessageId)
+		if got := rejected(c.reason); got != before+1 {
+			t.Errorf("errorMessageId %q: reason %q went %v -> %v, want +1", c.errorMessageId, c.reason, before, got)
+		}
+	}
+	if got := rejected("error on trying to check authorization"); got != 0 {
+		t.Errorf("the error text is still used as the reason: %v", got)
+	}
+}
