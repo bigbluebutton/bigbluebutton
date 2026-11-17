@@ -366,6 +366,18 @@ const LayoutEngine = () => {
     };
   };
 
+  // Horizontal space next to the sidebars, from the sidebars to the window edge.
+  // Unlike the media area, it has no gap to the window edge, so the nav and
+  // action bars placed in it span the full width.
+  const calculatesContentColumnBounds = (sidebarSize) => {
+    if (isMobile) return { left: 0, width: windowWidth() };
+
+    return {
+      left: !isRTL ? sidebarSize : 0,
+      width: windowWidth() - sidebarSize,
+    };
+  };
+
   const common = {
     bannerAreaHeight,
     baseCameraDockBounds,
@@ -379,6 +391,7 @@ const LayoutEngine = () => {
     calculatesSidebarContentWidth,
     calculatesSidebarContentBounds,
     calculatesMediaAreaBounds,
+    calculatesContentColumnBounds,
     isMobile,
     isTablet,
     prevLayout,
