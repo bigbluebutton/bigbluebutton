@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import path from 'path';
 
-import { APOLLO_CLIENT_SETTINGS_MODULE, isApolloClientExposed } from '../core/apolloProbe';
+import { APOLLO_CLIENT_SETTINGS_OVERRIDE, isApolloClientExposed } from '../core/apolloProbe';
 import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME, UPLOAD_PDF_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
@@ -44,7 +44,7 @@ test.describe('Speaker notes privacy', { tag: '@ci' }, () => {
 
     await presenter.init(true, {
       fullName: 'Presenter',
-      createModules: APOLLO_CLIENT_SETTINGS_MODULE,
+      createClientSettingsOverride: APOLLO_CLIENT_SETTINGS_OVERRIDE,
       testInfo,
     });
     await moderator.init(true, { fullName: 'Moderator', meetingId: presenter.meetingId, testInfo });
@@ -84,7 +84,7 @@ test.describe('Speaker notes privacy', { tag: '@ci' }, () => {
     const presenter = new Page(browser, page, testInfo);
     await presenter.init(true, {
       fullName: 'Presenter',
-      createModules: APOLLO_CLIENT_SETTINGS_MODULE,
+      createClientSettingsOverride: APOLLO_CLIENT_SETTINGS_OVERRIDE,
       testInfo,
     });
     await uploadPresentation(presenter, odpFixturePath);
