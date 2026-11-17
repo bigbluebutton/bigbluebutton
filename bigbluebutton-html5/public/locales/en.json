@@ -593,6 +593,7 @@
     "app.unmute.modal.confirm.label": "Unmute",
     "app.unmute.modal.deny.label": "Stay Muted",
     "app.unmute.modal.deny.label.mobile": "Cancel",
+    "app.unmute.byModerator.toast": "A moderator unmuted your microphone",
     "app.requestPresenter.notification.title": "Make Presenter",
     "app.requestPresenter.notification.description": "{userName} is asking to present in the session.",
     "app.requestPresenter.notification.confirm.label": "Allow",

@@ -5,7 +5,14 @@ import logger from '/imports/startup/client/logger';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useLockContext from '/imports/ui/components/lock-viewers/hooks/useLockContext';
 import { SET_AWAY } from '/imports/ui/components/user-list/user-list-participants/list-item/mutations';
+import Storage from '/imports/ui/services/storage/session';
 import { restoreFromAway } from '../audio-controls/input-stream-live-selector/service';
+
+type ToggleVoiceOptions = {
+  // False when the user did not ask for the change, e.g. a moderator's unmute.
+  // Such an unmute does not end away.
+  userAction?: boolean;
+};
 
 const useToggleVoice = () => {
   const [userSetMuted] = useMutation(USER_SET_MUTED);
@@ -22,11 +29,16 @@ const useToggleVoice = () => {
     micLocked: userLocks.userMic,
   };
 
-  const toggleVoice = async (userId: string, muted: boolean) => {
+  const toggleVoice = async (
+    userId: string,
+    muted: boolean,
+    { userAction = true }: ToggleVoiceOptions = {},
+  ) => {
     const { userId: currentUserId, away, micLocked } = selfStateRef.current;
-    // Unmuting yourself means you are back, whatever control did it.
-    // A locked microphone does not open, so the user stays away.
-    if (!muted && away && !micLocked && userId === currentUserId) {
+    const selfUnmute = !muted && userId === currentUserId;
+    if (selfUnmute && userAction && away && !micLocked) {
+      // An unmute the user asked for means they are back, whatever control
+      // did it. A locked microphone does not open, so the user stays away.
       restoreFromAway(toggleVoice);
       setAway({
         variables: {
@@ -38,7 +50,18 @@ const useToggleVoice = () => {
     try {
       await userSetMuted({ variables: { muted, userId } });
     } catch (e) {
-      logger.error('Error on trying to toggle muted');
+      logger.error({
+        logCode: 'audio_toggle_voice_failure',
+        extraInfo: { errorMessage: (e as Error)?.message, muted, userAction },
+      }, 'Error on trying to toggle muted');
+      return;
+    }
+
+    if (selfUnmute && !userAction) {
+      // Clear prevAwayMuted, or a later return from away would unmute a
+      // microphone the user has muted since. Skipped on failure: the server
+      // still has the user muted.
+      Storage.setItem('prevAwayMuted', false);
     }
   };
 

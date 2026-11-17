@@ -865,6 +865,15 @@ object VoiceApp extends SystemConfiguration {
       }
   }
 
+  def withdrawUnmuteRequest(
+    liveMeeting: LiveMeeting,
+    userId:      String,
+  ): Unit = {
+    Users2x.findWithIntId(liveMeeting.users2x, userId)
+      .filter(_.requestedUnmuteByMod)
+      .foreach(_ => Users2x.resetUserUnmuteRequested(liveMeeting.users2x, userId))
+  }
+
   def muteUserInVoiceConf(
     liveMeeting:  LiveMeeting,
     outGW:        OutMsgRouter,
@@ -877,6 +886,8 @@ object VoiceApp extends SystemConfiguration {
         userId
       )
       } yield {
+        if (muted) withdrawUnmuteRequest(liveMeeting, u.intId)
+
         if (u.muted != muted && (muted || !u.deafened)) {
           val muteEvent = MsgBuilder.buildMuteUserInVoiceConfSysMsg(
             liveMeeting.props.meetingProp.intId,
@@ -989,8 +1000,9 @@ object VoiceApp extends SystemConfiguration {
         outGW
       )
 
-      if (deafened && !du.muted) {
-        muteUserInVoiceConf(liveMeeting, outGW, du.intId, true)
+      if (deafened) {
+        if (du.muted) withdrawUnmuteRequest(liveMeeting, du.intId)
+        else muteUserInVoiceConf(liveMeeting, outGW, du.intId, true)
       }
     }
   }
