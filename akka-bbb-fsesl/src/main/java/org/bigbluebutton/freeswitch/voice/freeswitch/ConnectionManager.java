@@ -201,7 +201,10 @@ public class ConnectionManager {
 	public void mute(MuteUserCommand mpc) {
 		Client c = manager.getESLClient();
 		if (c.canSend()) {
-			c.sendAsyncApiCommand(mpc.getCommand(), mpc.getCommandArgs());
+			// FreeswitchApplication sends commands from a single worker, but bgapi
+			// only acknowledges job submission and can complete jobs out of order.
+			// Wait for this mute/unmute to finish before sending the next one.
+			c.sendSyncApiCommand(mpc.getCommand(), mpc.getCommandArgs());
 		}
 	}
 
