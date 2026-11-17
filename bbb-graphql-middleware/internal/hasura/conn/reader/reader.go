@@ -86,9 +86,17 @@ func handleMessageReceivedFromHasura(hc *common.HasuraConnection, message []byte
 
 	// Check if subscription is still active!
 	if hasuraMessageInfo.ID != "" {
-		hc.BrowserConn.ActiveSubscriptionsMutex.RLock()
-		subscription, ok := hc.BrowserConn.ActiveSubscriptions[hasuraMessageInfo.ID]
-		hc.BrowserConn.ActiveSubscriptionsMutex.RUnlock()
+		var subscription common.GraphQlSubscription
+		var ok bool
+		if hasuraMessageInfo.Type == "next" {
+			// Read the record and settle its first data in one lock, so the copy used (and
+			// written back) below is already the settled one.
+			subscription, ok = recordFirstData(hc, hasuraMessageInfo.ID)
+		} else {
+			hc.BrowserConn.ActiveSubscriptionsMutex.RLock()
+			subscription, ok = hc.BrowserConn.ActiveSubscriptions[hasuraMessageInfo.ID]
+			hc.BrowserConn.ActiveSubscriptionsMutex.RUnlock()
+		}
 		if !ok {
 			hc.BrowserConn.Logger.Debugf("Subscription with Id %s doesn't exist anymore, skipping response.", hasuraMessageInfo.ID)
 			return
@@ -219,6 +227,34 @@ func handleStreamingMessage(hc *common.HasuraConnection, message []byte, subscri
 		hc.BrowserConn.ActiveSubscriptions[queryId] = subscription
 		hc.BrowserConn.ActiveSubscriptionsMutex.Unlock()
 	}
+}
+
+// recordFirstData reads a subscription's record for a data message and, on its first data
+// message, observes the time it waited for it, once. The record it returns, and keeps, has the
+// first data settled. Once settled, the record is only read, under the read lock; the write lock
+// is taken only until the first data of the subscription is settled.
+func recordFirstData(hc *common.HasuraConnection, queryId string) (common.GraphQlSubscription, bool) {
+	hc.BrowserConn.ActiveSubscriptionsMutex.RLock()
+	subscription, ok := hc.BrowserConn.ActiveSubscriptions[queryId]
+	hc.BrowserConn.ActiveSubscriptionsMutex.RUnlock()
+	if !ok || subscription.FirstDataReceived {
+		return subscription, ok
+	}
+
+	hc.BrowserConn.ActiveSubscriptionsMutex.Lock()
+	subscription, ok = hc.BrowserConn.ActiveSubscriptions[queryId]
+	pendingSince := subscription.FirstDataPendingSince
+	if ok && !subscription.FirstDataReceived {
+		subscription.FirstDataReceived = true
+		subscription.FirstDataPendingSince = time.Time{}
+		hc.BrowserConn.ActiveSubscriptions[queryId] = subscription
+	}
+	hc.BrowserConn.ActiveSubscriptionsMutex.Unlock()
+
+	if ok && !pendingSince.IsZero() {
+		common.GqlSubscriptionFirstDataDuration.WithLabelValues(string(subscription.Type)).Observe(time.Since(pendingSince).Seconds())
+	}
+	return subscription, ok
 }
 
 func handleCompleteMessage(hc *common.HasuraConnection, queryId string) {
