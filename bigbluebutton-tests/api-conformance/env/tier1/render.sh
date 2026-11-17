@@ -53,6 +53,11 @@ fi
 # shellcheck source=/dev/null # made just above
 . "$tokens"
 
+# The TURN servers' shared secret, from the file bbb-web reads, so the stuns
+# cases can check the credentials it hands out.
+turn_secret=$(sed -n '/TurnServer"/,/<\/bean>/s/.*index="0" value="\([^"]*\)".*/\1/p' "$here/../bbb-web/turn-stun-servers.xml" | sed -n 1p)
+[ -n "$turn_secret" ] || { echo "render.sh: no TURN secret in bbb-web/turn-stun-servers.xml" >&2; exit 1; }
+
 cat > "$out/conform.env" <<END
 export BBB_URL=https://localhost:8443/bigbluebutton/
 export BBB_SECRET=$TIER1_SALT
@@ -64,6 +69,7 @@ export BBB_SINK_READ_URL=https://localhost:8444
 export BBB_SINK_HTTP_URL=http://sink.test:8445
 export BBB_SINK_TOKEN=$BBB_SINK_TOKEN
 export BBB_FIXTURE_URL=https://sink.test:8444/fixtures
+export TURN_SECRET=$turn_secret
 export BBB_PROFILE_CMD=$here/profile.sh
 export SSL_CERT_FILE=$out/certs/bundle.pem
 END

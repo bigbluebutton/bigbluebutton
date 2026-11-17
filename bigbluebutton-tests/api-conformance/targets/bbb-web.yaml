@@ -9,6 +9,11 @@
 # stack (make -C env up), eval "$(make -s -C env env)" sets all of them.
 name: bbb-web
 capabilities: [akka, presence, presentation-conversion]
+# The TURN servers' shared secret (turn-stun-servers.xml), for the stuns
+# cases that check the credentials bbb-web hands out. TURN_SECRET gives the
+# target the turn capability; without it, those cases are skipped.
+vars:
+  turnSecret: {env: TURN_SECRET, secret: true, capability: turn}
 # Routes come from UrlMappings.groovy and bbb-web.nginx. The nginx-internal
 # authorization hooks can't be reached through nginx, so cases call them on
 # bbb-web itself: set BBB_WEB_DIRECT_URL (e.g. http://127.0.0.1:8090) to run
@@ -48,4 +53,7 @@ profiles:
   fetch-http:            {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" fetch-http'}
   short-users-timeout:   {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" short-users-timeout'}
   no-fetch-all-recordings: {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" no-fetch-all-recordings'}
+  userdata-blocklist-padded: {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" userdata-blocklist-padded'}
+  userdata-blocklist-all: {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" userdata-blocklist-all'}
+  short-http-session:    {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" short-http-session'}
   default:               {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" default'}
