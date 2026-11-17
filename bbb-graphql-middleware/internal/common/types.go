@@ -28,6 +28,7 @@ type GraphQlSubscription struct {
 	Message                    []byte
 	Type                       QueryType
 	OperationName              string
+	OperationNameLabel         string // MetricOperationName(OperationName), resolved once when the subscription is created
 	StreamCursorField          string
 	StreamCursorVariableName   string
 	StreamCursorCurrValue      interface{}

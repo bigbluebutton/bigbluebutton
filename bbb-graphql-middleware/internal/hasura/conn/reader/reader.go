@@ -104,7 +104,7 @@ func handleMessageReceivedFromHasura(hc *common.HasuraConnection, message []byte
 			common.GqlReceivedDataCounter.
 				With(prometheus.Labels{
 					"type":          string(subscription.Type),
-					"operationName": subscription.OperationName,
+					"operationName": subscription.MetricLabel(),
 				}).
 				Inc()
 		}
@@ -286,7 +286,7 @@ func getHasuraMessage(message []byte, subscription common.GraphQlSubscription, m
 	common.GqlReceivedDataPayloadSize.
 		With(prometheus.Labels{
 			"type":          string(subscription.Type),
-			"operationName": subscription.OperationName,
+			"operationName": subscription.MetricLabel(),
 		}).
 		Observe(float64(dataSize))
 
@@ -301,7 +301,7 @@ func getHasuraMessage(message []byte, subscription common.GraphQlSubscription, m
 			common.GqlReceivedDataPayloadLength.
 				With(prometheus.Labels{
 					"type":          string(subscription.Type),
-					"operationName": subscription.OperationName,
+					"operationName": subscription.MetricLabel(),
 				}).
 				Observe(float64(dataLength))
 

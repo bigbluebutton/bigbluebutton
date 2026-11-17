@@ -1,6 +1,8 @@
 package config
 
 import (
+	"os"
+	"path/filepath"
 	"slices"
 	"strings"
 	"testing"
@@ -52,5 +54,29 @@ func TestValidateSubscriptionListsChecksEveryManagedStream(t *testing.T) {
 		if !strings.Contains(err.Error(), operationName) {
 			t.Errorf("error for %s does not name it: %v", operationName, err)
 		}
+	}
+}
+
+// The cap on the operationName label values is read from prometheus_operation_name_limit, which
+// the shipped file sets to the default.
+func TestThePrometheusOperationNameLimitKeyIsRead(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "config.yml")
+	if err := os.WriteFile(path, []byte("prometheus_operation_name_limit: 7\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	configured, err := loadConfigFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if configured.PrometheusOperationNameLimit != 7 {
+		t.Errorf("prometheus_operation_name_limit: 7 was read as %d", configured.PrometheusOperationNameLimit)
+	}
+
+	shipped, err := loadConfigFile("config.yml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if shipped.PrometheusOperationNameLimit != 500 {
+		t.Errorf("the shipped config.yml sets %d, want 500", shipped.PrometheusOperationNameLimit)
 	}
 }

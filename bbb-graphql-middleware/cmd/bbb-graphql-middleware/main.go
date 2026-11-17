@@ -37,6 +37,7 @@ func main() {
 	}
 
 	common.RegisterMetrics()
+	common.InitMetricOperationNames()
 
 	common.InitUniqueID()
 	log = log.WithField("graphql-middleware-uid", common.GetUniqueID())

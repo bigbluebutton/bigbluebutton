@@ -111,6 +111,8 @@ RangeLoop:
 					streamCursorField := ""
 					streamCursorVariableName := ""
 					var streamCursorInitialValue interface{}
+					queryIdExists := false
+					var existingSubscriptionData common.GraphQlSubscription
 
 					query := browserMessage.Payload.Query
 
@@ -164,7 +166,7 @@ RangeLoop:
 						if strings.HasPrefix(query, "subscription") {
 							// The id is looked up before the limit is checked, so a resend is not counted as a new subscription.
 							browserConnection.ActiveSubscriptionsMutex.RLock()
-							existingSubscriptionData, queryIdExists := browserConnection.ActiveSubscriptions[queryId]
+							existingSubscriptionData, queryIdExists = browserConnection.ActiveSubscriptions[queryId]
 							totalOfActiveSubscriptions := len(browserConnection.ActiveSubscriptions)
 							browserConnection.ActiveSubscriptionsMutex.RUnlock()
 
@@ -259,11 +261,17 @@ RangeLoop:
 						jsonPatchSupported = true
 					}
 
+					operationNameLabel := existingSubscriptionData.OperationNameLabel
+					if !queryIdExists {
+						operationNameLabel = common.MetricOperationName(browserMessage.Payload.OperationName)
+					}
+
 					browserConnection.ActiveSubscriptionsMutex.Lock()
 					browserConnection.ActiveSubscriptions[queryId] = common.GraphQlSubscription{
 						Id:                         queryId,
 						Message:                    fromBrowserMessage,
 						OperationName:              browserMessage.Payload.OperationName,
+						OperationNameLabel:         operationNameLabel,
 						StreamCursorField:          streamCursorField,
 						StreamCursorVariableName:   streamCursorVariableName,
 						StreamCursorCurrValue:      streamCursorInitialValue,
@@ -280,7 +288,7 @@ RangeLoop:
 					common.GqlSubscribeCounter.
 						With(prometheus.Labels{
 							"type":          string(messageType),
-							"operationName": browserMessage.Payload.OperationName,
+							"operationName": operationNameLabel,
 						}).
 						Inc()
 
