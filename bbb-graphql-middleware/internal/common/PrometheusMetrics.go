@@ -38,7 +38,14 @@ var (
 	GqlSubscribeCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "gql_subscription_total",
-			Help: "Total number of Graphql subscriptions",
+			Help: "Total number of Graphql subscriptions started by clients",
+		},
+		[]string{"type", "operationName"},
+	)
+	GqlSubscriptionRetransmittedCounter = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "gql_subscription_retransmitted_total",
+			Help: "Total number of Graphql subscriptions queued to be resent to Hasura after a reconnection",
 		},
 		[]string{"type", "operationName"},
 	)
@@ -114,6 +121,7 @@ func RegisterMetrics() {
 	prometheus.MustRegister(WsConnectionAcceptedCounter)
 	prometheus.MustRegister(WsConnectionRejectedCounter)
 	prometheus.MustRegister(GqlSubscribeCounter)
+	prometheus.MustRegister(GqlSubscriptionRetransmittedCounter)
 	prometheus.MustRegister(GqlReceivedDataCounter)
 	prometheus.MustRegister(GqlMutationsCounter)
 	prometheus.MustRegister(GqlReceivedDataPayloadSize)

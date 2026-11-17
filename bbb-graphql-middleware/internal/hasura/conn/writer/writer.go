@@ -267,6 +267,8 @@ RangeLoop:
 					}
 
 					browserConnection.ActiveSubscriptionsMutex.Lock()
+					// A record of this id, whatever its type, makes this message a resend.
+					_, alreadyActive := browserConnection.ActiveSubscriptions[queryId]
 					browserConnection.ActiveSubscriptions[queryId] = common.GraphQlSubscription{
 						Id:                         queryId,
 						Message:                    fromBrowserMessage,
@@ -285,12 +287,7 @@ RangeLoop:
 					browserConnection.ActiveSubscriptionsMutex.Unlock()
 
 					// Add Prometheus Metrics
-					common.GqlSubscribeCounter.
-						With(prometheus.Labels{
-							"type":          string(messageType),
-							"operationName": operationNameLabel,
-						}).
-						Inc()
+					recordSubscriptionStart(messageType, operationNameLabel, alreadyActive)
 
 					// Dump of all subscriptions for analysis purpose
 					if dumpQueriesDir != "" {
@@ -583,4 +580,19 @@ func removeValueFromSlice(mapWithSlices map[string][]string, key string, value s
 // comments, so it is never below the number of such tokens the lexer produces.
 func countNestingTokens(query string) int {
 	return strings.Count(query, "{") + strings.Count(query, "[")
+}
+
+// recordSubscriptionStart counts a subscription started by the browser. A message whose id is
+// already active is a retransmission after a reconnection to Hasura, which the retransmitter
+// counts, so it is not counted again here.
+func recordSubscriptionStart(messageType common.QueryType, operationNameLabel string, alreadyActive bool) {
+	if alreadyActive {
+		return
+	}
+	common.GqlSubscribeCounter.
+		With(prometheus.Labels{
+			"type":          string(messageType),
+			"operationName": operationNameLabel,
+		}).
+		Inc()
 }
