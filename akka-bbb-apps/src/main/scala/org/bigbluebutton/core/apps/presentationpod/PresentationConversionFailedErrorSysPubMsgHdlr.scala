@@ -20,11 +20,19 @@ trait PresentationConversionFailedErrorSysPubMsgHdlr {
         msg.body.messageKey -> msg.body.errorDetail
       )
 
-      // updateErrors is a plain UPDATE, so ensure the row exists first. No-op when it already does.
-      PresPresentationDAO.insertUploadTokenIfNotExists(
-        liveMeeting.props.meetingProp.intId, "", "", msg.body.presentationId, "", msg.body.presName
-      )
-      PresPresentationDAO.updateErrors(msg.body.presentationId, msg.body.messageKey, errorDetails)
+      if (msg.body.messageKey == "PRESENTATION_UPLOAD_FAILED") {
+        // The file of an upload never arrived. Only a presentation still waiting for it is marked:
+        // its row is not created here, or one deleted because its uploader left would come back.
+        PresPresentationDAO.updateErrorsOfAwaitingUpload(
+          liveMeeting.props.meetingProp.intId, msg.body.presentationId, msg.body.messageKey, errorDetails
+        )
+      } else {
+        // updateErrors is a plain UPDATE, so ensure the row exists first. No-op when it already does.
+        PresPresentationDAO.insertUploadTokenIfNotExists(
+          liveMeeting.props.meetingProp.intId, "", "", msg.body.presentationId, "", msg.body.presName
+        )
+        PresPresentationDAO.updateErrors(msg.body.presentationId, msg.body.messageKey, errorDetails)
+      }
     }
     state
   }

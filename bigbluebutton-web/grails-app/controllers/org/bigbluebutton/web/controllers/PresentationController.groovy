@@ -210,6 +210,7 @@ class PresentationController {
           && originalContentLength < maxUploadFileSize
           && 0 != originalContentLength) {
         log.debug "SUCCESS\n"
+        meetingService.presentationUploadStarted(presentationToken)
         response.setStatus(200);
         response.addHeader("Cache-Control", "no-cache")
         response.contentType = 'text/plain'
@@ -273,6 +274,10 @@ class PresentationController {
 
     if (!presUploadToken.isValidFor(params.conference)) {
       log.warn "Presentation upload token scope mismatch for requested meetingId=" + sanitizeForLog(params.conference)
+      // The token is spent, so this upload cannot be sent again. A request whose body was cut
+      // short (the client left, or stalled until the connection timed out) also ends here, with
+      // no parameters at all and nobody left to answer, so bbb-apps-akka is told that it failed.
+      meetingService.sendPresentationUploadFailedMessage(presUploadToken, "Upload request refused or incomplete")
       response.setStatus(403)
       response.addHeader("Cache-Control", "no-cache")
       response.contentType = 'text/plain'

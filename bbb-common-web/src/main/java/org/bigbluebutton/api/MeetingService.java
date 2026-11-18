@@ -114,6 +114,7 @@ public class MeetingService implements MessageListener {
   private IBbbWebApiGWApp gw;
 
   private final ConcurrentMap<String, PresentationUploadToken> uploadAuthzTokens;
+  private long presentationUploadStartTimeout = 60000;
   private RejectedPresentationRegistry rejectedPresentations;
 
   ObjectMapper objectMapper = new ObjectMapper();
@@ -284,6 +285,40 @@ public class MeetingService implements MessageListener {
   public PresentationUploadToken consumePresentationUploadToken(String authzToken) {
     if (authzToken == null) return null;
     return uploadAuthzTokens.remove(authzToken);
+  }
+
+  // The upload request for this token has arrived and was let through: its file is on its way.
+  public void presentationUploadStarted(String authzToken) {
+    PresentationUploadToken presUploadToken = getPresentationUploadToken(authzToken);
+    if (presUploadToken != null) {
+      presUploadToken.markUploadStarted();
+    }
+  }
+
+  /**
+   * Drop the upload tokens no upload request arrived for in time and report those uploads as
+   * failed. bbb-apps-akka creates the presentation when it issues the token, and nothing else
+   * ends an upload whose request never arrives: it would show as uploading until the meeting ends.
+   */
+  public void purgePresentationUploadTokens() {
+    long now = System.currentTimeMillis();
+    for (PresentationUploadToken presUploadToken : uploadAuthzTokens.values()) {
+      try {
+        if (presUploadToken.isAbandoned(now, presentationUploadStartTimeout)
+            && uploadAuthzTokens.remove(presUploadToken.authzToken, presUploadToken)) {
+          log.info("No upload arrived in time for a presentation upload token. meetingId={} presentationId={}",
+              presUploadToken.meetingId, presUploadToken.presentationId);
+          sendPresentationUploadFailedMessage(presUploadToken, "No upload request arrived in time");
+        }
+      } catch (Exception e) {
+        // This runs on a schedule that an exception would end.
+        log.error("Could not purge a presentation upload token", e);
+      }
+    }
+  }
+
+  public void sendPresentationUploadFailedMessage(PresentationUploadToken presUploadToken, String errorDetail) {
+    notifier.sendUploadFailedMessage(presUploadToken, errorDetail);
   }
 
   public void sendPresentationUploadMaxFilesizeMessage(PresentationUploadToken presUploadToken, int uploadedFileSize, int maxUploadFileSize) {
@@ -1615,6 +1650,10 @@ public class MeetingService implements MessageListener {
 
   public void setGw(IBbbWebApiGWApp gw) {
     this.gw = gw;
+  }
+
+  public void setPresentationUploadStartTimeout(long seconds) {
+    presentationUploadStartTimeout = seconds * 1000;
   }
 
   public void setUserCleanupTimerTask(UserCleanupTimerTask c) {

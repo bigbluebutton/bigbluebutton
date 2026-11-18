@@ -50,7 +50,11 @@ public class UserCleanupTimerTask {
     private class CleanupTask implements Runnable {
         @Override
         public void run() {
-            service.purgeUsers();
+            try {
+                service.purgeUsers();
+            } finally {
+                service.purgePresentationUploadTokens();
+            }
         }
     }
 }
