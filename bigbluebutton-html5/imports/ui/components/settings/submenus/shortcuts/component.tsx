@@ -334,8 +334,8 @@ const ShortcutHelpComponent: React.FC<ShortcutHelpComponentProps> = ({
   const generalShortcutItems = shortcuts.map((shortcut) => {
     const name = shortcut.name.toLowerCase();
     if (!isChatEnabled && name.includes('chat')) return null;
+    if (!Object.hasOwn(intlMessages, name)) return null;
     const description = intlMessages[name as keyof typeof intlMessages];
-    if (!description) return null;
     return renderItem(
       intl.formatMessage(description),
       `${accessMod} + ${shortcut.accesskey}`,
