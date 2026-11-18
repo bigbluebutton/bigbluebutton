@@ -194,7 +194,9 @@ export class Presentation extends MultiUsers {
       e.presentationContainer,
       'should not display the presentation container after the default presentation is removed',
     );
+    await this.modPage.wasRemoved(e.presentationThumbnails, 'should not list the removed presentation');
     await this.modPage.press('Escape');
+    await this.modPage.wasRemoved(e.restorePresentation, 'should not offer to restore the removed presentation');
 
     // because the previous presentation was removed, the one to be uploaded is expected to be the only one (index 0)
     await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName, UPLOAD_PDF_WAIT_TIME, 0);

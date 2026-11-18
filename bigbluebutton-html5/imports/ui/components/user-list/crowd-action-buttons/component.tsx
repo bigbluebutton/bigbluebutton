@@ -106,9 +106,9 @@ const CrowdActionButtons: React.FC = () => {
           setIsOpen={lockViewersModal.close}
         />
       )}
-      <Styled.ActionButtonsWrapper $isMinWidth={isMinWidthLayout}>
-        <Styled.ActionButtonWrapper>
-          <Styled.ActionButtonLabel>
+      <Styled.ActionButtonsWrapper className="bbb-crowd-actions" $isMinWidth={isMinWidthLayout}>
+        <Styled.ActionButtonWrapper className="bbb-crowd-actions__item">
+          <Styled.ActionButtonLabel className="bbb-crowd-actions__label">
             {intl.formatMessage(intlMessages.muteAllExceptPresenterLabel)}
           </Styled.ActionButtonLabel>
           {/* @ts-ignore - button is js component */}
@@ -122,8 +122,8 @@ const CrowdActionButtons: React.FC = () => {
             onClick={muteAll}
           />
         </Styled.ActionButtonWrapper>
-        <Styled.ActionButtonWrapper>
-          <Styled.ActionButtonLabel>
+        <Styled.ActionButtonWrapper className="bbb-crowd-actions__item">
+          <Styled.ActionButtonLabel className="bbb-crowd-actions__label">
             {intl.formatMessage(intlMessages.lockSettingsButtonLabel)}
           </Styled.ActionButtonLabel>
           {/* @ts-ignore - button is js component */}

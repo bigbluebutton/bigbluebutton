@@ -83,3 +83,31 @@ test.describe.parallel('Session details', { tag: '@ci' }, () => {
     await options.sessionDetails(JOIN_URL);
   });
 });
+
+// Client-settings override checks for public.app.shortcuts; like the other override-driven checks
+// they run nightly rather than in the gate.
+test.describe.parallel('Keyboard shortcuts settings', { tag: '@nightly' }, () => {
+  test('Remapped access keys apply to the buttons and to the shortcuts tab', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    const options = new Options(browser, context);
+    await options.initModPage(page, {
+      testInfo,
+      clientSettingsOverrides: {
+        public: { app: { shortcuts: { openOptions: { accesskey: 'Q' }, toggleUserList: { accesskey: 'W' } } } },
+      },
+    });
+    await options.remappedAccessKeys('Q', 'W');
+  });
+
+  test('A stale descId field in an override is ignored', async ({ browser, context, page }, testInfo) => {
+    const options = new Options(browser, context);
+    await options.initModPage(page, {
+      testInfo,
+      clientSettingsOverrides: { public: { app: { shortcuts: { openOptions: { descId: 'renamed' } } } } },
+    });
+    await options.shortcutsUnaffectedByStaleDescId();
+  });
+});

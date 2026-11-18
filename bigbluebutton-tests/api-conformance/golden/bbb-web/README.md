@@ -62,7 +62,10 @@ there compares like with like.
   side effects: the directory moves, the `*RecordingSysMsg` announcements
   and the captions inbox. That stack was started fresh (`make reset`) from
   packages whose build key still matched this tree. The token-expiry case
-  (`textTrack.authz.expiry`) was recorded the same day. On 2026-11-12 the
+  (`textTrack.authz.expiry`) was recorded the same day. On 2026-11-10 the
+  auth hook cases (`connection/`, two of them under the alt-defaults profile
+  and one under short-users-timeout) were added, recorded from a stack built
+  that day from a tree without the recording cases. On 2026-11-12 the
   fixtures' links moved to the host `recordings.test`, and the 56 recordings
   that show them were re-recorded from a fresh stack running packages built
   from v4.0.x-develop of 2026-11-10; only the host changed in them. On
