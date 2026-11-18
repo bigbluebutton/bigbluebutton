@@ -1083,10 +1083,9 @@ check_livekit() {
 
     if [ "$(echo "$WEBRTC_SFU_CONFIG" | yq-go e '.livekit.enabled' - 2> /dev/null)" == "true" ]; then
         WEBRTC_SFU_KEY=$(echo "$WEBRTC_SFU_CONFIG" | yq-go e '.livekit.key // ""' -)
-        # livekit-server signs webhooks with webhook.api_key, and the SFU checks
-        # them against its own key.
-        if check_livekit_key bbb-webrtc-sfu "$WEBRTC_SFU_KEY" "$(echo "$WEBRTC_SFU_CONFIG" | yq-go e '.livekit.secret // ""' -)" \
-            && [ "$(echo "$WEBRTC_SFU_CONFIG" | yq-go e '.livekit.eventSource // "webhook"' -)" == "webhook" ]; then
+        check_livekit_key bbb-webrtc-sfu "$WEBRTC_SFU_KEY" "$(echo "$WEBRTC_SFU_CONFIG" | yq-go e '.livekit.secret // ""' -)"
+        WEBRTC_SFU_KEY_OK=$?
+        if [ "$(echo "$WEBRTC_SFU_CONFIG" | yq-go e '.livekit.eventSource // "webhook"' -)" == "webhook" ]; then
             WEBRTC_SFU_PATH=$(echo "$WEBRTC_SFU_CONFIG" | yq-go e '.livekit.webhook.path // "/livekit-webhook"' -)
             WEBRTC_SFU_HOOK=":$(echo "$WEBRTC_SFU_CONFIG" | yq-go e '.livekit.webhook.port // 3040' -)${WEBRTC_SFU_PATH%/}"
             # bbb-webrtc-sfu serves plain HTTP, and its router ignores case and a trailing slash.
@@ -1096,7 +1095,11 @@ check_livekit() {
                 echo "# Warning: webhook.urls in $LIVEKIT_SERVER_ETC_CONFIG has no URL of the form"
                 echo "# http://<host>$WEBRTC_SFU_HOOK, so bbb-webrtc-sfu gets no LiveKit events"
                 print_docs_link "support/troubleshooting#livekit-api-keys-and-webhooks"
-            elif [ "$WEBRTC_SFU_KEY" != "$(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.webhook.api_key // ""' -)" ]; then
+            fi
+            # livekit-server signs webhooks with webhook.api_key, and the SFU checks
+            # them against its own key. A wrong SFU key already has its warning.
+            if [ $WEBRTC_SFU_KEY_OK -eq 0 ] \
+                && [ "$WEBRTC_SFU_KEY" != "$(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.webhook.api_key // ""' -)" ]; then
                 echo "# Warning: bbb-webrtc-sfu's LiveKit API key is not webhook.api_key in $LIVEKIT_SERVER_ETC_CONFIG,"
                 echo "# so bbb-webrtc-sfu rejects LiveKit's webhooks"
                 print_docs_link "support/troubleshooting#livekit-api-keys-and-webhooks"
