@@ -80,6 +80,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="maxSharedNotesInitialContentUrlPayloadSize" value="${maxSharedNotesInitialContentUrlPayloadSize}"/>
     </bean>
 
+    <bean id="presentationUploadFilter" class="org.bigbluebutton.web.filters.PresentationUploadFilter">
+        <property name="meetingService" ref="meetingService"/>
+    </bean>
+
     <bean id="oldMessageReceivedGW" class="org.bigbluebutton.api2.bus.OldMessageReceivedGW">
         <constructor-arg index="0" ref="redisMessageHandler"/>
     </bean>

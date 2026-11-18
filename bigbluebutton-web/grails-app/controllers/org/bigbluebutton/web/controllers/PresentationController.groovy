@@ -28,6 +28,7 @@ import org.bigbluebutton.api.messaging.messages.PresentationUploadToken
 import org.bigbluebutton.api.util.ParamsUtil
 import org.bigbluebutton.presentation.SupportedFileTypes
 import org.bigbluebutton.presentation.UploadedPresentation
+import org.bigbluebutton.web.filters.PresentationUploadFilter
 import org.bigbluebutton.web.services.PresentationService
 import org.grails.web.mime.DefaultMimeUtility
 import org.springframework.web.util.UriComponentsBuilder
@@ -53,9 +54,7 @@ class PresentationController {
     '/bigbluebutton/presentation/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)/pdf/([A-Za-z0-9]+)/annotated_slides\\.pdf'
   )
 
-  private static final Pattern UPLOAD_URI_PATTERN = Pattern.compile(
-    '/bigbluebutton/presentation/([A-Za-z0-9_-]+)/upload'
-  )
+  private static final Pattern UPLOAD_URI_PATTERN = PresentationUploadFilter.UPLOAD_URI_PATTERN
 
   private static final int MAX_LOGGED_PARAM_LENGTH = 64
 
@@ -176,19 +175,6 @@ class PresentationController {
     return userSession
   }
 
-  // Records that the upload request of this token has arrived, which keeps the token for as long
-  // as its file takes. Only the POST carries the file: another method must not keep alive a token
-  // the upload action will never consume. nginx names the method in x-original-method, and a
-  // request without that header is taken to be the POST. False when the token has just been
-  // dropped for not being used in time; the request is then refused like any unknown token.
-  private boolean uploadStartIsRecorded(String presentationToken) {
-    def method = request.getHeader("x-original-method")
-    if (method != null && method != 'POST') {
-      return true
-    }
-    return meetingService.presentationUploadStarted(presentationToken)
-  }
-
   def checkPresentationBeforeUploading = {
     try {
       def maxUploadFileSize = paramsProcessorUtil.getMaxPresentationFileUpload()
@@ -221,8 +207,7 @@ class PresentationController {
       if (null != presentationToken
           && meetingService.authzTokenIsValid(presentationToken) // this we do in the upload handling
           && originalContentLength < maxUploadFileSize
-          && 0 != originalContentLength
-          && uploadStartIsRecorded(presentationToken)) {
+          && 0 != originalContentLength) {
         log.debug "SUCCESS\n"
         response.setStatus(200);
         response.addHeader("Cache-Control", "no-cache")

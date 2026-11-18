@@ -12,8 +12,8 @@ public class PresentationUploadToken implements IMessage  {
     public final String meetingId;
     public final String userId;
 
-    // An upload request is authorized when it arrives but handled only once its whole body is
-    // in, so until then the authorization is the only sign that the file is on its way.
+    // An upload request is handled only once its whole body is in, so until then its arrival at
+    // bbb-web is the only sign that the file is on its way.
     private final long receivedAt = System.currentTimeMillis();
     private volatile boolean uploadStarted = false;
 
@@ -30,8 +30,11 @@ public class PresentationUploadToken implements IMessage  {
         return SYSTEM_USER_ID.equals(userId);
     }
 
-    public void markUploadStarted() {
+    // True for the first upload request to arrive for the token, false for any after it.
+    public synchronized boolean markUploadStarted() {
+        if (uploadStarted) return false;
         uploadStarted = true;
+        return true;
     }
 
     // True once no upload request has arrived for the token within the time a client is given

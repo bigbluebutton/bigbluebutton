@@ -10,8 +10,9 @@ import spock.lang.Specification
 
 /**
  * bbb-apps-akka creates a presentation when it issues the upload token, and shows it as
- * uploading until something ends that upload. These cover the two ends only bbb-web can see:
+ * uploading until something ends that upload. These cover two of the ends only bbb-web can see:
  * an upload request that is refused once its token is spent, and a token no request arrives for.
+ * PresentationUploadFilterSpec covers the third, a request that ends before it is handled.
  */
 class PresentationUploadFailureSpec extends Specification implements ControllerUnitTest<PresentationController> {
 
@@ -20,6 +21,7 @@ class PresentationUploadFailureSpec extends Specification implements ControllerU
 
   MeetingService meetingService
   List<String> failedUploads = []
+  long receivedAt
 
   def setup() {
     def paramsProcessorUtil = new ParamsProcessorUtil()
@@ -45,11 +47,14 @@ class PresentationUploadFailureSpec extends Specification implements ControllerU
   private PresentationUploadToken register(String token, String presentationId, String userId = 'w_uploader') {
     def presUploadToken = new PresentationUploadToken('DEFAULT_PRESENTATION_POD', token, 'slides.pdf', 'meeting-1', presentationId, userId)
     meetingService.uploadAuthzTokens[token] = presUploadToken
+    receivedAt = presUploadToken.receivedAt
     presUploadToken
   }
 
-  private static long secondsFromNow(long seconds) {
-    System.currentTimeMillis() + seconds * 1000
+  // The time of a purge, counted from when the registered token was received: the purge
+  // compares against that time, so the tests do not depend on how fast they run.
+  private long secondsAfterReceipt(long seconds) {
+    receivedAt + seconds * 1000
   }
 
   // nginx names the method of the request it asks about; method null leaves the header out
@@ -108,14 +113,14 @@ class PresentationUploadFailureSpec extends Specification implements ControllerU
     register(TOKEN, 'pres-1')
 
     when:
-    meetingService.purgePresentationUploadTokens(secondsFromNow(START_TIMEOUT + 1))
+    meetingService.purgePresentationUploadTokens(secondsAfterReceipt(START_TIMEOUT))
 
     then:
     failedUploads == ['pres-1']
     !meetingService.authzTokenIsValid(TOKEN)
 
     when: 'the purge runs again'
-    meetingService.purgePresentationUploadTokens(secondsFromNow(START_TIMEOUT + 16))
+    meetingService.purgePresentationUploadTokens(secondsAfterReceipt(START_TIMEOUT + 15))
 
     then:
     failedUploads == ['pres-1']
@@ -125,9 +130,9 @@ class PresentationUploadFailureSpec extends Specification implements ControllerU
     given:
     register(TOKEN, 'pres-1')
 
-    when:
-    meetingService.purgePresentationUploadTokens()
-    meetingService.purgePresentationUploadTokens(secondsFromNow(START_TIMEOUT - 1))
+    when: 'the purge runs as the token arrives, and one millisecond before its time is up'
+    meetingService.purgePresentationUploadTokens(secondsAfterReceipt(0))
+    meetingService.purgePresentationUploadTokens(secondsAfterReceipt(START_TIMEOUT) - 1)
 
     then:
     failedUploads.isEmpty()
@@ -140,79 +145,64 @@ class PresentationUploadFailureSpec extends Specification implements ControllerU
     meetingService.setPresentationUploadStartTimeout(0)
 
     when:
-    meetingService.purgePresentationUploadTokens()
-    meetingService.purgePresentationUploadTokens(secondsFromNow(24 * 60 * 60))
+    meetingService.purgePresentationUploadTokens(secondsAfterReceipt(START_TIMEOUT))
+    meetingService.purgePresentationUploadTokens(secondsAfterReceipt(24 * 60 * 60))
 
     then:
     failedUploads.isEmpty()
     meetingService.authzTokenIsValid(TOKEN)
   }
 
-  // The request is authorized as it arrives and handled only once its body is complete, which
-  // for a large file on a slow connection can be long after the token was issued.
-  def "A token whose upload request has arrived is kept however long the file takes"() {
+  // nginx asks about a request before it passes it on, and the request can end in between: the
+  // answer here must not count as the upload having started.
+  def "An upload request that was authorized is still dropped when it never arrives"() {
     given:
     register(TOKEN, 'pres-1')
 
     when:
     authorizeUpload(TOKEN, method)
-    meetingService.purgePresentationUploadTokens(secondsFromNow(60 * 60))
 
     then:
     response.status == 200
-    failedUploads.isEmpty()
-    meetingService.authzTokenIsValid(TOKEN)
-
-    where: 'a request without the header is taken to be the upload'
-    method << ['POST', null]
-  }
-
-  // The upload action answers POST only, so nothing else would ever consume the token.
-  def "A request with another method does not keep the token alive"() {
-    given:
-    register(TOKEN, 'pres-1')
 
     when:
-    authorizeUpload(TOKEN, method)
-    meetingService.purgePresentationUploadTokens(secondsFromNow(START_TIMEOUT + 1))
+    meetingService.purgePresentationUploadTokens(secondsAfterReceipt(START_TIMEOUT))
 
     then:
     failedUploads == ['pres-1']
     !meetingService.authzTokenIsValid(TOKEN)
 
-    where:
-    method << ['GET', 'PUT', 'OPTIONS']
+    where: 'null leaves the method header out'
+    method << ['POST', 'OPTIONS', 'GET', 'PUT', null]
   }
 
-  // The purge can drop the token between the validity check and the start being recorded.
-  def "An upload request whose token is dropped as it arrives is refused"() {
+  // The request is handled only once its body is complete, which for a large file on a slow
+  // connection can be long after the token was issued.
+  def "A token whose upload has started is kept however long the file takes"() {
     given:
-    controller.meetingService = new MeetingService() {
-      @Override
-      Boolean authzTokenIsValid(String authzToken) { true }
-
-      @Override
-      boolean presentationUploadStarted(String authzToken) { false }
-    }
+    register(TOKEN, 'pres-1')
 
     when:
-    authorizeUpload(TOKEN)
+    meetingService.markPresentationUploadStarted(TOKEN)
+    meetingService.purgePresentationUploadTokens(secondsAfterReceipt(60 * 60))
 
     then:
-    response.status == 403
-    response.getHeader('x-file-too-large') == null
+    failedUploads.isEmpty()
+    meetingService.authzTokenIsValid(TOKEN)
   }
 
-  def "Recording the start of an upload fails for a token that is gone"() {
-    expect:
-    !meetingService.presentationUploadStarted(TOKEN)
-    !meetingService.presentationUploadStarted(null)
+  // The request that started an upload is the one that has to see it ended.
+  def "Only the first upload request for a token starts its upload"() {
+    expect: 'nothing to start for a token that is gone'
+    !meetingService.markPresentationUploadStarted(TOKEN)
+    !meetingService.markPresentationUploadStarted(null)
 
     when:
     register(TOKEN, 'pres-1')
 
     then:
-    meetingService.presentationUploadStarted(TOKEN)
+    meetingService.markPresentationUploadStarted(TOKEN)
+    !meetingService.markPresentationUploadStarted(TOKEN)
   }
 
   // An exception that leaves the scheduled task ends its schedule for good.
@@ -247,7 +237,7 @@ class PresentationUploadFailureSpec extends Specification implements ControllerU
 
     when:
     controller.checkPresentationBeforeUploading()
-    meetingService.purgePresentationUploadTokens(secondsFromNow(START_TIMEOUT + 1))
+    meetingService.purgePresentationUploadTokens(secondsAfterReceipt(START_TIMEOUT))
 
     then:
     response.status == 403
@@ -260,7 +250,7 @@ class PresentationUploadFailureSpec extends Specification implements ControllerU
     register(TOKEN, 'pres-1', PresentationUploadToken.SYSTEM_USER_ID)
 
     when:
-    meetingService.purgePresentationUploadTokens(secondsFromNow(60 * 60))
+    meetingService.purgePresentationUploadTokens(secondsAfterReceipt(60 * 60))
 
     then:
     failedUploads.isEmpty()

@@ -287,14 +287,18 @@ public class MeetingService implements MessageListener {
     return uploadAuthzTokens.remove(authzToken);
   }
 
-  // The upload request for this token has arrived: its file is on its way. False when the token
-  // is gone, which the purge below can cause at that very moment; the request is then refused.
-  public boolean presentationUploadStarted(String authzToken) {
+  // The upload request for this token has reached bbb-web: its file is on its way, and the purge
+  // below leaves the token alone from here on. True for the first request to arrive for the
+  // token, which then has to see the upload ended (PresentationUploadFilter does). False for a
+  // later request, and when the token is gone, which the purge can cause at that very moment.
+  public boolean markPresentationUploadStarted(String authzToken) {
     if (authzToken == null) return false;
-    return uploadAuthzTokens.computeIfPresent(authzToken, (key, presUploadToken) -> {
-      presUploadToken.markUploadStarted();
+    boolean[] first = new boolean[1];
+    uploadAuthzTokens.computeIfPresent(authzToken, (key, presUploadToken) -> {
+      first[0] = presUploadToken.markUploadStarted();
       return presUploadToken;
-    }) != null;
+    });
+    return first[0];
   }
 
   /**
@@ -313,8 +317,8 @@ public class MeetingService implements MessageListener {
     }
     for (String authzToken : uploadAuthzTokens.keySet()) {
       try {
-        // Decided under the map's lock for this token, as presentationUploadStarted is: a token
-        // is either dropped or its upload let through, never both.
+        // Decided under the map's lock for this token, as markPresentationUploadStarted is: a
+        // token is either dropped or kept for its upload, never both.
         PresentationUploadToken[] dropped = new PresentationUploadToken[1];
         uploadAuthzTokens.computeIfPresent(authzToken, (key, presUploadToken) -> {
           if (!presUploadToken.isAbandoned(now, presentationUploadStartTimeout)) return presUploadToken;

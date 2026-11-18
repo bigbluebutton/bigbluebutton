@@ -32,8 +32,15 @@ class PresentationUploadTokenTest extends UnitSpec {
   // keeps the token unconsumed long after its time to start has passed.
   it should "never be abandoned once its upload request has arrived" in {
     val t = token()
-    t.markUploadStarted()
+    assert(t.markUploadStarted())
     assert(!t.isAbandoned(System.currentTimeMillis() + 1000 * timeout, timeout))
+  }
+
+  // The request that started the upload is the one that has to see it ended.
+  it should "be started by the first upload request only" in {
+    val t = token()
+    assert(t.markUploadStarted())
+    assert(!t.markUploadStarted())
   }
 
   // bbb-apps-akka issues these before the file is rendered, which can take minutes.
