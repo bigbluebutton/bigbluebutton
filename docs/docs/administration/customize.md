@@ -1244,6 +1244,22 @@ To show presenters the limits on the upload panel, also set `public.presentation
 
 Restart BigBlueButton with `sudo bbb-conf --restart`. You should now be able to upload larger presentations within the new limit.
 
+#### Change how long a presentation upload may take to start
+
+When a presenter chooses a file, the client asks for an upload token and then sends the file. `bbb-web` gives the client **60 seconds** to start sending it. If no upload request has arrived by then, `bbb-web` drops the token and logs `No upload arrived in time for a presentation upload token`, and the presenter is shown "The upload failed. Please try again." instead of an upload that never finishes.
+
+Only the start of the upload is timed. Once the upload request has arrived, the file may take as long as it needs, so a large file on a slow connection is not affected. Slides and shared notes captured from an ended breakout room are not affected either.
+
+To change the value, add an overwrite rule in `/etc/bigbluebutton/bbb-web.properties`:
+
+```properties
+# Seconds a client has to start sending a presentation once it was given the upload token
+# (default 60). 0 = disabled.
+presentationUploadStartTimeout=60
+```
+
+`bbb-web` looks for uploads that have not started every 15 seconds, so the presenter is told up to 15 seconds after the time has passed. Set the value to `0` to turn the timeout off; an upload that never starts then stays on "Uploading" until its uploader leaves the meeting or the meeting ends. Restart BigBlueButton with `sudo bbb-conf --restart` for the change to take effect.
+
 #### Limit the number of presentations per API request
 
 By default, BigBlueButton processes at most **10** presentations per `create` or `insertDocument` API call. If a single request references more presentations than this limit, BigBlueButton processes `maxPresentationsPerRequest` of them and ignores the rest, logging a warning for each request that exceeds the limit. The presentation that will be shown first is always kept, and the remaining slots go to the other presentations in the order they appear in the request. All presentation URLs are checked before the limit is applied, so a malformed URL fails the request with the `messageKey` `invalidPresentationUrl` even when its presentation would have been ignored. The API response still has the `returncode` `SUCCESS`, and adds the `messageKey` `documentsDropped`, with a `message` saying how many presentations were accepted.
@@ -2015,6 +2031,7 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 | `waitingGuestUsersTimeout` | Timeout (millis) to remove guest users that stopped fetching for their status | Integer | 30000 (30s) |
 | `defaultHttpSessionTimeout` | Timeout (seconds) to invalidate inactive HTTP sessions | Integer | 14400 (4h) |
 | `sessionsCleanupDelayInMinutes` | Minutes to wait before removing user sessions after a meeting has ended; during this delay the "Meeting has ended" screen is still reachable | Integer (0=keep indefinitely) | 60 |
+| `presentationUploadStartTimeout` | Seconds a client has to start sending a presentation once it was given the upload token; an upload that has not started by then is shown to its uploader as failed (see [Change how long a presentation upload may take to start](#change-how-long-a-presentation-upload-may-take-to-start)) | Integer (0=disable) | 60 |
 | `webcamsOnlyForModerator` | Allow webcams streaming reception only to and from moderators | true/false | false _`overwritable`_ |
 | `meetingCameraCap` | Per meeting camera share limit | Integer (0=disable) | 0 _`overwritable`_ |
 | `userCameraCap` | Per user camera share limit | Integer (0=disable) | 3 _`overwritable`_ |
