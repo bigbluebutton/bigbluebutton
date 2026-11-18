@@ -15,6 +15,7 @@ import spock.lang.Specification
 class PresentationUploadFailureSpec extends Specification implements ControllerUnitTest<PresentationController> {
 
   static final String TOKEN = 'PresUploadToken-abc123DEFAULT_PRESENTATION_POD-w_uploader'
+  static final long START_TIMEOUT = 60
 
   MeetingService meetingService
   List<String> failedUploads = []
@@ -25,6 +26,7 @@ class PresentationUploadFailureSpec extends Specification implements ControllerU
     controller.paramsProcessorUtil = paramsProcessorUtil
 
     meetingService = new MeetingService()
+    meetingService.setPresentationUploadStartTimeout(START_TIMEOUT)
     meetingService.setSlidesGenerationProgressNotifier(new SlidesGenerationProgressNotifier() {
       @Override
       void sendUploadFailedMessage(PresentationUploadToken token, String errorDetail) {
@@ -43,6 +45,10 @@ class PresentationUploadFailureSpec extends Specification implements ControllerU
     def presUploadToken = new PresentationUploadToken('DEFAULT_PRESENTATION_POD', token, 'slides.pdf', 'meeting-1', presentationId, userId)
     meetingService.uploadAuthzTokens[token] = presUploadToken
     presUploadToken
+  }
+
+  private static long secondsFromNow(long seconds) {
+    System.currentTimeMillis() + seconds * 1000
   }
 
   private void authorizeUpload(String token) {
@@ -95,17 +101,16 @@ class PresentationUploadFailureSpec extends Specification implements ControllerU
   def "A token no upload request arrived for in time is dropped and reported as failed"() {
     given:
     register(TOKEN, 'pres-1')
-    meetingService.setPresentationUploadStartTimeout(0)
 
     when:
-    meetingService.purgePresentationUploadTokens()
+    meetingService.purgePresentationUploadTokens(secondsFromNow(START_TIMEOUT + 1))
 
     then:
     failedUploads == ['pres-1']
     !meetingService.authzTokenIsValid(TOKEN)
 
     when: 'the purge runs again'
-    meetingService.purgePresentationUploadTokens()
+    meetingService.purgePresentationUploadTokens(secondsFromNow(START_TIMEOUT + 16))
 
     then:
     failedUploads == ['pres-1']
@@ -114,10 +119,24 @@ class PresentationUploadFailureSpec extends Specification implements ControllerU
   def "A token is kept while the client still has time to start sending"() {
     given:
     register(TOKEN, 'pres-1')
-    meetingService.setPresentationUploadStartTimeout(60)
 
     when:
     meetingService.purgePresentationUploadTokens()
+    meetingService.purgePresentationUploadTokens(secondsFromNow(START_TIMEOUT - 1))
+
+    then:
+    failedUploads.isEmpty()
+    meetingService.authzTokenIsValid(TOKEN)
+  }
+
+  def "A start timeout of 0 turns the timeout off"() {
+    given:
+    register(TOKEN, 'pres-1')
+    meetingService.setPresentationUploadStartTimeout(0)
+
+    when:
+    meetingService.purgePresentationUploadTokens()
+    meetingService.purgePresentationUploadTokens(secondsFromNow(24 * 60 * 60))
 
     then:
     failedUploads.isEmpty()
@@ -129,11 +148,10 @@ class PresentationUploadFailureSpec extends Specification implements ControllerU
   def "A token whose upload request has arrived is kept however long the file takes"() {
     given:
     register(TOKEN, 'pres-1')
-    meetingService.setPresentationUploadStartTimeout(0)
 
     when:
     authorizeUpload(TOKEN)
-    meetingService.purgePresentationUploadTokens()
+    meetingService.purgePresentationUploadTokens(secondsFromNow(60 * 60))
 
     then:
     response.status == 200
@@ -144,13 +162,12 @@ class PresentationUploadFailureSpec extends Specification implements ControllerU
   def "A request refused before its upload starts does not keep the token alive"() {
     given:
     register(TOKEN, 'pres-1')
-    meetingService.setPresentationUploadStartTimeout(0)
     request.addHeader('x-presentation-token', TOKEN)
     request.addHeader('x-original-content-length', '0')
 
     when:
     controller.checkPresentationBeforeUploading()
-    meetingService.purgePresentationUploadTokens()
+    meetingService.purgePresentationUploadTokens(secondsFromNow(START_TIMEOUT + 1))
 
     then:
     response.status == 403
@@ -161,10 +178,9 @@ class PresentationUploadFailureSpec extends Specification implements ControllerU
   def "The token of a system upload is never dropped"() {
     given:
     register(TOKEN, 'pres-1', PresentationUploadToken.SYSTEM_USER_ID)
-    meetingService.setPresentationUploadStartTimeout(0)
 
     when:
-    meetingService.purgePresentationUploadTokens()
+    meetingService.purgePresentationUploadTokens(secondsFromNow(60 * 60))
 
     then:
     failedUploads.isEmpty()

@@ -299,9 +299,16 @@ public class MeetingService implements MessageListener {
    * Drop the upload tokens no upload request arrived for in time and report those uploads as
    * failed. bbb-apps-akka creates the presentation when it issues the token, and nothing else
    * ends an upload whose request never arrives: it would show as uploading until the meeting ends.
+   * A presentationUploadStartTimeout of 0 turns this off.
    */
   public void purgePresentationUploadTokens() {
-    long now = System.currentTimeMillis();
+    purgePresentationUploadTokens(System.currentTimeMillis());
+  }
+
+  public void purgePresentationUploadTokens(long now) {
+    if (presentationUploadStartTimeout <= 0) {
+      return;
+    }
     for (PresentationUploadToken presUploadToken : uploadAuthzTokens.values()) {
       try {
         if (presUploadToken.isAbandoned(now, presentationUploadStartTimeout)
