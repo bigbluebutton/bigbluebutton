@@ -54,9 +54,12 @@ fi
 . "$tokens"
 
 # The TURN servers' shared secret, from the file bbb-web reads, so the stuns
-# cases can check the credentials it hands out.
-turn_secret=$(sed -n '/TurnServer"/,/<\/bean>/s/.*index="0" value="\([^"]*\)".*/\1/p' "$here/../bbb-web/turn-stun-servers.xml" | sed -n 1p)
+# cases can check the credentials it hands out. Every TurnServer there must
+# use the same one: bbb-web lists the servers in no fixed order (a HashSet),
+# and the cases check whichever comes first.
+turn_secret=$(sed -n '/TurnServer"/,/<\/bean>/s/.*index="0" value="\([^"]*\)".*/\1/p' "$here/../bbb-web/turn-stun-servers.xml" | sort -u)
 [ -n "$turn_secret" ] || { echo "render.sh: no TURN secret in bbb-web/turn-stun-servers.xml" >&2; exit 1; }
+[ "$(printf '%s\n' "$turn_secret" | wc -l)" -eq 1 ] || { echo "render.sh: the TURN servers in bbb-web/turn-stun-servers.xml must share one secret" >&2; exit 1; }
 
 cat > "$out/conform.env" <<END
 export BBB_URL=https://localhost:8443/bigbluebutton/

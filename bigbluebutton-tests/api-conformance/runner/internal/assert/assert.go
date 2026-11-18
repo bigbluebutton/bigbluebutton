@@ -282,6 +282,10 @@ func (c *checker) value(m spec.Matcher, v string) (bool, error) {
 				return false, fmt.Errorf("between: bound %q isn't an integer", b)
 			}
 		}
+		// As when the case loads, for bounds a template gave.
+		if bounds[0] > bounds[1] {
+			return false, fmt.Errorf("between: the low bound %d is above the high bound %d", bounds[0], bounds[1])
+		}
 		n, err := strconv.ParseInt(v, 10, 64)
 		if err != nil {
 			return false, nil // not a number: the check fails

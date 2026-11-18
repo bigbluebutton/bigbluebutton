@@ -30,7 +30,8 @@ steps:
       format: json
       jsonpath:
         $.returncode: {absent: true}
-        $.stunServers[0].url: {exists: true}
+        # A server may have TURN servers only: stunServers is then [].
+        $.stunServers: {exists: true}
         $.turnServers[0].url: {exists: true}
         $.turnServers[0].username: {regex: '^[0-9]+:${annId}$'}
         $.turnServers[0].ttl: {type: int}

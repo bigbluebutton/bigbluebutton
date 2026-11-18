@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=../../../runner/schema/case.schema.json
 # With chat in disabledFeatures, bbb-web still answers SUCCESS, and the
 # message isn't posted: akka-apps drops it. Whether bbb-api should refuse
-# instead is for triage (T04).
+# instead is still to be decided, hence the triage tag.
 id: sendChatMessage.features.chat-disabled
 title: sendChatMessage to a meeting with chat disabled posts nothing
 endpoint: sendChatMessage

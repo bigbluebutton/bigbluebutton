@@ -776,7 +776,7 @@ after 2s with a warning.
 | `endpoint` | The endpoint the case is about. |
 | `class` | `contract` (documented or relied-on behaviour), `compat` (a bbb-web quirk clients may depend on) or `defect` (asserts the *correct* behaviour that bbb-web gets wrong). |
 | `tags` | Any of `ci`, `slow`, `disruptive`, `full-stack`, `presence`, `conversion`, `serial`, `triage`. `triage` marks behaviour still to be classified as contract, compat or defect: until then each of its steps (outside teardown) must say `golden: document` or `off`, which `validate` checks. |
-| `requires` | Capabilities the target must declare, or the case is skipped: `akka`, `presence`, `recordings-fs`, `callbacks`, `presentation-conversion`, `bus`, `fs`, `redis`, `clamav`, `full-stack`. Step types add their own: `presence` and `graphql` add `presence`; `bus`, `fs` and `redis` add themselves; `sink` adds `callbacks`; `restore` adds `recordings-fs`, which a target also has when its tap has [fixture recordings](#fixture-recordings). |
+| `requires` | Capabilities the target must declare, or the case is skipped: `akka`, `presence`, `recordings-fs`, `callbacks`, `presentation-conversion`, `bus`, `fs`, `redis`, `clamav`, `full-stack`, `turn`. A target var can grant one while it has a value, as `turnSecret` grants `turn`. Step types add their own: `presence` and `graphql` add `presence`; `bus`, `fs` and `redis` add themselves; `sink` adds `callbacks`; `restore` adds `recordings-fs`, which a target also has when its tap has [fixture recordings](#fixture-recordings). |
 | `profile` | A named config overlay the target must run with, e.g. one with short timeouts. |
 | `variants` | See below. |
 | `defs` | Ignored. A place to define YAML anchors. |

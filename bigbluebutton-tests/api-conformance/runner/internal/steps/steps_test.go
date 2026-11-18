@@ -1138,6 +1138,43 @@ func TestCheckStep(t *testing.T) {
 	}
 }
 
+// A check step reports its comparisons with secrets redacted, on either side.
+func TestCheckStepRedactsSecrets(t *testing.T) {
+	const secret = "check-step-secret"
+	cases, probs := spec.LoadBytes("case.yaml", []byte(`id: stuns.x.y
+title: t
+endpoint: stuns
+class: contract
+steps:
+  - check:
+      - {value: '${target.turnSecret}', expect: something-else}
+      - {value: something-else, expect: '${target.turnSecret}'}
+`), spec.Options{FixturesDir: fixtures})
+	if len(probs) > 0 {
+		t.Fatalf("problems: %v", probs)
+	}
+	tg := &target.Target{Name: "fake", BaseURL: "http://127.0.0.1:1", APIPrefix: "/bigbluebutton/api/", Salt: salt, DefaultSign: "sha1",
+		Vars: map[string]target.Var{"turnSecret": {Value: secret, Secret: true}}}
+	r, err := NewRunner(tg, fixtures, "test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	res := r.RunCase(context.Background(), cases[0], "uid-1")
+	if res.Status != report.Fail || len(res.Steps) != 1 || len(res.Steps[0].Assertions) != 2 {
+		t.Fatalf("status %s (%s), steps %+v; want both comparisons to fail", res.Status, res.Reason, res.Steps)
+	}
+	reported := res.Reason + res.Steps[0].Message
+	for _, a := range res.Steps[0].Assertions {
+		reported += a.What + a.Expected + a.Actual
+	}
+	if strings.Contains(reported, secret) {
+		t.Errorf("the secret leaked: %q", reported)
+	}
+	if strings.Count(reported, "[secret:turnSecret]") < 2 {
+		t.Errorf("the secret isn't named on both sides: %q", reported)
+	}
+}
+
 func TestBetween(t *testing.T) {
 	for _, tt := range []struct {
 		value  string
@@ -1156,5 +1193,19 @@ func TestBetween(t *testing.T) {
 `))
 	if res.Status != report.Error {
 		t.Errorf("a bound that isn't a number: status %s, want ERROR", res.Status)
+	}
+	// Bounds a template put in the wrong order are an error too, as literal
+	// ones are when the case loads; equal bounds are a valid range.
+	res, _ = runYAML(t, header(`steps:
+  - check: [{value: "5", expect: {between: ['${add(9, 0)}', 1]}}]
+`))
+	if res.Status != report.Error || !strings.Contains(res.Reason, "the low bound 9 is above the high bound 1") {
+		t.Errorf("bounds 9 and 1 from a template: status %s (%s), want ERROR", res.Status, res.Reason)
+	}
+	res, _ = runYAML(t, header(`steps:
+  - check: [{value: "5", expect: {between: ['${add(5, 0)}', 5]}}]
+`))
+	if res.Status != report.Pass {
+		t.Errorf("5 between 5 and 5 from a template: status %s (%s), want PASS", res.Status, res.Reason)
 	}
 }
