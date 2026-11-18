@@ -13,6 +13,10 @@ import { PRESENTATION_REMOVE } from '/imports/ui/components/presentation/mutatio
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
 const TOKEN_TIMEOUT = 5000;
+// After giving up on a token, how often and for how long to look for the presentation its
+// request may still create.
+const LATE_TOKEN_POLL_INTERVAL = 5000;
+const LATE_TOKEN_WATCH_TIME = 120000;
 const POD_ID = 'DEFAULT_PRESENTATION_POD';
 
 // fetch doesn't support progress. So we use xhr which support progress.
@@ -41,63 +45,6 @@ const futch = (url, opts = {}, onProgress) => new Promise((res, rej) => {
   xhr.send(opts.body);
 });
 
-// Resolves with the upload token and the id of the presentation the server created for it.
-const requestPresentationUpload = (
-  temporaryPresentationId,
-  meetingId,
-  filename,
-) => new Promise((resolve, reject) => {
-  const client = apolloContextHolder.getClient();
-  client.mutate({
-    mutation: requestPresentationUploadTokenMutation,
-    variables: {
-      podId: POD_ID,
-      filename,
-      uploadTemporaryId: temporaryPresentationId,
-    },
-  });
-
-  const timeout = setTimeout(() => {
-    reject(Object.assign(new Error('requestPresentationUploadToken timeout'), { code: 408 }));
-  }, TOKEN_TIMEOUT);
-
-  const getData = (n = 0) => {
-    if (n > 10) return;
-    let recursiveTimeout = null;
-    client.query({
-      query: getPresentationUploadToken,
-      variables: {
-        uploadTemporaryId: temporaryPresentationId,
-      },
-      fetchPolicy: 'network-only',
-    }).then((result) => {
-      if (result.data.pres_presentation_uploadToken.length > 0) {
-        clearTimeout(recursiveTimeout);
-        clearTimeout(timeout);
-        const { uploadToken, presentationId } = result.data.pres_presentation_uploadToken[0];
-        if (!uploadToken) {
-          // The request was refused and the reason was recorded on the presentation, which
-          // the uploader toast shows. There is nothing to upload to.
-          reject(Object.assign(new Error('requestPresentationUploadToken rejected'), { reported: true }));
-          return;
-        }
-        resolve({ uploadToken, presentationId });
-      }
-    });
-    recursiveTimeout = setTimeout(() => {
-      getData(n + 1);
-    }, 1000);
-  };
-  setTimeout(getData, 100);
-});
-
-const requestPresentationUploadToken = (
-  temporaryPresentationId,
-  meetingId,
-  filename,
-) => requestPresentationUpload(temporaryPresentationId, meetingId, filename)
-  .then(({ uploadToken }) => uploadToken);
-
 // The presentation exists on the server from the moment its upload token is issued. When the
 // upload itself then fails (refused by the server, or the connection dropped), nothing marks
 // that presentation as failed, so every presenter would see it as uploading until the meeting
@@ -115,6 +62,74 @@ const removeFailedUpload = (presentationId) => {
     return false;
   });
 };
+
+// Resolves with the upload token and the id of the presentation the server created for it.
+const requestPresentationUpload = (
+  temporaryPresentationId,
+  meetingId,
+  filename,
+) => new Promise((resolve, reject) => {
+  const client = apolloContextHolder.getClient();
+  client.mutate({
+    mutation: requestPresentationUploadTokenMutation,
+    variables: {
+      podId: POD_ID,
+      filename,
+      uploadTemporaryId: temporaryPresentationId,
+    },
+  });
+
+  let gaveUpAt = null;
+  const timeout = setTimeout(() => {
+    gaveUpAt = Date.now();
+    reject(Object.assign(new Error('requestPresentationUploadToken timeout'), { code: 408 }));
+  }, TOKEN_TIMEOUT);
+
+  const getData = (n = 0) => {
+    // A request that was only delayed (the connection dropped for a moment) still reaches the
+    // server after this client gave up on it, and creates a presentation nobody will upload.
+    // Keep looking for it for a while, so it can be removed.
+    if (gaveUpAt ? Date.now() - gaveUpAt > LATE_TOKEN_WATCH_TIME : n > 10) return;
+    let recursiveTimeout = null;
+    client.query({
+      query: getPresentationUploadToken,
+      variables: {
+        uploadTemporaryId: temporaryPresentationId,
+      },
+      fetchPolicy: 'network-only',
+    }).then((result) => {
+      if (result.data.pres_presentation_uploadToken.length > 0) {
+        clearTimeout(recursiveTimeout);
+        clearTimeout(timeout);
+        const { uploadToken, presentationId } = result.data.pres_presentation_uploadToken[0];
+        if (gaveUpAt) {
+          // The presenter was already told the upload could not start. A refused request
+          // carries its reason, which the uploader toast shows.
+          if (uploadToken) removeFailedUpload(presentationId);
+          return;
+        }
+        if (!uploadToken) {
+          // The request was refused and the reason was recorded on the presentation, which
+          // the uploader toast shows. There is nothing to upload to.
+          reject(Object.assign(new Error('requestPresentationUploadToken rejected'), { reported: true }));
+          return;
+        }
+        resolve({ uploadToken, presentationId });
+      }
+    }).catch(() => {});
+    recursiveTimeout = setTimeout(() => {
+      getData(n + 1);
+    }, gaveUpAt ? LATE_TOKEN_POLL_INTERVAL : 1000);
+  };
+  setTimeout(getData, 100);
+});
+
+const requestPresentationUploadToken = (
+  temporaryPresentationId,
+  meetingId,
+  filename,
+) => requestPresentationUpload(temporaryPresentationId, meetingId, filename)
+  .then(({ uploadToken }) => uploadToken);
 
 const uploadAndConvertPresentation = (
   filename,
