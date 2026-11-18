@@ -250,6 +250,7 @@ const GenericModal: React.FC<GenericModalProps> = ({
           ariaLabel={title ? `${closeLabel} ${title}` : closeLabel}
           tooltipLabel={closeLabel}
           tooltipPlacement="bottom"
+          className="bbb-modal__close"
           dataTest={closeButtonDataTest}
         />,
         headerNode,

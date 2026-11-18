@@ -320,7 +320,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
           />
         )
         : (
-          <Styled.Dropdown $isFirefox={isFirefox}>
+          <Styled.Dropdown className="bbb-webcam__name-wrapper" $isFirefox={isFirefox}>
             <Styled.UserName className="bbb-webcam__name" $noMenu={!canFocus}>
               {displayName}
             </Styled.UserName>

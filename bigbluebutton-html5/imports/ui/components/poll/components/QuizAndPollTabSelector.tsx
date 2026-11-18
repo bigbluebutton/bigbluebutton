@@ -27,11 +27,13 @@ const QuizAndPollTabSelector: React.FC<QuizAndPollTabSelectorProps> = ({ isQuiz,
   return (
     <Styled.SegmentedButtonWrapper>
       <Styled.SegmentedButtonContainer
+        className="bbb-poll__mode-selector"
         role="group"
         aria-label={intl.formatMessage(intlMessages.tabSelectorAriaLabel)}
       >
         <Styled.SegmentedButton
           id="poll"
+          className={!isQuiz ? 'bbb-poll__mode bbb-poll__mode--active' : 'bbb-poll__mode'}
           type="button"
           active={!isQuiz}
           aria-pressed={!isQuiz}
@@ -41,6 +43,7 @@ const QuizAndPollTabSelector: React.FC<QuizAndPollTabSelectorProps> = ({ isQuiz,
         </Styled.SegmentedButton>
         <Styled.SegmentedButton
           id="quiz"
+          className={isQuiz ? 'bbb-poll__mode bbb-poll__mode--active' : 'bbb-poll__mode'}
           type="button"
           active={isQuiz}
           aria-pressed={isQuiz}

@@ -155,8 +155,9 @@ class BBBMenu extends React.Component {
       const {
         dataTest, label, onClick, key, disabled,
         description, selected, textColor, isToggle, loading,
-        isTitle, titleActions, contentFunction, ariaLabel,
+        isTitle, titleActions, contentFunction, ariaLabel, className,
       } = a;
+      const itemClassName = className ? `bbb-menu__item ${className}` : 'bbb-menu__item';
       const emojiSelected = key?.toLowerCase()?.includes(selectedEmoji?.toLowerCase());
 
       let customStyles = {
@@ -190,6 +191,7 @@ class BBBMenu extends React.Component {
             emoji={emojiSelected ? 'yes' : 'no'}
             key={label}
             id={dataTest}
+            className={itemClassName}
             data-test={dataTest}
             data-key={`menuItem-${dataTest}`}
             disableRipple
@@ -222,6 +224,7 @@ class BBBMenu extends React.Component {
             key={a.key}
             isTitle={isTitle}
             isGenericContent={!!contentFunction}
+            className={itemClassName}
             data-test={dataTest}
             data-key={isToggle ? `menuItem-${dataTest}` : undefined}
             tabIndex={isToggle ? 0 : undefined}
