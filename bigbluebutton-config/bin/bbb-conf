@@ -871,11 +871,16 @@ livekit_bool() {
     esac
 }
 
-# Prints a variable's value from an EnvironmentFile, read the way systemd reads
-# a plain value.
+# Prints a variable's value from an EnvironmentFile as systemd reads it, for a
+# value quoted as a whole or not at all. Single quotes keep every backslash,
+# double quotes drop one only before \ " ` and $, and outside quotes a
+# backslash escapes any character.
 env_file_value() {
     sed -n "s/^[[:space:]]*$1[[:space:]]*=[[:space:]]*//p" "$2" 2> /dev/null | tail -n 1 \
-        | sed -e 's/[[:space:]]*$//' -e 's/^"\(.*\)"$/\1/' -e "s/^'\(.*\)'$/\1/"
+        | sed -e 's/[[:space:]]*$//' \
+            -e "/^'.*'$/{s/^'\(.*\)'$/\1/;b;}" \
+            -e '/^".*"$/{s/^"\(.*\)"$/\1/;s/\\\([\\"`$]\)/\1/g;b;}' \
+            -e 's/\\\(.\)/\1/g'
 }
 
 env_file_has() {
