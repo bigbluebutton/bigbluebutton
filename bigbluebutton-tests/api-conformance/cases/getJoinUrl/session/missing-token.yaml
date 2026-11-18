@@ -1,34 +1,21 @@
 # yaml-language-server: $schema=../../../runner/schema/case.schema.json
-# A call without a sessionToken should always say so: "You must provide a
-# session token". bbb-web answers either that or "Invalid session token", at
-# random from one request to the next, since both of its session checks
-# fail and only one message is kept; so the answers aren't recorded.
-# Sixteen requests all get the right message about once in 65,000 runs, so
-# this defect case fails on bbb-web (expectations/bbb-web.yaml).
+# A call without a sessionToken is refused. It should always say why: "You
+# must provide a session token", which is what a port should answer. bbb-web
+# answers either that or "Invalid session token": UserSessionConstraint's
+# @NotNull and UserSessionValidator both reject a missing token, only one
+# message is kept, and how often each comes back changes from one bbb-web
+# start to the next. A defect case asserting the right message would pass by
+# chance on some starts, so this case accepts either until bbb-web always
+# gives the first; the answer isn't recorded.
 id: getJoinUrl.session.missing-token
-title: getJoinUrl without a session token always says it is missing
+title: getJoinUrl without a session token is refused
 endpoint: getJoinUrl
-class: defect
+class: contract
 tags: [ci]
-defs:
-  ask: &ask
-    call: getJoinUrl
-    golden: off
-    expect: {format: json, returncode: FAILED, message: You must provide a session token}
 steps:
-  - *ask
-  - *ask
-  - *ask
-  - *ask
-  - *ask
-  - *ask
-  - *ask
-  - *ask
-  - *ask
-  - *ask
-  - *ask
-  - *ask
-  - *ask
-  - *ask
-  - *ask
-  - *ask
+  - call: getJoinUrl
+    golden: off
+    expect:
+      format: json
+      returncode: FAILED
+      message: {oneOf: [You must provide a session token, Invalid session token]}

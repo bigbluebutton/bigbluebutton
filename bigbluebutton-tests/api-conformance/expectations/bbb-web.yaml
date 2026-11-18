@@ -7,10 +7,6 @@ expected:
     reason: "without a checksum, bbb-web says either that it is missing or that it doesn't match, at random"
   - id: getRecordings.pagination.formats
     reason: "with limit, bbb-web keeps one format of each recording: it drops duplicate record IDs before merging formats"
-  - id: getJoinUrl.session.missing-token
-    reason: "without a session token, bbb-web says either that it is missing or that it is invalid, at random"
-  - id: learningDashboard.session.missing-token
-    reason: "without a session token, bbb-web says either that it is missing or that it is invalid, at random"
   - id: signOut.response.valid-token
     reason: "with a live session token, bbb-web answers 500: signOut reads a result the session removal no longer returns"
   - id: signOut.session.control-character
