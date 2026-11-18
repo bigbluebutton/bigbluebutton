@@ -20,20 +20,35 @@ import {
   expectSlidesEqualBetweenPages,
   EXTERNAL_VIDEO_URL,
   fixtureFile,
+  GeneratedFile,
   getCurrentPresentationHeight,
   getCurrentSlideAspectRatio,
   getCurrentSlideDarkPixelRatio,
   getCurrentSlideSvg,
   getExternalVideoTime,
   getSlideOuterHtml,
+  holdUploadRequests,
   isExternalVideoPaused,
+  listPresentations,
+  refuseUploadRequests,
   routeExternalVideo,
+  sendStalledUpload,
+  sendUploadWithoutItsMeeting,
+  startUpload,
+  stopInterceptingUploadRequests,
   uploadMultiplePresentations,
   uploadRefusedPresentation,
   uploadSinglePresentation,
+  uploadToastOf,
 } from './util';
 
 const defaultZoomLevel = '100%';
+
+// bbb-web gives a client presentationUploadStartTimeout (60 s by default) to start sending a file
+// and looks for the uploads that did not every 15 s.
+const UPLOAD_START_TIMEOUT = 120000;
+// bbb-web stops waiting for the rest of a request body after about a minute.
+const UPLOAD_STALL_TIMEOUT = 120000;
 
 export class Presentation extends MultiUsers {
   async skipSlide() {
@@ -1044,6 +1059,188 @@ export class Presentation extends MultiUsers {
   // One page over maxNumPages, assumed to be the default 200
   async tooManyPagesIsRefused() {
     await uploadRefusedPresentation(this.modPage, buildPdfWithPages(201), e.presentationPageCountExceededLabel);
+  }
+
+  // The file of an upload-failure test, under a name that tells its upload toast apart.
+  private static fileToUpload(name: string): GeneratedFile {
+    return { ...fixtureFile('sample.pdf'), name };
+  }
+
+  private async startHeldUpload(file: GeneratedFile): Promise<string> {
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.closeAllToastNotifications();
+    const held = await holdUploadRequests(this.modPage);
+    await startUpload(this.modPage, file);
+    const uploadUrl = await held.url;
+    await expect(
+      uploadToastOf(this.modPage, file.name),
+      'should show the upload as in progress while its request is on the way',
+    ).toBeVisible();
+    return uploadUrl;
+  }
+
+  private async secondModeratorTakesPresenter() {
+    await this.modPage2.waitAndClick(e.usersListSidebarButton);
+    await this.modPage2.waitAndClick(e.moreOptionsUserItemButton);
+    await this.modPage2.waitAndClick(e.takePresenter);
+    await this.modPage2.hasElement(e.wbToolbar, 'should make the second moderator the presenter');
+  }
+
+  // An upload that is never finished nor failed is shown as uploading to every later presenter.
+  private async nextPresenterIsNotShownTheUpload(fileName: string) {
+    await this.secondModeratorTakesPresenter();
+    // the list also proves that the presentations have reached this client
+    expect(
+      await listPresentations(this.modPage2),
+      'should not list the failed upload for the next presenter',
+    ).not.toContain(fileName);
+    await expect(
+      uploadToastOf(this.modPage2, fileName),
+      'should not show the failed upload as uploading to the next presenter',
+    ).toHaveCount(0);
+  }
+
+  private async fileIsListedOnce(fileName: string) {
+    await this.modPage.waitAndClick(e.mediaAreaButton);
+    await this.modPage.waitAndClick(e.managePresentations);
+    await expect(
+      this.modPage.page.locator(e.presentationNames).filter({ hasText: fileName }),
+      `should list ${fileName} once after it is uploaded again`,
+    ).toHaveCount(1, { timeout: UPLOAD_PDF_WAIT_TIME });
+    await this.modPage.press('Escape');
+  }
+
+  async refusedUploadCanBeSentAgain() {
+    const file = Presentation.fileToUpload('refused-upload.pdf');
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.closeAllToastNotifications();
+    await refuseUploadRequests(this.modPage);
+    await startUpload(this.modPage, file);
+    await checkNotificationText(this.modPage, `${file.name}: ${e.presentationUploadFailedLabel}`);
+    await expect(
+      uploadToastOf(this.modPage, file.name),
+      'should not keep showing the refused upload as uploading',
+    ).toHaveCount(0, { timeout: ELEMENT_WAIT_LONGER_TIME });
+
+    await stopInterceptingUploadRequests(this.modPage);
+    await startUpload(this.modPage, file);
+    await this.fileIsListedOnce(file.name);
+  }
+
+  // The client's own request is held, so only the server can end this upload.
+  async uploadRefusedByServerIsShownAsFailed() {
+    const file = Presentation.fileToUpload('refused-by-server.pdf');
+    const uploadUrl = await this.startHeldUpload(file);
+    await sendUploadWithoutItsMeeting(this.modPage, uploadUrl, file);
+    await expect(
+      uploadToastOf(this.modPage, file.name),
+      'should tell the uploader that the upload failed',
+    ).toContainText(e.presentationUploadFailedLabel, { timeout: ELEMENT_WAIT_LONGER_TIME });
+
+    // An upload left as uploading came back on every slide change after its notice was closed
+    await uploadToastOf(this.modPage, file.name).click();
+    await this.modPage.page.mouse.move(0, 0); // a pointer left on a toast keeps it open
+    await expect(
+      uploadToastOf(this.modPage, file.name),
+      'should close the notice of the failed upload when it is clicked',
+    ).toHaveCount(0);
+    await this.modPage.waitAndClick(e.nextSlide);
+    await expect
+      .poll(() => getSlideOuterHtml(this.modPage), { message: 'should change to slide 2' })
+      .toContain('/svg/2');
+    await expect(
+      uploadToastOf(this.modPage, file.name),
+      'should not show the failed upload again once its notice was closed',
+    ).toHaveCount(0);
+    await this.nextPresenterIsNotShownTheUpload(file.name);
+  }
+
+  async uploadIsDroppedWhenItsUploaderLeaves() {
+    const file = Presentation.fileToUpload('uploader-leaves.pdf');
+    await this.startHeldUpload(file);
+    await this.secondModeratorTakesPresenter();
+    await expect(
+      uploadToastOf(this.modPage2, file.name),
+      'should show the upload as in progress to the next presenter while its uploader is there',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+
+    // Leaving the page, as closing its tab does. Closing it from here would send the held request.
+    await this.modPage.page.goto('about:blank');
+    await expect(
+      uploadToastOf(this.modPage2, file.name),
+      'should drop the upload once its uploader has left',
+    ).toHaveCount(0, { timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
+    expect(await listPresentations(this.modPage2), 'should not list the upload of the user who left').not.toContain(
+      file.name,
+    );
+  }
+
+  async uploadIsDroppedWhenItsUploaderReloads() {
+    const file = Presentation.fileToUpload('uploader-reloads.pdf');
+    await this.startHeldUpload(file);
+    await this.modPage.reloadPage();
+    await this.modPage.closeAudioModal();
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    // the list also proves that the presentations have reached the reloaded client
+    expect(await listPresentations(this.modPage), 'should not list the upload the reload interrupted').not.toContain(
+      file.name,
+    );
+    await expect(
+      uploadToastOf(this.modPage, file.name),
+      'should not show the interrupted upload as uploading after the reload',
+    ).toHaveCount(0);
+  }
+
+  // The spec delays the token request with delayUploadTokenRequest before the moderator joins
+  async lateUploadTokenIsNotLeftUploading() {
+    const file = Presentation.fileToUpload('late-token.pdf');
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.closeAllToastNotifications();
+    await startUpload(this.modPage, file);
+    await this.modPage.hasText(
+      e.smallToastMsg,
+      e.presentationUploadCouldNotStartLabel,
+      'should tell the presenter that the upload could not start once the token is overdue',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await expect(
+      uploadToastOf(this.modPage, file.name),
+      'should show the upload once its delayed token request reaches the server',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+    await expect(
+      uploadToastOf(this.modPage, file.name),
+      'should remove the upload the client had given up on',
+    ).toHaveCount(0, { timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
+    expect(
+      await listPresentations(this.modPage),
+      'should not list the upload the client had given up on',
+    ).not.toContain(file.name);
+  }
+
+  async uploadThatNeverArrivesIsShownAsFailed() {
+    const file = Presentation.fileToUpload('never-sent.pdf');
+    await this.startHeldUpload(file);
+    await expect(
+      uploadToastOf(this.modPage, file.name),
+      'should tell the uploader that the upload failed once the time to start it has passed',
+    ).toContainText(e.presentationUploadFailedLabel, { timeout: UPLOAD_START_TIMEOUT });
+    await this.nextPresenterIsNotShownTheUpload(file.name);
+  }
+
+  async stalledUploadIsShownAsFailed() {
+    const file = Presentation.fileToUpload('stalled-upload.pdf');
+    const uploadUrl = await this.startHeldUpload(file);
+    const serverGaveUp = sendStalledUpload(uploadUrl, file);
+    await expect(
+      uploadToastOf(this.modPage, file.name),
+      'should tell the uploader that the upload failed once the server stops waiting for the file',
+    ).toContainText(e.presentationUploadFailedLabel, { timeout: UPLOAD_STALL_TIMEOUT });
+    await serverGaveUp;
+
+    await this.modPage.closeAllToastNotifications();
+    await stopInterceptingUploadRequests(this.modPage);
+    await startUpload(this.modPage, file);
+    await this.fileIsListedOnce(file.name);
   }
 
   private async openPresentationManager() {

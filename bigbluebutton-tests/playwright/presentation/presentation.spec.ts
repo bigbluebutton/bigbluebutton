@@ -5,7 +5,7 @@ import { chromiumBaseArgs } from '../core/setup/browsersConfig';
 import { test } from '../core/setup/fixtures';
 import { ExportedAnnotationsOverlap } from './exportedAnnotationsOverlap';
 import { Presentation } from './presentation';
-import { MASK_SAMPLE_PDF_BYTES } from './util';
+import { delayUploadTokenRequest, MASK_SAMPLE_PDF_BYTES } from './util';
 
 test.describe.parallel('Presentation', { tag: '@ci' }, () => {
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#navigation-automated
@@ -319,6 +319,75 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       await presentation.initUserPage(context, { testInfo });
       await presentation.removePreviousPresentationFromPreviousPresenter();
     });
+  });
+
+  // An upload exists on the server from the moment its token is issued. Each of these ends one
+  // without its file arriving, and none may leave it showing as uploading.
+  test.describe.parallel('Upload that does not complete', () => {
+    test('A refused upload is reported and can be sent again', async ({ browser, context, page }, testInfo) => {
+      linkIssue(26518);
+      const presentation = new Presentation(browser, context);
+      await presentation.initModPage(page, { testInfo });
+      await presentation.refusedUploadCanBeSentAgain();
+    });
+
+    test('An upload the server refuses is shown as failed', async ({ browser, context, page }, testInfo) => {
+      linkIssue(26518);
+      const presentation = new Presentation(browser, context);
+      await presentation.initModPage(page, { testInfo });
+      await presentation.initModPage2(context, { testInfo });
+      await presentation.uploadRefusedByServerIsShownAsFailed();
+    });
+
+    test('An upload is dropped when its uploader leaves', async ({ browser, context, page }, testInfo) => {
+      linkIssue(26518);
+      const presentation = new Presentation(browser, context);
+      await presentation.initModPage(page, { testInfo });
+      await presentation.initModPage2(context, { testInfo });
+      await presentation.uploadIsDroppedWhenItsUploaderLeaves();
+    });
+
+    test('An upload is dropped when its uploader reloads', async ({ browser, context, page }, testInfo) => {
+      linkIssue(26518);
+      const presentation = new Presentation(browser, context);
+      await presentation.initModPage(page, { testInfo });
+      await presentation.uploadIsDroppedWhenItsUploaderReloads();
+    });
+
+    test('An upload whose token arrives after the client gave up is removed', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      // longer than the 5 seconds the client waits for the token
+      await delayUploadTokenRequest(page, 7000);
+      const presentation = new Presentation(browser, context);
+      await presentation.initModPage(page, { testInfo });
+      await presentation.lateUploadTokenIsNotLeftUploading();
+    });
+  });
+});
+
+// At the top level so the @ci 'Presentation' describe does not tag these: each waits for a server
+// timeout of about a minute
+test.describe.parallel('Presentation upload timeouts', { tag: '@nightly' }, () => {
+  test('An upload that never reaches the server is shown as failed', async ({ browser, context, page }, testInfo) => {
+    linkIssue(26518);
+    const presentation = new Presentation(browser, context);
+    await presentation.initModPage(page, { testInfo });
+    await presentation.initModPage2(context, { testInfo });
+    await presentation.uploadThatNeverArrivesIsShownAsFailed();
+  });
+
+  test('An upload that stalls is shown as failed and can be sent again', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    linkIssue(26518);
+    const presentation = new Presentation(browser, context);
+    await presentation.initModPage(page, { testInfo });
+    await presentation.stalledUploadIsShownAsFailed();
   });
 });
 

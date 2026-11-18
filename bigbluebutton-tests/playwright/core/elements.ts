@@ -609,6 +609,8 @@ export const elements = {
   presentationPageCountFailedLabel: 'Failed to determine the number of pages.',
   presentationInvalidMimeTypeLabel: 'Invalid format detected (extension=pdf, content type=application/x-msdownload)',
   presentationPageCountExceededLabel: 'Number of pages exceeded maximum of 200',
+  presentationUploadFailedLabel: 'The upload failed. Please try again.',
+  presentationUploadCouldNotStartLabel: 'The upload could not start.',
   screenCapturePermissionErrorLabel: 'Code 1136. Permission to capture the screen needs to be granted.',
   helpLinkToastButton: 'button[data-test="helpLinkToastButton"]',
 
