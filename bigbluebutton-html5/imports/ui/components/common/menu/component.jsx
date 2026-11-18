@@ -61,6 +61,10 @@ class BBBMenu extends React.Component {
     this.restoreTriggerFocus = this.restoreTriggerFocus.bind(this);
   }
 
+  componentDidMount() {
+    this.syncTriggerAria();
+  }
+
   componentDidUpdate() {
     const { anchorEl } = this.state;
     const { open } = this.props;
@@ -69,6 +73,7 @@ class BBBMenu extends React.Component {
     } else if (open === true && !anchorEl) {
       this.setState({ anchorEl: this.anchorElRef });
     }
+    this.syncTriggerAria();
   }
 
   handleKeyDown(event) {
@@ -113,7 +118,7 @@ class BBBMenu extends React.Component {
     this.setState({ anchorEl: event.currentTarget });
   }
 
-  handleClose(event) {
+  handleClose() {
     const { onCloseCallback } = this.props;
     this.setState({ anchorEl: null }, onCloseCallback);
     const focusedOnClose = document.activeElement;
@@ -130,10 +135,16 @@ class BBBMenu extends React.Component {
     }, 0);
   }
 
+  getTriggerElement() {
+    return this.anchorElRef?.querySelector('[aria-haspopup]')
+      ?? this.anchorElRef?.querySelector(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+      )
+      ?? null;
+  }
+
   restoreTriggerFocus() {
-    const triggerFocusableElement = this.anchorElRef?.querySelector(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-    );
+    const triggerFocusableElement = this.getTriggerElement();
 
     if (triggerFocusableElement && typeof triggerFocusableElement.focus === 'function') {
       triggerFocusableElement.focus();
@@ -143,6 +154,21 @@ class BBBMenu extends React.Component {
     if (this.previousFocus && typeof this.previousFocus.focus === 'function'
       && document.body.contains(this.previousFocus)) {
       this.previousFocus.focus();
+    }
+  }
+
+  syncTriggerAria() {
+    const triggerElement = this.getTriggerElement();
+    if (!triggerElement) return;
+
+    const { anchorEl } = this.state;
+    const { opts } = this.props;
+    triggerElement.setAttribute('aria-haspopup', 'menu');
+    triggerElement.setAttribute('aria-expanded', String(Boolean(anchorEl)));
+    if (anchorEl && opts.id) {
+      triggerElement.setAttribute('aria-controls', opts.id);
+    } else {
+      triggerElement.removeAttribute('aria-controls');
     }
   }
 
@@ -230,7 +256,7 @@ class BBBMenu extends React.Component {
             tabIndex={isToggle ? 0 : undefined}
             onClick={isToggle && onClick ? onClick : undefined}
             onKeyDown={isToggle && onClick ? (e) => {
-              if ([KEY_CODES.ENTER, KEY_CODES.SPACE].includes(e.which)) {
+              if ([KEYS.ENTER, KEYS.SPACE].includes(e.key)) {
                 e.preventDefault();
                 onClick(e);
               }
@@ -314,8 +340,8 @@ class BBBMenu extends React.Component {
 
     return (
       <>
+        {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
         <div
-          role="button"
           onClick={(e) => {
             e.persist();
             // 1 = mouse, 5 = touch (firefox only)
@@ -399,9 +425,22 @@ BBBMenu.propTypes = {
   dataTest: PropTypes.string,
   open: PropTypes.bool,
   customStyles: PropTypes.shape({}),
-  opts: PropTypes.shape({}),
+  customAnchorEl: PropTypes.shape({}),
+  disabled: PropTypes.bool,
+  hasRoundedCorners: PropTypes.bool,
+  isEmoji: PropTypes.bool,
+  isHorizontal: PropTypes.bool,
+  isMobile: PropTypes.bool,
+  keepOpen: PropTypes.bool,
+  overrideMobileStyles: PropTypes.bool,
+  opts: PropTypes.shape({
+    id: PropTypes.string,
+  }),
   accessKey: PropTypes.string,
   minContent: PropTypes.bool,
+  renderOtherComponents: PropTypes.node,
+  roundButtons: PropTypes.bool,
+  selectedEmoji: PropTypes.string,
 };
 
 export default injectIntl(BBBMenu);
