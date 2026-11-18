@@ -5,6 +5,7 @@ import org.bigbluebutton.api.MeetingService
 import org.bigbluebutton.api.ParamsProcessorUtil
 import org.bigbluebutton.api.messaging.messages.PresentationUploadToken
 import org.bigbluebutton.presentation.imp.SlidesGenerationProgressNotifier
+import org.bigbluebutton.web.services.UserCleanupTimerTask
 import spock.lang.Specification
 
 /**
@@ -51,9 +52,13 @@ class PresentationUploadFailureSpec extends Specification implements ControllerU
     System.currentTimeMillis() + seconds * 1000
   }
 
-  private void authorizeUpload(String token) {
+  // nginx names the method of the request it asks about; method null leaves the header out
+  private void authorizeUpload(String token, String method = 'POST') {
     request.addHeader('x-presentation-token', token)
     request.addHeader('x-original-content-length', '1000')
+    if (method != null) {
+      request.addHeader('x-original-method', method)
+    }
     controller.checkPresentationBeforeUploading()
   }
 
@@ -150,13 +155,88 @@ class PresentationUploadFailureSpec extends Specification implements ControllerU
     register(TOKEN, 'pres-1')
 
     when:
-    authorizeUpload(TOKEN)
+    authorizeUpload(TOKEN, method)
     meetingService.purgePresentationUploadTokens(secondsFromNow(60 * 60))
 
     then:
     response.status == 200
     failedUploads.isEmpty()
     meetingService.authzTokenIsValid(TOKEN)
+
+    where: 'a request without the header is taken to be the upload'
+    method << ['POST', null]
+  }
+
+  // The upload action answers POST only, so nothing else would ever consume the token.
+  def "A request with another method does not keep the token alive"() {
+    given:
+    register(TOKEN, 'pres-1')
+
+    when:
+    authorizeUpload(TOKEN, method)
+    meetingService.purgePresentationUploadTokens(secondsFromNow(START_TIMEOUT + 1))
+
+    then:
+    failedUploads == ['pres-1']
+    !meetingService.authzTokenIsValid(TOKEN)
+
+    where:
+    method << ['GET', 'PUT', 'OPTIONS']
+  }
+
+  // The purge can drop the token between the validity check and the start being recorded.
+  def "An upload request whose token is dropped as it arrives is refused"() {
+    given:
+    controller.meetingService = new MeetingService() {
+      @Override
+      Boolean authzTokenIsValid(String authzToken) { true }
+
+      @Override
+      boolean presentationUploadStarted(String authzToken) { false }
+    }
+
+    when:
+    authorizeUpload(TOKEN)
+
+    then:
+    response.status == 403
+    response.getHeader('x-file-too-large') == null
+  }
+
+  def "Recording the start of an upload fails for a token that is gone"() {
+    expect:
+    !meetingService.presentationUploadStarted(TOKEN)
+    !meetingService.presentationUploadStarted(null)
+
+    when:
+    register(TOKEN, 'pres-1')
+
+    then:
+    meetingService.presentationUploadStarted(TOKEN)
+  }
+
+  // An exception that leaves the scheduled task ends its schedule for good.
+  def "A user purge that throws does not stop the token purge"() {
+    given:
+    List<String> purges = []
+    def timerTask = new UserCleanupTimerTask()
+    timerTask.setMeetingService(new MeetingService() {
+      @Override
+      void purgeUsers() {
+        purges << 'users'
+        throw new NullPointerException('a user rejoined while being purged')
+      }
+
+      @Override
+      void purgePresentationUploadTokens() { purges << 'tokens' }
+    })
+
+    when:
+    new UserCleanupTimerTask.CleanupTask(timerTask).run()
+
+    then:
+    noExceptionThrown()
+    purges == ['users', 'tokens']
   }
 
   def "A request refused before its upload starts does not keep the token alive"() {

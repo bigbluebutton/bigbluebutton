@@ -287,12 +287,14 @@ public class MeetingService implements MessageListener {
     return uploadAuthzTokens.remove(authzToken);
   }
 
-  // The upload request for this token has arrived and was let through: its file is on its way.
-  public void presentationUploadStarted(String authzToken) {
-    PresentationUploadToken presUploadToken = getPresentationUploadToken(authzToken);
-    if (presUploadToken != null) {
+  // The upload request for this token has arrived: its file is on its way. False when the token
+  // is gone, which the purge below can cause at that very moment; the request is then refused.
+  public boolean presentationUploadStarted(String authzToken) {
+    if (authzToken == null) return false;
+    return uploadAuthzTokens.computeIfPresent(authzToken, (key, presUploadToken) -> {
       presUploadToken.markUploadStarted();
-    }
+      return presUploadToken;
+    }) != null;
   }
 
   /**
@@ -309,16 +311,22 @@ public class MeetingService implements MessageListener {
     if (presentationUploadStartTimeout <= 0) {
       return;
     }
-    for (PresentationUploadToken presUploadToken : uploadAuthzTokens.values()) {
+    for (String authzToken : uploadAuthzTokens.keySet()) {
       try {
-        if (presUploadToken.isAbandoned(now, presentationUploadStartTimeout)
-            && uploadAuthzTokens.remove(presUploadToken.authzToken, presUploadToken)) {
+        // Decided under the map's lock for this token, as presentationUploadStarted is: a token
+        // is either dropped or its upload let through, never both.
+        PresentationUploadToken[] dropped = new PresentationUploadToken[1];
+        uploadAuthzTokens.computeIfPresent(authzToken, (key, presUploadToken) -> {
+          if (!presUploadToken.isAbandoned(now, presentationUploadStartTimeout)) return presUploadToken;
+          dropped[0] = presUploadToken;
+          return null;
+        });
+        if (dropped[0] != null) {
           log.info("No upload arrived in time for a presentation upload token. meetingId={} presentationId={}",
-              presUploadToken.meetingId, presUploadToken.presentationId);
-          sendPresentationUploadFailedMessage(presUploadToken, "No upload request arrived in time");
+              dropped[0].meetingId, dropped[0].presentationId);
+          sendPresentationUploadFailedMessage(dropped[0], "No upload request arrived in time");
         }
       } catch (Exception e) {
-        // This runs on a schedule that an exception would end.
         log.error("Could not purge a presentation upload token", e);
       }
     }

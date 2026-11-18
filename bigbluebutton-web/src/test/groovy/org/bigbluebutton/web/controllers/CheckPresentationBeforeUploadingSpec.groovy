@@ -44,6 +44,11 @@ class CheckPresentationBeforeUploadingSpec extends Specification implements Cont
     }
 
     @Override
+    boolean presentationUploadStarted(String authzToken) {
+      authzTokenIsValid(authzToken)
+    }
+
+    @Override
     void sendPresentationUploadMaxFilesizeMessage(PresentationUploadToken token, int uploadedFileSize, int maxUploadFileSize) {
       tooLargeMessages << token
     }

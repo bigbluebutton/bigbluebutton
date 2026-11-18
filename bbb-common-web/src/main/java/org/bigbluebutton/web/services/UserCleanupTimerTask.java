@@ -24,8 +24,11 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.bigbluebutton.api.MeetingService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UserCleanupTimerTask {
+    private static Logger log = LoggerFactory.getLogger(UserCleanupTimerTask.class);
 
     private MeetingService service;
     private ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(1);
@@ -50,10 +53,17 @@ public class UserCleanupTimerTask {
     private class CleanupTask implements Runnable {
         @Override
         public void run() {
+            // An exception that leaves this method ends the schedule for good, so each purge is
+            // run, and its failure logged, on its own.
             try {
                 service.purgeUsers();
-            } finally {
+            } catch (Exception e) {
+                log.error("Error while purging users", e);
+            }
+            try {
                 service.purgePresentationUploadTokens();
+            } catch (Exception e) {
+                log.error("Error while purging presentation upload tokens", e);
             }
         }
     }
