@@ -7,6 +7,20 @@ import slick.jdbc.PostgresProfile.api._
 // that are still waiting for their file, never one that is converting, done or refused.
 class PresPresentationDAOSpec extends AnyFlatSpec {
 
+  // What "still waiting for its file" means, with the polarity of each condition: a flipped one
+  // would reach the presentations that are converting, done or already failed.
+  private val awaitingUpload = Seq(
+    "(not (\"pres_presentation\".\"uploadToken\" = ''))",
+    "(not \"pres_presentation\".\"uploadInProgress\")",
+    "(not \"pres_presentation\".\"uploadCompleted\")",
+    "(\"pres_presentation\".\"uploadErrorMsgKey\" is null)"
+  )
+
+  private def assertAwaitingUploadOnly(statement: String): Unit = {
+    awaitingUpload.foreach(condition => assert(statement.contains(condition), s"$condition is not part of: $statement"))
+    assert(!statement.contains(" or "))
+  }
+
   behavior of "PresPresentationDAO.awaitingUploadQuery"
 
   it should "scope the delete to the meeting, the uploader and the awaiting-upload state" in {
@@ -19,7 +33,7 @@ class PresPresentationDAOSpec extends AnyFlatSpec {
     assert(statement.startsWith("delete from \"pres_presentation\""))
     Seq("meetingId", "uploadUserId", "uploadToken", "uploadInProgress", "uploadCompleted", "uploadErrorMsgKey")
       .foreach(column => assert(statement.contains("\"" + column + "\""), s"$column is not part of the filter"))
-    assert(!statement.contains(" or "))
+    assertAwaitingUploadOnly(statement)
   }
 
   behavior of "PresPresentationDAO.awaitingUploadOfPresentationQuery"
@@ -37,8 +51,7 @@ class PresPresentationDAOSpec extends AnyFlatSpec {
     assert(statement.startsWith("update \"pres_presentation\""))
     Seq("meetingId", "presentationId", "uploadToken", "uploadInProgress", "uploadCompleted")
       .foreach(column => assert(statement.contains("\".\"" + column + "\""), s"$column is not part of the filter"))
-    assert(statement.contains("\"uploadErrorMsgKey\" is null"))
-    assert(!statement.contains(" or "))
+    assertAwaitingUploadOnly(statement)
     assert(!statement.contains("uploadUserId"))
   }
 }
