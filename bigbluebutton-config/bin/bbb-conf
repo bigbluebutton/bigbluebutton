@@ -1013,6 +1013,21 @@ check_livekit() {
         print_docs_link "support/troubleshooting#livekit-address-settings"
     fi
 
+    # LiveKit gathers candidates and binds its UDP ports only on the interfaces
+    # rtc.interfaces.includes names, matched exactly. One of them must be the
+    # interface the server reaches the internet through: over IPv4, or over IPv6
+    # on a server with no IPv4 route. ip route get sends no packet.
+    LIVEKIT_INCLUDED_IFACES=$(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.rtc.interfaces.includes // [] | .[]' - 2> /dev/null)
+    INTERNET_IFACE=$( { ip -4 route get 8.8.8.8 || ip -6 route get 2001:4860:4860::8888; } 2> /dev/null \
+        | sed -n 's/.* dev \([^ ]*\).*/\1/p' | head -n 1)
+    if [ -n "$LIVEKIT_INCLUDED_IFACES" ] && [ -n "$INTERNET_IFACE" ] \
+        && ! echo "$LIVEKIT_INCLUDED_IFACES" | grep -qxF "$INTERNET_IFACE"; then
+        echo "# Warning: rtc.interfaces.includes in $LIVEKIT_SERVER_ETC_CONFIG does not name $INTERNET_IFACE,"
+        echo "# the interface this server reaches the internet through. LiveKit then sends and receives"
+        echo "# media only on other interfaces, and clients may fail to connect."
+        print_docs_link "support/troubleshooting#livekit-address-settings"
+    fi
+
     LIVEKIT_PEER_IPV4S=$( {
         echo "$WEBRTC_SFU_CONFIG" | yq-go e '.mediasoup.webrtc.listenIps[] | .announcedIp // ""' -
         xmlstarlet sel -t -m '//X-PRE-PROCESS[@cmd="set" and starts-with(@data, "external_rtp_ip=")]' -v @data -n $FREESWITCH_VARS | sed 's/external_rtp_ip=//'
