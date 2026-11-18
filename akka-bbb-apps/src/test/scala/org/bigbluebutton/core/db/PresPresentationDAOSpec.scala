@@ -7,19 +7,15 @@ import slick.jdbc.PostgresProfile.api._
 // that are still waiting for their file, never one that is converting, done or refused.
 class PresPresentationDAOSpec extends AnyFlatSpec {
 
-  // What "still waiting for its file" means, with the polarity of each condition: a flipped one
-  // would reach the presentations that are converting, done or already failed.
-  private val awaitingUpload = Seq(
-    "(not (\"pres_presentation\".\"uploadToken\" = ''))",
-    "(not \"pres_presentation\".\"uploadInProgress\")",
-    "(not \"pres_presentation\".\"uploadCompleted\")",
-    "(\"pres_presentation\".\"uploadErrorMsgKey\" is null)"
-  )
-
-  private def assertAwaitingUploadOnly(statement: String): Unit = {
-    awaitingUpload.foreach(condition => assert(statement.contains(condition), s"$condition is not part of: $statement"))
-    assert(!statement.contains(" or "))
-  }
+  // What "still waiting for its file" means, as the one condition it is in the statement. The
+  // statements are compared whole: one that only contained these four parts could still negate
+  // them together, or one of them, and reach the presentations that are converting, done or
+  // already failed.
+  private val awaitingUpload =
+    "((((not (\"pres_presentation\".\"uploadToken\" = ''))" +
+      " and (not \"pres_presentation\".\"uploadInProgress\"))" +
+      " and (not \"pres_presentation\".\"uploadCompleted\"))" +
+      " and (\"pres_presentation\".\"uploadErrorMsgKey\" is null))"
 
   behavior of "PresPresentationDAO.awaitingUploadQuery"
 
@@ -30,10 +26,10 @@ class PresPresentationDAOSpec extends AnyFlatSpec {
       .statements
       .mkString(" ")
 
-    assert(statement.startsWith("delete from \"pres_presentation\""))
-    Seq("meetingId", "uploadUserId", "uploadToken", "uploadInProgress", "uploadCompleted", "uploadErrorMsgKey")
-      .foreach(column => assert(statement.contains("\"" + column + "\""), s"$column is not part of the filter"))
-    assertAwaitingUploadOnly(statement)
+    assert(statement == "delete from \"pres_presentation\" where " +
+      "((\"pres_presentation\".\"meetingId\" = 'meeting-id')" +
+      " and (\"pres_presentation\".\"uploadUserId\" = 'user-id'))" +
+      " and " + awaitingUpload)
   }
 
   behavior of "PresPresentationDAO.awaitingUploadOfPresentationQuery"
@@ -48,10 +44,9 @@ class PresPresentationDAOSpec extends AnyFlatSpec {
       .statements
       .mkString(" ")
 
-    assert(statement.startsWith("update \"pres_presentation\""))
-    Seq("meetingId", "presentationId", "uploadToken", "uploadInProgress", "uploadCompleted")
-      .foreach(column => assert(statement.contains("\".\"" + column + "\""), s"$column is not part of the filter"))
-    assertAwaitingUploadOnly(statement)
-    assert(!statement.contains("uploadUserId"))
+    assert(statement == "update \"pres_presentation\" set \"uploadErrorMsgKey\" = ? where " +
+      "((\"pres_presentation\".\"meetingId\" = 'meeting-id')" +
+      " and (\"pres_presentation\".\"presentationId\" = 'presentation-id'))" +
+      " and " + awaitingUpload)
   }
 }
