@@ -32,6 +32,7 @@ import {
   isExternalVideoPaused,
   listPresentations,
   loseUploadAnswers,
+  LostUploadAnswer,
   refuseUploadRequests,
   routeExternalVideo,
   sendStalledUpload,
@@ -1204,12 +1205,15 @@ export class Presentation extends MultiUsers {
   }
 
   // The server has the file; only its answer did not reach the client
-  async uploadWhoseAnswerIsLostIsKept() {
-    const file = Presentation.fileToUpload('lost-answer.pdf');
+  async uploadWhoseAnswerIsLostIsKept(answer: LostUploadAnswer) {
+    const file = Presentation.fileToUpload(answer === 'no answer' ? 'lost-answer.pdf' : 'answer-timed-out.pdf');
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.closeAllToastNotifications();
-    await loseUploadAnswers(this.modPage, file);
+    const lost = await loseUploadAnswers(this.modPage, file, answer);
     await startUpload(this.modPage, file);
+    // Before this the client has not seen its request go wrong, and has had no reason to remove
+    // the presentation: the checks below would pass without having tested anything.
+    await lost.pageRequestEnded;
     await this.fileIsListedOnce(file.name);
   }
 
@@ -1242,6 +1246,9 @@ export class Presentation extends MultiUsers {
       await listPresentations(this.modPage),
       'should not list the upload the client had given up on',
     ).not.toContain(file.name);
+    // The client asking is not the server removing: a presentation still there, waiting for its
+    // file, is shown as uploading to the next presenter.
+    await this.nextPresenterIsNotShownTheUpload(file.name);
   }
 
   async uploadThatNeverArrivesIsShownAsFailed() {

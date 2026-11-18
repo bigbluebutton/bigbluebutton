@@ -363,6 +363,7 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       const tokenRequest = await holdUploadTokenRequest(page);
       const presentation = new Presentation(browser, context);
       await presentation.initModPage(page, { testInfo });
+      await presentation.initModPage2(context, { testInfo });
       await presentation.lateUploadTokenIsNotLeftUploading(tokenRequest);
     });
 
@@ -370,7 +371,14 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       linkIssue(26518);
       const presentation = new Presentation(browser, context);
       await presentation.initModPage(page, { testInfo });
-      await presentation.uploadWhoseAnswerIsLostIsKept();
+      await presentation.uploadWhoseAnswerIsLostIsKept('no answer');
+    });
+
+    test('An upload answered with a gateway timeout is kept', async ({ browser, context, page }, testInfo) => {
+      linkIssue(26518);
+      const presentation = new Presentation(browser, context);
+      await presentation.initModPage(page, { testInfo });
+      await presentation.uploadWhoseAnswerIsLostIsKept('gateway timeout');
     });
   });
 });

@@ -1,4 +1,4 @@
-import { BrowserContext, expect, Locator, Page as PlaywrightPage } from '@playwright/test';
+import { BrowserContext, expect, Locator, Page as PlaywrightPage, Request } from '@playwright/test';
 import { readFileSync } from 'fs';
 import path from 'path';
 import tls from 'tls';
@@ -533,10 +533,29 @@ export async function refuseUploadRequests(testPage: Page) {
   );
 }
 
-// Delivers the file of the page's upload requests to the server and then fails the requests
-// themselves, as when the server's answer is lost on its way back. The browser does not hand a
-// file's bytes to a route, so the request's other fields are read and the file is sent again.
-export async function loseUploadAnswers(testPage: Page, file: GeneratedFile) {
+// What the page gets for an upload request the server has accepted: nothing, as when the answer
+// is lost on its way back, or the 504 nginx answers with when bbb-web takes too long to answer.
+export type LostUploadAnswer = 'no answer' | 'gateway timeout';
+
+// Delivers the file of the page's upload request to the server and keeps the server's answer from
+// the page. The browser does not hand a file's bytes to a route, so the request's other fields
+// are read and the file is sent again. `pageRequestEnded` resolves once the page's own request
+// has ended: only then has the client learned that its upload went wrong.
+export async function loseUploadAnswers(
+  testPage: Page,
+  file: GeneratedFile,
+  answer: LostUploadAnswer,
+): Promise<{ pageRequestEnded: Promise<unknown> }> {
+  const ofUpload = {
+    predicate: (request: Request) => request.method() === 'POST' && new URL(request.url()).pathname.endsWith('/upload'),
+    timeout: UPLOAD_PDF_WAIT_TIME,
+  };
+  const pageRequestEnded =
+    answer === 'no answer'
+      ? testPage.page.waitForEvent('requestfailed', ofUpload)
+      : testPage.page.waitForEvent('requestfinished', ofUpload);
+  // A test that fails before it gets to wait for this must not leave a rejection nobody handles
+  pageRequestEnded.catch(() => {});
   await testPage.page.route(UPLOAD_REQUEST, async (route) => {
     const request = route.request();
     const fields = Object.fromEntries(
@@ -549,8 +568,17 @@ export async function loseUploadAnswers(testPage: Page, file: GeneratedFile) {
       multipart: { fileUpload: file, ...fields },
     });
     expect(response.status(), 'should have the server accept the upload').toBe(200);
-    await route.abort('failed');
+    if (answer === 'no answer') {
+      await route.abort('failed');
+    } else {
+      await route.fulfill({
+        status: 504,
+        contentType: 'text/html',
+        body: '<html><h1>504 Gateway Time-out</h1></html>',
+      });
+    }
   });
+  return { pageRequestEnded };
 }
 
 export async function stopInterceptingUploadRequests(testPage: Page) {
