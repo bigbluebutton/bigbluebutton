@@ -1,0 +1,38 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A meeting nobody joins ends by itself once
+# meetingExpireIfNoUserJoinedInMinutes have passed, with the reason
+# ENDED_WHEN_NOT_JOINED. akka-apps checks every 10 seconds. 0 and a
+# negative value don't mean "never": the meeting ends at akka-apps' first
+# check, about 5 seconds after create. The end callback such a meeting
+# sends is in end/callbacks/expired.yaml.
+id: create.expiry.not-joined
+title: "A meeting nobody joins ends after meetingExpireIfNoUserJoinedInMinutes=${minutes}"
+endpoint: create
+class: contract
+requires: [akka]
+variants:
+  - {id: one-minute, vars: {minutes: "1", within: 90s}, tags: [slow]}
+  - {id: zero, vars: {minutes: "0", within: 30s}, class: compat, tags: [ci]}
+  - {id: negative, vars: {minutes: "-5", within: 30s}, class: compat, tags: [ci]}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Expiry, meetingExpireIfNoUserJoinedInMinutes: "${minutes}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - bus: {name: MeetingEndingEvtMsg, meetingId: "${intId}", within: "${within}"}
+    expect:
+      jsonpath: {$.core.body.reason: ENDED_WHEN_NOT_JOINED}
+  - call: getMeetingInfo
+    params: {meetingID: "${uid}"}
+    eventually: {within: 5s, every: 200ms, until: {messageKey: notFound}}
+    expect: {returncode: FAILED, messageKey: notFound}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

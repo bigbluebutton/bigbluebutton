@@ -10,6 +10,7 @@ export function audioCaptionsOverrides(
   locale: string,
   defaultSelectLocale = true,
   speechProcessing: 'cloud' | 'local' | 'auto' = 'cloud',
+  { forceLocale = false, showInSidebarNavigation = false } = {},
 ): ClientSettingsOverrides {
   return {
     public: {
@@ -18,7 +19,8 @@ export function audioCaptionsOverrides(
           enabled: true,
           provider: 'webspeech',
           speechProcessing,
-          language: { defaultSelectLocale, locale },
+          showInSidebarNavigation,
+          language: { defaultSelectLocale, locale, forceLocale },
         },
       },
     },
@@ -122,6 +124,16 @@ export class AudioCaptions extends MultiUsers {
     await this.modPage.waitForSelector(e.audioModal);
     await this.modPage.clickMicrophoneButton();
     await this.modPage.waitForSelector(e.stopHearingButton);
+  }
+
+  // The transcription switch of the transcription and captions panel (showInSidebarNavigation).
+  // It can already be on: the audio modal's select applies a forced or default-selected locale
+  // when it mounts, which depends on the audio bridge's join flow
+  async turnTranscriptionOnInPanel(): Promise<void> {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+    await this.modPage.waitAndClick(e.audioCaptionsSidebarButton);
+    await this.modPage.hasElement(e.audioCaptionsPanel, 'should open the transcription and captions panel');
+    await this.modPage.page.locator(e.transcriptionToggle).check();
   }
 
   async hasTranscriptionLocale(value: string, label: string, description: string): Promise<void> {

@@ -1,0 +1,9 @@
+# want: 9: steps[0].sign: value must be one of
+# want: 9: steps[0].sign.call: '${other}' does not match pattern
+id: getMeetings.x.y
+title: t
+endpoint: getMeetings
+class: contract
+steps:
+  - call: getMeetings
+    sign: {call: "${other}"}

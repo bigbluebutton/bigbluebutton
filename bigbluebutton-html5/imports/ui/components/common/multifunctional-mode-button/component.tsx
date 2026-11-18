@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import cx from 'classnames';
 import { layoutDispatch, layoutSelectInput, layoutSelectOutput } from '/imports/ui/components/layout/context';
 import { Input, Output } from '/imports/ui/components/layout/layoutTypes';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
@@ -54,6 +55,9 @@ const MultifunctionalModeButton: React.FC<MultifunctionalModeButtonProps> = ({ p
       aria-label={label}
       hideLabel
       icon="add_column"
+      className={cx('bbb-multifunctional-mode-button', {
+        'bbb-multifunctional-mode-button--active': display,
+      })}
       data-test="enableMultiFunctionalMode"
       onClick={toggleMultiFunctionalMode}
       $active={display}

@@ -1,0 +1,49 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# getMeetingInfo's recording is create's record param: it stays true when
+# a moderator starts recording, and when they stop it again.
+id: getMeetingInfo.users.recording-flag
+title: getMeetingInfo's recording doesn't follow recording being started and stopped
+endpoint: getMeetingInfo
+class: contract
+tags: [ci, presence]
+requires: [akka, presence]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Users, record: "true"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: moderator}}
+    golden: off
+  - graphql:
+      as: ann
+      query: "mutation SetRecording($recording: Boolean!) { meetingRecordingSetStatus(recording: $recording) }"
+      variables: {recording: true}
+    golden: off
+  - bus: {name: RecordingStatusChangedEvtMsg, meetingId: "${intId}", within: 10s}
+    golden: off
+    expect: {jsonpath: {$.core.body.recording: "true"}}
+  - call: getMeetingInfo
+    params: {meetingID: "${uid}"}
+    golden: off
+    expect: {xpath: {/response/recording: "true"}}
+  - graphql:
+      as: ann
+      query: "mutation SetRecording($recording: Boolean!) { meetingRecordingSetStatus(recording: $recording) }"
+      variables: {recording: false}
+    golden: off
+  - bus: {name: RecordingStatusChangedEvtMsg, meetingId: "${intId}", within: 10s}
+    golden: off
+    expect: {jsonpath: {$.core.body.recording: "false"}}
+  - call: getMeetingInfo
+    params: {meetingID: "${uid}"}
+    expect: {xpath: {/response/recording: "true"}}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

@@ -391,6 +391,7 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
                 />
               )}
             <Styled.AudioDropdown
+              className="bbb-audio-dropdown"
               data-test="audioDropdownMenu"
               emoji="device_list_selector"
               label={intl.formatMessage(intlMessages.changeAudioDevice)}

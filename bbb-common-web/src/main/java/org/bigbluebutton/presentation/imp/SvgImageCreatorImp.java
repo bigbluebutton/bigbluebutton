@@ -9,6 +9,9 @@ import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamReader;
 
 import org.apache.commons.io.FileUtils;
 import org.bigbluebutton.presentation.*;
@@ -17,6 +20,7 @@ import org.bigbluebutton.presentation.handlers.Pdf2PngPageConverterHandler;
 import org.bigbluebutton.presentation.handlers.Png2SvgConversionHandler;
 import org.bigbluebutton.presentation.handlers.SvgConversionHandler;
 import org.bigbluebutton.presentation.handlers.PdfFontType3DetectorHandler;
+import org.bigbluebutton.presentation.handlers.PdfPageBoxHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +67,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         File destSvg = new File(svgImagesPresentationDir.getAbsolutePath() + File.separatorChar + "slide" + page + ".svg");
 
         if (useBlank) {
-            copyBlankSvg(destSvg);
+            writeBlankSvg(destSvg, pres, page, null);
             return true;
         }
 
@@ -75,10 +79,8 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         }
 
         if (!success) {
-            if (destSvg.exists()) {
-                destSvg.delete();
-            }
-            copyBlankSvg(destSvg);
+            // The SVG being discarded (too large, or a partial write) still tells the page's size.
+            writeBlankSvg(destSvg, pres, page, destSvg.exists() ? destSvg : null);
         }
 
 
@@ -98,7 +100,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         }
 
         File destSvg = new File(dir.getAbsolutePath() + File.separatorChar + "slide" + page + ".svg");
-        copyBlankSvg(destSvg);
+        writeBlankSvg(destSvg, pres, page, null);
     }
 
     private PdfFontType3DetectorHandler createDetectFontType3tHandler(boolean done, int page, String source, UploadedPresentation pres) {
@@ -286,7 +288,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             File tempPng = null;
             String basePresentationame = UUID.randomUUID().toString();
             try {
-                tempPng = File.createTempFile(basePresentationame + "-" + page, ".png");
+                tempPng = createSandboxTempPng(pres, basePresentationame + "-" + page);
             } catch (IOException ioException) {
                 // We should never fall into this if the server is correctly
                 // configured
@@ -430,7 +432,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             return true;
         }
 
-        copyBlankSvg(destsvg);
+        writeBlankSvg(destsvg, pres, page, destsvg.length() > 0 ? destsvg : null);
 
         Map<String, Object> logData = new HashMap<String, Object>();
         logData.put("meetingId", pres.getMeetingId());
@@ -469,9 +471,10 @@ public class SvgImageCreatorImp implements SvgImageCreator {
     // masks (an alpha SMask whose transparency group carries a /Matrix), whereas the splash
     // backend composites it correctly. "-singlefile" makes pdftoppm write exactly
     // "<destFileRoot>.png" (no page number suffix), matching the temp file the caller created.
-    // See issue #23953.
+    // See issue #23953. "-cropbox" renders the page's CropBox, as pdftocairo -svg does for the
+    // vector slides, instead of the whole MediaBox (issue #26507).
     private NuProcessBuilder createRasterizationProcess(int page, String source, String destFileRoot, long timeout) {
-        String rawCommand = "pdftoppm -q -png -singlefile -r " + this.svgResolutionPpi;
+        String rawCommand = "pdftoppm -cropbox -q -png -singlefile -r " + this.svgResolutionPpi;
 
         //Resize png resolution to avoid too large files
         if (this.pngWidthRasterizedSlides != 0) {
@@ -487,11 +490,18 @@ public class SvgImageCreatorImp implements SvgImageCreator {
     // and splash (pdftoppm), so the two results can be compared.
     private NuProcessBuilder createRenderComparisonProcess(int page, String source, String cairoFileRoot,
             String splashFileRoot, long timeout) {
-        String pageArgs = " -q -png -singlefile -scale-to " + RENDER_COMPARISON_SIZE
+        String pageArgs = " -cropbox -q -png -singlefile -scale-to " + RENDER_COMPARISON_SIZE
                 + " -f " + String.valueOf(page) + " -l " + String.valueOf(page) + " " + source + " ";
         String rawCommand = "pdftocairo" + pageArgs + cairoFileRoot + " && pdftoppm" + pageArgs + splashFileRoot;
 
         return new NuProcessBuilder(Arrays.asList("/usr/share/bbb-web/run-in-systemd.sh", timeout + "s", "/bin/sh", "-c", rawCommand));
+    }
+
+    // The renders run in run-in-systemd.sh, whose PrivateTmp hides the server's /tmp wherever
+    // systemd can apply it, so a file created there stays empty. Create it next to the uploaded
+    // file instead, under the presentation dir the sandbox can write.
+    private File createSandboxTempPng(UploadedPresentation pres, String prefix) throws IOException {
+        return File.createTempFile(prefix, ".png", pres.getUploadedFile().getParentFile());
     }
 
     // Tells whether the cairo backend, the one generating the svg, renders the page noticeably
@@ -501,8 +511,8 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         File cairoPng = null;
         File splashPng = null;
         try {
-            cairoPng = File.createTempFile("cairo-" + page + "-", ".png");
-            splashPng = File.createTempFile("splash-" + page + "-", ".png");
+            cairoPng = createSandboxTempPng(pres, "cairo-" + page + "-");
+            splashPng = createSandboxTempPng(pres, "splash-" + page + "-");
 
             NuProcessBuilder renderBoth = createRenderComparisonProcess(page, source,
                     cairoPng.getAbsolutePath().substring(0, cairoPng.getAbsolutePath().lastIndexOf('.')),
@@ -575,6 +585,105 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 			log.error("IOException while copying blank SVG.");
 		}
 	}
+
+
+    private static final int PAGE_BOX_TIMEOUT = 5;
+
+    // Writes an empty SVG with the page's own size over `svg`, so a page that falls back to blank keeps its
+    // proportions in the client and in pres_page (issue #26509). The size comes from the SVG being discarded
+    // when there is one (pdftocairo's root carries width, height and viewBox), else from the page box pdfinfo
+    // reports; the packaged A4 blank-svg.svg stays the last resort.
+    private void writeBlankSvg(File svg, UploadedPresentation pres, int page, File discardedSvg) {
+        String[] size = null;
+        if (discardedSvg != null && discardedSvg.isFile() && discardedSvg.length() > 0) {
+            size = readSvgRootSize(discardedSvg);
+        }
+        if (size == null && pres != null) {
+            size = readPdfPageBox(pres, page);
+        }
+        if (size == null) {
+            copyBlankSvg(svg);
+            return;
+        }
+        String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                + "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\""
+                + " width=\"" + size[0] + "\" height=\"" + size[1] + "\" viewBox=\"" + size[2] + "\">\n</svg>\n";
+        try {
+            log.info("Writing blank SVG ({} x {}) to {}", size[0], size[1], svg);
+            replaceFile(svg, content);
+        } catch (IOException e) {
+            log.error("IOException while writing blank SVG {}, using the packaged blank instead", svg, e);
+            copyBlankSvg(svg);
+        }
+    }
+
+    // {width, height, viewBox} of the root <svg> element, or null when they cannot be read.
+    private String[] readSvgRootSize(File svg) {
+        XMLInputFactory factory = XMLInputFactory.newFactory();
+        factory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
+        factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
+        try (InputStream in = new BufferedInputStream(new FileInputStream(svg))) {
+            XMLStreamReader reader = factory.createXMLStreamReader(in);
+            try {
+                while (reader.hasNext()) {
+                    if (reader.next() != XMLStreamConstants.START_ELEMENT) {
+                        continue;
+                    }
+                    if (!"svg".equalsIgnoreCase(reader.getLocalName())) {
+                        return null;
+                    }
+                    String width = reader.getAttributeValue(null, "width");
+                    String height = reader.getAttributeValue(null, "height");
+                    String viewBox = reader.getAttributeValue(null, "viewBox");
+                    if (width == null || height == null || width.isEmpty() || height.isEmpty()) {
+                        return null;
+                    }
+                    if (viewBox == null || viewBox.isEmpty()) {
+                        viewBox = "0 0 " + width.replaceAll("[^0-9.]", "") + " " + height.replaceAll("[^0-9.]", "");
+                    }
+                    return new String[] { width, height, viewBox };
+                }
+            } finally {
+                reader.close();
+            }
+        } catch (Exception e) {
+            log.warn("Could not read the size of {}: {}", svg, e.toString());
+        }
+        return null;
+    }
+
+    // The displayed size of a PDF page in points (its CropBox, rotation applied) from pdfinfo, or null.
+    private String[] readPdfPageBox(UploadedPresentation pres, int page) {
+        File pdf = pres.getUploadedFile();
+        if (pdf == null || !pdf.isFile()) {
+            return null;
+        }
+        NuProcessBuilder pdfInfo = new NuProcessBuilder(Arrays.asList("/usr/share/bbb-web/run-in-systemd.sh",
+                String.valueOf(PAGE_BOX_TIMEOUT), "pdfinfo", "-f", String.valueOf(page), "-l", String.valueOf(page),
+                "-box", pdf.getAbsolutePath()));
+        PdfPageBoxHandler handler = new PdfPageBoxHandler("pdfpagebox-" + pres.getMeetingId() + "-" + pres.getId() + "-" + page, page);
+        pdfInfo.setProcessListener(handler);
+        NuProcess process = pdfInfo.start();
+        try {
+            process.waitFor(PAGE_BOX_TIMEOUT + 1, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            log.error("InterruptedException while reading the page box of {} page {}", pres.getName(), page, e);
+            return null;
+        }
+        double[] points = handler.pageSize();
+        if (points == null) {
+            return null;
+        }
+        String width = formatPoints(points[0]);
+        String height = formatPoints(points[1]);
+        return new String[] { width, height, "0 0 " + width + " " + height };
+    }
+
+    // "960" for 960.0 and "595.28" for 595.28, the way pdftocairo writes its root attributes.
+    private static String formatPoints(double value) {
+        String s = String.format(Locale.ROOT, "%.2f", value);
+        return s.replaceAll("0+$", "").replaceAll("\\.$", "");
+    }
 
     private byte[] readFileToByteArray(File file) throws IOException {
         try (FileInputStream fis = new FileInputStream(file);

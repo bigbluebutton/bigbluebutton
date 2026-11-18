@@ -58,13 +58,14 @@ The client now follows the operating system's light/dark preference (`prefers-co
 
 Audio settings moved into a dedicated **Audio** tab in the Settings modal, where each user picks how their microphone signal is processed before it is sent to other participants:
 
-- **Advanced Filtering** - an optional WASM-based audio processor that runs on top of the microphone stream, isolating the speaker's voice and eliminating background noise. Two interchangeable backends are available, selected by the administrator via `public.media.audio.audioWasmProcessing.provider`: `bbba` (the default) and `workadventureDtln` (DTLN noise suppression as used by WorkAdventure). It is disabled by default and has to be made available by the administrator; see [Advanced Filtering (WASM audio processing)](/administration/customize#advanced-filtering-wasm-audio-processing) for configuration details.
+- **Advanced Filtering** - an optional WASM-based audio processor that runs on top of the microphone stream, isolating the foreground voice while retaining a minimal ambience. Two interchangeable backends are available, selected by the administrator via `public.media.audio.audioWasmProcessing.provider`: `bbba` (the default) and `workadventureDtln` (DTLN noise suppression as used by WorkAdventure). It is disabled by default and has to be made available by the administrator; see [Advanced Filtering (WASM audio processing)](/administration/customize#advanced-filtering-wasm-audio-processing) for configuration details.
+- **Voice Isolation** (added in BigBlueButton 4.0.2) - the `bbba` backend of Advanced Filtering at full filtering intensity, which isolates the foreground voice and reduces background noise to the maximum extent. Ideal for extremely noisy environments. It is offered wherever Advanced Filtering is, as long as `bbba` is the selected backend.
 - **Standard Filtering** (default) - the browser's built-in filters: auto gain control, echo cancellation, and noise suppression.
 - **Original Audio** - no processing at all; the raw microphone signal is transmitted. Ideal for sharing music, singing, or instruments.
 
-The mode pre-selected for a new user is controlled by `public.app.defaultSettings.audio.processingMode` (default `standard`); if it is set to `advanced` while WASM processing is unsupported by the browser or disabled server-side, the client falls back to `standard`. The browser-level constraints applied in the standard mode are configurable under `public.media.audio.microphoneConstraints`.
+The mode pre-selected for a new user is controlled by `public.app.defaultSettings.audio.processingMode` (default `standard`). If it is set to `advanced` or `voiceIsolation` while WASM processing is unsupported by the browser or disabled server-side, the client falls back to `standard`, and `voiceIsolation` falls back to `advanced` with a backend other than `bbba`. The browser-level constraints applied in the standard mode are configurable under `public.media.audio.microphoneConstraints`. Since BigBlueButton 4.0.2 the administrator can set how strongly Advanced Filtering filters with `public.media.audio.audioWasmProcessing.intensity`; Voice Isolation always runs at full intensity.
 
-Since BigBlueButton 4.0.1 a user's own pick is kept for the browser session and the current meeting only, so a new meeting or browser session starts again from the configured default (Advanced Filtering is still experimental). Set `public.app.audioFilterStorage` to `local` to have the pick follow `public.app.userSettingsStorage` like the other settings.
+Since BigBlueButton 4.0.1 a user's own pick is kept for the browser session and the current meeting only, so a new meeting or browser session starts again from the configured default (Advanced Filtering and Voice Isolation are still experimental, and are labelled as such in the tab). Set `public.app.audioFilterStorage` to `local` to have the pick follow `public.app.userSettingsStorage` like the other settings.
 
 <!-- TODO add screenshot of the Audio settings tab -->
 
@@ -118,6 +119,16 @@ When `allowModsToUnmuteUsers` is enabled, BigBlueButton 4.0 can optionally ask t
 
 A new **Multi-Functional Mode** adds an auxiliary sidebar content panel, allowing a second panel to be open alongside the primary one (for example, chat and the user list at the same time). It is disabled by default and enabled with `public.multiFunctionalMode.enabled` in `settings.yml`, and it can be disabled per meeting with the `multiFunctionalMode` value of `disabledFeatures`.
 
+#### Disable lock settings per meeting
+
+Added in BigBlueButton 4.0.3. Lock settings can be turned off for a meeting with the new `lockSettings` value of `disabledFeatures`. No viewer restriction then applies in the meeting or in its breakout rooms:
+
+- The `lockSettings*` create parameters, `webcamsOnlyForModerator` and their defaults in `bbb-web.properties` are ignored. Viewers join unlocked, `webcamsOnlyForModerator` is off and `lockSettingsPresenterPolicy` stays at `requireApproval`.
+- The "Permissions and Policies" dialog keeps only its "Guest Policy" tab. The "Participant Permissions" and "Presentation Policy" tabs are removed, and so is the "Propagate the current lock settings" option for breakout rooms.
+- The server ignores requests to change the lock settings, to lock or unlock a user and to switch `webcamsOnlyForModerator`.
+
+Moderators can still lock the public chat for a single user from the user list.
+
 #### Larger emoji-only chat messages (jumbomoji)
 
 A chat message that contains only emoji (up to three emoji, whitespace ignored) is now rendered at a larger font size — matching the "jumbomoji" behavior familiar from popular messengers. Messages with any accompanying text keep the normal size.
@@ -130,7 +141,7 @@ The Learning Dashboard is no longer disabled in breakout rooms: each breakout ge
 
 #### Equations and diagrams in shared notes
 
-Shared notes can now hold **LaTeX equations** and **Mermaid diagrams**. Type `/` and pick *Block Equation*, *Inline Equation* or *Diagram* (or convert a block from the block type menu), then edit the source in the popup that opens; equations are typeset with KaTeX and diagrams drawn with Mermaid, live for every participant.
+Added in BigBlueButton 4.0.2. Shared notes can now hold **LaTeX equations** and **Mermaid diagrams**. Type `/` and pick *Block Equation*, *Inline Equation* or *Diagram* (or convert a block from the block type menu), then edit the source in the popup that opens; equations are typeset with KaTeX and diagrams drawn with Mermaid, live for every participant.
 
 In the exports and in the recording's notes, equations keep their LaTeX source: they are rendered in the HTML and PDF exports and written as `$...$` and `$$...$$` in the Markdown export. Diagrams are exported as their Mermaid source in a code block. Markdown imported into the notes, or passed in `sharedNotesInitialContentMarkdown`, turns ` ```mermaid ` fences into diagrams; `$$` blocks stay as text.
 
@@ -253,6 +264,7 @@ For full details on what is new in BigBlueButton 4.0, see the release notes.
 
 Recent releases:
 
+- [4.0.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.2)
 - [4.0.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.1)
 - [4.0.0](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.0)
 - [4.0.0-rc.5](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.0-rc.5)
@@ -347,6 +359,10 @@ It is an **optional** package, not a dependency of the `bigbluebutton` meta-pack
 See [Play recordings made with BigBlueButton 0.81 or 0.9](/administration/customize#play-recordings-made-with-bigbluebutton-081-or-09) for details.
 
 
+#### New API call: getRecordingProcessingInfo
+
+A server can be taken out of service only once every recording on it has finished processing, or the raw data of the rest is lost. The new [getRecordingProcessingInfo](/development/api#get-post-getrecordingprocessinginfo) API call tells whether the server still has recordings queued, running or failed in the recording pipeline, how long the oldest queued work has waited and how long the oldest running step has run, so that a script can drain a server, for example one taken out of a Scalelite pool, without a shell on it.
+
 #### New administration tool: bbbctl
 
 The `bbb-config` package now ships [bbbctl](https://github.com/defnull/bbbctl) (v0.5.1), a community-maintained command-line tool by [@defnull](https://github.com/defnull) for interacting with a BigBlueButton server from the shell. Installed as `/usr/bin/bbbctl`, it talks to the server's own API and lets administrators list, inspect, and end meetings and work with recordings without crafting signed API calls by hand. Thank you for developing it, defnull!
@@ -354,7 +370,7 @@ The `bbb-config` package now ships [bbbctl](https://github.com/defnull/bbbctl) (
 
 #### Configurable whiteboard annotation types
 
-BigBlueButton 4.0 adds a new configuration property for the bbb-apps-akka package under `whiteboard` called `allowedAnnotationTypes`. It lists the whiteboard shape types the server accepts, stores and broadcasts; annotations of any other type are discarded. The default covers the shape types the bundled client can produce, so no action is needed unless you run a customized client or a plugin that contributes its own shape type — in which case add that type to the list in `/etc/bigbluebutton/bbb-apps-akka.conf` and restart BigBlueButton. A configured list replaces the default rather than extending it. See [Change which whiteboard shape types the server accepts](/administration/customize#change-which-whiteboard-shape-types-the-server-accepts).
+BigBlueButton 4.0.2 adds a new configuration property for the bbb-apps-akka package under `whiteboard` called `allowedAnnotationTypes`. It lists the whiteboard shape types the server accepts, stores and broadcasts; annotations of any other type are discarded. The default covers the shape types the bundled client can produce, so no action is needed unless you run a customized client or a plugin that contributes its own shape type — in which case add that type to the list in `/etc/bigbluebutton/bbb-apps-akka.conf` and restart BigBlueButton. A configured list replaces the default rather than extending it. See [Change which whiteboard shape types the server accepts](/administration/customize#change-which-whiteboard-shape-types-the-server-accepts).
 
 Two related behaviour changes ship with it. The server now rejects the `video` shape type, which the HTML5 client still permits, so a video inserted on the whiteboard is drawn for its author but not shared or recorded. And annotations carrying a link that is not an `http://` or `https://` URL are rejected; the whiteboard's own link editor only ever produces `https://` URLs, so this does not affect normal use.
 
@@ -413,7 +429,9 @@ The deprecated REST endpoint `/api/rest/clientSettings` has been removed. Client
 - `html5PluginSdkVersion` bumped from `0.1.17` to `1.0.0-beta.3`. Plugins whose `requiredSdkVersion` only covers the `0.x` SDK no longer load; see [Plugin SDK 1.0 pre-release](#plugin-sdk-10-pre-release).
 - `disabledFeatures` accepts a new value: `pinChatMessage` (alongside the existing chat-related options).
 - `disabledFeatures` no longer lists `captions` as an option. It has had no effect since BBB 3.0, when typed captions moved to a plugin. A server that still sets it in `bbb-web.properties` keeps working: the value is accepted and ignored. Use `liveTranscription` to disable automatic transcription.
+- `disabledFeatures` accepts a new value: `lockSettings`, added in BBB 4.0.3 (no viewer restriction applies; see [Disable lock settings per meeting](#disable-lock-settings-per-meeting)).
 - `cameraBridge`, `screenShareBridge`, and `audioBridge` default changed from `bbb-webrtc-sfu` to `livekit` (see [LiveKit is the default media framework](#livekit-is-the-default-media-framework)).
+- `getJoinUrlUserdataBlocklist` no longer lists `bbb_fullaudio_bridge`, in BBB 4.0.2. The client has not read that parameter since BBB 3.0 (the audio bridge comes from the `audioBridge` `/create` parameter), so nothing changes in practice.
 
 #### Added
 
@@ -427,10 +445,9 @@ The deprecated REST endpoint `/api/rest/clientSettings` has been removed. Client
 
 ### bbb-apps-akka settings changes
 
-- `apps.presentationUploadTokenMaxRequests` and `apps.presentationUploadTokenWindowSec` added in BBB 4.0.1 (default `20` per `60` seconds; `0` = disabled). Per-user rate limit on presentation upload-token requests from the client.
-- `apps.presentationMaxPerPod` added in BBB 4.0.1 (default `50`; `0` = disabled). Caps how many presentations a presentation pod holds.
-
-See [Rate limit presentation uploads](/administration/customize#rate-limit-presentation-uploads).
+- `apps.presentationUploadTokenMaxRequests` and `apps.presentationUploadTokenWindowSec` added in BBB 4.0.1 (default `20` per `60` seconds; `0` = disabled). Per-user rate limit on presentation upload-token requests from the client. See [Rate limit presentation uploads](/administration/customize#rate-limit-presentation-uploads).
+- `apps.presentationMaxPerPod` added in BBB 4.0.1 (default `50`; `0` = disabled). Caps how many presentations a presentation pod holds. See [Rate limit presentation uploads](/administration/customize#rate-limit-presentation-uploads).
+- `whiteboard.allowedAnnotationTypes` added in BBB 4.0.2 (default `["draw", "geo", "arrow", "line", "text", "note", "highlight", "frame", "group", "poll"]`). The whiteboard shape types the server accepts, stores and broadcasts. See [Configurable whiteboard annotation types](#configurable-whiteboard-annotation-types).
 
 ### Client settings (settings.yml) changes
 
@@ -439,19 +456,22 @@ These changes apply to the client configuration file (`/etc/bigbluebutton/bbb-ht
 #### Added
 
 - `public.kurento.pagination.gridEnabled` (default `true`) - whether the camera-less avatar grid (the "webcam grid") is shown while the presentation is minimized. The grid can also be disabled per meeting with `disabledFeatures=webcamGrid`.
-- `public.kurento.pagination.paginationToggleModeratorOnly` (default `false`) - shows the "Video pagination" switch in Settings to moderators only. A user who cannot see the switch, whether because of this setting or `paginationToggleEnabled: false`, always gets the default from `public.app.defaultSettings.application.paginationEnabled`. See [Limit overall media streams](/administration/customize#limit-overall-media-streams). Added in BBB 4.0.1.
+- `public.kurento.pagination.paginationToggleModeratorOnly` (default `false`) - lets only moderators change the "Video pagination" switch in Settings. Viewers still see the switch, disabled, and always get the default from `public.app.defaultSettings.application.paginationEnabled`, as does every user when `paginationToggleEnabled: false` hides the switch. See [Limit overall media streams](/administration/customize#limit-overall-media-streams). Added in BBB 4.0.1.
 - `public.app.audioCaptions.speechProcessing` (default `cloud`) - where the browser transcribes the speaker's audio for WebSpeech live captions: `cloud` leaves it to the browser, `local` always transcribes on the user's device (the language pack is downloaded on the user's confirmation) and `auto` transcribes on the device when the browser can and as `cloud` otherwise. See [Live captions transcribed on the user's device](#live-captions-transcribed-on-the-users-device). Added in BBB 4.0.1.
 - `public.app.audioFilterStorage` (default `session`) - where the user's audio-processing pick in Settings > Audio is kept: `session` scopes it to the browser session and the current meeting, `local` makes it follow `public.app.userSettingsStorage` like the other settings. Added in BBB 4.0.1.
 - `public.chat.announceUserAwayStatusInChat` (default `true`) - whether bbb-apps-akka posts a system message in the public chat when a user sets or clears the away status. Set it to `false` to keep these changes out of the chat; the away status itself is unchanged. Added in BBB 4.0.1.
 - `public.media.livekit.selectiveSubscription.lastN` (default `enabled: false`) - plays only the most relevant microphones on the LiveKit audio bridge: `audibleSize` (default `3`) microphones are heard at once, `standbySize` (default `12`) stay subscribed but paused, `speechHoldMs` (default `1500`) is the silence after which an audible speaker can be replaced, `minAudibleMs` (default `2000`) the minimum time a microphone stays audible and `standbyGraceMs` (default `5000`) the delay before a standby track is unsubscribed. When enabled it replaces `audioSubscriptionPoolSize`. See [Last-N audio for the LiveKit bridge](#last-n-audio-for-the-livekit-bridge-experimental). Added in BBB 4.0.1.
+- `public.kurento.userProfileEagerCameraPrompt` (default `true`) - whether the Profile panel opens the camera, prompting for camera access, as soon as it's opened. When `false` and the browser hasn't granted camera access yet, the panel shows an "Enable webcam" button instead. The camera is opened, and access requested, only after the user clicks it.
 - `public.multiFunctionalMode.enabled` (default `false`) - enables the auxiliary/dual sidebar content panel.
 - `public.userList.searchBar.enabled` (default `true`) - enables the user list search field.
 - `public.app.appsGallery.maxPinnedApps` (default `3`) - maximum number of apps a user can pin in the Apps Gallery.
 - `public.app.remainingTimeThresholdInMinutes` (default `6`) - how many minutes before the end of a meeting with a set `duration` the remaining time banner appears. Previously this was hard-coded to 30 minutes; set it to `30` to restore that behavior. See [Configure when the remaining time banner appears](/administration/customize#configure-when-the-remaining-time-banner-appears).
 - `public.sidebarNavigation.appsToLabelAsNew` (default `[]`) - apps to highlight with a "new" label (e.g. `poll`, `breakoutroom`, `timer`, `audio-captions`).
 - `public.media.audio.audioWasmProcessing` - configuration block for the "Advanced Filtering" (WASM) audio-processing option; `provider` selects the backend (`bbba` default, or `workadventureDtln`) and a provider may override values set in `constraints`; see [Dedicated Audio settings tab](#dedicated-audio-settings-tab).
-- `public.app.defaultSettings.audio.processingMode` (default `standard`) - which of the three audio-processing modes (`advanced`, `standard`, `original`) comes pre-selected for a new user in Settings > Audio. `advanced` falls back to `standard` when WASM processing is unsupported by the browser or disabled server-side.
+- `public.media.audio.audioWasmProcessing.intensity` (default `95`) - how strongly the `bbba` provider filters in Advanced Filtering, from `0` to `100`. There is no user control for it, `workadventureDtln` ignores it and Voice Isolation always runs at `100`. See [Advanced Filtering (WASM audio processing)](/administration/customize#advanced-filtering-wasm-audio-processing). Added in BBB 4.0.2.
+- `public.app.defaultSettings.audio.processingMode` (default `standard`) - which of the audio-processing modes (`voiceIsolation`, `advanced`, `standard`, `original`) comes pre-selected for a new user in Settings > Audio. `voiceIsolation` (added in BBB 4.0.2) and `advanced` fall back to `standard` when WASM processing is unsupported by the browser or disabled server-side, and `voiceIsolation` falls back to `advanced` with a provider other than `bbba`.
 - `public.app.defaultSettings.application.recordingIndicatorAutoCollapse` (default `false`) - collapses the recording indicator in the navigation bar to an icon-only button that reveals its label on hover or keyboard focus. Users can change it in Settings > Application ("Collapse recording button"); phones and the read-only indicator never collapse.
+- `public.app.defaultSettings.application.selfViewDisable` (default `false`) - hides a user's own webcam tiles; everyone else still receives the stream. Users can change it in Settings > Application ("Disable self-view (all cameras)"). The client has read the key for a long time, but it was missing from `settings.yml`, so an override of it was reported as an unknown key. Added in BBB 4.0.3, together with a fix: sharing a webcam no longer turns the setting off (the webcam preview switched it off while open and never switched it back).
 - `public.media.audio.microphoneConstraints` - browser-level audio constraints (auto gain control, echo cancellation, noise suppression) applied when the user selects the `standard` audio-processing mode (moved from `public.app.defaultSettings.application.microphoneConstraints`).
 - `public.timer.presets`, `public.timer.quickAddButtons`, `public.timer.maxHours`, `public.timer.serverSyncTimeInterval` - timer presets and behavior.
 - `public.app.breakouts.breakoutRoomMinimum` (default `2`) - minimum number of breakout rooms.
@@ -466,27 +486,31 @@ These changes apply to the client configuration file (`/etc/bigbluebutton/bbb-ht
 - `public.whiteboard.wheelZoomRequiresCtrl` (default `true`) - whether zooming the presentation with the mouse wheel requires holding `Ctrl` (`Cmd` on macOS). With the default, a bare wheel scroll pans the slide; set to `false` for the BigBlueButton 3.0 behavior where the wheel zooms directly. See [Whiteboard: scroll to pan, Ctrl+scroll to zoom](#whiteboard-scroll-to-pan-ctrlscroll-to-zoom).
 - `public.media.livekit.sdkLogBridge` (default `true`) - forwards livekit-client's own logs through the BigBlueButton client logger, so SDK-level media errors reach the usual client log destination.
 - `public.media.livekit.negotiationProbe` (default `false`) - debug instrumentation that logs how long a subscriber offer takes to be answered, from receive to socket dispatch. Off by default; enable only when diagnosing media negotiation latency.
+- `public.media.screenshare.enableOnMobile` (default `false`) - experimentally enables screen sharing on mobile browsers that expose the screen capture API.
 
 #### Value changed
 
 - `public.chat.toolbar` now includes a `pin` option (for pinning chat messages).
 - `public.layout.showParticipantsOnLogin` default changed from `true` to `false`.
 - `public.layout.syncCameraDockSizeAndPosition` default changed from `false` to `true`.
-- The default layout under `defaultSettings` moved from `application.selectedLayout: 'custom'` to `layout.selectedLayout: 'unified'` (with `pushLayout` now nested under `layout`).
 - `public.user.label` gained `presenter` and `bot` entries (both default `true`), and `moderator` default changed from `false` to `true`.
 - `public.media.audio.defaultFullAudioBridge` and `public.media.audio.defaultListenOnlyBridge` defaults changed from `fullaudio` to `livekit`, aligning the client fallbacks with LiveKit as the default media framework. (`defaultFullAudioBridge` is superseded by the `audioBridge` create/property setting; both keys are marked deprecated.)
 - `public.app.defaultSettings.application.pushToTalkEnabled` default changed from `false` to `true` - push-to-talk (hold `M` to stay unmuted, added in BBB 3.0) is now enabled by default.
 - `public.layout.showSessionDetailsOnJoin` default changed from `true` to `false` - the Session Details dialog is no longer opened automatically when joining.
 - `public.kurento.pagination.mobileGridSizes` (`moderator` and `viewer`) defaults changed from `14` to `6`, as part of the [mobile layout overhaul](#mobile-layout-overhaul).
 - `public.app.showConnectionErrors` now includes the new error code `3007`. The client shows it when bbb-graphql-middleware refuses a subscription because the connection reached `max_connection_concurrent_subscriptions`, and asks the user to refresh. Remove `3007` from the list to fall back to the generic `3006` handling. See [Common Client Errors](/support/troubleshooting#common-client-errors).
+- `public.presentation.mirroredFromBBBCore.uploadSizeMax` is enforced by the client since BBB 4.0.2: a file over the limit is refused before it is uploaded. A server that raised `maxFileSizeUpload` in `/etc/bigbluebutton/bbb-web.properties` without raising `uploadSizeMax` now refuses the files between the two, so raise them together. See [Increase the file size for an uploaded presentation](/administration/customize#increase-the-file-size-for-an-uploaded-presentation).
 
 #### Removed
 
 - `public.layout.showPushLayoutButton`, `public.layout.showPushLayoutToggle`, and `public.layout.enableDeprecatedLayoutSelection`.
+- `public.app.defaultSettings.layout.selectedLayout` and `public.app.defaultSettings.layout.pushLayout` (in BBB 3.0: `public.app.defaultSettings.application.selectedLayout` / `pushLayout`), removed in BBB 4.0.3. Neither had an effect: the layout a client starts in is the meeting's - `defaultMeetingLayout` in `/etc/bigbluebutton/bbb-web.properties`, `meetingLayout` on `/create`, `userdata-bbb_default_layout` or `enforceLayout` on `/join` - and the "Update to everyone" toggle that `pushLayout` defaulted went with the layout selection modal. An `/etc/bigbluebutton/bbb-html5.yml` that still sets them gets an unknown-key warning from bbb-apps-akka (an error with `clientSettingsOverrideStrictValidation=true`).
 - `public.stats.log` (replaced by `public.stats.logMediaStats`).
 - `public.app.defaultSettings.application.audioWasmProcessing` and the commented-out `public.app.defaultSettings.application.microphoneConstraints` example - superseded by `public.app.defaultSettings.audio.processingMode` and `public.media.audio.microphoneConstraints` (see [Dedicated Audio settings tab](#dedicated-audio-settings-tab)).
 - The SIP.js / legacy-audio client settings, removed together with the SIP.js audio bridge now that LiveKit is the default audio path. Under `public.media`: `callTransferTimeout`, `callHangupTimeout`, `callHangupMaximumRetries`, `iceGatheringTimeout`, `audioConnectionTimeout`, `audioReconnectionDelay`, `audioReconnectionAttempts`, `sipjsHackViaWs`, `sipjsAllowMdns`, `sip_ws_host`, `websocketKeepAliveInterval`, `websocketKeepAliveDebounce`, `traceSip`, `sdpSemantics`; plus `public.app.ipv4FallbackDomain`. Any of these still set in `bbb-html5.yml` are now silently ignored.
 - `public.pads.url` (the Etherpad URL), removed together with Etherpad. Earlier 4.0 pre-releases wrote it into `bbb-html5.yml`; the upgrade removes the `public.pads` entry from that file (see [Removed Etherpad](#removed-etherpad)).
+- `public.app.dynamicGuestPolicy`, `public.app.guestPolicyExtraAllowOptions`, `public.app.alwaysShowWaitingRoomUI`, `public.app.emojiRain.intervalEmojis` and `public.stats.help`, removed in BBB 4.0.2. None of them had any effect: the first three lost their last reader with the [redesigned guest management panel](#redesigned-guest-management-panel), and the other two had been unused for years. A leftover value in `/etc/bigbluebutton/bbb-html5.yml` is reported as an unknown key: a warning by default, and a refused `bbb-apps-akka` start with `clientSettingsOverrideStrictValidation=true`. See [Validating client settings overrides](/administration/customize#validating-client-settings-overrides).
+- `public.presentation.panZoomThrottle`, removed in BBB 4.0.3. Nothing ever read it: zoom and pan changes are sent by the whiteboard and the presentation toolbar, neither of which used it. A leftover value in `/etc/bigbluebutton/bbb-html5.yml` is reported as an unknown key: a warning by default, and a refused `bbb-apps-akka` start with `clientSettingsOverrideStrictValidation=true`. See [Validating client settings overrides](/administration/customize#validating-client-settings-overrides).
 
 
 ## Development

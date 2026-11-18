@@ -37,7 +37,6 @@ const MediaArea = (props: MediaAreaProps) => {
     isPresentationEnabled,
     isSharingVideo,
     allowExternalVideo,
-    stopExternalVideoShare,
     isMobile,
     isRTL,
     isRequestingPresenter,
@@ -108,7 +107,6 @@ const MediaArea = (props: MediaAreaProps) => {
         isPresentationEnabled={isPresentationEnabled}
         isSharingVideo={isSharingVideo}
         allowExternalVideo={allowExternalVideo}
-        stopExternalVideoShare={stopExternalVideoShare}
         isRequestingPresenter={isRequestingPresenter}
         presenterPolicy={presenterPolicy}
         isLockedUser={isLockedUser}

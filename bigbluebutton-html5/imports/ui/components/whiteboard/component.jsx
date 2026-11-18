@@ -540,6 +540,14 @@ const Whiteboard = React.memo((props) => {
       tlEditorRef.current?.store.mergeRemoteChanges(() => {
         tlEditorRef.current?.store.remove([...removedShapes]);
       });
+      // Removing the shape being edited leaves tldraw in select.editing_shape with no
+      // editing shape, and its next pointer-down throws "Expected an editing shape!".
+      if (
+        tlEditorRef.current?.getPath() === 'select.editing_shape'
+        && !tlEditorRef.current.getEditingShape()
+      ) {
+        tlEditorRef.current.cancel();
+      }
     }
   }, [removedShapes]);
 
@@ -1394,6 +1402,12 @@ const Whiteboard = React.memo((props) => {
       editor.setStyleForNextShapes(DefaultSizeStyle, initialSizeStyle);
     }
 
+    editor.sideEffects.registerBeforeCreateHandler('shape', (shape, source) => {
+      const userId = currentUserRef.current?.userId;
+      if (source !== 'user' || !userId || shape.meta?.createdBy) return shape;
+      return { ...shape, meta: { ...shape.meta, createdBy: userId } };
+    });
+
     editor.sideEffects.registerBeforeDeleteHandler('shape', (shape, source) => {
       const { presenter, isModerator, userId } = currentUserRef.current;
       const isOwn = userId && shape.meta?.createdBy === userId;
@@ -1507,10 +1521,17 @@ const Whiteboard = React.memo((props) => {
 
           const zoomed = prevCam.z !== nextCam.z;
           if (isPresenterRef.current && (panned || zoomed) && isMountedRef.current) {
-            const baseZ = calculateZoomValueRef.current?.(
+            let baseZ = calculateZoomValueRef.current?.(
               currentPresentationPageRef.current?.scaledWidth,
               currentPresentationPageRef.current?.scaledHeight,
             );
+            // nextCam belongs to tldraw's canvas, which follows a layout change later than these
+            // props: while the two are more than a pixel apart, use that canvas's fit zoom.
+            const slideWidth = currentPresentationPageRef.current?.scaledWidth;
+            const canvasWidth = editor.getViewportScreenBounds().width;
+            if (slideWidth > 0 && Math.abs(canvasWidth - baseZ * slideWidth) > 1) {
+              baseZ = canvasWidth / slideWidth;
+            }
             if (baseZ > 0) {
               const pageKey = `${presentationIdRef.current}_${curPageIdRef.current}`;
               pageActualZoomRatioRef.current[pageKey] = nextCam.z / baseZ;

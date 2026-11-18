@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# The welcome message's keywords: %%CONFNAME%% becomes the meeting name,
+# HTML-escaped, %%DIALNUM%% the dial-in number and %%SERVERURL%% the
+# server's URL. They are replaced in that order, and only in upper case, so
+# a name holding %%SERVERURL%% has it replaced too. The conference number is
+# in conference-number.yaml. The result is in akka-apps' welcome props.
+id: create.welcome.keywords
+title: create with a welcome message holding ${scenario}
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus]
+variants:
+  - {id: confname, vars: {scenario: the name, name: "Ann & Bob's <class>", welcome: "Hi %%CONFNAME%%"}}
+  - {id: dialnum, vars: {scenario: the dial-in number, name: Keywords, welcome: "Dial %%DIALNUM%%"}}
+  - {id: serverurl, vars: {scenario: the server's URL, name: Keywords, welcome: "See %%SERVERURL%%"}}
+  - {id: lower-case, vars: {scenario: a lower-case keyword, name: Keywords, welcome: "Hi %%confname%%"}, class: compat}
+  - {id: keyword-in-name, vars: {scenario: a name with a keyword, name: "Room on %%SERVERURL%%", welcome: "Hi %%CONFNAME%%"}, class: compat}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: "${name}", dialNumber: 613-555-0100, welcome: "${welcome}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.props.welcomeProp]
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

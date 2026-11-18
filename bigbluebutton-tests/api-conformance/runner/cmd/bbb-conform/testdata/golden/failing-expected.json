@@ -1,0 +1,634 @@
+{
+  "target": "fake",
+  "started": "2026-01-01T00:00:00Z",
+  "duration_ms": 0,
+  "counts": {
+    "total": 14,
+    "passed": 1,
+    "failed": 3,
+    "errors": 3,
+    "skipped": 4,
+    "xfailed": 2,
+    "xpassed": 1
+  },
+  "warnings": [
+    "../../testdata/expectations/failing.yaml: getMeetings.report.never-written matches no case"
+  ],
+  "cases": [
+    {
+      "id": "getMeetings.report.bad-position",
+      "title": "A checksum can't go in the middle of one param",
+      "endpoint": "getMeetings",
+      "class": "contract",
+      "area": "report",
+      "file": "../../testdata/failing/report/bad-position.yaml",
+      "line": 1,
+      "status": "ERROR",
+      "reason": "step 1 (line 6): position middle needs at least two other params, got 1",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 6,
+          "status": "ERROR",
+          "message": "position middle needs at least two other params, got 1",
+          "duration_ms": 0
+        }
+      ]
+    },
+    {
+      "id": "getMeetings.report.capture-missing",
+      "title": "A capture that finds nothing fails the step",
+      "endpoint": "getMeetings",
+      "class": "contract",
+      "area": "report",
+      "file": "../../testdata/failing/report/capture-missing.yaml",
+      "line": 1,
+      "status": "FAIL",
+      "reason": "step 1 (line 6): capture /response/nope: nothing matched",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 6,
+          "status": "FAIL",
+          "message": "capture /response/nope: nothing matched",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/getMeetings?checksum=1af42d0ccfdb960caedd524edc52e712796e97e9236668e9ef27344120c35aa2",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "155",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetings/><messageKey>noMeetings</messageKey><message>no meetings were found on this server</message></response>"
+          }
+        }
+      ]
+    },
+    {
+      "id": "isMeetingRunning.report.eventually-timeout",
+      "title": "eventually fails when the condition never holds",
+      "endpoint": "isMeetingRunning",
+      "class": "contract",
+      "area": "report",
+      "file": "../../testdata/failing/report/eventually-timeout.yaml",
+      "line": 1,
+      "status": "FAIL",
+      "reason": "step 2 (line 10): eventually: not within 500ms (N attempts): xpath /response/running: expected \"true\", got \"false\"",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 7,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/create?meetingID=uid-002&name=Waiting&checksum=55d8b33c9b5104a4dda6f53516b1d7b9b650e44eeed1872157ce943b1a51ed25",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "326",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetingID>uid-002</meetingID><internalMeetingID>79b746838e85637b7b2de57532504f111f98b028-1760000000001</internalMeetingID><attendeePW>ap000001</attendeePW><moderatorPW>mp000001</moderatorPW><createTime>1760000000001</createTime><messageKey></messageKey><message></message></response>"
+          }
+        },
+        {
+          "index": 1,
+          "kind": "call",
+          "line": 10,
+          "status": "FAIL",
+          "message": "eventually: not within 500ms (N attempts): xpath /response/running: expected \"true\", got \"false\"",
+          "attempts": 0,
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/isMeetingRunning?meetingID=uid-002&checksum=cbe6372c38ddb8c8a9ec8b054f5dcf463ec0e2327b11d00cfcfd44021c72a694",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "77",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><running>false</running></response>"
+          },
+          "assertions": [
+            {
+              "what": "xpath /response/running",
+              "expected": "\"true\"",
+              "actual": "\"false\"",
+              "ok": false
+            }
+          ]
+        }
+      ],
+      "teardown": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 19,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-002&checksum=620d3af0538e517e999e27da3818b09aa87d02fb4803469bfbf25c9e869cd7ea",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "275",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><messageKey>sentEndMeetingRequest</messageKey><message>A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended.</message></response>"
+          }
+        }
+      ]
+    },
+    {
+      "id": "getMeetings.report.ignored",
+      "title": "An ignored step's failure is a warning",
+      "endpoint": "getMeetings",
+      "class": "contract",
+      "area": "report",
+      "file": "../../testdata/failing/report/ignored.yaml",
+      "line": 1,
+      "status": "XPASS",
+      "reason": "passed, but ../../testdata/expectations/failing.yaml expects it to fail (an exact entry for a passing case): remove the entry",
+      "expected": {
+        "entry": "getMeetings.report.ignored",
+        "reason": "an exact entry for a passing case"
+      },
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 6,
+          "status": "FAIL",
+          "message": "returncode: expected \"FAILED\", got \"SUCCESS\"",
+          "ignored": true,
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/getMeetings?checksum=1af42d0ccfdb960caedd524edc52e712796e97e9236668e9ef27344120c35aa2",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "155",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetings/><messageKey>noMeetings</messageKey><message>no meetings were found on this server</message></response>"
+          },
+          "assertions": [
+            {
+              "what": "returncode",
+              "expected": "\"FAILED\"",
+              "actual": "\"SUCCESS\"",
+              "ok": false
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "kind": "call",
+          "line": 7,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/getMeetings?checksum=1af42d0ccfdb960caedd524edc52e712796e97e9236668e9ef27344120c35aa2",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "155",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetings/><messageKey>noMeetings</messageKey><message>no meetings were found on this server</message></response>"
+          },
+          "assertions": [
+            {
+              "what": "returncode",
+              "expected": "\"SUCCESS\"",
+              "actual": "\"SUCCESS\"",
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "warnings": [
+        "step 1 (line 6), ignored: returncode: expected \"FAILED\", got \"SUCCESS\""
+      ]
+    },
+    {
+      "id": "getMeetings.report.needs-clamav",
+      "title": "A case is skipped when the target lacks a capability",
+      "endpoint": "getMeetings",
+      "class": "contract",
+      "area": "report",
+      "file": "../../testdata/failing/report/needs-clamav.yaml",
+      "line": 1,
+      "status": "SKIP",
+      "reason": "target lacks clamav",
+      "duration_ms": 0
+    },
+    {
+      "id": "getMeetings.report.no-sink",
+      "title": "A case that needs a sink the target doesn't have is skipped",
+      "endpoint": "getMeetings",
+      "class": "contract",
+      "area": "report",
+      "file": "../../testdata/failing/report/no-sink.yaml",
+      "line": 1,
+      "status": "SKIP",
+      "reason": "not-configured: sinkUrl",
+      "duration_ms": 0
+    },
+    {
+      "id": "getMeetings.report.not-json",
+      "title": "A response in the wrong format fails",
+      "endpoint": "getMeetings",
+      "class": "contract",
+      "area": "report",
+      "file": "../../testdata/failing/report/not-json.yaml",
+      "line": 1,
+      "status": "XFAIL",
+      "reason": "a glob over a failing case (step 1 (line 6): format: expected json, got xml)",
+      "expected": {
+        "entry": "getMeetings.report.not-*",
+        "reason": "a glob over a failing case",
+        "glob": true
+      },
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 6,
+          "status": "FAIL",
+          "message": "format: expected json, got xml",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/getMeetings?checksum=1af42d0ccfdb960caedd524edc52e712796e97e9236668e9ef27344120c35aa2",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "155",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetings/><messageKey>noMeetings</messageKey><message>no meetings were found on this server</message></response>"
+          },
+          "assertions": [
+            {
+              "what": "format",
+              "expected": "json",
+              "actual": "xml",
+              "ok": false
+            },
+            {
+              "what": "jsonpath $.response.returncode",
+              "expected": "\"SUCCESS\"",
+              "actual": "the response is not JSON: invalid character '<' looking for beginning of value",
+              "ok": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "getMeetings.report.route",
+      "title": "Route steps are skipped until targets map routes",
+      "endpoint": "getMeetings",
+      "class": "contract",
+      "area": "report",
+      "file": "../../testdata/failing/report/route.yaml",
+      "line": 1,
+      "status": "SKIP",
+      "reason": "not-routed: presentation-download",
+      "duration_ms": 0
+    },
+    {
+      "id": "getMeetings.report.salt-redacted",
+      "title": "The salt never appears in a report",
+      "endpoint": "getMeetings",
+      "class": "contract",
+      "area": "report",
+      "file": "../../testdata/failing/report/salt-redacted.yaml",
+      "line": 1,
+      "status": "FAIL",
+      "reason": "step 1 (line 6): message: expected \"[salt]\", got \"no meetings were found on this server\"",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 6,
+          "status": "FAIL",
+          "message": "message: expected \"[salt]\", got \"no meetings were found on this server\"",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/getMeetings?echo=[salt]&checksum=fa8fbba54a691065e170c7b1d654a55a3a12ed295fab660b422282b407b95363",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "155",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetings/><messageKey>noMeetings</messageKey><message>no meetings were found on this server</message></response>"
+          },
+          "assertions": [
+            {
+              "what": "returncode",
+              "expected": "\"SUCCESS\"",
+              "actual": "\"SUCCESS\"",
+              "ok": true
+            },
+            {
+              "what": "message",
+              "expected": "\"[salt]\"",
+              "actual": "\"no meetings were found on this server\"",
+              "ok": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "getMeetings.report.schema",
+      "title": "Response schemas are skipped until they exist",
+      "endpoint": "getMeetings",
+      "class": "contract",
+      "area": "report",
+      "file": "../../testdata/failing/report/schema.yaml",
+      "line": 1,
+      "status": "SKIP",
+      "reason": "unimplemented: schema",
+      "duration_ms": 0
+    },
+    {
+      "id": "getMeetings.report.teardown-warning",
+      "title": "A failing teardown is a warning",
+      "endpoint": "getMeetings",
+      "class": "contract",
+      "area": "report",
+      "file": "../../testdata/failing/report/teardown-warning.yaml",
+      "line": 1,
+      "status": "PASS",
+      "expected": {
+        "entry": "getMeetings.report.teardown-*",
+        "reason": "a glob over a passing case",
+        "glob": true
+      },
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 6,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/getMeetings?checksum=1af42d0ccfdb960caedd524edc52e712796e97e9236668e9ef27344120c35aa2",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "155",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetings/><messageKey>noMeetings</messageKey><message>no meetings were found on this server</message></response>"
+          },
+          "assertions": [
+            {
+              "what": "returncode",
+              "expected": "\"SUCCESS\"",
+              "actual": "\"SUCCESS\"",
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "teardown": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 8,
+          "status": "FAIL",
+          "message": "returncode: expected \"FAILED\", got \"SUCCESS\"",
+          "ignored": true,
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/getMeetings?checksum=1af42d0ccfdb960caedd524edc52e712796e97e9236668e9ef27344120c35aa2",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "155",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetings/><messageKey>noMeetings</messageKey><message>no meetings were found on this server</message></response>"
+          },
+          "assertions": [
+            {
+              "what": "returncode",
+              "expected": "\"FAILED\"",
+              "actual": "\"SUCCESS\"",
+              "ok": false
+            }
+          ]
+        }
+      ],
+      "warnings": [
+        "teardown step 1 (line 8): returncode: expected \"FAILED\", got \"SUCCESS\""
+      ]
+    },
+    {
+      "id": "getMeetings.report.transport-error",
+      "title": "A request that can't be sent is an error",
+      "endpoint": "getMeetings",
+      "class": "contract",
+      "area": "report",
+      "file": "../../testdata/failing/report/transport-error.yaml",
+      "line": 1,
+      "status": "ERROR",
+      "reason": "step 1 (line 6): Get \"http://127.0.0.1:1/bigbluebutton/api\": dial tcp 127.0.0.1:1: connect: connection refused",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 6,
+          "status": "ERROR",
+          "message": "Get \"http://127.0.0.1:1/bigbluebutton/api\": dial tcp 127.0.0.1:1: connect: connection refused",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "http://127.0.0.1:1/bigbluebutton/api",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "getMeetings.report.undefined-target-var",
+      "title": "A target var the target doesn't define is an error",
+      "endpoint": "getMeetings",
+      "class": "contract",
+      "area": "report",
+      "file": "../../testdata/failing/report/undefined-at-run-time.yaml",
+      "line": 1,
+      "status": "ERROR",
+      "reason": "step 1 (line 6): undefined variable target.sinkHost",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 6,
+          "status": "ERROR",
+          "message": "undefined variable target.sinkHost",
+          "duration_ms": 0
+        }
+      ]
+    },
+    {
+      "id": "getMeetings.report.wrong-value",
+      "title": "A check that fails",
+      "endpoint": "getMeetings",
+      "class": "contract",
+      "area": "report",
+      "file": "../../testdata/failing/report/wrong-value.yaml",
+      "line": 1,
+      "status": "XFAIL",
+      "reason": "an exact entry for a failing case (step 1 (line 6): returncode: expected \"FAILED\", got \"SUCCESS\")",
+      "expected": {
+        "entry": "getMeetings.report.wrong-value",
+        "reason": "an exact entry for a failing case",
+        "issue": "https://example.com/issues/1"
+      },
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 6,
+          "status": "FAIL",
+          "message": "returncode: expected \"FAILED\", got \"SUCCESS\"",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/getMeetings?checksum=1af42d0ccfdb960caedd524edc52e712796e97e9236668e9ef27344120c35aa2",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "155",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetings/><messageKey>noMeetings</messageKey><message>no meetings were found on this server</message></response>"
+          },
+          "assertions": [
+            {
+              "what": "returncode",
+              "expected": "\"FAILED\"",
+              "actual": "\"SUCCESS\"",
+              "ok": false
+            },
+            {
+              "what": "messageKey",
+              "expected": "one of \"a\", \"b\"",
+              "actual": "\"noMeetings\"",
+              "ok": false
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

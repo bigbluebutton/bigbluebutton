@@ -38,6 +38,7 @@ export interface MeetingStaticData {
     meetingLayout: string;
     moderatorsCanMuteAudio: boolean;
     moderatorsCanUnmuteAudio: boolean;
+    requireUserConsentBeforeUnmuting: boolean;
     userCameraCap: number;
     webcamsOnlyForModerator: boolean;
     guestLobbyMessage: string | null;

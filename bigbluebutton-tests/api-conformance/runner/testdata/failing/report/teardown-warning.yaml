@@ -1,0 +1,8 @@
+id: getMeetings.report.teardown-warning
+title: A failing teardown is a warning
+endpoint: getMeetings
+class: contract
+steps:
+  - {call: getMeetings, expect: {returncode: SUCCESS}}
+teardown:
+  - {call: getMeetings, expect: {returncode: FAILED}}

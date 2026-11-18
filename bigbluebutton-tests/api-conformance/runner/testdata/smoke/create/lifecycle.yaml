@@ -1,0 +1,31 @@
+id: create.smoke.lifecycle
+title: create, then getMeetingInfo, then end
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Smoke test}
+    expect:
+      returncode: SUCCESS
+      xpath:
+        /response/internalMeetingID: {regex: '^[0-9a-f]{40}-[0-9]+$'}
+    capture: {intId: /response/internalMeetingID}
+  - call: getMeetingInfo
+    params: {meetingID: "${uid}"}
+    expect:
+      returncode: SUCCESS
+      xpath:
+        /response/meetingName: Smoke test
+        /response/internalMeetingID: "${intId}"
+  - call: end
+    params: {meetingID: "${uid}"}
+    expect: {returncode: SUCCESS, messageKey: sentEndMeetingRequest}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

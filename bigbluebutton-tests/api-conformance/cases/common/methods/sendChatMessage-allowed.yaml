@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# The methods this route maps (UrlMappings.groovy). Each sends the same stateless,
+# deterministic request, which gets the endpoint's own answer rather than the fallback
+# an unmapped method gets: expect pins that answer, the recording the rest.
+id: sendChatMessage.method.allowed
+title: sendChatMessage answers ${method} with its own handler
+endpoint: sendChatMessage
+class: contract
+tags: [ci]
+variants:
+  - {id: get, vars: {method: GET}}
+steps:
+  - call: sendChatMessage
+    method: "${method}"
+    params: {meetingID: "${uid}", message: x}
+    expect: {returncode: FAILED, messageKey: meetingNotFound}

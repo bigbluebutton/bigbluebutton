@@ -1,0 +1,44 @@
+8                                                   CHAPTER 1. TEMPLATE
+
+Hyperlinks
+This is a target.
+And this is a link.
+
+Dashes, etc.
+There are three kinds of horizontal dash:
+
+    • - (use inside words; for example “home-page”, “X-rated”)
+
+    • – (use this one between numbers; for example “pages 2–22”)
+
+    • — (use this one as a sentence separator — like here)
+
+National characters
+    • ó, é, í, . . .
+
+    • è, à, ì, . . .
+
+    • ô, ê, . . .
+
+    • õ, ñ, . . .
+
+    • ö, ë, . . .
+
+    • ż
+
+    • a,˛ e˛
+
+    • ł, ø, ß
+
+   There are other ways to do this, see the documentation for inputenc pack-
+age.
+
+Reserved characters
+Some characters have some special meaning, thus cannot be entered in the usual
+way.
+
+    • $&%#_{}
+
+    • \
+
+    • ˜ˆ

@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# bbb-web reads the redirect param after validating the request, so a
+# validation error redirects even when the request asks for XML. Recorded, not
+# compared: the intended answer is still to be decided (the triage tag).
+id: join.validation.redirect-false-ignored
+title: A join validation error redirects even with redirect=false
+endpoint: join
+class: compat
+tags: [triage]
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Join validation}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: join
+    params: {meetingID: "${uid}", fullName: "", role: viewer, redirect: "false"}
+    golden: document
+    expect: {status: 302, redirect: {query: {errors: {contains: '"key":"missingParamFullName"'}}}}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

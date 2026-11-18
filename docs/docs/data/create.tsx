@@ -98,13 +98,13 @@ const createEndpointTableData = [
     "name": "isBreakout",
     "required": false,
     "type": "Boolean",
-    "description": (<>Must be set to <code className="language-plaintext highlighter-rouge">true</code> to create a breakout room.</>)
+    "description": (<>Must be set to <code className="language-plaintext highlighter-rouge">true</code> to create a breakout room. A breakout room does not end when it is empty or has no moderator, only when its own <code className="language-plaintext highlighter-rouge">duration</code> runs out or its parent meeting ends; see <code className="language-plaintext highlighter-rouge">parentMeetingID</code>.</>)
   },
   {
     "name": "parentMeetingID",
     "required": false,
     "type": "String",
-    "description": (<>The ID of the main room where the breakout was initiated. Must be provided when creating a breakout room, the parent room must be running.</>)
+    "description": (<>The ID of the main room where the breakout was initiated. Must be provided when creating a breakout room, the parent room must be running. The breakout room ends when its parent meeting ends, whether the parent is ended through <code className="language-plaintext highlighter-rouge">end</code> or ends on its own (<code className="language-plaintext highlighter-rouge">duration</code>, <code className="language-plaintext highlighter-rouge">meetingExpireIfNoUserJoinedInMinutes</code>, <code className="language-plaintext highlighter-rouge">meetingExpireWhenLastUserLeftInMinutes</code>, <code className="language-plaintext highlighter-rouge">endWhenNoModerator</code>). Users who join only the breakout room do not count as users of the parent, so a parent that nobody joins ends after <code className="language-plaintext highlighter-rouge">meetingExpireIfNoUserJoinedInMinutes</code> (5 minutes by default) and takes its breakout rooms with it.</>)
   },
   {
     "name": "sequence",
@@ -136,25 +136,25 @@ const createEndpointTableData = [
     "name": "breakoutRoomsCaptureSlides",
     "required": false,
     "type": "Boolean",
-    "description": (<>If set to <code className="language-plaintext highlighter-rouge">true</code>, the current slide (with annotations) from each breakout room is exported back to the parent meeting's presentation when the breakout ends. The server-side default is taken from <code className="language-plaintext highlighter-rouge">defaultBreakoutRoomsCaptureSlides</code>. (added 2.6)</>)
+    "description": (<>If set to <code className="language-plaintext highlighter-rouge">true</code>, the "Save whiteboard" option of the breakout rooms creation panel starts switched on, so the current slide (with annotations) from each breakout room is exported back to the parent meeting's presentation when the breakout ends. The moderator can still switch it off. It does not switch off the option when the client setting <code className="language-plaintext highlighter-rouge">public.app.breakouts.captureWhiteboardByDefault</code> is <code className="language-plaintext highlighter-rouge">true</code>. (added 2.6)</>)
   },
   {
     "name": "breakoutRoomsCaptureSlidesFilename",
     "required": false,
     "type": "String",
-    "description": (<>Filename template for slides captured from breakout rooms when <code className="language-plaintext highlighter-rouge">breakoutRoomsCaptureSlides=true</code>. (added 2.6)</>)
+    "description": (<>Name of the file with the slides captured from the breakout rooms (<code className="language-plaintext highlighter-rouge">.pdf</code> is appended). When it is already taken, a number is added: <code className="language-plaintext highlighter-rouge">name(2)</code>, <code className="language-plaintext highlighter-rouge">name(3)</code>. Without it, the file is named after the room, e.g. <code className="language-plaintext highlighter-rouge">Room_1_Whiteboard</code>. (added 2.6)</>)
   },
   {
     "name": "breakoutRoomsCaptureNotes",
     "required": false,
     "type": "Boolean",
-    "description": (<>If set to <code className="language-plaintext highlighter-rouge">true</code>, the shared notes from each breakout room are exported back to the parent meeting's presentation when the breakout ends. The server-side default is taken from <code className="language-plaintext highlighter-rouge">defaultBreakoutRoomsCaptureNotes</code>. (added 2.6)</>)
+    "description": (<>If set to <code className="language-plaintext highlighter-rouge">true</code>, the "Save shared notes" option of the breakout rooms creation panel starts switched on, so the shared notes from each breakout room are exported back to the parent meeting's presentation when the breakout ends. The moderator can still switch it off. It does not switch off the option when the client setting <code className="language-plaintext highlighter-rouge">public.app.breakouts.captureSharedNotesByDefault</code> is <code className="language-plaintext highlighter-rouge">true</code>. (added 2.6)</>)
   },
   {
     "name": "breakoutRoomsCaptureNotesFilename",
     "required": false,
     "type": "String",
-    "description": (<>Filename template for shared notes captured from breakout rooms when <code className="language-plaintext highlighter-rouge">breakoutRoomsCaptureNotes=true</code>. (added 2.6)</>)
+    "description": (<>Name of the file with the shared notes captured from the breakout rooms (<code className="language-plaintext highlighter-rouge">.pdf</code> is appended). When it is already taken, a number is added: <code className="language-plaintext highlighter-rouge">name(2)</code>, <code className="language-plaintext highlighter-rouge">name(3)</code>. Without it, the file is named after the room, e.g. <code className="language-plaintext highlighter-rouge">Room_1_Notes</code>. (added 2.6)</>)
   },
   {
     "name": "meta",
@@ -618,6 +618,9 @@ const createEndpointTableData = [
             </li>
             <li>
               <code className="language-plaintext highlighter-rouge">webcamGrid</code> - <b>Enable/Disable the webcam grid, ie. the avatar tiles rendered for camera-less users while the presentation is minimized (added in BigBlueButton 4.0)</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">lockSettings</code> - <b>Lock settings (added in BigBlueButton 4.0.3)</b> - no viewer restriction applies in the meeting or in its breakout rooms. The <code className="language-plaintext highlighter-rouge">lockSettings*</code> create parameters, <code className="language-plaintext highlighter-rouge">webcamsOnlyForModerator</code> and their server defaults are ignored (<code className="language-plaintext highlighter-rouge">lockSettingsPresenterPolicy</code> stays at <code className="language-plaintext highlighter-rouge">requireApproval</code>), and moderators cannot lock viewers during the meeting: the "Permissions and Policies" dialog keeps only its "Guest Policy" tab. Locking the public chat for a single user from the user list is still possible
             </li>
           </ul>
         </>

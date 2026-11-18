@@ -1,0 +1,6 @@
+Fruit    Colour     Count        Price
+Apple    Red                12            0.5
+Banana   Yellow              6           0.25
+Cherry   Dark red           40            0.1
+Grape    Green              25           0.05
+Lemon    Yellow              3            0.4

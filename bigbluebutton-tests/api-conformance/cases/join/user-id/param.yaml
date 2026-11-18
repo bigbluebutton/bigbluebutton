@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# join's userID is the user's external ID: in user_current's extId and in
+# getMeetingInfo's attendee userID. default.yaml has none.
+id: join.user-id.param
+title: "A user who joins with userID has it as external ID"
+endpoint: join
+class: contract
+tags: [ci, presence]
+requires: [akka, presence]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Users}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: moderator, userID: ann-ext}}
+    golden: off
+    capture: {annId: $.userId}
+  - graphql: {as: ann, query: "query Me { user_current { userId extId } }"}
+    expect: {jsonpath: {"$.data.user_current[0].extId": "ann-ext"}}
+  # bbb-web learns of the join from akka-apps a moment later.
+  - call: getMeetingInfo
+    params: {meetingID: "${uid}"}
+    eventually: {within: 10s, every: 200ms, until: {xpath: {/response/participantCount: "1"}}}
+    expect: {xpath: {/response/attendees/attendee/userID: "ann-ext"}}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

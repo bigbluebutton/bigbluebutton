@@ -1,0 +1,10 @@
+# want: 10: undefined variable only (variant b)
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+variants:
+  - {id: a, vars: {only: "1"}}
+  - {id: b}
+steps:
+  - {call: create, params: {name: '${repeat("x", only)}'}}

@@ -1,0 +1,51 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A presenter change made in the meeting shows in getMeetingInfo's
+# isPresenter: the new presenter's turns true, the old one's false.
+id: getMeetingInfo.users.presenter-change
+title: getMeetingInfo shows a presenter changed in the meeting
+endpoint: getMeetingInfo
+class: contract
+tags: [ci, presence]
+requires: [akka, presence]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Users}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: moderator, userID: ann}}
+    golden: off
+    capture: {annId: $.userId}
+  - presence: {action: join, as: vic, args: {meetingID: "${uid}", fullName: Vic, role: viewer, userID: vic}}
+    golden: off
+    capture: {vicId: $.userId}
+  # bbb-web learns of the joins from akka-apps a moment later.
+  - call: getMeetingInfo
+    params: {meetingID: "${uid}"}
+    golden: off
+    eventually: {within: 10s, every: 200ms, until: {xpath: {/response/participantCount: "2"}}}
+    expect: {xpath: {/response/participantCount: "2"}}
+  - graphql:
+      as: ann
+      query: "mutation SetPresenter($id: String!) { userSetPresenter(userId: $id) }"
+      variables: {id: "${vicId}"}
+    golden: off
+  - bus: {name: PresenterAssignedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+    expect: {jsonpath: {$.core.body.presenterId: "${vicId}"}}
+  - call: getMeetingInfo
+    params: {meetingID: "${uid}"}
+    eventually: {within: 5s, every: 200ms, until: {xpath: {"/response/attendees/attendee[userID='vic']/isPresenter": "true"}}}
+    expect:
+      xpath:
+        "/response/attendees/attendee[userID='vic']/isPresenter": "true"
+        "/response/attendees/attendee[userID='ann']/isPresenter": "false"
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

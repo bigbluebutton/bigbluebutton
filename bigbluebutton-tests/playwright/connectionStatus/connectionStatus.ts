@@ -1,9 +1,9 @@
 import { expect } from '@playwright/test';
 
-import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
+import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { MultiUsers } from '../user/multiusers';
-import { checkNetworkStatus, openConnectionStatus } from './util';
+import { checkNetworkStatus, expectHeartbeatsAccepted, type HeartbeatFrames, openConnectionStatus } from './util';
 
 export class ConnectionStatus extends MultiUsers {
   async connectionStatusModal() {
@@ -84,5 +84,22 @@ export class ConnectionStatus extends MultiUsers {
     await expect
       .poll(() => this.modPage.getCopiedText(), { message: 'should copy the connection stats to the clipboard' })
       .toContain('audioCurrentUploadRate');
+  }
+
+  // The server only learns that a client is still there from this heartbeat (clientNotResponding in
+  // user_connectionStatusReport is derived from the connectionAliveAt it stamps), so it has to run whether
+  // or not the connection status UI is shown.
+  async heartbeatWithoutConnectionStatusUi(heartbeats: HeartbeatFrames) {
+    await this.modPage.hasHiddenElementCount(
+      e.connectionStatusBtn,
+      0,
+      'should not render the connection status button when public.stats.enabled is false',
+    );
+    await expectHeartbeatsAccepted(heartbeats, ELEMENT_WAIT_LONGER_TIME);
+  }
+
+  async heartbeatWithHiddenNavBar(heartbeats: HeartbeatFrames) {
+    await this.modPage.hasHiddenElementCount(e.navbarBackground, 0, 'should not render the navigation bar');
+    await expectHeartbeatsAccepted(heartbeats, ELEMENT_WAIT_LONGER_TIME);
   }
 }

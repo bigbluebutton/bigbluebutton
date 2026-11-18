@@ -49,6 +49,21 @@ export class CustomParameters extends MultiUsers {
     await this.modPage.wasRemoved(e.usersList, 'should not display the users list');
   }
 
+  async hideSidebarNavigation() {
+    // The whiteboard renders after the initial panel settles, avoiding a false positive between closes.
+    await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard');
+    await this.modPage.wasRemoved(e.navigationSidebarContainer, 'should not display the navigation sidebar');
+    await this.modPage.wasRemoved(e.sidebarContentMain, 'should not display the sidebar content panel');
+    await this.modPage2.hasElement(
+      e.navigationSidebarContainer,
+      'should display the navigation sidebar without the parameter',
+    );
+    await this.modPage2.hasElement(
+      e.sidebarContentMain,
+      'should display the sidebar content panel without the parameter',
+    );
+  }
+
   async showParticipantsOnLoginOnTablet() {
     await this.modPage.hasElement(e.usersList, 'should display the users list on a tablet');
   }
@@ -689,13 +704,6 @@ export class CustomParameters extends MultiUsers {
       `${e.wbToolbar} button`,
       2,
       'should display only the 2 elements passed in the parameter (arrow and text)',
-    );
-  }
-
-  async autoShareWebcam() {
-    await this.modPage.hasElement(
-      e.webcamSettingsModal,
-      'should display the webcam settings modal when auto sharing the webcam ',
     );
   }
 

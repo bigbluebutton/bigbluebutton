@@ -135,7 +135,7 @@ Updated in 4.0:
 
 - **create**
   - **Added parameters:** `requireUserConsentBeforeUnmuting` (only relevant when `allowModsToUnmuteUsers=true`; when `true`, the user is shown a consent dialog before a moderator can unmute them), `lockSettingsPresenterPolicy` (controls the "Request to Present" policy; one of `moderatorOnly`, `requireApproval` (default), `freeForAll`), `notifyRecordingAppend` (appends optional plain text to the recording notification dialog when `notifyRecordingIsOn=true`).
-  - **Added options:** Parameter `disabledFeatures` supports new options: `multiFunctionalMode` (the auxiliary/dual sidebar panel), `pinChatMessage` and `webcamGrid`.
+  - **Added options:** Parameter `disabledFeatures` supports new options: `multiFunctionalMode` (the auxiliary/dual sidebar panel), `pinChatMessage`, `webcamGrid`, and `lockSettings` (added in 4.0.3; no viewer restriction applies, and the `lockSettings*` and `webcamsOnlyForModerator` parameters are ignored).
   - **Removed parameter:** `lockSettingsDisableNote` (singular); use `lockSettingsDisableNotes` (plural) instead.
   - **Removed parameter:** `copyright` (it had no effect; the value was stored but never propagated to the client). To customize the copyright text per meeting, override `app.copyright` through the `clientSettingsOverride` POST module (requires `allowOverrideClientSettingsOnCreateCall=true`) or the `clientSettingsOverrideJsonUrl` parameter (no server-side setting needed).
   - **Removed parameter:** `logoutTimer` (it had no effect; the value was stored in bbb-web but never propagated to akka-apps or the HTML5 client).
@@ -156,6 +156,9 @@ Updated in 4.0:
   - **Changed:** At most `maxPresentationsPerRequest` documents (10 by default) are uploaded per call (added in 4.0.1). The response is still `SUCCESS` and carries the `messageKey` `documentsDropped`.
   - **Changed:** Calls are rate limited per meeting, by default to 30 calls per 60 seconds (`insertDocumentMaxRequests`, `insertDocumentRateWindowSec`); a call over the limit fails with the `messageKey` `rateLimitExceeded` (added in 4.0.1).
   - **Changed:** Every `FAILED` response carries a `messageKey` (added in 4.0.1): an unknown meeting, an invalid filename, a disabled presentation feature and a request without documents now return `notFound`, `invalidFilename`, `presentationDisabled` and `noDocuments`, with the same messages as before. See [insertDocument](#post-insertdocument).
+- **end**
+  - **Changed:** Ending a meeting now also ends the breakout rooms created through `create` with `isBreakout=true` (previously only the rooms created from the client's breakout panel ended with their parent).
+- **getRecordingProcessingInfo** endpoint was first introduced (added in 4.0.3). It tells whether the server still has recordings to process, so that it can be taken out of service without losing any. See [getRecordingProcessingInfo](#get-post-getrecordingprocessinginfo).
 - **clientSettings** - The deprecated REST endpoint `/api/rest/clientSettings` was **removed**. Client settings are now served through the GraphQL stack.
 
 ## API Data Types
@@ -314,6 +317,7 @@ The following section describes the monitoring calls
 | updateRecordings       | Updates metadata in a recording.                              |
 | getRecordingTextTracks | Get a list of the caption/subtitle.                           |
 | putRecordingTextTrack  | Upload a caption or subtitle file to add it to the recording. |
+| getRecordingProcessingInfo | Tell whether the server still has recordings to process.  |
 
 ## API Calls
 
@@ -530,7 +534,7 @@ For more information about the pre-upload slides check the following [link](http
 
 #### clientSettingsOverride
 
-We support overriding the client settings (the entire set of options can be found in `/usr/share/bigbluebutton/html5-client/private/config/settings.yml`) as part of the CREATE call.
+We support overriding the client settings (the entire set of options can be found in `/usr/share/bigbluebutton/html5-client/private/config/settings.yml`, the shipped defaults that `/etc/bigbluebutton/bbb-html5.yml` overrides) as part of the CREATE call.
 Note that these values would have higher precedence over customizations made in `/etc/bigbluebutton/bbb-html5.yml`.
 
 By default this overriding approach on CREATE is disabled. To enable it, set `allowOverrideClientSettingsOnCreateCall=true` in `/etc/bigbluebutton/bbb-web.properties` and restart bbb-web. This is a **server-side setting only** — it is not read from the create request, so passing `allowOverrideClientSettingsOnCreateCall` as a `/create` parameter has no effect.
@@ -804,7 +808,7 @@ Values are URL encoded. The client parses each value as JSON where possible and 
 
 Each parameter overrides one default of the client's `settings.yml`, named in the **Default** column; the same key can be changed for the whole server in `/etc/bigbluebutton/bbb-html5.yml` (see [Configuration Files](/administration/configuration-files)).
 
-[`getJoinUrl`](#get-post-getjoinurl) forwards `userdata-` parameters into the new session it creates. Moderators can pass any of them, except inside a breakout room; for viewers, and for everyone in a breakout room, the parameters named in `getJoinUrlUserdataBlocklist` in `bbb-web.properties` are dropped (by default the recording, audio bridge and whiteboard tool parameters).
+[`getJoinUrl`](#get-post-getjoinurl) forwards `userdata-` parameters into the new session it creates. Moderators can pass any of them, except inside a breakout room; for viewers, and for everyone in a breakout room, the parameters named in `getJoinUrlUserdataBlocklist` in `bbb-web.properties` are dropped (by default the recording, transparent listen-only and whiteboard tool parameters). Set the list to `all` to drop every `userdata-` parameter in those cases.
 
 Tools for experimenting:
 
@@ -839,7 +843,7 @@ Tools for experimenting:
 
 | Parameter | Description | Default |
 | --- | --- | --- |
-| `userdata-bbb_shortcuts` | JSON array of the keyboard shortcuts that stay enabled, by their `descId` in `public.app.shortcuts`: `openOptions`, `toggleUserList`, `openLeaveMenu`, `toggleMute`, `joinAudio`, `leaveAudio`, `togglePublicChat`, `hidePrivateChat`, `closePrivateChat`, `raiseHand`, `openActions`, `openDebugWindow`. Shortcuts not listed are disabled; `%5B%5D` (an empty array) disables them all. | all shortcuts in `public.app.shortcuts` |
+| `userdata-bbb_shortcuts` | JSON array of the keyboard shortcuts that stay enabled, by their name in `public.app.shortcuts`: `openOptions`, `toggleUserList`, `openLeaveMenu`, `toggleMute`, `joinAudio`, `leaveAudio`, `togglePublicChat`, `hidePrivateChat`, `closePrivateChat`, `raiseHand`, `openActions`, `openDebugWindow`. Shortcuts not listed are disabled; `%5B%5D` (an empty array) disables them all. | all shortcuts in `public.app.shortcuts` |
 
 ##### Media parameters
 
@@ -1014,7 +1018,7 @@ running can be “true” or “false” that signals whether a meeting with thi
 
 ### `GET` `POST` end
 
-Use this to forcibly end a meeting and kick all participants out of the meeting.
+Use this to forcibly end a meeting and kick all participants out of the meeting. Ending a meeting also ends all of its breakout rooms, including the ones created through `create` with `isBreakout=true`.
 
 **Resource URL:**
 
@@ -1604,6 +1608,65 @@ Missing parameter error
 ```
 
 
+### `GET` `POST` getRecordingProcessingInfo
+
+Tells whether this server still has recordings to process. Before a server is taken out of service (to scale in a load-balanced pool, to replace it, or for an OS upgrade), every recording on it has to finish processing: the raw data of a recording still in the pipeline is lost with the server. This call summarizes the recording pipeline, from a recorded meeting that has ended but hasn't been picked up yet to the last publish step.
+
+**Resource URL:**
+
+http&#58;//yourserver.com/bigbluebutton/api/getRecordingProcessingInfo?checksum=[checksum]
+
+**Parameters:**
+
+None. The checksum is computed over the call name and an empty query string.
+
+**Example Requests:**
+
+http&#58;//yourserver.com/bigbluebutton/api/getRecordingProcessingInfo?checksum=1234
+
+**Example Response:**
+
+```xml
+<response>
+  <returncode>SUCCESS</returncode>
+  <processing>true</processing>
+  <queuedCount>2</queuedCount>
+  <runningCount>1</runningCount>
+  <failedCount>1</failedCount>
+  <oldestQueuedTime>1763035200000</oldestQueuedTime>
+  <oldestRunningTime>1763038800000</oldestRunningTime>
+</response>
+```
+
+| Element | Meaning |
+| :--- | :--- |
+| `processing` | `true` while `queuedCount` or `runningCount` is above 0. Failed recordings don't keep it `true`. |
+| `queuedCount` | Recordings with work waiting: a recorded meeting that has ended but hasn't been picked up for archiving yet, a job waiting in a queue for its next step, a caption track upload that hasn't been processed yet, or the events of an ended meeting created with `meetingKeepEvents=true` that are still to be kept. |
+| `runningCount` | Recordings with a step running now (archive, sanity, events, captions, process or publish). This includes the post-archive, post-process and post-publish scripts, which run inside those steps. |
+| `failedCount` | Recordings stopped at a failed step that haven't been rebuilt (`bbb-record --rebuild`) or removed (`bbb-record --delete`) since. They never finish on their own, and taking the server out of service loses their raw data. `deleteRecordings` doesn't remove the marker of a failed step, so a recording deleted through the API still counts. |
+| `oldestQueuedTime` | When the oldest queued work was queued, in milliseconds since the epoch like `createTime`. Left out when `queuedCount` is 0. Only the recordings that `queuedCount` counts are included: a recording counted as running isn't, even when it also has older work queued. It helps tell a busy server from a stuck one, for example one where `bbb-rap-resque-worker` is stopped: work that has waited much longer than processing normally takes is a reason to look at the server. A job queued by a BigBlueButton older than 4.0.3 doesn't record when it was queued; the recording's start time stands in for it, which is earlier. |
+| `oldestRunningTime` | When the oldest running step started, in milliseconds since the epoch. Left out when `runningCount` is 0. A step that has run much longer than processing normally takes may be stuck, for example because its worker was killed (see below). If the time a step started can't be read, the recording's start time stands in for it. |
+
+The counts are of recordings (record IDs), not jobs: a recording whose presentation and video formats are both queued counts once, and a recording with one step running and another one queued counts as running. A failed recording that has work queued or running again, after a rebuild for example, counts as queued or running.
+
+If the server can't read the state of its recordings, for example because Redis can't be reached or the recording status directory (`/var/bigbluebutton/recording/status/recorded`) is missing, the call fails with the `messageKey` `recordingStatusUnavailable` rather than answer `processing=false`. When Redis can't be reached, that answer comes only after the Redis client's command timeout, about a minute. A caller that gives up sooner gets no answer, and should treat that as unknown too, never as `processing=false`.
+
+To take a server out of service:
+
+1. Stop sending new meetings to it, for example by disabling it in Scalelite.
+2. Wait until `getMeetings` returns no meetings. bbb-web hands an ended recorded meeting to the recording pipeline before it drops the meeting from `getMeetings`, so this call sees the recording as soon as the meeting is gone, unless bbb-web couldn't write the marker that hands it over (see below).
+3. Wait until `processing` is `false`, and confirm it with a second call a few seconds later: one call can miss a job that a worker is taking from its queue. No call sees that job if the worker stops at that moment (see below). If `oldestQueuedTime` or `oldestRunningTime` is older than processing normally takes, the pipeline may be stuck: look at the server rather than wait. Work queued behind a long recording, with a single worker, can also make it old.
+4. If `failedCount` is above 0, decide for each failed recording whether to rebuild it (`bbb-record --rebuild`) or accept losing it. The call doesn't name them: `ls /var/bigbluebutton/recording/status/*/*.fail` lists the markers of the failed steps, each named after its record ID.
+
+What the call doesn't cover:
+
+- Post-script results. A failed post-script, such as the transfer to Scalelite, is only logged, so a recording whose transfer failed counts as done.
+- A job interrupted because `bbb-rap-resque-worker` was stopped or killed while it ran, or as it took the job from its queue. When the worker is stopped or restarted, Resque moves the running job to its failed jobs without the marker of a failed step, and the recording then counts as neither running nor failed. When the worker is killed, the recording keeps counting as running, `processing` stays `true` and `oldestRunningTime` keeps getting older, until Resque removes the dead worker. Resque does that only once the dead worker's last heartbeat is more than 5 minutes old, and only when a worker starts or another recording step succeeds. On a server with nothing else to process, restart `bbb-rap-resque-worker` once those 5 minutes have passed; the recording then counts as neither running nor failed too. A job lost as the worker took it from its queue counts nowhere either. Don't stop or restart the worker while a server drains.
+- A failed events step, for a meeting created with `meetingKeepEvents=true`. Unlike the other steps, it leaves no marker of a failed step, so its meeting then counts as neither running nor failed.
+- A recorded meeting whose marker bbb-web couldn't write when the meeting ended (it logs the error). Its recording is never handed to the pipeline, so it counts nowhere.
+- Workers that use another Redis than bbb-web does (`redis_workers_host` in the recording configuration). The call reads the queues from the Redis that `bbb-web.properties` sets.
+- Meetings that are still running: `getMeetings` lists them.
+
 ### `GET` sendChatMessage
 
 This call enables you to send a message to the public chat of a running meeting. Messages are rendered as plain text: any special characters are escaped before the message is displayed, and HTML or Markdown formatting is not applied.
@@ -1683,7 +1746,7 @@ This is particularly useful for hybrid environments where multiple screens in th
 
 It also facilitates seamless user session transfers to another device. For example, a mobile device can scan a QR code displayed on a computer, instantly migrating the user’s session from one device to another.
 
-The caller must present the `sessionToken` of an existing, still-active session; the resulting `/join` URL carries a valid `checksum` and can then be opened directly by the browser.
+The caller must present the `sessionToken` of an existing, still-active session; the resulting `/join` URL carries a valid `checksum` and can then be opened directly by the browser. The checksum uses the strongest algorithm listed in `supportedChecksumAlgorithms`.
 
 **Resource URL:**
 

@@ -25,9 +25,13 @@ const minThumbnailSize = '80px';
 // (narrower) profile settings sidebar panel. The thumbnails take up the leftover
 // width themselves, which keeps a single spacing value between them and around
 // them -- padding and gap must stay equal for the spacing to read as uniform.
+// `$columns` pins the count where the container is too tight for auto-fill to
+// be stable (the list's scrollbar alone is enough to drop a column).
 const BgWrapper = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(${minThumbnailSize}, 1fr));
+  grid-template-columns: ${({ $columns }) => ($columns
+    ? `repeat(${$columns}, 1fr)`
+    : `repeat(auto-fill, minmax(${minThumbnailSize}, 1fr))`)};
   gap: ${lgPadding};
   padding: ${lgPadding};
 `;

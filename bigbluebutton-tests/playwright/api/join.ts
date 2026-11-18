@@ -2,6 +2,7 @@ import { type APIRequestContext, expect, type Page as PlaywrightPage, type TestI
 
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { createMeeting, endMeetings, getApiCallUrl, getRandomInt, requestApiCall } from '../core/helpers';
+import { parameters } from '../core/parameters';
 import { MultiUsers } from '../user/multiusers';
 
 const pollOptions = { timeout: ELEMENT_WAIT_LONGER_TIME };
@@ -202,6 +203,46 @@ export class APIJoin extends MultiUsers {
       expect(response.session_token, 'the refused join should not open a session').toBeUndefined();
     } finally {
       await endMeetings(request, [meetingId]);
+    }
+  }
+
+  // getJoinUrl signs a join URL for the caller's own session. Values that URL
+  // encoding changes (spaces in the meeting ID and the name here) must decode
+  // back to the originals, or join cannot find the meeting; and join must accept
+  // the URL this server signed.
+  async testGetJoinUrlRoundTrip(page: PlaywrightPage, testInfo: TestInfo, request: APIRequestContext) {
+    const meetingID = `getJoinUrl round trip ${getRandomInt(1000000, 10000000)}`;
+    // Page.init signs the create and join queries as written, so the ID travels encoded.
+    const encodedMeetingID = encodeURIComponent(meetingID);
+    await createMeeting(undefined, encodedMeetingID);
+    await this.initModPage(page, { testInfo, meetingId: encodedMeetingID, fullName: 'Signed Moderator' });
+    try {
+      await expect.poll(() => isMeetingRunning(request, meetingID), pollOptions).toBe('true');
+      const fullName = 'Signed Viewer';
+      const { response: joined } = await join(request, { fullName, meetingID, role: 'VIEWER', redirect: 'false' });
+      expect(joined.returncode, 'the viewer join should succeed').toEqual(['SUCCESS']);
+      const sessionToken = joined.session_token?.[0] as string;
+
+      // The session cookie of that join travels with the request context.
+      const res = await request.get(`${parameters.server}/api/getJoinUrl?sessionToken=${sessionToken}`, {
+        headers: { Accept: 'application/json' },
+      });
+      const { response } = await res.json();
+      expect(response.returncode, 'getJoinUrl should succeed').toBe('SUCCESS');
+      const { url }: { url: string } = response;
+      const signed = new URLSearchParams(url.slice(url.indexOf('?') + 1));
+      expect(signed.get('meetingID'), 'the meeting ID should decode back to the original').toBe(meetingID);
+      expect(signed.get('fullName'), 'the name should decode back to the original').toBe(fullName);
+      expect([40, 64, 96, 128], 'the checksum should have a supported length').toContain(
+        (signed.get('checksum') ?? '').length,
+      );
+
+      const followed = await requestApiCall(request, url);
+      expect(followed.redirectErrors, 'join should accept the URL it signed').toBeUndefined();
+      expect(followed.status, 'join should accept the URL it signed').toBe(302);
+      expect(followed.location, 'the URL should open a session').toMatch(/sessionToken=[a-z0-9]+/);
+    } finally {
+      await endMeetings(request, [meetingID]);
     }
   }
 }

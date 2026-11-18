@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# deleteRecordings deletes a published or unpublished recording, in every
+# format: getRecordings no longer lists it unless asked for state deleted,
+# and a second delete doesn't find it. Serial, with the recording put back
+# before and after.
+id: deleteRecordings.state.delete
+title: deleteRecordings deletes ${case}
+endpoint: deleteRecordings
+class: contract
+tags: [ci, serial]
+variants:
+  - {id: published, vars: {case: a published recording, rid: 4d64ff980226cdc0de5d24362bf27a829e1a8ab2-1700025200000}}
+  - {id: unpublished, vars: {case: an unpublished recording, rid: db0c52cbb08b78549a52cb6f29e4d8dc236977bd-1700021600000}}
+steps:
+  - restore: {recordings: ["${rid}"]}
+  - call: deleteRecordings
+    params: {recordID: "${rid}"}
+    expect:
+      returncode: SUCCESS
+      xpath: {/response/deleted: "true"}
+  - call: getRecordings
+    params: {recordID: "${rid}"}
+    expect: {returncode: SUCCESS, messageKey: noRecordings}
+  - call: getRecordings
+    params: {recordID: "${rid}", state: deleted}
+    expect:
+      returncode: SUCCESS
+      xpath:
+        /response/recordings/recording/state: deleted
+        /response/recordings/recording/published: "false"
+        /response/recordings/recording/playback/format: {count: 2}
+  - call: deleteRecordings
+    params: {recordID: "${rid}"}
+    expect: {returncode: FAILED, messageKey: notFound}
+teardown:
+  - restore: {recordings: ["${rid}"]}

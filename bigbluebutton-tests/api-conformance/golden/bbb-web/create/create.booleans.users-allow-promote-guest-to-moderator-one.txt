@@ -1,0 +1,18 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.booleans.users-allow-promote-guest-to-moderator-one
+target bbb-web
+
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.usersProp
+$.core.body.props.usersProp.allowModsToEjectCameras false
+$.core.body.props.usersProp.allowModsToUnmuteUsers false
+$.core.body.props.usersProp.allowPromoteGuestToModerator false
+$.core.body.props.usersProp.authenticatedGuest true
+$.core.body.props.usersProp.guestPolicy "ALWAYS_ACCEPT"
+$.core.body.props.usersProp.maxUserConcurrentAccesses 3
+$.core.body.props.usersProp.maxUsers 0
+$.core.body.props.usersProp.meetingLayout "UNIFIED_LAYOUT"
+$.core.body.props.usersProp.multiUserWhiteboardEnabled false
+$.core.body.props.usersProp.requireUserConsentBeforeUnmuting false
+$.core.body.props.usersProp.userCameraCap 3
+$.core.body.props.usersProp.waitingGuestUsersTimeout 30000
+$.core.body.props.usersProp.webcamsOnlyForModerator false

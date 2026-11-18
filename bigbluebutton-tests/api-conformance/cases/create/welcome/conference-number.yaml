@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# %%CONFNUM%% in the welcome message becomes the voiceBridge, in groups of
+# three digits once it is longer than five. The voiceBridges are fixed, and
+# must be unique on the server, so the case runs alone.
+id: create.welcome.conference-number
+title: create with %%CONFNUM%% and a ${digits}-digit voiceBridge
+endpoint: create
+class: contract
+tags: [ci, serial]
+requires: [akka, bus]
+variants:
+  - {id: five-digits, vars: {digits: 5, voiceBridge: "71234"}}
+  - {id: seven-digits, vars: {digits: 7, voiceBridge: "7123456"}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Keywords, voiceBridge: "${voiceBridge}", welcome: "Call %%CONFNUM%%"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.props.welcomeProp]
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}
