@@ -721,6 +721,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       showSessionDetailsOnJoin: true,
       showScreenshareQuickSwapButton: false,
       showLeaveSessionLabel: false,
+      layoutViewEnabled: true,
       usersPerUserListPage: 50,
       syncCameraDockSizeAndPosition: true,
     },

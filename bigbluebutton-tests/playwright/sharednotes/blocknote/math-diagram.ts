@@ -39,7 +39,6 @@ interface DiagramColors {
   boxLuminance: number;
   labelLuminance: number;
   cardLuminance: number;
-  styleKeptFromDarkReader: boolean;
 }
 
 // Relative luminance (0 dark .. 1 light) of the diagram's parts
@@ -57,9 +56,6 @@ async function readDiagramColors(testPage: Page): Promise<DiagramColors | null> 
       boxLuminance: luminance(getComputedStyle(box).fill),
       labelLuminance: luminance(getComputedStyle(label).fill),
       cardLuminance: luminance(getComputedStyle(svg).backgroundColor),
-      styleKeptFromDarkReader: Array.from(svg.querySelectorAll('style')).some((style) =>
-        style.classList.contains('stylus'),
-      ),
     };
   }, e.blockNoteDiagram);
 }
@@ -223,13 +219,12 @@ export class MathDiagramSharedNotes extends MultiUsers {
 
     const expectLightCard = async (mode: string) => {
       await expect
-        .poll(() => readDiagramColors(this.modPage), {
-          message: `in ${mode} mode the diagram should keep its own stylesheet`,
+        .poll(async () => (await readDiagramColors(this.modPage))?.cardLuminance, {
+          message: `in ${mode} mode the diagram should sit on a light card`,
           timeout: ELEMENT_WAIT_LONGER_TIME,
         })
-        .toMatchObject({ styleKeptFromDarkReader: true });
+        .toBeGreaterThan(0.9);
       const colors = await readDiagramColors(this.modPage);
-      expect(colors!.cardLuminance, `in ${mode} mode the diagram should sit on a light card`).toBeGreaterThan(0.9);
       expect(colors!.boxLuminance, `in ${mode} mode boxes should be lighter than their labels`).toBeGreaterThan(
         colors!.labelLuminance + 0.4,
       );

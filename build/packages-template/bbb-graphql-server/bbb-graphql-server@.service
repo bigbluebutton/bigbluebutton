@@ -22,6 +22,9 @@ EnvironmentFile=/etc/default/bbb-graphql-server
 EnvironmentFile=-/etc/bigbluebutton/bbb-graphql-server.env
 # Load Hasura password
 EnvironmentFile=/etc/default/bbb-graphql-server-admin-pass
+# Load the secret of the Prometheus metrics endpoint. Optional: without the
+# file the engine still starts and the fail-closed endpoint answers 401.
+EnvironmentFile=-/etc/default/bbb-graphql-server-metrics-secret
 Environment=HASURA_GRAPHQL_SERVER_PORT=%i
 ExecStart=/usr/bin/hasura-graphql-engine serve
 ExecReload=/bin/kill -HUP $MAINPID

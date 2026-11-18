@@ -640,6 +640,7 @@ export interface Layout {
   showSessionDetailsOnJoin: boolean
   showScreenshareQuickSwapButton: boolean
   showLeaveSessionLabel: boolean
+  layoutViewEnabled?: boolean
   usersPerUserListPage: number
   syncCameraDockSizeAndPosition: boolean
 }

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import Icon from '/imports/ui/components/common/icon/component';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Styled from './styles';
@@ -65,28 +64,30 @@ const MediaConsentModal = ({
       priority="high"
       title={title}
       onRequestClose={onDeny}
+      footerContent={(
+        <>
+          <Styled.FooterButton
+            label={effectiveDenyLabel}
+            dataTest={denyDataTest}
+            iconStart={isSmallViewport ? null : <Icon iconName={denyIcon} />}
+            onClick={onDeny}
+            variant="secondary"
+            color="danger"
+          />
+          <Styled.FooterButton
+            label={confirmLabel}
+            dataTest={confirmDataTest}
+            iconStart={isSmallViewport ? null : <Icon iconName={confirmIcon} />}
+            onClick={onConfirm}
+            variant="primary"
+            color="default"
+          />
+        </>
+      )}
     >
       <Styled.Subtitle>
         {subtitle}
       </Styled.Subtitle>
-      <Styled.RequestModalContent>
-        <BBButton
-          label={confirmLabel}
-          dataTest={confirmDataTest}
-          iconStart={<Icon iconName={confirmIcon} />}
-          onClick={onConfirm}
-          variant="primary"
-          color="default"
-        />
-        <BBButton
-          label={effectiveDenyLabel}
-          dataTest={denyDataTest}
-          iconStart={<Icon iconName={denyIcon} />}
-          onClick={onDeny}
-          variant="secondary"
-          color="danger"
-        />
-      </Styled.RequestModalContent>
     </ModalSimple>
   );
 };

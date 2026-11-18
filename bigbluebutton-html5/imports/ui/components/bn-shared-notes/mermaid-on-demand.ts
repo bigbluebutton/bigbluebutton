@@ -10,8 +10,8 @@ let loading: Promise<Mermaid> | undefined;
 
 // WORKAROUND until https://github.com/TypeCellOS/BlockNote/pull/3219 (theme-aware
 // diagrams) lands; remove this light card then. The diagram block cannot redraw
-// on a theme switch, and DarkReader would leave light text on light boxes, so
-// diagrams always use the light theme on a light card kept out of DarkReader.
+// on a theme switch, so diagrams always use the light theme, on a light card that
+// keeps them readable in the dark theme.
 const configure = (mermaid: Mermaid): Mermaid => {
   if (!configured) {
     mermaid.initialize({ ...config, theme: 'default' });
@@ -42,13 +42,11 @@ const mermaidOnDemand = {
   async render(...args: Parameters<Mermaid['render']>): ReturnType<Mermaid['render']> {
     const [id] = args;
     const result = await configure(await loadMermaid()).render(...args);
-    // DarkReader skips "stylus" stylesheets. Not "darkreader": it deletes those
-    // when dark mode is switched off, stripping the diagram's colors.
     return {
       ...result,
       svg: result.svg.replace(
         '<style>',
-        `<style class="stylus">#${id}{background:#fff;border-radius:4px;padding:8px}`,
+        `<style>#${id}{background:#fff;border-radius:4px;padding:8px}`,
       ),
     };
   },

@@ -67,6 +67,14 @@ object Layouts {
     instance.screenshareAsContent
   }
 
+  def setHideUsersWithoutCamera(instance: Layouts, hideUsersWithoutCamera: Boolean) = {
+    instance.hideUsersWithoutCamera = hideUsersWithoutCamera
+  }
+
+  def getHideUsersWithoutCamera(instance: Layouts): Boolean = {
+    instance.hideUsersWithoutCamera
+  }
+
   def setRequestedBy(instance: Layouts, setBy: String) = {
     instance.setByUser = setBy;
   }
@@ -86,6 +94,7 @@ class Layouts {
   private var focusedCamera: String = "none";
   private var presentationVideoRate: Double = 0;
   private var screenshareAsContent: Boolean = false;
+  private var hideUsersWithoutCamera: Boolean = false;
 }
 
 object LayoutsType {

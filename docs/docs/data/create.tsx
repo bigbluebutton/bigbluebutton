@@ -364,6 +364,13 @@ const createEndpointTableData = [
     "description": (<>Will set the default layout for the meeting. Possible values are: UNIFIED_LAYOUT. (added 2.4) In version 3.0 a few more possible options were added: CAMERAS_ONLY, PRESENTATION_ONLY, PARTICIPANTS_AND_CHAT_ONLY, MEDIA_ONLY</>)
   },
   {
+    "name": "hideUsersWithoutCamera",
+    "required": false,
+    "type": "Boolean",
+    "default": "false",
+    "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> starts the meeting with participants without a camera hidden from the webcam grid, for everyone. Moderators and the presenter can turn it off from the "Layout view" button in the actions bar. (added 4.1)</>)
+  },
+  {
     "name": "learningDashboardCleanupDelayInMinutes",
     "required": false,
     "type": "Number",
@@ -625,6 +632,9 @@ const createEndpointTableData = [
             </li>
             <li>
               <code className="language-plaintext highlighter-rouge">webcamGrid</code> - <b>Enable/Disable the webcam grid, ie. the avatar tiles rendered for camera-less users while the presentation is minimized (added in BigBlueButton 4.0)</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">layoutView</code> - <b>Enable/Disable the "Layout view" button in the actions bar, which lets moderators and the presenter hide participants without camera. While disabled, the option keeps the value it was created with (see <code className="language-plaintext highlighter-rouge">hideUsersWithoutCamera</code>). Can also be disabled for the whole server with <code className="language-plaintext highlighter-rouge">public.layout.layoutViewEnabled: false</code> (added in BigBlueButton 4.1)</b>
             </li>
           </ul>
         </>
