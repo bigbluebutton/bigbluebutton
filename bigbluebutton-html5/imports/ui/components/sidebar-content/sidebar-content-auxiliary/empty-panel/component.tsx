@@ -44,13 +44,13 @@ const EmptyPanel: React.FC = () => {
           )
         }
       />
-      <Styled.PanelContent>
-        <Styled.Icon iconName="add_column" />
+      <Styled.PanelContent className="bbb-empty-panel">
+        <Styled.Icon iconName="add_column" className="bbb-empty-panel__icon" />
         <Styled.WrapText>
-          <Styled.BodyTitle>
+          <Styled.BodyTitle className="bbb-empty-panel__title">
             {intl.formatMessage(intlMessages.multifunctionalTitle)}
           </Styled.BodyTitle>
-          <Styled.BodyDescription>
+          <Styled.BodyDescription className="bbb-empty-panel__description">
             {intl.formatMessage(intlMessages.multifunctionalDescription)}
           </Styled.BodyDescription>
         </Styled.WrapText>

@@ -14,7 +14,7 @@ getRecordings finds a recording by its meeting's ID.
 | Meeting ID | Record ID | State, formats | For |
 |---|---|---|---|
 | `conform-rec-a` | `e633b943…-1700000000000` (A1) | published: presentation, video | everything a recording can have: preview images, `<data>`, two formats, caption tracks (en, fr-CA); blue, large |
-| `conform-rec-a` | `e633b943…-1700003600000` (A2) | unpublished: presentation | a second session of one meeting; green |
+| `conform-rec-a` | `e633b943…-1700003600000` (A2) | unpublished: presentation | a second session of one meeting; green; its video format failed to process (a `.fail` marker) |
 | `conform-rec-b` | `e449065b…-1700007200000` (B1) | published: presentation | meta wildcards (`conform-tag` alpha-beta-gamma); a captions directory without captions.json |
 | `conform-rec-c` | `eb226ead…-1700010800000` | deleted: presentation | the deleted state |
 | `conform-rec-d` | `dbebceff…-1700014400000` | processed (`recording/process`) | processing and processed |
@@ -29,6 +29,13 @@ The last four are changed by the cases that use them: each such case
 restores them before and after it runs, and is tagged `serial`. No other
 case may change a recording. A case that adds a recording here changes
 what getRecordings with no filter lists (`getRecordings.all.*`).
+
+`recording/status/` holds record-and-playback's status markers for the
+fixture recordings: `<record ID>[-<format>].done` or `.fail`, in
+`archived/`, `sanity/`, `processed/` or `published/`. The tap installs and
+restores them with their recording. A2's `processed/…-video.fail` is the
+only one: getRecordingProcessingInfo counts it in `failedCount`, and a
+marker added here changes that count (`getRecordingProcessingInfo.*`).
 
 Nothing here is real: the names, IDs, host (`recordings.test`, which no
 server is reached at) and caption text were made up for the suite.

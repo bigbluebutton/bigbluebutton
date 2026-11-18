@@ -662,7 +662,8 @@ func (x *exec) call(ctx context.Context, phase string, index int, s spec.Step, s
 			if rem := time.Until(deadline); rem < t {
 				t = max(rem, minAttempt)
 			}
-			obs, err := x.session.Do(ctx, p, cs.Client, cs.FollowRedirects, t)
+			obs, forwarded, err := x.session.Do(ctx, p, cs.Client, cs.FollowRedirects, t)
+			reportForwarded(sr, forwarded)
 			lastErr = err
 			if err == nil {
 				o = obs
@@ -708,7 +709,9 @@ func (x *exec) call(ctx context.Context, phase string, index int, s spec.Step, s
 			}
 		}
 	} else {
-		o, err = x.session.Do(ctx, p, cs.Client, cs.FollowRedirects, timeout)
+		var forwarded []string
+		o, forwarded, err = x.session.Do(ctx, p, cs.Client, cs.FollowRedirects, timeout)
+		reportForwarded(sr, forwarded)
 		if err != nil {
 			sr.Status, sr.Message = report.Error, err.Error()
 			return
@@ -781,6 +784,22 @@ const (
 	maxRequestBody  = 4 << 10
 	maxResponseBody = 16 << 10
 )
+
+// reportForwarded names in the step's report the cookies a subrequest
+// forwarded from its client's jar, without their values.
+func reportForwarded(sr *report.StepResult, names []string) {
+	if len(names) == 0 {
+		return
+	}
+	parts := make([]string, len(names))
+	for i, n := range names {
+		parts[i] = n + "=<forwarded>"
+	}
+	if sr.Request.Headers == nil {
+		sr.Request.Headers = map[string]string{}
+	}
+	sr.Request.Headers["Cookie"] = strings.Join(parts, "; ")
+}
 
 func (x *exec) requestInfo(p *client.Prepared) *report.Request {
 	rq := &report.Request{Method: p.Method, URL: x.redact(p.URL), Headers: x.headerMap(p.Header), Chunked: p.Chunked}
