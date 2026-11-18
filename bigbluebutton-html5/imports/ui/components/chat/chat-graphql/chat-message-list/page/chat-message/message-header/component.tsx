@@ -40,7 +40,7 @@ const ChatMessageHeader: React.FC<ChatMessageHeaderProps> = ({
   if (sameSender) return null;
 
   return (
-    <Styled.HeaderContent role={role}>
+    <Styled.HeaderContent className="bbb-chat-message__header" role={role}>
       <Styled.ChatHeaderText>
         <Styled.ChatUserName
           className="bbb-chat-message__name"
@@ -60,7 +60,7 @@ const ChatMessageHeader: React.FC<ChatMessageHeaderProps> = ({
             {actions}
           </Styled.HeaderActions>
         )}
-        <Styled.Center />
+        <Styled.Center className="bbb-chat-message__header-spacer" />
         {!deleteTime && editTime && (
           <Tooltip title={intl.formatTime(editTime)}>
             <Styled.EditLabel data-test="chatMessageEditedLabel">

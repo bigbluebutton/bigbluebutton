@@ -216,6 +216,48 @@ export class Timer extends MultiUsers {
     await this.modPage.wasRemoved(e.timerIndicator, 'should remove the timer indicator for the moderator');
   }
 
+  // https://github.com/bigbluebutton/bigbluebutton/issues/26419
+  async closesPanelOnDemotion() {
+    await this.promoteToModerator();
+
+    const participant = this.userPage.page;
+    const pageErrors: string[] = [];
+    participant.on('pageerror', (error) => pageErrors.push(error.message));
+    await this.userPage.waitAndClick(e.timerStopwatchFeature);
+    await expect(participant.locator(e.timerHeader)).toBeVisible();
+    await this.userPage.waitAndClick(e.stopwatch);
+    await this.userPage.waitAndClick(e.startStopTimer);
+    await expect(participant.locator(e.startStopTimer)).toHaveText('Stop');
+    const indicator = participant.locator(e.timerIndicator);
+    const initialTime = await timeInSeconds(indicator);
+    await expect.poll(() => timeInSeconds(indicator)).toBeGreaterThan(initialTime);
+    await this.userPage.waitAndClick(e.startStopTimer);
+    await expect(participant.locator(e.startStopTimer)).toHaveText('Start');
+    const timeBeforeDemotion = await timeInSeconds(indicator);
+
+    await this.modPage.waitAndClick(e.moreOptionsUserItemButton);
+    await this.modPage.waitAndClick(e.demoteToViewer);
+    await expect(participant.locator(e.timerStopwatchFeature)).toHaveCount(0);
+    await expect(participant.locator(e.timerHeader)).toHaveCount(0);
+    await expect(participant.locator(e.startStopTimer)).toHaveCount(0);
+    await expect(participant.locator(e.sidebarContentMain)).toBeHidden();
+
+    // Closing the controls must not deactivate or reset the meeting's timer.
+    await expect(indicator).toBeVisible();
+    await expect(this.modPage.page.locator(e.timerIndicator)).toBeVisible();
+    expect(await timeInSeconds(indicator)).toBe(timeBeforeDemotion);
+
+    // The controls should work again after promotion, with the shared state preserved.
+    await this.modPage.waitAndClick(e.moreOptionsUserItemButton);
+    await this.modPage.waitAndClick(e.promoteToModerator);
+    await this.userPage.waitAndClick(e.timerStopwatchFeature);
+    await expect(participant.locator(e.timerHeader)).toBeVisible();
+    await expect(participant.locator(e.startStopTimer)).toHaveText('Start');
+    await this.userPage.waitAndClick(e.startStopTimer);
+    await expect(participant.locator(e.startStopTimer)).toHaveText('Stop');
+    expect(pageErrors, 'role changes should not cause uncaught timer errors').toEqual([]);
+  }
+
   async openTimerAndStopwatch() {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.timerStopwatchFeature);

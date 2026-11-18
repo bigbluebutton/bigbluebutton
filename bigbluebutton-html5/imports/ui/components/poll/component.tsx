@@ -779,6 +779,7 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
           <Styled.PollActionsRow>
             <Styled.CancelPollBtn>
               <BBButton
+                className="bbb-action-button bbb-action-button--secondary"
                 dataTest="cancelPollCreation"
                 label={intl.formatMessage(intlMessages.cancelLabel)}
                 variant="secondary"

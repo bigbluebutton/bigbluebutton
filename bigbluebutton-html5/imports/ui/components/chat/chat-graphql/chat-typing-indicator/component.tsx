@@ -133,7 +133,7 @@ const TypingIndicator: React.FC<TypingIndicatorProps> = ({
 
   return (
     <Styled.TypingIndicatorWrapper>
-      <Styled.TypingIndicator data-test="typingIndicator">{element}</Styled.TypingIndicator>
+      <Styled.TypingIndicator className="bbb-chat__typing" data-test="typingIndicator">{element}</Styled.TypingIndicator>
     </Styled.TypingIndicatorWrapper>
   );
 };

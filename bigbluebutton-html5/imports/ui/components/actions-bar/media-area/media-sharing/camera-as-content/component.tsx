@@ -246,7 +246,7 @@ const CameraAsContentView: React.FC<CameraAsContentViewProps> = ({
             : <span>{formatMessage(intlMessages.webcamNotFoundLabel)}</span>}
         </ProfileStyled.DeviceContainer>
       </Styled.Content>
-      <ModalStyled.FooterContainer>
+      <ModalStyled.FooterContainer className="bbb-media-sharing__footer">
         <BBButton
           dataTest={!hasCameraAsContent ? 'StartCameraAsContent' : 'StopCameraAsContent'}
           label={!hasCameraAsContent

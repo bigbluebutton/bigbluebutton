@@ -56,13 +56,19 @@ there compares like with like.
   (`*.errors.*`, `*.tracks.*`, `*.upload.*`) and the caption-file routes
   (`textTrack/`). They were recorded from a fresh stack (`make reset`)
   built from this tree that day, with the tap installing
-  `fixtures/recordings/`. On 2026-11-12 the fixtures' links moved to the
-  host `recordings.test`, and the 56 recordings that show them were
-  re-recorded from a fresh stack running packages built from
+  `fixtures/recordings/`. On 2026-11-10 the auth hook cases (`connection/`,
+  two of them under the alt-defaults profile and one under
+  short-users-timeout) were added, recorded from a stack built that day from
+  a tree without the recording cases. On 2026-11-12 the fixtures' links
+  moved to the host `recordings.test`, and the 56 recordings that show
+  them were re-recorded from a fresh stack running packages built from
   v4.0.x-develop of 2026-11-10; only the host changed in them. On
   2026-11-13 `getRecordings.all.fetch-all-off` was re-recorded without its
   limited listing, whose formats depend on the file system's order, from a
-  stack running the same packages.
+  stack running the same packages. On 2026-11-16 the getRecordingProcessingInfo
+  cases (`getRecordingProcessingInfo/`, and their checksum and method cases)
+  were added, recorded from a fresh stack (`make reset`) running a bbb-web
+  built from this tree that day and the other packages of 2026-11-10.
 
 ## Reviewing
 

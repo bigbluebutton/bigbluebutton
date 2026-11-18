@@ -1,0 +1,22 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case connection.graphql-authz.options
+target bbb-web
+
+== step 4: route connection-graphql-authz
+status 200
+header Cache-Control no-cache
+header Content-Type plain/text
+body text 15 bytes, sha256 0b0b0fc4b3ae
+
+== step 5: route connection-graphql-authz
+status 200
+header Cache-Control no-cache
+header Content-Type plain/text
+body text 15 bytes, sha256 0b0b0fc4b3ae
+
+== step 6: route connection-graphql-authz
+status 401
+header Cache-Control no-cache
+header Content-Type application/json;charset=utf-8
+body json
+$.response "unauthorized"

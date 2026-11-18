@@ -811,6 +811,10 @@ public class MeetingService implements MessageListener {
     return recordingService.existAnyRecording(idList);
   }
 
+  public RecordingProcessingInfo getRecordingProcessingInfo() {
+    return recordingService.getRecordingProcessingInfo();
+  }
+
   public void setPublishRecording(List<String> idList, boolean publish) {
     for (String id : idList) {
       if (publish) {

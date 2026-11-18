@@ -442,11 +442,13 @@ class Settings extends Component {
           <>
             <ModalFooterButton
               variant="subtle"
+              className="bbb-action-button bbb-action-button--subtle"
               label={intl.formatMessage(intlMessages.CancelLabel)}
               onClick={this.performClose}
             />
             <ModalFooterButton
               variant="primary"
+              className="bbb-action-button bbb-action-button--primary"
               dataTest="saveSettingsButton"
               label={intl.formatMessage(intlMessages.SaveLabel)}
               onClick={() => {

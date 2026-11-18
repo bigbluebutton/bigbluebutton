@@ -121,6 +121,12 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await timer.timerCountdownForAttendeeTest();
     });
 
+    test('Closes timer panel on demotion', async ({ browser, context, page }, testInfo) => {
+      const timer = new Timer(browser, context);
+      await timer.initPages(page, testInfo);
+      await timer.closesPanelOnDemotion();
+    });
+
     test('Leave Meeting', async ({ browser, context, page }, testInfo) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page, { testInfo });
