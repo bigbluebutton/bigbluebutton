@@ -183,10 +183,13 @@ const uploadAndConvertPresentation = (
       }, 'Generic presentation upload exception catcher');
       // Set only once the token arrived and the server answered the upload request with an
       // error. A request that got no answer may still have delivered the file, so its
-      // presentation is left to the server, which converts it or marks it as failed.
+      // presentation is left to the server, which converts it or marks it as failed. The same
+      // goes for a gateway timeout (504): nginx gave up waiting for bbb-web, which has the
+      // request and may still accept the file.
       // A file refused for its size keeps its presentation: the server recorded that reason on
       // it, and the uploader toast shows it.
-      const uploadRequestFailed = !!serverPresentationId && !!error?.code && error.code !== 413;
+      const uploadRequestFailed = !!serverPresentationId && !!error?.code
+        && error.code !== 504 && error.code !== 413;
       // Not waited for: with the connection down it would hold back the presenter's own error.
       if (uploadRequestFailed) removeFailedUpload(serverPresentationId);
       if (onUpload) {
