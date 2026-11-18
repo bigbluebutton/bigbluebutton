@@ -239,65 +239,21 @@ export interface DataSaving {
 }
 
 export interface Shortcuts {
-  openOptions: OpenOptions
-  toggleUserList: ToggleUserList
-  openLeaveMenu: OpenLeaveMenu
-  toggleMute: ToggleMute
-  joinAudio: JoinAudio
-  leaveAudio: LeaveAudio
-  togglePublicChat: TogglePublicChat
-  hidePrivateChat: HidePrivateChat
-  closePrivateChat: ClosePrivateChat
-  raiseHand: RaiseHand
-  openActions: OpenActions
-  openDebugWindow: OpenDebugWindow
+  openOptions: ShortcutSetting
+  toggleUserList: ShortcutSetting
+  openLeaveMenu: ShortcutSetting
+  toggleMute: ShortcutSetting
+  joinAudio: ShortcutSetting
+  leaveAudio: ShortcutSetting
+  togglePublicChat: ShortcutSetting
+  hidePrivateChat: ShortcutSetting
+  closePrivateChat: ShortcutSetting
+  raiseHand: ShortcutSetting
+  openActions: ShortcutSetting
+  openDebugWindow: ShortcutSetting
 }
 
-export interface OpenOptions {
-  accesskey: string
-}
-
-export interface ToggleUserList {
-  accesskey: string
-}
-
-export interface OpenLeaveMenu {
-  accesskey: string
-}
-
-export interface ToggleMute {
-  accesskey: string
-}
-
-export interface JoinAudio {
-  accesskey: string
-}
-
-export interface LeaveAudio {
-  accesskey: string
-}
-
-export interface TogglePublicChat {
-  accesskey: string
-}
-
-export interface HidePrivateChat {
-  accesskey: string
-}
-
-export interface ClosePrivateChat {
-  accesskey: string
-}
-
-export interface RaiseHand {
-  accesskey: string
-}
-
-export interface OpenActions {
-  accesskey: string
-}
-
-export interface OpenDebugWindow {
+export interface ShortcutSetting {
   accesskey: string
 }
 
