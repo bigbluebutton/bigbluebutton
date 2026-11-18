@@ -7,6 +7,55 @@ import { MultiUsers } from '../user/multiusers';
 import { getCenterX, getHtmlFontSize, getLocaleValues, openAboutModal, openSettings, selectLocale } from './util';
 
 export class Options extends MultiUsers {
+  // The moderator page was initialised with public.app.shortcuts overrides for openOptions and
+  // toggleUserList; the buttons and the Keyboard shortcuts tab must both show the new letters.
+  async remappedAccessKeys(openOptionsKey: string, toggleUserListKey: string) {
+    await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard');
+    // BBBMenu puts the access key on the wrapper of its trigger, not on the button itself
+    await expect(
+      this.modPage.page.locator(e.optionsButton).locator('xpath=..'),
+      'should the options button carry the remapped access key',
+    ).toHaveAttribute('accesskey', openOptionsKey);
+    await expect(
+      this.modPage.page.locator(e.usersListSidebarButton),
+      'should the user list button carry the remapped access key',
+    ).toHaveAttribute('accesskey', toggleUserListKey);
+
+    await openSettings(this.modPage);
+    await this.modPage.waitAndClick(e.shortcutsTab);
+    const rows = this.modPage.page.locator(`${e.simpleModal} table tr`);
+    await expect(
+      rows.filter({ hasText: 'Open Options' }),
+      'should list the remapped Open Options shortcut',
+    ).toContainText(`+ ${openOptionsKey}`);
+    await expect(
+      rows.filter({ hasText: 'Toggle UserList' }),
+      'should list the remapped Toggle UserList shortcut',
+    ).toContainText(`+ ${toggleUserListKey}`);
+    await expect(
+      rows.filter({ hasText: 'Mute / Unmute' }),
+      'should keep the shipped access key of the other shortcuts',
+    ).toContainText('+ M');
+  }
+
+  // An override file written for an older release may still carry the descId field that used to sit
+  // next to accesskey; it must not change the shortcut or break the Keyboard shortcuts tab.
+  async shortcutsUnaffectedByStaleDescId() {
+    await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard');
+    await expect(
+      this.modPage.page.locator(e.optionsButton).locator('xpath=..'),
+      'should keep the shipped access key of the options button',
+    ).toHaveAttribute('accesskey', 'O');
+
+    await openSettings(this.modPage);
+    await this.modPage.waitAndClick(e.shortcutsTab);
+    await expect(
+      this.modPage.page.locator(`${e.simpleModal} table tr`).filter({ hasText: 'Open Options' }),
+      'should list the Open Options shortcut with its shipped access key',
+    ).toContainText('+ O');
+    await this.modPage.wasRemoved(e.errorMessageLabel, 'should not show the error screen');
+  }
+
   async openedAboutModal() {
     await openAboutModal(this.modPage);
     await this.modPage.hasText(e.simpleModal, 'Copyright: ', 'should display the copyright text');
