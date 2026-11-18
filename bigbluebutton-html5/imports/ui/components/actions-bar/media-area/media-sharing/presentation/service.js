@@ -178,8 +178,13 @@ const uploadAndConvertPresentation = (
         },
       }, 'Generic presentation upload exception catcher');
       // Set only once the token arrived, so this is a failure of the upload request itself.
-      const uploadRequestFailed = !!serverPresentationId;
-      return removeFailedUpload(serverPresentationId).then(() => {
+      // A file refused for its size keeps its presentation: the server recorded that reason on
+      // it, and the uploader toast shows it.
+      const uploadRequestFailed = !!serverPresentationId && error?.code !== 413;
+      const removed = uploadRequestFailed
+        ? removeFailedUpload(serverPresentationId)
+        : Promise.resolve();
+      return removed.then(() => {
         if (onUpload) {
           onUpload({
             error: true,
