@@ -68,8 +68,15 @@ BigBlueButton.logger.info("Recording Ready Notify for [#{meeting_id}] starts")
 
 begin
   callback_url = get_callback_url(events_xml)
-
   unless callback_url.nil?
+    destination = BigBlueButton::CallbackDestination.check(
+      callback_url, policy: BigBlueButton::CallbackDestination.policy_from_bbb_web
+    )
+  end
+
+  if destination && !destination.admitted?
+    BigBlueButton::CallbackDestination.log_refusal(destination)
+  elsif destination
     BigBlueButton.logger.info("Making callback for recording ready notification")
 
     props = BigBlueButton.read_java_props(bbb_web_properties)
@@ -79,15 +86,13 @@ begin
     payload = { meeting_id: external_meeting_id, record_id: meeting_id }
     payload_encoded = JWT.encode(payload, secret)
 
-    uri = URI.parse(callback_url)
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = (uri.scheme == 'https')
+    uri = destination.uri
 
-    BigBlueButton.logger.info("Sending request to #{uri.scheme}://#{uri.host}#{uri.request_uri}")
+    BigBlueButton.logger.info("Sending request to #{uri.scheme}://#{uri.host}#{uri.path}")
     request = Net::HTTP::Post.new(uri.request_uri)
     request.set_form_data({ signed_parameters: payload_encoded })
 
-    response = http.request(request)
+    response = BigBlueButton::CallbackDestination.post(destination, request)
     code = response.code.to_i
 
     if code == 410
