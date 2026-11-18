@@ -533,6 +533,26 @@ export async function refuseUploadRequests(testPage: Page) {
   );
 }
 
+// Delivers the file of the page's upload requests to the server and then fails the requests
+// themselves, as when the server's answer is lost on its way back. The browser does not hand a
+// file's bytes to a route, so the request's other fields are read and the file is sent again.
+export async function loseUploadAnswers(testPage: Page, file: GeneratedFile) {
+  await testPage.page.route(UPLOAD_REQUEST, async (route) => {
+    const request = route.request();
+    const fields = Object.fromEntries(
+      [...(request.postData() ?? '').matchAll(/name="([^"]+)"\r\n\r\n([^\r]*)\r\n/g)].map((field) => [
+        field[1],
+        field[2],
+      ]),
+    );
+    const response = await testPage.page.request.post(request.url(), {
+      multipart: { fileUpload: file, ...fields },
+    });
+    expect(response.status(), 'should have the server accept the upload').toBe(200);
+    await route.abort('failed');
+  });
+}
+
 export async function stopInterceptingUploadRequests(testPage: Page) {
   await testPage.page.unroute(UPLOAD_REQUEST);
 }
@@ -546,44 +566,78 @@ export async function sendUploadWithoutItsMeeting(testPage: Page, uploadUrl: str
 }
 
 // Starts sending a file to uploadUrl and then goes silent without closing the connection, as an
-// upload over a connection that stalls does. Resolves once the server gives up on the request.
-export function sendStalledUpload(uploadUrl: string, file: GeneratedFile): Promise<void> {
+// upload over a connection that stalls does. state() says how the connection stands: the server
+// giving up on the request is 'closed by the server'. close() ends it from this side.
+export type StalledUploadState = 'open' | 'closed by the server' | 'failed' | 'closed';
+
+export function sendStalledUpload(
+  uploadUrl: string,
+  file: GeneratedFile,
+): { state: () => StalledUploadState; close: () => void } {
   const { hostname, port, pathname } = new URL(uploadUrl);
   const boundary = '----stalledUpload';
   const head = Buffer.from(
     `--${boundary}\r\nContent-Disposition: form-data; name="fileUpload"; filename="${file.name}"\r\n` +
       `Content-Type: ${file.mimeType}\r\n\r\n`,
   );
-  return new Promise((resolve, reject) => {
-    const socket = tls.connect({ host: hostname, port: Number(port) || 443, servername: hostname }, () => {
-      socket.write(
-        `POST ${pathname} HTTP/1.1\r\nHost: ${hostname}\r\n` +
-          `Content-Type: multipart/form-data; boundary=${boundary}\r\n` +
-          // more than is ever sent, so the server keeps waiting for the rest
-          `Content-Length: ${head.length + file.buffer.length + 1024}\r\nConnection: close\r\n\r\n`,
-      );
-      socket.write(head);
-      socket.write(file.buffer.subarray(0, Math.ceil(file.buffer.length / 2)));
-    });
-    socket.on('close', () => resolve());
-    socket.on('error', reject);
+  let state: StalledUploadState = 'open';
+  const end = (how: StalledUploadState) => {
+    if (state === 'open') state = how;
+  };
+  const socket = tls.connect({ host: hostname, port: Number(port) || 443, servername: hostname }, () => {
+    socket.write(
+      `POST ${pathname} HTTP/1.1\r\nHost: ${hostname}\r\n` +
+        `Content-Type: multipart/form-data; boundary=${boundary}\r\n` +
+        // more than is ever sent, so the server keeps waiting for the rest
+        `Content-Length: ${head.length + file.buffer.length + 1024}\r\nConnection: close\r\n\r\n`,
+    );
+    socket.write(head);
+    socket.write(file.buffer.subarray(0, Math.ceil(file.buffer.length / 2)));
   });
+  socket.resume(); // the answer is not needed, but unread data would keep the connection from closing
+  socket.on('error', () => {
+    end('failed');
+    socket.destroy();
+  });
+  socket.on('close', () => end('closed by the server'));
+  return {
+    state: () => state,
+    close: () => {
+      end('closed');
+      socket.destroy();
+    },
+  };
 }
 
-// Delays the page's request for an upload token on its way to the server, as a connection that
-// drops for a moment does: the client stops waiting for the token after 5 seconds, and the
-// request still arrives. Call it before the page joins the meeting.
-export async function delayUploadTokenRequest(page: PlaywrightPage, delay: number) {
+// Holds the page's request for an upload token on its way to the server, as a connection that
+// drops for a moment does, until release() sends it on. removalRequested() says whether the page
+// has since asked the server to remove a presentation. Call it before the page joins the meeting.
+export type HeldUploadTokenRequest = { release: () => void; removalRequested: () => boolean };
+
+export async function holdUploadTokenRequest(page: PlaywrightPage): Promise<HeldUploadTokenRequest> {
+  let sendHeldRequest: (() => void) | null = null;
+  let released = false;
+  let removalRequested = false;
   await page.routeWebSocket(/\/graphql/, (ws) => {
     const server = ws.connectToServer();
     ws.onMessage((message) => {
-      if (typeof message === 'string' && message.includes('presentationRequestUploadToken')) {
-        setTimeout(() => server.send(message), delay);
-      } else {
-        server.send(message);
+      const text = typeof message === 'string' ? message : '';
+      if (!released && text.includes('presentationRequestUploadToken')) {
+        sendHeldRequest = () => server.send(message);
+        return;
       }
+      if (text.includes('presentationRemove')) removalRequested = true;
+      server.send(message);
     });
   });
+  return {
+    release: () => {
+      released = true;
+      sendHeldRequest?.();
+      sendHeldRequest = null;
+    },
+    removalRequested: () => removalRequested,
+  };
 }
 
 // Opens the presentation manager, lists the presentations in it and closes it again.

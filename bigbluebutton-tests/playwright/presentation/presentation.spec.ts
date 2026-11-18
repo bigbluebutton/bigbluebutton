@@ -5,7 +5,7 @@ import { chromiumBaseArgs } from '../core/setup/browsersConfig';
 import { test } from '../core/setup/fixtures';
 import { ExportedAnnotationsOverlap } from './exportedAnnotationsOverlap';
 import { Presentation } from './presentation';
-import { delayUploadTokenRequest, MASK_SAMPLE_PDF_BYTES } from './util';
+import { holdUploadTokenRequest, MASK_SAMPLE_PDF_BYTES } from './util';
 
 test.describe.parallel('Presentation', { tag: '@ci' }, () => {
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#navigation-automated
@@ -359,11 +359,18 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       context,
       page,
     }, testInfo) => {
-      // longer than the 5 seconds the client waits for the token
-      await delayUploadTokenRequest(page, 7000);
+      linkIssue(26518);
+      const tokenRequest = await holdUploadTokenRequest(page);
       const presentation = new Presentation(browser, context);
       await presentation.initModPage(page, { testInfo });
-      await presentation.lateUploadTokenIsNotLeftUploading();
+      await presentation.lateUploadTokenIsNotLeftUploading(tokenRequest);
+    });
+
+    test('An upload whose answer is lost is kept', async ({ browser, context, page }, testInfo) => {
+      linkIssue(26518);
+      const presentation = new Presentation(browser, context);
+      await presentation.initModPage(page, { testInfo });
+      await presentation.uploadWhoseAnswerIsLostIsKept();
     });
   });
 });

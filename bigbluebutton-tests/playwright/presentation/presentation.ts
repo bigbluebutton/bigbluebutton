@@ -27,9 +27,11 @@ import {
   getCurrentSlideSvg,
   getExternalVideoTime,
   getSlideOuterHtml,
+  HeldUploadTokenRequest,
   holdUploadRequests,
   isExternalVideoPaused,
   listPresentations,
+  loseUploadAnswers,
   refuseUploadRequests,
   routeExternalVideo,
   sendStalledUpload,
@@ -1105,9 +1107,24 @@ export class Presentation extends MultiUsers {
     await this.modPage.waitAndClick(e.managePresentations);
     await expect(
       this.modPage.page.locator(e.presentationNames).filter({ hasText: fileName }),
-      `should list ${fileName} once after it is uploaded again`,
+      `should list ${fileName} once`,
     ).toHaveCount(1, { timeout: UPLOAD_PDF_WAIT_TIME });
     await this.modPage.press('Escape');
+    // an upload of the file that was left waiting would keep the upload toast open
+    await expect(
+      uploadToastOf(this.modPage, fileName),
+      `should leave no upload of ${fileName} in progress`,
+    ).toHaveCount(0, { timeout: ELEMENT_WAIT_LONGER_TIME });
+  }
+
+  // closeAllToastNotifications does not reach the upload toast
+  private async closeUploadToastOf(fileName: string) {
+    await uploadToastOf(this.modPage, fileName).click();
+    await this.modPage.page.mouse.move(0, 0); // a pointer left on a toast keeps it open
+    await expect(
+      uploadToastOf(this.modPage, fileName),
+      'should close the notice of the failed upload when it is clicked',
+    ).toHaveCount(0);
   }
 
   async refusedUploadCanBeSentAgain() {
@@ -1138,12 +1155,7 @@ export class Presentation extends MultiUsers {
     ).toContainText(e.presentationUploadFailedLabel, { timeout: ELEMENT_WAIT_LONGER_TIME });
 
     // An upload left as uploading came back on every slide change after its notice was closed
-    await uploadToastOf(this.modPage, file.name).click();
-    await this.modPage.page.mouse.move(0, 0); // a pointer left on a toast keeps it open
-    await expect(
-      uploadToastOf(this.modPage, file.name),
-      'should close the notice of the failed upload when it is clicked',
-    ).toHaveCount(0);
+    await this.closeUploadToastOf(file.name);
     await this.modPage.waitAndClick(e.nextSlide);
     await expect
       .poll(() => getSlideOuterHtml(this.modPage), { message: 'should change to slide 2' })
@@ -1191,8 +1203,18 @@ export class Presentation extends MultiUsers {
     ).toHaveCount(0);
   }
 
-  // The spec delays the token request with delayUploadTokenRequest before the moderator joins
-  async lateUploadTokenIsNotLeftUploading() {
+  // The server has the file; only its answer did not reach the client
+  async uploadWhoseAnswerIsLostIsKept() {
+    const file = Presentation.fileToUpload('lost-answer.pdf');
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.closeAllToastNotifications();
+    await loseUploadAnswers(this.modPage, file);
+    await startUpload(this.modPage, file);
+    await this.fileIsListedOnce(file.name);
+  }
+
+  // The spec holds the token request with holdUploadTokenRequest before the moderator joins
+  async lateUploadTokenIsNotLeftUploading(tokenRequest: HeldUploadTokenRequest) {
     const file = Presentation.fileToUpload('late-token.pdf');
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.closeAllToastNotifications();
@@ -1203,14 +1225,19 @@ export class Presentation extends MultiUsers {
       'should tell the presenter that the upload could not start once the token is overdue',
       ELEMENT_WAIT_LONGER_TIME,
     );
+
+    // Only now does the request reach the server, which creates a presentation for it
+    tokenRequest.release();
+    await expect
+      .poll(() => tokenRequest.removalRequested(), {
+        message: 'should ask the server to remove the presentation of the token that came too late',
+        timeout: ELEMENT_WAIT_EXTRA_LONG_TIME,
+      })
+      .toBe(true);
     await expect(
       uploadToastOf(this.modPage, file.name),
-      'should show the upload once its delayed token request reaches the server',
-    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
-    await expect(
-      uploadToastOf(this.modPage, file.name),
-      'should remove the upload the client had given up on',
-    ).toHaveCount(0, { timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
+      'should not leave the upload the client had given up on showing as uploading',
+    ).toHaveCount(0, { timeout: ELEMENT_WAIT_LONGER_TIME });
     expect(
       await listPresentations(this.modPage),
       'should not list the upload the client had given up on',
@@ -1230,14 +1257,24 @@ export class Presentation extends MultiUsers {
   async stalledUploadIsShownAsFailed() {
     const file = Presentation.fileToUpload('stalled-upload.pdf');
     const uploadUrl = await this.startHeldUpload(file);
-    const serverGaveUp = sendStalledUpload(uploadUrl, file);
-    await expect(
-      uploadToastOf(this.modPage, file.name),
-      'should tell the uploader that the upload failed once the server stops waiting for the file',
-    ).toContainText(e.presentationUploadFailedLabel, { timeout: UPLOAD_STALL_TIMEOUT });
-    await serverGaveUp;
+    const stalled = sendStalledUpload(uploadUrl, file);
+    try {
+      await expect(
+        uploadToastOf(this.modPage, file.name),
+        'should tell the uploader that the upload failed once the server stops waiting for the file',
+      ).toContainText(e.presentationUploadFailedLabel, { timeout: UPLOAD_STALL_TIMEOUT });
+      // otherwise something else ended the upload, such as the time it had to start
+      await expect
+        .poll(() => stalled.state(), {
+          message: 'should have the server end the stalled request',
+          timeout: ELEMENT_WAIT_LONGER_TIME,
+        })
+        .toBe('closed by the server');
+    } finally {
+      stalled.close();
+    }
 
-    await this.modPage.closeAllToastNotifications();
+    await this.closeUploadToastOf(file.name);
     await stopInterceptingUploadRequests(this.modPage);
     await startUpload(this.modPage, file);
     await this.fileIsListedOnce(file.name);
