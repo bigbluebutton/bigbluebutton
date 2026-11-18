@@ -46,9 +46,9 @@ const futch = (url, opts = {}, onProgress) => new Promise((res, rej) => {
 });
 
 // The presentation exists on the server from the moment its upload token is issued. When the
-// upload itself then fails (refused by the server, or the connection dropped), nothing marks
-// that presentation as failed, so every presenter would see it as uploading until the meeting
-// ends. Remove it instead; the caller tells the presenter the upload failed.
+// server then refuses the upload request, that presentation would be left waiting for a file,
+// and every presenter would see it as uploading. Remove it instead; the caller tells the
+// presenter the upload failed.
 const removeFailedUpload = (presentationId) => {
   if (!presentationId) return Promise.resolve(false);
   return apolloContextHolder.getClient().mutate({
@@ -80,6 +80,7 @@ const requestPresentationUpload = (
   });
 
   let gaveUpAt = null;
+  let answered = false;
   const timeout = setTimeout(() => {
     gaveUpAt = Date.now();
     reject(Object.assign(new Error('requestPresentationUploadToken timeout'), { code: 408 }));
@@ -89,6 +90,7 @@ const requestPresentationUpload = (
     // A request that was only delayed (the connection dropped for a moment) still reaches the
     // server after this client gave up on it, and creates a presentation nobody will upload.
     // Keep looking for it for a while, so it can be removed.
+    if (answered) return;
     if (gaveUpAt ? Date.now() - gaveUpAt > LATE_TOKEN_WATCH_TIME : n > 10) return;
     let recursiveTimeout = null;
     client.query({
@@ -98,7 +100,9 @@ const requestPresentationUpload = (
       },
       fetchPolicy: 'network-only',
     }).then((result) => {
-      if (result.data.pres_presentation_uploadToken.length > 0) {
+      // A poll can still be on its way when the next one starts, so two can see the same row.
+      if (result.data.pres_presentation_uploadToken.length > 0 && !answered) {
+        answered = true;
         clearTimeout(recursiveTimeout);
         clearTimeout(timeout);
         const { uploadToken, presentationId } = result.data.pres_presentation_uploadToken[0];
@@ -177,24 +181,24 @@ const uploadAndConvertPresentation = (
           error,
         },
       }, 'Generic presentation upload exception catcher');
-      // Set only once the token arrived, so this is a failure of the upload request itself.
+      // Set only once the token arrived and the server answered the upload request with an
+      // error. A request that got no answer may still have delivered the file, so its
+      // presentation is left to the server, which converts it or marks it as failed.
       // A file refused for its size keeps its presentation: the server recorded that reason on
       // it, and the uploader toast shows it.
-      const uploadRequestFailed = !!serverPresentationId && error?.code !== 413;
-      const removed = uploadRequestFailed
-        ? removeFailedUpload(serverPresentationId)
-        : Promise.resolve();
-      return removed.then(() => {
-        if (onUpload) {
-          onUpload({
-            error: true,
-            done: true,
-            status: error?.code,
-            reported: !!error?.reported,
-            uploadRequestFailed,
-          });
-        }
-      });
+      const uploadRequestFailed = !!serverPresentationId && !!error?.code && error.code !== 413;
+      // Not waited for: with the connection down it would hold back the presenter's own error.
+      if (uploadRequestFailed) removeFailedUpload(serverPresentationId);
+      if (onUpload) {
+        onUpload({
+          error: true,
+          done: true,
+          status: error?.code,
+          reported: !!error?.reported,
+          uploadRequestFailed,
+        });
+      }
+      return Promise.resolve();
     });
 };
 
@@ -365,11 +369,12 @@ function handleFiledrop(files, files2, that, intl, intlMessages) {
           // No upload token arrived and no reason was recorded for the uploader toast to show,
           // so nothing else would tell the presenter the upload failed. The upload rate limit
           // stops recording reasons past a number of refusals per window, hence "wait a moment".
-          if (upload.error && !upload.reported && upload.status === 408) {
+          if (upload.error && !upload.reported && upload.status === 408
+            && !upload.uploadRequestFailed) {
             notify(intl.formatMessage(intlMessages[408]), 'error');
           }
-          // The upload request failed after the token was issued. Its presentation was
-          // removed, so the uploader toast has nothing to show for it.
+          // The server refused the upload request after the token was issued. Its presentation
+          // was removed, so the uploader toast has nothing to show for it.
           if (upload.error && upload.uploadRequestFailed) {
             notify(`${file.name}: ${intl.formatMessage(intlMessages.uploadFailed)}`, 'error');
           }
