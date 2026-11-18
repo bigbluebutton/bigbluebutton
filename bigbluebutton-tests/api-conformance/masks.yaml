@@ -61,11 +61,14 @@ masks:
     regex: '/textTrack/[0-9a-f]{40}/'
     replace: '/textTrack/<token>/'
   # putRecordingTextTrack names a track in the captions inbox after the
-  # upload's time in ms: in the files' paths and in the description.
+  # upload's time in ms: in the files' paths and in the description. Any
+  # other path, such as a learning dashboard file's, is left to the built-in
+  # masks.
   - field: path
     as: regex
     regex: '-[0-9]{13}-track\.'
     replace: '-<ms>-track.'
+    onlyMatching: true
   - field: temp_filename
     as: regex
     regex: '-[0-9]{13}-track\.'
