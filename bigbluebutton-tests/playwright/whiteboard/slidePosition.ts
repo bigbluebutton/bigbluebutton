@@ -1,6 +1,6 @@
 import { expect, type Page as PlaywrightPage } from '@playwright/test';
 
-import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
+import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { uploadSinglePresentation } from '../presentation/util';
 import { MultiUsers } from '../user/multiusers';
@@ -23,6 +23,48 @@ async function waitForSettledCamera(page: PlaywrightPage, label: string) {
       },
     )
     .toBe(true);
+}
+
+// The visible width of the page as a share of the slide's width: 1 when the slide fills the width.
+async function visibleShareOfSlideWidth(page: PlaywrightPage) {
+  const editor = await getTldrawEditor(page);
+  try {
+    return await editor.evaluate((value) => {
+      const tldraw = value as unknown as {
+        getCurrentPageId: () => string;
+        getViewportPageBounds: () => { w: number };
+        getAsset: (id: string) => { props: { w: number } } | undefined;
+      };
+      const slide = tldraw.getAsset(`asset:${tldraw.getCurrentPageId().split(':')[1]}`);
+      return slide ? tldraw.getViewportPageBounds().w / slide.props.w : NaN;
+    });
+  } finally {
+    await editor.dispose();
+  }
+}
+
+// Fit to width rebuilds the whiteboard editor. Marking the current one tells the rebuilt one
+// apart: it starts at (0, 0) and zoom 1, and applies the fit-to-width zoom once its size has been
+// stable for 50 frames.
+async function markCurrentEditor(page: PlaywrightPage) {
+  const editor = await getTldrawEditor(page);
+  await editor.evaluate((value) => {
+    const tldraw = value as unknown as { builtBeforeFitToWidth?: boolean };
+    tldraw.builtBeforeFitToWidth = true;
+  });
+  await editor.dispose();
+}
+
+async function rebuiltEditorHasZoomed(page: PlaywrightPage) {
+  const editor = await getTldrawEditor(page);
+  try {
+    return await editor.evaluate(
+      (value) =>
+        !(value as unknown as { builtBeforeFitToWidth?: boolean }).builtBeforeFitToWidth && value.getCamera().z !== 1,
+    );
+  } finally {
+    await editor.dispose();
+  }
 }
 
 export class SlidePosition extends MultiUsers {
@@ -133,6 +175,20 @@ export class SlidePosition extends MultiUsers {
       .toBeGreaterThan(restoredZ * 1.05);
   }
 
+  // The remounted editor applies the fit-to-width zoom only once its size is stable; a wheel
+  // pan sent before that is lost.
+  private async fitToWidth() {
+    const fitPageZ = (await getTldrawCamera(this.modPage.page))!.z;
+    await this.modPage.waitAndClick(e.fitToWidthButton);
+    await expect
+      .poll(async () => (await getTldrawCamera(this.modPage.page))?.z, {
+        message: 'presenter reaches the fit-to-width zoom',
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      })
+      .toBeGreaterThan(fitPageZ * 1.05);
+    await this.waitForSettledPresenterCamera('fit-to-width camera settles');
+  }
+
   private async scrollTo(direction: 'top' | 'bottom') {
     const whiteboard = this.modPage.page.locator(e.whiteboard);
     let bounds = null;
@@ -145,6 +201,7 @@ export class SlidePosition extends MultiUsers {
     await this.modPage.page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
     const delta = direction === 'bottom' ? 300 : -300;
     for (let i = 0; i < 25; i += 1) await this.modPage.page.mouse.wheel(0, delta);
+    await this.waitForSettledPresenterCamera(`scroll to the ${direction} settles for the presenter`);
   }
 
   async preservesEachSlidesLastPosition({ slowDecode = false, reducedMotion = false } = {}) {
@@ -168,7 +225,7 @@ export class SlidePosition extends MultiUsers {
       }
     }
 
-    await this.modPage.waitAndClick(e.fitToWidthButton);
+    await this.fitToWidth();
     await this.scrollTo('bottom');
     const pageOneBottom = (await getTldrawCamera(this.modPage.page))?.y;
     expect(pageOneBottom, 'page 1 should pan below its top').toBeLessThan(-100);
@@ -191,7 +248,7 @@ export class SlidePosition extends MultiUsers {
   async restoresFitToWidthPageAfterRemount() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await uploadSinglePresentation(this.modPage, e.nonDefaultRatioPresentationFileName);
-    await this.modPage.waitAndClick(e.fitToWidthButton);
+    await this.fitToWidth();
     await this.scrollTo('bottom');
     const bottomCamera = await getTldrawCamera(this.modPage.page);
     expect(bottomCamera?.y, 'page 1 should pan below its top').toBeLessThan(-100);
@@ -206,6 +263,55 @@ export class SlidePosition extends MultiUsers {
     await this.waitForCamera(2, 0, 'keeps page 2 at fit-page top');
     await this.modPage.waitAndClick(e.prevSlide);
     await this.waitForCamera(1, bottomCamera!.y, 'restores FTW page after editor remount');
+  }
+
+  async keepsFitToWidthAndViewerInSyncWhenScrollingRightAway() {
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await uploadSinglePresentation(this.modPage, e.nonDefaultRatioPresentationFileName);
+    await this.userPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    const bounds = await this.modPage.page.locator(e.whiteboard).boundingBox();
+    if (!bounds) throw new Error('whiteboard bounding box not available');
+
+    // Each wheel event animates the camera for 175 ms, and the zoom is lost when it lands while
+    // one is running. Timing decides that, so the presenter turns Fit to width on up to 3 times.
+    let fillsWidth = true;
+    for (let attempt = 1; attempt <= 3 && fillsWidth; attempt += 1) {
+      await this.waitForSettledPresenterCamera(`attempt ${attempt}: the slide settles before Fit to width`);
+      await markCurrentEditor(this.modPage.page);
+      await this.modPage.waitAndClick(e.fitToWidthButton);
+      await this.modPage.page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
+      // Scroll until the rebuilt editor has applied its zoom, however long the server takes.
+      const deadline = Date.now() + ELEMENT_WAIT_TIME;
+      do {
+        await this.modPage.page.mouse.wheel(0, 100);
+      } while (!(await rebuiltEditorHasZoomed(this.modPage.page)) && Date.now() < deadline);
+      await this.waitForSettledPresenterCamera(`attempt ${attempt}: the scroll settles for the presenter`);
+
+      const share = await visibleShareOfSlideWidth(this.modPage.page);
+      fillsWidth = Math.abs(share - 1) < 0.005;
+      expect.soft(share, `attempt ${attempt}: the slide should still fill the width`).toBeCloseTo(1, 2);
+      const presenter = (await getTldrawCamera(this.modPage.page))!;
+      await expect
+        .poll(async () => getTldrawCamera(this.userPage.page), {
+          message: `attempt ${attempt}: the viewer should see the same part of the slide as the presenter`,
+          timeout: ELEMENT_WAIT_LONGER_TIME,
+        })
+        .toMatchObject({
+          x: expect.closeTo(presenter.x, 0),
+          y: expect.closeTo(presenter.y, 0),
+          z: expect.closeTo(presenter.z, 3),
+        });
+      if (fillsWidth && attempt < 3) {
+        await markCurrentEditor(this.modPage.page);
+        await this.modPage.waitAndClick(e.fitToWidthButton);
+        await expect
+          .poll(async () => rebuiltEditorHasZoomed(this.modPage.page), {
+            message: `attempt ${attempt}: Fit to width turns off`,
+            timeout: ELEMENT_WAIT_LONGER_TIME,
+          })
+          .toBe(true);
+      }
+    }
   }
 
   async restoresPositionsAcrossDifferentZooms() {

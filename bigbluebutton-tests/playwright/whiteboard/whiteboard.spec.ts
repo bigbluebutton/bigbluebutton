@@ -262,6 +262,17 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
   });
 
   test(
+    'Scrolling right after Fit to width keeps the zoom and the viewer in sync',
+    { tag: '@known-issue' },
+    async ({ browser, context, page }, testInfo) => {
+      linkIssue(26578);
+      const slidePosition = new SlidePosition(browser, context);
+      await slidePosition.initPages(page, testInfo);
+      await slidePosition.keepsFitToWidthAndViewerInSyncWhenScrollingRightAway();
+    },
+  );
+
+  test(
     'Different per-slide zooms restore exact camera positions',
     { tag: '@nightly' },
     async ({ browser, context, page }, testInfo) => {
