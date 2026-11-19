@@ -25,17 +25,18 @@ vars:
 routes:
   presentation-upload:       {path: "/bigbluebutton/presentation/{authzToken}/upload"}
   presentation-test-convert: {path: "/bigbluebutton/presentation/test-convert"}
-  presentation-slides:       {path: "/bigbluebutton/presentation/{conference}/{room}/{presentationName}/slides"}
-  presentation-thumbnails:   {path: "/bigbluebutton/presentation/{conference}/{room}/{presentationName}/thumbnails"}
   presentation-thumbnail:    {path: "/bigbluebutton/presentation/{conference}/{room}/{presentationName}/thumbnail/{id}"}
   presentation-png:          {path: "/bigbluebutton/presentation/{conference}/{room}/{presentationName}/png/{id}"}
-  presentation-svgs:         {path: "/bigbluebutton/presentation/{conference}/{room}/{presentationName}/svgs"}
   presentation-svg:          {path: "/bigbluebutton/presentation/{conference}/{room}/{presentationName}/svg/{id}"}
-  presentation-textfiles:    {path: "/bigbluebutton/presentation/{conference}/{room}/{presentationName}/textfiles"}
   presentation-textfile:     {path: "/bigbluebutton/presentation/{conference}/{room}/{presentationName}/textfiles/{id}"}
   presentation-download:     {path: "/bigbluebutton/presentation/download/{meetingId}/{presId}"}
   # Removed (#26119); cases check that it stays gone.
   presentation-delegate:     {path: "/bigbluebutton/presentation/delegate"}
+  # Removed with the page number in page URLs: they counted a presentation's files on disk.
+  presentation-slides:       {path: "/bigbluebutton/presentation/{conference}/{room}/{presentationName}/slides"}
+  presentation-thumbnails:   {path: "/bigbluebutton/presentation/{conference}/{room}/{presentationName}/thumbnails"}
+  presentation-svgs:         {path: "/bigbluebutton/presentation/{conference}/{room}/{presentationName}/svgs"}
+  presentation-textfiles:    {path: "/bigbluebutton/presentation/{conference}/{room}/{presentationName}/textfiles"}
   texttrack-file:            {path: "/bigbluebutton/textTrack/{token}/{recordId}/{track}"}
   presentation-check:        {path: "/bigbluebutton/presentation/checkPresentation", baseEnv: BBB_WEB_DIRECT_URL, subrequest: true}
   presentation-authz:        {path: "/bigbluebutton/presentation/checkAuthorization", baseEnv: BBB_WEB_DIRECT_URL, subrequest: true}
