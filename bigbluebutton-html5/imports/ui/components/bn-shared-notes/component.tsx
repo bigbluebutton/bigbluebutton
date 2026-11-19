@@ -187,6 +187,7 @@ const AccessibleToolbarSelect = React.forwardRef<
   items,
   isDisabled,
   portalElement,
+  preventFocusOnOpen,
 }, ref) => {
   const selectedItem = items.find((item) => item.isSelected);
   if (!selectedItem) return null;
@@ -197,8 +198,7 @@ const AccessibleToolbarSelect = React.forwardRef<
       portalProps={portalElement ? { target: portalElement } : undefined}
       transitionProps={{ exitDuration: 0 }}
       disabled={isDisabled}
-      trapFocus={false}
-      returnFocus={false}
+      trapFocus={preventFocusOnOpen ? false : undefined}
       middlewares={{
         flip: true, shift: true, inline: false, size: true,
       }}

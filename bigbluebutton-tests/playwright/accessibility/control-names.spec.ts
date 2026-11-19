@@ -53,16 +53,18 @@ test.describe.parallel('Accessible control names', { tag: '@ci' }, () => {
     ).toBeVisible();
     await blockTypeSelect.focus();
     await modPage.page.keyboard.press('Enter');
-    const menuItems = modPage.page.locator('[role="menu"] [role="menuitem"]');
-    const menuItemCount = await menuItems.count();
-    for (let index = 0; index <= menuItemCount; index += 1) {
-      // eslint-disable-next-line no-await-in-loop
-      await modPage.page.keyboard.press('Tab');
-    }
-    await expect(
-      modPage.page.locator('[role="menu"] :focus'),
-      'Tab should not remain trapped inside the open block type menu',
-    ).toHaveCount(0);
+    const menu = modPage.page.locator('[role="menu"]:visible');
+    await expect
+      .poll(() => menu.evaluate((element) => element.contains(document.activeElement)), {
+        message: 'desktop menu should move focus inside the dropdown',
+      })
+      .toBe(true);
+    await modPage.page.keyboard.press('ArrowDown');
+    await modPage.page.keyboard.press('ArrowDown');
+    await modPage.page.keyboard.press('Enter');
+    await expect(blockTypeSelect, 'arrow keys should change the text type').toHaveAccessibleName(
+      'Text type: Heading 1',
+    );
 
     await endMeetings(request, [modPage.meetingId]);
     await expect(
