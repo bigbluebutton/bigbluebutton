@@ -6,6 +6,7 @@ import {
   colorGrayLight,
   colorInfoSurfaceAlt,
   colorLink,
+  colorOffWhite,
   colorPrimary,
   colorSuccess,
   colorText,
@@ -61,19 +62,59 @@ interface VideoPreviewProps {
   mirroredVideo: boolean;
 }
 
+// Sized by the video's own aspect ratio (see VideoPreview in video-preview/styles.ts):
+// iOS WebKit stops painting a pillarboxed camera preview once the capture rotates.
 const VideoPreview = styled.video<VideoPreviewProps>`
+  width: auto;
+  height: auto;
+  max-width: 100%;
   max-height: 14rem;
-  width: 100%;
   border-radius: 0.5rem;
   box-shadow: 8px 8px 24px 0px rgba(0, 0, 0, 0.10);
 
   @media ${smallOnly} {
-    height: 10rem;
+    max-height: 10rem;
   }
 
   ${({ mirroredVideo }) => mirroredVideo && `
     transform: scale(-1, 1);
   `}
+`;
+
+const CameraPreviewPlaceholder = styled.div`
+  width: 100%;
+  height: 14rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  box-sizing: border-box;
+  border-radius: 0.5rem;
+  border: 1px dashed ${colorBorder};
+  background: ${colorOffWhite};
+  color: ${colorText};
+  text-align: center;
+
+  @media ${smallOnly} {
+    height: 10rem;
+  }
+`;
+
+const CameraPreviewPlaceholderIcon = styled(CameraIcon)`
+  font-size: 2.5rem !important;
+  color: ${colorGrayDark};
+`;
+
+// @ts-ignore - JS code
+const EnableWebcamButton = styled(Button)`
+  border-radius: ${lgBorderRadius};
+`;
+
+const CameraPreviewHint = styled.span`
+  font-size: ${fontSizeSmall};
+  color: ${colorGrayDark};
 `;
 
 const VideoPreviewContainer = styled.div`
@@ -567,6 +608,10 @@ export default {
   RootContainer,
   ProfileSettings,
   VideoPreview,
+  CameraPreviewPlaceholder,
+  CameraPreviewPlaceholderIcon,
+  EnableWebcamButton,
+  CameraPreviewHint,
   VideoPreviewContainer,
   VideoPreviewWrapper,
   PreviewArrowButton,

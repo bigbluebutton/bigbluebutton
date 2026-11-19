@@ -157,30 +157,47 @@ func Default() *Rules {
 	return r
 }
 
-// Load reads a rules file and puts its rules before the built-in ones, so a
-// file's mask for a field wins over the default.
-func Load(name string) (*Rules, error) {
+// Load reads rules files and puts their rules, in the files' order, before
+// the built-in ones. The first mask for a field wins, so a file's mask wins
+// over the default and over the masks of the files after it.
+func Load(names ...string) (*Rules, error) {
+	r := &Rules{}
+	for _, name := range names {
+		extra, err := read(name)
+		if err != nil {
+			return nil, err
+		}
+		r.add(extra)
+	}
+	r.add(Default())
+	return r, nil
+}
+
+// read reads and compiles one rules file.
+func read(name string) (*Rules, error) {
 	data, err := os.ReadFile(name)
 	if err != nil {
 		return nil, err
 	}
-	extra := &Rules{}
+	r := &Rules{}
 	dec := yaml.NewDecoder(bytes.NewReader(data))
 	dec.KnownFields(true)
-	if err := dec.Decode(extra); err != nil && err.Error() != "EOF" {
+	if err := dec.Decode(r); err != nil && err.Error() != "EOF" {
 		return nil, fmt.Errorf("%s: %w", name, err)
 	}
-	if err := extra.compile(); err != nil {
+	if err := r.compile(); err != nil {
 		return nil, fmt.Errorf("%s: %w", name, err)
 	}
-	def := Default()
-	return &Rules{
-		Masks:     append(extra.Masks, def.Masks...),
-		Unordered: append(extra.Unordered, def.Unordered...),
-		Scope:     append(extra.Scope, def.Scope...),
-		Drop:      append(extra.Drop, def.Drop...),
-		Headers:   append(extra.Headers, def.Headers...),
-	}, nil
+	return r, nil
+}
+
+// add appends other's rules after r's.
+func (r *Rules) add(other *Rules) {
+	r.Masks = append(r.Masks, other.Masks...)
+	r.Unordered = append(r.Unordered, other.Unordered...)
+	r.Scope = append(r.Scope, other.Scope...)
+	r.Drop = append(r.Drop, other.Drop...)
+	r.Headers = append(r.Headers, other.Headers...)
 }
 
 func (r *Rules) compile() error {

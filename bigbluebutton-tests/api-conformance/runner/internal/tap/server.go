@@ -53,12 +53,18 @@ type Config struct {
 	Token     string   // the bearer token every endpoint but /info needs; "" for none
 	MaxBytes  int
 	MaxAge    time.Duration
+	// Recordings is a tree of fixture recordings laid out like DataDir,
+	// which the tap installs into DataDir when it starts and restores on
+	// request; "" for none.
+	Recordings string
 }
 
 // Server is a running tap. It only reads: the redis commands it sends are
 // SUBSCRIBE, PING, TYPE, TTL, GET, HGETALL, SMEMBERS, LLEN and LRANGE, and
 // files are read through an os.Root, so nothing outside the data
-// directory can be reached.
+// directory can be reached. The one exception is Config.Recordings: a tap
+// given fixture recordings writes them into the data directory, through
+// the same os.Root, and removes the copies bbb-web made of them.
 type Server struct {
 	cfg      Config
 	instance string
@@ -66,6 +72,9 @@ type Server struct {
 	root     *os.Root
 	watcher  *Watcher
 	watchErr error
+
+	rec   *recordings // nil without Config.Recordings
+	recMu sync.Mutex  // one restore at a time
 
 	mu         sync.Mutex
 	subscribed bool
@@ -89,12 +98,21 @@ func Start(cfg Config) (*Server, error) {
 	b := make([]byte, 8)
 	_, _ = rand.Read(b)
 	s := &Server{cfg: cfg, instance: hex.EncodeToString(b), log: NewLog(cfg.MaxBytes, cfg.MaxAge)}
+	if cfg.Recordings != "" && cfg.DataDir == "" {
+		return nil, errors.New("fixture recordings need a data directory to go into")
+	}
 	if cfg.DataDir != "" {
 		root, err := os.OpenRoot(cfg.DataDir)
 		if err != nil {
 			return nil, err
 		}
 		s.root = root
+		if cfg.Recordings != "" {
+			if err := s.installRecordings(); err != nil {
+				root.Close()
+				return nil, err
+			}
+		}
 		s.watcher, s.watchErr = Watch(cfg.DataDir, cfg.Watch,
 			func(p, op string) { s.log.Append(Entry{Kind: "file", Path: p, Op: op}) },
 			func(why string) { s.log.Append(Entry{Kind: "gap", Of: "files", Why: why}) })
@@ -124,6 +142,9 @@ func (s *Server) Close() {
 	s.rmu.Unlock()
 	if s.root != nil {
 		s.root.Close()
+	}
+	if s.rec != nil {
+		s.rec.root.Close()
 	}
 }
 
@@ -227,8 +248,10 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		v, status, err = s.redis(r)
 	case r.URL.Path == "/fs":
 		v, status, err = s.files(r)
+	case r.URL.Path == "/recordings/restore":
+		v, status, err = s.restoreRecordings(r)
 	default:
-		status, err = http.StatusNotFound, errors.New("no such endpoint: try /info, /mark, /bus, /redis or /fs")
+		status, err = http.StatusNotFound, errors.New("no such endpoint: try /info, /mark, /bus, /redis, /fs or /recordings/restore")
 	}
 	w.Header().Set("Content-Type", "application/json")
 	if err != nil {
@@ -247,6 +270,9 @@ func (s *Server) info() Info {
 		RedisError: s.redisErr, DataDir: s.cfg.DataDir, Watch: "none", Seq: s.log.Last()}
 	if s.watcher != nil {
 		i.Watch, i.Watching, i.WatchDirs = "inotify", s.watcher.Tops(), len(s.watcher.Watching())
+	}
+	if s.rec != nil {
+		i.Recordings, i.RecordingCount = s.cfg.Recordings, len(s.rec.paths)
 	}
 	if s.watchErr != nil {
 		i.WatchError = s.watchErr.Error()

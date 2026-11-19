@@ -1,0 +1,43 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case updateRecordings.meta.update-camel-case-key
+target bbb-web
+
+== step 2: call updateRecordings
+status 200
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "SUCCESS"
+/response/updated "true"
+
+== step 3: call getRecordings
+status 200
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "SUCCESS"
+/response/recordings/recording/recordID "<sha1(?)>-<time>"
+/response/recordings/recording/meetingID "conform-rec-mut-meta"
+/response/recordings/recording/internalMeetingID "<sha1(?)>-<time>"
+/response/recordings/recording/name "Conform Recordings Meta"
+/response/recordings/recording/isBreakout "false"
+/response/recordings/recording/published "true"
+/response/recordings/recording/state "published"
+/response/recordings/recording/startTime "<time>"
+/response/recordings/recording/endTime "<time>"
+/response/recordings/recording/participants "1"
+/response/recordings/recording/rawSize "102400"
+/response/recordings/recording/metadata/conform-color "blue"
+/response/recordings/recording/metadata/conform-size "large"
+/response/recordings/recording/metadata/isBreakout "false"
+/response/recordings/recording/metadata/meetingId "conform-rec-mut-meta"
+/response/recordings/recording/metadata/meetingName "Conform Recordings Meta"
+/response/recordings/recording/metadata/meetingname "Renamed"
+/response/recordings/recording/breakout/parentId "unknown"
+/response/recordings/recording/breakout/sequence "0"
+/response/recordings/recording/breakout/freeJoin "false"
+/response/recordings/recording/size "204800"
+/response/recordings/recording/playback/format/type "presentation"
+/response/recordings/recording/playback/format/url "https://recordings.test/playback/presentation/2.3/<sha1(?)>-<time>"
+/response/recordings/recording/playback/format/processingTime "6980"
+/response/recordings/recording/playback/format/length "1"
+/response/recordings/recording/playback/format/size "204800"
+/response/recordings/recording/data

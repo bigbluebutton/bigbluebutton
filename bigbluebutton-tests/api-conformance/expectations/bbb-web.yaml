@@ -5,3 +5,5 @@ target: bbb-web
 expected:
   - id: getMeetings.checksum.missing-message
     reason: "without a checksum, bbb-web says either that it is missing or that it doesn't match, at random"
+  - id: getRecordings.pagination.formats
+    reason: "with limit, bbb-web keeps one format of each recording: it drops duplicate record IDs before merging formats"

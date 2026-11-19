@@ -172,9 +172,9 @@ export default function PinnedMessageComponent({ message, isModerator, pinnedBy 
   const messageAsHtml = message.messageAsHtml ?? '';
 
   return (
-    <Styled.Wrapper role="region" aria-label={intl.formatMessage(intlMessages.pinnedMessagesTitle)}>
-      <Styled.Header>
-        <Styled.Title>
+    <Styled.Wrapper className="bbb-pinned-message" role="region" aria-label={intl.formatMessage(intlMessages.pinnedMessagesTitle)}>
+      <Styled.Header className="bbb-pinned-message__header">
+        <Styled.Title className="bbb-pinned-message__title">
           <Styled.Icon iconName="pin_filled" />
           <Styled.PinnedBy>
             {intl.formatMessage(intlMessages.pinnedByLabel)}
@@ -182,7 +182,7 @@ export default function PinnedMessageComponent({ message, isModerator, pinnedBy 
           </Styled.PinnedBy>
         </Styled.Title>
 
-        <Styled.Controls>
+        <Styled.Controls className="bbb-pinned-message__controls">
           {isModerator && (
             <Tooltip title={intl.formatMessage(intlMessages.unpinTooltip)}>
               <Styled.ToggleButton
@@ -205,6 +205,7 @@ export default function PinnedMessageComponent({ message, isModerator, pinnedBy 
       </Styled.Header>
 
       <Styled.MessagePreview
+        className="bbb-pinned-message__content"
         ref={messagePreviewRef}
         $collapsed={!isExpanded}
         aria-label={intl.formatMessage(intlMessages.goToMessage)}
@@ -222,7 +223,7 @@ export default function PinnedMessageComponent({ message, isModerator, pinnedBy 
         $currentUserId={Auth.userID as string | undefined}
       />
       {isExpanded && (
-        <Styled.Footer>
+        <Styled.Footer className="bbb-pinned-message__footer">
           <Styled.FooterUserInfo>
             <Styled.FooterSenderName>
               {message.senderName}

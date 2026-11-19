@@ -366,8 +366,8 @@ Webcams will be moved when mouse is released. (Note: When only one webcam is sha
 
 3. As each user, open Settings > Application.
 
-    - The moderator should see the "Video pagination" switch
-    - The viewers should not see it
+    - The moderator should see the "Video pagination" switch, enabled
+    - The viewers should see it disabled, showing the `public.app.defaultSettings.application.paginationEnabled` default, with a tooltip saying only moderators can change it
 
 4. As the viewer without a webcam, look at the webcam area.
 
@@ -379,7 +379,7 @@ Webcams will be moved when mouse is released. (Note: When only one webcam is sha
 
 6. Demote the user back to viewer.
 
-    - The switch should disappear from their Settings
+    - The switch should be disabled again in their Settings, showing the default
     - The webcams should be paginated again, even though they turned pagination off as a moderator
 
 ### Hide participants without camera [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/webcam/hideUsersWithoutCamera.spec.ts)
@@ -856,6 +856,21 @@ The pre-flight (setup) screen is disabled by default. Enable it with `public.app
 
 4. Click the microphone button repeatedly
     - You should change between unmuted and muted states and the button should indicate it
+
+### Moderator unmutes a participant [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/audio/audio.spec.ts)
+
+1. Create a meeting with `allowModsToUnmuteUsers=true`. Join as a moderator and, in another browser, as a viewer.
+
+2. As the viewer, join audio with the microphone muted.
+
+3. As the moderator, open the viewer's menu in the user list and click "Unmute user".
+
+    - With `requireUserConsentBeforeUnmuting=false` (the default), the viewer is unmuted without a prompt. On LiveKit they also see "A moderator unmuted your microphone". The moderator hears the viewer and sees them unmuted.
+    - With `requireUserConsentBeforeUnmuting=true`, the viewer is asked first. "Stay Muted" keeps them muted; "Unmute" unmutes them.
+
+4. As the moderator, mute the viewer, then unmute them again right away and once more after a few seconds.
+
+    - Each unmute behaves as in step 3. The viewer's microphone button, the user list and the audio always agree.
 
 ### Leave audio [(Partially automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/audio/audio.spec.ts)
 

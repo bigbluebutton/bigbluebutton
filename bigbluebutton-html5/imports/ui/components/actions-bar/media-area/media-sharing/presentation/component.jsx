@@ -72,6 +72,14 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.browseFilesLabel',
     description: 'message use on the file browser',
   },
+  dropzoneImagesLabel: {
+    id: 'app.presentationUploder.dropzoneImagesLabel',
+    description: 'message warning where drop images for upload',
+  },
+  browseImagesLabel: {
+    id: 'app.presentationUploder.browseImagesLabel',
+    description: 'message use on the image browser',
+  },
   rejectedError: {
     id: 'app.presentationUploder.rejectedError',
     description: 'some files rejected, please check the file mime types',
@@ -524,7 +532,7 @@ class PresentationUploader extends Component {
     }
 
     return (
-      <Styled.PresentationsContainer>
+      <Styled.PresentationsContainer className="bbb-presentation-uploader__list">
         {unique(presentationsSorted, (p) => p.presentationId)
           .map((item) => this.renderPresentationItem(item))}
       </Styled.PresentationsContainer>
@@ -578,8 +586,13 @@ class PresentationUploader extends Component {
     if (isProcessing || !firstPageThumbnailUrl) return null;
 
     return (
-      <Styled.PresentationItemContainer data-test="presentationItem" key={item.presentationId}>
+      <Styled.PresentationItemContainer
+        className={`bbb-presentation-uploader__item${isVisuallySelected ? ' bbb-presentation-uploader__item--selected' : ''}`}
+        data-test="presentationItem"
+        key={item.presentationId}
+      >
         <Styled.PresentationThumbnail
+          className="bbb-presentation-uploader__thumbnail"
           data-test="presentationThumbnail"
           selected={isVisuallySelected}
           onClick={() => {
@@ -590,7 +603,7 @@ class PresentationUploader extends Component {
           <img src={Auth.authenticateURL(firstPageThumbnailUrl)} alt={item.name} />
         </Styled.PresentationThumbnail>
         <Styled.PresentationItemBottomContainer>
-          <Styled.PresentationItemName data-test="presentationName">
+          <Styled.PresentationItemName className="bbb-presentation-uploader__name" data-test="presentationName">
             {item.name}
           </Styled.PresentationItemName>
           {allowDownloadOriginal || allowDownloadWithAnnotations || allowDownloadConverted ? (
@@ -612,6 +625,7 @@ class PresentationUploader extends Component {
           ) : null}
           {removable ? (
             <Styled.RemoveButton
+              className="bbb-presentation-uploader__remove"
               label={intl.formatMessage(intlMessages.removePresentation)}
               data-test="removePresentation"
               aria-label={`${intl.formatMessage(intlMessages.removePresentation)} ${item.name}`}
@@ -639,6 +653,7 @@ class PresentationUploader extends Component {
       // prop is being remove to prevent the error styles from being applied to valid file types.
       // Error handling is being done in the onDrop prop.
       <Styled.UploaderDropzone
+        className="bbb-presentation-uploader__dropzone"
         multiple
         activeClassName="dropzoneActive"
         accept={fileValidMimeTypes.map((fileValid) => fileValid.extension)}
@@ -712,6 +727,7 @@ class PresentationUploader extends Component {
 
     return (
       <Styled.UploaderDropzone
+        className="bbb-presentation-uploader__dropzone"
         multiple
         activeClassName="dropzoneActive"
         accept="image/*"
@@ -721,10 +737,10 @@ class PresentationUploader extends Component {
       >
         <Styled.UploadIcon />
         <Styled.DropzoneMessage>
-          {intl.formatMessage(intlMessages.dropzoneLabel)}
+          {intl.formatMessage(intlMessages.dropzoneImagesLabel)}
           &nbsp;
           <Styled.DropzoneLink>
-            {intl.formatMessage(intlMessages.browseFilesLabel)}
+            {intl.formatMessage(intlMessages.browseImagesLabel)}
           </Styled.DropzoneLink>
         </Styled.DropzoneMessage>
       </Styled.UploaderDropzone>
@@ -744,13 +760,15 @@ class PresentationUploader extends Component {
     } = this.state;
 
     return (
-      <div id="upload-modal">
-        {isMobile ? this.renderPicDropzone() : null}
-        {this.renderDropzone()}
-        {fileUploadConstraintsHint ? this.renderExtraHint() : null}
-        {this.renderExternalUpload()}
-        {this.renderPresentationList()}
-        <ModalStyled.FooterContainer>
+      <Styled.UploadModal id="upload-modal" className="bbb-presentation-uploader">
+        <Styled.UploadScrollArea>
+          {isMobile ? this.renderPicDropzone() : null}
+          {this.renderDropzone()}
+          {fileUploadConstraintsHint ? this.renderExtraHint() : null}
+          {this.renderExternalUpload()}
+          {this.renderPresentationList()}
+        </Styled.UploadScrollArea>
+        <ModalStyled.FooterContainer className="bbb-media-sharing__footer">
           <BBButton
             variant="primary"
             dataTest="sharePresentationButton"
@@ -760,7 +778,7 @@ class PresentationUploader extends Component {
             fullWidth
           />
         </ModalStyled.FooterContainer>
-      </div>
+      </Styled.UploadModal>
     );
   }
 }

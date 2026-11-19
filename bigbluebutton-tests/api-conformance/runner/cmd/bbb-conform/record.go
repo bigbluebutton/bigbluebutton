@@ -54,7 +54,7 @@ func cmdRecord(args []string, stdout, stderr io.Writer) int {
 	exclude := fl.String("exclude-tags", "", "skip cases with any of these comma-separated tags")
 	ids := fl.String("id", "", "only cases whose ID matches one of these comma-separated globs")
 	parallel := fl.Int("parallel", 4, "cases to run at once (cases tagged serial always run alone)")
-	masksFile := fl.String("masks", "", "extra normalization rules (default: masks.yaml next to the cases directory)")
+	masksFile := fl.String("masks", "", "extra normalization rules (default: masks.d/*.yaml and masks.yaml next to the cases directory)")
 	outDir := fl.String("out", "", "where recordings go (default: golden/<target name> next to the cases directory)")
 	passes := fl.Int("passes", 2, "how many times each case runs; any difference between runs is reported")
 	if err := fl.Parse(args); err != nil {

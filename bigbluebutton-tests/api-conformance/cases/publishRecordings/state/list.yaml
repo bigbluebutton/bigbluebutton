@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# recordID takes a comma-separated list. It's enough that one of the
+# record IDs is found: the others are skipped. Serial, with the recording
+# put back before and after.
+id: publishRecordings.state.list
+title: publishRecordings publishes the recordings it finds in a list
+endpoint: publishRecordings
+class: contract
+tags: [ci, serial]
+steps:
+  - restore: {recordings: [db0c52cbb08b78549a52cb6f29e4d8dc236977bd-1700021600000]}
+  - call: publishRecordings
+    params: {recordID: "0000000000000000000000000000000000000000-1700000000000,db0c52cbb08b78549a52cb6f29e4d8dc236977bd-1700021600000", publish: "true"}
+    expect: {returncode: SUCCESS}
+  - call: getRecordings
+    params: {recordID: db0c52cbb08b78549a52cb6f29e4d8dc236977bd-1700021600000}
+    expect:
+      returncode: SUCCESS
+      xpath: {/response/recordings/recording/state: published}
+teardown:
+  - restore: {recordings: [db0c52cbb08b78549a52cb6f29e4d8dc236977bd-1700021600000]}

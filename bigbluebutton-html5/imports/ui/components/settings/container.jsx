@@ -12,7 +12,7 @@ import {
   FALLBACK_LOCALES,
 } from './service';
 import useUserChangedLocalSettings from '../../services/settings/hooks/useUserChangedLocalSettings';
-import { useShouldRenderPaginationToggle } from '/imports/ui/components/video-provider/hooks';
+import { useIsPaginationToggleAllowed } from '/imports/ui/components/video-provider/hooks';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
@@ -25,7 +25,10 @@ export const useSettingsProps = () => {
   const SHOW_AUDIO_FILTERS = (APP_CONFIG.showAudioFilters === undefined)
     ? true
     : APP_CONFIG.showAudioFilters;
-  const paginationToggleEnabled = useShouldRenderPaginationToggle();
+  const {
+    paginationToggleEnabled,
+  } = window.meetingClientSettings.public.kurento.pagination;
+  const isPaginationToggleAllowed = useIsPaginationToggleAllowed();
   const { data: currentUser } = useCurrentUser((u) => ({
     presenter: u.presenter,
     isModerator: u.isModerator,
@@ -69,6 +72,7 @@ export const useSettingsProps = () => {
     modalHeight,
     modalWidth,
     paginationToggleEnabled,
+    paginationToggleLocked: !isPaginationToggleAllowed,
     fallbackLocales: FALLBACK_LOCALES,
     isShowAudioFiltersEnabled: SHOW_AUDIO_FILTERS,
     isAudioDeviceTestEnabled: !!navigator.mediaDevices?.enumerateDevices,

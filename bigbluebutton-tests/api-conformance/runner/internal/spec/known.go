@@ -24,10 +24,11 @@ var stepKeys = map[string]StepKind{
 	"call": KindCall, "route": KindCall, "url": KindCall,
 	"wait": KindWait, "presence": KindPresence, "graphql": KindGraphQL,
 	"bus": KindBus, "fs": KindFS, "redis": KindRedis, "sink": KindSink, "env": KindEnv,
+	"restore": KindRestore,
 }
 
 // stepKeyOrder is stepKeys in the order messages list them.
-var stepKeyOrder = []string{"call", "route", "url", "wait", "presence", "graphql", "bus", "fs", "redis", "sink", "env"}
+var stepKeyOrder = []string{"call", "route", "url", "wait", "presence", "graphql", "bus", "fs", "redis", "sink", "env", "restore"}
 
 var bodyKinds = []string{"xml", "xmlFile", "form", "json", "raw", "multipart"}
 

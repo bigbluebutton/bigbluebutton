@@ -537,7 +537,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
       userId={stream.userId}
       hasVoice={!!voiceUser}
       fullscreen={isFullscreenContext}
-      isStream={isStream}
+      isStream={isStream && stream.type !== VIDEO_TYPES.AUDIO_ONLY}
       onMouseEnter={() => {
         if (!isVideoSqueezed) return;
         if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);

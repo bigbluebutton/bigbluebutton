@@ -23,6 +23,7 @@ import EmojiRainContainer from '../emoji-rain/container';
 import Styled from './styles';
 import LayoutEngine from '../layout/layout-manager/layoutEngine';
 import NavBarContainer from '../nav-bar/container';
+import ConnectionStatusContainer from '../connection-status/component';
 import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
 import SidebarContentAuxiliaryContainer from '/imports/ui/components/sidebar-content/sidebar-content-auxiliary/container';
@@ -152,6 +153,7 @@ const App: React.FC<AppProps> = ({
         >
           <ActivityCheckContainer />
           <DocumentTitleManager />
+          <ConnectionStatusContainer />
           <RequestUnmuteContainer />
           <RequestCameraContainer />
           <ScreenReaderAlertContainer />
@@ -223,6 +225,7 @@ const App: React.FC<AppProps> = ({
           height: '100%',
         }}
       >
+        <ConnectionStatusContainer />
         <ScreenReaderAlertContainer />
         <PresentationContainer
           darkTheme={darkTheme}

@@ -3,7 +3,7 @@ import React, {
   memo,
 } from 'react';
 import { useIntl } from 'react-intl';
-import { useMutation, useReactiveVar } from '@apollo/client';
+import { useReactiveVar } from '@apollo/client';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Auth from '/imports/ui/services/auth';
 import ActionsBar from './component';
@@ -30,7 +30,6 @@ import {
 import MediaService from '../media/service';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
@@ -76,8 +75,6 @@ const ActionsBarContainer = (props) => {
     presenter: user.presenter,
     isModerator: user.isModerator,
   }));
-
-  const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
 
   const currentUser = {
     userId: Auth.userID,
@@ -136,7 +133,6 @@ const ActionsBarContainer = (props) => {
         actionBarItems,
         isThereCurrentPresentation,
         isSharingVideo,
-        stopExternalVideoShare,
         isSharedNotesPinned,
         isTimerActive: currentMeeting?.componentsFlags?.hasTimer,
         isTimerEnabled: isTimerFeatureEnabled,

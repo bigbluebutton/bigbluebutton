@@ -49,7 +49,8 @@ export async function getLocaleValues(
 
 export async function selectLocale(testPage: Page, locale: string) {
   await openSettings(testPage);
-  await testPage.page.locator(e.languageSelector).selectOption({ value: locale });
+  await testPage.waitAndClick(e.languageSelector);
+  await testPage.waitAndClick(`${e.languageSelectorOption}[data-value="${locale}"]`);
   await testPage.waitAndClick(e.saveSettingsButton);
 }
 

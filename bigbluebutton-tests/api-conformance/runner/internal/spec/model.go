@@ -46,6 +46,7 @@ const (
 	KindRedis    StepKind = "redis"
 	KindSink     StepKind = "sink"
 	KindEnv      StepKind = "env"
+	KindRestore  StepKind = "restore"
 )
 
 // Capability returns the target capability a step type needs, or "".
@@ -61,6 +62,8 @@ func (k StepKind) Capability() string {
 		return "redis"
 	case KindSink:
 		return "callbacks"
+	case KindRestore:
+		return "recordings-fs"
 	}
 	return ""
 }
@@ -78,6 +81,7 @@ type Step struct {
 	FS       *FSStep       // KindFS
 	Redis    *RedisStep    // KindRedis
 	Sink     *SinkStep     // KindSink
+	Restore  []string      // KindRestore: the fixture recordings' record IDs
 
 	// Config is the step-type mapping of the kinds implemented by later
 	// tickets (env), as plain values. Their tickets give them types.

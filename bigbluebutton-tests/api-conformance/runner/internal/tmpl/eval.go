@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -49,6 +50,22 @@ var funcs = map[string]Func{
 			return "", fmt.Errorf("base64File: %w", err)
 		}
 		return base64.StdEncoding.EncodeToString(data), nil
+	}},
+	"match": {2, func(_ *Env, a []string) (string, error) {
+		re, err := regexp.Compile(a[1])
+		if err != nil {
+			return "", fmt.Errorf("match: %w", err)
+		}
+		m := re.FindStringSubmatchIndex(a[0])
+		switch {
+		case m == nil:
+			return "", fmt.Errorf("match: %q doesn't match %q", a[0], a[1])
+		case len(m) > 2 && m[2] < 0:
+			return "", fmt.Errorf("match: %q matches %q, but not its first group", a[0], a[1])
+		case len(m) > 2:
+			return a[0][m[2]:m[3]], nil
+		}
+		return a[0][m[0]:m[1]], nil
 	}},
 	"checksum": {3, func(env *Env, a []string) (string, error) {
 		if env.Checksum == nil {

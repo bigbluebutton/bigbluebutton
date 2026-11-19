@@ -73,6 +73,7 @@ const ChatReplyIntention = () => {
 
   return (
     <Styled.Container
+      className="bbb-chat-reply-intention"
       data-test="chatReplyIntentionContainer"
       $hidden={hidden}
       $animations={animations}

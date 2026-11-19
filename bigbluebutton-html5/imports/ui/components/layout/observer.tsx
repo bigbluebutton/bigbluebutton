@@ -362,10 +362,6 @@ const LayoutObserver: React.FC = () => {
             type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
             value: false,
           });
-          layoutContextDispatch({
-            type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-            value: false,
-          });
         }
 
         checkedUserSettings.current = true;

@@ -55,6 +55,8 @@ export interface UseVideoPreviewProps {
   // Doesn't enumerate devices nor acquire a stream on mount; the consumer calls
   // initializeCameras() when the user asks for the camera.
   deferInitialization?: boolean;
+  // Only open the camera on mount if the browser already granted access to it
+  waitForCameraPermission?: boolean;
   cameraDisabled?: boolean;
   startSharing?: (deviceId: string) => void;
   startSharingCameraAsContent?: (deviceId: string) => void;
@@ -72,6 +74,7 @@ export interface UseVideoPreviewReturn {
   // The browser refused the camera; cleared once a stream comes through.
   permissionDenied: boolean;
   isCameraLoading: boolean;
+  isAwaitingCameraPermission: boolean;
   brightness: number;
   wholeImageBrightness: boolean;
   videoRef: React.RefObject<HTMLVideoElement>;
@@ -80,6 +83,7 @@ export interface UseVideoPreviewReturn {
   // Drops whatever camera acquisition is in flight.
   invalidateCameraAcquisition: () => void;
   initializeCameras: () => void;
+  startPreview: () => void;
   displayPreview: () => void;
   handleSelectWebcam: (event: React.ChangeEvent<HTMLSelectElement>) => Promise<string | null>;
   handleSelectProfile: (event: React.ChangeEvent<HTMLSelectElement>) => Promise<void>;
