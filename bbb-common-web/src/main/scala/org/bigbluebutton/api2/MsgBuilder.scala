@@ -248,6 +248,40 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
+  // ---------- the upload of an insert of pages, bbb-web to akka-apps ----------
+
+  private def insertPagesEnvelope(name: String) = BbbCoreEnvelope(name, collection.immutable.HashMap("sender" -> "bbb-web"))
+
+  def buildPresentationInsertPagesProgressSysMsg(meetingId: String, userId: String, podId: String, uploadPresentationId: String,
+                                                 stage: String, pagesCompleted: Int, totalPages: Int): BbbCommonEnvCoreMsg = {
+    val header = BbbClientMsgHeader(PresentationInsertPagesProgressSysMsg.NAME, meetingId, userId)
+    val body = PresentationInsertPagesProgressSysMsgBody(podId, uploadPresentationId, stage, pagesCompleted, totalPages)
+    BbbCommonEnvCoreMsg(insertPagesEnvelope(PresentationInsertPagesProgressSysMsg.NAME), PresentationInsertPagesProgressSysMsg(header, body))
+  }
+
+  def buildPresentationInsertPagesPageSysMsg(meetingId: String, userId: String, podId: String, uploadPresentationId: String,
+                                             page: PresentationPageConvertedVO): BbbCommonEnvCoreMsg = {
+    val header = BbbClientMsgHeader(PresentationInsertPagesPageSysMsg.NAME, meetingId, userId)
+    val body = PresentationInsertPagesPageSysMsgBody(podId, uploadPresentationId, page)
+    BbbCommonEnvCoreMsg(insertPagesEnvelope(PresentationInsertPagesPageSysMsg.NAME), PresentationInsertPagesPageSysMsg(header, body))
+  }
+
+  def buildPresentationInsertPagesReadySysMsg(meetingId: String, userId: String, podId: String, insertIntoPresentationId: String,
+                                              uploadPresentationId: String, maxNumPages: Int,
+                                              pageIds: java.util.List[String]): BbbCommonEnvCoreMsg = {
+    val header = BbbClientMsgHeader(PresentationInsertPagesReadySysMsg.NAME, meetingId, userId)
+    val body = PresentationInsertPagesReadySysMsgBody(podId, insertIntoPresentationId, uploadPresentationId, maxNumPages,
+      pageIds.asScala.toVector)
+    BbbCommonEnvCoreMsg(insertPagesEnvelope(PresentationInsertPagesReadySysMsg.NAME), PresentationInsertPagesReadySysMsg(header, body))
+  }
+
+  def buildPresentationInsertPagesFailedSysMsg(meetingId: String, userId: String, podId: String, uploadPresentationId: String,
+                                               errorKey: String, detail: String): BbbCommonEnvCoreMsg = {
+    val header = BbbClientMsgHeader(PresentationInsertPagesFailedSysMsg.NAME, meetingId, userId)
+    val body = PresentationInsertPagesFailedSysMsgBody(podId, uploadPresentationId, errorKey, detail)
+    BbbCommonEnvCoreMsg(insertPagesEnvelope(PresentationInsertPagesFailedSysMsg.NAME), PresentationInsertPagesFailedSysMsg(header, body))
+  }
+
   def buildPresentationConversionEndedSysMsg(msg: DocPageCompletedProgress): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(PresentationConversionEndedSysMsg.NAME, routing)

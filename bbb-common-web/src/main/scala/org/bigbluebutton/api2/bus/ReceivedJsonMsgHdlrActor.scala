@@ -94,6 +94,10 @@ class ReceivedJsonMsgHdlrActor(val msgFromAkkaAppsEventBus: MsgFromAkkaAppsEvent
         route[PresentationUploadTokenSysPubMsg](envelope, jsonNode)
       case PresentationConversionRejectedSysMsg.NAME =>
         route[PresentationConversionRejectedSysMsg](envelope, jsonNode)
+      case PresentationInsertBlankPageSysMsg.NAME =>
+        route[PresentationInsertBlankPageSysMsg](envelope, jsonNode)
+      case PresentationInsertPagesDiscardSysMsg.NAME =>
+        route[PresentationInsertPagesDiscardSysMsg](envelope, jsonNode)
       case GuestsWaitingApprovedEvtMsg.NAME =>
         route[GuestsWaitingApprovedEvtMsg](envelope, jsonNode)
       case GuestPolicyChangedEvtMsg.NAME =>

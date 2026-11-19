@@ -28,6 +28,7 @@ import org.bigbluebutton.api.messaging.messages.PresentationUploadToken
 import org.bigbluebutton.api.util.ParamsUtil
 import org.bigbluebutton.presentation.SupportedFileTypes
 import org.bigbluebutton.presentation.UploadedPresentation
+import org.bigbluebutton.presentation.imp.InsertPagesDeliveryService
 import org.bigbluebutton.presentation.imp.PageArtifacts
 import org.bigbluebutton.web.filters.PresentationUploadFilter
 import org.bigbluebutton.web.services.PresentationService
@@ -229,6 +230,11 @@ class PresentationController {
           && originalContentLength < maxUploadFileSize
           && 0 != originalContentLength) {
         log.debug "SUCCESS\n"
+        // The upload of an insert of pages starts its transfer: bbb-apps-akka moves it to that stage.
+        PresentationUploadToken insertToken = meetingService.getPresentationUploadToken(presentationToken)
+        if (insertToken != null && insertToken.isInsert()) {
+          meetingService.sendInsertPagesProgress(insertToken, InsertPagesDeliveryService.STAGE_TRANSFER)
+        }
         response.setStatus(200);
         response.addHeader("Cache-Control", "no-cache")
         response.contentType = 'text/plain'
@@ -247,8 +253,15 @@ class PresentationController {
           return;
         }
 
-        //Send upload error message
-        meetingService.sendPresentationUploadMaxFilesizeMessage(presUploadToken, originalContentLength, maxUploadFileSize as int);
+        if (presUploadToken.isInsert()) {
+          // An insert of pages fails at once; its token is used up, so a retry cannot send the file.
+          if (meetingService.consumePresentationUploadToken(presentationToken) != null) {
+            meetingService.sendInsertPagesFailed(presUploadToken, "file too large or empty: " + originalContentLength)
+          }
+        } else {
+          //Send upload error message
+          meetingService.sendPresentationUploadMaxFilesizeMessage(presUploadToken, originalContentLength, maxUploadFileSize as int);
+        }
 
         response.setStatus(403);
         response.addHeader("Cache-Control", "no-cache")
@@ -287,6 +300,11 @@ class PresentationController {
       response.addHeader("Cache-Control", "no-cache")
       response.contentType = 'text/plain'
       response.outputStream << 'invalid auth token'
+      return
+    }
+
+    if (presUploadToken.isInsert()) {
+      uploadInsertPages(presUploadToken, authzToken)
       return
     }
 
@@ -419,6 +437,75 @@ class PresentationController {
       log.debug("file upload failed " + sanitizeForLog(presFilename))
       response.addHeader("Cache-Control", "no-cache")
       response.contentType = 'text/plain'
+      response.outputStream << 'upload-failed'
+    }
+  }
+
+  // The upload of an insert of pages into an existing presentation. From the token consumed to the upload
+  // registered, every early exit and every exception reports the failure to bbb-apps-akka, so the insert
+  // ends at once instead of waiting for its deadline. current and is_downloadable do not apply.
+  private void uploadInsertPages(PresentationUploadToken presUploadToken, String authzToken) {
+    def meetingId = presUploadToken.meetingId
+    def presId = presUploadToken.presentationId
+    File uploadDir = null
+    File pres = null
+    def presFilename = ""
+    def filenameExt = ""
+    def refusal = null
+
+    try {
+      if (!presUploadToken.isValidFor(params.conference)) {
+        log.warn "Presentation upload token scope mismatch for requested meetingId=" + sanitizeForLog(params.conference)
+        refusal = [403, 'upload token scope mismatch']
+      } else if (!Util.isMeetingIdValidFormat(meetingId) || meetingService.getNotEndedMeetingWithId(meetingId) == null) {
+        log.debug("Upload failed. No meeting running " + meetingId)
+        refusal = [200, 'no-meeting']
+      } else if (meetingService.isMeetingWithDisabledPresentation(meetingId)) {
+        log.error "This meeting has presentation as a disabledFeature, it is not possible to upload anything"
+        refusal = [200, 'presentation in disabled features']
+      } else {
+        def file = request.getFile('fileUpload')
+        if (file && !file.empty) {
+          presFilename = ParamsUtil.stripTags(FilenameUtils.getName(file.getOriginalFilename()))
+          filenameExt = FilenameUtils.getExtension(presFilename)
+        }
+        if (presFilename != "" && filenameExt != "") {
+          uploadDir = Util.createPresentationDir(meetingId, presentationService.getPresentationDir(), presId)
+          if (uploadDir == null) throw new IOException("Could not create the directory of upload " + presId)
+          pres = new File(uploadDir.absolutePath + File.separatorChar + Util.createNewFilename(presId, filenameExt))
+          file.transferTo(pres)
+        }
+      }
+    } catch (Throwable e) {
+      log.error("Upload of an insert of pages failed before its conversion. presId=" + presId, e)
+      refusal = [200, 'upload-failed']
+    }
+
+    if (refusal != null) {
+      meetingService.sendInsertPagesFailed(presUploadToken, refusal[1] as String)
+      if (uploadDir != null) org.bigbluebutton.presentation.Util.deleteDirectory(uploadDir)
+      response.setStatus(refusal[0] as int)
+      response.addHeader("Cache-Control", "no-cache")
+      response.contentType = 'text/plain'
+      response.outputStream << refusal[1]
+      return
+    }
+
+    def start = meetingService.getInsertPagesDeliveryService().startFromFile(presUploadToken.podId, meetingId, presId,
+            presFilename, pres, presentationService.presentationBaseUrl, authzToken, presUploadToken.insertIntent,
+            presUploadToken.userId)
+    response.addHeader("Cache-Control", "no-cache")
+    response.contentType = 'text/plain'
+    if (start.accepted) {
+      meetingService.sendInsertPagesMessages([start.progress])
+      presentationService.processUploadedPresentation(start.pres)
+      log.debug("insert pages upload success " + sanitizeForLog(presFilename))
+      response.outputStream << 'upload-success'
+    } else {
+      // Reported as an invalid type, which the delivery service maps to the failure of the insert.
+      presentationService.sendDocConversionFailedOnMimeType(start.pres, SupportedFileTypes.detectMimeType(pres), filenameExt)
+      if (pres != null) org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlingErrors(pres)
+      log.debug("insert pages upload failed " + sanitizeForLog(presFilename))
       response.outputStream << 'upload-failed'
     }
   }

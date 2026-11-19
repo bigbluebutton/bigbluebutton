@@ -14,6 +14,8 @@ import org.bigbluebutton.api2.meeting.{OldMeetingMsgHdlrActor, RegisterUser}
 import org.bigbluebutton.common2.domain._
 import org.bigbluebutton.common2.util.JsonUtil
 import org.bigbluebutton.presentation.messages._
+import org.bigbluebutton.presentation.imp.InsertPagesDeliveryService
+import org.bigbluebutton.common2.msgs.BbbCommonEnvCoreMsg
 
 import scala.concurrent.duration._
 import org.bigbluebutton.common2.redis._
@@ -412,8 +414,22 @@ class BbbWebApiGWApp(
     msgSender.send(fromBbbWebRedisChannel, JsonUtil.toJson(event))
   }
 
+  // The uploads of inserts of pages; their conversion messages never take the standard path.
+  private var insertPagesDeliveryService: InsertPagesDeliveryService = null
+
+  def setInsertPagesDeliveryService(service: InsertPagesDeliveryService): Unit = {
+    insertPagesDeliveryService = service
+  }
+
+  def sendInsertPagesMessages(messages: util.List[BbbCommonEnvCoreMsg]): Unit = {
+    messages.asScala.foreach(event => msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event)))
+  }
+
   def sendDocConversionMsg(msg: IDocConversionMsg): Unit = {
-    if (msg.isInstanceOf[DocPageGeneratedProgress]) {
+    val insertOutcome = if (insertPagesDeliveryService == null) null else insertPagesDeliveryService.outcomeFor(msg)
+    if (insertOutcome != null) {
+      sendInsertPagesMessages(insertOutcome)
+    } else if (msg.isInstanceOf[DocPageGeneratedProgress]) {
       val event = MsgBuilder.buildPresentationPageGeneratedPubMsg(msg.asInstanceOf[DocPageGeneratedProgress])
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
 

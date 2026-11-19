@@ -50,6 +50,9 @@ public final class UploadedPresentation {
 
   private boolean defaultPresentation;
   private boolean systemUpload = false;
+  // InsertPagesIntent.NONE unless this upload carries the pages of an insert; then also who requested it.
+  private InsertPagesIntent insertIntent = InsertPagesIntent.NONE;
+  private String requesterUserId = "";
   // Page ids of this upload, in page order. Registered once: minted, or adopted from the conversion cache.
   private volatile List<String> pageIds = null;
 
@@ -237,6 +240,23 @@ public final class UploadedPresentation {
 
   public void setSystemUpload(boolean systemUpload) {
     this.systemUpload = systemUpload;
+  }
+
+  public void setInsertIntent(InsertPagesIntent insertIntent, String requesterUserId) {
+    this.insertIntent = insertIntent;
+    this.requesterUserId = requesterUserId;
+  }
+
+  public InsertPagesIntent getInsertIntent() {
+    return insertIntent;
+  }
+
+  public boolean isInsert() {
+    return insertIntent.isInsert();
+  }
+
+  public String getRequesterUserId() {
+    return requesterUserId;
   }
 
   public String getFilenameConverted() {

@@ -132,8 +132,9 @@ public class PresentationConversionCompletionService {
         notifier.sendConversionCompletedMessage(p.pres);
 
         String meetingId = p.pres.getMeetingId();
-        //Store presentation outputs in cache (if enabled)
-        if(!p.pres.getUploadedFileHash().isEmpty()) {
+        //Store presentation outputs in cache (if enabled). The upload of an insert only reads the cache: its
+        //files are moved into the target before this point could archive them.
+        if(!p.pres.getUploadedFileHash().isEmpty() && !p.pres.isInsert()) {
             try {
                 String remoteFileName = p.pres.getUploadedFileHash() + PresentationFileProcessor.CACHE_KEY_SUFFIX;
                 Meeting meeting = ServiceUtils.findMeetingFromMeetingID(meetingId);

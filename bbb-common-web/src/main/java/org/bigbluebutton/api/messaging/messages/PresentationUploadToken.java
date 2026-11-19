@@ -1,5 +1,7 @@
 package org.bigbluebutton.api.messaging.messages;
 
+import org.bigbluebutton.presentation.InsertPagesIntent;
+
 public class PresentationUploadToken implements IMessage  {
     // userId stamped on tokens bbb-apps-akka issues to the server itself rather than
     // on behalf of a participant. Participant ids are always prefixed and randomised.
@@ -11,6 +13,8 @@ public class PresentationUploadToken implements IMessage  {
     public final String filename;
     public final String meetingId;
     public final String userId;
+    // InsertPagesIntent.NONE unless the upload is an insert of pages.
+    public final InsertPagesIntent insertIntent;
 
     // An upload request is handled only once its whole body is in, so until then its arrival at
     // bbb-web is the only sign that the file is on its way.
@@ -18,12 +22,22 @@ public class PresentationUploadToken implements IMessage  {
     private volatile boolean uploadStarted = false;
 
     public PresentationUploadToken(String podId, String authzToken, String filename, String meetingId, String presentationId, String userId) {
+        this(podId, authzToken, filename, meetingId, presentationId, userId, InsertPagesIntent.NONE);
+    }
+
+    public PresentationUploadToken(String podId, String authzToken, String filename, String meetingId, String presentationId, String userId,
+                                   InsertPagesIntent insertIntent) {
         this.podId = podId;
         this.authzToken = authzToken;
         this.presentationId = presentationId;
         this.filename = filename;
         this.meetingId = meetingId;
         this.userId = userId;
+        this.insertIntent = insertIntent;
+    }
+
+    public boolean isInsert() {
+        return insertIntent.isInsert();
     }
 
     public boolean isSystemUpload() {

@@ -97,5 +97,7 @@ public interface IBbbWebApiGWApp {
   void unpublishedRecording(UnpublishedRecordingMessage msg);
   void deletedRecording(DeletedRecordingMessage msg);
   void sendDocConversionMsg(IDocConversionMsg msg);
+  // Publishes to bbb-apps-akka the messages of the upload of an insert of pages, in order.
+  void sendInsertPagesMessages(java.util.List<org.bigbluebutton.common2.msgs.BbbCommonEnvCoreMsg> messages);
   void sendChatMessage(ChatMessageFromApi msg);
 }

@@ -22,6 +22,8 @@ import org.bigbluebutton.api.domain.Meeting
 import org.bigbluebutton.api.service.ServiceUtils
 import org.bigbluebutton.presentation.DocumentConversionService
 import org.bigbluebutton.presentation.UploadedPresentation
+import org.bigbluebutton.api2.IBbbWebApiGWApp
+import org.bigbluebutton.presentation.imp.InsertPagesDeliveryService
 import org.bigbluebutton.presentation.imp.PageArtifacts
 import org.springframework.beans.factory.annotation.Autowired
 import jakarta.annotation.PostConstruct
@@ -51,6 +53,9 @@ class PresentationService {
 	def scanUploadedPresentationFiles
 	def pageTokenSecret
 	def numDownloadThreads
+	// The upload of an insert of pages fails through them when its conversion throws.
+	InsertPagesDeliveryService insertPagesDeliveryService
+	IBbbWebApiGWApp bbbWebApiGWApp
 
 	// Bounds how many tasks may wait for a free download thread, as a multiple of
 	// the pool size. Keeps a burst of create/insertDocument requests from queueing
@@ -176,6 +181,10 @@ class PresentationService {
 					documentConversionService.processDocument(uploadedPres, Boolean.parseBoolean(scanUploadedPresentationFiles))
 				} catch (Throwable e) {
 					log.error "Error in Presentation service:", e
+					if (insertPagesDeliveryService != null && bbbWebApiGWApp != null) {
+						def failure = insertPagesDeliveryService.failureFor(uploadedPres.getId(), e.toString())
+						if (failure != null) bbbWebApiGWApp.sendInsertPagesMessages(failure)
+					}
 				} finally {
 					scheduler.shutdown()
 				}
