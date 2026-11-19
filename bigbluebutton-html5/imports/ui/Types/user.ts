@@ -24,6 +24,7 @@ export interface UserMeeting {
   endedReasonCode: string;
   endedByUserName: string;
   logoutUrl: string;
+  roomMode: string;
 }
 
 export interface Voice {
