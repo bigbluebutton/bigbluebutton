@@ -1222,6 +1222,11 @@ public:
     restoreOnUpdate: true
     uploadEndpoint: '/bigbluebutton/presentation/upload'
     fileUploadConstraintsHint: false
+    # Allows the presenter to insert pages into the open presentation. bbb-apps-akka checks it on every
+    # request, so it enables or blocks any insert of pages on the server; absent counts as false. Like any
+    # client setting, it can be changed per meeting at create (clientSettingsOverride). maxNumPages
+    # (bbb-web) also limits the number of pages of a presentation after an insert.
+    insertPagesEnabled: true
     # mirroredFromBBBCore are copies of values controlled in bbb-web properties file (maxFileSizeUpload and maxNumPages)
     # The client refuses a file over uploadSizeMax before sending it, so raise it together with maxFileSizeUpload
     # uploadPagesMax is only displayed, by fileUploadConstraintsHint: the page count is known after the upload
