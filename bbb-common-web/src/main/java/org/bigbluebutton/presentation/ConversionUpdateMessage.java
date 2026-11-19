@@ -21,6 +21,7 @@ package org.bigbluebutton.presentation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ConversionUpdateMessage {
@@ -90,11 +91,14 @@ public class ConversionUpdateMessage {
 			String basePresUrl = generateBasePresUrl(pres);
 			ArrayList<Map<String, String>> pages = new ArrayList<Map<String, String>>();
 			
-			for (int i = 1; i <= pres.getNumberOfPages(); i++) {
+			List<String> pageIds = pres.getPageIds();
+			for (int i = 1; i <= pageIds.size(); i++) {
+				String pageId = pageIds.get(i - 1);
 				Map<String, String> page = new HashMap<String, String>();
+				page.put("id", pageId);
 				page.put("num", Integer.toString(i));
-				page.put("thumb", basePresUrl + "/thumbnail/" + i);
-				page.put("text", basePresUrl + "/textfiles/" + i);
+				page.put("thumb", basePresUrl + "/thumbnail/" + pageId);
+				page.put("text", basePresUrl + "/textfiles/" + pageId);
 				
 				pages.add(page);
 			}
