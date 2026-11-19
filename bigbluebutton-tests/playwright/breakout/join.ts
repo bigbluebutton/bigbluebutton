@@ -509,9 +509,15 @@ export class Join extends Create {
       'should display the modal confirm button for the user to join the breakout room',
     );
 
-    await breakoutUserPage.hasElement(
+    await breakoutUserPage.hasText(
       e.meetingEndedModal,
-      'should display the meeting ended modal for the breakout page after being moved to another room',
+      e.breakoutUserMovedLabel,
+      'should tell the attendee they were moved to another room in the meeting ended modal of the breakout page',
+    );
+    await breakoutUserPage.hasText(
+      e.meetingEndedModal,
+      e.breakoutEndedCloseWindowLabel,
+      'should tell the attendee the button closes the breakout window',
     );
     await breakoutUserPage.hasElement(
       e.redirectButton,
@@ -549,9 +555,10 @@ export class Join extends Create {
       await this.modPage.dragDropSelector(e.moveUser, e.breakoutBox0);
     }
 
-    await breakoutUserPage.hasElement(
+    await breakoutUserPage.hasText(
       e.meetingEndedModal,
-      'should display the meeting ended modal for the breakout page after being unassigned from the room',
+      e.breakoutUserUnassignedLabel,
+      'should tell the attendee they were removed from the breakout room in its meeting ended modal',
     );
     await this.modPage.wasRemoved(
       e.userNameBreakoutRoom,
