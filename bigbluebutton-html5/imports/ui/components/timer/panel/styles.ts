@@ -97,14 +97,6 @@ const TimerType = styled.div`
   justify-content: center;
   padding-bottom: 2rem;
 `;
-// @ts-ignore - JS code
-const TimerSwitchButton = styled(Button)`
-  width: 100%;
-  height: 3rem;
-  border-radius: ${lgBorderRadius};
-  margin: 0 .5rem;
-  font-size: ${fontSizeBase};
-`;
 
 const TimeInputWrapper = styled.div`
   display: flex;
@@ -518,7 +510,6 @@ export default {
   TimerContent,
   TimerCurrent,
   TimerType,
-  TimerSwitchButton,
   TimeInputWrapper,
   TimeInputGroup,
   IncrementDecrementButton,
