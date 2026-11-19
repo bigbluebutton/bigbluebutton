@@ -540,4 +540,5 @@ object EjectReasonCode {
   val BANNED_USER_REJOINING = "banned_user_rejoining_reason"
   val USER_LOGGED_OUT = "user_logged_out_reason"
   val MAX_PARTICIPANTS = "max_participants_reason"
+  val BREAKOUT_USER_UNASSIGNED = "breakout_user_unassigned_reason"
 }

@@ -10,6 +10,7 @@ export const JoinErrorCodeTable = {
   USER_LOGGED_OUT: 'user_logged_out_reason',
   MAX_PARTICIPANTS: 'max_participants_reason',
   GUEST_DENY: 'guest_deny_reason',
+  BREAKOUT_USER_UNASSIGNED: 'breakout_user_unassigned_reason',
 };
 
 export const MeetingEndedTable = {
