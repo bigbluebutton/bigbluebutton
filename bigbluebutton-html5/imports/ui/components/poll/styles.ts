@@ -261,7 +261,7 @@ const ResponseTypeButton = styled.div<{ $selected: boolean }>`
 
     & > button,
     & > button span {
-      color: ${colorGrayIcons} !important;
+      color: ${colorText} !important;
     }
   `)}
 `;
