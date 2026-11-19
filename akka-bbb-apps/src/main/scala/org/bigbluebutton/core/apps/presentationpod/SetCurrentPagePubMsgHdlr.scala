@@ -22,45 +22,24 @@ trait SetCurrentPagePubMsgHdlr extends RightsManagementTrait {
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
       state
     } else {
-      def broadcastSetCurrentPageEvtMsg(podId: String, presentationId: String, pageId: String, userId: String): Unit = {
-        val routing = Routing.addMsgToClientRouting(
-          MessageTypes.BROADCAST_TO_MEETING,
-          liveMeeting.props.meetingProp.intId, userId
-        )
-        val envelope = BbbCoreEnvelope(SetCurrentPageEvtMsg.NAME, routing)
-        val header = BbbClientMsgHeader(SetCurrentPageEvtMsg.NAME, liveMeeting.props.meetingProp.intId, userId)
+      setCurrentPage(state, liveMeeting, bus, msg.body.podId, msg.header.userId, msg.body.presentationId, msg.body.pageId)
+    }
+  }
 
-        val body = SetCurrentPageEvtMsgBody(podId, presentationId, pageId)
-        val event = SetCurrentPageEvtMsg(header, body)
-        val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
-        bus.outGW.send(msgEvent)
-      }
-
-      val podId = msg.body.podId
-      val userId = msg.header.userId
-      val presentationId = msg.body.presentationId
-      val pageId = msg.body.pageId
-
-      val newState = for {
-        pod <- PresentationPodsApp.getPresentationPodIfPresenter(state, podId, userId)
-        updatedPod <- pod.setCurrentPage(presentationId, pageId)
-      } yield {
-
-        if (pod.currentPresenter == userId) {
-          broadcastSetCurrentPageEvtMsg(pod.id, presentationId, pageId, userId)
-
-          val pods = state.presentationPodManager.addPod(updatedPod)
-          state.update(pods)
-        } else {
-          state
-        }
-      }
-
-      newState match {
-        case Some(ns) => ns
-        case None     => state
-      }
+  // Makes pageId the current page when userId presents the pod, and tells the meeting.
+  def setCurrentPage(state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus, podId: String,
+                     userId: String, presentationId: String, pageId: String): MeetingState2x = {
+    val newState = for {
+      pod <- PresentationPodsApp.getPresentationPodIfPresenter(state, podId, userId)
+      updatedPod <- pod.setCurrentPage(presentationId, pageId)
+      page <- updatedPod.getPresentation(presentationId).flatMap(_.pages.get(pageId))
+    } yield {
+      PresentationSender.broadcastSetCurrentPageEvtMsg(bus, liveMeeting.props.meetingProp.intId, pod.id,
+        presentationId, pageId, page.num, userId)
+      val pods = state.presentationPodManager.addPod(updatedPod)
+      state.update(pods)
     }
 
+    newState.getOrElse(state)
   }
 }

@@ -4,14 +4,16 @@ import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.apps.presentationpod.PresentationPodsApp
 import org.bigbluebutton.core.db.PresPageCursorDAO
+import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.{ Roles, Users2x }
 import org.bigbluebutton.core2.MeetingStatus2x
 
 trait SendCursorPositionPubMsgHdlr extends RightsManagementTrait {
   this: WhiteboardApp2x =>
 
-  def handle(msg: SendCursorPositionPubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+  def handle(msg: SendCursorPositionPubMsg, state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
 
     def broadcastEvent(msg: SendCursorPositionPubMsg, userIsViewer: Boolean): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
@@ -23,7 +25,9 @@ trait SendCursorPositionPubMsgHdlr extends RightsManagementTrait {
       // without reconnecting anyone: the middleware only checks whether the
       // receiving connection belongs to a locked viewer.
       val hiddenForLockedViewers = userIsViewer && MeetingStatus2x.getPermissions(liveMeeting.status).hideViewersCursor
-      val body = SendCursorPositionEvtMsgBody(msg.body.whiteboardId, userIsViewer, hiddenForLockedViewers, msg.body.xPercent, msg.body.yPercent)
+      val pageRefs = PresentationPodsApp.pageRefsFor(state, Seq(msg.body.whiteboardId))
+      val body = SendCursorPositionEvtMsgBody(msg.body.whiteboardId, userIsViewer, hiddenForLockedViewers, msg.body.xPercent, msg.body.yPercent,
+        pageRefs)
       val event = SendCursorPositionEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)
@@ -32,7 +36,8 @@ trait SendCursorPositionPubMsgHdlr extends RightsManagementTrait {
     for {
       userState <- Users2x.findWithIntId(liveMeeting.users2x, msg.header.userId)
     } yield {
-      if (userState.whiteboardWriteAccess || userState.presenter) {
+      if ((userState.whiteboardWriteAccess || userState.presenter) &&
+        PresentationPodsApp.pageBelongsToMeeting(state, msg.body.whiteboardId)) {
         val userIsViewer = (userState.role != Roles.MODERATOR_ROLE) && !userState.presenter
         broadcastEvent(msg, userIsViewer)
 

@@ -31,10 +31,15 @@ class ConversionCompletedPresentationRecordEvent extends AbstractPresentationRec
   def setOriginalFilename(name: String) {
     eventMap.put(ORIG_FILE_NAME, name)
   }
+
+  /** Page ids of the presentation, in page order, comma separated. */
+  def setPageIds(pageIds: Seq[String]) {
+    eventMap.put(PAGE_IDS, pageIds.mkString(","))
+  }
 }
 
 object ConversionCompletedPresentationRecordEvent {
   private final val PRES_NAME = "presentationName"
   private final val ORIG_FILE_NAME = "originalFilename"
-  private final val SLIDES_INFO = "slidesInfo"
+  private final val PAGE_IDS = "pageIds"
 }
