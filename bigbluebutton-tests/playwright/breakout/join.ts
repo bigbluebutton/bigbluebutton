@@ -527,6 +527,49 @@ export class Join extends Create {
     );
   }
 
+  async unassignUserFromRoom(action: 'removeButton' | 'dragToUnassigned') {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+    if (!this?.userPage) throw new Error('userPage not initialized');
+
+    const breakoutUserPage = await this.joinRoom();
+    await breakoutUserPage.hasElement(
+      e.presentationTitle,
+      'should display the presentation title inside the breakout room',
+    );
+
+    await this.modPage.hasText(
+      e.userNameBreakoutRoom,
+      /Attendee/,
+      'should display the user name below the first breakout room name',
+    );
+
+    if (action === 'removeButton') {
+      await this.modPage.waitAndClick(e.unassignUserFromRoom1);
+    } else {
+      await this.modPage.dragDropSelector(e.moveUser, e.breakoutBox0);
+    }
+
+    await breakoutUserPage.hasElement(
+      e.meetingEndedModal,
+      'should display the meeting ended modal for the breakout page after being unassigned from the room',
+    );
+    await this.modPage.wasRemoved(
+      e.userNameBreakoutRoom,
+      'should remove the user name from the first breakout room after unassigning the user',
+    );
+    await expect(
+      this.modPage.page.locator(e.unassignedUser, { hasText: /^Attendee$/ }),
+      'should list the attendee among the unassigned users after unassigning them',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_TIME });
+
+    await this.userPage.page.bringToFront();
+    await this.userPage.hasElement(
+      e.breakoutNotAssigned,
+      'should show the attendee as not assigned to any breakout room in the main room',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+  }
+
   async exportBreakoutNotes() {
     if (!this?.modPage) throw new Error('modPage not initialized');
     if (!this?.userPage) throw new Error('userPage not initialized');

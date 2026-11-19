@@ -11,6 +11,7 @@ import Trigger from '/imports/ui/components/common/control-header/right/componen
 import {
   BREAKOUT_ROOM_END_ALL,
   BREAKOUT_ROOM_MOVE_USER,
+  BREAKOUT_ROOM_UNASSIGN_USER,
   BREAKOUT_ROOM_SEND_MESSAGE_TO_ALL,
   BREAKOUT_ROOM_REQUEST_JOIN_URL,
   USER_TRANSFER_VOICE_TO_MEETING,
@@ -134,6 +135,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
 
   const [breakoutRoomEndAll] = useMutation(BREAKOUT_ROOM_END_ALL);
   const [breakoutRoomMoveUser] = useMutation(BREAKOUT_ROOM_MOVE_USER);
+  const [breakoutRoomUnassignUser] = useMutation(BREAKOUT_ROOM_UNASSIGN_USER);
   const [sendMessageToAll] = useMutation(BREAKOUT_ROOM_SEND_MESSAGE_TO_ALL);
   const [requestJoinUrl] = useMutation(BREAKOUT_ROOM_REQUEST_JOIN_URL);
   const [breakoutRoomTransfer] = useMutation(USER_TRANSFER_VOICE_TO_MEETING);
@@ -280,6 +282,20 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
     requestAnimationFrame(() => ghost.remove());
   };
 
+  const handleUnassignUser = useCallback((unassignedUserId: string, breakoutRoomMeetingId: string) => {
+    breakoutRoomUnassignUser({
+      variables: {
+        userId: unassignedUserId,
+        breakoutRoomMeetingId,
+      },
+    }).catch((err: unknown) => {
+      logger.error(
+        { logCode: 'breakout_unassign_user_failed', extraInfo: { error: err } },
+        'Failed to unassign user from breakout room',
+      );
+    });
+  }, [breakoutRoomUnassignUser]);
+
   const handleDrop = useCallback((toRoomId: string) => (ev: React.DragEvent) => {
     ev.preventDefault();
     ev.currentTarget.classList.remove('drag-over');
@@ -296,6 +312,11 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
       return;
     }
     if (fromRoomMeetingId === toRoomId) return;
+
+    if (toRoomId === meetingId) {
+      handleUnassignUser(droppedUserId, fromRoomMeetingId);
+      return;
+    }
 
     breakoutRoomMoveUser({
       variables: {
@@ -325,7 +346,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
         'Failed to move user between breakout rooms',
       );
     });
-  }, [breakoutRoomMoveUser, breakouts, intl]);
+  }, [breakoutRoomMoveUser, handleUnassignUser, breakouts, intl, meetingId]);
 
   const SCROLL_ZONE = 60;
   const SCROLL_SPEED = 8;
@@ -365,45 +386,43 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
       <Styled.Separator />
 
       <Styled.ScrollContent ref={scrollContainerRef} onDragOver={handleScrollDragOver}>
-        {unassignedUsers.length > 0 && (
-          <Styled.UsersSection
-            onDragOver={(ev) => {
-              ev.preventDefault();
-              ev.currentTarget.classList.add('drag-over');
-            }}
-            onDragEnter={(ev) => {
-              ev.preventDefault();
-              ev.currentTarget.classList.add('drag-over');
-            }}
-            onDragLeave={(ev) => {
-              ev.currentTarget.classList.remove('drag-over');
-            }}
-            onDrop={handleDrop(meetingId)}
-            id="breakoutBox-0"
-          >
-            <Styled.UsersSectionHeader>
-              <span>{intl.formatMessage(intlMessages.unassignedUsers)}</span>
-              <Styled.UserCount>{padNum(unassignedUsers.length)}</Styled.UserCount>
-            </Styled.UsersSectionHeader>
-            <Styled.UsersList>
-              {unassignedUsers
-                .sort((a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name))
-                .map((user: { userId: string; name: string }) => (
-                  <Styled.UserItem
-                    key={user.userId}
-                    data-test="draggableUser"
-                    draggable
-                    onDragStart={(ev) => dragStart(ev, user.userId, meetingId, user.name)}
-                  >
-                    {user.name}
-                    {user.userId === userId
-                      ? ` (${intl.formatMessage(intlMessages.you)})`
-                      : ''}
-                  </Styled.UserItem>
-                ))}
-            </Styled.UsersList>
-          </Styled.UsersSection>
-        )}
+        <Styled.UsersSection
+          onDragOver={(ev) => {
+            ev.preventDefault();
+            ev.currentTarget.classList.add('drag-over');
+          }}
+          onDragEnter={(ev) => {
+            ev.preventDefault();
+            ev.currentTarget.classList.add('drag-over');
+          }}
+          onDragLeave={(ev) => {
+            ev.currentTarget.classList.remove('drag-over');
+          }}
+          onDrop={handleDrop(meetingId)}
+          id="breakoutBox-0"
+        >
+          <Styled.UsersSectionHeader>
+            <span>{intl.formatMessage(intlMessages.unassignedUsers)}</span>
+            <Styled.UserCount>{padNum(unassignedUsers.length)}</Styled.UserCount>
+          </Styled.UsersSectionHeader>
+          <Styled.UsersList>
+            {unassignedUsers
+              .sort((a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name))
+              .map((user: { userId: string; name: string }) => (
+                <Styled.UserItem
+                  key={user.userId}
+                  data-test="draggableUser"
+                  draggable
+                  onDragStart={(ev) => dragStart(ev, user.userId, meetingId, user.name)}
+                >
+                  {user.name}
+                  {user.userId === userId
+                    ? ` (${intl.formatMessage(intlMessages.you)})`
+                    : ''}
+                </Styled.UserItem>
+              ))}
+          </Styled.UsersList>
+        </Styled.UsersSection>
 
         <Styled.RoomCardsContainer data-test="breakoutRoomList">
           {breakouts.map((breakout) => {
@@ -542,15 +561,10 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                           <Styled.UserRemoveBtn
                             type="button"
                             aria-label={intl.formatMessage(intlMessages.unassignUser)}
+                            data-test="unassignUserFromBreakoutRoom"
                             onClick={(e: React.MouseEvent) => {
                               e.stopPropagation();
-                              breakoutRoomMoveUser({
-                                variables: {
-                                  userId: participant.userId,
-                                  fromBreakoutRoomMeetingId: breakout.breakoutRoomMeetingId,
-                                  toBreakoutRoomMeetingId: meetingId,
-                                },
-                              });
+                              handleUnassignUser(participant.userId, breakout.breakoutRoomMeetingId);
                             }}
                           >
                             ✕

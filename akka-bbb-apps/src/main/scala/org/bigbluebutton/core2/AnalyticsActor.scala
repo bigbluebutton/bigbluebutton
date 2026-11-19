@@ -216,6 +216,7 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       // Breakouts
       case m: CreateBreakoutRoomsCmdMsg => logMessage(msg)
       case m: ChangeUserBreakoutReqMsg => logMessage(msg)
+      case m: UnassignUserFromBreakoutReqMsg => logMessage(msg)
 
       case _ => // ignore message
     }
