@@ -21,7 +21,9 @@ profile=${1:-$(cat "$env_dir/.state/profile" 2>/dev/null || true)}
 mkdir -p "$out"
 "$here/certs.sh" "$out/certs" "$env_dir/.state/ca"
 
-subst() { sed "s|@SALT@|$TIER1_SALT|g" "$1"; }
+subst() {
+	sed -e "s|@SALT@|$TIER1_SALT|g" -e "s|@PAGE_TOKEN_SECRET@|$TIER1_PAGE_TOKEN_SECRET|g" "$1"
+}
 
 # write_changed FILE: writes stdin to FILE if that changes it. In place, so a
 # running service reads it after a restart, and untouched otherwise:
@@ -56,6 +58,7 @@ fi
 cat > "$out/conform.env" <<END
 export BBB_URL=https://localhost:8443/bigbluebutton/
 export BBB_SECRET=$TIER1_SALT
+export BBB_PAGE_TOKEN_SECRET=$TIER1_PAGE_TOKEN_SECRET
 export BBB_WEB_DIRECT_URL=http://localhost:8090
 export BBB_TAP_URL=http://localhost:8099
 export BBB_TAP_TOKEN=$BBB_TAP_TOKEN

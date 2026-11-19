@@ -1,9 +1,14 @@
 # /etc/bigbluebutton/bbb-web.properties on the Tier 1 stack: what bbb-install
-# and bbb-conf set on a packaged server, the host and the salt, and the
-# suite's sink. Everything else keeps the package's value. A suite profile
-# (env/bbb-web/profiles/) is appended below this when one is in force.
+# and bbb-conf set on a packaged server, the host and the salt, then a known
+# page-token secret and the suite's sink. Everything else keeps the package's
+# value. A suite profile (env/bbb-web/profiles/) is appended below this when
+# one is in force.
 bigbluebutton.web.serverURL=https://localhost:8443
 securitySalt=@SALT@
+# Known, so recordings mask it as they mask the salt. From 4.0.3, bbb-web
+# does not start with the package's placeholder, which a packaged server's
+# after-install.sh replaces with a random value.
+pageTokenSecret=@PAGE_TOKEN_SECRET@
 # The suite's sink, on this host's loopback: bbb-web fetches from and calls
 # back to a private address only for a host listed here.
 fetchUrlAllowedLocalHosts=sink.test
