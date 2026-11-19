@@ -1,6 +1,7 @@
 import React from 'react';
 import ConnectionManager from '/imports/ui/components/connection-manager/component';
 import { createRoot } from 'react-dom/client';
+import ReactModal from 'react-modal';
 import SettingsLoader from '/imports/ui/components/settings-loader/component';
 import ErrorBoundary from '/imports/ui/components/common/error-boundary/component';
 import ErrorScreen from '/imports/ui/components/error-screen/component';
@@ -66,5 +67,7 @@ const Main: React.FC = () => {
 };
 
 const container = document.getElementById('app');
+// Screens rendered instead of the app, such as the meeting ended one, open modals too.
+ReactModal.setAppElement(container!);
 const root = createRoot(container!);
 root.render(<Main />);

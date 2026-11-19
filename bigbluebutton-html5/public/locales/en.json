@@ -642,7 +642,6 @@
     "app.navBar.sessionControlLabel": "Session control",
     "app.navBar.speakersListLabel": "Talking people",
     "app.leaveConfirmation.confirmLabel": "Leave",
-    "app.leaveConfirmation.confirmDesc": "Logs you out of the session",
     "app.createBreakoutRoom.listen.title": "Listening to {roomName}",
     "app.createBreakoutRoom.listen.description": "You are currently listening to a breakout room. Your microphone is published to that room only.",
     "app.createBreakoutRoom.listen.terminateLabel": "Return to main room",

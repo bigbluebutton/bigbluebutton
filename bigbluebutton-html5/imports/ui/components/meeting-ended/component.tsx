@@ -18,6 +18,7 @@ import {
 import { MeetingEndDataResponse, getMeetingEndData } from './queries';
 import useAuthData from '/imports/ui/core/local-states/useAuthData';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
+import GenericModal from '/imports/ui/components/common/modal/generic/component';
 import Styled from './styles';
 import { LoadingContext } from '../common/loading-screen/loading-screen-HOC/component';
 import logger from '/imports/startup/client/logger';
@@ -61,10 +62,6 @@ const intlMessage = defineMessages({
   buttonOkay: {
     id: 'app.meeting.endNotification.ok.label',
     description: 'label okay for button',
-  },
-  confirmDesc: {
-    id: 'app.leaveConfirmation.confirmDesc',
-    description: 'adds context to confim option',
   },
   [JoinErrorCodeTable.DUPLICATE_USER]: {
     id: 'app.meeting.logout.duplicateUserEjectReason',
@@ -148,6 +145,8 @@ const intlMessage = defineMessages({
   },
 });
 
+const MEETING_ENDED_DESCRIPTION_ID = 'meetingEndedDescription';
+
 interface MeetingEndedContainerProps {
   endedBy: string;
   meetingEndedCode: string;
@@ -211,64 +210,49 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
     }
   };
 
-  const logoutButton = useMemo(() => {
+  // isURL forwards allow_numeric_tld to isFQDN, but its types do not declare it.
+  // @ts-ignore
+  const hasLogoutUrl = isURL(logoutUrl, { allow_numeric_tld: true });
+  const showRedirectButton = allowRedirect && hasLogoutUrl;
+
+  const footerContent = useMemo(() => {
+    if (!allowRedirect) return null;
+
     const { locale } = intl;
+    const showLearningDashboardButton = !!learningDashboardAccessToken && isModerator
+      // Always set cookie in case Dashboard is already opened
+      && setLearningDashboardCookie(learningDashboardAccessToken, meetingId, learningDashboardBase) === true;
+
+    if (!showLearningDashboardButton && !showRedirectButton) return null;
 
     return (
-      (
-        <Styled.Wrapper>
-          {
-            learningDashboardAccessToken && isModerator
-            // Always set cookie in case Dashboard is already opened
-            && setLearningDashboardCookie(learningDashboardAccessToken, meetingId, learningDashboardBase) === true
-              ? (
-                <>
-                  <Styled.Text>
-                    {intl.formatMessage(intlMessage.open_activity_report_btn)}
-                  </Styled.Text>
-
-                  <Styled.MeetingEndedButton
-                    color="default"
-                    onClick={() => openLearningDashboardUrl(learningDashboardAccessToken,
-                      meetingId,
-                      authToken,
-                      learningDashboardBase,
-                      locale)}
-                    aria-details={intl.formatMessage(intlMessage.open_activity_report_btn)}
-                  >
-                    <Icon
-                      iconName="multi_whiteboard"
-                    />
-                  </Styled.MeetingEndedButton>
-                </>
-              ) : null
-          }
-          <Styled.Text>
-            {intl.formatMessage(intlMessage.messageEnded)}
-          </Styled.Text>
-          {
-            isURL(logoutUrl, {
-              // This option is merged with isFQDN
-              // so it's not a valid ts error /validator/lib/isURL.js line 153
-              // @ts-ignore
-              allow_numeric_tld: true,
-            }) ? (
-              <Styled.MeetingEndedButton
-                color="primary"
-                onClick={() => confirmRedirect(isBreakout, allowRedirect)}
-                /* @eslint-disable-next-line */
-                aria-details={intl.formatMessage(intlMessage.confirmDesc)}
-                data-test="redirectButton"
-              >
-                {intl.formatMessage(intlMessage.buttonOkay)}
-              </Styled.MeetingEndedButton>
-              ) : null
-          }
-
-        </Styled.Wrapper>
-      )
+      <Styled.Footer>
+        {showLearningDashboardButton ? (
+          <Styled.FooterButton
+            variant="secondary"
+            iconStart={<Icon iconName="multi_whiteboard" />}
+            label={intl.formatMessage(intlMessage.open_activity_report_btn)}
+            dataTest="openLearningDashboardButton"
+            onClick={() => openLearningDashboardUrl(learningDashboardAccessToken,
+              meetingId,
+              authToken,
+              learningDashboardBase,
+              locale)}
+          />
+        ) : null}
+        {showRedirectButton ? (
+          <Styled.FooterButton
+            variant="primary"
+            label={intl.formatMessage(intlMessage.buttonOkay)}
+            onClick={() => confirmRedirect(isBreakout, allowRedirect)}
+            ariaDescribedBy={MEETING_ENDED_DESCRIPTION_ID}
+            dataTest="redirectButton"
+          />
+        ) : null}
+      </Styled.Footer>
     );
-  }, [learningDashboardAccessToken, isModerator, meetingId, authToken, learningDashboardBase, logoutUrl]);
+  }, [learningDashboardAccessToken, isModerator, meetingId, authToken, learningDashboardBase, logoutUrl,
+    allowRedirect, isBreakout]);
 
   useEffect(() => {
     // Sets Loading to falsed and removes loading splash screen
@@ -322,14 +306,22 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
 
   return (
     <Styled.Parent>
-      <Styled.Modal data-test="meetingEndedModal">
-        <Styled.Content>
-          <Styled.Title>
-            {generateEndMessage(endMessageCode, endedBy)}
-          </Styled.Title>
-          {allowRedirect ? logoutButton : null}
-        </Styled.Content>
-      </Styled.Modal>
+      <GenericModal
+        isOpen
+        onRequestClose={() => {}}
+        title={generateEndMessage(endMessageCode, endedBy)}
+        hideCloseButton
+        shouldCloseOnEsc={false}
+        shouldCloseOnOverlayClick={false}
+        dataTest="meetingEndedModal"
+        footerContent={footerContent}
+      >
+        {showRedirectButton ? (
+          <Styled.Description id={MEETING_ENDED_DESCRIPTION_ID}>
+            {intl.formatMessage(intlMessage.messageEnded)}
+          </Styled.Description>
+        ) : null}
+      </GenericModal>
     </Styled.Parent>
   );
 };
