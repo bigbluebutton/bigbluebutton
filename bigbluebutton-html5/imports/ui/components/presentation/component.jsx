@@ -643,7 +643,6 @@ class Presentation extends PureComponent {
         setIsToolbarVisible={this.setIsToolbarVisible}
         isToolbarVisible={isToolbarVisible}
         amIPresenter={userIsPresenter}
-        slideNum={currentSlide?.num}
         currentUser={currentUser}
         whiteboardId={currentSlide?.id}
       />
@@ -810,7 +809,6 @@ class Presentation extends PureComponent {
                     getSvgRef={this.getSvgRef}
                     tldrawAPI={tldrawAPI}
                     setTldrawAPI={this.setTldrawAPI}
-                    curPageId={currentSlide?.num.toString() || '0'}
                     svgUri={currentSlide?.svgUri}
                     intl={intl}
                     presentationWidth={svgWidth}
