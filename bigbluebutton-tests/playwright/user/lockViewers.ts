@@ -671,7 +671,7 @@ export class LockViewers extends MultiUsers {
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClick(e.presentationPermissionsTab);
     await expect(
-      this.modPage.page.getByRole('combobox', { name: 'Presentation Policy' }),
+      this.modPage.page.getByRole('combobox', { name: 'Presentation Policy', exact: true }),
       'should name the presentation policy select',
     ).toHaveAccessibleDescription('Configure how presentation rights are managed in the session.');
     await this.modPage.waitAndClick(e.cancelLockSettings);

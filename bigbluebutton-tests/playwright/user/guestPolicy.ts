@@ -116,10 +116,10 @@ export class GuestPolicy extends MultiUsers {
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClick(e.guestPolicyTab);
     await expect(
-      this.modPage.page.getByRole('combobox', { name: 'Guest Policy' }),
+      this.modPage.page.getByRole('combobox', { name: 'Guest Policy', exact: true }),
       'should name the guest policy select',
     ).toHaveAccessibleDescription('Configure how guests are handled when trying to join the meeting.');
-    await this.modPage.page.getByRole('checkbox', { name: "Message to the guests' lobby" }).click();
+    await this.modPage.page.getByRole('checkbox', { name: "Message to the guests' lobby", exact: true }).click();
     await this.modPage.fill(e.waitingUsersLobbyMessage, 'test');
     await this.modPage.waitAndClick(e.sendLobbyMessage);
     await this.userPage.hasText(
