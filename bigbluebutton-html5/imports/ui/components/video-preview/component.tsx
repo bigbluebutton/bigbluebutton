@@ -193,6 +193,7 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
     deviceError,
     previewError,
     isCameraLoading,
+    isBrightnessStarting,
     brightness,
     wholeImageBrightness,
     videoRef,
@@ -419,7 +420,9 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
           value={brightness}
           aria-describedby="brightness-slider-desc"
           onChange={(e) => setCameraBrightness(e.target.valueAsNumber)}
-          disabled={!isVirtualBackgroundSupported() || isCameraLoading}
+          // The slider's own first change starts the effect engine, which flags the camera
+          // as loading; disabling the slider then would end the drag it is part of
+          disabled={!isVirtualBackgroundSupported() || (isCameraLoading && !isBrightnessStarting)}
         />
         <div style={{ display: 'none' }} id="brightness-slider-desc">
           {intl.formatMessage(intlMessages.sliderDesc)}
