@@ -386,45 +386,43 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
       <Styled.Separator />
 
       <Styled.ScrollContent ref={scrollContainerRef} onDragOver={handleScrollDragOver}>
-        {unassignedUsers.length > 0 && (
-          <Styled.UsersSection
-            onDragOver={(ev) => {
-              ev.preventDefault();
-              ev.currentTarget.classList.add('drag-over');
-            }}
-            onDragEnter={(ev) => {
-              ev.preventDefault();
-              ev.currentTarget.classList.add('drag-over');
-            }}
-            onDragLeave={(ev) => {
-              ev.currentTarget.classList.remove('drag-over');
-            }}
-            onDrop={handleDrop(meetingId)}
-            id="breakoutBox-0"
-          >
-            <Styled.UsersSectionHeader>
-              <span>{intl.formatMessage(intlMessages.unassignedUsers)}</span>
-              <Styled.UserCount>{padNum(unassignedUsers.length)}</Styled.UserCount>
-            </Styled.UsersSectionHeader>
-            <Styled.UsersList>
-              {unassignedUsers
-                .sort((a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name))
-                .map((user: { userId: string; name: string }) => (
-                  <Styled.UserItem
-                    key={user.userId}
-                    data-test="draggableUser"
-                    draggable
-                    onDragStart={(ev) => dragStart(ev, user.userId, meetingId, user.name)}
-                  >
-                    {user.name}
-                    {user.userId === userId
-                      ? ` (${intl.formatMessage(intlMessages.you)})`
-                      : ''}
-                  </Styled.UserItem>
-                ))}
-            </Styled.UsersList>
-          </Styled.UsersSection>
-        )}
+        <Styled.UsersSection
+          onDragOver={(ev) => {
+            ev.preventDefault();
+            ev.currentTarget.classList.add('drag-over');
+          }}
+          onDragEnter={(ev) => {
+            ev.preventDefault();
+            ev.currentTarget.classList.add('drag-over');
+          }}
+          onDragLeave={(ev) => {
+            ev.currentTarget.classList.remove('drag-over');
+          }}
+          onDrop={handleDrop(meetingId)}
+          id="breakoutBox-0"
+        >
+          <Styled.UsersSectionHeader>
+            <span>{intl.formatMessage(intlMessages.unassignedUsers)}</span>
+            <Styled.UserCount>{padNum(unassignedUsers.length)}</Styled.UserCount>
+          </Styled.UsersSectionHeader>
+          <Styled.UsersList>
+            {unassignedUsers
+              .sort((a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name))
+              .map((user: { userId: string; name: string }) => (
+                <Styled.UserItem
+                  key={user.userId}
+                  data-test="draggableUser"
+                  draggable
+                  onDragStart={(ev) => dragStart(ev, user.userId, meetingId, user.name)}
+                >
+                  {user.name}
+                  {user.userId === userId
+                    ? ` (${intl.formatMessage(intlMessages.you)})`
+                    : ''}
+                </Styled.UserItem>
+              ))}
+          </Styled.UsersList>
+        </Styled.UsersSection>
 
         <Styled.RoomCardsContainer data-test="breakoutRoomList">
           {breakouts.map((breakout) => {
