@@ -389,6 +389,7 @@ With `rtc.use_external_ip: true`, LiveKit announces the public address it learns
 - `rtc.node_ip` holds no IPv4 address, while mediasoup or FreeSWITCH announce one.
 - `rtc.use_external_ip` is `true` on a server behind NAT that has a global IPv6 address and an IPv6 default route. livekit-server can then announce no public IPv4 address, and IPv4-only clients cannot connect. Set it to `false` and set `rtc.node_ip`.
 - `rtc.interfaces.includes` leaves out the interface the server reaches the internet through. LiveKit sends and receives media only on the interfaces it names, so clients may fail to connect. List that interface, such as `eth0`, whether or not the server is behind NAT.
+- `rtc.interfaces.includes` leaves out the interface that holds the address mediasoup or FreeSWITCH announce, and neither `rtc.node_ip` nor `rtc.use_external_ip` is set. LiveKit then does not offer that address to clients, so they may fail to connect. List that interface too.
 
 See [Updating LiveKit](/administration/firewall-configuration#updating-livekit) for the settings of a server behind NAT.
 
