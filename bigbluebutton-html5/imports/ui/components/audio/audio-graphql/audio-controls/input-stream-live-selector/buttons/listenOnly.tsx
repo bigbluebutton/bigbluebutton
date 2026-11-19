@@ -34,6 +34,7 @@ export const ListenOnly: React.FC<ListenOnlyProps> = ({
   return (
     // eslint-disable-next-line jsx-a11y/no-access-key
     <Button
+      aria-haspopup={actAsDeviceSelector ? 'menu' : undefined}
       aria-label={intl.formatMessage(intlMessages.leaveAudio)}
       label={actAsDeviceSelector
         ? intl.formatMessage(intlMessages.changeAudioDevice)

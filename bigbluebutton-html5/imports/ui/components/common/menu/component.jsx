@@ -158,18 +158,25 @@ class BBBMenu extends React.Component {
   }
 
   syncTriggerAria() {
-    const triggerElement = this.getTriggerElement();
-    if (!triggerElement) return;
+    const markedTriggerElements = Array.from(
+      this.anchorElRef?.querySelectorAll('[aria-haspopup]') ?? [],
+    );
+    const triggerElements = markedTriggerElements.length > 0
+      ? markedTriggerElements
+      : [this.getTriggerElement()].filter(Boolean);
+    if (triggerElements.length === 0) return;
 
     const { anchorEl } = this.state;
     const { opts } = this.props;
-    triggerElement.setAttribute('aria-haspopup', 'menu');
-    triggerElement.setAttribute('aria-expanded', String(Boolean(anchorEl)));
-    if (anchorEl && opts.id) {
-      triggerElement.setAttribute('aria-controls', opts.id);
-    } else {
-      triggerElement.removeAttribute('aria-controls');
-    }
+    triggerElements.forEach((triggerElement) => {
+      triggerElement.setAttribute('aria-haspopup', 'menu');
+      triggerElement.setAttribute('aria-expanded', String(Boolean(anchorEl)));
+      if (anchorEl && opts.id) {
+        triggerElement.setAttribute('aria-controls', opts.id);
+      } else {
+        triggerElement.removeAttribute('aria-controls');
+      }
+    });
   }
 
   makeMenuItems() {
