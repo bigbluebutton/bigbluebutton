@@ -43,6 +43,18 @@ const intlMessages = defineMessages({
     id: 'app.timer.seconds',
     description: 'Timer seconds label',
   },
+  hoursAriaLabel: {
+    id: 'app.timer.aria.hours',
+    description: 'Accessible name for the timer hours input',
+  },
+  minutesAriaLabel: {
+    id: 'app.timer.aria.minutes',
+    description: 'Accessible name for the timer minutes input',
+  },
+  secondsAriaLabel: {
+    id: 'app.timer.aria.seconds',
+    description: 'Accessible name for the timer seconds input',
+  },
   presetHours: {
     id: 'app.timer.preset.hours',
     description: 'Preset label for hours with abbreviation (e.g., 1h)',
@@ -370,6 +382,7 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
         <Styled.TimeInputGroup>
           <Styled.TimeUnitContainer>
             <Styled.TimerInput
+              aria-label={intl.formatMessage(intlMessages.hoursAriaLabel)}
               type="number"
               readOnly={running}
               disabled={running}
@@ -417,6 +430,7 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
           </Styled.TimeUnitContainer>
           <Styled.TimeUnitContainer>
             <Styled.TimerInput
+              aria-label={intl.formatMessage(intlMessages.minutesAriaLabel)}
               type="number"
               readOnly={running}
               disabled={running}
@@ -464,6 +478,7 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
           </Styled.TimeUnitContainer>
           <Styled.TimeUnitContainer>
             <Styled.TimerInput
+              aria-label={intl.formatMessage(intlMessages.secondsAriaLabel)}
               type="number"
               readOnly={running}
               disabled={running}

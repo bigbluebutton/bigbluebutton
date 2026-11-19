@@ -19,7 +19,9 @@ export class Timer extends MultiUsers {
     const initialValueStopWatch = await timeInSeconds(timerCurrentLocator);
     const initialValueStopWatchIndicator = await timeInSeconds(timerIndicatorLocator);
     await this.modPage.hasText(e.stopwatchCurrent, /00:00/, 'should display the initial value of the stopwatch');
+    await expect(timerIndicatorLocator).toHaveAccessibleName('Start stopwatch, 00:00 elapsed');
     await this.clickOnTimerControl();
+    await expect(timerIndicatorLocator).toHaveAccessibleName(/Pause stopwatch, 00:0[0-9] elapsed/);
     await expect
       .poll(() => timeInSeconds(timerCurrentLocator), {
         message: 'should be the current value of the stopwatch timer greater than the initial value',
@@ -69,7 +71,11 @@ export class Timer extends MultiUsers {
     // opening the panel activates the timer mode with the default duration (5 minutes)
     await this.modPage.hasElementDisabled(e.timerButton, 'should open the panel in the timer mode');
     await this.checkTimerInputs('00', '05', '00', 'should display the default duration on the timer inputs');
+    await expect(this.modPage.page.locator(e.timerHoursInput)).toHaveAccessibleName('Hours');
+    await expect(this.modPage.page.locator(e.timerMinutesInput)).toHaveAccessibleName('Minutes');
+    await expect(this.modPage.page.locator(e.timerSecondsInput)).toHaveAccessibleName('Seconds');
     await this.modPage.hasText(e.timerIndicator, /05:00/, 'should display the default duration on the timer indicator');
+    await expect(timerIndicatorLocator).toHaveAccessibleName('Start timer, 05:00 remaining');
 
     // a preset sets the duration and a quick-add button adds to it
     await this.modPage.waitAndClick(e.timerPreset10min);
@@ -81,6 +87,7 @@ export class Timer extends MultiUsers {
 
     // a running timer locks the inputs, which show the countdown
     await this.clickOnTimerControl();
+    await expect(timerIndicatorLocator).toHaveAccessibleName(/Pause timer, 10:[0-2][0-9] remaining/);
     await this.modPage.hasElementDisabled(e.timerHoursInput, 'should disable the hours input while running');
     await this.modPage.hasElementDisabled(e.timerMinutesInput, 'should disable the minutes input while running');
     await this.modPage.hasElementDisabled(e.timerSecondsInput, 'should disable the seconds input while running');
@@ -144,6 +151,9 @@ export class Timer extends MultiUsers {
     // opening the panel activates the timer, in countdown mode, for everyone
     await this.modPage.hasElementDisabled(e.timerButton, 'should open the panel in timer mode');
     await this.userPage.hasElement(e.timerIndicator, 'should display the timer indicator for the attendee');
+    const attendeeIndicator = this.userPage.page.locator(e.timerIndicator);
+    await expect(attendeeIndicator).toHaveAttribute('aria-disabled', 'true');
+    await expect(attendeeIndicator).toHaveAccessibleName('Timer stopped, 05:00 remaining');
 
     // presets
     await this.modPage.waitAndClick(e.timerOneMinutePreset);
@@ -165,6 +175,7 @@ export class Timer extends MultiUsers {
     await this.clickOnTimerControl();
     const modIndicatorLocator = this.modPage.page.locator(e.timerIndicator);
     const userIndicatorLocator = this.userPage.page.locator(e.timerIndicator);
+    await expect(userIndicatorLocator).toHaveAccessibleName(/Timer running, 01:[12][0-9] remaining/);
     const modStartValue = await timeInSeconds(modIndicatorLocator);
     const userStartValue = await timeInSeconds(userIndicatorLocator);
     expect(modStartValue, 'should start counting down from 01:30 for the moderator').toBeLessThanOrEqual(90);

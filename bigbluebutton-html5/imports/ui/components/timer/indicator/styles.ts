@@ -9,7 +9,7 @@ import { fontSizeBase, fontSizeXS } from '/imports/ui/stylesheets/styled-compone
 
 interface TimerButtonProps {
   running: boolean;
-  disabled: boolean;
+  $disabled: boolean;
   hide: boolean;
 }
 
@@ -92,7 +92,7 @@ const TimerButton = styled.div<TimerButtonProps>`
   }
 
   ${({ running }) => (running ? timerRunning : timerStopped)};
-  ${({ disabled }) => disabled && disabledStyle};
+  ${({ $disabled }) => $disabled && disabledStyle};
   ${({ hide }) => hide && hiddenStyle};
 `;
 
