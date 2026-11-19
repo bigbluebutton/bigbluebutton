@@ -3,11 +3,15 @@ package org.bigbluebutton.common2.msgs
 case class AnnotationVO(id: String, annotationInfo: scala.collection.immutable.Map[String, Any],
                         wbId: String, userId: String)
 
+/** Position of a page at the time a message is built; keyed by whiteboardId (= pageId) in pageRefs. */
+case class PageRef(presentationId: String, pageNum: Int)
+
 case class PresentationPageForExport(
   page: Int,
   width: Double,
   height: Double,
   annotations: Array[AnnotationVO],
+  pageId: String,
 )
 
 case class StoredAnnotations(
@@ -70,15 +74,16 @@ case class GetWhiteboardAnnotationsRespMsgBody(whiteboardId: String, annotations
 
 object SendCursorPositionEvtMsg { val NAME = "SendCursorPositionEvtMsg" }
 case class SendCursorPositionEvtMsg(header: BbbClientMsgHeader, body: SendCursorPositionEvtMsgBody) extends BbbCoreMsg
-case class SendCursorPositionEvtMsgBody(whiteboardId: String, userIsViewer: Boolean, hiddenForLockedViewers: Boolean, xPercent: Double, yPercent: Double)
+case class SendCursorPositionEvtMsgBody(whiteboardId: String, userIsViewer: Boolean, hiddenForLockedViewers: Boolean, xPercent: Double, yPercent: Double,
+                                        pageRefs: Map[String, PageRef])
 
 object SendWhiteboardAnnotationsEvtMsg { val NAME = "SendWhiteboardAnnotationsEvtMsg" }
 case class SendWhiteboardAnnotationsEvtMsg(header: BbbClientMsgHeader, body: SendWhiteboardAnnotationsEvtMsgBody) extends BbbCoreMsg
-case class SendWhiteboardAnnotationsEvtMsgBody(whiteboardId: String, annotations: Array[AnnotationVO])
+case class SendWhiteboardAnnotationsEvtMsgBody(whiteboardId: String, annotations: Array[AnnotationVO], pageRefs: Map[String, PageRef])
 
 object DeleteWhiteboardAnnotationsEvtMsg { val NAME = "DeleteWhiteboardAnnotationsEvtMsg" }
 case class DeleteWhiteboardAnnotationsEvtMsg(header: BbbClientMsgHeader, body: DeleteWhiteboardAnnotationsEvtMsgBody) extends BbbCoreMsg
-case class DeleteWhiteboardAnnotationsEvtMsgBody(whiteboardId: String, annotationsIds: Array[String])
+case class DeleteWhiteboardAnnotationsEvtMsgBody(whiteboardId: String, annotationsIds: Array[String], pageRefs: Map[String, PageRef])
 
 // ------------ akka-apps to client ------------
 object StoreAnnotationsInRedisSysMsg { val NAME = "StoreAnnotationsInRedisSysMsg" }
