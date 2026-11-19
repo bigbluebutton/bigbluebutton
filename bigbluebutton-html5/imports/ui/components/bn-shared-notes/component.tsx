@@ -34,17 +34,24 @@ import {
   BlockTypeSelect,
   blockTypeSelectItems,
   ColorStyleButton,
+  ComponentProps,
   ComponentsContext,
   FormattingToolbar,
   getDefaultReactSlashMenuItems,
   NestBlockButton,
+  preventFocusOnTap,
   SuggestionMenuController,
   UnnestBlockButton,
   useComponentsContext,
   useCreateBlockNote,
 } from '@blocknote/react';
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { Menu as MantineMenu } from '@mantine/core';
+import {
+  Button as MantineButton,
+  CheckIcon as MantineCheckIcon,
+  Menu as MantineMenu,
+} from '@mantine/core';
+import { HiChevronDown } from 'react-icons/hi';
 
 import { Plugin, PluginKey, Transaction } from '@tiptap/pm/state';
 import { Extension } from '@tiptap/core';
@@ -161,7 +168,74 @@ const intlMessages = defineMessages({
     id: 'app.notes.blocknote.maxCharCountError',
     description: 'Error message for when number of typed characters exceeds the maximum',
   },
+  title: {
+    id: 'app.notes.title',
+  },
+  blockTypeSelectLabel: {
+    id: 'app.notes.blocknote.blockTypeSelectLabel',
+  },
 });
+
+const AccessibleToolbarSelect = React.forwardRef<
+  HTMLDivElement,
+  ComponentProps['FormattingToolbar']['Select'] & {
+    ariaLabel: string;
+  }
+>(({
+  ariaLabel,
+  className,
+  items,
+  isDisabled,
+  portalElement,
+}, ref) => {
+  const selectedItem = items.find((item) => item.isSelected);
+  if (!selectedItem) return null;
+
+  return (
+    <MantineMenu
+      withinPortal={!!portalElement}
+      portalProps={portalElement ? { target: portalElement } : undefined}
+      transitionProps={{ exitDuration: 0 }}
+      disabled={isDisabled}
+      trapFocus={false}
+      returnFocus={false}
+      middlewares={{
+        flip: true, shift: true, inline: false, size: true,
+      }}
+    >
+      <MantineMenu.Target>
+        <MantineButton
+          aria-label={ariaLabel}
+          data-test="blockTypeSelect"
+          onMouseDown={preventFocusOnTap}
+          leftSection={selectedItem.icon}
+          rightSection={<HiChevronDown />}
+          size="xs"
+          variant="subtle"
+          disabled={isDisabled}
+        >
+          {selectedItem.text}
+        </MantineButton>
+      </MantineMenu.Target>
+      <MantineMenu.Dropdown className={className} ref={ref}>
+        {items.map((item) => (
+          <MantineMenu.Item
+            key={item.text}
+            onClick={item.onClick}
+            leftSection={item.icon}
+            rightSection={item.isSelected
+              ? <MantineCheckIcon size={10} className="bn-tick-icon" />
+              : <div className="bn-tick-space" />}
+            disabled={item.isDisabled}
+          >
+            {item.text}
+          </MantineMenu.Item>
+        ))}
+      </MantineMenu.Dropdown>
+    </MantineMenu>
+  );
+});
+AccessibleToolbarSelect.displayName = 'AccessibleToolbarSelect';
 
 // Mantine's Menu defaults to trapFocus:true, trapping Tab inside open dropdowns.
 // Replace Generic.Menu.Root with this to let Tab exit the menu (WAI-ARIA pattern).
@@ -189,13 +263,33 @@ const AccessibleMenuRoot: React.FC<{
 // AccessibleMenuRoot — fixes both ColorStyleButton and TextAlignSelect.
 function ToolbarWithAccessibleMenus({ children }: { children: React.ReactNode }) {
   const components = useComponentsContext()!;
+  const intl = useIntl();
+  const AccessibleBlockTypeSelect = React.useCallback((
+    props: ComponentProps['FormattingToolbar']['Select'],
+  ) => {
+    const blockType = props.items.find((item) => item.isSelected)?.text ?? '';
+    return (
+      <AccessibleToolbarSelect
+        ariaLabel={intl.formatMessage(intlMessages.blockTypeSelectLabel, { blockType })}
+        className={props.className}
+        items={props.items}
+        isDisabled={props.isDisabled}
+        portalElement={props.portalElement}
+        preventFocusOnOpen={props.preventFocusOnOpen}
+      />
+    );
+  }, [intl]);
   const patchedComponents = React.useMemo(() => ({
     ...components,
     Generic: {
       ...components.Generic,
       Menu: { ...components.Generic.Menu, Root: AccessibleMenuRoot },
     },
-  }), [components]);
+    FormattingToolbar: {
+      ...components.FormattingToolbar,
+      Select: AccessibleBlockTypeSelect,
+    },
+  }), [AccessibleBlockTypeSelect, components]);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return <ComponentsContext.Provider value={patchedComponents as any}>{children}</ComponentsContext.Provider>;
 }
@@ -284,6 +378,12 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
   );
 
   const editor = useCreateBlockNote(withCollaboration({
+    domAttributes: {
+      editor: {
+        'aria-label': intl.formatMessage(intlMessages.title),
+        'data-test': 'blockNoteEditor',
+      },
+    },
     tabBehavior: 'prefer-indent',
     collaboration: {
       provider: { awareness: hocuspocusProvider.awareness || undefined },

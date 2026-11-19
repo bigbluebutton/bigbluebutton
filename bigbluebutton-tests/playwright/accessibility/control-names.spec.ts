@@ -1,0 +1,77 @@
+import { expect } from '@playwright/test';
+
+import { EMOJI_PICKER_SETTINGS_OVERRIDE } from '../chat/util';
+import { elements as e } from '../core/elements';
+import { endMeetings, linkIssue } from '../core/helpers';
+import { test } from '../core/setup/fixtures';
+import { LOGOUT_URL_CREATE_PARAMETER } from '../meetingEnded/meetingEnded';
+import { MultiUsers } from '../user/multiusers';
+
+const CREATE_PARAMETERS = [
+  LOGOUT_URL_CREATE_PARAMETER,
+  'learningDashboardEnabled=true',
+  'sharedNotesEditor=blockNote',
+].join('&');
+
+test.describe.parallel('Accessible control names', { tag: '@ci' }, () => {
+  test('names chat, notes, and meeting-ended controls', async ({ browser, context, page, request }, testInfo) => {
+    linkIssue(26613);
+    const session = new MultiUsers(browser, context);
+    await session.initModPage(page, {
+      clientSettingsOverrides: EMOJI_PICKER_SETTINGS_OVERRIDE,
+      createParameter: CREATE_PARAMETERS,
+      testInfo,
+    });
+    const { modPage } = session;
+
+    await expect(
+      modPage.page.locator(e.emojiPickerButton),
+      'emoji picker button should expose its translated name',
+    ).toHaveAccessibleName('Emoji Picker');
+    await modPage.waitAndClick(e.emojiPickerButton);
+    await expect(
+      modPage.page.locator(`${e.emojiPicker} nav button`).first(),
+      'frequently used emoji category should expose its translated name',
+    ).toHaveAccessibleName('Frequently Used');
+    await modPage.page.keyboard.press('Escape');
+
+    await modPage.waitAndClick(e.sharedNotesSidebarButton);
+    const editor = modPage.page.locator(e.blockNoteEditorByDataTest);
+    await expect(editor, 'shared notes editor should expose its translated name').toHaveAccessibleName('Shared Notes');
+    await editor.fill('Accessible notes');
+    await expect(editor, 'shared notes editor should remain editable').toContainText('Accessible notes');
+
+    const blockTypeSelect = modPage.page.locator(e.blockTypeSelect);
+    await expect(blockTypeSelect, 'block type select should name its current value').toHaveAccessibleName(
+      'Text type: Paragraph',
+    );
+    await blockTypeSelect.focus();
+    await modPage.page.keyboard.press('Tab');
+    await expect(
+      modPage.page.locator(e.blockNoteToolbar).locator(':focus'),
+      'Tab should continue through the notes toolbar',
+    ).toBeVisible();
+    await blockTypeSelect.focus();
+    await modPage.page.keyboard.press('Enter');
+    const menuItems = modPage.page.locator('[role="menu"] [role="menuitem"]');
+    const menuItemCount = await menuItems.count();
+    for (let index = 0; index <= menuItemCount; index += 1) {
+      // eslint-disable-next-line no-await-in-loop
+      await modPage.page.keyboard.press('Tab');
+    }
+    await expect(
+      modPage.page.locator('[role="menu"] :focus'),
+      'Tab should not remain trapped inside the open block type menu',
+    ).toHaveCount(0);
+
+    await endMeetings(request, [modPage.meetingId]);
+    await expect(
+      modPage.page.locator(e.learningDashboardButton),
+      'learning dashboard button should expose its translated name',
+    ).toHaveAccessibleName('Open Learning Analytics Dashboard');
+    await expect(
+      modPage.page.locator(e.redirectButton),
+      'meeting-ended confirmation should expose its translated description',
+    ).toHaveAccessibleDescription('Logs you out of the session');
+  });
+});
