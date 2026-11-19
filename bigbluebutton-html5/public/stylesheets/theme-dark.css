@@ -406,3 +406,18 @@
 :root[data-theme='dark'] .MuiSwitch-switchBase:not(.Mui-checked) + .MuiSwitch-track {
   background-color: var(--toggle-bg-disabled-dark-theme, #909CAF);
 }
+
+/* BBBSelect: MUI's light palette otherwise. Select lists only (listbox). */
+:root[data-theme='dark'] .MuiSelect-select,
+:root[data-theme='dark'] .MuiSelect-icon {
+  color: var(--color-text, #FFFFFF);
+}
+
+:root[data-theme='dark'] .MuiMenu-paper:has(> .MuiMenu-list[role='listbox']) {
+  background-color: var(--dropdown-bg, #2D2F38);
+  color: var(--color-text, #FFFFFF);
+}
+
+:root[data-theme='dark'] .MuiMenu-list[role='listbox'] .MuiMenuItem-root:hover {
+  background-color: var(--list-item-bg-hover, #393C48);
+}
