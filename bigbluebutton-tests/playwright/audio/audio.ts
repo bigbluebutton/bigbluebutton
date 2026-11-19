@@ -13,6 +13,7 @@ import {
   areRemoteAudioElementsPlaying,
   connectMicrophone,
   ensureUnmuted,
+  expectAudioDeviceSelectorsToBeNamed,
   getRemoteAudioSinkIds,
   isAudioItemSelected,
   joinMutedMicrophone,
@@ -96,6 +97,7 @@ export class Audio extends MultiUsers {
     if (!this?.modPage) throw new Error('modPage not initialized');
 
     await this.modPage.waitAndClick(e.joinAudio);
+    await expectAudioDeviceSelectorsToBeNamed(this.modPage);
     await connectMicrophone(this.modPage);
     await this.modPage.hasElement(e.unmuteMicButton, 'should join audio with microphone muted');
     await this.modPage.waitAndClick(e.audioDropdownMenu);

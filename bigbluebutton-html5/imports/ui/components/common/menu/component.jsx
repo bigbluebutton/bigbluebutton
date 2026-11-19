@@ -154,7 +154,7 @@ class BBBMenu extends React.Component {
     return actions?.map((a) => {
       const {
         dataTest, label, onClick, key, disabled,
-        description, selected, textColor, isToggle, loading,
+        description, selected, textColor, isToggle, loading, checked,
         isTitle, titleActions, contentFunction, ariaLabel, className,
       } = a;
       const itemClassName = className ? `bbb-menu__item ${className}` : 'bbb-menu__item';
@@ -188,6 +188,8 @@ class BBBMenu extends React.Component {
       return [
         (!a.isSeparator && onClick && !isToggle) && (
           <Styled.BBBMenuItem
+            role={typeof checked === 'boolean' ? 'menuitemradio' : undefined}
+            aria-checked={typeof checked === 'boolean' ? checked : undefined}
             emoji={emojiSelected ? 'yes' : 'no'}
             key={label}
             id={dataTest}
@@ -393,7 +395,9 @@ BBBMenu.propTypes = {
 
   trigger: PropTypes.element.isRequired,
 
-  actions: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  actions: PropTypes.arrayOf(PropTypes.shape({
+    checked: PropTypes.bool,
+  })).isRequired,
 
   onCloseCallback: PropTypes.func,
   dataTest: PropTypes.string,

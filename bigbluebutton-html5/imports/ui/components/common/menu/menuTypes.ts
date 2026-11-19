@@ -9,6 +9,7 @@ export type MenuOptionItemType = {
   iconRight?: PluginIconType;
   onClick?: () => void;
   disabled?: boolean;
+  checked?: boolean;
 };
 
 export type MenuSeparatorItemType = {

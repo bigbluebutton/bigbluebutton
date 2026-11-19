@@ -33,8 +33,15 @@ export async function connectMicrophone(testPage: Page) {
   await testPage.hasElement(e.audioDropdownMenu, 'should display the audio dropdown menu after joining audio');
 }
 
+export async function expectAudioDeviceSelectorsToBeNamed(testPage: Page) {
+  await expect(testPage.page.getByRole('combobox', { name: /^Microphone/ })).toBeVisible();
+  await expect(testPage.page.getByRole('combobox', { name: /^Speaker/ })).toBeVisible();
+}
+
 export async function isAudioItemSelected(testPage: Page, audioSelector: string) {
   await testPage.waitForSelector(audioSelector);
+  await expect(testPage.page.locator(audioSelector)).toHaveAttribute('role', 'menuitemradio');
+  await expect(testPage.page.locator(audioSelector)).toHaveAttribute('aria-checked', 'true');
   const isSelected = await testPage.page.evaluate(
     ([selector, icon]) => {
       const element = document.querySelector(selector) as Element | null;

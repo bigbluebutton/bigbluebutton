@@ -183,6 +183,7 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
           customStyles: isCurrentDevice ? Styled.SelectedLabel : Styled.DeviceLabel,
           iconStyles: isCurrentDevice ? Styled.SelectedLabelIcon : null,
           iconRight: isCurrentDevice ? 'check' : null,
+          checked: isCurrentDevice,
           onClick: () => onDeviceListClick(device.deviceId, deviceKind, callback),
         } as MenuOptionItemType;
       });
@@ -221,6 +222,7 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
         customStyles: listenOnly ? Styled.SelectedLabel : Styled.DeviceLabel,
         iconStyles: listenOnly ? Styled.SelectedLabelIcon : null,
         iconRight: listenOnly ? 'check' : null,
+        checked: listenOnly,
         onClick: () => onDeviceListClick('listen-only', deviceKind, callback),
       } as MenuOptionItemType);
     }
