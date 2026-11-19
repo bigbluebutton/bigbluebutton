@@ -146,7 +146,7 @@ const Whiteboard = React.memo((props) => {
     currentUser = defaultUser,
     whiteboardId = undefined,
     zoomSlide,
-    curPageNum: curPageId,
+    curPageId,
     zoomChanger,
     isMultiUserActive,
     isRTL,
@@ -1030,9 +1030,8 @@ const Whiteboard = React.memo((props) => {
     throwIfInvalid(yOffset, `camera.y ${description}`);
 
     const camera = tlEditorRef.current.getCamera();
-    const formattedPageId = Number(curPageIdRef.current);
-    if (Number.isNaN(formattedPageId)) {
-      throw new Error(`Invalid formattedPageId ${description}: ${formattedPageId}`);
+    if (!curPageIdRef.current) {
+      throw new Error(`No current page ${description}`);
     }
 
     const updatedCurrentCam = {
@@ -1642,8 +1641,7 @@ const Whiteboard = React.memo((props) => {
 
     if (editor && curPageIdRef.current) {
       const page = [];
-      const formattedPageId = parseInt(curPageIdRef.current, 10);
-      const currentPageId = `page:${formattedPageId}`;
+      const currentPageId = `page:${curPageIdRef.current}`;
       const currPageExists = tlEditorRef.current?.getPage(currentPageId);
 
       if (!currPageExists) {
@@ -2112,13 +2110,14 @@ const Whiteboard = React.memo((props) => {
 
   React.useEffect(() => {
     const handleArrowPress = (event) => {
-      const currPageNum = parseInt(curPageIdRef.current, 10);
+      // This handler is set up once: read the current page row at key press time.
+      const page = currentPresentationPageRef.current;
       const shapeSelected = tlEditorRef.current.getSelectedShapes()?.length > 0;
       const changeSlide = (direction) => {
-        if (!currentPresentationPage) return;
-        const newSlideNum = currPageNum + direction;
+        if (!page) return;
+        const newSlideNum = page.num + direction;
         const outOfBounds = direction > 0
-          ? newSlideNum > currentPresentationPage?.totalPages
+          ? newSlideNum > page.totalPages
           : newSlideNum < 1;
 
         if (outOfBounds) return;
@@ -2418,8 +2417,8 @@ const Whiteboard = React.memo((props) => {
   };
 
   React.useEffect(() => {
-    const formattedPageId = parseInt(curPageIdRef.current, 10);
-    if (!tlEditorRef.current || formattedPageId === 0) return undefined;
+    const swapPageId = curPageIdRef.current;
+    if (!tlEditorRef.current || !swapPageId) return undefined;
 
     // The new page's background image-shape used to be mounted here synchronously, before
     // its SVG had been fetched/decoded, leaving the presentation area blank until the asset
@@ -2427,7 +2426,7 @@ const Whiteboard = React.memo((props) => {
     // background + setCurrentPage) behind a decode-gate so the page becomes visible once it
     // is paintable, double-buffering the change instead of flashing white.
     let cancelled = false;
-    const currentPageId = `page:${formattedPageId}`;
+    const currentPageId = `page:${swapPageId}`;
 
     // A viewer mid-edit must leave select.editing_shape before anything prunes the old
     // page's shapes. The same check inside applyPageSwap runs too late now that the swap
@@ -2440,7 +2439,7 @@ const Whiteboard = React.memo((props) => {
     // Create the new page + its camera record synchronously, before the gate. These records
     // are invisible (nothing renders until setCurrentPage runs in applyPageSwap), but remote
     // annotations for the new page arrive via debouncedUpdateShapes (service.js, 175ms)
-    // parented to `page:N`. With the visible swap now deferred behind the decode - commonly
+    // parented to `page:<pageId>`. With the visible swap now deferred behind the decode - commonly
     // past 175ms on the cold-cache path this fix targets - that debounce would otherwise put
     // page-parented shapes before the page exists, and tldraw drops them or throws in
     // ensureStoreIsUsable (inside a debounce callback, no error boundary). Creating the page
@@ -2458,7 +2457,7 @@ const Whiteboard = React.memo((props) => {
             (record) => record.typeName === 'camera' && record.id === `camera:${currentPageId}`,
           );
           if (!cameraExists) {
-            cameras.push(createCamera(formattedPageId, tlEditorRef.current.getCamera()?.z));
+            cameras.push(createCamera(swapPageId, tlEditorRef.current.getCamera()?.z));
           }
           if (pages.length) tlEditorRef.current.store.put(pages);
           if (cameras.length) tlEditorRef.current.store.put(cameras);
@@ -2474,7 +2473,7 @@ const Whiteboard = React.memo((props) => {
       // current one; re-check tlEditorRef too since the editor can be torn down mid-decode.
       if (cancelled) return;
       if (!tlEditorRef.current) return;
-      if (parseInt(curPageIdRef.current, 10) !== formattedPageId) return;
+      if (curPageIdRef.current !== swapPageId) return;
 
       // If a viewer is mid-edit (select.editing_shape) when the slide changes, the store
       // mutation below removes the shape being edited out from under tldraw, leaving a
@@ -2722,7 +2721,7 @@ Whiteboard.propTypes = {
   }),
   whiteboardId: PropTypes.string,
   zoomSlide: PropTypes.func.isRequired,
-  curPageNum: PropTypes.number.isRequired,
+  curPageId: PropTypes.string.isRequired,
   presentationWidth: PropTypes.number.isRequired,
   presentationHeight: PropTypes.number.isRequired,
   zoomChanger: PropTypes.func.isRequired,

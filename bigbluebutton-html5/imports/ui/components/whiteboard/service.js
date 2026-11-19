@@ -241,8 +241,7 @@ const formatAnnotations = (annotations, intl, curPageId, currentPresentationPage
         };
       }
 
-      const cpg = parseInt(annotationInfo?.id?.split?.('/')?.[1], 10);
-      if (cpg !== parseInt(curPageId, 10)) return;
+      if (annotationInfo.parentId !== `page:${curPageId}`) return;
 
       annotationInfo.questionType = false;
     }
@@ -423,9 +422,10 @@ const debouncedUpdateShapes = debounce((
           }
           : shape;
 
+        // Shapes name their presentation in meta: the client sets it on its own shapes, and the
+        // server on poll results. Page ids carry no presentation id.
         if (
-          (shape.meta?.presentationId === presentationIdRef.current
-          || shape?.whiteboardId?.includes(presentationIdRef.current))
+          shape.meta?.presentationId === presentationIdRef.current
           && isValidShapeType(shape)
         ) {
           acc.push(sanitizeShape(shapeToMerge));
