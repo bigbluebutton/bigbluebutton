@@ -178,7 +178,7 @@ const PollQuestionArea = styled(PollTextArea)<PollQuestionAreaProps>`
     margin: 0;
     color: ${colorText};
     -webkit-appearance: none;
-    padding: ${$2xlPadding} ${jumboPaddingY};
+    padding: ${$2xlPadding};
     border-radius: ${lgBorderRadius};
     font-size: ${fontSizeBase};
     line-height: ${lineHeightComputed};
