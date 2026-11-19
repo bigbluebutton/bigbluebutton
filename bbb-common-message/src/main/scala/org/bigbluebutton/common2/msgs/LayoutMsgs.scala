@@ -1,13 +1,5 @@
 package org.bigbluebutton.common2.msgs
 
-object GetCurrentLayoutReqMsg { val NAME = "GetCurrentLayoutReqMsg" }
-case class GetCurrentLayoutReqMsg(header: BbbClientMsgHeader, body: GetCurrentLayoutReqMsgBody) extends StandardMsg
-case class GetCurrentLayoutReqMsgBody()
-
-object GetCurrentLayoutRespMsg { val NAME = "GetCurrentLayoutRespMsg" }
-case class GetCurrentLayoutRespMsg(header: BbbClientMsgHeader, body: GetCurrentLayoutRespMsgBody) extends BbbCoreMsg
-case class GetCurrentLayoutRespMsgBody(layout: String, setByUserId: String)
-
 object BroadcastLayoutMsg { val NAME = "BroadcastLayoutMsg" }
 case class BroadcastLayoutMsg(header: BbbClientMsgHeader, body: BroadcastLayoutMsgBody) extends StandardMsg
 case class BroadcastLayoutMsgBody(layout: String, pushLayout: Boolean, presentationIsOpen: Boolean, isResizing: Boolean, cameraPosition: String, focusedCamera: String, presentationVideoRate: Double)

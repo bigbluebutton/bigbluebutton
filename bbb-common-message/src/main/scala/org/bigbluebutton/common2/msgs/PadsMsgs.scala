@@ -24,18 +24,6 @@ object PadCreatedRespMsg { val NAME = "PadCreatedRespMsg" }
 case class PadCreatedRespMsg(header: BbbClientMsgHeader, body: PadCreatedRespMsgBody) extends BbbCoreMsg
 case class PadCreatedRespMsgBody(externalId: String, padId: String, name: String, sharedNotesEditor: String)
 
-// TODO(4.1 etherpad removal, #25720): PadUpdatePubMsg/PadUpdateCmdMsg stay until
-// bbb-transcription-controller is confirmed not to publish PadUpdatePubMsg.
-// client -> apps
-object PadUpdatePubMsg { val NAME = "PadUpdatePubMsg" }
-case class PadUpdatePubMsg(header: BbbClientMsgHeader, body: PadUpdatePubMsgBody) extends StandardMsg
-case class PadUpdatePubMsgBody(externalId: String, text: String, transcript: Boolean)
-
-// apps -> pads
-object PadUpdateCmdMsg { val NAME = "PadUpdateCmdMsg" }
-case class PadUpdateCmdMsg(header: BbbCoreHeaderWithMeetingId, body: PadUpdateCmdMsgBody) extends BbbCoreMsg
-case class PadUpdateCmdMsgBody(groupId: String, name: String, text: String)
-
 // client -> apps
 object PadPinnedReqMsg { val NAME = "PadPinnedReqMsg" }
 case class PadPinnedReqMsg(header: BbbClientMsgHeader, body: PadPinnedReqMsgBody) extends StandardMsg

@@ -9,9 +9,6 @@ case class PageVO(id: String, num: Int, thumbUri: String = "",
                   yOffset: Double = 0, widthRatio: Double = 100D, heightRatio: Double = 100D, width: Double = 1440D, height: Double = 1080D,
                   pageToken: String = "")
 
-case class PresentationPodVO(id: String, currentPresenter: String,
-                             presentations: Vector[PresentationVO])
-
 case class PresentationPageConvertedVO(
     id:        String,
     num:       Int,

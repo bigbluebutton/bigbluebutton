@@ -1,23 +1,14 @@
 package org.bigbluebutton.common2.msgs
 
-import org.bigbluebutton.common2.domain.{ PageVO, PresentationPageConvertedVO, PresentationPageVO, PresentationPodVO, PresentationVO }
+import org.bigbluebutton.common2.domain.{ PageVO, PresentationPageConvertedVO, PresentationPageVO, PresentationVO }
 
 // ------------ client to akka-apps ------------
-object CreateNewPresentationPodPubMsg { val NAME = "CreateNewPresentationPodPubMsg" }
-case class CreateNewPresentationPodPubMsg(header: BbbClientMsgHeader, body: CreateNewPresentationPodPubMsgBody) extends StandardMsg
-case class CreateNewPresentationPodPubMsgBody()
 
-object RemovePresentationPodPubMsg { val NAME = "RemovePresentationPodPubMsg" }
-case class RemovePresentationPodPubMsg(header: BbbClientMsgHeader, body: RemovePresentationPodPubMsgBody) extends StandardMsg
-case class RemovePresentationPodPubMsgBody(podId: String)
 
 object PresentationUploadTokenReqMsg { val NAME = "PresentationUploadTokenReqMsg" }
 case class PresentationUploadTokenReqMsg(header: BbbClientMsgHeader, body: PresentationUploadTokenReqMsgBody) extends StandardMsg
 case class PresentationUploadTokenReqMsgBody(podId: String, filename: String, uploadTemporaryId: String)
 
-object GetAllPresentationPodsReqMsg { val NAME = "GetAllPresentationPodsReqMsg" }
-case class GetAllPresentationPodsReqMsg(header: BbbClientMsgHeader, body: GetAllPresentationPodsReqMsgBody) extends StandardMsg
-case class GetAllPresentationPodsReqMsgBody()
 
 object SetCurrentPagePubMsg { val NAME = "SetCurrentPagePubMsg" }
 case class SetCurrentPagePubMsg(header: BbbClientMsgHeader, body: SetCurrentPagePubMsgBody) extends StandardMsg
@@ -41,10 +32,6 @@ case class ResizeAndMovePagePubMsg(header: BbbClientMsgHeader, body: ResizeAndMo
 case class ResizeAndMovePagePubMsgBody(podId: String, presentationId: String, pageId: String, xOffset: Double,
                                        yOffset: Double, widthRatio: Double, heightRatio: Double, slideNumber: Int)
 
-object SlideResizedPubMsg { val NAME = "SlideResizedPubMsg" }
-case class SlideResizedPubMsg(header: BbbClientMsgHeader, body: SlideResizedPubMsgBody) extends StandardMsg
-case class SlideResizedPubMsgBody(pageId: String, width: Double, height: Double,
-                                       xOffset: Double, yOffset: Double, widthRatio: Double, heightRatio: Double)
 
 object SetCurrentPresentationPubMsg { val NAME = "SetCurrentPresentationPubMsg" }
 case class SetCurrentPresentationPubMsg(header: BbbClientMsgHeader, body: SetCurrentPresentationPubMsgBody) extends StandardMsg
@@ -270,10 +257,6 @@ object CreateNewPresentationPodEvtMsg { val NAME = "CreateNewPresentationPodEvtM
 case class CreateNewPresentationPodEvtMsg(header: BbbClientMsgHeader, body: CreateNewPresentationPodEvtMsgBody) extends StandardMsg
 case class CreateNewPresentationPodEvtMsgBody(currentPresenterId: String, podId: String)
 
-object RemovePresentationPodEvtMsg { val NAME = "RemovePresentationPodEvtMsg" }
-case class RemovePresentationPodEvtMsg(header: BbbClientMsgHeader, body: RemovePresentationPodEvtMsgBody) extends StandardMsg
-case class RemovePresentationPodEvtMsgBody(podId: String)
-
 object PdfConversionInvalidErrorEvtMsg { val NAME = "PdfConversionInvalidErrorEvtMsg" }
 case class PdfConversionInvalidErrorEvtMsg(header: BbbClientMsgHeader, body: PdfConversionInvalidErrorEvtMsgBody) extends StandardMsg
 case class PdfConversionInvalidErrorEvtMsgBody(podId: String, messageKey: String, code: String, presentationId: String, bigPageNumber: Int, bigPageSize: Int, presName: String)
@@ -392,9 +375,6 @@ object PresentationConversionCompletedEvtMsg { val NAME = "PresentationConversio
 case class PresentationConversionCompletedEvtMsg(header: BbbClientMsgHeader, body: PresentationConversionCompletedEvtMsgBody) extends BbbCoreMsg
 case class PresentationConversionCompletedEvtMsgBody(podId: String, messageKey: String, code: String, presentation: PresentationVO)
 
-object GetAllPresentationPodsRespMsg { val NAME = "GetAllPresentationPodsRespMsg" }
-case class GetAllPresentationPodsRespMsg(header: BbbClientMsgHeader, body: GetAllPresentationPodsRespMsgBody) extends StandardMsg
-case class GetAllPresentationPodsRespMsgBody(pods: Vector[PresentationPodVO])
 
 object SetCurrentPageEvtMsg { val NAME = "SetCurrentPageEvtMsg" }
 case class SetCurrentPageEvtMsg(header: BbbClientMsgHeader, body: SetCurrentPageEvtMsgBody) extends BbbCoreMsg

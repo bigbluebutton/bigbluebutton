@@ -7,7 +7,6 @@ import org.apache.commons.codec.digest.DigestUtils
 import org.bigbluebutton.SystemConfiguration
 
 trait BreakoutApp2x extends BreakoutRoomCreatedMsgHdlr
-  with BreakoutRoomsListMsgHdlr
   with BreakoutRoomUsersUpdateMsgHdlr
   with CreateBreakoutRoomsCmdMsgHdlr
   with EndAllBreakoutRoomsMsgHdlr

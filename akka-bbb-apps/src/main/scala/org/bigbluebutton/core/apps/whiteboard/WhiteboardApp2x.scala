@@ -15,8 +15,7 @@ case class Whiteboard(
 class WhiteboardApp2x(implicit val context: ActorContext)
   extends SendCursorPositionPubMsgHdlr
   with DeleteWhiteboardAnnotationsPubMsgHdlr
-  with SendWhiteboardAnnotationsPubMsgHdlr
-  with GetWhiteboardAnnotationsReqMsgHdlr {
+  with SendWhiteboardAnnotationsPubMsgHdlr {
 
   val log = Logging(context.system, getClass)
 

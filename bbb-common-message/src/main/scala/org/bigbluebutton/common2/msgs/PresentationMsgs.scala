@@ -6,9 +6,6 @@ import org.bigbluebutton.common2.domain.PresentationVO
 // ------------ client to akka-apps ------------
 
 // ------------ bbb-common-web to akka-apps ------------
-object PreuploadedPresentationsSysPubMsg { val NAME = "PreuploadedPresentationsSysPubMsg" }
-case class PreuploadedPresentationsSysPubMsg(header: BbbClientMsgHeader, body: PreuploadedPresentationsSysPubMsgBody) extends StandardMsg
-case class PreuploadedPresentationsSysPubMsgBody(presentations: Vector[PresentationVO])
 
 object SetPresentationUploadCompletionNotifiedPubMsg { val NAME = "SetPresentationUploadCompletionNotifiedPubMsg" }
 case class SetPresentationUploadCompletionNotifiedPubMsg(header: BbbClientMsgHeader, body: SetPresentationUploadCompletionNotifiedPubMsgBody) extends StandardMsg
@@ -37,10 +34,6 @@ case class PresenterAssignedEvtMsgBody(presenterId: String, presenterName: Strin
 object PresenterUnassignedEvtMsg { val NAME = "PresenterUnassignedEvtMsg" }
 case class PresenterUnassignedEvtMsg(header: BbbClientMsgHeader, body: PresenterUnassignedEvtMsgBody) extends BbbCoreMsg
 case class PresenterUnassignedEvtMsgBody(intId: String, name: String, assignedBy: String)
-
-object NewPresentationEvtMsg { val NAME = "NewPresentationEvtMsg" }
-case class NewPresentationEvtMsg(header: BbbClientMsgHeader, body: NewPresentationEvtMsgBody) extends BbbCoreMsg
-case class NewPresentationEvtMsgBody(presentation: PresentationVO)
 
 object NewPresFileAvailableEvtMsg { val NAME = "NewPresFileAvailableEvtMsg" }
 case class NewPresFileAvailableEvtMsg(header: BbbClientMsgHeader, body: NewPresFileAvailableEvtMsgBody) extends BbbCoreMsg

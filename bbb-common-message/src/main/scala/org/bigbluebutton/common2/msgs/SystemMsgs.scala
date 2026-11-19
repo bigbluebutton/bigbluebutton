@@ -99,26 +99,12 @@ case class MeetingDestroyedEvtMsg(
 ) extends BbbCoreMsg
 case class MeetingDestroyedEvtMsgBody(meetingId: String)
 
-/**
- * System server side message to eject user from meeting.
- */
-object EjectUserFromMeetingSysMsg { val NAME = "EjectUserFromMeetingSysMsg" }
-case class EjectUserFromMeetingSysMsg(header: BbbClientMsgHeader, body: EjectUserFromMeetingSysMsgBody) extends StandardMsg
-case class EjectUserFromMeetingSysMsgBody(userId: String, ejectedBy: String)
-
 object DisconnectAllClientsSysMsg { val NAME = "DisconnectAllClientsSysMsg" }
 case class DisconnectAllClientsSysMsg(
     header: BbbCoreHeaderWithMeetingId,
     body:   DisconnectAllClientsSysMsgBody
 ) extends BbbCoreMsg
 case class DisconnectAllClientsSysMsgBody(meetingId: String, reason: String)
-
-object RecordStatusResetSysMsg { val NAME = "RecordStatusResetSysMsg" }
-case class RecordStatusResetSysMsg(
-    header: BbbCoreHeaderWithMeetingId,
-    body:   RecordStatusResetSysMsgBody
-) extends BbbCoreMsg
-case class RecordStatusResetSysMsgBody(recording: Boolean, setBy: String)
 
 object PubSubPongSysRespMsg { val NAME = "PubSubPongSysRespMsg" }
 case class PubSubPongSysRespMsg(

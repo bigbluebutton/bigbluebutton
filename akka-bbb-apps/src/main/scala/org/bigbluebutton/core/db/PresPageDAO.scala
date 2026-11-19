@@ -118,16 +118,6 @@ object PresPageDAO {
     )
   }
 
-  def updateSlidePosition(pageId: String, width: Double, height: Double, xOffset: Double, yOffset: Double,
-                          widthRatio: Double, heightRatio: Double) = {
-    DatabaseConnection.enqueue(
-      TableQuery[PresPageDbTableDef]
-        .filter(_.pageId === pageId)
-        .map(p => (p.width, p.height, p.xOffset, p.yOffset, p.viewBoxWidth, p.viewBoxHeight))
-        .update((width, height, xOffset, yOffset, widthRatio, heightRatio))
-    )
-  }
-
   def updateInfiniteWhiteboard(pageId: String, infiniteWhiteboard: Boolean) = {
     DatabaseConnection.db.run(
       TableQuery[PresPageDbTableDef]

@@ -17,10 +17,6 @@ case class BreakoutRoomsListEvtMsg(header: BbbClientMsgHeader, body: BreakoutRoo
 case class BreakoutRoomsListEvtMsgBody(meetingId: String, rooms: Vector[BreakoutRoomInfo], roomsReady: Boolean, sendInviteToModerators: Boolean)
 case class BreakoutRoomInfo(name: String, externalId: String, breakoutId: String, sequence: Int, shortName: String, isDefaultName: Boolean, freeJoin: Boolean, html5JoinUrls: Map[String, String], captureNotes: Boolean, captureSlides: Boolean)
 
-object BreakoutRoomsListMsg { val NAME = "BreakoutRoomsListMsg" }
-case class BreakoutRoomsListMsg(header: BbbClientMsgHeader, body: BreakoutRoomsListMsgBody) extends StandardMsg
-case class BreakoutRoomsListMsgBody(meetingId: String)
-
 /**
  * Sent to client that breakout rooms have been created.
  */

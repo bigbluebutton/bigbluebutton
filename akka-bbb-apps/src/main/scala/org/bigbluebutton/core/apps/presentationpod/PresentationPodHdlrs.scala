@@ -4,9 +4,7 @@ import org.apache.pekko.actor.ActorContext
 import org.apache.pekko.event.Logging
 
 class PresentationPodHdlrs(implicit val context: ActorContext)
-  extends CreateNewPresentationPodPubMsgHdlr
-  with CreateDefaultPresentationPod
-  with GetAllPresentationPodsReqMsgHdlr
+  extends CreateDefaultPresentationPod
   with SetCurrentPresentationPubMsgHdlr
   with PresentationConversionCompletedSysPubMsgHdlr
   with PdfConversionInvalidErrorSysPubMsgHdlr
@@ -23,8 +21,6 @@ class PresentationPodHdlrs(implicit val context: ActorContext)
   with PresentationUploadTokenReqMsgHdlr
   with MakePresentationDownloadReqMsgHdlr
   with ResizeAndMovePagePubMsgHdlr
-  with SlideResizedPubMsgHdlr
-  with RemovePresentationPodPubMsgHdlr
   with PresentationPageConvertedSysMsgHdlr
   with PresentationPageConversionStartedSysMsgHdlr
   with PresentationConversionEndedSysMsgHdlr

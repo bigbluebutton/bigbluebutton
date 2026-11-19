@@ -1,17 +1,9 @@
 package org.bigbluebutton.core.models
 
-import org.bigbluebutton.core.util.RandomStringGenerator
 import org.bigbluebutton.core.db.{ NotificationDAO, PresPageDAO, PresPresentationDAO }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 object PresentationPodFactory {
-  private def genId(): String = System.currentTimeMillis() + "-" + RandomStringGenerator.randomAlphanumericString(8)
-
-  def create(creatorId: String): PresentationPod = {
-    val currentPresenter = creatorId
-    PresentationPod(genId(), currentPresenter, Map.empty)
-  }
-
   def createDefaultPod(): PresentationPod = {
     // we hardcode the podId of the default presentation pod for the purposes of having bbb-web know the podId
     // in advance (so we can fully process default.pdf)

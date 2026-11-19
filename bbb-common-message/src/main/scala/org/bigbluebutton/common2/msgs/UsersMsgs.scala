@@ -145,13 +145,6 @@ case class SetRecordingStatusCmdMsg(header: BbbClientMsgHeader, body: SetRecordi
 case class SetRecordingStatusCmdMsgBody(recording: Boolean, setBy: String)
 
 /**
- * Sent by user to start recording mark and ignore previous marks
- */
-object RecordAndClearPreviousMarkersCmdMsg { val NAME = "RecordAndClearPreviousMarkersCmdMsg" }
-case class RecordAndClearPreviousMarkersCmdMsg(header: BbbClientMsgHeader, body: RecordAndClearPreviousMarkersCmdMsgBody) extends StandardMsg
-case class RecordAndClearPreviousMarkersCmdMsgBody(recording: Boolean, setBy: String)
-
-/**
  * Sent to all users about start recording mark.
  */
 object RecordingStatusChangedEvtMsg { val NAME = "RecordingStatusChangedEvtMsg" }
@@ -166,32 +159,11 @@ case class UpdateWebcamsOnlyForModeratorCmdMsg(header: BbbClientMsgHeader, body:
 case class UpdateWebcamsOnlyForModeratorCmdMsgBody(webcamsOnlyForModerator: Boolean, setBy: String)
 
 /**
- * Sent by user to get the value of webcamsOnlyForModerator mark.
- */
-object GetWebcamsOnlyForModeratorReqMsg { val NAME = "GetWebcamsOnlyForModeratorReqMsg" }
-case class GetWebcamsOnlyForModeratorReqMsg(header: BbbClientMsgHeader, body: GetWebcamsOnlyForModeratorReqMsgBody) extends StandardMsg
-case class GetWebcamsOnlyForModeratorReqMsgBody(requestedBy: String)
-
-/**
- * Sent to user as response to get webcamsOnlyForModerator mark.
- */
-object GetWebcamsOnlyForModeratorRespMsg { val NAME = "GetWebcamsOnlyForModeratorRespMsg" }
-case class GetWebcamsOnlyForModeratorRespMsg(header: BbbClientMsgHeader, body: GetWebcamsOnlyForModeratorRespMsgBody) extends BbbCoreMsg
-case class GetWebcamsOnlyForModeratorRespMsgBody(webcamsOnlyForModerator: Boolean, requestedBy: String)
-
-/**
  * Sent to all users about webcam only for moderator value.
  */
 object WebcamsOnlyForModeratorChangedEvtMsg { val NAME = "WebcamsOnlyForModeratorChangedEvtMsg" }
 case class WebcamsOnlyForModeratorChangedEvtMsg(header: BbbClientMsgHeader, body: WebcamsOnlyForModeratorChangedEvtMsgBody) extends BbbCoreMsg
 case class WebcamsOnlyForModeratorChangedEvtMsgBody(webcamsOnlyForModerator: Boolean, setBy: String)
-
-/**
- * Sent by user to get status of screenshare (meant for late joiners).
- */
-object GetScreenshareStatusReqMsg { val NAME = "GetScreenshareStatusReqMsg" }
-case class GetScreenshareStatusReqMsg(header: BbbClientMsgHeader, body: GetScreenshareStatusReqMsgBody) extends StandardMsg
-case class GetScreenshareStatusReqMsgBody(requestedBy: String)
 
 /**
  * Sent from client about a user changing RaiseHand.
@@ -343,13 +315,6 @@ case class UserLockedInMeetingEvtMsg(header: BbbClientMsgHeader, body: UserLocke
 case class UserLockedInMeetingEvtMsgBody(userId: String, locked: Boolean, lockedBy: String)
 
 /**
- * Sent by client to lock users.
- */
-object LockUsersInMeetingCmdMsg { val NAME = "LockUsersInMeetingCmdMsg" }
-case class LockUsersInMeetingCmdMsg(header: BbbClientMsgHeader, body: LockUsersInMeetingCmdMsgBody) extends StandardMsg
-case class LockUsersInMeetingCmdMsgBody(lock: Boolean, lockedBy: String, except: Vector[String])
-
-/**
  * Sent by client to set user lock setting.
  */
 object ChangeUserLockSettingsInMeetingCmdMsg { val NAME = "ChangeUserLockSettingsInMeetingCmdMsg" }
@@ -422,13 +387,6 @@ case class UserLeaveReqMsg(header: BbbClientMsgHeader, body: UserLeaveReqMsgBody
 case class UserLeaveReqMsgBody(userId: String, sessionId: String, loggedOut: Boolean)
 
 /**
- * Sent from client to add user to the presenter group of a meeting.
- */
-object AddUserToPresenterGroupCmdMsg { val NAME = "AddUserToPresenterGroupCmdMsg" }
-case class AddUserToPresenterGroupCmdMsg(header: BbbClientMsgHeader, body: AddUserToPresenterGroupCmdMsgBody) extends StandardMsg
-case class AddUserToPresenterGroupCmdMsgBody(userId: String, requesterId: String)
-
-/**
  * Sent to all clients about a user added to the presenter group of a meeting
  */
 object UserAddedToPresenterGroupEvtMsg { val NAME = "UserAddedToPresenterGroupEvtMsg" }
@@ -436,25 +394,11 @@ case class UserAddedToPresenterGroupEvtMsg(header: BbbClientMsgHeader, body: Use
 case class UserAddedToPresenterGroupEvtMsgBody(userId: String, requesterId: String)
 
 /**
- * Sent from client to remove user from the presenter group of a meeting.
- */
-object RemoveUserFromPresenterGroupCmdMsg { val NAME = "RemoveUserFromPresenterGroupCmdMsg" }
-case class RemoveUserFromPresenterGroupCmdMsg(header: BbbClientMsgHeader, body: RemoveUserFromPresenterGroupCmdMsgBody) extends StandardMsg
-case class RemoveUserFromPresenterGroupCmdMsgBody(userId: String, requesterId: String)
-
-/**
  * Sent to all clients about a user removed from the presenter group of a meeting
  */
 object UserRemovedFromPresenterGroupEvtMsg { val NAME = "UserRemovedFromPresenterGroupEvtMsg" }
 case class UserRemovedFromPresenterGroupEvtMsg(header: BbbClientMsgHeader, body: UserRemovedFromPresenterGroupEvtMsgBody) extends StandardMsg
 case class UserRemovedFromPresenterGroupEvtMsgBody(userId: String, requesterId: String)
-
-/**
- * Sent from client to request the presenter group of a meeting.
- */
-object GetPresenterGroupReqMsg { val NAME = "GetPresenterGroupReqMsg" }
-case class GetPresenterGroupReqMsg(header: BbbClientMsgHeader, body: GetPresenterGroupReqMsgBody) extends StandardMsg
-case class GetPresenterGroupReqMsgBody(requesterId: String)
 
 /**
  * Sent to all clients about the members of the presenter group of a meeting
