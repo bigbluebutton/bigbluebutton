@@ -189,22 +189,53 @@ const AccessibleToolbarSelect = React.forwardRef<
   portalElement,
   preventFocusOnOpen,
 }, ref) => {
+  const [opened, setOpened] = React.useState(false);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
+  React.useImperativeHandle(ref, () => dropdownRef.current as HTMLDivElement);
   const selectedItem = items.find((item) => item.isSelected);
   if (!selectedItem) return null;
 
+  const moveFocusOutsideMenu = (backward: boolean) => {
+    const trigger = triggerRef.current;
+    const controls = Array.from(document.querySelectorAll<HTMLElement>(
+      'button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])',
+    )).filter((element) => element.offsetParent !== null && element.tabIndex >= 0);
+    const triggerIndex = trigger ? controls.indexOf(trigger) : -1;
+    controls[triggerIndex + (backward ? -1 : 1)]?.focus();
+  };
+
+  const handleOpenChange = (nextOpened: boolean) => {
+    setOpened(nextOpened);
+    if (nextOpened && !preventFocusOnOpen) {
+      window.setTimeout(() => dropdownRef.current?.querySelector<HTMLElement>('[data-menu-item]')?.focus());
+    }
+  };
+
+  const handleMenuKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Tab') {
+      event.preventDefault();
+      setOpened(false);
+      window.setTimeout(() => moveFocusOutsideMenu(event.shiftKey));
+    }
+  };
+
   return (
     <MantineMenu
+      opened={opened}
+      onChange={handleOpenChange}
       withinPortal={!!portalElement}
       portalProps={portalElement ? { target: portalElement } : undefined}
       transitionProps={{ exitDuration: 0 }}
       disabled={isDisabled}
-      trapFocus={preventFocusOnOpen ? false : undefined}
+      trapFocus={false}
       middlewares={{
         flip: true, shift: true, inline: false, size: true,
       }}
     >
       <MantineMenu.Target>
         <MantineButton
+          ref={triggerRef}
           aria-label={ariaLabel}
           data-test="blockTypeSelect"
           onMouseDown={preventFocusOnTap}
@@ -217,11 +248,15 @@ const AccessibleToolbarSelect = React.forwardRef<
           {selectedItem.text}
         </MantineButton>
       </MantineMenu.Target>
-      <MantineMenu.Dropdown className={className} ref={ref}>
+      <MantineMenu.Dropdown
+        className={className}
+        ref={dropdownRef}
+      >
         {items.map((item) => (
           <MantineMenu.Item
             key={item.text}
             onClick={item.onClick}
+            onKeyDownCapture={handleMenuKeyDown}
             leftSection={item.icon}
             rightSection={item.isSelected
               ? <MantineCheckIcon size={10} className="bn-tick-icon" />

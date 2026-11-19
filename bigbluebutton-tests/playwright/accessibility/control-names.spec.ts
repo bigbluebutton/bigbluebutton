@@ -47,11 +47,18 @@ test.describe.parallel('Accessible control names', { tag: '@ci' }, () => {
     );
     await blockTypeSelect.focus();
     await modPage.page.keyboard.press('Tab');
+    const forwardTabTarget = await modPage.page.evaluateHandle(() => document.activeElement);
     await expect(
       modPage.page.locator(e.blockNoteToolbar).locator(':focus'),
       'Tab should continue through the notes toolbar',
     ).toBeVisible();
-    await blockTypeSelect.focus();
+    await modPage.page.keyboard.press('Shift+Tab');
+    await expect(blockTypeSelect).toBeFocused();
+    await modPage.page.keyboard.press('Shift+Tab');
+    const backwardTabTarget = await modPage.page.evaluateHandle(() => document.activeElement);
+    await modPage.page.keyboard.press('Tab');
+    await expect(blockTypeSelect).toBeFocused();
+
     await modPage.page.keyboard.press('Enter');
     const menu = modPage.page.locator('[role="menu"]:visible');
     await expect
@@ -59,7 +66,30 @@ test.describe.parallel('Accessible control names', { tag: '@ci' }, () => {
         message: 'desktop menu should move focus inside the dropdown',
       })
       .toBe(true);
-    await modPage.page.keyboard.press('ArrowDown');
+    await modPage.page.keyboard.press('Tab');
+    await expect(menu).toBeHidden();
+    expect(await modPage.page.evaluate((target) => document.activeElement === target, forwardTabTarget)).toBe(true);
+
+    await blockTypeSelect.focus();
+    await modPage.page.keyboard.press('Enter');
+    await expect(menu).toBeVisible();
+    await modPage.page.keyboard.press('Shift+Tab');
+    await expect(menu).toBeHidden();
+    expect(await modPage.page.evaluate((target) => document.activeElement === target, backwardTabTarget)).toBe(true);
+
+    await blockTypeSelect.focus();
+    await modPage.page.keyboard.press('Enter');
+    await expect
+      .poll(() => menu.evaluate((element) => element.contains(document.activeElement)), {
+        message: 'desktop menu should move focus inside the dropdown',
+      })
+      .toBe(true);
+    await modPage.page.keyboard.press('Escape');
+    await expect(menu).toBeHidden();
+    await expect(blockTypeSelect).toBeFocused();
+
+    await modPage.page.keyboard.press('Enter');
+    await expect(menu).toBeVisible();
     await modPage.page.keyboard.press('ArrowDown');
     await modPage.page.keyboard.press('Enter');
     await expect(blockTypeSelect, 'arrow keys should change the text type').toHaveAccessibleName(
