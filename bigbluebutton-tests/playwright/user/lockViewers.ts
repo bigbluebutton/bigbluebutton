@@ -668,6 +668,14 @@ export class LockViewers extends MultiUsers {
   }
 
   async presenterPolicyModeratorOnly() {
+    await openLockViewers(this.modPage);
+    await this.modPage.waitAndClick(e.presentationPermissionsTab);
+    await expect(
+      this.modPage.page.getByRole('combobox', { name: 'Presentation Policy' }),
+      'should name the presentation policy select',
+    ).toHaveAccessibleDescription('Configure how presentation rights are managed in the session.');
+    await this.modPage.waitAndClick(e.cancelLockSettings);
+    await this.modPage.wasRemoved(e.cancelLockSettings, 'should close the lock viewers modal');
     await setPresentationPermission(this.modPage, e.presModeratorOnly);
     // Moderator should see a notification that presenter requests are disabled
     await this.modPage.hasText(
