@@ -573,6 +573,7 @@ class MeetingActor(
       case m: UpdateBreakoutRoomsTimeReqMsg        => state = handleUpdateBreakoutRoomsTimeMsg(m, state)
       case m: SendMessageToAllBreakoutRoomsReqMsg  => state = handleSendMessageToAllBreakoutRoomsMsg(m, state)
       case m: ChangeUserBreakoutReqMsg             => state = handleChangeUserBreakoutReqMsg(m, state)
+      case m: UnassignUserFromBreakoutReqMsg       => state = handleUnassignUserFromBreakoutReqMsg(m, state)
       case m: BreakoutRoomCallModeratorReqMsg =>
         updateUserLastActivity(m.header.userId)
         state = handleBreakoutRoomCallModeratorMsg(m, state)

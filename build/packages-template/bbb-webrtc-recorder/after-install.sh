@@ -48,6 +48,17 @@ case "$1" in
       echo "BBBRECORDER_LIVEKIT_AUDIOCLOCKSYNC=true" >> /etc/default/bbb-webrtc-recorder
     fi
 
+    # Check the connection to LiveKit at start and then periodically. Each
+    # check joins a new LiveKit room, so it runs every 5 minutes instead of
+    # the recorder's 1-minute default. Env vars take effect whichever YAML
+    # file the recorder loads. A value already set in this file is kept.
+    for setting in BBBRECORDER_LIVEKIT_HEALTHCHECK_ENABLE=true \
+      BBBRECORDER_LIVEKIT_HEALTHCHECK_INTERVAL=5m; do
+      if ! grep -q "^[[:space:]]*${setting%%=*}[[:space:]]*=" /etc/default/bbb-webrtc-recorder; then
+        echo "$setting" >> /etc/default/bbb-webrtc-recorder
+      fi
+    done
+
     systemctl enable bbb-webrtc-recorder
   ;;
 

@@ -57,6 +57,13 @@ type Mutation {
 }
 
 type Mutation {
+  breakoutRoomUnassignUser(
+    userId: String!
+    breakoutRoomMeetingId: String!
+  ): Boolean
+}
+
+type Mutation {
   breakoutRoomRequestJoinUrl(
     breakoutRoomMeetingId: String!
   ): Boolean
