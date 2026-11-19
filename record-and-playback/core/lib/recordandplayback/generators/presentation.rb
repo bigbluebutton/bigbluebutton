@@ -97,7 +97,7 @@ module BigBlueButton
       end
     end
 
-    # Gathers the text from the slide
+    # Gathers the text from the slide; slide is the page number, or the page id in recordings that have them
     def self.get_text_from_slide(textfiles_dir, slide_num)
       text_from_slide = nil
       begin
@@ -115,6 +115,7 @@ module BigBlueButton
       BigBlueButton.logger.info("Task: Getting from events the presentation to be used for preview")
       presentation = {}
       doc = Nokogiri::XML(File.read(events_xml))
+      page_ids = BigBlueButton::Events.get_page_ids(doc)
       presentation_filenames = {}
       doc.xpath("//event[@eventname='ConversionCompletedEvent']").each do |conversion_event|
         presentation_filenames[conversion_event.xpath("presentationName").text] = conversion_event.xpath("originalFilename").text
@@ -130,10 +131,12 @@ module BigBlueButton
           presentation[:id] = presentation_id
           presentation[:filename] = presentation_filename
           presentation[:slides] = {}
-          for i in 1..3
-            if File.file?("#{textfiles_dir}/slide-#{i}.txt")
-              text_from_slide = self.get_text_from_slide(textfiles_dir, i)
-              presentation[:slides][i] = { :alt => text_from_slide == nil ? '' : text_from_slide }
+          # The first three pages: by page id when the recording has them, else by number.
+          keys = page_ids.empty? ? (1..3).to_a : (page_ids[presentation_id] || []).first(3)
+          keys.each do |key|
+            if File.file?("#{textfiles_dir}/slide-#{key}.txt")
+              text_from_slide = self.get_text_from_slide(textfiles_dir, key)
+              presentation[:slides][key] = { :alt => text_from_slide == nil ? '' : text_from_slide }
             end
           end
           # Break because something else than default.pdf was found

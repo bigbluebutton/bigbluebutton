@@ -564,6 +564,17 @@ def determine_slide_number(slide, current_slide)
   slide
 end
 
+# The key of the slide a whiteboard event belongs to. Recordings with page ids key slides by the page
+# id in whiteboardId; an id that is not a page id (a poll over screenshare) and older recordings use
+# the page number.
+def determine_slide_key(event, current_slide)
+  if @identity_mode
+    whiteboard_id = event.at_xpath('whiteboardId')&.text
+    return whiteboard_id if BigBlueButton::Events.page_id?(whiteboard_id)
+  end
+  determine_slide_number(event.at_xpath('pageNumber'), current_slide)
+end
+
 def clean_arrow_end_or_start_props(props)
   if props['type'] == 'binding'
     # Remove 'x' and 'y' for 'binding' type
@@ -577,10 +588,9 @@ end
 
 def events_parse_tldraw_shape(shapes, event, current_presentation, current_slide, timestamp)
   presentation = event.at_xpath('presentation')
-  slide = event.at_xpath('pageNumber')
 
   presentation = determine_presentation(presentation, current_presentation)
-  slide = determine_slide_number(slide, current_slide)
+  slide = determine_slide_key(event, current_slide)
 
   # Set up the shapes data structures if needed
   shapes[presentation] ||= {}
@@ -759,7 +769,7 @@ def events_parse_undo(shapes, event, current_presentation, current_slide, timest
   # Figure out what presentation+slide this undo is for, with fallbacks
   # for old BBB where this info isn't in the undo messages
   presentation = determine_presentation(event.at_xpath('presentation'), current_presentation)
-  slide = determine_slide_number(event.at_xpath('pageNumber'), current_slide)
+  slide = determine_slide_key(event, current_slide)
 
   # Newer undo messages have the shape id, making this a lot easier
   shape_id = event.at_xpath('shapeId')&.text
@@ -798,7 +808,7 @@ def events_parse_clear(shapes, event, current_presentation, current_slide, times
   # Figure out what presentation+slide this clear is for, with fallbacks
   # for old BBB where this info isn't in the clear messages
   presentation = determine_presentation(event.at_xpath('presentation'), current_presentation)
-  slide = determine_slide_number(event.at_xpath('pageNumber'), current_slide)
+  slide = determine_slide_key(event, current_slide)
 
   # BigBlueButton 2.0 per-user clear features; default to full clear on older versions
   full_clear = event.at_xpath('fullClear')
@@ -835,6 +845,11 @@ def events_get_image_info(slide, tldraw)
     slide[:src] = 'presentation/deskshare.png'
   elsif slide_presentation == ''
     slide[:src] = 'presentation/logo.png'
+  elsif slide[:slide].is_a?(String)
+    # Slide keyed by page id: the files are named by it.
+    page_id = slide[:slide]
+    slide[:src] = "presentation/#{slide_presentation}/svgs/slide#{page_id}.svg"
+    slide[:text] = "presentation/#{slide_presentation}/textfiles/slide-#{page_id}.txt"
   else
     slide_nr = slide[:slide] + 1
     tldraw ? slide[:src] = "presentation/#{slide_presentation}/svgs/slide#{slide_nr}.svg"
@@ -917,6 +932,9 @@ def process_presentation(package_dir)
   # xml files as we go
   last_timestamp = 0.0
   events_xml = Nokogiri::XML(File.read("#{@process_dir}/events.xml"))
+  # Page ids of each presentation, in page order; empty for recordings made before pages had ids.
+  page_ids = BigBlueButton::Events.get_page_ids(events_xml)
+  @identity_mode = !page_ids.empty?
   events_xml.xpath('/recording/event').each do |event|
     eventname = event['eventname']
     last_timestamp = timestamp =
@@ -937,11 +955,19 @@ def process_presentation(package_dir)
         current_panzoom_width = current_panzoom_height = nil
       end
       current_presentation = next_presentation
-      current_slide = current_presentation_slide[current_presentation].to_i
+      current_slide = current_presentation_slide.fetch(current_presentation) do
+        # A presentation shown for the first time starts at its first page.
+        @identity_mode && page_ids[current_presentation] ? page_ids[current_presentation].first : 0
+      end
       slide_changed = panzoom_changed = true
 
     when 'GotoSlideEvent'
-      current_slide = event.at_xpath('slide').text.to_i
+      page_id = event.at_xpath('id')&.text
+      current_slide = if @identity_mode && BigBlueButton::Events.page_id?(page_id)
+                        page_id
+                      else
+                        event.at_xpath('slide').text.to_i
+                      end
       current_presentation_slide[current_presentation] = current_slide
       slide_changed = panzoom_changed = true
 
