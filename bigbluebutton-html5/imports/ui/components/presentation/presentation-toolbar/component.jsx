@@ -23,6 +23,7 @@ import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import KEYS from '/imports/utils/keys';
 import Spinner from '/imports/ui/components/common/spinner/component';
 import Separator from '/imports/ui/components/common/separator/component';
+import InsertPagesButton from './insert-pages/component';
 
 const FIT_TOLERANCE_PX = 1;
 
@@ -412,6 +413,7 @@ class PresentationToolbar extends PureComponent {
       numberOfJoinedUsers,
       isMobile,
       toolbarWidth,
+      presentationId,
     } = this.props;
 
     const startOfSlides = !(currentSlideNum > 1);
@@ -522,6 +524,12 @@ class PresentationToolbar extends PureComponent {
             label={intl.formatMessage(intlMessages.nextSlideLabel)}
             hideLabel
             data-test="nextSlide"
+          />
+          <InsertPagesButton
+            presentationId={presentationId}
+            currentSlideNum={currentSlideNum}
+            numberOfSlides={numberOfSlides}
+            isConnected={isConnected}
           />
         </Styled.PresentationSlideControls>
         <Styled.PresentationZoomControls className="bbb-presentation-toolbar__zoom-controls">
@@ -667,11 +675,13 @@ PresentationToolbar.propTypes = {
   numberOfJoinedUsers: PropTypes.number.isRequired,
   isMobile: PropTypes.bool.isRequired,
   toolbarWidth: PropTypes.number,
+  presentationId: PropTypes.string,
 };
 
 PresentationToolbar.defaultProps = {
   fullscreenRef: null,
   toolbarWidth: 0,
+  presentationId: '',
 };
 
 export default injectWbResizeEvent(injectIntl(PresentationToolbar));
