@@ -12,6 +12,7 @@ const COLORS = [
 
 const propTypes = {
   color: PropTypes.string,
+  announceChanges: PropTypes.bool,
 };
 
 const intlMessages = defineMessages({
@@ -26,6 +27,7 @@ const NotificationsBar = ({
   children,
   alert,
   showReloadButton,
+  announceChanges = true,
 }) => {
   const { width: browserWidth } = layoutSelectInput((i) => i.browser);
   const isMobile = browserWidth <= SMALL_VIEWPORT_BREAKPOINT;
@@ -35,12 +37,22 @@ const NotificationsBar = ({
     window.location.reload();
   }, []);
 
+  let role;
+  let ariaLive = 'off';
+  if (alert) {
+    role = 'alert';
+    ariaLive = 'assertive';
+  } else if (announceChanges) {
+    role = 'status';
+    ariaLive = 'polite';
+  }
+
   return (
     <Styled.NotificationsBar
       className="bbb-notifications-bar"
       data-test="notificationBannerBar"
-      role={alert ? 'alert' : 'status'}
-      aria-live={alert ? 'assertive' : 'polite'}
+      role={role}
+      aria-live={ariaLive}
       isMobile={isMobile}
       style={
         !hasColor ? {

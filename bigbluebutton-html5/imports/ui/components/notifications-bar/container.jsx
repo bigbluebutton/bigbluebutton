@@ -252,8 +252,10 @@ const NotificationsBarContainer = () => {
 
   if (!meetingMessage || !hasNotification) return null;
 
+  // The countdown changes every second; a live region would announce each tick.
+  // Users are warned before the end by the remainingTimeAlertThresholdArray alerts.
   return (
-    <NotificationsBar color={COLOR_PRIMARY}>
+    <NotificationsBar color={COLOR_PRIMARY} announceChanges={false}>
       {meetingMessage}
     </NotificationsBar>
   );
