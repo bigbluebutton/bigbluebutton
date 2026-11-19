@@ -77,18 +77,18 @@ trait PresentationConversionCompletedSysPubMsgHdlr {
         NotificationDAO.insert(notifyEvent)
       }
 
-      state.update(pods)
+      val stateWithPods = state.update(pods)
 
-      val conversion = state.presentationConversions.find(pres.id)
+      val conversion = stateWithPods.presentationConversions.find(pres.id)
       conversion match {
         case Some(pc) =>
           val start = Instant.ofEpochMilli(pc.startTime)
           val duration = Duration.between(start, Instant.now())
           log.info(s"Presentation ${pres.id} with ${pres.pages.size} pages finished converting after $duration")
-          val presentationConversions = state.presentationConversions.remove(pres.id)
-          state.update(presentationConversions)
+          val presentationConversions = stateWithPods.presentationConversions.remove(pres.id)
+          stateWithPods.update(presentationConversions)
         case None =>
-          state
+          stateWithPods
       }
     }
 
