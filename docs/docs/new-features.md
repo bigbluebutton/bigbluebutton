@@ -19,6 +19,20 @@ Here's a breakdown of what's new in 4.1 so far.
 
 BigBlueButton 4.1 lets a moderator **ask a participant to turn on their webcam**. With the new `allowModsToRequestCameraShare` option set to `true`, moderators get an *Ask to share camera* entry in the user list; the participant is prompted and may accept or decline. Accepting takes them through the regular camera sharing flow, so the webcam is never started without their consent — a moderator cannot turn on someone's camera remotely. The default (`false`) hides the option entirely. This can be set server-wide in bbb-web's properties or per meeting on the `create` call.
 
+### Presentation pages have a fixed id
+
+Each presentation page now has an id that never changes: a UUID, given to the page when it is converted. The page number only says where the page is in the presentation. Nothing changes for presenters and viewers, but integrations that read or build page ids need to be adjusted:
+
+- The links to a slide's image, thumbnail, png and text use the page id instead of the page number, for example `.../svg/3f2b8c1e-5d4a-4f6b-9c7d-0e1a2b3c4d5e`. Links with a page number answer 404, and the page token is computed with the page id.
+- Every request that names a page (changing the current page, annotating, zooming, the cursor) uses the page id. A page id built as `<presentationId>/<pageNumber>`, as before, is no longer recognized and the request has no effect.
+- The new GraphQL action `presentationSetPageByNum(presentationId, pageNum, seenTotalPages)` changes to the page at a position. `seenTotalPages` is the total number of pages the client saw when it read that position (`0` when unknown).
+- In recordings, `events.xml` identifies pages by their id (`GotoSlideEvent` `id`, whiteboard events `whiteboardId`, and the new `pageIds` element of `ConversionCompletedEvent`), and the published slide images and text files are named by it (`svgs/slide<pageId>.svg`, `textfiles/slide-<pageId>.txt`, `thumbnails/thumb-<pageId>.png`). Recordings made before this change are still processed as before.
+- The presentation conversion cache is stored in a new form (`<hash>.v2.tar.gz`), so after the upgrade it starts empty.
+
+#### Removed
+
+- The bbb-web endpoints that counted the files of a presentation: `/bigbluebutton/presentation/{conference}/{room}/{presentationName}/slides`, `/thumbnails`, `/svgs` and `/textfiles`.
+
 ### bbb-web properties changes
 
 #### Added
