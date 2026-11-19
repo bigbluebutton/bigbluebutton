@@ -204,6 +204,7 @@ const CreateTimerPicker = React.memo(({ minBreakoutTime, onDurationChange }: Cre
               setHours(Math.max(0, Math.min(23, Number(e.target.value))));
             }}
             aria-label={intl.formatMessage(intlMessages.timerHours)}
+            aria-valuetext={String(hours)}
           />
           <Styled.InputArrows>
             <Styled.InputArrowButton
@@ -231,6 +232,7 @@ const CreateTimerPicker = React.memo(({ minBreakoutTime, onDurationChange }: Cre
               setMinutes(Math.max(0, Math.min(59, Number(e.target.value))));
             }}
             aria-label={intl.formatMessage(intlMessages.timerMinutes)}
+            aria-valuetext={String(minutes)}
             data-test="durationTime"
           />
           <Styled.InputArrows>
@@ -259,6 +261,7 @@ const CreateTimerPicker = React.memo(({ minBreakoutTime, onDurationChange }: Cre
               setSeconds(Math.max(0, Math.min(59, Number(e.target.value))));
             }}
             aria-label={intl.formatMessage(intlMessages.timerSeconds)}
+            aria-valuetext={String(seconds)}
           />
           <Styled.InputArrows>
             <Styled.InputArrowButton

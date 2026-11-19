@@ -317,6 +317,11 @@ export class Join extends Create {
       e.presentationTitle,
       'should display the presentation title on the breakout room',
     );
+    const runningTimeInputs = this.modPage.page.locator(`${e.breakoutRemainingTime} input[type="number"]`);
+    for (let index = 0; index < (await runningTimeInputs.count()); index += 1) {
+      const input = runningTimeInputs.nth(index);
+      await expect(input).toHaveAttribute('aria-valuetext', String(Number(await input.inputValue())));
+    }
 
     // Decrease from 15 to 5 minutes by clicking in the minus button 10 times
     for (let i = 0; i < 10; i += 1) {
@@ -328,6 +333,7 @@ export class Join extends Create {
       '04',
       'should have the breakout room time remaining counting down on the main meeting',
     );
+    await expect(this.modPage.page.locator(e.breakoutRoomTimerMinutesInput)).toHaveAttribute('aria-valuetext', '4');
 
     await breakoutUserPage.hasText(
       e.timeRemaining,

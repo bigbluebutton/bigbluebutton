@@ -202,14 +202,22 @@ export class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.randomlyAssign);
 
     const createButtonLocator = this.modPage.page.locator(e.createBreakoutRoomsButton);
+    await expect(this.modPage.page.getByRole('spinbutton', { name: 'Hours' })).toHaveAttribute('aria-valuetext', '0');
+    await expect(this.modPage.page.getByRole('spinbutton', { name: 'Minutes' })).toHaveAttribute(
+      'aria-valuetext',
+      '15',
+    );
+    await expect(this.modPage.page.getByRole('spinbutton', { name: 'Seconds' })).toHaveAttribute('aria-valuetext', '0');
 
     // test minimum 5 minutes
     await this.modPage.page.locator(e.durationTime).press('Backspace');
     await this.modPage.page.locator(e.durationTime).press('Backspace');
     await this.modPage.type(e.durationTime, '5');
+    await expect(this.modPage.page.locator(e.durationTime)).toHaveAttribute('aria-valuetext', '5');
     await expect(createButtonLocator, 'should have the create button for the breakout rooms enabled.').toBeEnabled();
 
     await this.modPage.page.fill(e.durationTime, '4');
+    await expect(this.modPage.page.locator(e.durationTime)).toHaveAttribute('aria-valuetext', '4');
     await expect(createButtonLocator, 'should have the breakout room create button disabled.').toBeDisabled();
     await this.modPage.hasElement(
       e.minimumDurationWarnBreakout,
@@ -218,6 +226,7 @@ export class Create extends MultiUsers {
 
     // await this.modPage.page.locator(e.durationTime).press('Backspace');
     await this.modPage.page.fill(e.durationTime, '15');
+    await expect(this.modPage.page.locator(e.durationTime)).toHaveAttribute('aria-valuetext', '15');
     await this.modPage.waitAndClick(e.createBreakoutRoomsButton, ELEMENT_WAIT_LONGER_TIME);
 
     await this.modPage.hasValue(
@@ -225,6 +234,11 @@ export class Create extends MultiUsers {
       '14',
       'should have the breakout room remaining time between 14:00 and 14:59 minutes',
     );
+    const runningTimeInputs = this.modPage.page.locator(`${e.breakoutRemainingTime} input[type="number"]`);
+    for (let index = 0; index < (await runningTimeInputs.count()); index += 1) {
+      const input = runningTimeInputs.nth(index);
+      await expect(input).toHaveAttribute('aria-valuetext', String(Number(await input.inputValue())));
+    }
   }
 
   async changeRoomsName() {

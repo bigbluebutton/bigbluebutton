@@ -138,6 +138,7 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
               handleTimerInputChange('h', Number(e.target.value));
             }}
             aria-label={intl.formatMessage(intlMessages.timerHours)}
+            aria-valuetext={String(hours)}
             data-test="breakoutRoomTimerHoursInput"
           />
           <Styled.InputArrows $selected={selectedTimerField === 'h'}>
@@ -170,6 +171,7 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
               handleTimerInputChange('m', Number(e.target.value));
             }}
             aria-label={intl.formatMessage(intlMessages.timerMinutes)}
+            aria-valuetext={String(minutes)}
             data-test="breakoutRoomTimerMinutesInput"
           />
           <Styled.InputArrows $selected={selectedTimerField === 'm'}>
@@ -204,6 +206,7 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
               handleTimerInputChange('s', Number(e.target.value));
             }}
             aria-label={intl.formatMessage(intlMessages.timerSeconds)}
+            aria-valuetext={String(seconds)}
             data-test="breakoutRoomTimerSecondsInput"
           />
           <Styled.InputArrows $selected={selectedTimerField === 's'}>
