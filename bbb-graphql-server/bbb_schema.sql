@@ -1637,7 +1637,9 @@ CREATE UNLOGGED TABLE "pres_page" (
     "maxImageHeight" integer,
     "uploadCompleted" boolean,
     "infiniteWhiteboard" boolean,
-    "fitToWidth" boolean
+    "fitToWidth" boolean,
+    -- A position holds one page. Deferrable: an insert moves the pages after it in one UPDATE.
+    UNIQUE("presentationId","num") DEFERRABLE
 );
 CREATE INDEX "idx_pres_page_presentationId" ON "pres_page"("presentationId");
 CREATE INDEX "idx_pres_page_presentationId_curr" ON "pres_page"("presentationId") where "current" is true;
