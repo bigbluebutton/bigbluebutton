@@ -47,6 +47,10 @@ const intlMessage = defineMessages({
     id: 'app.meeting.endedMessage',
     description: 'message saying to go back to home screen',
   },
+  messageBreakoutEnded: {
+    id: 'app.meeting.breakoutEndedMessage',
+    description: 'message saying the button closes the breakout room window',
+  },
   messageEndedByUser: {
     id: 'app.meeting.endedByUserMessage',
     description: 'message informing who ended the meeting',
@@ -322,7 +326,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
       >
         {showRedirectButton ? (
           <Styled.Description id={MEETING_ENDED_DESCRIPTION_ID}>
-            {intl.formatMessage(intlMessage.messageEnded)}
+            {intl.formatMessage(isBreakout ? intlMessage.messageBreakoutEnded : intlMessage.messageEnded)}
           </Styled.Description>
         ) : null}
       </GenericModal>
