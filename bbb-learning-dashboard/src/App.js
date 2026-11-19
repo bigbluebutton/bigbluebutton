@@ -96,9 +96,9 @@ class App extends React.Component {
     link.style.display = 'none';
     document.body.appendChild(link);
     link.click();
-    downloadButtonLabel.innerHTML = intl.formatMessage({ id: 'app.learningDashboard.sessionDataDownloadedLabel', defaultMessage: 'Downloaded!' });
+    downloadButtonLabel.textContent = intl.formatMessage({ id: 'app.learningDashboard.sessionDataDownloadedLabel', defaultMessage: 'Downloaded!' });
     setTimeout(() => {
-      downloadButtonLabel.innerHTML = intl.formatMessage({ id: 'app.learningDashboard.downloadSessionDataLabel', defaultMessage: 'Download Session Data' });
+      downloadButtonLabel.textContent = intl.formatMessage({ id: 'app.learningDashboard.downloadSessionDataLabel', defaultMessage: 'Download Session Data' });
       downloadButton.removeAttribute('disabled');
       downloadButton.style.cursor = 'pointer';
       downloadButton.focus();

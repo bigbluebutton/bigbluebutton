@@ -4,6 +4,7 @@ import './index.css';
 import { IntlProvider } from 'react-intl';
 import App from './App';
 import { UserDetailsProvider } from './components/UserDetails/context';
+import { resolveLocale } from './locales';
 
 const RTL_LANGUAGES = ['ar', 'dv', 'fa', 'he'];
 
@@ -14,15 +15,6 @@ function isValidLocale(locale) {
   } catch (error) {
     return false;
   }
-}
-
-function normalizeLocale(lang) {
-  const lParts = lang.split('-');
-
-  // 'pt' returns 'pt'
-  // 'pt-br' and 'pt-BR' return 'pt_BR'
-  // 'pt_BR' returns 'pt_BR'
-  return lParts.length > 1 ? `${lParts[0]}_${lParts[1].toUpperCase()}` : lang;
 }
 
 function getLanguage() {
@@ -51,16 +43,17 @@ class Dashboard extends React.Component {
   }
 
   setMessages() {
+    const { intlLocale } = this.state;
     const fetchMessages = (lang) => new Promise((resolve, reject) => {
       const localesBase = process.env.REACT_APP_STANDALONE_MODE === 'true' ? '.' : '/html5client';
-      const url = `${localesBase}/locales/${normalizeLocale(lang)}.json`;
+      const url = `${localesBase}/locales/${resolveLocale(lang)}.json`;
       fetch(url).then((response) => {
         if (!response.ok) return reject();
         return resolve(response.json());
       });
     });
 
-    Promise.all([fetchMessages('en'), fetchMessages(getLanguage())])
+    Promise.all([fetchMessages('en'), fetchMessages(intlLocale)])
       .then((values) => {
         let mergedMessages = {};
 

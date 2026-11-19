@@ -35,6 +35,7 @@ type Config struct {
 		MaxConnectionConcurrentSubscriptions int    `yaml:"max_connection_concurrent_subscriptions"`
 		MaxQueryLength                       int    `yaml:"max_query_length"`
 		MaxQueryDepth                        int    `yaml:"max_query_depth"`
+		MaxQueryVariablesLength              int    `yaml:"max_query_variables_length"`
 		MaxMutationLength                    int    `yaml:"max_mutation_length"`
 		AuthorizedCrossOrigin                string `yaml:"authorized_cross_origin"`
 		JsonPatchDisabled                    bool   `yaml:"json_patch_disabled"`
