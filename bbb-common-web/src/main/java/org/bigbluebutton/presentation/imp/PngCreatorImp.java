@@ -43,7 +43,7 @@ import java.util.regex.Pattern;
 public class PngCreatorImp implements PngCreator {
 	private static Logger log = LoggerFactory.getLogger(PngCreatorImp.class);
 
-	private static final Pattern PAGE_NUMBER_PATTERN = Pattern.compile("(.+-png)-([0-9]+)-([0-9]+)(.png)");
+	private static final Pattern PAGE_NUMBER_PATTERN = Pattern.compile("(temp-png)-([0-9]+)-([0-9]+)(\\.png)");
 
 	private String BLANK_PNG;
 	private int slideWidth = 800;
@@ -59,14 +59,16 @@ public class PngCreatorImp implements PngCreator {
 		if (!pngDir.exists())
 			pngDir.mkdir();
 
+        File png = PageArtifacts.Type.PNG.file(pres.getUploadedFile().getParentFile(), pres.pageId(page));
+
         if (useBlank) {
-            createBlankPng(pngDir, page);
+            createBlankPng(png, page);
             return true;
         }
 
 		try {
 			long start = System.currentTimeMillis();
-			success = generatePng(pngDir, pres, page, pageFile);
+			success = generatePng(pngDir, png, pres, page, pageFile);
 			long end = System.currentTimeMillis();
 			//System.out.println("*** GENERATE PNG " + (end - start));
 		} catch (InterruptedException e) {
@@ -75,9 +77,9 @@ public class PngCreatorImp implements PngCreator {
 		}
 
 		long start = System.currentTimeMillis();
-		renamePng(pngDir, page);
+		renamePng(pngDir, png, page);
 		// Create blank thumbnails for pages that failed to generate a thumbnail.
-		createBlankPng(pngDir, page);
+		createBlankPng(png, page);
 		long end = System.currentTimeMillis();
 		//System.out.println("*** GENERATE BLANK PNG " + (end - start));
 
@@ -101,10 +103,10 @@ public class PngCreatorImp implements PngCreator {
 			}
 		}
 
-		createBlankPng(dir, page);
+		createBlankPng(PageArtifacts.Type.PNG.file(pres.getUploadedFile().getParentFile(), pres.pageId(page)), page);
 	}
 
-	private boolean generatePng(File pngsDir, UploadedPresentation pres, int page, File pageFile)
+	private boolean generatePng(File pngsDir, File png, UploadedPresentation pres, int page, File pageFile)
 					throws InterruptedException {
 		long convTimeout = this.convTimeout;
 		if (convTimeout > pres.getMaxPageConversionTime()) {
@@ -117,7 +119,7 @@ public class PngCreatorImp implements PngCreator {
 		}
 
 		String source = pageFile.getAbsolutePath();
-		String dest = pngsDir.getAbsolutePath() + File.separator + "slide-" + page + ".png";
+		String dest = png.getAbsolutePath();
 
 		// Skip processing if the destination file exists, as it was likely restored from the cache
 		if(Files.exists(Paths.get(dest))) {
@@ -179,59 +181,18 @@ public class PngCreatorImp implements PngCreator {
 		return new File(presentationFile.getParent() + File.separatorChar + "pngs");
 	}
 
-	private void renamePng(File dir, int page) {
-		/*
-		 * If more than 1 file, filename like 'temp-png-X.png' else filename is
-		 * 'temp-png.png'
-		 */
-		if (dir.list().length > 1) {
-			File[] files = dir.listFiles();
-			Matcher matcher;
-			for (int i = 0; i < files.length; i++) {
-
-				//System.out.println("*** PPNG file " + files[i].getAbsolutePath());
-
-				matcher = PAGE_NUMBER_PATTERN.matcher(files[i].getAbsolutePath());
-				if (matcher.matches()) {
-					// Path should be something like
-					// 'c:/temp/bigluebutton/presname/pngs/temp-png-1.png'
-					// Extract the page number. There should be 4 matches.
-					// 0. c:/temp/bigluebutton/presname/pngs/temp-png-1.png
-					// 1. c:/temp/bigluebutton/presname/pngs/temp-png
-					// 2. 1 ---> what we are interested in
-					// 3. .png
-					// We are interested in the second match.
-					int pageNum = Integer.parseInt(matcher.group(2).trim());
-					if (pageNum == page) {
-						String newFilename = "slide-" + (page) + ".png";
-						File renamedFile = new File(
-								dir.getAbsolutePath() + File.separator + newFilename);
-						files[i].renameTo(renamedFile);
-					}
-
-				}
-			}
-		} else if (dir.list().length == 1) {
-			File oldFilename = new File(
-							dir.getAbsolutePath() + File.separator + dir.list()[0]);
-			//System.out.println("*** PPNG file " + oldFilename.getAbsolutePath());
-			String newFilename = "slide-1.png";
-
-			// Might be the first png of a set and it might be out of order
-			// Avoid setting the second/third/... slide as slide-1.png
-			Matcher matcher = PAGE_NUMBER_PATTERN.matcher(oldFilename.getAbsolutePath());
-			if (matcher.matches()) {
-				newFilename = "slide-" + Integer.parseInt(matcher.group(2).trim()) + ".png";
-			}
-
-			File renamedFile = new File(
-							oldFilename.getParent() + File.separator + newFilename);
-			oldFilename.renameTo(renamedFile);
+	// pdftoppm writes the png of page N as temp-png-N-<index>.png: give it the page's name.
+	private void renamePng(File dir, File png, int page) {
+		File[] temps = dir.listFiles((d, name) -> {
+			Matcher matcher = PAGE_NUMBER_PATTERN.matcher(name);
+			return matcher.matches() && Integer.parseInt(matcher.group(2)) == page;
+		});
+		if (temps != null && temps.length > 0) {
+			temps[0].renameTo(png);
 		}
 	}
 
-	private void createBlankPng(File pngsDir, int page) {
-		File png = new File(pngsDir.getAbsolutePath() + File.separator + "slide-" + page + ".png");
+	private void createBlankPng(File png, int page) {
 		if (!png.exists()) {
 			log.info("Copying blank png for slide {}", page);
 			copyBlankPng(png);

@@ -135,14 +135,19 @@ public class PresentationConversionCompletionService {
         //Store presentation outputs in cache (if enabled)
         if(!p.pres.getUploadedFileHash().isEmpty()) {
             try {
-                String remoteFileName = p.pres.getUploadedFileHash() + ".tar.gz";
+                String remoteFileName = p.pres.getUploadedFileHash() + PresentationFileProcessor.CACHE_KEY_SUFFIX;
                 Meeting meeting = ServiceUtils.findMeetingFromMeetingID(meetingId);
                 if(meeting != null && meeting.isPresentationConversionCacheEnabled() && !s3FileManager.exists(remoteFileName)) {
                     File parentDir = new File(p.pres.getUploadedFile().getParent());
+                    Map<Integer, String> pageIds = new HashMap<>();
+                    for (int num = 1; num <= p.pres.getNumberOfPages(); num++) {
+                        pageIds.put(num, p.pres.pageId(num));
+                    }
                     File compressedFile = TarGzManager.compress(
                             parentDir.getAbsolutePath(),
                             p.pres.getUploadedFileHash(),
-                            p.pres.getNumberOfPages()
+                            p.pres.getNumberOfPages(),
+                            pageIds
                     );
                     s3FileManager.upload(remoteFileName, compressedFile);
                     log.info("Presentation outputs stored into cache successfully for {}.", p.pres.getId());
