@@ -46,6 +46,7 @@ test.describe.parallel('Accessible menu triggers', { tag: '@ci' }, () => {
     await session.initModPage(mobilePage, { testInfo, shouldCloseAudioModal: false });
     const { modPage } = session;
 
+    await modPage.clickMicrophoneButton();
     await modPage.waitAndClick(e.joinEchoTestButton);
     await modPage.waitForSelector(e.audioDropdownMenu);
     const primaryTrigger = modPage.page.locator(e.leaveListenOnly);
@@ -62,6 +63,15 @@ test.describe.parallel('Accessible menu triggers', { tag: '@ci' }, () => {
     await modPage.page.keyboard.press('Escape');
     await expect(primaryTrigger).toHaveAttribute('aria-expanded', 'false');
     await expect(arrowTrigger).toHaveAttribute('aria-expanded', 'false');
+    await expect(primaryTrigger).toBeFocused();
+
+    await arrowTrigger.click();
+    await expect(primaryTrigger).toHaveAttribute('aria-expanded', 'true');
+    await expect(arrowTrigger).toHaveAttribute('aria-expanded', 'true');
+    await modPage.page.keyboard.press('Escape');
+    await expect(primaryTrigger).toHaveAttribute('aria-expanded', 'false');
+    await expect(arrowTrigger).toHaveAttribute('aria-expanded', 'false');
+    await expect(arrowTrigger).toBeFocused();
   });
 
   test('uses one native button per trigger and zoom action', async ({ browser, context, page }, testInfo) => {
