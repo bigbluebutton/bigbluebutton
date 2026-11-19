@@ -513,6 +513,14 @@ type Mutation {
 }
 
 type Mutation {
+  presentationSetPageByNum(
+    presentationId: String!
+    pageNum: Int!
+    seenTotalPages: Int!
+  ): Boolean
+}
+
+type Mutation {
   presentationSetPageInfiniteWhiteboard(
     infiniteWhiteboard: Boolean!
     pageId: String!
