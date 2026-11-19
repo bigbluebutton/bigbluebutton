@@ -20,6 +20,8 @@ const intlMessages = defineMessages({
   },
 });
 
+const TRIGGER_FOCUSABLE_SELECTOR = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+
 const renderIcon = (icon, color, iconKey = 'icon', IconComponent = Icon, iconStyles = {}) => {
   if (typeof icon === 'string') {
     return <IconComponent color={color} iconName={icon} key={iconKey} style={iconStyles} />;
@@ -53,6 +55,7 @@ class BBBMenu extends React.Component {
 
     this.optsToMerge = {};
     this.autoFocus = false;
+    this.activatingTrigger = null;
     this.previousFocus = null;
 
     this.handleKeyDown = this.handleKeyDown.bind(this);
@@ -114,6 +117,10 @@ class BBBMenu extends React.Component {
   handleClick(event) {
     const { disabled } = this.props;
     if (disabled) return;
+    const activatingTrigger = event.target?.closest?.(TRIGGER_FOCUSABLE_SELECTOR);
+    this.activatingTrigger = this.anchorElRef?.contains(activatingTrigger)
+      ? activatingTrigger
+      : null;
     this.previousFocus = document.activeElement;
     this.setState({ anchorEl: event.currentTarget });
   }
@@ -131,20 +138,19 @@ class BBBMenu extends React.Component {
       const focusUnclaimed = !activeElement || activeElement === document.body
         || activeElement === focusedOnClose || this.anchorElRef?.contains(activeElement);
       if (focusUnclaimed) this.restoreTriggerFocus();
+      this.activatingTrigger = null;
       this.previousFocus = null;
     }, 0);
   }
 
   getTriggerElement() {
     return this.anchorElRef?.querySelector('[aria-haspopup]')
-      ?? this.anchorElRef?.querySelector(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-      )
+      ?? this.anchorElRef?.querySelector(TRIGGER_FOCUSABLE_SELECTOR)
       ?? null;
   }
 
   restoreTriggerFocus() {
-    const triggerFocusableElement = this.getTriggerElement();
+    const triggerFocusableElement = this.activatingTrigger ?? this.getTriggerElement();
 
     if (triggerFocusableElement && typeof triggerFocusableElement.focus === 'function') {
       triggerFocusableElement.focus();
