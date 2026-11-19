@@ -280,6 +280,34 @@ object PresPresentationDAO {
     )
   }
 
+  // The row of a refused request to insert pages, in one statement. It is born notified, so it never shows in
+  // the upload toast: the refusal is a notification; the row only tells the client that requested the token
+  // (by user and temporary id) that the server reported it.
+  def insertRefusedInsertRequest(meetingId: String, userId: String, temporaryId: String, presentationId: String,
+                                 filename: String, errorMsgKey: String) = {
+    DatabaseConnection.enqueue(
+      sqlu"""
+          insert into "pres_presentation"("meetingId","presentationId","uploadUserId","uploadTemporaryId","uploadToken","name",
+          "filenameConverted","isDefault","current","downloadable","removable","uploadCompletionNotified","uploadInProgress","uploadCompleted","totalPages",
+          "uploadErrorMsgKey")
+          values (${meetingId}, ${presentationId}, ${userId}, ${temporaryId}, '', ${filename},
+          '', false, false, false, false, true, false, false, 0,
+          ${errorMsgKey})
+          on conflict do nothing
+          """
+    )
+  }
+
+  // Only an UPDATE: the row of an insert in progress must not be recreated (updateConversionStarted would).
+  def setUploadInProgress(presentationId: String) = {
+    DatabaseConnection.enqueue(
+      TableQuery[PresPresentationDbTableDef]
+        .filter(_.presentationId === presentationId)
+        .map(p => p.uploadInProgress)
+        .update(true)
+    )
+  }
+
   def updateErrors(presentationId: String, errorMsgKey: String, errorDetails: scala.collection.immutable.Map[String, String]) = {
     DatabaseConnection.enqueue(
       TableQuery[PresPresentationDbTableDef]

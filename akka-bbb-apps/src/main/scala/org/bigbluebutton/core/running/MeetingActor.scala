@@ -716,6 +716,13 @@ class MeetingActor(
       case m: SetPresentationUploadCompletionNotifiedPubMsg    => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationPageCountErrorSysPubMsg              => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationUploadTokenReqMsg                    => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: InsertBlankPagePubMsg =>
+        state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+        updateUserLastActivity(m.header.userId)
+      case m: PresentationInsertPagesProgressSysMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationInsertPagesPageSysMsg     => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationInsertPagesReadySysMsg    => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationInsertPagesFailedSysMsg   => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: ResizeAndMovePagePubMsg =>
         state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
         updateUserLastActivity(m.header.userId)
@@ -1024,6 +1031,9 @@ class MeetingActor(
 
     sendRttTraceTest()
     setRecordingChapterBreak()
+
+    // Deadlines of the inserts of pages in progress.
+    state = presentationPodsApp.handleInsertPagesDeadlines(state, liveMeeting, msgBus)
 
     processUserInactivityAudit()
     checkIfNeedToEndMeetingWhenNoAuthedUsers(liveMeeting)
