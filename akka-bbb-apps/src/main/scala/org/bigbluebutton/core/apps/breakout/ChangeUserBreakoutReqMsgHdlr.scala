@@ -46,7 +46,7 @@ trait ChangeUserBreakoutReqMsgHdlr extends RightsManagementTrait {
         for {
           roomFrom <- breakoutModel.rooms.get(msg.body.fromBreakoutId)
         } yield {
-          BreakoutHdlrHelpers.ejectUserFromBreakoutRoom(eventBus, meetingId, roomFrom, msg.body.userId, msg.header.userId, "User moved to another room", EjectReasonCode.EJECT_USER)
+          BreakoutHdlrHelpers.ejectUserFromBreakoutRoom(eventBus, meetingId, roomFrom, msg.body.userId, msg.header.userId, "User moved to another room", EjectReasonCode.BREAKOUT_USER_MOVED)
         }
 
         BreakoutHdlrHelpers.revokeUserAccessToBreakoutRooms(

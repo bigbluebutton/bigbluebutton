@@ -541,4 +541,5 @@ object EjectReasonCode {
   val USER_LOGGED_OUT = "user_logged_out_reason"
   val MAX_PARTICIPANTS = "max_participants_reason"
   val BREAKOUT_USER_UNASSIGNED = "breakout_user_unassigned_reason"
+  val BREAKOUT_USER_MOVED = "breakout_user_moved_reason"
 }

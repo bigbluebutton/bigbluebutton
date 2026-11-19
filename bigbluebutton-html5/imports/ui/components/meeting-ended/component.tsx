@@ -99,6 +99,10 @@ const intlMessage = defineMessages({
     id: 'app.meeting.logout.breakoutUserUnassigned',
     description: 'message to whom a moderator took out of a breakout room',
   },
+  [JoinErrorCodeTable.BREAKOUT_USER_MOVED]: {
+    id: 'app.meeting.logout.breakoutUserMoved',
+    description: 'message to whom a moderator moved to another breakout room',
+  },
   [JoinErrorCodeTable.USER_LOGGED_OUT]: {
     id: 'app.feedback.title',
     description: 'message to whom was kicked by logging out',

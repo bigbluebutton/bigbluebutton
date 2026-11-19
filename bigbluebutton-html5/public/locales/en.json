@@ -1116,6 +1116,7 @@
     "app.meeting.logout.userInactivityEjectReason": "User inactive for too long",
     "app.meeting.logout.maxParticipantsReached": "The maximum number of participants allowed for this session has been reached",
     "app.meeting.logout.breakoutUserUnassigned": "You have been removed from this breakout room",
+    "app.meeting.logout.breakoutUserMoved": "You have been moved to another breakout room",
     "app.meeting-ended.rating.legendLabel": "Feedback rating",
     "app.meeting-ended.rating.starLabel": "Star",
     "app.modal.close": "Close",
