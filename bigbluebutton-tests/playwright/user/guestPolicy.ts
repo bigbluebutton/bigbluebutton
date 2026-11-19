@@ -120,6 +120,12 @@ export class GuestPolicy extends MultiUsers {
       .locator('..')
       .getByRole('checkbox')
       .click();
+    const guestMessage = this.userPage.page.locator(e.guestMessage);
+    await expect(
+      guestMessage,
+      'should render the guest message live region before its content changes',
+    ).toHaveAttribute('aria-live', 'polite');
+    const initialGuestMessage = await guestMessage.elementHandle();
     await this.modPage.fill(e.waitingUsersLobbyMessage, 'test');
     await this.modPage.waitAndClick(e.sendLobbyMessage);
     await this.userPage.hasText(
@@ -128,6 +134,10 @@ export class GuestPolicy extends MultiUsers {
       'should the guest message contain the text "test"',
       ELEMENT_WAIT_LONGER_TIME,
     );
+    expect(
+      await guestMessage.evaluate((node, initialNode) => node === initialNode, initialGuestMessage),
+      'should update the existing guest message live region',
+    ).toBe(true);
   }
 
   async allowAllAuthenticated() {
@@ -198,6 +208,12 @@ export class GuestPolicy extends MultiUsers {
     await setGuestPolicyOption(this.modPage, e.askModerator);
     await this.modPage.page.waitForTimeout(500);
     await this.initUserPage(this.context, { shouldCloseAudioModal: false, shouldCheckAllInitialSteps: false });
+    const guestMessage = this.userPage.page.locator(e.guestMessage);
+    await expect(
+      guestMessage,
+      'should render the guest message live region before its content changes',
+    ).toHaveAttribute('aria-live', 'polite');
+    const initialGuestMessage = await guestMessage.elementHandle();
     await this.modPage.waitAndClick(e.authenticatedWaitingUsers);
 
     await this.modPage.waitAndClick(e.privateMessageGuest);
@@ -209,6 +225,10 @@ export class GuestPolicy extends MultiUsers {
       'should the guest message contain the text "test" for the attendee',
       ELEMENT_WAIT_LONGER_TIME,
     );
+    expect(
+      await guestMessage.evaluate((node, initialNode) => node === initialNode, initialGuestMessage),
+      'should update the existing guest message live region',
+    ).toBe(true);
   }
 
   async acceptSpecificUser() {

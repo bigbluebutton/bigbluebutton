@@ -113,10 +113,14 @@ const LobbyMessageInput: React.FC<LobbyMessageInputProps> = ({
           </TooltipContainer>
         ) : sendButton}
       </Styled.InputWrapper>
-      {messageSent && successLabel && (
+      {successLabel && (
         <Styled.SuccessMessage role="status" aria-live="polite">
-          <CheckCircleOutlineIcon fontSize="small" />
-          {successLabel}
+          {messageSent && (
+            <Styled.SuccessContent>
+              <CheckCircleOutlineIcon fontSize="small" />
+              {successLabel}
+            </Styled.SuccessContent>
+          )}
         </Styled.SuccessMessage>
       )}
     </>

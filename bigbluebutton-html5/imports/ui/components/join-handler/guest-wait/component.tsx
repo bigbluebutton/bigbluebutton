@@ -199,27 +199,20 @@ const GuestWait: React.FC<GuestWaitProps> = (props) => {
             <p aria-live="polite">{positionMessage}</p>
           </Styled.Position>
         )}
-        {hasCustomMessage && (
-          <Styled.MessageContainer>
+        <Styled.MessageContainer $hasCustomMessage={Boolean(hasCustomMessage)}>
+          {hasCustomMessage && (
             <Styled.MessageLabel>
               {intl.formatMessage(intlMessages.messageFromHost)}
             </Styled.MessageLabel>
-            <Styled.MessageText
-              aria-live="polite"
-              data-test="guestMessage"
-              // eslint-disable-next-line react/no-danger
-              dangerouslySetInnerHTML={{ __html: message }}
-            />
-          </Styled.MessageContainer>
-        )}
-        {!hasCustomMessage && (
-          <p
+          )}
+          <Styled.MessageText
+            $hasCustomMessage={Boolean(hasCustomMessage)}
             aria-live="polite"
             data-test="guestMessage"
             // eslint-disable-next-line react/no-danger
             dangerouslySetInnerHTML={{ __html: message }}
           />
-        )}
+        </Styled.MessageContainer>
         {animate && (
           <Styled.WaitingIndicator>
             <Styled.WaitingDot />

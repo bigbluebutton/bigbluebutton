@@ -63,11 +63,15 @@ const SendButton = styled(Button)`
 `;
 
 const SuccessMessage = styled.div`
+  min-height: 1.25rem;
+  color: ${colorGreen600};
+  font-size: ${fontSizeBase};
+`;
+
+const SuccessContent = styled.span`
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  color: ${colorGreen600};
-  font-size: ${fontSizeBase};
 `;
 
 const TooltipWrapper = styled.span`
@@ -80,5 +84,6 @@ export default {
   Input,
   SendButton,
   SuccessMessage,
+  SuccessContent,
   TooltipWrapper,
 };
