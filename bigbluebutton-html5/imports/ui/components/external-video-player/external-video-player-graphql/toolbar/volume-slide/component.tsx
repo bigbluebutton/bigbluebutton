@@ -1,5 +1,17 @@
 import React, { useCallback, useEffect } from 'react';
+import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
+
+const intlMessages = defineMessages({
+  muteLabel: {
+    id: 'app.externalVideo.muteLabel',
+    description: 'Accessible label for the external video mute button',
+  },
+  volumeLabel: {
+    id: 'app.externalVideo.volumeLabel',
+    description: 'Accessible label for the external video volume slider',
+  },
+});
 
 interface VolumeSlideProps {
   onVolumeChanged: (volume: number) => void;
@@ -16,6 +28,7 @@ const VolumeSlide = React.forwardRef<HTMLInputElement, VolumeSlideProps>(({
   muted,
   hideVolume,
 }, ref) => {
+  const intl = useIntl();
   const [volumeState, setVolume] = React.useState(volume);
   const [mutedState, setMuted] = React.useState(muted);
 
@@ -66,25 +79,30 @@ const VolumeSlide = React.forwardRef<HTMLInputElement, VolumeSlideProps>(({
 
   return (
     <Styled.Slider>
-      <Styled.Volume onClick={() => {
-        if (!muted) {
-          volumeBeforeMute.current = (volumeState || volume);
-        }
-        setMuted(!muted);
-        onMuted(!muted);
-        if (muted) {
-          onVolumeChanged(volumeBeforeMute.current || 1);
-        }
-      }}
+      <Styled.Volume
+        type="button"
+        aria-label={intl.formatMessage(intlMessages.muteLabel)}
+        aria-pressed={mutedState}
+        onClick={() => {
+          if (!muted) {
+            volumeBeforeMute.current = (volumeState || volume);
+          }
+          setMuted(!muted);
+          onMuted(!muted);
+          if (muted) {
+            onVolumeChanged(volumeBeforeMute.current || 1);
+          }
+        }}
       >
         <i
-          tabIndex={-1}
+          aria-hidden="true"
           className={`icon-bbb-${getVolumeIcon()}`}
         />
       </Styled.Volume>
       <Styled.VolumeSlider
         ref={ref}
         type="range"
+        aria-label={intl.formatMessage(intlMessages.volumeLabel)}
         min={0}
         max={1}
         step={0.02}

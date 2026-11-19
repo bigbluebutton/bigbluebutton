@@ -1,5 +1,18 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
+
+const intlMessages = defineMessages({
+  muteLabel: {
+    id: 'app.externalVideo.muteLabel',
+    description: 'Accessible label for the screen share audio mute button',
+  },
+  volumeLabel: {
+    id: 'app.externalVideo.volumeLabel',
+    description: 'Accessible label for the screen share audio volume slider',
+  },
+});
 
 class VolumeSlider extends Component {
   constructor(props) {
@@ -61,7 +74,7 @@ class VolumeSlider extends Component {
 
   render() {
     const { muted, volume } = this.state;
-    const { hideVolume } = this.props;
+    const { hideVolume, intl } = this.props;
 
     if (hideVolume) {
       return null;
@@ -69,14 +82,20 @@ class VolumeSlider extends Component {
 
     return (
       <Styled.Slider>
-        <Styled.Volume onClick={() => this.setMuted(!muted)}>
+        <Styled.Volume
+          type="button"
+          aria-label={intl.formatMessage(intlMessages.muteLabel)}
+          aria-pressed={muted}
+          onClick={() => this.setMuted(!muted)}
+        >
           <i
-            tabIndex="-1"
+            aria-hidden="true"
             className={`icon-bbb-${this.getVolumeIcon()}`}
           />
         </Styled.Volume>
         <Styled.VolumeSlider
           type="range"
+          aria-label={intl.formatMessage(intlMessages.volumeLabel)}
           min={0}
           max={1}
           step={0.02}
@@ -88,4 +107,19 @@ class VolumeSlider extends Component {
   }
 }
 
-export default VolumeSlider;
+VolumeSlider.propTypes = {
+  hideVolume: PropTypes.bool,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
+  muted: PropTypes.bool.isRequired,
+  onMuted: PropTypes.func.isRequired,
+  onVolumeChanged: PropTypes.func.isRequired,
+  volume: PropTypes.number.isRequired,
+};
+
+VolumeSlider.defaultProps = {
+  hideVolume: false,
+};
+
+export default injectIntl(VolumeSlider);

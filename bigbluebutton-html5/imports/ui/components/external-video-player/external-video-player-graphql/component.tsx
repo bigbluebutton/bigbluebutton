@@ -224,6 +224,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       },
       peertube: {
         isPresenter: true,
+        title: intl.formatMessage(intlMessages.fullscreenLabel),
       },
       twitch: {
         options: {
@@ -234,7 +235,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       preload: true,
       showHoverToolBar: false,
     };
-  }, [isBot]);
+  }, [intl, isBot]);
 
   const [showUnsynchedMsg, setShowUnsynchedMsg] = React.useState(false);
   const [showHoverToolBar, setShowHoverToolBar] = React.useState(false);
