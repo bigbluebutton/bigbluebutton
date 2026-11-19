@@ -55,6 +55,18 @@ const intlMessages = defineMessages({
     id: 'app.timer.aria.seconds',
     description: 'Accessible name for the timer seconds input',
   },
+  hoursValue: {
+    id: 'app.timer.aria.hoursValue',
+    description: 'Accessible value for the timer hours input',
+  },
+  minutesValue: {
+    id: 'app.timer.aria.minutesValue',
+    description: 'Accessible value for the timer minutes input',
+  },
+  secondsValue: {
+    id: 'app.timer.aria.secondsValue',
+    description: 'Accessible value for the timer seconds input',
+  },
   presetHours: {
     id: 'app.timer.preset.hours',
     description: 'Preset label for hours with abbreviation (e.g., 1h)',
@@ -337,6 +349,10 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
     );
   }
 
+  const displayedHours = running ? serverHours : localHours;
+  const displayedMinutes = running ? serverMinutes : localMinutes;
+  const displayedSeconds = running ? serverSeconds : localSeconds;
+
   return (
     <>
       <Styled.TimerPresetsRow>
@@ -383,10 +399,11 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
           <Styled.TimeUnitContainer>
             <Styled.TimerInput
               aria-label={intl.formatMessage(intlMessages.hoursAriaLabel)}
+              aria-valuetext={intl.formatMessage(intlMessages.hoursValue, { value: displayedHours })}
               type="number"
               readOnly={running}
               disabled={running}
-              value={String(running ? serverHours : localHours).padStart(2, '0')}
+              value={String(displayedHours).padStart(2, '0')}
               max={MAX_HOURS}
               min="0"
               step="1"
@@ -431,10 +448,11 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
           <Styled.TimeUnitContainer>
             <Styled.TimerInput
               aria-label={intl.formatMessage(intlMessages.minutesAriaLabel)}
+              aria-valuetext={intl.formatMessage(intlMessages.minutesValue, { value: displayedMinutes })}
               type="number"
               readOnly={running}
               disabled={running}
-              value={String(running ? serverMinutes : localMinutes).padStart(2, '0')}
+              value={String(displayedMinutes).padStart(2, '0')}
               max="59"
               min="0"
               step="1"
@@ -479,10 +497,11 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
           <Styled.TimeUnitContainer>
             <Styled.TimerInput
               aria-label={intl.formatMessage(intlMessages.secondsAriaLabel)}
+              aria-valuetext={intl.formatMessage(intlMessages.secondsValue, { value: displayedSeconds })}
               type="number"
               readOnly={running}
               disabled={running}
-              value={String(running ? serverSeconds : localSeconds).padStart(2, '0')}
+              value={String(displayedSeconds).padStart(2, '0')}
               max="59"
               min="0"
               step="1"

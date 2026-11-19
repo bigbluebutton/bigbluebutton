@@ -74,6 +74,9 @@ export class Timer extends MultiUsers {
     await expect(this.modPage.page.locator(e.timerHoursInput)).toHaveAccessibleName('Hours');
     await expect(this.modPage.page.locator(e.timerMinutesInput)).toHaveAccessibleName('Minutes');
     await expect(this.modPage.page.locator(e.timerSecondsInput)).toHaveAccessibleName('Seconds');
+    await expect(this.modPage.page.locator(e.timerHoursInput)).toHaveAttribute('aria-valuetext', '0 hours');
+    await expect(this.modPage.page.locator(e.timerMinutesInput)).toHaveAttribute('aria-valuetext', '5 minutes');
+    await expect(this.modPage.page.locator(e.timerSecondsInput)).toHaveAttribute('aria-valuetext', '0 seconds');
     await this.modPage.hasText(e.timerIndicator, /05:00/, 'should display the default duration on the timer indicator');
     await expect(timerIndicatorLocator).toHaveAccessibleName('Start timer, 05:00 remaining');
 
@@ -83,11 +86,14 @@ export class Timer extends MultiUsers {
     await this.modPage.hasText(e.timerIndicator, /10:00/, 'should set the timer indicator to the selected preset');
     await this.modPage.waitAndClick(e.timerAdd30s);
     await this.checkTimerInputs('00', '10', '30', 'should add 30 seconds to the timer inputs');
+    await expect(this.modPage.page.locator(e.timerMinutesInput)).toHaveAttribute('aria-valuetext', '10 minutes');
+    await expect(this.modPage.page.locator(e.timerSecondsInput)).toHaveAttribute('aria-valuetext', '30 seconds');
     await this.modPage.hasText(e.timerIndicator, /10:30/, 'should add 30 seconds to the timer indicator');
 
     // a running timer locks the inputs, which show the countdown
     await this.clickOnTimerControl();
     await expect(timerIndicatorLocator).toHaveAccessibleName(/Pause timer, 10:[0-2][0-9] remaining/);
+    await Timer.checkFocusedIndicatorNameIsStable(timerIndicatorLocator);
     await this.modPage.hasElementDisabled(e.timerHoursInput, 'should disable the hours input while running');
     await this.modPage.hasElementDisabled(e.timerMinutesInput, 'should disable the minutes input while running');
     await this.modPage.hasElementDisabled(e.timerSecondsInput, 'should disable the seconds input while running');
@@ -176,6 +182,7 @@ export class Timer extends MultiUsers {
     const modIndicatorLocator = this.modPage.page.locator(e.timerIndicator);
     const userIndicatorLocator = this.userPage.page.locator(e.timerIndicator);
     await expect(userIndicatorLocator).toHaveAccessibleName(/Timer running, 01:[12][0-9] remaining/);
+    await Timer.checkFocusedIndicatorNameIsStable(userIndicatorLocator);
     const modStartValue = await timeInSeconds(modIndicatorLocator);
     const userStartValue = await timeInSeconds(userIndicatorLocator);
     expect(modStartValue, 'should start counting down from 01:30 for the moderator').toBeLessThanOrEqual(90);
@@ -299,6 +306,18 @@ export class Timer extends MultiUsers {
       ),
     );
     return Number(hours) * 3600 + Number(minutes) * 60 + Number(seconds);
+  }
+
+  static async checkFocusedIndicatorNameIsStable(locator: Locator) {
+    await locator.focus();
+    const focusedName = await locator.getAttribute('aria-label');
+    const initialTime = await timeInSeconds(locator);
+    await expect.poll(() => timeInSeconds(locator)).not.toBe(initialTime);
+    await expect(locator).toHaveAttribute('aria-label', focusedName ?? '');
+
+    await locator.blur();
+    await locator.focus();
+    await expect(locator).not.toHaveAttribute('aria-label', focusedName ?? '');
   }
 
   // A stopped counter must not move. Reading it once right after the stop can
