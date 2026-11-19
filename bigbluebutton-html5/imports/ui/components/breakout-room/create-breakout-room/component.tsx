@@ -270,7 +270,9 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
   const [durationIsValid, setDurationIsValid] = React.useState(true);
   const forceRecord = lockBreakoutRecordingSetting && isBreakoutRecordable;
   const [freeJoin, setFreeJoin] = React.useState(allowUserChooseRoomByDefault);
-  const [record, setRecord] = React.useState(forceRecord || recordRoomByDefault);
+  const [record, setRecord] = React.useState(
+    isBreakoutRecordable && (forceRecord || recordRoomByDefault),
+  );
   const [captureSlides, setCaptureSlides] = React.useState(captureWhiteboardByDefault);
   const [leastOneUserIsValid, setLeastOneUserIsValid] = React.useState(false);
   const [captureNotes, setCaptureNotes] = React.useState(captureSharedNotesByDefault);
@@ -377,7 +379,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
     createBreakoutRoom(
       {
         variables: {
-          record,
+          record: isBreakoutRecordable && record,
           captureNotes,
           captureSlides,
           durationInMinutes: durationTime,
