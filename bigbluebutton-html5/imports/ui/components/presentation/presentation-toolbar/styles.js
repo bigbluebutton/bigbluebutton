@@ -14,9 +14,7 @@ import {
   whiteboardToolbarMargin,
   whiteboardToolbarPaddingSm,
   whiteboardToolbarPadding,
-  borderSize,
   lgBorderRadius,
-  smPaddingY,
   borderSizeLarge,
   smPaddingX,
 } from '/imports/ui/stylesheets/styled-components/general';
@@ -149,35 +147,6 @@ const NextSlideButton = styled(Button)`
       -o-transform: scale(-1, 1);
       transform: scale(-1, 1);
     }
-  }
-`;
-
-const SkipSlideSelect = styled.select`
-  padding: 0 ${smPaddingY};
-  margin: ${borderSize};
-  margin-left: ${whiteboardToolbarMargin};
-
-  [dir="rtl"] & {
-    margin: ${borderSize};
-    margin-right: ${whiteboardToolbarMargin};
-  }
-
-  &:-moz-focusring {
-    outline: none;
-  }
-
-  &:focus,
-  &:hover {
-    outline: transparent;
-    outline-style: dotted;
-    outline-width: ${borderSize};
-    background-color: #DCE4EC;
-    border-radius: 4px;
-  }
-
-  &:focus {
-    outline-style: solid;
-    box-shadow: 0 0 0 1px #cdd6e0 !important;
   }
 `;
 
@@ -362,7 +331,6 @@ export default {
   PresentationSlideControls,
   PrevSlideButton,
   NextSlideButton,
-  SkipSlideSelect,
   PresentationZoomControls,
   FitToWidthButton,
   MultiUserTool,
