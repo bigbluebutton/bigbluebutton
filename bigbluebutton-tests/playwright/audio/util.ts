@@ -38,10 +38,12 @@ export async function expectAudioDeviceSelectorsToBeNamed(testPage: Page) {
   await expect(testPage.page.getByRole('combobox', { name: /^Speaker/ })).toBeVisible();
 }
 
-export async function isAudioItemSelected(testPage: Page, audioSelector: string) {
+export async function isAudioItemSelected(testPage: Page, audioSelector: string, groupName: string) {
   await testPage.waitForSelector(audioSelector);
-  await expect(testPage.page.locator(audioSelector)).toHaveAttribute('role', 'menuitemradio');
-  await expect(testPage.page.locator(audioSelector)).toHaveAttribute('aria-checked', 'true');
+  const item = testPage.page.locator(audioSelector);
+  await expect(item).toHaveAttribute('role', 'menuitemradio');
+  await expect(item).toHaveAttribute('aria-checked', 'true');
+  await expect(item).toHaveAccessibleName(new RegExp(`^${groupName}: `));
   const isSelected = await testPage.page.evaluate(
     ([selector, icon]) => {
       const element = document.querySelector(selector) as Element | null;

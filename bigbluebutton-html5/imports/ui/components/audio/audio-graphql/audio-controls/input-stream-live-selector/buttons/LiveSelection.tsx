@@ -175,11 +175,13 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
         // Section 9.2, enumerateDevices algorithm.
         const isCurrentDevice = (device.deviceId === currentDeviceId)
           || (!currentDeviceId && index === 0);
+        const label = truncateDeviceName(device.label || getFallbackLabel(device, index + 1));
 
         return {
           key: `${device.deviceId}-${deviceKind}`,
           dataTest: `${deviceKind}-${index + 1}`,
-          label: truncateDeviceName(device.label || getFallbackLabel(device, index + 1)),
+          label,
+          ariaLabel: `${title}: ${label}`,
           customStyles: isCurrentDevice ? Styled.SelectedLabel : Styled.DeviceLabel,
           iconStyles: isCurrentDevice ? Styled.SelectedLabelIcon : null,
           iconRight: isCurrentDevice ? 'check' : null,
@@ -214,11 +216,13 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
       // "None" option for audio input devices - aka listen-only
       const listenOnly = deviceKind === AUDIO_INPUT
         && currentDeviceId === 'listen-only';
+      const label = intl.formatMessage(intlMessages.noMicListenOnlyLabel);
 
       deviceList.push({
         key: `listenOnly-${deviceKind}`,
         dataTest: `${deviceKind}-listenOnly`,
-        label: intl.formatMessage(intlMessages.noMicListenOnlyLabel),
+        label,
+        ariaLabel: `${title}: ${label}`,
         customStyles: listenOnly ? Styled.SelectedLabel : Styled.DeviceLabel,
         iconStyles: listenOnly ? Styled.SelectedLabelIcon : null,
         iconRight: listenOnly ? 'check' : null,

@@ -188,6 +188,7 @@ class BBBMenu extends React.Component {
       return [
         (!a.isSeparator && onClick && !isToggle) && (
           <Styled.BBBMenuItem
+            aria-label={ariaLabel}
             role={typeof checked === 'boolean' ? 'menuitemradio' : undefined}
             aria-checked={typeof checked === 'boolean' ? checked : undefined}
             emoji={emojiSelected ? 'yes' : 'no'}

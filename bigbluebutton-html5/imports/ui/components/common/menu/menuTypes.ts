@@ -10,6 +10,7 @@ export type MenuOptionItemType = {
   onClick?: () => void;
   disabled?: boolean;
   checked?: boolean;
+  ariaLabel?: string;
 };
 
 export type MenuSeparatorItemType = {
