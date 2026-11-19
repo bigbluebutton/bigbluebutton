@@ -52,6 +52,16 @@ The presentation files of a recording are named by the page id instead of the 1-
 
 The keys of `presentation_text.json` follow the text file names (`slide-{pageId}`). See [Page ids in recordings](/development/recording#page-ids-in-recordings) for the details of each event.
 
+### Insert pages into a presentation
+
+The presenter can insert pages into the open presentation: a blank page, or the pages of a PDF or an office document, at a position. The existing pages keep their annotations, and the presenter is notified of the outcome. Pages can only be inserted into a presentation made from a PDF or an office document, and an image cannot be inserted.
+
+- The client setting `public.presentation.insertPagesEnabled` enables or blocks, on the server, any insert of pages (default `true`; absent counts as `false`). Like any client setting, it can be changed per meeting on the `create` call (`clientSettingsOverride`).
+- `maxNumPages` (bbb-web) also limits the number of pages of a presentation after an insert.
+- The GraphQL action `presentationRequestUploadToken` takes the optional arguments `insertIntoPresentationId`, `insertAtPosition`, `insertSeenTotalPages` and `insertNavigate`, which turn the upload into an insert into that presentation. The new action `presentationInsertBlankPage(presentationId, position, seenTotalPages, navigate)` inserts a blank page the size of the page before the position. `seenTotalPages` is the total number of pages the client saw when it read the position. The server applies the inserts of a meeting one at a time, in the order of the requests.
+- Each stage of an insert has a deadline in bbb-apps-akka; see [the configuration](/administration/customize#limit-the-time-an-insert-of-pages-may-take).
+- The PDF of each page of a presentation made from a PDF or an office document is kept, as `pages/page-<pageId>.pdf` in the directory of the presentation, and the conversion cache stores it. The annotated export and a breakout room with the current slide read the page from it; for a big page that is the downscaled version made at conversion.
+
 ### bbb-web properties changes
 
 #### Added

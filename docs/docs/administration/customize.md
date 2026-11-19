@@ -1351,6 +1351,24 @@ apps {
 }
 ```
 
+##### Limit the time an insert of pages may take
+
+An insert of pages into a presentation goes through three stages, each with a deadline in `bbb-apps-akka`. An insert that passes the deadline of its stage fails, the presenter is notified, and the inserts requested after it move on:
+
+- **30** seconds from the upload token to the start of the file upload (`presentationInsertRequestTimeoutSec`).
+- **300** seconds from the start of the file upload to the file accepted (`presentationInsertTransferTimeoutSec`).
+- **180** seconds of conversion without any progress (`presentationInsertIdleTimeoutSec`). A blank page counts from the request.
+
+The deadlines are checked every 10 seconds, so an insert may fail up to 10 seconds after its deadline. To change them, add an overwrite rule in `/etc/bigbluebutton/bbb-apps-akka.conf` under the `apps` block:
+
+```properties
+apps {
+  presentationInsertRequestTimeoutSec = 30
+  presentationInsertTransferTimeoutSec = 300
+  presentationInsertIdleTimeoutSec = 180
+}
+```
+
 ##### Limit `insertDocument` API calls
 
 `bbb-web` rate limits the `insertDocument` API per meeting:
@@ -1449,9 +1467,10 @@ Apply the change with `sudo systemctl restart bbb-apps-akka`, or restart everyth
 
 #### Configure S3-based cache for presentation assets
 
-BigBlueButton can store the outputs (SVGs, PNGs, thumbnails and text) generated from PDFs or document files uploaded as presentations.
+BigBlueButton can store the outputs (SVGs, PNGs, thumbnails, text and the PDF of each page) generated from PDFs or document files uploaded as presentations.
 The processed outputs are cached in an S3-based storage system, keyed by a hash of the presentation file.
 When the same presentation is uploaded again, the system retrieves the cached outputs, avoiding redundant processing and improving performance.
+The file of an insert of pages into a presentation is also looked up in the cache, but its outputs are not stored there.
 
 In order to enable this feature, change the file `/etc/bigbluebutton/bbb-web.properties` including the following content:
 
