@@ -613,6 +613,22 @@ export class Polling extends MultiUsers {
       wbDrawnRectangleLocator,
       'should display a rectangle shape with the poll result on the whiteboard',
     ).toHaveCount(initialWbDrawnRectangleCount + 1);
+    const userPollShapes = this.userPage.page.locator(e.wbPollShape);
+    await expect(userPollShapes, 'the attendee should see the poll result on the slide').toHaveCount(
+      initialWbDrawnRectangleCount + 1,
+    );
+
+    // The result belongs to the slide it was published on: not on the next slide, back when returning.
+    await this.modPage.waitAndClick(e.nextSlide);
+    await expect(wbDrawnRectangleLocator, 'the next slide should not show the poll result').toHaveCount(0);
+    await expect(userPollShapes, 'the attendee should not see the poll result on the next slide').toHaveCount(0);
+    await this.modPage.waitAndClick(e.prevSlide);
+    await expect(wbDrawnRectangleLocator, 'the poll result should be back on its slide').toHaveCount(
+      initialWbDrawnRectangleCount + 1,
+    );
+    await expect(userPollShapes, 'the attendee should see the poll result back on its slide').toHaveCount(
+      initialWbDrawnRectangleCount + 1,
+    );
   }
 
   async pollResultsInDifferentPresentation() {
