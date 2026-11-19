@@ -36,9 +36,8 @@ trait TestFixtures {
   val createTime = System.currentTimeMillis
   val createDate = "Oct 26, 2015"
   val isBreakout = false
-  val welcomeMsgTemplate = "Welcome message template"
   val welcomeMsg = "Welcome message"
-  val modOnlyMessage = "Moderator only message"
+  val welcomeMsgForModerators = "Moderator only message"
   val dialNumber = "613-555-1234"
   val maxUsers = 25
   val muteOnStart = false
@@ -54,36 +53,66 @@ trait TestFixtures {
   val metadata: collection.immutable.Map[String, String] = Map("foo" -> "bar", "bar" -> "baz", "baz" -> "foo")
   val captureNotesFilename = s"Room 0${sequence} (Notes)"
   val captureSlidesFilename = s"Room 0${sequence} (Whiteboard)"
+  val maxUserConcurrentAccesses = 3
+  val multiUserWhiteboardEnabled = false
+  val meetingLayout = "SMART_LAYOUT"
+  val waitingGuestUsersTimeout = 30000L
+  val breakoutRecord = false
+  val privateChatEnabled = true
+  val disabledFeatures = Vector("chat")
+  val notifyRecordingIsOn = false
+  val notifyRecordingAppend = ""
+  val presentationUploadExternalDescription = ""
+  val presentationUploadExternalUrl = ""
+  val loginUrl = ""
+  val logoutUrl = "https://bigbluebutton.org"
+  val overrideClientSettings = ""
 
   val meetingProp = MeetingProp(name = meetingName, extId = externalMeetingId, intId = meetingId,
     meetingCameraCap = meetingCameraCap,
+    sharedNotesInitialContentJson = Vector(),
     maxPinnedCameras = maxPinnedCameras,
     cameraBridge = cameraBridge,
     screenShareBridge = screenShareBridge,
     audioBridge = audioBridge,
-    isBreakout = isBreakout.booleanValue())
-  val breakoutProps = BreakoutProps(parentId = parentMeetingId, sequence = sequence, freeJoin = false, captureNotes = false,
-                                    captureSlides = false, breakoutRooms = Vector(),
-                                    endWhenNoModerator = endWhenNoModerator, endWhenNoModeratorDelayInMinutes = endWhenNoModeratorDelayInMinutes,
-                                    captureNotesFilename = captureNotesFilename, captureSlidesFilename = captureSlidesFilename)
+    isBreakout = isBreakout.booleanValue(),
+    disabledFeatures = disabledFeatures,
+    notifyRecordingIsOn = notifyRecordingIsOn,
+    notifyRecordingAppend = notifyRecordingAppend,
+    presentationUploadExternalDescription = presentationUploadExternalDescription,
+    presentationUploadExternalUrl = presentationUploadExternalUrl)
+  val breakoutProps = BreakoutProps(parentId = parentMeetingId, sequence = sequence, freeJoin = false, breakoutRooms = Vector(),
+    record = breakoutRecord, privateChatEnabled = privateChatEnabled, captureNotes = false, captureSlides = false,
+    captureNotesFilename = captureNotesFilename, captureSlidesFilename = captureSlidesFilename)
 
   val durationProps = DurationProps(duration = durationInSeconds, createdTime = createTime, createdDate = createDate,
     meetingExpireIfNoUserJoinedInMinutes = meetingExpireIfNoUserJoinedInMinutes, meetingExpireWhenLastUserLeftInMinutes = meetingExpireWhenLastUserLeftInMinutes,
-    userInactivityInspectTimerInMinutes = userInactivityInspectTimerInMinutes, userInactivityThresholdInMinutes = userInactivityInspectTimerInMinutes, userActivitySignResponseDelayInMinutes = userActivitySignResponseDelayInMinutes)
+    userInactivityInspectTimerInMinutes = userInactivityInspectTimerInMinutes, userInactivityThresholdInMinutes = userInactivityThresholdInMinutes, userActivitySignResponseDelayInMinutes = userActivitySignResponseDelayInMinutes,
+    endWhenNoModerator = endWhenNoModerator, endWhenNoModeratorDelayInMinutes = endWhenNoModeratorDelayInMinutes)
   val password = PasswordProp(moderatorPass = moderatorPassword, viewerPass = viewerPassword,  learningDashboardAccessToken = learningDashboardAccessToken)
   val recordProp = RecordProp(record = record, autoStartRecording = autoStartRecording,
     allowStartStopRecording = allowStartStopRecording,
     recordFullDurationMedia = recordFullDurationMedia,
     keepEvents = keepEvents
   )
-  val welcomeProp = WelcomeProp(welcomeMsgTemplate = welcomeMsgTemplate, welcomeMsg = welcomeMsg,
-    modOnlyMessage = modOnlyMessage)
+  val welcomeProp = WelcomeProp(welcomeMsg = welcomeMsg, welcomeMsgForModerators = welcomeMsgForModerators)
   val voiceProp = VoiceProp(telVoice = voiceConfId, voiceConf = voiceConfId, dialNumber = dialNumber, muteOnStart = muteOnStart)
-  val usersProp = UsersProp(maxUsers = maxUsers, webcamsOnlyForModerator = webcamsOnlyForModerator,
-    userCameraCap = userCameraCap,
-    guestPolicy = guestPolicy, allowModsToUnmuteUsers = allowModsToUnmuteUsers, requireUserConsentBeforeUnmuting = requireUserConsentBeforeUnmuting, allowModsToEjectCameras = allowModsToEjectCameras,
-    allowModsToRequestCameraShare = allowModsToRequestCameraShare, authenticatedGuest = authenticatedGuest, allowPromoteGuestToModerator = allowPromoteGuestToModerator, hideUsersWithoutCamera = hideUsersWithoutCamera)
+  val usersProp = UsersProp(maxUsers = maxUsers, maxUserConcurrentAccesses = maxUserConcurrentAccesses,
+    webcamsOnlyForModerator = webcamsOnlyForModerator, multiUserWhiteboardEnabled = multiUserWhiteboardEnabled,
+    userCameraCap = userCameraCap, guestPolicy = guestPolicy, meetingLayout = meetingLayout,
+    hideUsersWithoutCamera = hideUsersWithoutCamera, allowModsToUnmuteUsers = allowModsToUnmuteUsers,
+    requireUserConsentBeforeUnmuting = requireUserConsentBeforeUnmuting, allowModsToEjectCameras = allowModsToEjectCameras,
+    allowModsToRequestCameraShare = allowModsToRequestCameraShare, authenticatedGuest = authenticatedGuest,
+    allowPromoteGuestToModerator = allowPromoteGuestToModerator, waitingGuestUsersTimeout = waitingGuestUsersTimeout)
   val metadataProp = new MetadataProp(metadata)
-  val defaultProps = DefaultProps(meetingProp, breakoutProps, durationProps, password, recordProp, welcomeProp, voiceProp,
-    usersProp, metadataProp)
+  val lockSettingsProps = LockSettingsProps(disableCam = false, disableMic = false, disablePrivateChat = false,
+    disablePublicChat = false, disableNotes = false, hideUserList = false, lockOnJoin = true,
+    lockOnJoinConfigurable = false, hideViewersCursor = false, hideViewersAnnotation = false, presenterPolicy = "")
+  val systemProps = SystemProps(loginUrl = loginUrl, logoutUrl = logoutUrl, customLogoURL = "", customDarkLogoURL = "",
+    bannerText = "", bannerColor = "", html5PluginSdkVersion = "")
+  val defaultProps = DefaultProps(pluginProp = new java.util.HashMap[String, AnyRef](), meetingProp = meetingProp,
+    breakoutProps = breakoutProps, durationProps = durationProps, password = password, recordProp = recordProp,
+    welcomeProp = welcomeProp, voiceProp = voiceProp, usersProp = usersProp, metadataProp = metadataProp,
+    lockSettingsProps = lockSettingsProps, systemProps = systemProps, groups = Vector(),
+    overrideClientSettings = overrideClientSettings)
 }
