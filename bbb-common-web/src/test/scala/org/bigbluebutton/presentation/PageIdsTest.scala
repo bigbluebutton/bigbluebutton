@@ -85,7 +85,7 @@ class PageIdsTest extends AnyFlatSpec with Matchers {
     PageArtifacts.Type.SVG.pageIdOf(s"slide-$id1.svg") shouldBe null
   }
 
-  it should "mark png as the only optional artifact" in {
-    PageArtifacts.Type.values().filterNot(_.required).toList shouldBe List(PageArtifacts.Type.PNG)
+  it should "mark png and the page PDF as the only optional artifacts" in {
+    PageArtifacts.Type.values().filterNot(_.required).toList shouldBe List(PageArtifacts.Type.PNG, PageArtifacts.Type.PDF)
   }
 }

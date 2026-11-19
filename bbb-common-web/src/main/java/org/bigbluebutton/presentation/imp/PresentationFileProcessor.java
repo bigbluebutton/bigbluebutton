@@ -226,10 +226,14 @@ public class PresentationFileProcessor {
                 break;
             }
 
-            File pageFile = new File(presDir + "/page" + "-" + page + ".pdf");
+            File pageFile = PageArtifacts.Type.PDF.file(new File(presDir), pres.pageId(page));
 
             boolean useBlanks = false;
             if(!pageFile.exists()) {
+                File pagesDir = pageFile.getParentFile();
+                if (!pagesDir.isDirectory() && !pagesDir.mkdirs()) {
+                    log.error("Failed to create {}", pagesDir.getAbsolutePath());
+                }
                 File extractedPageFile = extractPage(pres, page);
                 if (extractedPageFile.length() > maxBigPdfPageSize) {
                     File downscaledPageFile = downscalePage(pres, extractedPageFile, page);

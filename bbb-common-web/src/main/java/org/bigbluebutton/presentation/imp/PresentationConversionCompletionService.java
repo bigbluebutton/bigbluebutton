@@ -156,18 +156,6 @@ public class PresentationConversionCompletionService {
                 log.error("Error while storing presentations outputs into cache: {}", e.getMessage());
             }
         }
-
-        // Remove PDF of each page (it was necessary just during conversions)
-        String presDir = p.pres.getUploadedFile().getParent();
-        for (int page = 1; page <= p.pres.getNumberOfPages(); page++) {
-            File pageFile = new File(presDir + "/page" + "-" + page + ".pdf");
-            if(pageFile.exists()) {
-                boolean deleted = pageFile.delete();
-                if (!deleted) {
-                    log.warn("Failed to delete {}", pageFile.getAbsolutePath());
-                }
-            }
-        }
     }
 
     private void submitNewWorker() {

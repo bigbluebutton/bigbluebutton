@@ -983,7 +983,7 @@ public class MeetingService implements MessageListener {
 
       presDownloadService.extractPresentationPage(message.parentMeetingId,
         message.sourcePresentationId,
-        message.sourcePresentationSlide, breakout.getInternalId(), false);
+        message.sourcePresentationSlide, message.sourcePresentationPageId, breakout.getInternalId(), false);
     } else {
       Map<String, Object> logData = new HashMap<String, Object>();
       logData.put("meetingId", message.meetingId);
