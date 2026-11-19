@@ -28,6 +28,7 @@ import org.bigbluebutton.api.messaging.messages.PresentationUploadToken
 import org.bigbluebutton.api.util.ParamsUtil
 import org.bigbluebutton.presentation.SupportedFileTypes
 import org.bigbluebutton.presentation.UploadedPresentation
+import org.bigbluebutton.presentation.imp.PageArtifacts
 import org.bigbluebutton.web.filters.PresentationUploadFilter
 import org.bigbluebutton.web.services.PresentationService
 import org.grails.web.mime.DefaultMimeUtility
@@ -45,7 +46,7 @@ class PresentationController {
   DefaultMimeUtility grailsMimeUtility
 
   private static final Pattern SLIDE_URI_PATTERN = Pattern.compile(
-    '/bigbluebutton/presentation/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)/(svg|thumbnail|textfiles|png)/(\\d+)'
+    '/bigbluebutton/presentation/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)/(svg|thumbnail|textfiles|png)/([0-9a-f\\-]{36})'
   )
   private static final Pattern DOWNLOAD_URI_PATTERN = Pattern.compile(
     '/bigbluebutton/presentation/download/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)'
@@ -102,13 +103,19 @@ class PresentationController {
           return
         }
 
+        def pageId = slideMatcher.group(5)
+        if (!PageArtifacts.isValidPageId(pageId)) {
+          response.setStatus(403)
+          response.outputStream << 'forbidden'
+          return
+        }
+
         def pageToken = extractQueryParam(uri, "pageToken")
         if (presentationService.pageTokenSecret) {
           def conference = slideMatcher.group(1)
           def room = slideMatcher.group(2)
           def presId = slideMatcher.group(3)
-          def pageNum = slideMatcher.group(5)
-          def expectedToken = generatePageToken(conference, room, presId, Integer.parseInt(pageNum), presentationService.pageTokenSecret)
+          def expectedToken = generatePageToken(conference, room, presId, pageId, presentationService.pageTokenSecret)
           if (pageToken == null || pageToken != expectedToken) {
             response.setStatus(403)
             response.outputStream << 'invalid-token'
@@ -163,10 +170,10 @@ class PresentationController {
     return UriComponentsBuilder.fromUriString(uri).build().getQueryParams().getFirst(paramName)
   }
 
-  private static String generatePageToken(String conference, String room, String presId, int page, String secret) {
+  private static String generatePageToken(String conference, String room, String presId, String pageId, String secret) {
     Mac mac = Mac.getInstance("HmacSHA256")
     mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"))
-    return mac.doFinal("${conference}|${room}|${presId}|${page}".getBytes(StandardCharsets.UTF_8)).collect { String.format('%02x', it) }.join()
+    return mac.doFinal("${conference}|${room}|${presId}|${pageId}".getBytes(StandardCharsets.UTF_8)).collect { String.format('%02x', it) }.join()
   }
 
   private boolean rejectInvalidPresentationPath(Object conference, Object room, Object presentationName) {
@@ -431,10 +438,10 @@ class PresentationController {
 
     if (conf != userSession.meetingID || rm != userSession.meetingID) { response.setStatus(403); return }
     if (rejectInvalidPresentationPath(conf, rm, presentationName)) return
+    if (!PageArtifacts.isValidPageId(slide)) { response.setStatus(404); return }
     if (presentationService.pageTokenSecret) {
       def pageToken = params.pageToken
-      if (!slide?.isInteger()) { response.setStatus(403); return }
-      def expected = generatePageToken(conf, rm, presentationName, Integer.parseInt(slide), presentationService.pageTokenSecret)
+      def expected = generatePageToken(conf, rm, presentationName, slide, presentationService.pageTokenSecret)
       if (pageToken == null || pageToken != expected) { response.setStatus(403); return }
     }
 
@@ -466,10 +473,10 @@ class PresentationController {
 
     if (conf != userSession.meetingID || rm != userSession.meetingID) { response.setStatus(403); return }
     if (rejectInvalidPresentationPath(conf, rm, presentationName)) return
+    if (!PageArtifacts.isValidPageId(thumb)) { response.setStatus(404); return }
     if (presentationService.pageTokenSecret) {
       def pageToken = params.pageToken
-      if (!thumb?.isInteger()) { response.setStatus(403); return }
-      def expected = generatePageToken(conf, rm, presentationName, Integer.parseInt(thumb), presentationService.pageTokenSecret)
+      def expected = generatePageToken(conf, rm, presentationName, thumb, presentationService.pageTokenSecret)
       if (pageToken == null || pageToken != expected) { response.setStatus(403); return }
     }
 
@@ -502,10 +509,10 @@ class PresentationController {
 
     if (conf != userSession.meetingID || rm != userSession.meetingID) { response.setStatus(403); return }
     if (rejectInvalidPresentationPath(conf, rm, presentationName)) return
+    if (!PageArtifacts.isValidPageId(png)) { response.setStatus(404); return }
     if (presentationService.pageTokenSecret) {
       def pageToken = params.pageToken
-      if (!png?.isInteger()) { response.setStatus(403); return }
-      def expected = generatePageToken(conf, rm, presentationName, Integer.parseInt(png), presentationService.pageTokenSecret)
+      def expected = generatePageToken(conf, rm, presentationName, png, presentationService.pageTokenSecret)
       if (pageToken == null || pageToken != expected) { response.setStatus(403); return }
     }
 
@@ -535,10 +542,10 @@ class PresentationController {
 
     if (conf != userSession.meetingID || rm != userSession.meetingID) { response.setStatus(403); return }
     if (rejectInvalidPresentationPath(conf, rm, presentationName)) return
+    if (!PageArtifacts.isValidPageId(textfile)) { response.setStatus(404); return }
     if (presentationService.pageTokenSecret) {
       def pageToken = params.pageToken
-      if (!textfile?.isInteger()) { response.setStatus(403); return }
-      def expected = generatePageToken(conf, rm, presentationName, Integer.parseInt(textfile), presentationService.pageTokenSecret)
+      def expected = generatePageToken(conf, rm, presentationName, textfile, presentationService.pageTokenSecret)
       if (pageToken == null || pageToken != expected) { response.setStatus(403); return }
     }
 
@@ -607,142 +614,4 @@ class PresentationController {
 	  response.status = 404
     }
   }
-
-  def thumbnail = {
-    def userSession = validateSession()
-    if (userSession == null) { response.setStatus(401); return }
-
-    def filename = params.id.replace('###', '.')
-    def presDir = confDir() + File.separatorChar + filename
-    try {
-      def pres = presentationService.showThumbnail(presDir, params.thumb)
-      if (pres.exists()) {
-        def bytes = pres.readBytes()
-
-        response.contentType = 'image'
-        response.outputStream << bytes;
-      }
-    } catch (IOException e) {
-      log.error("Error reading file.\n" + e.getMessage());
-    }
-  }
-
-  def numberOfSlides = {
-    def userSession = validateSession()
-    if (userSession == null) { response.setStatus(401); return }
-
-    def presentationName = params.presentation_name
-    def conf = params.conference
-    def rm = params.room
-
-    if (conf != userSession.meetingID || rm != userSession.meetingID) { response.setStatus(403); return }
-    if (rejectInvalidPresentationPath(conf, rm, presentationName)) return
-
-    def numThumbs = presentationService.numberOfThumbnails(conf, rm, presentationName)
-    response.addHeader("Cache-Control", "no-cache")
-    withFormat {
-      xml {
-        render(contentType: "text/xml") {
-          conference(id: conf, room: rm) {
-            presentation(name: presentationName) {
-              slides(count: numThumbs) {
-                for(def i = 1; i <= numThumbs; i++) {
-                  slide(number: "${i}", name: "slide/${i}", thumb: "thumbnail/${i}", textfile: "textfile/${i}")
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  def numberOfThumbnails = {
-    def userSession = validateSession()
-    if (userSession == null) { response.setStatus(401); return }
-
-    def filename = params.presentation_name
-    def conf = params.conference
-    def rm = params.room
-
-    if (conf != userSession.meetingID || rm != userSession.meetingID) { response.setStatus(403); return }
-    if (rejectInvalidPresentationPath(conf, rm, filename)) return
-
-    def numThumbs = presentationService.numberOfThumbnails(conf, rm, filename)
-    withFormat {
-      xml {
-        render(contentType: "text/xml") {
-          conference(id: f.conference, room: f.room) {
-            presentation(name: filename) {
-              thumbnails(count: numThumbs) {
-                for(def i = 0; i < numThumbs; i++) {
-                  thumb(name: "thumbnails/${i}")
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  def numberOfSvgs = {
-    def userSession = validateSession()
-    if (userSession == null) { response.setStatus(401); return }
-
-    def filename = params.presentation_name
-    def conf = params.conference
-    def rm = params.room
-
-    if (conf != userSession.meetingID || rm != userSession.meetingID) { response.setStatus(403); return }
-    if (rejectInvalidPresentationPath(conf, rm, filename)) return
-
-    def numSvgs = presentationService.numberOfSvgs(conf, rm, filename)
-    withFormat {
-      xml {
-        render(contentType: "text/xml") {
-          conference(id: f.conference, room: f.room) {
-            presentation(name: filename) {
-              svgs(count: numSvgs) {
-                for(def i = 0; i < numSvgs; i++) {
-                  svg(name: "svgs/${i}")
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  def numberOfTextfiles = {
-    def userSession = validateSession()
-    if (userSession == null) { response.setStatus(401); return }
-
-    def filename = params.presentation_name
-    def conf = params.conference
-    def rm = params.room
-
-    if (conf != userSession.meetingID || rm != userSession.meetingID) { response.setStatus(403); return }
-    if (rejectInvalidPresentationPath(conf, rm, filename)) return
-
-    def numFiles = presentationService.numberOfTextfiles(conf, rm, filename)
-
-    withFormat {
-      xml {
-        render(contentType: "text/xml") {
-          conference(id: f.conference, room: f.room) {
-            presentation(name: filename) {
-              textfiles(count: numFiles) {
-                for(def i = 0; i < numFiles; i++) {
-                  textfile(name: "textfiles/${i}")
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
 }
-

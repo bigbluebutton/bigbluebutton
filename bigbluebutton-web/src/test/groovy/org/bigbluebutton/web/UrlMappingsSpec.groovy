@@ -27,4 +27,24 @@ class UrlMappingsSpec extends Specification implements UrlMappingsUnitTest<UrlMa
     where:
     method << ['GET', 'POST']
   }
+
+  @spock.lang.Unroll
+  def "The removed page count path #path is not mapped"() {
+    expect:
+    urlMappingsHolder.matchAll(path).length == 0
+
+    where:
+    path << ['slides', 'thumbnails', 'svgs', 'textfiles'].collect { "/bigbluebutton/presentation/m1/m1/pres-1/${it}" }
+  }
+
+  @spock.lang.Unroll
+  def "A page asset path is mapped only for a page id: #path"() {
+    expect:
+    (urlMappingsHolder.matchAll(path).length > 0) == mapped
+
+    where:
+    path                                                                              || mapped
+    '/bigbluebutton/presentation/m1/m1/pres-1/svg/3f2b8c1e-5d4a-4f6b-9c7d-0e1a2b3c4d5e' || true
+    '/bigbluebutton/presentation/m1/m1/pres-1/svg/2'                                    || false
+  }
 }
