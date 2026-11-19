@@ -167,6 +167,8 @@ export const elements = {
   openUpdateBreakoutUsersModal: 'li[data-test="openUpdateBreakoutUsersModal"]',
   attendeeNotAssigned: 'div[id="breakoutBox-0"] [data-test="draggableUser"]:first-child',
   moveUser: 'div[id="breakoutBox-1"] [data-test="draggableUser"]:first-child',
+  unassignUserFromRoom1: 'div[id="breakoutBox-1"] button[data-test="unassignUserFromBreakoutRoom"]',
+  breakoutNotAssigned: 'div[data-test="breakoutNotAssigned"]',
   openBreakoutTimeManager: 'li[data-test="openBreakoutTimeManager"]',
   inputSetTimeSelector: 'input[id="inputSetTimeSelector"]',
   sendButtonDurationTime: 'button[data-test="sendButtonDurationTime"]',
