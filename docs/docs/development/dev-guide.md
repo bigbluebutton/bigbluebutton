@@ -329,6 +329,21 @@ cd ~/dev/bigbluebutton/bbb-common-message
 ./deploy.sh
 ```
 
+## Scala unit tests
+
+The unit tests of `bbb-common-message`, `akka-bbb-apps` and `bbb-common-web` run on every pull request that changes one of these modules, in the GitHub Actions workflow `.github/workflows/scala-unit-tests.yml`. A failing test marks the pull request check as failed; it does not block the package build. To run the same tests locally, publish `bbb-common-message` first, because the other two modules depend on its snapshot:
+
+```bash
+cd ~/dev/bigbluebutton/bbb-common-message
+sbt publishLocal test
+cd ../akka-bbb-apps
+sbt test
+cd ../bbb-common-web
+sbt test
+```
+
+The tests of `bigbluebutton-web` (Gradle) are not part of this workflow.
+
 ## Developing BBB-Web
 
 ```bash
