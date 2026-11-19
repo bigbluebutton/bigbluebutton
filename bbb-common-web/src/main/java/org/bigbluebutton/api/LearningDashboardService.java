@@ -31,6 +31,12 @@ import java.util.Calendar;
 public class LearningDashboardService {
     private static Logger log = LoggerFactory.getLogger(LearningDashboardService.class);
     private static String learningDashboardFilesDir = "/var/bigbluebutton/learning-dashboard";
+    private static String recordingStatusDir = "/var/bigbluebutton/recording/status";
+    private static String recordingRawDir = "/var/bigbluebutton/recording/raw";
+    // The archive step runs in a queue behind other recording jobs, so it can start well after the
+    // cleanup delay. Keep checking until it has finished, but never keep the files longer than this.
+    private static final long ARCHIVE_RECHECK_MS = 60 * 1000L;
+    private static final long ARCHIVE_WAIT_MAX_MS = 24 * 60 * 60 * 1000L;
 
     public File getJsonDataFile(String meetingId, String learningDashboardAccessToken) {
         File baseDir = new File(this.getDestinationBaseDirectoryName(meetingId,learningDashboardAccessToken));
@@ -73,16 +79,32 @@ public class LearningDashboardService {
         Calendar cleanUpDelayCalendar = Calendar.getInstance();
         cleanUpDelayCalendar.add(Calendar.MINUTE, cleanUpDelayMinutes);
 
+        long giveUpAt = cleanUpDelayCalendar.getTimeInMillis() + ARCHIVE_WAIT_MAX_MS;
+
         //Delay `cleanUpDelayMinutes` then moderators can open the Dashboard before files has been removed
-        new java.util.Timer().schedule(
+        java.util.Timer timer = new java.util.Timer();
+        timer.schedule(
                 new java.util.TimerTask() {
+                    private boolean waitLogged = false;
+
                     @Override
                     public void run() {
+                        if (isWaitingForArchive(meetingId)) {
+                            if (System.currentTimeMillis() < giveUpAt) {
+                                if (!waitLogged) {
+                                    log.info("Learning Dashboard files for meeting {} kept until the recording is archived.",meetingId);
+                                    waitLogged = true;
+                                }
+                                return;
+                            }
+                            log.warn("Recording of meeting {} still not archived; removing its Learning Dashboard files anyway.",meetingId);
+                        }
+                        timer.cancel();
                         File ldMeetingFilesDir = new File(learningDashboardFilesDir + File.separatorChar + meetingId);
                         LearningDashboardService.deleteDirectory(ldMeetingFilesDir);
                         log.info("Learning Dashboard files removed for meeting {}.",meetingId);
                     }
-                }, cleanUpDelayCalendar.getTime()
+                }, cleanUpDelayCalendar.getTime(), ARCHIVE_RECHECK_MS
         );
     }
 
@@ -109,5 +131,27 @@ public class LearningDashboardService {
 
     public void setLearningDashboardFilesDir(String dir) {
         learningDashboardFilesDir = dir;
+    }
+
+    // Called with recordStatusDir (.../recording/status/recorded) so the archive status and raw
+    // directories are found next to it, as the recording scripts lay them out.
+    public void setRecordStatusDir(String dir) {
+        File statusDir = new File(dir).getParentFile();
+        recordingStatusDir = statusDir.getPath();
+        recordingRawDir = new File(statusDir.getParentFile(), "raw").getPath();
+    }
+
+    // True while a recorded meeting is queued for archiving or being archived. rap-starter removes
+    // the recorded marker once the archive job is queued, but creates the raw directory first, so
+    // either one means archive.rb has not yet copied the dashboard file into the recording.
+    private static boolean isWaitingForArchive(String meetingId) {
+        boolean recorded = new File(recordingStatusDir + File.separatorChar + "recorded", meetingId + ".done").exists()
+                || new File(recordingRawDir, meetingId).isDirectory();
+        if (!recorded) return false;
+
+        File archivedDir = new File(recordingStatusDir + File.separatorChar + "archived");
+        return !(new File(archivedDir, meetingId + ".done").exists()
+                || new File(archivedDir, meetingId + ".norecord").exists()
+                || new File(archivedDir, meetingId + ".fail").exists());
     }
 }
