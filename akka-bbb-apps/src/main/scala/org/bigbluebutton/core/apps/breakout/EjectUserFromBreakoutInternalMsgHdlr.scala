@@ -2,7 +2,6 @@ package org.bigbluebutton.core.apps.breakout
 
 import org.bigbluebutton.core.api.EjectUserFromBreakoutInternalMsg
 import org.bigbluebutton.core.apps.users.UsersApp
-import org.bigbluebutton.core.db.UserDAO
 import org.bigbluebutton.core.graphql.GraphqlMiddleware
 import org.bigbluebutton.core.models.RegisteredUsers
 import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor, OutMsgRouter }
@@ -28,9 +27,6 @@ trait EjectUserFromBreakoutInternalMsgHdlr {
         msg.reasonCode,
         msg.ban
       )
-
-      //TODO inform reason
-      UserDAO.softDelete(registeredUser.meetingId, registeredUser.id)
 
       // Force reconnection with graphql to refresh permissions
       GraphqlMiddleware.requestGraphqlReconnection(registeredUser.sessionToken, msg.reasonCode)
