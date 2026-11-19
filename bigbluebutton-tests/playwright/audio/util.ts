@@ -9,12 +9,13 @@ export const E2E_ECHO_TEST_SETTINGS_OVERRIDE: ClientSettingsOverrides = {
   public: { media: { localEchoTest: { enabled: false } } },
 };
 
-export async function connectMicrophone(testPage: Page) {
+export async function connectMicrophone(testPage: Page, afterAudioSettingsOpen?: (page: Page) => Promise<void>) {
   if (!testPage.settings) throw new Error('testPage.settings is not defined');
   const { autoJoinAudioModal, skipEchoTest, skipEchoTestOnJoin, listenOnlyMode } = testPage.settings || {};
 
   if (!autoJoinAudioModal) await testPage.waitAndClick(e.joinAudio);
   if (listenOnlyMode) await testPage.clickMicrophoneButton();
+  if (afterAudioSettingsOpen) await afterAudioSettingsOpen(testPage);
   const shouldSkipEchoTest = skipEchoTest || skipEchoTestOnJoin;
   if (!shouldSkipEchoTest) {
     await testPage.waitForSelector(e.stopHearingButton);
