@@ -16,7 +16,6 @@ import {
   buildExecutableNamedPdf,
   buildPdfWithPages,
   buildTruncatedPdf,
-  checkSvgIndex,
   expectExternalVideoPlaying,
   expectSlidesEqualBetweenPages,
   EXTERNAL_VIDEO_URL,
@@ -26,6 +25,7 @@ import {
   getCurrentSlideAspectRatio,
   getCurrentSlideDarkPixelRatio,
   getCurrentSlideSvg,
+  getCurrentSlideSvgPath,
   getExternalVideoTime,
   getSlideOuterHtml,
   HeldUploadTokenRequest,
@@ -40,6 +40,7 @@ import {
   sendUploadWithoutItsMeeting,
   startUpload,
   stopInterceptingUploadRequests,
+  SVG_PAGE_PATH,
   uploadMultiplePresentations,
   uploadRefusedPresentation,
   uploadSinglePresentation,
@@ -59,30 +60,38 @@ const USER_RECONNECT_GRACE = 10000;
 const USER_REMOVAL_TIME = 2 * USER_RECONNECT_GRACE + ELEMENT_WAIT_LONGER_TIME;
 
 export class Presentation extends MultiUsers {
+  // Waits until the current slide's image path satisfies the condition, checks it is /svg/<pageId>,
+  // and returns it.
+  private async waitForSlidePath(condition: (path: string | null) => boolean, message: string) {
+    let path: string | null = null;
+    await expect
+      .poll(
+        async () => {
+          path = await getCurrentSlideSvgPath(this.modPage);
+          return condition(path);
+        },
+        { message, timeout: ELEMENT_WAIT_LONGER_TIME },
+      )
+      .toBe(true);
+    expect(path, `${message}: the slide url should be /svg/<pageId>`).toMatch(SVG_PAGE_PATH);
+    return path as unknown as string;
+  }
+
   async skipSlide() {
     await this.modPage.hasElement(
       e.whiteboard,
       'should display the whiteboard when the moderator joins the meeting',
       ELEMENT_WAIT_LONGER_TIME,
     );
-
-    await checkSvgIndex(this.modPage, '/svg/1');
+    const first = await this.waitForSlidePath((path) => !!path, 'should display the first slide');
 
     await this.modPage.waitAndClick(e.nextSlide);
     await this.modPage.hasElement(e.whiteboard, 'should display the next slide on the whiteboard');
-    await expect
-      .poll(() => getSlideOuterHtml(this.modPage), { message: 'should change to slide 2' })
-      .toContain('/svg/2');
-
-    await checkSvgIndex(this.modPage, '/svg/2');
+    await this.waitForSlidePath((path) => !!path && path !== first, 'should change to slide 2');
 
     await this.modPage.waitAndClick(e.prevSlide);
     await this.modPage.hasElement(e.whiteboard, 'should display the previous slide on the whiteboard');
-    await expect
-      .poll(() => getSlideOuterHtml(this.modPage), { message: 'should change to slide 1' })
-      .toContain('/svg/1');
-
-    await checkSvgIndex(this.modPage, '/svg/1');
+    await this.waitForSlidePath((path) => path === first, 'should come back to slide 1');
   }
 
   async navigateSlidesWithKeys() {
@@ -91,55 +100,47 @@ export class Presentation extends MultiUsers {
       'should display the whiteboard when the moderator joins the meeting',
       ELEMENT_WAIT_LONGER_TIME,
     );
-
-    await checkSvgIndex(this.modPage, '/svg/1');
+    const first = await this.waitForSlidePath((path) => !!path, 'should display the first slide');
 
     // Blur any focused element so keydown events target document.body
     const blurActive = () => this.modPage.page.evaluate(() => (document.activeElement as HTMLElement)?.blur());
 
     await blurActive();
     await this.modPage.press('ArrowRight');
-    await this.modPage.page.waitForFunction(
-      ([whiteboardSelector, expectedSvg]) => {
-        const whiteboard = document.querySelector(whiteboardSelector);
-        return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
-      },
-      [e.whiteboard, '/svg/2'],
-      { timeout: ELEMENT_WAIT_LONGER_TIME },
-    );
+    const second = await this.waitForSlidePath((path) => !!path && path !== first, 'ArrowRight should go to slide 2');
 
     await blurActive();
     await this.modPage.press('ArrowLeft');
-    await this.modPage.page.waitForFunction(
-      ([whiteboardSelector, expectedSvg]) => {
-        const whiteboard = document.querySelector(whiteboardSelector);
-        return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
-      },
-      [e.whiteboard, '/svg/1'],
-      { timeout: ELEMENT_WAIT_LONGER_TIME },
-    );
+    await this.waitForSlidePath((path) => path === first, 'ArrowLeft should come back to slide 1');
 
     await blurActive();
     await this.modPage.press('PageDown');
-    await this.modPage.page.waitForFunction(
-      ([whiteboardSelector, expectedSvg]) => {
-        const whiteboard = document.querySelector(whiteboardSelector);
-        return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
-      },
-      [e.whiteboard, '/svg/2'],
-      { timeout: ELEMENT_WAIT_LONGER_TIME },
-    );
+    await this.waitForSlidePath((path) => path === second, 'PageDown should go to slide 2');
 
     await blurActive();
     await this.modPage.press('PageUp');
-    await this.modPage.page.waitForFunction(
-      ([whiteboardSelector, expectedSvg]) => {
-        const whiteboard = document.querySelector(whiteboardSelector);
-        return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
-      },
-      [e.whiteboard, '/svg/1'],
-      { timeout: ELEMENT_WAIT_LONGER_TIME },
+    await this.waitForSlidePath((path) => path === first, 'PageUp should come back to slide 1');
+  }
+
+  // The arrow keys also change the slide while the whiteboard has the focus (its own key handler).
+  async navigateSlidesWithKeysOnWhiteboard() {
+    await this.modPage.hasElement(
+      e.whiteboard,
+      'should display the whiteboard when the moderator joins the meeting',
+      ELEMENT_WAIT_LONGER_TIME,
     );
+    const first = await this.waitForSlidePath((path) => !!path, 'should display the first slide');
+
+    await this.modPage.waitAndClick(e.wbHandButton);
+    await this.modPage.page.locator(e.whiteboard).click({ position: { x: 20, y: 20 } });
+    await this.modPage.press('ArrowRight');
+    await this.waitForSlidePath(
+      (path) => !!path && path !== first,
+      'ArrowRight on the whiteboard should go to slide 2',
+    );
+
+    await this.modPage.press('ArrowLeft');
+    await this.waitForSlidePath((path) => path === first, 'ArrowLeft on the whiteboard should come back to slide 1');
   }
 
   async shareCameraAsContent() {
@@ -484,9 +485,9 @@ export class Presentation extends MultiUsers {
       },
       [e.currentSlideImg],
     );
-    // the asset URL carries pageToken/sessionToken query params, e.g. .../svg/1?pageToken=...
+    // the asset URL carries pageToken/sessionToken query params, e.g. .../svg/<pageId>?pageToken=...
     expect(slideSvgUrl, 'should resolve the served slide SVG url from the current slide asset').toMatch(
-      /\/svg\/\d+(\?|$)/,
+      /\/svg\/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}(\?|$)/,
     );
 
     const slideSvgResponse = await this.modPage.page.request.get(slideSvgUrl as string);
@@ -965,11 +966,24 @@ export class Presentation extends MultiUsers {
     ).toBeGreaterThan(height);
   }
 
+  // On slide 2: the snapshot finds the slide background by the page id, not by the number.
   async presentationSnapshot() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    const consoleErrors: string[] = [];
+    this.modPage.page.on('console', (msg) => {
+      if (msg.type() === 'error') consoleErrors.push(msg.text());
+    });
+    this.modPage.page.on('pageerror', (err) => consoleErrors.push(err.message));
+    const first = await this.waitForSlidePath((path) => !!path, 'should display the first slide');
+    await this.modPage.waitAndClick(e.nextSlide);
+    await this.waitForSlidePath((path) => !!path && path !== first, 'should change to slide 2');
+    consoleErrors.length = 0;
+
     await this.modPage.waitAndClick(e.whiteboardOptionsButton);
     const presentationSnapshotLocator = this.modPage.page.locator(e.presentationSnapshot);
     await this.modPage.handleDownload(presentationSnapshotLocator);
+    const snapshotErrors = consoleErrors.filter((m) => /snapshot|backgroundShape|props/i.test(m));
+    expect(snapshotErrors, 'the snapshot of slide 2 should not log an error').toHaveLength(0);
   }
 
   async hidePresentationToolbar() {
@@ -1164,10 +1178,9 @@ export class Presentation extends MultiUsers {
 
     // An upload left as uploading came back on every slide change after its notice was closed
     await this.closeUploadToastOf(file.name);
+    const first = await this.waitForSlidePath((path) => !!path, 'should display the first slide');
     await this.modPage.waitAndClick(e.nextSlide);
-    await expect
-      .poll(() => getSlideOuterHtml(this.modPage), { message: 'should change to slide 2' })
-      .toContain('/svg/2');
+    await this.waitForSlidePath((path) => !!path && path !== first, 'should change to slide 2');
     await expect(
       uploadToastOf(this.modPage, file.name),
       'should not show the failed upload again once its notice was closed',

@@ -52,16 +52,18 @@ export async function expectExternalVideoPlaying(testPage: Page, description: st
     .toBeGreaterThan(startTime + 1);
 }
 
-export async function checkSvgIndex(testPage: Page, element: string) {
+// Slide images are served at /svg/<pageId>, the page id being a lowercase UUID v4.
+export const SVG_PAGE_PATH = /^\/svg\/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+
+// The /svg/<id> path of the current slide's image, without the query string (it differs per user).
+export async function getCurrentSlideSvgPath(testPage: Page): Promise<string | null> {
   await testPage.waitForSelector(e.currentSlideImg);
-  const check = await testPage.page.evaluate(
-    ([el, slideImg]) => {
-      const node = document.querySelector(slideImg);
-      return !!node && node.outerHTML.includes(el);
-    },
-    [element, e.currentSlideImg],
+  const url = await testPage.page.evaluate(
+    ([slideImg]) =>
+      (document.querySelector(slideImg) as HTMLElement | null)?.style?.backgroundImage?.split('"')[1] ?? null,
+    [e.currentSlideImg],
   );
-  await expect(check).toBeTruthy();
+  return url ? (new URL(url).pathname.match(/\/svg\/[^/]+$/)?.[0] ?? null) : null;
 }
 
 export async function getSlideOuterHtml(testPage: Page) {
