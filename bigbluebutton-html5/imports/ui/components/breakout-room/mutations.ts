@@ -42,6 +42,18 @@ export const BREAKOUT_ROOM_MOVE_USER = gql`
   }
 `;
 
+export const BREAKOUT_ROOM_UNASSIGN_USER = gql`
+  mutation BreakoutRoomUnassignUser(
+    $userId: String!,
+    $breakoutRoomMeetingId: String!,
+  ) {
+    breakoutRoomUnassignUser(
+      userId: $userId,
+      breakoutRoomMeetingId: $breakoutRoomMeetingId,
+    )
+  }
+`;
+
 export const BREAKOUT_ROOM_SEND_MESSAGE_TO_ALL = gql`
   mutation BreakoutRoomSendMessageToAll($message: String!) {
     breakoutRoomSendMessageToAll(
@@ -87,6 +99,7 @@ export default {
   BREAKOUT_ROOM_CREATE,
   BREAKOUT_ROOM_END_ALL,
   BREAKOUT_ROOM_MOVE_USER,
+  BREAKOUT_ROOM_UNASSIGN_USER,
   BREAKOUT_ROOM_SEND_MESSAGE_TO_ALL,
   BREAKOUT_ROOM_SET_TIME,
   USER_TRANSFER_VOICE_TO_MEETING,
