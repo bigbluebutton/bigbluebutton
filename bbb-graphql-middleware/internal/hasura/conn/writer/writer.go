@@ -160,7 +160,11 @@ RangeLoop:
 
 					if query != "" {
 						if strings.HasPrefix(query, "subscription") {
-							if config.GetConfig().Server.MaxConnectionConcurrentSubscriptions > 0 {
+							browserConnection.ActiveSubscriptionsMutex.RLock()
+							existingSubscriptionData, queryIdExists := browserConnection.ActiveSubscriptions[queryId]
+							browserConnection.ActiveSubscriptionsMutex.RUnlock()
+
+							if !queryIdExists && config.GetConfig().Server.MaxConnectionConcurrentSubscriptions > 0 {
 								browserConnection.ActiveSubscriptionsMutex.RLock()
 								totalOfActiveSubscriptions := len(browserConnection.ActiveSubscriptions)
 								browserConnection.ActiveSubscriptionsMutex.RUnlock()
@@ -215,9 +219,6 @@ RangeLoop:
 
 							messageType = common.Subscription
 
-							browserConnection.ActiveSubscriptionsMutex.RLock()
-							existingSubscriptionData, queryIdExists := browserConnection.ActiveSubscriptions[queryId]
-							browserConnection.ActiveSubscriptionsMutex.RUnlock()
 							if queryIdExists {
 								lastReceivedDataChecksum = existingSubscriptionData.LastReceivedDataChecksum
 								lastReceivedData = existingSubscriptionData.LastReceivedData
