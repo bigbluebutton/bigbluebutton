@@ -43,6 +43,23 @@ then
 	convertToParam="$convertToParam --writer"
 fi
 
-cp "${source}" "$tempDir/file"
-sudo /usr/bin/docker run --rm --memory=1g --memory-swap=1g --network none --env="HOME=/tmp/" -w /tmp/ --user=$(printf %05d `id -u`) -v "$tempDir/":/data/ -v /usr/share/fonts/:/usr/share/fonts/:ro -v /usr/share/fontconfig/:/usr/share/fontconfig/:ro -v /etc/fonts/:/etc/fonts/:ro -v /var/cache/fontconfig/:/var/cache/fontconfig/:ro --rm bbb-soffice sh -c "timeout $(printf %03d $timeoutSecs)s /usr/bin/soffice -env:UserInstallation=file:///tmp/ $convertToParam --outdir /data /data/file"
+pptxFixer="/usr/share/bbb-libreoffice-conversion/convert_pptx_with_bullet_and_autofit_fixes.py"
+pptxRunner="/usr/share/bbb-libreoffice-conversion/run-pptx-fixes-in-container.sh"
+
+if [[ "${source,,}" == *.pptx && "${convertTo,,}" == "pdf" ]]; then
+  if [[ ! -r "${pptxFixer}" || ! -r "${pptxRunner}" ]]; then
+    echo "PPTX conversion helper is not readable" >&2
+    exit 1
+  fi
+
+  cp "${source}" "${tempDir}/file.pptx"
+  cp "${pptxFixer}" "${tempDir}/convert_pptx_with_bullet_and_autofit_fixes.py"
+  cp "${pptxRunner}" "${tempDir}/run-pptx-fixes-in-container.sh"
+
+  sudo -n /usr/bin/docker run --rm --memory=1g --memory-swap=1g --network none --env="HOME=/tmp/" -w /tmp/ --user=$(printf %05d `id -u`) -v "$tempDir/":/data/ -v /usr/share/fonts/:/usr/share/fonts/:ro -v /usr/share/fontconfig/:/usr/share/fontconfig/:ro -v /etc/fonts/:/etc/fonts/:ro -v /var/cache/fontconfig/:/var/cache/fontconfig/:ro --rm bbb-soffice sh -c "timeout $(printf %03d $timeoutSecs)s /data/run-pptx-fixes-in-container.sh"
+else
+  cp "${source}" "$tempDir/file"
+  sudo /usr/bin/docker run --rm --memory=1g --memory-swap=1g --network none --env="HOME=/tmp/" -w /tmp/ --user=$(printf %05d `id -u`) -v "$tempDir/":/data/ -v /usr/share/fonts/:/usr/share/fonts/:ro -v /usr/share/fontconfig/:/usr/share/fontconfig/:ro -v /etc/fonts/:/etc/fonts/:ro -v /var/cache/fontconfig/:/var/cache/fontconfig/:ro --rm bbb-soffice sh -c "timeout $(printf %03d $timeoutSecs)s /usr/bin/soffice -env:UserInstallation=file:///tmp/ $convertToParam --outdir /data /data/file"
+fi
+
 cp "$tempDir/file.$convertTo" "${dest}"
