@@ -9,6 +9,9 @@ import (
 	"testing"
 
 	"bbb-graphql-middleware/config"
+
+	"github.com/sirupsen/logrus"
+	logrustest "github.com/sirupsen/logrus/hooks/test"
 )
 
 func TestMetricOperationName(t *testing.T) {
@@ -149,6 +152,24 @@ func TestReadClientOperationNames(t *testing.T) {
 	}
 	if got := readClientOperationNames(""); got != nil {
 		t.Errorf("no file read as %q, want no names", got)
+	}
+}
+
+// Without prometheus_client_operation_names_file no name is reserved, and the middleware says so.
+func TestNoClientOperationNamesFileIsWarned(t *testing.T) {
+	hook := logrustest.NewGlobal()
+	t.Cleanup(hook.Reset)
+	if got := readClientOperationNames(""); got != nil {
+		t.Errorf("no file read as %q, want no names", got)
+	}
+	warned := false
+	for _, entry := range hook.AllEntries() {
+		if entry.Level == logrus.WarnLevel && strings.Contains(entry.Message, "prometheus_client_operation_names_file is not set") {
+			warned = true
+		}
+	}
+	if !warned {
+		t.Errorf("no warning that the names file is not set, logged: %v", hook.AllEntries())
 	}
 }
 

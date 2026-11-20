@@ -123,6 +123,7 @@ func configuredOperationNameLabels() *operationNameLabels {
 // warning, and a line that is not a GraphQL name of up to 128 bytes is skipped, with a warning.
 func readClientOperationNames(path string) []string {
 	if path == "" {
+		log.Warn("No client operation names for the metrics, every name is under the cap: prometheus_client_operation_names_file is not set")
 		return nil
 	}
 	file, err := os.Open(path)
