@@ -684,7 +684,7 @@ if [ $LIST ]; then
    echo "--"
    systemctl --all --no-pager list-timers bbb-record-core.timer
    echo "--"
-   systemctl --no-pager status bbb-rap-starter.service bbb-rap-resque-worker.service
+   systemctl --no-pager status bbb-rap-starter.service bbb-rap-resque-worker.service bbb-rap-archive-worker.service
    echo "--"
 
    if tail -n 20 "$LOG_DIR"/bbb-web.log | grep -q "is recorded. Process it."; then
