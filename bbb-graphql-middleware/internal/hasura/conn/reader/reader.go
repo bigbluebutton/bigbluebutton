@@ -341,7 +341,7 @@ func includePromotheusMetrics(traceLog string, meetingId string, logger *logrus.
 				// Add Prometheus metrics
 				common.ApplicationsLatency.
 					With(prometheus.Labels{
-						"application": fmt.Sprintf("%d-%s", i, applicationName),
+						"application": applicationLatencyLabel(i, applicationName),
 					}).
 					Observe(float64(diff))
 
@@ -361,6 +361,27 @@ func includePromotheusMetrics(traceLog string, meetingId string, logger *logrus.
 			"application": "end-to-end",
 		}).
 		Observe(float64(diffTotal))
+}
+
+// traceLogStages are the stages the BigBlueButton components append to the trace of
+// ConnStatusWithTraceLog, at their position in it: the client writes position 0, the middleware
+// appends position 1 when it forwards the mutation, then bbb-graphql-actions, akka-apps, and the
+// middleware again, for the database and itself, when the trace comes back. The trace starts in
+// the client, so its text is not taken as a label.
+var traceLogStages = []string{1: "gqlmiddleware", 2: "gqlactions", 3: "bbbapps", 4: "pg", 5: "gqlmiddleware"}
+
+// otherTraceLogStage is the application label of any stage that is not one of traceLogStages at
+// its position.
+const otherTraceLogStage = "other"
+
+// applicationLatencyLabel is the application label of bbb_application_reach_latency_milliseconds
+// for the stage at a position of the trace: "<position>-<stage>" for a known stage at its
+// position, and otherTraceLogStage for any other, so the label takes a fixed set of values.
+func applicationLatencyLabel(position int, stage string) string {
+	if position > 0 && position < len(traceLogStages) && traceLogStages[position] == stage {
+		return fmt.Sprintf("%d-%s", position, stage)
+	}
+	return otherTraceLogStage
 }
 
 func getTime(ts string) (time.Time, error) {
