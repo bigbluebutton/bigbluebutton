@@ -245,7 +245,9 @@ func handleStreamingMessage(hc *common.HasuraConnection, message []byte, subscri
 // message, observes the time it waited for it, once. The record it returns, and keeps, has the
 // first data settled. Once settled, the record is only read, under the read lock; the entry is
 // updated, under the write lock, only until the first data of the subscription is settled. A
-// subscription removed meanwhile is not brought back, and nothing is observed for it.
+// subscription removed meanwhile is not brought back, and its first data wait is not observed. A
+// subscription removed after it is read here still has the message counted in
+// gql_received_data_total and the payload histograms, which count messages.
 func recordFirstData(hc *common.HasuraConnection, queryId string) (common.GraphQlSubscription, bool) {
 	hc.BrowserConn.ActiveSubscriptionsMutex.RLock()
 	subscription, ok := hc.BrowserConn.ActiveSubscriptions[queryId]
