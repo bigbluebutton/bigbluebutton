@@ -15,7 +15,7 @@ object Dependencies {
     val pekkoVersion = "1.0.1"
     val pekkoHttpVersion = "1.0.0"
     val gson = "2.8.9"
-    val jackson = "2.22.3"
+    val jackson = "2.22.4"
     // jackson-annotations drops the patch component from 2.20 on: the 2.22.3 suite pins it at 2.22.
     val jacksonAnnotations = "2.22"
     val netty = "4.2.17.Final"
@@ -43,7 +43,7 @@ object Dependencies {
     val scalaTest = "3.2.11"
     val mockito = "2.23.0"
     val akkaTestKit = "2.6.0"
-    val jacksonDataFormat = "2.22.1"
+    val jacksonDataFormat = "2.22.4"
   }
 
   object Compile {
