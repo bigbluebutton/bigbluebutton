@@ -34,6 +34,11 @@ type Mask struct {
 	As      string `yaml:"as"` // time | date | internal-id | user-id | random | token | regex
 	Regex   string `yaml:"regex"`
 	Replace string `yaml:"replace"`
+	// OnlyMatching, for a regex mask: the mask takes only the values its
+	// regex matches, and leaves any other value to the next mask for the
+	// node. Without it the first mask for a node takes every value, which
+	// is how a no-op mask overrides a built-in one.
+	OnlyMatching bool `yaml:"onlyMatching"`
 
 	re   *regexp.Regexp
 	path *regexp.Regexp
@@ -215,6 +220,8 @@ func (r *Rules) compile() error {
 				return fmt.Errorf("masks[%d]: bad regex %q", i, m.Regex)
 			}
 			m.re = re
+		} else if m.OnlyMatching {
+			return fmt.Errorf("masks[%d]: onlyMatching needs as: regex", i)
 		}
 		if m.Path != "" {
 			m.path = pathPattern(m.Path)
@@ -262,11 +269,16 @@ func pathPattern(p string) *regexp.Regexp {
 	return regexp.MustCompile(b.String())
 }
 
-// maskFor returns the first mask for a node with this name and path.
-func (r *Rules) maskFor(name, path string) *Mask {
+// maskFor returns the first mask for a node with this name and path that
+// takes this value: an onlyMatching mask takes only the values its regex
+// matches.
+func (r *Rules) maskFor(name, path, value string) *Mask {
 	for i := range r.Masks {
 		m := &r.Masks[i]
 		if (m.Field != "" && m.Field == name) || (m.path != nil && m.path.MatchString(path)) {
+			if m.OnlyMatching && !m.re.MatchString(value) {
+				continue
+			}
 			return m
 		}
 	}

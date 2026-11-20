@@ -321,11 +321,12 @@ body xml
 /response/list/item
 /response/other/flag "off"`)
 	for body, want := range map[string]string{
-		"masks: [{field: a, as: nope}]\n":                "unknown kind",
-		"masks: [{as: token}]\n":                         "give field or path",
-		"masks: [{field: a, as: regex, regex: \"(\"}]\n": "bad regex",
-		"unordred: []\n":                                 "unordred",
-		"drop: [{value: x}]\n":                           "path is required",
+		"masks: [{field: a, as: nope}]\n":                     "unknown kind",
+		"masks: [{as: token}]\n":                              "give field or path",
+		"masks: [{field: a, as: regex, regex: \"(\"}]\n":      "bad regex",
+		"unordred: []\n":                                      "unordred",
+		"drop: [{value: x}]\n":                                "path is required",
+		"masks: [{field: a, as: time, onlyMatching: true}]\n": "onlyMatching needs as: regex",
 	} {
 		if err := os.WriteFile(p, []byte(body), 0o644); err != nil {
 			t.Fatal(err)
@@ -356,10 +357,43 @@ body xml
 	}
 }
 
-func TestSuiteMasksFileLoads(t *testing.T) {
-	if _, err := Load("../../../masks.yaml"); err != nil {
+// An onlyMatching mask leaves the values its regex doesn't match to the
+// next mask for the node: a mask for the captions inbox's paths doesn't
+// hide the built-in one for learning dashboard files. Without it, the first
+// mask for a node takes every value.
+func TestOnlyMatchingMask(t *testing.T) {
+	uid := "bbbc-u7"
+	intID := sha(uid) + "-1792520978099"
+	dashboard := []byte(`{"path":"learning-dashboard/` + intID + `/zq8wmu1b2c3d/learning_dashboard_data.json"}`)
+	track := []byte(`{"path":"captions/inbox/` + intID + `-1792520978123-track.json"}`)
+	const mask = `{field: path, as: regex, regex: '-[0-9]{13}-track\.', replace: '-<ms>-track.'`
+	r, err := Load(writeMasks(t, "masks: ["+mask+", onlyMatching: true}]\n"))
+	if err != nil {
 		t.Fatal(err)
 	}
+	check(t, Document(dashboard, ctx(uid), r), `
+$.path "learning-dashboard/<sha1(meetingID)>-<time>/<token>/learning_dashboard_data.json"`)
+	check(t, Document(track, ctx(uid), r), `
+$.path "captions/inbox/<sha1(meetingID)>-<time>-<ms>-track.json"`)
+	r, err = Load(writeMasks(t, "masks: ["+mask+"}]\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	check(t, Document(dashboard, ctx(uid), r), `
+$.path "learning-dashboard/<sha1(meetingID)>-<time>/zq8wmu1b2c3d/learning_dashboard_data.json"`)
+}
+
+func TestSuiteMasksFileLoads(t *testing.T) {
+	r, err := Load("../../../masks.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	// The suite's masks leave a learning dashboard file's token to the
+	// built-in mask.
+	uid := "bbbc-u8"
+	file := `{"path":"learning-dashboard/` + sha(uid) + `-1792520978099/zq8wmu1b2c3d/learning_dashboard_data.json"}`
+	check(t, Document([]byte(file), ctx(uid), r), `
+$.path "learning-dashboard/<sha1(meetingID)>-<time>/<token>/learning_dashboard_data.json"`)
 }
 
 func TestHeadersUntouchedAndCookies(t *testing.T) {

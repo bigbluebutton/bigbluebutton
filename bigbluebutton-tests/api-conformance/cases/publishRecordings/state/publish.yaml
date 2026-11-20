@@ -1,18 +1,30 @@
 # yaml-language-server: $schema=../../../runner/schema/case.schema.json
 # publish=true publishes an unpublished recording and publish=false
 # unpublishes a published one, in every format; the answer echoes publish,
-# and a later getRecordings shows the new state. Serial, with the
-# recordings put back before and after.
+# and a later getRecordings shows the new state. On disk, each format's
+# directory moves between unpublished/ and published/, its metadata.xml
+# giving the new state. One message per recording, not per format,
+# announces it on from-bbb-web-redis-channel. Serial, with the recordings
+# put back before and after.
 id: publishRecordings.state.publish
 title: publishRecordings ${case}
 endpoint: publishRecordings
 class: contract
 tags: [ci, serial]
+defs:
+  # metadata.xml as bbb-web rewrites it: only the state matters here, not
+  # how bbb-web lays the file out.
+  moved: &moved
+    expect:
+      contents: {regex: '<state>${state}</state>\s*<published>${publish}</published>'}
+    golden: off
 variants:
   - id: publish
-    vars: {case: publishes an unpublished recording, rid: db0c52cbb08b78549a52cb6f29e4d8dc236977bd-1700021600000, publish: "true", state: published}
+    vars: {case: publishes an unpublished recording, rid: db0c52cbb08b78549a52cb6f29e4d8dc236977bd-1700021600000, publish: "true",
+           state: published, from: unpublished, msg: PublishedRecordingSysMsg}
   - id: unpublish
-    vars: {case: unpublishes a published recording, rid: 4d64ff980226cdc0de5d24362bf27a829e1a8ab2-1700025200000, publish: "false", state: unpublished}
+    vars: {case: unpublishes a published recording, rid: 4d64ff980226cdc0de5d24362bf27a829e1a8ab2-1700025200000, publish: "false",
+           state: unpublished, from: published, msg: UnpublishedRecordingSysMsg}
 steps:
   - restore: {recordings: ["${rid}"]}
   - call: publishRecordings
@@ -28,5 +40,16 @@ steps:
         /response/recordings/recording/state: "${state}"
         /response/recordings/recording/published: "${publish}"
         /response/recordings/recording/playback/format: {count: 2}
+  - <<: *moved
+    fs: {path: "${state}/presentation/${rid}/metadata.xml"}
+  - <<: *moved
+    fs: {path: "${state}/video/${rid}/metadata.xml"}
+  - fs: {path: "${from}/presentation/${rid}/metadata.xml"}
+    expect: {exists: false}
+  - fs: {path: "${from}/video/${rid}/metadata.xml"}
+    expect: {exists: false}
+  - bus: {name: "${msg}", channel: from-bbb-web-redis-channel, meetingId: "${rid}", within: 3s}
+    select: [$.core.header.name, $.core.body.recordId]
+    expect: {count: 1}
 teardown:
   - restore: {recordings: ["${rid}"]}

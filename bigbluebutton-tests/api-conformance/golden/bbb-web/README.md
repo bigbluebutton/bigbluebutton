@@ -56,13 +56,19 @@ there compares like with like.
   (`*.errors.*`, `*.tracks.*`, `*.upload.*`) and the caption-file routes
   (`textTrack/`). They were recorded from a fresh stack (`make reset`)
   built from this tree that day, with the tap installing
-  `fixtures/recordings/`. On 2026-11-10 the auth hook cases (`connection/`,
-  two of them under the alt-defaults profile and one under
-  short-users-timeout) were added, recorded from a stack built that day from
-  a tree without the recording cases. On 2026-11-12 the fixtures' links
-  moved to the host `recordings.test`, and the 56 recordings that show
-  them were re-recorded from a fresh stack running packages built from
-  v4.0.x-develop of 2026-11-10; only the host changed in them. On
+  `fixtures/recordings/`. On 2026-11-09 the publish, delete and upload cases
+  (`publishRecordings.state.*`, `deleteRecordings.state.*`,
+  `putRecordingTextTrack.{upload,errors}.*`) were recorded again with their
+  side effects: the directory moves, the `*RecordingSysMsg` announcements
+  and the captions inbox. That stack was started fresh (`make reset`) from
+  packages whose build key still matched this tree. The token-expiry case
+  (`textTrack.authz.expiry`) was recorded the same day. On 2026-11-10 the
+  auth hook cases (`connection/`, two of them under the alt-defaults profile
+  and one under short-users-timeout) were added, recorded from a stack built
+  that day from a tree without the recording cases. On 2026-11-12 the
+  fixtures' links moved to the host `recordings.test`, and the 56 recordings
+  that show them were re-recorded from a fresh stack running packages built
+  from v4.0.x-develop of 2026-11-10; only the host changed in them. On
   2026-11-13 `getRecordings.all.fetch-all-off` was re-recorded without its
   limited listing, whose formats depend on the file system's order, from a
   stack running the same packages. On 2026-11-16 the getRecordingProcessingInfo

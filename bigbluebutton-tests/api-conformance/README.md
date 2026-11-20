@@ -305,7 +305,8 @@ access for the first build.
   and, when the job fails, the services' logs are uploaded as
   `api-conformance-bbb-web`, and the matrix is the job's summary;
   `check-copies.sh`'s warnings are annotations on the run. The `slow`
-  cases, about 20 minutes, run every night instead: the
+  cases, about 85 minutes (one waits an hour for a text-track token to
+  expire), run every night instead: the
   `api-conformance-slow` job of `.github/workflows/nightly-tests.yml`
   starts the stack from the packages of the newest Automated tests build of
   v4.0.x-develop, at the commit that build is of, and uploads
@@ -634,8 +635,11 @@ the same way.
 `masks`, `unordered`, `scope`, `drop` (removes the lines a path names, only
 those with `value` if it is given) and `headers`. Only a mask can override a
 built-in rule, for the same field; the others only add, so the built-in
-`noMeetings` drop can't be turned off. The suite's `masks.yaml` masks the
-missing-checksum message bbb-web picks at random, and the version
+`noMeetings` drop can't be turned off. The first mask for a node takes all
+its values, unless it is a regex mask with `onlyMatching: true`: that one
+takes only the values its regex matches, and leaves the others to the next
+mask, such as a built-in one for the same field. The suite's `masks.yaml`
+masks the missing-checksum message bbb-web picks at random, and the version
 endpoint's `bbbVersion` and `html5PluginSdkVersion`, which change with each
 release.
 

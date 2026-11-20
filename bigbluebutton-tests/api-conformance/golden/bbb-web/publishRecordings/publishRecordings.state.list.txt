@@ -44,3 +44,10 @@ body xml
 /response/recordings/recording/playback/format/length "1"
 /response/recordings/recording/playback/format/size "3145728"
 /response/recordings/recording/data
+
+== step 4: bus PublishedRecordingSysMsg select $.core.header.name, $.core.body.recordId
+$.core.body.recordId "<sha1(?)>-<time>"
+$.core.header.name "PublishedRecordingSysMsg"
+
+== step 5: bus PublishedRecordingSysMsg
+$ null

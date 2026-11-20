@@ -60,6 +60,19 @@ masks:
     as: regex
     regex: '/textTrack/[0-9a-f]{40}/'
     replace: '/textTrack/<token>/'
+  # putRecordingTextTrack names a track in the captions inbox after the
+  # upload's time in ms: in the files' paths and in the description. Any
+  # other path, such as a learning dashboard file's, is left to the built-in
+  # masks.
+  - field: path
+    as: regex
+    regex: '-[0-9]{13}-track\.'
+    replace: '-<ms>-track.'
+    onlyMatching: true
+  - field: temp_filename
+    as: regex
+    regex: '-[0-9]{13}-track\.'
+    replace: '-<ms>-track.'
   # getRecordingProcessingInfo counts every recording still queued on the
   # server, and on Tier 1, where nothing processes them, that is every
   # recorded meeting the run has ended so far. The oldest queued work's
