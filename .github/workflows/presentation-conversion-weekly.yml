@@ -19,7 +19,8 @@ concurrency:
   cancel-in-progress: false
 jobs:
   plan:
-    runs-on: ubuntu-latest
+    if: github.event_name != 'schedule' || github.repository == 'bigbluebutton/bigbluebutton'
+    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-24.04' }}
     outputs:
       refs: ${{ steps.refs.outputs.json }}
     steps:
@@ -29,7 +30,7 @@ jobs:
         run: echo "json=$(jq -cn --arg s "$REFS" '$s | split(",") | map(gsub("^\\s+|\\s+$"; "")) | map(select(length > 0))')" >> "$GITHUB_OUTPUT"
   dispatch:
     needs: plan
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-24.04' }}
     strategy:
       fail-fast: false
       matrix:
