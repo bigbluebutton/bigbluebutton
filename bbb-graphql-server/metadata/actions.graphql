@@ -643,7 +643,7 @@ type Mutation {
 
 type Mutation {
   userSetDeafened(
-    userId: String!
+    userId: String
     deafened: Boolean!
   ): Boolean
 }
