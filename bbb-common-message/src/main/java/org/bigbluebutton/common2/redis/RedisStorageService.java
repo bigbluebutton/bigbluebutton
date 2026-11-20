@@ -19,7 +19,7 @@
 
 package org.bigbluebutton.common2.redis;
 
-import java.util.HashMap;
+import java.security.SecureRandom;
 import java.util.Map;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -31,9 +31,10 @@ import org.slf4j.LoggerFactory;
 import io.lettuce.core.ClientOptions;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
+import io.lettuce.core.ScriptOutputType;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.RedisCommands;
-import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.codec.binary.Hex;
 
 public class RedisStorageService extends RedisAwareCommunicator {
 
@@ -65,18 +66,27 @@ public class RedisStorageService extends RedisAwareCommunicator {
         log.info("RedisStorageService Stopped");
     }
 
-    public String generateSingleUseCaptionToken(String recordId, String caption, Long expirySeconds) {
-        Map<String, String> data = new HashMap<String, String>();
-        data.put("recordId", recordId);
-        data.put("caption", caption);
+    // Each caption-token operation is a single Redis command.
+    private static final String STORE_CAPTION_TOKEN =
+            "redis.call('HSET', KEYS[1], 'recordId', ARGV[1], 'caption', ARGV[2]) " +
+            "redis.call('EXPIRE', KEYS[1], ARGV[3]) " +
+            "return 1";
 
-        String token = DigestUtils.sha1Hex(recordId + caption + System.currentTimeMillis());
+    private static final String CONSUME_CAPTION_TOKEN =
+            "local v = redis.call('HMGET', KEYS[1], 'recordId', 'caption') " +
+            "if v[1] == ARGV[1] and v[2] == ARGV[2] then return redis.call('DEL', KEYS[1]) end " +
+            "return 0";
+
+    private static final SecureRandom TOKEN_RANDOM = new SecureRandom();
+
+    public String generateSingleUseCaptionToken(String recordId, String caption, Long expirySeconds) {
+        byte[] tokenBytes = new byte[20];
+        TOKEN_RANDOM.nextBytes(tokenBytes);
+        String token = Hex.encodeHexString(tokenBytes);
         String key = "captions:" + token + ":singleusetoken";
         RedisCommands<String, String> commands = connection.sync();
-        commands.multi();
-        commands.hmset(key, data);
-        commands.expire(key, expirySeconds);
-        commands.exec();
+        commands.eval(STORE_CAPTION_TOKEN, ScriptOutputType.INTEGER, new String[] { key },
+                recordId, caption, Long.toString(expirySeconds));
 
         return token;
     }
@@ -84,16 +94,10 @@ public class RedisStorageService extends RedisAwareCommunicator {
     public Boolean validateSingleUseCaptionToken(String token, String recordId, String caption) {
         String key = "captions:" + token + ":singleusetoken";
         RedisCommands<String, String> commands = connection.sync();
-        Boolean keyExist = commands.exists(key) == 1;
-        if (keyExist) {
-            Map <String, String> data = commands.hgetall(key);
-            if (data.get("recordId").equals(recordId) && data.get("caption").equals(caption)) {
-                commands.del(key);
-                return true;
-            }
-        }
+        Long deleted = commands.eval(CONSUME_CAPTION_TOKEN, ScriptOutputType.INTEGER, new String[] { key },
+                recordId, caption);
 
-        return false;
+        return deleted != null && deleted == 1;
     }
 
     public void recordMeetingInfo(String meetingId, Map<String, String> info) {
