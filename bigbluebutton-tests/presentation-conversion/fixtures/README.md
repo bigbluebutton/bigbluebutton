@@ -64,7 +64,7 @@ Rules the manifest lint enforces:
 | marker | the rendered slide shows the marker picture upright and unmirrored |
 | pixels | the rendered slide matches its golden PNG within the tolerance |
 | thumb | the thumbnail matches its golden PNG within the tolerance |
-| served | slide 1 is served to a joined session (cookie, sessionToken, pageToken) with the same bytes as on disk, and refused with a wrong pageToken; runs for every converted fixture that enables it |
+| served | slide 1 is served to a joined session (cookie, sessionToken) at the URL bbb-web issued for it, with the same bytes as on disk, and refused with a wrong pageToken; runs for every converted fixture that enables it |
 
 Known failures are listed in `../known-failures.yaml`, per fixture, profile, page and check.
 

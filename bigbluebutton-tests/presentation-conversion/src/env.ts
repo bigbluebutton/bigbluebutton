@@ -30,7 +30,7 @@ export interface Target {
   blankText: string;
   statusSource: 'db' | 'disk';
   db?: { command: string };
-  served: { base: string; token: 'pageToken-hmac-sha256' | 'none' };
+  served: { token: 'pageToken' | 'none' };
   urlDocuments: { webroot: string; urlPath: string };
 }
 

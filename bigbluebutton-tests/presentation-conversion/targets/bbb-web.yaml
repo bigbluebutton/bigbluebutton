@@ -17,8 +17,7 @@ statusSource: db                  # db | disk
 db:
   command: "sudo -n -u postgres psql -At -d bbb_graphql -c"
 served:
-  base: ${BBB_URL}presentation/
-  token: pageToken-hmac-sha256    # pageToken = hex HMAC-SHA256(secret, "presId|n")
+  token: pageToken                # the slide URL bbb-web issued for the page (pres_page.urlsJson) carries it
 urlDocuments:
   webroot: /var/www/bigbluebutton-default/assets
   urlPath: pcf
