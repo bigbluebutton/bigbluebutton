@@ -12,6 +12,11 @@ public class PresentationUploadToken implements IMessage  {
     public final String meetingId;
     public final String userId;
 
+    // An upload request is handled only once its whole body is in, so until then its arrival at
+    // bbb-web is the only sign that the file is on its way.
+    private final long receivedAt = System.currentTimeMillis();
+    private volatile boolean uploadStarted = false;
+
     public PresentationUploadToken(String podId, String authzToken, String filename, String meetingId, String presentationId, String userId) {
         this.podId = podId;
         this.authzToken = authzToken;
@@ -23,6 +28,20 @@ public class PresentationUploadToken implements IMessage  {
 
     public boolean isSystemUpload() {
         return SYSTEM_USER_ID.equals(userId);
+    }
+
+    // True for the first upload request to arrive for the token, false for any after it.
+    public synchronized boolean markUploadStarted() {
+        if (uploadStarted) return false;
+        uploadStarted = true;
+        return true;
+    }
+
+    // True once no upload request has arrived for the token within the time a client is given
+    // to start sending. bbb-apps-akka issues the token of a system upload well before the file
+    // is rendered, so those are never abandoned.
+    public boolean isAbandoned(long now, long startTimeoutMillis) {
+        return !isSystemUpload() && !uploadStarted && now - receivedAt >= startTimeoutMillis;
     }
 
     public boolean isValidFor(String requestedMeetingId) {
