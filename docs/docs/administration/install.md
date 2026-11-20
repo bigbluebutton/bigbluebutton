@@ -391,7 +391,7 @@ See the [Server customization page](/administration/customize) for things you ca
 The package `bbb-libreoffice-docker` runs LibreOffice from the Docker image `bigbluebutton/bbb-libreoffice`, pinned to the tag listed in `/usr/share/bbb-libreoffice/docker-image`. When the package is installed, it pulls that image from Docker Hub. On a server that cannot reach Docker Hub (for example behind a firewall or on a network with a local name server) the installation fails with an error such as
 
 ```
-# Pulling the bbb-libreoffice docker image bigbluebutton/bbb-libreoffice:25.8.4.2-20260129-151200
+# Pulling the bbb-libreoffice docker image bigbluebutton/bbb-libreoffice:26.8.3.1-20261120-120000
 Error response from daemon: Get "https://registry-1.docker.io/v2/": dial tcp: lookup registry-1.docker.io on 127.0.0.53:53: server misbehaving
 dpkg: error processing package bbb-libreoffice-docker (--configure):
  installed bbb-libreoffice-docker package post-installation script subprocess returned error exit status 1
@@ -402,9 +402,12 @@ Give Docker access to Docker Hub (for example, through an HTTP proxy configured 
 If the server has no route to Docker Hub at all, load the image from a machine that has one and finish the installation afterwards:
 
 ```bash
-# on a machine with access to Docker Hub
-docker pull bigbluebutton/bbb-libreoffice:25.8.4.2-20260129-151200
-docker save bigbluebutton/bbb-libreoffice:25.8.4.2-20260129-151200 -o bbb-libreoffice.tar
+# on the BigBlueButton server: the image this version of the package needs
+cat /usr/share/bbb-libreoffice/docker-image
+
+# on a machine with access to Docker Hub, with the image printed above
+docker pull bigbluebutton/bbb-libreoffice:26.8.3.1-20261120-120000
+docker save bigbluebutton/bbb-libreoffice:26.8.3.1-20261120-120000 -o bbb-libreoffice.tar
 scp bbb-libreoffice.tar bbb.example.com:
 
 # on the BigBlueButton server
