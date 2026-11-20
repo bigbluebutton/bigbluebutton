@@ -269,6 +269,18 @@ const intlMessages = defineMessages({
     id: 'app.presentation.actionsLabel',
     description: 'actions label',
   },
+  expandAnimations: {
+    id: 'app.presentationUploader.expandAnimations',
+    description: 'label for expanding PowerPoint animations',
+  },
+  expandAnimationsYes: {
+    id: 'app.presentationUploader.expandAnimationsYes',
+    description: 'expand PowerPoint animations',
+  },
+  expandAnimationsNo: {
+    id: 'app.presentationUploader.expandAnimationsNo',
+    description: 'do not expand PowerPoint animations',
+  },
 });
 
 const handleDismissToast = (id) => toast.dismiss(id);
@@ -889,80 +901,131 @@ class PresentationUploader extends Component {
     const disableExportDropdown = shouldDisableExportButtonForAllDocuments
     || shouldDisableExportButton;
 
+    const showAnimationExpansionOptions = Boolean(item.file)
+      && /\.pptx$/i.test(item.name);
+
     return (
-      <Styled.PresentationItem
-        key={item.presentationId}
-        isNew={item.presentationId.indexOf(item.name) !== -1}
-        uploading={isUploading}
-        uploadInProgress={uploadInProgress}
-        error={hasError}
-        animated={isProcessing}
-        animations={animations}
-        data-test="presentationItem"
-      >
-        <Styled.SetCurrentAction>
-          <Radio
-            animations={animations}
-            ariaLabel={`${intl.formatMessage(intlMessages.setAsCurrentPresentation)} ${item.name}`}
-            checked={item.current}
-            keyValue={item.presentationId}
-            onChange={() => this.handleCurrentChange(item.presentationId)}
-            disabled={disableActions || hasError}
-          />
-        </Styled.SetCurrentAction>
-        <Styled.TableItemName colSpan={!isActualCurrent ? 2 : 0}>
-          <span>{item.name}</span>
-        </Styled.TableItemName>
-        {
-          isActualCurrent
-            ? (
-              <Styled.TableItemCurrent>
-                <Styled.CurrentLabel>
-                  {intl.formatMessage(intlMessages.currentBadge)}
-                </Styled.CurrentLabel>
-              </Styled.TableItemCurrent>
-            )
-            : null
-        }
-        <Styled.TableItemStatus colSpan={hasError ? 2 : 0}>
-          {renderPresentationItemStatus(item, intl)}
-        </Styled.TableItemStatus>
-        {
-        hasError ? null : (
-          <Styled.TableItemActions notDownloadable={!allowDownloadOriginal}>
-            {allowDownloadOriginal || allowDownloadWithAnnotations || allowDownloadConverted ? (
-              <PresentationDownloadDropdown
-                disabled={disableExportDropdown}
-                data-test="exportPresentation"
-                aria-label={formattedDownloadAriaLabel}
-                color="primary"
-                isDownloadable={downloadable}
-                allowDownloadOriginal={allowDownloadOriginal}
-                allowDownloadConverted={allowDownloadConverted}
-                allowDownloadWithAnnotations={allowDownloadWithAnnotations}
-                handleDownloadableChange={this.handleDownloadableChange}
-                item={item}
-                closeModal={() => Session.setItem('showUploadPresentationView', false)}
-                handleDownloadingOfPresentation={(fileStateType) => this
-                  .handleDownloadingOfPresentation(item, fileStateType)}
-              />
-            ) : null}
-            {removable ? (
-              <Styled.RemoveButton
-                disabled={disableActions}
-                label={intl.formatMessage(intlMessages.removePresentation)}
-                data-test="removePresentation"
-                aria-label={`${intl.formatMessage(intlMessages.removePresentation)} ${item.name}`}
-                size="sm"
-                icon="delete"
-                hideLabel
-                onClick={() => this.handleRemove(item)}
-                animations={animations}
-              />
-            ) : null}
-          </Styled.TableItemActions>
-        )}
-      </Styled.PresentationItem>
+      <React.Fragment key={item.presentationId}>
+        <Styled.PresentationItem
+          key={item.presentationId}
+          isNew={item.presentationId.indexOf(item.name) !== -1}
+          uploading={isUploading}
+          uploadInProgress={uploadInProgress}
+          error={hasError}
+          animated={isProcessing}
+          animations={animations}
+          data-test="presentationItem"
+        >
+          <Styled.SetCurrentAction>
+            <Radio
+              animations={animations}
+              ariaLabel={`${intl.formatMessage(intlMessages.setAsCurrentPresentation)} ${item.name}`}
+              checked={item.current}
+              keyValue={item.presentationId}
+              onChange={() => this.handleCurrentChange(item.presentationId)}
+              disabled={disableActions || hasError}
+            />
+          </Styled.SetCurrentAction>
+          <Styled.TableItemName colSpan={!isActualCurrent ? 2 : 0}>
+            <span>{item.name}</span>
+          </Styled.TableItemName>
+          {
+            isActualCurrent
+              ? (
+                <Styled.TableItemCurrent>
+                  <Styled.CurrentLabel>
+                    {intl.formatMessage(intlMessages.currentBadge)}
+                  </Styled.CurrentLabel>
+                </Styled.TableItemCurrent>
+              )
+              : null
+          }
+          <Styled.TableItemStatus colSpan={hasError ? 2 : 0}>
+            {renderPresentationItemStatus(item, intl)}
+          </Styled.TableItemStatus>
+          {
+          hasError ? null : (
+            <Styled.TableItemActions notDownloadable={!allowDownloadOriginal}>
+              {allowDownloadOriginal || allowDownloadWithAnnotations || allowDownloadConverted ? (
+                <PresentationDownloadDropdown
+                  disabled={disableExportDropdown}
+                  data-test="exportPresentation"
+                  aria-label={formattedDownloadAriaLabel}
+                  color="primary"
+                  isDownloadable={downloadable}
+                  allowDownloadOriginal={allowDownloadOriginal}
+                  allowDownloadConverted={allowDownloadConverted}
+                  allowDownloadWithAnnotations={allowDownloadWithAnnotations}
+                  handleDownloadableChange={this.handleDownloadableChange}
+                  item={item}
+                  closeModal={() => Session.setItem('showUploadPresentationView', false)}
+                  handleDownloadingOfPresentation={(fileStateType) => this
+                    .handleDownloadingOfPresentation(item, fileStateType)}
+                />
+              ) : null}
+              {removable ? (
+                <Styled.RemoveButton
+                  disabled={disableActions}
+                  label={intl.formatMessage(intlMessages.removePresentation)}
+                  data-test="removePresentation"
+                  aria-label={`${intl.formatMessage(intlMessages.removePresentation)} ${item.name}`}
+                  size="sm"
+                  icon="delete"
+                  hideLabel
+                  onClick={() => this.handleRemove(item)}
+                  animations={animations}
+                />
+              ) : null}
+            </Styled.TableItemActions>
+          )}
+        </Styled.PresentationItem>
+
+        {showAnimationExpansionOptions ? (
+          <Styled.AnimationOptionsRow>
+            <td />
+            <td colSpan={4}>
+              <Styled.AnimationOptions
+                role="radiogroup"
+                aria-labelledby={`expand-animations-${item.presentationId}`}
+              >
+                <Styled.AnimationOptionsLabel
+                  id={`expand-animations-${item.presentationId}`}
+                >
+                  {intl.formatMessage(intlMessages.expandAnimations)}
+                </Styled.AnimationOptionsLabel>
+
+                <Radio
+                  animations={animations}
+                  label={intl.formatMessage(intlMessages.expandAnimationsYes)}
+                  ariaLabel={intl.formatMessage(intlMessages.expandAnimationsYes)}
+                  checked={item.expandAnimations === true}
+                  keyValue="expand"
+                  onChange={() => this.updateFileKey(
+                    item.presentationId,
+                    'expandAnimations',
+                    true,
+                  )}
+                  disabled={disableActions}
+                />
+
+                <Radio
+                  animations={animations}
+                  label={intl.formatMessage(intlMessages.expandAnimationsNo)}
+                  ariaLabel={intl.formatMessage(intlMessages.expandAnimationsNo)}
+                  checked={item.expandAnimations !== true}
+                  keyValue="do-not-expand"
+                  onChange={() => this.updateFileKey(
+                    item.presentationId,
+                    'expandAnimations',
+                    false,
+                  )}
+                  disabled={disableActions}
+                />
+              </Styled.AnimationOptions>
+            </td>
+          </Styled.AnimationOptionsRow>
+        ) : null}
+      </React.Fragment>
     );
   }
 
