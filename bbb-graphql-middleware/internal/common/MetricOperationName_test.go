@@ -2,6 +2,9 @@ package common
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 
@@ -112,5 +115,86 @@ func TestTheCapIsReadFromTheConfiguration(t *testing.T) {
 	}
 	if got := labels.label("third"); got != OtherOperationLabel {
 		t.Errorf("label(\"third\") = %q, want %q past the configured cap of 2", got, OtherOperationLabel)
+	}
+}
+
+// A reserved name, one of the BigBlueButton client, is labeled by name and takes no place under
+// the cap, even once the cap is full.
+func TestReservedNamesAreLabeledOutsideTheCap(t *testing.T) {
+	labels := newOperationNameLabels(1, 128)
+	labels.reserve([]string{"getUsers", "Patched_getUsers"})
+
+	for _, name := range []string{"getUsers", "pluginQuery", "Patched_getUsers", "otherPluginQuery", "getUsers"} {
+		want := name
+		if name == "otherPluginQuery" {
+			want = OtherOperationLabel // the one place under the cap went to pluginQuery
+		}
+		if got := labels.label(name); got != want {
+			t.Errorf("label(%q) = %q, want %q", name, got, want)
+		}
+	}
+}
+
+func TestReadClientOperationNames(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "names.txt")
+	content := "# a comment\n\ngetUsers\n  Patched_getUsers  \nget users\n" + strings.Repeat("a", 129) + "\n"
+	if err := os.WriteFile(path, []byte(content), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if got := readClientOperationNames(path); !slices.Equal(got, []string{"getUsers", "Patched_getUsers"}) {
+		t.Errorf("read %q, want the two GraphQL names, without the comment, the blank line and the two invalid lines", got)
+	}
+	if got := readClientOperationNames(filepath.Join(t.TempDir(), "missing.txt")); got != nil {
+		t.Errorf("a missing file read as %q, want no names", got)
+	}
+	if got := readClientOperationNames(""); got != nil {
+		t.Errorf("no file read as %q, want no names", got)
+	}
+}
+
+// The names reserved are those of prometheus_client_operation_names_file.
+func TestTheReservedNamesAreReadFromTheConfiguration(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "names.txt")
+	if err := os.WriteFile(path, []byte("getMeeting\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	savedLimit, savedFile := config.GetConfig().PrometheusOperationNameLimit, config.GetConfig().PrometheusClientOperationNamesFile
+	t.Cleanup(func() {
+		config.GetConfig().PrometheusOperationNameLimit = savedLimit
+		config.GetConfig().PrometheusClientOperationNamesFile = savedFile
+	})
+	config.GetConfig().PrometheusOperationNameLimit = 1
+	config.GetConfig().PrometheusClientOperationNamesFile = path
+
+	labels := configuredOperationNameLabels()
+	labels.label("pluginQuery") // fills the cap
+	if got := labels.label("getMeeting"); got != "getMeeting" {
+		t.Errorf("label(\"getMeeting\") = %q, want the reserved name past a full cap", got)
+	}
+}
+
+// The list the package installs: every line that is not a comment is a GraphQL name, once.
+func TestTheClientOperationNamesFileIsWellFormed(t *testing.T) {
+	path := filepath.Join("..", "..", "config", "client-operation-names.txt")
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	lines := 0
+	for _, line := range strings.Split(string(data), "\n") {
+		if line = strings.TrimSpace(line); line != "" && !strings.HasPrefix(line, "#") {
+			lines++
+		}
+	}
+	names := readClientOperationNames(path)
+	if len(names) == 0 || len(names) != lines {
+		t.Fatalf("%d names read of %d lines", len(names), lines)
+	}
+	seen := map[string]bool{}
+	for _, name := range names {
+		if seen[name] {
+			t.Errorf("%q is listed twice", name)
+		}
+		seen[name] = true
 	}
 }

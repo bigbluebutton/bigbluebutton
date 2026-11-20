@@ -79,4 +79,7 @@ func TestThePrometheusOperationNameLimitKeyIsRead(t *testing.T) {
 	if shipped.PrometheusOperationNameLimit != 500 {
 		t.Errorf("the shipped config.yml sets %d, want 500", shipped.PrometheusOperationNameLimit)
 	}
+	if want := "/usr/share/bbb-graphql-middleware/client-operation-names.txt"; shipped.PrometheusClientOperationNamesFile != want {
+		t.Errorf("the shipped config.yml sets prometheus_client_operation_names_file %q, want %q, where the package installs the list", shipped.PrometheusClientOperationNamesFile, want)
+	}
 }

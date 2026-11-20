@@ -1,9 +1,14 @@
 package common
 
 import (
+	"bufio"
+	"os"
+	"strings"
 	"sync"
 
 	"bbb-graphql-middleware/config"
+
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -23,9 +28,11 @@ const (
 )
 
 // operationNameLabels caps the distinct operationName label values of the metrics. The names
-// come from the browser, so without a cap any client could create new series at will.
+// come from the browser, so without a cap any client could create new series at will. The
+// reserved names, those of the BigBlueButton client, are labeled by name outside the cap.
 type operationNameLabels struct {
 	mu       sync.Mutex
+	reserved map[string]struct{} // set at start, read without the lock
 	admitted map[string]struct{}
 	maxNames int
 	maxBytes int
@@ -35,9 +42,20 @@ func newOperationNameLabels(maxNames, maxBytes int) *operationNameLabels {
 	return &operationNameLabels{admitted: make(map[string]struct{}), maxNames: maxNames, maxBytes: maxBytes}
 }
 
+// reserve labels the names by name outside the cap, before any name is labeled.
+func (l *operationNameLabels) reserve(names []string) {
+	l.reserved = make(map[string]struct{}, len(names))
+	for _, name := range names {
+		l.reserved[name] = struct{}{}
+	}
+}
+
 func (l *operationNameLabels) label(operationName string) string {
 	if operationName == "" {
 		return UnnamedOperationLabel
+	}
+	if _, ok := l.reserved[operationName]; ok {
+		return operationName
 	}
 	if len(operationName) > l.maxBytes || !isGraphQLName(operationName) {
 		return OtherOperationLabel
@@ -90,15 +108,54 @@ func InitMetricOperationNames() {
 	})
 }
 
-// configuredOperationNameLabels is the cap of prometheus_operation_name_limit, as configured now.
+// configuredOperationNameLabels is the cap of prometheus_operation_name_limit, with the names of
+// prometheus_client_operation_names_file reserved, as configured now.
 func configuredOperationNameLabels() *operationNameLabels {
-	return newOperationNameLabels(operationNameLimit(config.GetConfig().PrometheusOperationNameLimit), maxOperationNameLabelBytes)
+	labels := newOperationNameLabels(operationNameLimit(config.GetConfig().PrometheusOperationNameLimit), maxOperationNameLabelBytes)
+	labels.reserve(readClientOperationNames(config.GetConfig().PrometheusClientOperationNamesFile))
+	return labels
 }
 
-// MetricOperationName is the operationName label value of every metric: the name itself for the
-// first distinct GraphQL names of up to 128 bytes, up to the cap (500 by default, set with
-// prometheus_operation_name_limit), OtherOperationLabel for any other, and
-// UnnamedOperationLabel for an operation without a name.
+// readClientOperationNames reads the operation names of the BigBlueButton client, one per line,
+// skipping blank lines and lines that start with #. A label cannot change while the process runs,
+// so the cap admits names in the order they arrive; these names are kept outside it so they never
+// fall into (other). A file that is not set, missing or unreadable gives no names, with a
+// warning, and a line that is not a GraphQL name of up to 128 bytes is skipped, with a warning.
+func readClientOperationNames(path string) []string {
+	if path == "" {
+		return nil
+	}
+	file, err := os.Open(path)
+	if err != nil {
+		log.Warnf("No client operation names for the metrics, every name is under the cap: %v", err)
+		return nil
+	}
+	defer file.Close()
+
+	var names []string
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		if len(line) > maxOperationNameLabelBytes || !isGraphQLName(line) {
+			log.Warnf("Skipping %q in %s: not a GraphQL operation name", line, path)
+			continue
+		}
+		names = append(names, line)
+	}
+	if err := scanner.Err(); err != nil {
+		log.Warnf("No client operation names for the metrics, every name is under the cap: %v", err)
+		return nil
+	}
+	return names
+}
+
+// MetricOperationName is the operationName label value of every metric: the name itself for a
+// name of the BigBlueButton client and for the first distinct other GraphQL names of up to 128
+// bytes, up to the cap (500 by default, set with prometheus_operation_name_limit),
+// OtherOperationLabel for any other, and UnnamedOperationLabel for an operation without a name.
 func MetricOperationName(operationName string) string {
 	InitMetricOperationNames()
 	return metricOperationNames.label(operationName)

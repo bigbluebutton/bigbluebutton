@@ -60,10 +60,11 @@ type Config struct {
 	SessionVarsHook struct {
 		Url string `yaml:"url"`
 	} `yaml:"session_vars_hook"`
-	LogLevel                         string `yaml:"log_level"`
-	PrometheusAdvancedMetricsEnabled bool   `yaml:"prometheus_advanced_metrics_enabled"`
-	PrometheusOperationNameLimit     int    `yaml:"prometheus_operation_name_limit"`
-	DumpQueriesDir                   string `yaml:"dump_queries_dir"`
+	LogLevel                           string `yaml:"log_level"`
+	PrometheusAdvancedMetricsEnabled   bool   `yaml:"prometheus_advanced_metrics_enabled"`
+	PrometheusOperationNameLimit       int    `yaml:"prometheus_operation_name_limit"`
+	PrometheusClientOperationNamesFile string `yaml:"prometheus_client_operation_names_file"`
+	DumpQueriesDir                     string `yaml:"dump_queries_dir"`
 }
 
 func GetConfig() *Config {

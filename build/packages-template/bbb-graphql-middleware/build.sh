@@ -40,6 +40,8 @@ chmod 644 staging/etc/nginx/sites-available/hasura-loadbalancer.conf
 # Create config file
 cp config/config.yml staging/usr/share/bbb-graphql-middleware/config.yml
 chmod a+r staging/usr/share/bbb-graphql-middleware/config.yml
+cp config/client-operation-names.txt staging/usr/share/bbb-graphql-middleware/client-operation-names.txt
+chmod a+r staging/usr/share/bbb-graphql-middleware/client-operation-names.txt
 
 cp bbb-graphql-middleware.service staging/lib/systemd/system/bbb-graphql-middleware.service
 
