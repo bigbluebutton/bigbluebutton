@@ -74,7 +74,13 @@ there compares like with like.
   stack running the same packages. On 2026-11-16 the getRecordingProcessingInfo
   cases (`getRecordingProcessingInfo/`, and their checksum and method cases)
   were added, recorded from a fresh stack (`make reset`) running a bbb-web
-  built from this tree that day and the other packages of 2026-11-10.
+  built from this tree that day and the other packages of 2026-11-10. On
+  2026-11-17 the session-token calls' cases (`getJoinUrl/`, `stuns/`,
+  `signOut/`, `learningDashboard/`, `sendChatMessage/`,
+  `join.session.ignored-params` and `create.breakouts.sequence`) were
+  recorded from a stack running packages built from v4.0.x-develop of that
+  day (3fc5b07e3d), and `getJoinUrl.signed-url.parameters` was recorded
+  again for its new check step; its answers didn't change.
 
 ## Reviewing
 

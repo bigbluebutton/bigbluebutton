@@ -8,9 +8,11 @@
 package fakebbb
 
 import (
+	"crypto/hmac"
 	"crypto/sha1"
 	"crypto/sha256"
 	"crypto/sha512"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -243,7 +245,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "getJoinUrl":
 		s.getJoinURL(w, r, params)
 	case "stuns":
-		writeJSON(w, map[string]any{"returncode": "FAILED", "message": "Could not find conference.", "logoutURL": origin(r) + "/"})
+		s.stuns(w, r, params)
 	case "insertDocument":
 		if r.Method != http.MethodPost {
 			s.fail(w, r, "notAllowed", "insertDocument only accepts POST")
@@ -525,8 +527,35 @@ func (s *Server) present(m *meeting) bool {
 	return false
 }
 
-// getJoinURL builds its link the way bbb-web does: SHA-1, and a query
-// string that starts with "&".
+// TurnSecret is the shared secret of the fake's TURN server, and TurnTTL
+// the lifetime of its credentials, in seconds.
+const (
+	TurnSecret = "fake-turn-secret"
+	TurnTTL    = 86400
+)
+
+// stuns answers as bbb-web does: a TURN credential is "<expiry>:<user ID>"
+// and the Base64 HMAC-SHA1 of it, keyed with the TURN server's secret.
+func (s *Server) stuns(w http.ResponseWriter, r *http.Request, p url.Values) {
+	sess := s.sessions[p.Get("sessionToken")]
+	if sess == nil {
+		writeJSON(w, map[string]any{"returncode": "FAILED", "message": "Could not find conference.", "logoutURL": origin(r) + "/"})
+		return
+	}
+	user := strconv.FormatInt(time.Now().Unix()+TurnTTL, 10) + ":" + sess.userID
+	mac := hmac.New(sha1.New, []byte(TurnSecret))
+	mac.Write([]byte(user))
+	writeJSON(w, map[string]any{
+		"stunServers": []any{map[string]any{"url": "stun:turn.test"}},
+		"turnServers": []any{map[string]any{"username": user, "password": base64.StdEncoding.EncodeToString(mac.Sum(nil)),
+			"url": "turn:turn.test:3478", "ttl": TurnTTL}},
+		"remoteIceCandidates": []any{},
+	})
+}
+
+// getJoinURL builds its link as bbb-web does, with a query string that
+// starts with "&", but always signs it with SHA-1, where bbb-web uses the
+// strongest algorithm it accepts.
 func (s *Server) getJoinURL(w http.ResponseWriter, r *http.Request, p url.Values) {
 	sess := s.sessions[p.Get("sessionToken")]
 	if sess == nil {

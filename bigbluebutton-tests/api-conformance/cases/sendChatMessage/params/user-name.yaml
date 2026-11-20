@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# sendChatMessage's userName is at most 255 characters; a longer one is
+# refused with sizeError.
+id: sendChatMessage.params.user-name
+title: sendChatMessage takes a userName of up to 255 characters
+endpoint: sendChatMessage
+class: contract
+tags: [ci, presence]
+requires: [akka, presence]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Chat}
+    golden: off
+    expect: {returncode: SUCCESS}
+  # sendChatMessage needs a running meeting: someone in it.
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: moderator}}
+    golden: off
+  # bbb-web learns of the join from akka-apps a moment later.
+  - call: sendChatMessage
+    params: {meetingID: "${uid}", message: Hello, userName: '${repeat("u", 255)}'}
+    eventually: {within: 10s, every: 200ms, until: {returncode: SUCCESS}}
+    expect: {returncode: SUCCESS}
+  - call: sendChatMessage
+    params: {meetingID: "${uid}", message: Hello, userName: '${repeat("u", 256)}'}
+    expect: {returncode: FAILED, messageKey: sizeError, message: Param userName must not exceed 255 characters}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

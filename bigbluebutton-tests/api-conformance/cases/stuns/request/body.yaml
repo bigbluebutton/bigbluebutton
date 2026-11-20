@@ -1,0 +1,45 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# stuns takes POST, with its parameters in a form body. A body of another
+# type is refused, with stuns' single FAILED answer.
+id: stuns.request.body
+title: stuns reads a form body and refuses a JSON one
+endpoint: stuns
+class: contract
+tags: [ci]
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Stuns body}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: join
+    client: ann
+    params: {meetingID: "${uid}", fullName: Ann, role: moderator, redirect: "false"}
+    golden: off
+    capture: {annId: /response/user_id, annToken: /response/session_token}
+  - call: stuns
+    client: ann
+    method: POST
+    body: {form: {sessionToken: "${annToken}"}}
+    # The servers are the target's own: recorded, not compared.
+    golden: document
+    expect:
+      format: json
+      jsonpath: {$.stunServers: {exists: true}}
+  - call: stuns
+    client: ann
+    method: POST
+    params: {sessionToken: "${annToken}"}
+    body: {json: {sessionToken: "${annToken}"}}
+    expect:
+      format: json
+      returncode: FAILED
+      message: Could not find conference.
+      jsonpath: {$.logoutURL: {exists: true}}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

@@ -131,6 +131,7 @@ func TestCommittedTargets(t *testing.T) {
 	t.Setenv("BBB_URL", "https://bbb-ci.test/bigbluebutton/")
 	t.Setenv("BBB_SECRET", "bbbci")
 	t.Setenv("BBB_WEB_DIRECT_URL", "")
+	t.Setenv("TURN_SECRET", "")
 	web, err := Load("../../../targets/bbb-web.yaml")
 	if err != nil {
 		t.Fatal(err)
@@ -140,6 +141,17 @@ func TestCommittedTargets(t *testing.T) {
 	}
 	if _, _, ok := web.Route("connection-authz"); ok {
 		t.Error("the internal hooks should be unavailable without BBB_WEB_DIRECT_URL")
+	}
+	if web.Has("turn") {
+		t.Error("bbb-web has the turn capability without TURN_SECRET")
+	}
+	t.Setenv("TURN_SECRET", "s3cret")
+	web, err = Load("../../../targets/bbb-web.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if v := web.Vars["turnSecret"]; !web.Has("turn") || v.Value != "s3cret" || !v.Secret {
+		t.Errorf("with TURN_SECRET: turn %v, turnSecret %+v", web.Has("turn"), v)
 	}
 	api, err := Load("../../../targets/bbb-api.yaml")
 	if err != nil {
@@ -175,6 +187,40 @@ func TestTap(t *testing.T) {
 		if err := tt.in.complete(env(nil)); err == nil || !strings.Contains(err.Error(), tt.want) {
 			t.Errorf("%+v: %v", tt.in, err)
 		}
+	}
+}
+
+// A var can give a target a capability while it has a value, so the cases
+// that need the value are skipped rather than failed without it.
+func TestVarCapability(t *testing.T) {
+	newTarget := func(caps ...string) Target {
+		return Target{Name: "x", BaseURL: "https://h", Salt: "s", Capabilities: caps,
+			Vars: map[string]Var{"turnSecret": {Env: "TURN_SECRET", Secret: true, Capability: "turn"}}}
+	}
+	tg := newTarget("akka")
+	if err := tg.complete(env(map[string]string{"TURN_SECRET": "k"})); err != nil || !tg.Has("turn") {
+		t.Errorf("with the var set: turn %v, %v", tg.Has("turn"), err)
+	}
+	tg = newTarget("akka")
+	if err := tg.complete(env(nil)); err != nil || tg.Has("turn") {
+		t.Errorf("without the var: turn %v, %v", tg.Has("turn"), err)
+	}
+	tg = newTarget("akka", "turn")
+	if err := tg.complete(env(nil)); err == nil || !strings.Contains(err.Error(), "capability turn needs a var that gives it to have a value") {
+		t.Errorf("claiming turn without the var: %v", err)
+	}
+	// Two vars for one capability: one with a value gives it, whatever
+	// order the map is read in.
+	for i := 0; i < 20; i++ {
+		tg = Target{Name: "x", BaseURL: "https://h", Salt: "s", Vars: map[string]Var{
+			"a": {Value: "1", Capability: "turn"}, "b": {Env: "UNSET", Capability: "turn"}, "c": {Value: "2"}}}
+		if err := tg.complete(env(nil)); err != nil || !tg.Has("turn") {
+			t.Fatalf("two vars for turn: turn %v, %v", tg.Has("turn"), err)
+		}
+	}
+	tg = Target{Name: "x", BaseURL: "https://h", Salt: "s", Vars: map[string]Var{"v": {Value: "1", Capability: "turm"}}}
+	if err := tg.complete(env(nil)); err == nil || !strings.Contains(err.Error(), `vars.v: unknown capability "turm"`) {
+		t.Errorf("a misspelt capability: %v", err)
 	}
 }
 

@@ -268,6 +268,29 @@ func (c *checker) value(m spec.Matcher, v string) (bool, error) {
 			}
 		}
 		return false, nil
+	case "between":
+		if len(m.Args) != 2 {
+			return false, fmt.Errorf("between needs two bounds, got %d", len(m.Args))
+		}
+		var bounds [2]int64
+		for i, a := range m.Args {
+			b, err := c.eval(a)
+			if err != nil {
+				return false, err
+			}
+			if bounds[i], err = strconv.ParseInt(b, 10, 64); err != nil {
+				return false, fmt.Errorf("between: bound %q isn't an integer", b)
+			}
+		}
+		// As when the case loads, for bounds a template gave.
+		if bounds[0] > bounds[1] {
+			return false, fmt.Errorf("between: the low bound %d is above the high bound %d", bounds[0], bounds[1])
+		}
+		n, err := strconv.ParseInt(v, 10, 64)
+		if err != nil {
+			return false, nil // not a number: the check fails
+		}
+		return bounds[0] <= n && n <= bounds[1], nil
 	}
 	return false, fmt.Errorf("unknown matcher %q", m.Op)
 }
@@ -305,6 +328,10 @@ func describe(m spec.Matcher, c *checker) string {
 			parts = append(parts, strconv.Quote(ex(a)))
 		}
 		return "one of " + strings.Join(parts, ", ")
+	case "between":
+		if len(m.Args) == 2 {
+			return "an integer from " + ex(m.Args[0]) + " to " + ex(m.Args[1])
+		}
 	}
 	return m.Op
 }

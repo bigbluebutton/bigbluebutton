@@ -1,0 +1,23 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case getJoinUrl.join-url.presence
+target bbb-web
+
+== step 6: bus RegisterUserSessionTokenReqMsg
+$.channel "to-akka-apps-redis-channel"
+$.core.body.enforceLayout ""
+$.core.body.meetingId "<sha1(meetingID)>-<time>"
+$.core.body.replaceSessionToken "<token>"
+$.core.body.sessionName "Phone"
+$.core.body.sessionToken "<token>"
+$.core.body.userId "w_<id>"
+$.core.body.userSessionMetadata {}
+$.core.header.meetingId "<sha1(meetingID)>-<time>"
+$.core.header.name "RegisterUserSessionTokenReqMsg"
+$.envelope.name "RegisterUserSessionTokenReqMsg"
+$.envelope.routing.sender "bbb-web"
+$.envelope.timestamp "<time>"
+
+== step 7: graphql query Me as phone
+$.data.user_current[].name "Ann"
+$.data.user_current[].role "VIEWER"
+$.data.user_current[].userId "w_<id>"

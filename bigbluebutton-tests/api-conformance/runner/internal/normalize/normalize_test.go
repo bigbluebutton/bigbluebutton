@@ -182,7 +182,7 @@ body xml
 	}
 	x, y := stuns(`{"url":"stun:b"},{"url":"stun:a"}`), stuns(`{"url":"stun:a"},{"url":"stun:b"}`)
 	check(t, x, strings.Join(y, "\n"))
-	if !strings.Contains(strings.Join(x, "\n"), `$.turnServers[].username "<expiry>:w_abcdefghijkl"`) || !strings.Contains(strings.Join(x, "\n"), `$.turnServers[].password "<token>"`) {
+	if !strings.Contains(strings.Join(x, "\n"), `$.turnServers[].username "<expiry>:<user ID>"`) || !strings.Contains(strings.Join(x, "\n"), `$.turnServers[].password "<token>"`) {
 		t.Errorf("TURN credentials not masked:\n%s", strings.Join(x, "\n"))
 	}
 }
