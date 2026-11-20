@@ -54,13 +54,12 @@ jobs:
               if (e.status === 404) return skip('the suite is not on this branch yet');
               throw e;
             }
+            let started;
             try {
-              await github.rest.actions.createWorkflowDispatch({ owner, repo, ref, workflow_id: 'automated-tests.yml', inputs: { jobs: 'presentation-conversion' } });
+              started = await github.rest.actions.createWorkflowDispatch({ owner, repo, ref, workflow_id: 'automated-tests.yml', inputs: { jobs: 'presentation-conversion' }, return_run_details: true });
             } catch (e) {
               if (e.status === 422) return skip(`automated-tests.yml on this branch does not accept the dispatch: ${e.message}`);
               throw e;
             }
-            await new Promise((r) => setTimeout(r, 15000));
-            const runs = await github.rest.actions.listWorkflowRuns({ owner, repo, workflow_id: 'automated-tests.yml', branch: ref, event: 'workflow_dispatch', per_page: 1 });
-            const run = runs.data.workflow_runs[0];
-            await core.summary.addRaw(`- ${ref}: ${run ? `[run ${run.id}](${run.html_url})` : 'dispatched'}\n`).write();
+            const run = started.data || {};
+            await core.summary.addRaw(`- ${ref}: ${run.workflow_run_id ? `[run ${run.workflow_run_id}](${run.html_url})` : 'dispatched'}\n`).write();
