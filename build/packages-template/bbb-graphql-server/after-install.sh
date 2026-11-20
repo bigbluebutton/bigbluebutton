@@ -43,14 +43,37 @@ case "$1" in
   #Generate a random password to Hasura to improve security
   if [ ! -f /etc/default/bbb-graphql-server-admin-pass ]; then
     HASURA_RANDOM_ADM_PASSWORD=$(openssl rand -base64 32 | sed 's/=//g' | sed 's/+//g' | sed 's/\///g')
-    echo "# This password is randomly generated during the installation of BigBlueButton." > /etc/default/bbb-graphql-server-admin-pass
+    if [ -z "$HASURA_RANDOM_ADM_PASSWORD" ]; then
+      echo "Failed to generate a random admin password for Hasura" >&2
+      exit 1
+    fi
+    install -m 600 -o root -g root /dev/null /etc/default/bbb-graphql-server-admin-pass
+    echo "# This password is randomly generated during the installation of BigBlueButton." >> /etc/default/bbb-graphql-server-admin-pass
     echo "# It serves as the admin password for the bbb-graphql-server (Hasura)." >> /etc/default/bbb-graphql-server-admin-pass
     echo "# The admin can change this password at any time. Only a restart of BigBlueButton is required." >> /etc/default/bbb-graphql-server-admin-pass
     echo "HASURA_GRAPHQL_ADMIN_SECRET=$HASURA_RANDOM_ADM_PASSWORD" >> /etc/default/bbb-graphql-server-admin-pass
-    chown root:root /etc/default/bbb-graphql-server-admin-pass
-    chmod 600 /etc/default/bbb-graphql-server-admin-pass
     echo "Set a random password to Hasura at /etc/default/bbb-graphql-server-admin-pass"
   fi
+  chown root:root /etc/default/bbb-graphql-server-admin-pass
+  chmod 600 /etc/default/bbb-graphql-server-admin-pass
+
+  #Generate a random secret for the Prometheus metrics endpoint
+  if [ ! -f /etc/default/bbb-graphql-server-metrics-secret ]; then
+    HASURA_RANDOM_METRICS_SECRET=$(openssl rand -base64 32 | sed 's/=//g' | sed 's/+//g' | sed 's/\///g')
+    if [ -z "$HASURA_RANDOM_METRICS_SECRET" ]; then
+      echo "Failed to generate a random secret for the Hasura metrics endpoint" >&2
+      exit 1
+    fi
+    install -m 600 -o root -g root /dev/null /etc/default/bbb-graphql-server-metrics-secret
+    echo "# This secret is randomly generated during the installation of BigBlueButton." >> /etc/default/bbb-graphql-server-metrics-secret
+    echo "# It protects the Prometheus metrics endpoint of the bbb-graphql-server (Hasura):" >> /etc/default/bbb-graphql-server-metrics-secret
+    echo "# GET /v1/metrics requires the header \"Authorization: Bearer <secret>\"." >> /etc/default/bbb-graphql-server-metrics-secret
+    echo "# The admin can change this secret at any time. Only a restart of BigBlueButton is required." >> /etc/default/bbb-graphql-server-metrics-secret
+    echo "HASURA_GRAPHQL_METRICS_SECRET=$HASURA_RANDOM_METRICS_SECRET" >> /etc/default/bbb-graphql-server-metrics-secret
+    echo "Set a random secret for the Hasura metrics endpoint at /etc/default/bbb-graphql-server-metrics-secret"
+  fi
+  chown root:root /etc/default/bbb-graphql-server-metrics-secret
+  chmod 600 /etc/default/bbb-graphql-server-metrics-secret
 
   #Set admin secret for Hasura CLI
   HASURA_ADM_PASSWORD=$(grep '^HASURA_GRAPHQL_ADMIN_SECRET=' /etc/default/bbb-graphql-server-admin-pass | cut -d '=' -f 2)

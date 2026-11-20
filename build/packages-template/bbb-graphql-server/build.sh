@@ -22,17 +22,31 @@ for dir in $DIRS; do
   mkdir -p staging$dir
 done
 
-HASURA_VERSION=v2.49.3
+# The engine binary is built from source by the BigBlueButton fork of the
+# Hasura GraphQL Engine and published as a per-distro release asset. The
+# expected sha256 for each distro is pinned here; copy it from the SHA256SUMS
+# asset of the release when bumping.
+HASURA_BBB_TAG=v2.50.7-bbb.2
+declare -A HASURA_SHA256=(
+  [jammy]=0c2842baec1f9a4c5f537d28bb9ff3998753dbbc71a34d93afd846aa87c9d2f2
+  [noble]=42ed86ae87fe4a054eccb83a7eb22468e7579fe81dd0ab48df13ceff8b966ead
+)
 
-git clone --branch $HASURA_VERSION https://github.com/iMDT/hasura-graphql-engine.git
-cat hasura-graphql-engine/hasura-graphql.part-a* > hasura-graphql
-rm -rf hasura-graphql-engine/
+HASURA_URL="https://github.com/bigbluebutton/hasura-graphql-engine/releases/download/${HASURA_BBB_TAG}/hasura-graphql-engine-${DISTRO}-amd64"
+echo "Downloading the Hasura engine from $HASURA_URL"
+curl -fsSL --retry 5 --retry-delay 10 --retry-all-errors -o hasura-graphql "$HASURA_URL"
+echo "${HASURA_SHA256[$DISTRO]}  hasura-graphql" | sha256sum -c -
 chmod +x hasura-graphql
 cp -r hasura-graphql staging/usr/bin/hasura-graphql-engine
 
 cp -r hasura-config.env staging/etc/default/bbb-graphql-server
 cp -r bbb_schema.sql metadata config.yaml staging/usr/share/bbb-graphql-server
 chmod -R a+rX staging/usr/share/bbb-graphql-server
+
+# Machine-readable copyright file (DEP-5) at the path dpkg expects: the engine
+# binary is a modified build of an Apache-2.0 licensed work, so the license
+# and the modification notice must ship with the package.
+install -Dm0644 copyright staging/usr/share/doc/bbb-graphql-server/copyright
 
 #Copy BBB configs for Postgres
 POSTGRES_MAJOR_VERSION=14
@@ -68,7 +82,8 @@ else
     exit 1
 fi
 
-url="https://github.com/hasura/graphql-engine/releases/download/${HASURA_VERSION}/cli-hasura-${platform}-${arch}"
+HASURA_CLI_VERSION=v2.50.7
+url="https://github.com/hasura/graphql-engine/releases/download/${HASURA_CLI_VERSION}/cli-hasura-${platform}-${arch}"
 
 echo "Downloading Hasura CLI from $url"
 
@@ -87,6 +102,6 @@ fpm -s dir -C ./staging -n $PACKAGE \
     --after-install after-install.sh \
     --after-remove after-remove.sh \
     --before-remove before-remove.sh \
-    --description "GraphQL server component for BigBlueButton" \
+    --description "GraphQL server component for BigBlueButton. Contains a modified build of the Apache-2.0 licensed Hasura GraphQL Engine community edition v2.50.7 (see /usr/share/doc/bbb-graphql-server/copyright)." \
     $DIRECTORIES \
     $OPTS

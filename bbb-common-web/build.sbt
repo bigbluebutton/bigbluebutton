@@ -130,3 +130,5 @@ dependencyOverrides ++= Seq(
   "org.bouncycastle" % "bcutil-jdk18on" % "1.86",
   "org.bouncycastle" % "bcjmail-jdk18on" % "1.86"
 )
+// commons-codec is reached via tika-parsers-standard-package, poi, httpclient and the AWS SDK, which ask for at most 1.22.0.
+dependencyOverrides += "commons-codec" % "commons-codec" % "1.23.0"

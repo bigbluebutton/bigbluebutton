@@ -13,10 +13,15 @@ const config = {
     url: 'https://docs.bigbluebutton.org/',
     baseUrl: isDev ? '/docs' : '/',
     onBrokenLinks: 'throw',
-    onBrokenMarkdownLinks: 'warn',
+    onBrokenAnchors: 'throw',
+    onDuplicateRoutes: 'throw',
     favicon: 'img/favicon.ico',
     markdown: {
         mermaid: true,
+        hooks: {
+            onBrokenMarkdownLinks: 'throw',
+            onBrokenMarkdownImages: 'throw',
+        },
     },
     plugins: ['@docusaurus/theme-mermaid'],
     

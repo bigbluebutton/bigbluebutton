@@ -15,7 +15,7 @@ GEM
       rexml
     builder (3.2.4)
     concurrent-ruby (1.3.7)
-    crass (1.0.7)
+    crass (1.0.8)
     csv (3.3.5)
     fastimage (2.2.6)
     ffi (1.15.5)
