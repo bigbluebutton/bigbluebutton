@@ -283,14 +283,15 @@ access for the first build.
   - bbb-api isn't part of it yet.
 - **What it mirrors by hand.** Parts of the packages are copied rather
   than run: bbb-web's Depends and the edits its install script makes,
-  the units' command lines, the GraphQL server's database setup,
-  akka-apps' preinst, the data directory bbb-config creates, the
-  LibreOffice converter. `env/tier1/check-copies.sh` (`make check-copies`)
-  warns about each of those sources that changed since Tier 1 last
-  followed it, from the hashes in `env/tier1/copies.sha256`; CI shows the
-  warnings as annotations. Once the stack follows the change, `--update`
-  records the sources as they are. nginx's site is bbb-install's, which
-  isn't in this repository, so nothing checks it.
+  the units' command lines and environment, the GraphQL server's
+  database setup, akka-apps' preinst, the data directory bbb-config
+  creates, the LibreOffice converter. `env/tier1/check-copies.sh`
+  (`make check-copies`) warns about each of those sources that changed
+  since Tier 1 last followed it, from the hashes in
+  `env/tier1/copies.sha256`; CI shows the warnings as annotations. Once
+  the stack follows the change, `--update` records the sources as they
+  are. nginx's site is bbb-install's, which isn't in this repository, so
+  nothing checks it.
 - **Restarts.** Services are restarted when they exit, as the packages'
   units restart theirs; the GraphQL middleware exits when it loses its
   redis subscription. A profile switch restarts bbb-web, and akka-apps too
