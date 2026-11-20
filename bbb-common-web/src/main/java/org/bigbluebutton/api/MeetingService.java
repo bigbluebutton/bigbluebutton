@@ -114,7 +114,7 @@ public class MeetingService implements MessageListener {
   private IBbbWebApiGWApp gw;
 
   private final ConcurrentMap<String, PresentationUploadToken> uploadAuthzTokens;
-  private long presentationUploadStartTimeout = 60000;
+  private long presentationUploadStartTimeout = 300000;
   private RejectedPresentationRegistry rejectedPresentations;
 
   ObjectMapper objectMapper = new ObjectMapper();

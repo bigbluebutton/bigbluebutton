@@ -48,9 +48,9 @@ import {
 
 const defaultZoomLevel = '100%';
 
-// bbb-web gives a client presentationUploadStartTimeout (60 s by default) to start sending a file
-// and looks for the uploads that did not every 15 s.
-const UPLOAD_START_TIMEOUT = 120000;
+// bbb-web gives a client presentationUploadStartTimeout (300 s by default) to start sending a
+// file and looks for the uploads that did not every 15 s.
+const UPLOAD_START_TIMEOUT = 360000;
 // bbb-web stops waiting for the rest of a request body after about a minute.
 const UPLOAD_STALL_TIMEOUT = 120000;
 // bbb-apps-akka gives a user whose connection closed 10 s to come back, and every 10 s removes

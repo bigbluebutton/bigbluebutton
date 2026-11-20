@@ -65,7 +65,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="rejectedPresentationRegistry" ref="rejectedPresentationRegistry"/>
         <property name="stunTurnService" ref="stunTurnService"/>
         <property name="userCleanupTimerTask" ref="userCleanupTimerTask"/>
-        <property name="presentationUploadStartTimeout" value="${presentationUploadStartTimeout:60}"/>
+        <property name="presentationUploadStartTimeout" value="${presentationUploadStartTimeout:300}"/>
         <property name="sessionsCleanupDelayInMinutes" value="${sessionsCleanupDelayInMinutes}"/>
         <property name="gw" ref="bbbWebApiGWApp"/>
         <property name="callbackUrlService" ref="callbackUrlService"/>

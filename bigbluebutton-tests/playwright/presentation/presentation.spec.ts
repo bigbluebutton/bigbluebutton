@@ -391,9 +391,10 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
 });
 
 // At the top level so the @ci 'Presentation' describe does not tag these: each waits for a server
-// timeout of about a minute
+// timeout, of five minutes for the first and of about a minute for the second
 test.describe.parallel('Presentation upload timeouts', { tag: '@nightly' }, () => {
   test('An upload that never reaches the server is shown as failed', async ({ browser, context, page }, testInfo) => {
+    test.setTimeout(480_000);
     linkIssue(26518);
     const presentation = new Presentation(browser, context);
     await presentation.initModPage(page, { testInfo });
