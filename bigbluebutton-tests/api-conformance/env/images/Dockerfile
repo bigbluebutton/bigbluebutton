@@ -7,7 +7,7 @@
 # The LibreOffice the bbb-libreoffice-docker package converts Office
 # documents with; make -C env passes the tag bbb-libreoffice/docker/Dockerfile
 # names.
-ARG LIBREOFFICE_IMAGE=bigbluebutton/bbb-libreoffice:25.8.4.2-20260129-151200
+ARG LIBREOFFICE_IMAGE=bigbluebutton/bbb-libreoffice:26.8.3.1-20261120-120000
 FROM ${LIBREOFFICE_IMAGE} AS libreoffice
 
 # Ubuntu 24.04, as packaged servers run, with the bigbluebutton user every
