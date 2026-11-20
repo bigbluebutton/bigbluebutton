@@ -2,10 +2,10 @@ package org.bigbluebutton.core.apps.breakout
 
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.api.{ BreakoutRoomUsersUpdateInternalMsg }
+import org.bigbluebutton.core.api.{ BreakoutRoomUsersUpdateInternalMsg, EjectUserFromBreakoutInternalMsg, UpdateBreakoutUserAccessInternalMsg }
 import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, InternalEventBus }
-import org.bigbluebutton.core.domain.{ BreakoutUser, BreakoutVoiceUser }
-import org.bigbluebutton.core.models.{ Roles, Users2x, VoiceUsers }
+import org.bigbluebutton.core.domain.{ BreakoutRoom2x, BreakoutUser, BreakoutVoiceUser }
+import org.bigbluebutton.core.models.{ EjectReasonCode, RegisteredUsers, Roles, Users2x, VoiceUsers }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 
 object BreakoutHdlrHelpers extends SystemConfiguration {
@@ -130,5 +130,39 @@ object BreakoutHdlrHelpers extends SystemConfiguration {
       BreakoutRoomUsersUpdateInternalMsg(liveMeeting.props.breakoutProps.parentId, liveMeeting.props.meetingProp.intId,
         breakoutUsers, breakoutVoiceUsers)
     ))
+  }
+
+  def ejectUserFromBreakoutRoom(
+      eventBus:  InternalEventBus,
+      parentId:  String,
+      room:      BreakoutRoom2x,
+      userId:    String,
+      ejectedBy: String,
+      reason:    String
+  ): Unit = {
+    room.users.filter(u => u.extId == userId + "-" + room.sequence).foreach(user => {
+      eventBus.publish(BigBlueButtonEvent(room.id, EjectUserFromBreakoutInternalMsg(parentId, room.id, user.extId, ejectedBy, reason, EjectReasonCode.EJECT_USER, false)))
+    })
+  }
+
+  def revokeUserAccessToBreakoutRooms(
+      liveMeeting: LiveMeeting,
+      eventBus:    InternalEventBus,
+      rooms:       Iterable[BreakoutRoom2x],
+      userId:      String
+  ): Unit = {
+    val parentId = liveMeeting.props.meetingProp.intId
+    val revokeUserIds = RegisteredUsers.findAllSessionsWithUserId(userId, liveMeeting.registeredUsers) match {
+      case Vector() => Vector(userId)
+      case sessions => sessions.filter(_.role != Roles.MODERATOR_ROLE).map(_.id)
+    }
+
+    rooms
+      .filter(room => !room.freeJoin)
+      .foreach(room => {
+        revokeUserIds.foreach(revokeUserId => {
+          eventBus.publish(BigBlueButtonEvent(room.id, UpdateBreakoutUserAccessInternalMsg(parentId, room.id, revokeUserId + "-" + room.sequence, revoked = true)))
+        })
+      })
   }
 }

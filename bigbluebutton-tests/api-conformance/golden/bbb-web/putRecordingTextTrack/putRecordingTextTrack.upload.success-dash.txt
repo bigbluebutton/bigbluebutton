@@ -12,3 +12,23 @@ $.response.message "Text track uploaded successfully"
 $.response.messageKey "upload_text_track_success"
 $.response.recordId "<sha1(?)>-<time>"
 $.response.returncode "SUCCESS"
+
+== step 3: fs captions/inbox/52388302b3d61ff0ce98e0d6192952f38e0604aa-1700032400000-*-track.json
+$.contents.content_type "text/vtt"
+$.contents.kind "subtitles"
+$.contents.label "Français"
+$.contents.lang "fr-CA"
+$.contents.original_filename "track.vtt"
+$.contents.record_id "<sha1(?)>-<time>"
+$.contents.temp_filename "<sha1(?)>-<time>-<ms>-track.txt"
+$.found true
+$.path "captions/inbox/<sha1(?)>-<time>-<ms>-track.json"
+
+== step 4: fs captions/inbox/52388302b3d61ff0ce98e0d6192952f38e0604aa-1700032400000-*-track.txt
+$.contents "WEBVTT\n\n00:00:01.000 --> 00:00:02.000\nHello.\n"
+$.found true
+$.path "captions/inbox/<sha1(?)>-<time>-<ms>-track.txt"
+
+== step 5: fs captions/inbox/52388302b3d61ff0ce98e0d6192952f38e0604aa-1700032400000-*-track.json.tmp
+$.found false
+$.path "captions/inbox/<sha1(?)>-<time>-*-track.json.tmp"

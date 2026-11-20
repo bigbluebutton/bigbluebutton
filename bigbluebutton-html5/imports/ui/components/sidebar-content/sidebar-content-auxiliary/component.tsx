@@ -101,6 +101,12 @@ const SidebarContentAuxiliary = (props: SidebarContentProps) => {
 
   return (
     <Styled.SidebarContentBackdrop
+      // Generic sidekick panels carry their id in the panel name; the class keeps only the type
+      className={`bbb-sidebar-content-auxiliary bbb-sidebar-content-auxiliary--${
+        sidebarContentPanel.includes(PANELS.GENERIC_CONTENT_SIDEKICK)
+          ? PANELS.GENERIC_CONTENT_SIDEKICK
+          : sidebarContentPanel
+      }`}
       isMobile={isMobile}
       isRTL={isRTL}
       style={{
@@ -128,6 +134,7 @@ const SidebarContentAuxiliary = (props: SidebarContentProps) => {
           bottom: isResizable && resizableEdge?.bottom,
           right: isResizable && resizableEdge?.right,
         }}
+        className="bbb-sidebar-content-auxiliary__panel"
         handleWrapperClass="resizeSidebarContentWrapper"
         data-test="sidebarContentAuxiliary"
         onResizeStart={() => {

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { CircularProgress } from '@mui/material';
 import { useIntl, defineMessages } from 'react-intl';
 import Icon from '/imports/ui/components/common/icon/component';
+import { USER_SEARCH_MAX_LENGTH } from './service';
 import Styled from './styles';
 
 const intlMessages = defineMessages({
@@ -65,6 +66,7 @@ const UserSearch: React.FC<UserSearchProps> = ({
         type="text"
         placeholder={intl.formatMessage(intlMessages.searchUsers)}
         value={internalValue}
+        maxLength={USER_SEARCH_MAX_LENGTH}
         onChange={handleChange}
         aria-label={intl.formatMessage(intlMessages.searchUsers)}
         autoFocus

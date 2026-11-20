@@ -91,8 +91,10 @@ RangeLoop:
 					queryId := browserMessage.ID
 
 					// Rate limiter from config max_connection_queries_per_minute
-					ctxRateLimiter, _ := context.WithTimeout(hc.Context, 30*time.Second)
-					if err := hc.BrowserConn.FromBrowserToHasuraRateLimiter.Wait(ctxRateLimiter); err != nil {
+					ctxRateLimiter, cancelRateLimiter := context.WithTimeout(hc.Context, 30*time.Second)
+					errRateLimiter := hc.BrowserConn.FromBrowserToHasuraRateLimiter.Wait(ctxRateLimiter)
+					cancelRateLimiter()
+					if errRateLimiter != nil {
 						sendErrorMessage(
 							browserConnection,
 							queryId,
@@ -130,6 +132,28 @@ RangeLoop:
 								browserConnection,
 								queryId,
 								fmt.Sprintf("Query %s is not valid with length %d and the max allowed is %d", browserMessage.Payload.OperationName, queryLength, config.GetConfig().Server.MaxQueryLength))
+							continue
+						}
+					}
+
+					if len(browserMessage.Payload.Variables) > 0 {
+						variablesLength, variablesErr := validateOperationVariablesLength(
+							query,
+							browserMessage.Payload.OperationName,
+							browserMessage.Payload.Variables,
+							config.GetConfig().Server.MaxQueryVariablesLength,
+						)
+						if variablesErr != nil {
+							sendErrorMessage(
+								browserConnection,
+								queryId,
+								fmt.Sprintf(
+									"Query %s is not valid with variables length %d and the max allowed is %d",
+									browserMessage.Payload.OperationName,
+									variablesLength,
+									config.GetConfig().Server.MaxQueryVariablesLength,
+								),
+							)
 							continue
 						}
 					}
@@ -324,6 +348,52 @@ RangeLoop:
 	}
 }
 
+func validateQueryVariablesLength(variables map[string]interface{}, maxLength int) (int, error) {
+	encoded, err := json.Marshal(variables)
+	if err != nil {
+		return 0, fmt.Errorf("failed to encode variables: %w", err)
+	}
+
+	length := len(encoded)
+	if maxLength > 0 && length > maxLength {
+		return length, fmt.Errorf("variables length %d exceeds maximum %d", length, maxLength)
+	}
+
+	return length, nil
+}
+
+func validateOperationVariablesLength(query string, operationName string, variables map[string]interface{}, maxLength int) (int, error) {
+	if selectedOperationIsMutation(query, operationName) {
+		return 0, nil
+	}
+
+	return validateQueryVariablesLength(variables, maxLength)
+}
+
+func selectedOperationIsMutation(query string, operationName string) bool {
+	src := source.NewSource(&source.Source{
+		Body: []byte(query),
+		Name: "GraphQL query",
+	})
+	astDoc, err := parser.Parse(parser.ParseParams{Source: src})
+	if err != nil {
+		return false
+	}
+
+	operations := make([]*ast.OperationDefinition, 0)
+	for _, definition := range astDoc.Definitions {
+		operation, ok := definition.(*ast.OperationDefinition)
+		if !ok {
+			continue
+		}
+		if operationName == "" || operation.Name != nil && operation.Name.Value == operationName {
+			operations = append(operations, operation)
+		}
+	}
+
+	return len(operations) == 1 && operations[0].Operation == ast.OperationTypeMutation
+}
+
 func saveContentToFile(subDir string, filename string, contentInBytes []byte) error {
 	fileDir := fmt.Sprintf("%s/%s", dumpQueriesDir, subDir)
 	filePath := fmt.Sprintf("%s/%s.txt", fileDir, filename)
@@ -405,7 +475,7 @@ func traverseSelectionSet(selectionSet *ast.SelectionSet, currentDepth int) int 
 }
 
 func sendErrorMessage(browserConnection *common.BrowserConnection, messageId string, errorMessage string) {
-	browserConnection.Logger.Errorf(errorMessage)
+	browserConnection.Logger.Error(errorMessage)
 
 	// Error on sending action, return error msg to client
 	browserResponseData := map[string]interface{}{

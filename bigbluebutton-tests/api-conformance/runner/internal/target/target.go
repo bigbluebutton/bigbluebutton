@@ -81,11 +81,13 @@ type TLS struct {
 // Route is where a non-API route lives. Path may hold {name} placeholders,
 // filled from a step's pathParams. Base, or the variable BaseEnv names,
 // replaces the target's baseUrl, e.g. to reach bbb-web's nginx-internal
-// hooks directly.
+// hooks directly. Subrequest sends the route's steps the way nginx sends an
+// auth_request subrequest (see client.Prepared.CookiesFrom).
 type Route struct {
-	Path    string `yaml:"path"`
-	Base    string `yaml:"base"`
-	BaseEnv string `yaml:"baseEnv"`
+	Path       string `yaml:"path"`
+	Base       string `yaml:"base"`
+	BaseEnv    string `yaml:"baseEnv"`
+	Subrequest bool   `yaml:"subrequest"`
 
 	unavailable bool // BaseEnv names a variable that isn't set
 }

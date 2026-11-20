@@ -19,7 +19,8 @@ runner/                  the bbb-conform Go module
   schema/case.schema.json  the case format, as JSON Schema
   testdata/cases/          worked examples of every feature
   testdata/smoke/          a quick check of a live server
-cases/<area>/<group>/    the suite's cases, e.g. cases/common/checksum/ or cases/join/guest/
+cases/<area>/<group>/    the suite's cases, e.g. cases/common/checksum/, cases/join/guest/ or
+                           cases/connection/authz/ (the nginx auth hooks)
 fixtures/                files cases refer to or the sink serves (bodies, presentations, plugins)
 golden/<target>/         reviewed recordings of what a server answered
 masks.yaml               extra normalization rules for diff and recordings
@@ -114,13 +115,26 @@ error. The runner trusts the sink as it trusts the target (`tls`).
 ```yaml
 routes:
   presentation-download: {path: "/bigbluebutton/presentation/download/{meetingId}/{presId}"}
-  connection-authz:      {path: "/bigbluebutton/connection/checkAuthorization", baseEnv: BBB_WEB_DIRECT_URL}
+  connection-authz:      {path: "/bigbluebutton/connection/checkAuthorization", baseEnv: BBB_WEB_DIRECT_URL, subrequest: true}
 ```
 
 - `{name}` is filled from the step's `pathParams`, path-escaped. A missing
   param is an error; params the path doesn't use are ignored.
 - `base` (or the variable `baseEnv` names) replaces `baseUrl`, for routes such
   as the nginx-internal hooks that cases call on bbb-web directly.
+- With `subrequest: true`, a step on the route is sent as nginx sends an
+  `auth_request` subrequest, which carries the browser's cookies:
+  - it carries the cookies its `client` holds under `baseUrl`, such as the
+    JSESSIONID a `join` set. They are the cookies for the path in the
+    step's `X-Original-URI` header, without its query (nginx sets that
+    header to the browser's request), or for the route's own path when
+    the header is missing or isn't a path;
+  - the cookies the answer sets aren't kept, because a subrequest's answer
+    never reaches the browser (the recording still shows them);
+  - a `Cookie` in the step's `headers` replaces the client's cookies, and
+    an empty one sends none. A fresh `client` sends none either.
+- A route with `base` but not `subrequest` keeps and sends cookies as any
+  request does.
 - A case is skipped as `not-routed` if the target doesn't map one of its
   routes, or if the route's `baseEnv` is unset.
 - A route may name a path the server no longer serves, so that a case can
@@ -168,6 +182,10 @@ env/full-install/profile.sh default        # restore the server's own file
   says so), so `--exclude-tags disruptive` leaves the server alone.
 - **Another switcher:** set `BBB_PROFILE_CMD` to a command that takes the
   same arguments. The Tier 1 stack's is `env/tier1/profile.sh` (see below).
+- **Picking a profile:** each overlay's header says what it changes.
+  `alt-defaults` sets `allowRequestsWithoutSession=true`, so under it a
+  session token alone passes every session check: a case about the join's
+  HTTP session doesn't belong there.
 
 To smoke-test a server, point a target at it and run `--cases testdata/smoke`.
 
@@ -214,7 +232,7 @@ go run ./cmd/bbb-conform run --target ../targets/bbb-web.yaml --cases ../cases -
 |---|---|
 | `debs` | Builds the five packages the stack runs (bbb-web, bbb-apps-akka, bbb-graphql-server, bbb-graphql-middleware, bbb-graphql-actions) with their own build scripts, in the image CI builds them in. `PKGS=bbb-web` builds one. About 20 minutes cold. |
 | `up` | Renders the configuration, builds what changed and starts the stack, then waits until every service is healthy (about a minute). `CLAMAV=1` adds a ClamAV daemon. |
-| `env` | Prints the variables the runner reads: `BBB_URL`, `BBB_SECRET`, `BBB_TAP_URL`, `BBB_TAP_TOKEN`, `BBB_SINK_URL`, `BBB_SINK_READ_URL`, `BBB_SINK_HTTP_URL`, `BBB_SINK_TOKEN`, `BBB_FIXTURE_URL`, `BBB_WEB_DIRECT_URL`, `TURN_SECRET` (read from `env/bbb-web/turn-stun-servers.xml`), `BBB_PROFILE_CMD` and `SSL_CERT_FILE`. The tokens are made once, in `env/.state/tokens.env`. |
+| `env` | Prints the variables the runner reads: `BBB_URL`, `BBB_SECRET`, `BBB_PAGE_TOKEN_SECRET`, `BBB_TAP_URL`, `BBB_TAP_TOKEN`, `BBB_SINK_URL`, `BBB_SINK_READ_URL`, `BBB_SINK_HTTP_URL`, `BBB_SINK_TOKEN`, `BBB_FIXTURE_URL`, `BBB_WEB_DIRECT_URL`, `TURN_SECRET` (read from `env/bbb-web/turn-stun-servers.xml`), `BBB_PROFILE_CMD` and `SSL_CERT_FILE`. The tokens are made once, in `env/.state/tokens.env`. |
 | `profile` | `NAME=reveal-version` switches bbb-web to a profile in `env/bbb-web/profiles/`, `NAME=default` back; without `NAME`, prints the one in force. Cases use it through `BBB_PROFILE_CMD`. |
 | `reset` | Starts again from nothing: no meetings, an empty data directory, the default profile. A profile switch waits until it is done. |
 | `check-copies` | Warns about the package files Tier 1 mirrors by hand that changed since it last followed them (see below). |
@@ -294,7 +312,8 @@ access for the first build.
   and, when the job fails, the services' logs are uploaded as
   `api-conformance-bbb-web`, and the matrix is the job's summary;
   `check-copies.sh`'s warnings are annotations on the run. The `slow`
-  cases, about 20 minutes, run every night instead: the
+  cases, about 85 minutes (one waits an hour for a text-track token to
+  expire), run every night instead: the
   `api-conformance-slow` job of `.github/workflows/nightly-tests.yml`
   starts the stack from the packages of the newest Automated tests build of
   v4.0.x-develop, at the commit that build is of, and uploads
@@ -623,10 +642,13 @@ the same way.
 `masks`, `unordered`, `scope`, `drop` (removes the lines a path names, only
 those with `value` if it is given) and `headers`. Only a mask can override a
 built-in rule, for the same field; the others only add, so the built-in
-`noMeetings` drop can't be turned off. The suite's `masks.yaml` masks the
-missing-checksum message bbb-web picks at random, learningDashboard's data,
-and the version endpoint's `bbbVersion` and `html5PluginSdkVersion`, which
-change with each release.
+`noMeetings` drop can't be turned off. The first mask for a node takes all
+its values, unless it is a regex mask with `onlyMatching: true`: that one
+takes only the values its regex matches, and leaves the others to the next
+mask, such as a built-in one for the same field. The suite's `masks.yaml`
+masks the missing-checksum message bbb-web picks at random,
+learningDashboard's data, and the version endpoint's `bbbVersion` and
+`html5PluginSdkVersion`, which change with each release.
 
 The `*.yaml` files in `masks.d`, next to `masks.yaml`, add rules the same
 way, in name order and ahead of `masks.yaml`, so their masks win over its.
@@ -1098,7 +1120,7 @@ starting with `_`, which the sink keeps for itself.
 | Key | Meaning |
 |---|---|
 | `call` | An API call name, sent to the target's API prefix. `""` is the version endpoint. |
-| `route`, `pathParams` | A non-API route (presentation, connection, textTrack), mapped per target. |
+| `route`, `pathParams` | A non-API route (presentation, connection, textTrack), mapped per target. A `subrequest` route sends the client's `baseUrl` cookies and keeps none; any other route keeps and sends cookies as an API call does ([routes](#target-files)). |
 | `url` | An absolute URL sent as it is, e.g. a link getJoinUrl returned. |
 | `method` | A HEAD response has no body, so a HEAD step can only check `status`, `headers` and `redirect`, and capture headers. |
 | `params` | Query parameters, in the order written. |

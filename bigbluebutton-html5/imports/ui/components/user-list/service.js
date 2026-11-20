@@ -1,6 +1,10 @@
 import React from 'react';
 import { FormattedMessage, defineMessages } from 'react-intl';
 import Auth from '/imports/ui/services/auth';
+import {
+  makeUserSearchWhere,
+  USER_SEARCH_MAX_LENGTH,
+} from '/imports/ui/components/user-list/user-search/service';
 import Storage from '/imports/ui/services/storage/session';
 import AudioService from '/imports/ui/components/audio/service';
 import KEYS from '/imports/utils/keys';
@@ -477,13 +481,7 @@ export const getUsersPerUserListPage = () => window.meetingClientSettings?.publi
   ?.usersPerUserListPage
   || DEFAULT_USERS_PER_USER_LIST_PAGE;
 
-export const makeUserSearchWhere = (searchQuery) => {
-  const searchTerms = searchQuery ? searchQuery.trim().split(/\s+/) : [];
-  const escapeTerm = (term) => term.replace(/[\\%_]/g, '\\$&');
-  return searchTerms.length > 0
-    ? { _and: searchTerms.map((term) => ({ name: { _ilike: `%${escapeTerm(term)}%` } })) }
-    : { name: { _ilike: '%' } };
-};
+export { makeUserSearchWhere, USER_SEARCH_MAX_LENGTH };
 
 export default {
   sortUsersByName,
