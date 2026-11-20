@@ -17,6 +17,8 @@ server:
   max_query_length: 5000
   # Maximum query depth when querying relationships.
   max_query_depth: 6
+  # Maximum encoded size of variables sent with a query.
+  max_query_variables_length: 10000
   # Maximum length of the mutation body.
   # A high number is recommended because the whiteboard annotations can be large.
   max_mutation_length: 10000

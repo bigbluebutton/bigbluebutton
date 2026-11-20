@@ -8,6 +8,7 @@ PartOf= bigbluebutton.target
 [Service]
 Type=simple
 WorkingDirectory=/usr/share/bbb-fsesl-akka
+Environment="JAVA_TOOL_OPTIONS=-XX:-UseBASE64Intrinsics"
 EnvironmentFile=/etc/default/bbb-fsesl-akka
 ExecStart=/usr/share/bbb-fsesl-akka/bin/bbb-fsesl-akka
 ExecReload=/bin/kill -HUP $MAINPID
