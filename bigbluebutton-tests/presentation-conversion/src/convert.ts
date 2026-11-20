@@ -6,7 +6,7 @@ import { loadTarget, profileName, profileWorkDir, runId, serverHost, SUITE_ROOT,
 import { canReadDir, copyTree, listDir, readFileBytes, run, statSize, sudo } from './host';
 import { BASE64_LIMIT, enabledChecks, expectationFor, lintManifests, loadAllManifests, Manifest, selectedManifests, sha256, UploadMethod, uploadName } from './manifest';
 import { generateRuntimeFixture, RuntimeSpec } from './runtimeFixtures';
-import { PresentationRow, StatusDb } from './status';
+import { PageRow, PresentationRow, StatusDb } from './status';
 import { toolVersions } from './tools';
 
 const MAX_DOCS_PER_MEETING = Number(process.env.PC_MAX_DOCS_PER_MEETING || 8);
@@ -45,6 +45,8 @@ interface State {
   presId?: string;
   /** slide 1's SVG URL as bbb-web issued it for the page (pres_page), its pageToken included */
   slideUrl?: string;
+  /** why pres_page was not read for this presentation, when it was not */
+  pagesUnread?: string;
   row?: PresentationRow;
   outcome?: Outcome;
   decidedAt?: number;
@@ -290,7 +292,7 @@ export class Converter {
         try {
           const pages = s.outcome === 'converted' && s.presId ? await this.collect(s, root) : [];
           const r = this.result(plan, internal, s, pages);
-          if (r.outcome === 'converted' && r.pageCount > 0 && enabledChecks(s.p.m).includes('served')) r.served = await this.servedCheck(session, s.slideUrl, r);
+          if (r.outcome === 'converted' && r.pageCount > 0 && enabledChecks(s.p.m).includes('served')) r.served = await this.servedCheck(session, s, r);
           results.push(r);
         } catch (e) {
           harnessError(s, e);
@@ -437,7 +439,13 @@ export class Converter {
     const count = s.row?.totalPages || (await this.pdfPageCount(server, s.presId!)) || 0;
     const boxes = pdf ? await pdfBoxes(pdf, count) : {};
     if (pdf && count) await popplerRefs(pdf, count, path.join(base, 'ref'));
-    const dbPages = this.db ? await this.db.pages(s.presId!).catch(() => []) : [];
+    let dbPages: PageRow[] = [];
+    try {
+      if (this.db) dbPages = await this.db.pages(s.presId!);
+      else s.pagesUnread = 'the status database was not available';
+    } catch (e) {
+      s.pagesUnread = `the pres_page query failed: ${errorText(e)}`;
+    }
     s.slideUrl = dbPages.find((p) => p.num === 1)?.urls.svg;
     const rel = (f: string) => (fs.existsSync(path.join(server, f)) ? path.relative(profileWorkDir(), path.join(server, f)) : undefined);
     const pages: CollectedPage[] = [];
@@ -494,10 +502,12 @@ export class Converter {
    * its pageToken) and compares it with the file on disk.
    * session() joins the meeting on first use and hands every later served check of that meeting the same session.
    */
-  private async servedCheck(session: () => Promise<Session>, issued: string | undefined, r: CollectedFixture): Promise<{ ok: boolean; detail: string }> {
+  private async servedCheck(session: () => Promise<Session>, s: State, r: CollectedFixture): Promise<{ ok: boolean; detail: string }> {
     if (this.target.served.token === 'none') return { ok: true, detail: 'not applicable for this target' };
     const svg = r.pages[0]?.svg;
     if (!svg) return { ok: false, detail: 'slide 1 SVG missing on disk' };
+    if (s.pagesUnread) return { ok: false, detail: `the URL bbb-web issued for slide 1 could not be read: ${s.pagesUnread}` };
+    const issued = s.slideUrl;
     if (!issued || !/[?&]pageToken=[0-9a-f]+/.test(issued)) return { ok: false, detail: 'pres_page has no slide 1 URL with a pageToken' };
     try {
       const joined = await session();
