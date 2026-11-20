@@ -122,7 +122,7 @@ var (
 	GqlHasuraReconnectionCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "gql_hasura_reconnection_total",
-			Help: "Total number of reconnections from the middleware to Hasura, by reason",
+			Help: "Total number of attempts of the middleware to connect to Hasura again, one per dial, by why the previous connection or attempt ended",
 		},
 		[]string{"reason"},
 	)
