@@ -12,6 +12,7 @@ import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { hasMediaDevicesEventTarget } from '/imports/ui/services/webrtc-base/utils';
 import AudioManager from '/imports/ui/services/audio-manager';
 import Session from '/imports/ui/services/storage/in-memory';
+import { getStoredAudioInputDeviceId, DEFAULT_INPUT_DEVICE_ID } from '/imports/api/audio/client/bridge/service';
 import AudioCaptionsSelectContainer from '../audio-graphql/audio-captions/captions/component';
 
 const propTypes = {
@@ -174,7 +175,14 @@ class AudioSettings extends React.Component {
           );
         }
         this.setState({ findingDevices: false });
-        this.setInputDevice(inputDeviceId);
+        if (inputDeviceId === 'listen-only') {
+          this.setState({
+            inputDeviceId: getStoredAudioInputDeviceId() || DEFAULT_INPUT_DEVICE_ID,
+            producingStreams: false,
+          });
+        } else {
+          this.setInputDevice(inputDeviceId);
+        }
         this.setOutputDevice(outputDeviceId);
       });
 
