@@ -22,7 +22,7 @@ trait PresentationConversionFailedErrorSysPubMsgHdlr {
 
       if (msg.body.messageKey == "PRESENTATION_UPLOAD_FAILED") {
         // The file of an upload never arrived. Only a presentation still waiting for it is marked:
-        // its row is not created here, or one deleted because its uploader left would come back.
+        // its row is not created here, or one removed in the meantime would come back.
         PresPresentationDAO.updateErrorsOfAwaitingUpload(
           liveMeeting.props.meetingProp.intId, msg.body.presentationId, msg.body.messageKey, errorDetails
         )

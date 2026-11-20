@@ -344,11 +344,17 @@ object PresPresentationDAO {
     )
   }
 
-  // Called when the uploader's client is gone, so nothing will finish or cancel these uploads
-  // and every presenter would otherwise see them as uploading until the meeting ends.
-  // Should a file still arrive, updateConversionStarted inserts its row again.
-  def deleteAwaitingUpload(meetingId: String, userId: String) = {
-    DatabaseConnection.enqueue(awaitingUploadQuery(meetingId, userId).delete)
+  // Called when the uploader has left the meeting, so nothing will finish or cancel these uploads
+  // and every presenter would otherwise see them as uploading until the meeting ends. The rows
+  // are kept: should a file still arrive, updateConversionStarted clears the error and the
+  // presentation still has its uploader.
+  def updateErrorsOfAwaitingUploadsOfUser(meetingId: String, userId: String, errorMsgKey: String,
+                                          errorDetails: scala.collection.immutable.Map[String, String]) = {
+    DatabaseConnection.enqueue(
+      awaitingUploadQuery(meetingId, userId)
+        .map(p => (p.uploadErrorMsgKey, p.uploadErrorDetailsJson))
+        .update(Some(errorMsgKey), Some(errorDetails.toJson))
+    )
   }
 
   def delete(meetingId: String, presentationId: String) = {

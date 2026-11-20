@@ -3,7 +3,7 @@ package org.bigbluebutton.core.db
 import org.scalatest.flatspec.AnyFlatSpec
 import slick.jdbc.PostgresProfile.api._
 
-// The delete run when an uploader disconnects must only reach that user's presentations
+// The failure recorded when an uploader leaves must only reach that user's presentations
 // that are still waiting for their file, never one that is converting, done or refused.
 class PresPresentationDAOSpec extends AnyFlatSpec {
 
@@ -19,14 +19,15 @@ class PresPresentationDAOSpec extends AnyFlatSpec {
 
   behavior of "PresPresentationDAO.awaitingUploadQuery"
 
-  it should "scope the delete to the meeting, the uploader and the awaiting-upload state" in {
+  it should "scope the failure to the meeting, the uploader and the awaiting-upload state" in {
     val statement = PresPresentationDAO
       .awaitingUploadQuery("meeting-id", "user-id")
-      .delete
+      .map(p => p.uploadErrorMsgKey)
+      .update(Some("PRESENTATION_UPLOAD_FAILED"))
       .statements
       .mkString(" ")
 
-    assert(statement == "delete from \"pres_presentation\" where " +
+    assert(statement == "update \"pres_presentation\" set \"uploadErrorMsgKey\" = ? where " +
       "((\"pres_presentation\".\"meetingId\" = 'meeting-id')" +
       " and (\"pres_presentation\".\"uploadUserId\" = 'user-id'))" +
       " and " + awaitingUpload)
@@ -35,7 +36,7 @@ class PresPresentationDAOSpec extends AnyFlatSpec {
   behavior of "PresPresentationDAO.awaitingUploadOfPresentationQuery"
 
   // The report that an upload failed can arrive once the presentation is converting, done,
-  // already failed, or deleted because its uploader left. It must change none of those.
+  // already failed, or removed in the meantime. It must change none of those.
   it should "scope the failure of an upload to that presentation while it awaits its file" in {
     val statement = PresPresentationDAO
       .awaitingUploadOfPresentationQuery("meeting-id", "presentation-id")
