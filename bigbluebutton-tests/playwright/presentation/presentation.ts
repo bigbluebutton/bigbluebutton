@@ -10,6 +10,7 @@ import {
 import { elements as e } from '../core/elements';
 import { prepareForScreenshot, screenshotMask } from '../core/screenshots';
 import { checkNotificationText } from '../notifications/util';
+import { type GraphqlSockets } from '../reconnection/util';
 import { MultiUsers } from '../user/multiusers';
 import {
   buildExecutableNamedPdf,
@@ -52,6 +53,10 @@ const defaultZoomLevel = '100%';
 const UPLOAD_START_TIMEOUT = 120000;
 // bbb-web stops waiting for the rest of a request body after about a minute.
 const UPLOAD_STALL_TIMEOUT = 120000;
+// bbb-apps-akka gives a user whose connection closed 10 s to come back, and every 10 s removes
+// the users who did not.
+const USER_RECONNECT_GRACE = 10000;
+const USER_REMOVAL_TIME = 2 * USER_RECONNECT_GRACE + ELEMENT_WAIT_LONGER_TIME;
 
 export class Presentation extends MultiUsers {
   async skipSlide() {
@@ -1182,26 +1187,31 @@ export class Presentation extends MultiUsers {
     await expect(
       uploadToastOf(this.modPage2, file.name),
       'should drop the upload once its uploader has left',
-    ).toHaveCount(0, { timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
+    ).toHaveCount(0, { timeout: USER_REMOVAL_TIME });
     expect(await listPresentations(this.modPage2), 'should not list the upload of the user who left').not.toContain(
       file.name,
     );
   }
 
-  async uploadIsDroppedWhenItsUploaderReloads() {
-    const file = Presentation.fileToUpload('uploader-reloads.pdf');
+  // The spec routes the uploader's graphql sockets with routeGraphqlSockets before it joins
+  async uploadIsKeptWhenTheConnectionOfItsUploaderDrops(uploaderSockets: GraphqlSockets) {
+    const file = Presentation.fileToUpload('uploader-reconnects.pdf');
     await this.startHeldUpload(file);
-    await this.modPage.reloadPage();
-    await this.modPage.closeAudioModal();
-    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
-    // the list also proves that the presentations have reached the reloaded client
-    expect(await listPresentations(this.modPage), 'should not list the upload the reload interrupted').not.toContain(
-      file.name,
-    );
+    await this.secondModeratorTakesPresenter();
     await expect(
-      uploadToastOf(this.modPage, file.name),
-      'should not show the interrupted upload as uploading after the reload',
-    ).toHaveCount(0);
+      uploadToastOf(this.modPage2, file.name),
+      'should show the upload as in progress to the next presenter while its uploader is there',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+
+    expect(uploaderSockets.drop(), 'should drop the graphql connection of the uploader').toBeGreaterThan(0);
+    // bbb-apps-akka learns of the closed connection at once. Half the time it gives the user to
+    // come back is ample for an upload dropped on that news to be gone from this notice, and too
+    // short for the user to have been removed.
+    await this.modPage2.page.waitForTimeout(USER_RECONNECT_GRACE / 2);
+    await expect(
+      uploadToastOf(this.modPage2, file.name),
+      'should keep the upload of a user whose connection dropped: the page goes on sending the file',
+    ).toBeVisible();
   }
 
   // The server has the file; only its answer did not reach the client

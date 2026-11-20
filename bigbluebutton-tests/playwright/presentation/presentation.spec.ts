@@ -3,6 +3,7 @@ import path from 'path';
 import { linkIssue } from '../core/helpers';
 import { chromiumBaseArgs } from '../core/setup/browsersConfig';
 import { test } from '../core/setup/fixtures';
+import { routeGraphqlSockets } from '../reconnection/util';
 import { ExportedAnnotationsOverlap } from './exportedAnnotationsOverlap';
 import { Presentation } from './presentation';
 import { holdUploadTokenRequest, MASK_SAMPLE_PDF_BYTES } from './util';
@@ -347,11 +348,17 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       await presentation.uploadIsDroppedWhenItsUploaderLeaves();
     });
 
-    test('An upload is dropped when its uploader reloads', async ({ browser, context, page }, testInfo) => {
+    test('An upload is kept when the connection of its uploader drops', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
       linkIssue(26518);
+      const uploaderSockets = await routeGraphqlSockets(page, []);
       const presentation = new Presentation(browser, context);
       await presentation.initModPage(page, { testInfo });
-      await presentation.uploadIsDroppedWhenItsUploaderReloads();
+      await presentation.initModPage2(context, { testInfo });
+      await presentation.uploadIsKeptWhenTheConnectionOfItsUploaderDrops(uploaderSockets);
     });
 
     test('An upload whose token arrives after the client gave up is removed', async ({
