@@ -1,0 +1,32 @@
+name: GraphQL - check the client operation names list
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "bigbluebutton-html5/imports/**"
+      - "bigbluebutton-html5/scripts/check-client-operation-names.js"
+      - "bigbluebutton-html5/package.json"
+      - "bigbluebutton-html5/package-lock.json"
+      - "bbb-graphql-middleware/config/client-operation-names.txt"
+      - ".github/workflows/client-operation-names-check.yml"
+permissions:
+  contents: read
+jobs:
+  client-operation-names-check:
+    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-24.04' }}
+    steps:
+      - name: Checkout PR's source merged into its target branch
+        uses: actions/checkout@v5
+        with:
+          ref: refs/pull/${{ github.event.number }}/merge
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: bigbluebutton-html5/package-lock.json
+      - name: install npm dependencies
+        working-directory: bigbluebutton-html5
+        run: npm ci
+      - name: check the list against the client's operations
+        working-directory: bigbluebutton-html5
+        run: node scripts/check-client-operation-names.js
