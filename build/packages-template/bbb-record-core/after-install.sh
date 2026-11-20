@@ -86,6 +86,11 @@ case "$1" in
 
     systemctl enable bbb-rap-resque-worker.service
     systemctl enable bbb-rap-archive-worker.service
+    # On upgrade, start archiving right away rather than at the next restart of the main worker:
+    # restarting that worker on a busy server interrupts the recording it is processing.
+    if systemctl is-active --quiet bbb-rap-resque-worker.service; then
+      systemctl start bbb-rap-archive-worker.service || true
+    fi
     systemctl enable bbb-rap-starter.service
     systemctl enable bbb-rap-caption-inbox.service
   ;;

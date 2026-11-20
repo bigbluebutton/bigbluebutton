@@ -254,6 +254,7 @@ bbb-web ————————————————————————
 bbb-pads —————————————————————————————► [✔ - active]
 bbb-export-annotations ———————————————► [✔ - active]
 bbb-rap-caption-inbox ————————————————► [✔ - active]
+bbb-rap-archive-worker ———————————————► [✔ - active]
 bbb-rap-resque-worker ————————————————► [✔ - active]
 bbb-rap-starter ——————————————————————► [✔ - active]
 

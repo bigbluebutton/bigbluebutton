@@ -1,5 +1,5 @@
 [Unit]
-Description=BigBlueButton resque worker for recording archives and meeting events
+Description=BigBlueButton resque worker for recording archives
 Wants=redis-server.service
 After=redis-server.service
 PartOf=bigbluebutton.target
@@ -10,8 +10,9 @@ ExecStart=/usr/bin/bundle exec rake -f Rakefile resque:workers
 WorkingDirectory=/usr/local/bigbluebutton/core/scripts
 # Archive a meeting as soon as it ends, without waiting for other recordings to finish processing:
 # data the archive step copies, such as the Learning Dashboard file, is only kept for a short time.
-# Keep COUNT=1. Archive and events jobs for the same meeting must not run at the same time (#12503).
-Environment=QUEUE=rap:archive,rap:events
+# Keep COUNT=1. Each archive of a meeting, chapter-break segments included, rewrites its events.xml
+# and trims its events in Redis, so two archives of the same meeting must not run at the same time.
+Environment=QUEUE=rap:archive
 Environment=COUNT=1
 # Environment=VVERBOSE=1
 User=bigbluebutton
