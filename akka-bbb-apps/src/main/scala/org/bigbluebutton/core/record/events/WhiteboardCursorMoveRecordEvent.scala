@@ -35,10 +35,15 @@ class WhiteboardCursorMoveRecordEvent extends AbstractWhiteboardRecordEvent {
   def setYPercent(percent: Double) {
     eventMap.put(Y_OFFSET, percent.toString)
   }
+
+  def setLaserType(laserType: String) {
+    eventMap.put(LASER_TYPE, laserType)
+  }
 }
 
 object WhiteboardCursorMoveRecordEvent {
   protected final val USER_ID = "userId"
   protected final val X_OFFSET = "xOffset"
   protected final val Y_OFFSET = "yOffset"
+  protected final val LASER_TYPE = "laserType"
 }
