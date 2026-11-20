@@ -141,8 +141,11 @@ module BigBlueButton
       # What Net::HTTP#request sets when it opens the connection itself.
       request['connection'] ||= 'close'
       last_error = nil
+      # A proxy from the environment looks up a plain-HTTP host itself. For
+      # HTTPS it is asked to connect to the checked address.
+      proxy = decision.uri.scheme == 'https' ? :ENV : nil
       decision.addresses.each do |address|
-        http = Net::HTTP.new(decision.uri.host, decision.uri.port)
+        http = Net::HTTP.new(decision.uri.host, decision.uri.port, proxy)
         http.use_ssl = (decision.uri.scheme == 'https')
         http.cert_store = cert_store if cert_store
         http.ipaddr = address
