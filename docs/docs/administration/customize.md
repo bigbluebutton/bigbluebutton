@@ -303,17 +303,22 @@ The BigBlueButton server processes recordings as meetings finish: `bbb-rap-start
 
 `bbb-conf --restart` also starts the worker, so a restart during the day resumes processing until the next stop.
 
+Meetings are still archived as they end while `bbb-rap-resque-worker` is stopped, because archiving runs in `bbb-rap-archive-worker`. Data that is only kept for a short time after a meeting ends, such as the Learning Dashboard data, is therefore not lost.
+
 #### Allow all recordings to be returned
 
 The `bbb-web` property `allowFetchAllRecordings` determines whether every recording on the server can be returned in a single response from a `getRecordings` call. By default this property is set to `true`. On a server with a large number of recordings an attempt to return every recording in a single response can cause a large amount of load on the server and therefore it is advised that this property be switched to `false` in `/etc/bigbluebutton/bbb-web.properties`. When this is done any request to `getRecordings` that does not specify any recording or meeting IDs as well as no pagination parameters will return no recordings to prevent all recordings from being returned.
 
 #### Increase the number of recording workers
 
-Recordings are handled by two services. `bbb-rap-archive-worker` archives each meeting as soon as it ends, and keeps meeting events when `defaultKeepEvents` or `meetingKeepEvents` is enabled. `bbb-rap-resque-worker` processes and publishes the recordings.
-
+<!-- TODO remove when 12403 is resolved -->
 > **Warning**
 >
-> Do not increase the number of workers in `bbb-rap-archive-worker`. Archive and events jobs for the same meeting must not run at the same time, or meeting events can be archived incompletely. For more information, see [BigBlueButton issue #12503](https://github.com/bigbluebutton/bigbluebutton/issues/12503).
+> If the `defaultKeepEvents` or `meetingKeepEvents` setting in bbb-web is enabled, you must not increase the number of BigBlueButton recording workers. Doing so could result in data loss, as meeting events will not be correctly archived.
+>
+> For more information, see [BigBlueButton issue #12503](https://github.com/bigbluebutton/bigbluebutton/issues/12503).
+
+Recordings are handled by two services. `bbb-rap-archive-worker` archives each meeting as soon as it ends. `bbb-rap-resque-worker` processes and publishes the recordings, and keeps meeting events when `defaultKeepEvents` or `meetingKeepEvents` is enabled. The steps below increase the workers in `bbb-rap-resque-worker`. Do not increase them in `bbb-rap-archive-worker`: two archives of the same meeting must not run at the same time.
 
 Run `systemctl edit bbb-rap-resque-worker.service`, and insert the following into the editor, replacing the number with the desired number of recordings to process concurrently.
 
@@ -337,9 +342,9 @@ If you run `systemctl status bbb-rap-resque-worker.service` now, you will see th
    CGroup: /system.slice/bbb-rap-resque-worker.service
       ├─23630 /bin/sh -c /usr/bin/rake -f ../Rakefile resque:workers >> /var/log/bigbluebutton/bbb-rap-worker.log
       ├─23631 /usr/bin/ruby /usr/bin/rake -f ../Rakefile resque:workers
-      ├─23650 resque-2.0.0: Waiting for rap:publish,rap:process,rap:sanity,rap:captions
-      ├─23651 resque-2.0.0: Waiting for rap:publish,rap:process,rap:sanity,rap:captions
-      └─23652 resque-2.0.0: Waiting for rap:publish,rap:process,rap:sanity,rap:captions
+      ├─23650 resque-2.0.0: Waiting for rap:publish,rap:process,rap:sanity,rap:captions,rap:events
+      ├─23651 resque-2.0.0: Waiting for rap:publish,rap:process,rap:sanity,rap:captions,rap:events
+      └─23652 resque-2.0.0: Waiting for rap:publish,rap:process,rap:sanity,rap:captions,rap:events
 ```
 
 #### Install additional recording processing formats
