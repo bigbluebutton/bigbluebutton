@@ -5,6 +5,10 @@
 // createUseSubscription.ts). The middleware labels those names by name in its metrics, outside
 // the cap on distinct names; a name missing from the file is labeled under the cap, and can fall
 // into (other) once the cap fills.
+// It assumes the client's operations are gql`` documents in files under imports/: it does not read
+// other directories, and an operation put together at run time by concatenating or interpolating
+// strings is not seen. A .graphql or .gql file, an operation under a tag that is not gql, and an
+// operation written as a plain string fail the check, as their names are not read here.
 // Usage: node scripts/check-client-operation-names.js [--write]
 // With --write, the names in the file are replaced by the client's.
 const fs = require('fs');
@@ -28,21 +32,29 @@ const RUN_TIME_DOCUMENTS = [
   'imports/ui/core/hooks/createUseSubscription.ts',
 ];
 
-const sourceFiles = (dir, files = []) => {
+const sourceFiles = (dir, files = [], graphqlFiles = []) => {
   fs.readdirSync(dir, { withFileTypes: true }).forEach((entry) => {
     if (entry.name === 'node_modules' || entry.name.startsWith('.')) return;
     const file = path.join(dir, entry.name);
-    if (entry.isDirectory()) sourceFiles(file, files);
+    if (entry.isDirectory()) sourceFiles(file, files, graphqlFiles);
     else if (/\.(ts|tsx|js|jsx)$/.test(entry.name)) files.push(file);
+    else if (/\.(graphql|gql)$/.test(entry.name)) graphqlFiles.push(file);
   });
-  return files;
+  return { files, graphqlFiles };
 };
 
 const SCRIPT_KINDS = {
   '.ts': ts.ScriptKind.TS, '.tsx': ts.ScriptKind.TSX, '.js': ts.ScriptKind.JS, '.jsx': ts.ScriptKind.JSX,
 };
-// The text of a GraphQL operation, to find one written other than as a gql`` document.
+// The text of a GraphQL operation, to find one written other than as a gql`` document: a string
+// that starts with one, or a tagged template that holds one anywhere (after a fragment or a
+// comment, for instance).
 const OPERATION_TEXT = /^\s*(query|mutation|subscription)\s+[_A-Za-z]/;
+const OPERATION_ANYWHERE = /(^|[^_0-9A-Za-z$.])(query|mutation|subscription)(\s+[_A-Za-z][_0-9A-Za-z]*)?\s*[({@]/;
+
+const templateText = (template) => (ts.isNoSubstitutionTemplateLiteral(template)
+  ? template.text
+  : [template.head.text, ...template.templateSpans.map((span) => span.literal.text)].join(' '));
 
 // The names gql is imported under in a file, from the packages that export it.
 const gqlNames = (source) => {
@@ -61,7 +73,12 @@ const gqlNames = (source) => {
 const clientOperationNames = () => {
   const names = new Map(); // name -> where it is defined
   const problems = [];
-  sourceFiles(path.join(HTML5, 'imports')).sort().forEach((file) => {
+  const { files, graphqlFiles } = sourceFiles(path.join(HTML5, 'imports'));
+  graphqlFiles.sort().forEach((file) => {
+    problems.push(`${path.relative(HTML5, file)}: a GraphQL file, whose operations are not read here; `
+      + 'write them as static gql`` documents');
+  });
+  files.sort().forEach((file) => {
     const relative = path.relative(HTML5, file);
     const source = ts.createSourceFile(file, fs.readFileSync(file, 'utf8'), ts.ScriptTarget.Latest, true,
       SCRIPT_KINDS[path.extname(file)]);
@@ -90,6 +107,12 @@ const clientOperationNames = () => {
           problems.push(`${where(node)}: a document built at run time, whose operation name cannot be read here; `
             + 'write it as a static gql`` document');
         }
+        return;
+      }
+      if (!RUN_TIME_DOCUMENTS.includes(relative) && ts.isTaggedTemplateExpression(node)
+        && OPERATION_ANYWHERE.test(templateText(node.template))) {
+        problems.push(`${where(node)}: a GraphQL operation under a tag that is not gql, whose name is not read here; `
+          + 'write it as a static gql`` document, with gql imported from @apollo/client');
         return;
       }
       if (!RUN_TIME_DOCUMENTS.includes(relative)
