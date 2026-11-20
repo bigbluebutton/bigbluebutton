@@ -212,10 +212,9 @@ export class APIJoin extends MultiUsers {
   // the URL this server signed.
   async testGetJoinUrlRoundTrip(page: PlaywrightPage, testInfo: TestInfo, request: APIRequestContext) {
     const meetingID = `getJoinUrl round trip ${getRandomInt(1000000, 10000000)}`;
-    // Page.init signs the create and join queries as written, so the ID travels encoded.
-    const encodedMeetingID = encodeURIComponent(meetingID);
-    await createMeeting(undefined, encodedMeetingID);
-    await this.initModPage(page, { testInfo, meetingId: encodedMeetingID, fullName: 'Signed Moderator' });
+    // The create and join helpers encode the ID themselves.
+    await createMeeting(undefined, meetingID);
+    await this.initModPage(page, { testInfo, meetingId: meetingID, fullName: 'Signed Moderator' });
     try {
       await expect.poll(() => isMeetingRunning(request, meetingID), pollOptions).toBe('true');
       const fullName = 'Signed Viewer';
