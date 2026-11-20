@@ -1193,6 +1193,30 @@ export class Presentation extends MultiUsers {
     );
   }
 
+  // A removed user is out of the meeting at once, without the wait a closed connection gets
+  async uploadIsDroppedWhenItsUploaderIsRemoved() {
+    const file = Presentation.fileToUpload('uploader-removed.pdf');
+    await this.startHeldUpload(file);
+    await this.secondModeratorTakesPresenter();
+    await expect(
+      uploadToastOf(this.modPage2, file.name),
+      'should show the upload as in progress to the next presenter while its uploader is there',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+
+    const uploaderRow = this.modPage2.page.locator(e.userListItem).filter({ hasText: this.modPage.username });
+    await uploaderRow.locator(e.moreOptionsUserItemButton).click();
+    // every row has its own copy of the menu, and the closed ones stay in the DOM
+    await this.modPage2.page.locator(`${e.removeUser}:visible`).first().click();
+    await this.modPage2.waitAndClick(e.removeUserConfirmationBtn);
+    await expect(
+      uploadToastOf(this.modPage2, file.name),
+      'should drop the upload once its uploader has been removed',
+    ).toHaveCount(0, { timeout: ELEMENT_WAIT_LONGER_TIME });
+    expect(await listPresentations(this.modPage2), 'should not list the upload of the removed user').not.toContain(
+      file.name,
+    );
+  }
+
   // The spec routes the uploader's graphql sockets with routeGraphqlSockets before it joins
   async uploadIsKeptWhenTheConnectionOfItsUploaderDrops(uploaderSockets: GraphqlSockets) {
     const file = Presentation.fileToUpload('uploader-reconnects.pdf');
@@ -1204,10 +1228,10 @@ export class Presentation extends MultiUsers {
     ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
 
     expect(uploaderSockets.drop(), 'should drop the graphql connection of the uploader').toBeGreaterThan(0);
-    // bbb-apps-akka learns of the closed connection at once. Half the time it gives the user to
-    // come back is ample for an upload dropped on that news to be gone from this notice, and too
-    // short for the user to have been removed.
-    await this.modPage2.page.waitForTimeout(USER_RECONNECT_GRACE / 2);
+    // bbb-apps-akka learns of the closed connection at once, and the notice of an upload dropped
+    // on that news closes about 3 s later. Most of the time the user is given to come back is
+    // ample for that, and too short for the user to have been removed.
+    await this.modPage2.page.waitForTimeout(0.8 * USER_RECONNECT_GRACE);
     await expect(
       uploadToastOf(this.modPage2, file.name),
       'should keep the upload of a user whose connection dropped: the page goes on sending the file',

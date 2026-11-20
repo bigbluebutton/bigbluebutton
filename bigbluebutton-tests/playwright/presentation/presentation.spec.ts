@@ -348,6 +348,18 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       await presentation.uploadIsDroppedWhenItsUploaderLeaves();
     });
 
+    test('An upload is dropped when its uploader is removed from the meeting', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      linkIssue(26518);
+      const presentation = new Presentation(browser, context);
+      await presentation.initModPage(page, { testInfo });
+      await presentation.initModPage2(context, { testInfo });
+      await presentation.uploadIsDroppedWhenItsUploaderIsRemoved();
+    });
+
     test('An upload is kept when the connection of its uploader drops', async ({
       browser,
       context,
