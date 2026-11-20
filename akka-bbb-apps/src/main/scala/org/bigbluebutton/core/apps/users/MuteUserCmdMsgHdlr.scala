@@ -49,6 +49,8 @@ trait MuteUserCmdMsgHdlr extends RightsManagementTrait {
           msg.body.userId == msg.header.userId) {
           // unmuting self while not moderator and mic disabled. Do not allow.
         } else {
+          if (msg.body.mute) VoiceApp.withdrawUnmuteRequest(liveMeeting, u.intId)
+
           if (u.muted != msg.body.mute) {
             log.info("Send mute user request. meetingId=" + meetingId + " userId=" + u.intId + " user=" + u)
 
@@ -67,11 +69,13 @@ trait MuteUserCmdMsgHdlr extends RightsManagementTrait {
                 case None     => true
               }
             }
-            // shouldRequestUnmute: whether we need consent before unmuting a
-            // remote user. This is controlled by two factors:
+            // shouldRequestUnmute: send a remote unmute to the user's client as
+            // a request, not to the voice conference. Two cases:
             //  - bbb-web's requireUserConsentBeforeUnmuting setting
-            //  - If the audio bridge is LiveKit, which will _always_ require
-            //    user consent before unmuting due to technical limitations.
+            //  - the LiveKit audio bridge. A muted LiveKit client may have no
+            //    published microphone, and the server cannot publish one for
+            //    it, so the client must unmute itself. When the setting is
+            //    false, the html5 client accepts the request without asking.
             //    Voice-only participants are exempt: they keep publishing while
             //    muted, so the server can unmute them directly.
             val shouldRequestUnmute = isUnmuting &&

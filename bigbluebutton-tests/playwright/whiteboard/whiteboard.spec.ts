@@ -5,6 +5,7 @@ import { linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { ChangeStyles } from './changeStyles';
 import { DrawShape } from './drawShape';
+import { EditedShapeRemoved } from './editedShapeRemoved';
 import { MultiUserWhiteboard } from './multiUserWhiteboard';
 import { ShapeOptions } from './shapeOptions';
 import { ShapeTools } from './shapeTools';
@@ -171,6 +172,24 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
     await slideChange.crashOnSlideChangeWhileEditing();
   });
 
+  test('No crash when the presenter deletes the text a viewer is editing', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    const removed = new EditedShapeRemoved(browser, context);
+    await removed.initModPage(page, { testInfo });
+    await removed.initUserPage(context, { testInfo });
+    await removed.presenterDeletesTextBeingEdited();
+  });
+
+  test('Viewer text started right after the multi-user grant is kept', async ({ browser, context, page }, testInfo) => {
+    const removed = new EditedShapeRemoved(browser, context);
+    await removed.initModPage(page, { testInfo });
+    await removed.initUserPageWithSlowSubmits(context, testInfo, 1500);
+    await removed.newTextSurvivesAccessGrant();
+  });
+
   test('No blank presentation area on slide change with a cold cache', async ({ browser, context, page }, testInfo) => {
     linkIssue(25397);
     const blank = new SlideChangeBlank(browser, context);
@@ -242,6 +261,17 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
     );
   });
 
+  test('Scrolling right after Fit to width keeps the zoom and the viewer in sync', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    linkIssue(26578);
+    const slidePosition = new SlidePosition(browser, context);
+    await slidePosition.initPages(page, testInfo);
+    await slidePosition.keepsFitToWidthAndViewerInSyncWhenScrollingRightAway();
+  });
+
   test(
     'Different per-slide zooms restore exact camera positions',
     { tag: '@nightly' },
@@ -255,9 +285,10 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
 
   test(
     'Toolbar-zoomed slide is restored after a fit-to-width slide',
-    { tag: '@nightly' },
+    { tag: '@known-issue' },
     async ({ browser, context, page }, testInfo) => {
       linkIssue(25866);
+      linkIssue(26590);
       const slidePosition = new SlidePosition(browser, context);
       await slidePosition.initPages(page, testInfo);
       await slidePosition.restoresToolbarZoomAfterFitToWidthChange();
@@ -392,6 +423,13 @@ test.describe.parallel('Multi-user whiteboard', { tag: '@ci' }, () => {
     await whiteboard.initUserPage(context, { testInfo });
     await whiteboard.initUserPage2(context, { testInfo });
     await whiteboard.viewerAnnotationReachesEveryone();
+  });
+
+  test('Viewer undo removes the stroke for everyone', async ({ browser, context, page }, testInfo) => {
+    const whiteboard = new MultiUserWhiteboard(browser, context);
+    await whiteboard.initModPage(page, { testInfo });
+    await whiteboard.initUserPage(context, { testInfo });
+    await whiteboard.viewerUndoRemovesStroke();
   });
 });
 

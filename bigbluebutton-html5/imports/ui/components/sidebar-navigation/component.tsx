@@ -174,10 +174,6 @@ const SidebarNavigation = ({
     return <ButtonComponent key={buttonId} />;
   }, [sidebarNavigationInput]);
 
-  const hasTopContent = showBrandingArea || topButtons.length > 0;
-  const hasCenterContent = centerButtons.length > 0;
-  const hasBottomContent = bottomButtons.length > 0;
-
   return (
     <Styled.NavigationSidebarBackdrop
       className={cx('bbb-navigation', { 'bbb-navigation--collapsed': !isExpanded })}
@@ -232,17 +228,13 @@ const SidebarNavigation = ({
             {topButtons.map((buttonId) => renderButton(buttonId))}
           </Styled.Top>
 
-          {hasTopContent && hasCenterContent && (
-            <Styled.Separator className="bbb-navigation__separator" />
-          )}
+          <Styled.Separator className="bbb-navigation__separator" />
 
           <Styled.Center>
             {centerButtons.map((buttonId) => renderButton(buttonId))}
           </Styled.Center>
 
-          {hasCenterContent && hasBottomContent && (
-            <Styled.Separator className="bbb-navigation__separator" />
-          )}
+          <Styled.Separator className="bbb-navigation__separator" />
 
           <Styled.Bottom>
             {bottomButtons.map((buttonId) => renderButton(buttonId))}

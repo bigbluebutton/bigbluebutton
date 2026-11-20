@@ -1,0 +1,16 @@
+id: off-ods-one-sheet
+title: "odfpy spreadsheet: 6x4 table with a bold header row, A4 portrait"
+tier: synthetic
+file: off-ods-one-sheet.ods
+issues: []
+catalog: ["Office conversion"]
+upload:
+  method: create
+pages: 1
+expect: converted
+kind: vector
+marker: false
+aspect: 0.7071
+profiles: [defaults]
+notes: >-
+  Same table as off-xlsx-one-sheet. LibreOffice 25.8: one A4 page, no <image or <filter.

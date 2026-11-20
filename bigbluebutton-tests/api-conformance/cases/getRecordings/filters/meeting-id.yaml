@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# meetingID selects recordings by meeting: bbb-web turns each external ID in
+# the comma-separated list into its internal ID, sha1(meetingID), and lists
+# the recordings whose record ID starts with it, one per session. A breakout
+# room's recording has its own meeting ID, so the parent's ID doesn't list
+# it. Without state, published and unpublished recordings are listed.
+# The recordings are the fixtures in fixtures/recordings/.
+id: getRecordings.filters.meeting-id
+title: getRecordings by meetingID (${case})
+endpoint: getRecordings
+class: contract
+tags: [ci]
+requires: [recordings-fs]
+variants:
+  - id: one
+    vars: {case: two sessions of one meeting, ids: conform-rec-a, count: 2}
+  - id: list
+    vars: {case: a list of meetings, ids: "conform-rec-a,conform-rec-b", count: 3}
+  - id: breakout-parent
+    vars: {case: a meeting with breakout rooms, ids: conform-rec-parent, count: 1}
+steps:
+  - call: getRecordings
+    params: {meetingID: "${ids}"}
+    expect:
+      returncode: SUCCESS
+      xpath:
+        /response/recordings/recording:
+          count: ${count}

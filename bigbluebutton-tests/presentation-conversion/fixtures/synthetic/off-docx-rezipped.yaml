@@ -1,0 +1,18 @@
+id: off-docx-rezipped
+title: "off-docx-lorem-a4 re-zipped with [Content_Types].xml as the last entry"
+tier: synthetic
+file: off-docx-rezipped.docx
+issues: [17824, 18030]
+catalog: ["File-type detection"]
+upload:
+  method: create
+pages: 1
+expect: converted
+kind: vector
+marker: false
+aspect: 0.7071
+profiles: [defaults]
+notes: >-
+  Same entries and bytes as off-docx-lorem-a4, only the zip order differs. libmagic reports such
+  files as generic OOXML or application/zip; bbb-web's Tika detection (#18030) must still accept
+  it (#17824).

@@ -1,4 +1,4 @@
-import { type Page as PlaywrightPage } from '@playwright/test';
+import { type BrowserContext, type Page as PlaywrightPage } from '@playwright/test';
 
 // Passed into page.evaluate rather than closed over: those callbacks are
 // serialized and run in the browser, where this module's scope does not exist.
@@ -68,6 +68,12 @@ export const exposeLiveKitRoom = (page: PlaywrightPage): Promise<void> =>
 
       clearInterval(wrap);
     }, 50);
+  });
+
+// Sets the opt-in room expose flag for every page the context opens.
+export const exposeLiveKitRoomInContext = (context: BrowserContext): Promise<void> =>
+  context.addInitScript(() => {
+    (window as TestWindow).BBB_EXPOSE_LIVEKIT_ROOM = true;
   });
 
 // Re-enters the LK room with the credentials the client already used.

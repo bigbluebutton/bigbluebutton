@@ -1,0 +1,27 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# sendChatMessage needs a running meeting: one nobody is in, or one that
+# doesn't exist, gets meetingNotFound.
+id: sendChatMessage.meeting.not-running
+title: sendChatMessage refuses a meeting that isn't running
+endpoint: sendChatMessage
+class: contract
+tags: [ci]
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Chat}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: sendChatMessage
+    params: {meetingID: "${uid}", message: Hello}
+    expect: {returncode: FAILED, messageKey: meetingNotFound, message: Meeting not found}
+  - call: sendChatMessage
+    params: {meetingID: "${uid}-none", message: Hello}
+    expect: {returncode: FAILED, messageKey: meetingNotFound, message: Meeting not found}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

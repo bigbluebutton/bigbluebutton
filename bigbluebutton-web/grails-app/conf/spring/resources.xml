@@ -173,6 +173,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="allowFetchAllRecordings" value="${allowFetchAllRecordings}"/>
         <property name="recordingServiceHelper" ref="recordingServiceHelper"/>
         <property name="xmlService" ref="xmlService" />
+        <property name="redisStorageService" ref="redisStorageService"/>
         <property name="presentationBaseDir" value="${presentationDir}"/>
         <property name="defaultServerUrl" value="${bigbluebutton.web.serverURL}"/>
         <property name="defaultTextTrackUrl" value="${defaultTextTrackUrl}"/>
@@ -180,6 +181,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
     <bean id="learningDashboardService" class="org.bigbluebutton.api.LearningDashboardService">
         <property name="learningDashboardFilesDir" value="${learningDashboardFilesDir}"/>
+        <property name="recordStatusDir" value="${recordStatusDir}"/>
     </bean>
 
     <bean id="validationService" class="org.bigbluebutton.api.service.ValidationService">

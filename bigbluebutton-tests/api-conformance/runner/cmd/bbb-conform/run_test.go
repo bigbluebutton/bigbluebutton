@@ -47,8 +47,9 @@ func startFake(t *testing.T, caps string, withSink bool) string {
 		t.Fatal(err)
 	}
 	tf := filepath.Join(dir, "fake.yaml")
-	body := fmt.Sprintf("name: fake\nbaseUrl: %s\nsalt: %s\ntls: {caFile: ca.pem}\ncapabilities: [%s]\nfixtureUrl: https://fixtures.test\ntapUrl: %s\n%s",
-		srv.URL, fakeSalt, caps, tapURL, sinkLine)
+	body := fmt.Sprintf("name: fake\nbaseUrl: %s\nsalt: %s\ntls: {caFile: ca.pem}\ncapabilities: [%s]\nfixtureUrl: https://fixtures.test\ntapUrl: %s\n"+
+		"vars: {turnSecret: {value: %s, secret: true, capability: turn}}\n%s",
+		srv.URL, fakeSalt, caps, tapURL, fakebbb.TurnSecret, sinkLine)
 	if err := os.WriteFile(tf, []byte(body), 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -116,6 +117,12 @@ var normalizers = []struct {
 	// checks the count where it is deterministic.
 	{regexp.MustCompile(`"attempts": \d+`), `"attempts": 0`},
 	{regexp.MustCompile(`\(\d+ attempts\)`), "(N attempts)"},
+	// A TURN credential holds the real time (stuns.response.turn-credentials):
+	// its expiry, the bounds checked against it, and its HMAC.
+	{regexp.MustCompile(`\b1[0-9]{9}:w_`), "<expiry>:w_"},
+	{regexp.MustCompile(`an integer from 1[0-9]{9} to 1[0-9]{9}`), "an integer from <now+ttl-60> to <now+ttl+60>"},
+	{regexp.MustCompile(`\\"1[0-9]{9}\\"`), `\"<expiry>\"`},
+	{regexp.MustCompile(`([^A-Za-z0-9+/])[A-Za-z0-9+/]{27}=([^A-Za-z0-9+/=])`), "${1}<hmac>${2}"},
 }
 
 func scrub(s string) string {
@@ -196,7 +203,7 @@ func TestRunParallel(t *testing.T) {
 	if code != exitOK {
 		t.Fatalf("exit %d\n%s%s", code, stdout.String(), stderr.String())
 	}
-	if !strings.Contains(stdout.String(), "25 case(s): 24 passed, 0 failed, 0 errors, 1 skipped") {
+	if !strings.Contains(stdout.String(), "26 case(s): 25 passed, 0 failed, 0 errors, 1 skipped") {
 		t.Errorf("summary:\n%s", stdout.String())
 	}
 }
@@ -207,7 +214,7 @@ func TestRunFilters(t *testing.T) {
 		args    []string
 		summary string
 	}{
-		{[]string{"--tags", "ci"}, "14 case(s)"},
+		{[]string{"--tags", "ci"}, "15 case(s)"},
 		{[]string{"--id", "getMeetings.checksum.*,version.*"}, "6 case(s)"},
 	}
 	for _, tt := range tests {

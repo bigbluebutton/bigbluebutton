@@ -4,7 +4,6 @@ import { defineMessages, injectIntl } from 'react-intl';
 import browserInfo from '/imports/utils/browserInfo';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
-import { useMutation } from '@apollo/client';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import ScreenshareBridgeService from '/imports/api/screenshare/client/bridge/service';
 import {
@@ -15,7 +14,7 @@ import {
   useShowButtonForNonPresenters,
 } from '/imports/ui/components/screenshare/service';
 import { SCREENSHARING_ERRORS } from '/imports/api/screenshare/client/bridge/errors';
-import { EXTERNAL_VIDEO_STOP } from '/imports/ui/components/external-video-player/mutations';
+import useEjectPresentationAreaContent from '/imports/ui/core/hooks/useEjectPresentationAreaContent';
 import { MediaButton } from '/imports/ui/components/actions-bar/media-area/media-sharing/media-button/component';
 import Icon from '/imports/ui/components/common/icon/component';
 
@@ -123,7 +122,7 @@ const ScreenshareButton = ({
 }) => {
   // eslint-disable-next-line max-len
   const TROUBLESHOOTING_URLS = window.meetingClientSettings.public.media.screenshareTroubleshootingLinks;
-  const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
+  const ejectPresentationAreaContent = useEjectPresentationAreaContent();
   const isCameraAsContentBroadcasting = useIsCameraAsContentBroadcasting();
 
   const [isScreenshareUnavailableModalOpen, setScreenshareUnavailableModalIsOpen] = useState(false);
@@ -202,8 +201,12 @@ const ScreenshareButton = ({
                   if (isSafari && !ScreenshareBridgeService.HAS_DISPLAY_MEDIA) {
                     setScreenshareUnavailableModalIsOpen(true);
                   } else {
-                    // eslint-disable-next-line max-len
-                    shareScreen(isCameraAsContentBroadcasting, stopExternalVideoShare, amIPresenter, handleFailure);
+                    shareScreen(
+                      isCameraAsContentBroadcasting,
+                      () => ejectPresentationAreaContent('screenshare'),
+                      amIPresenter,
+                      handleFailure,
+                    );
                   }
                 }}
               id="share-screen-button"

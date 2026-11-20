@@ -93,6 +93,7 @@ class ConfirmationModal extends Component {
               <Styled.FooterButton
                 id={this.cancelButtonId}
                 variant="secondary"
+                className="bbb-action-button bbb-action-button--secondary"
                 dataTest="confirmationModalCancel"
                 label={cancelButtonLabel || intl.formatMessage(messages.noLabel)}
                 onClick={handleClose}
@@ -102,6 +103,7 @@ class ConfirmationModal extends Component {
               <Styled.FooterButton
                 variant="primary"
                 color={confirmButtonColor === 'danger' ? 'danger' : 'default'}
+                className={`bbb-action-button bbb-action-button--${confirmButtonColor === 'danger' ? 'danger' : 'primary'}`}
                 label={confirmButtonLabel || intl.formatMessage(messages.yesLabel)}
                 disabled={disableConfirmButton}
                 dataTest={confirmButtonDataTest}

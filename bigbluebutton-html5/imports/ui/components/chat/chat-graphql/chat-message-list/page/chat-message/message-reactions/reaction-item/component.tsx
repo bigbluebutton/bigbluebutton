@@ -66,6 +66,7 @@ const ReactionItem: React.FC<ReactionItemProps> = (props) => {
   return (
     <TooltipContainer title={label} key={reactionEmoji}>
       <Styled.EmojiWrapper
+        className={`bbb-chat-message__reaction${reactedByMe ? ' bbb-chat-message__reaction--own' : ''}`}
         data-test="messageReactionItem"
         tabIndex={-1}
         aria-describedby={id}

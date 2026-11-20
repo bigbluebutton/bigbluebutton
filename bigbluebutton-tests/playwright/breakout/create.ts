@@ -27,7 +27,7 @@ export class Create extends MultiUsers {
     }).toPass({ timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
   }
 
-  private static async setPermissionAllowed(page: PlaywrightPage, selector: string, allowed: boolean) {
+  protected static async setPermissionAllowed(page: PlaywrightPage, selector: string, allowed: boolean) {
     await Create.setCheckboxChecked(page, selector, allowed);
   }
 
@@ -286,6 +286,20 @@ export class Create extends MultiUsers {
     await expect(checkbox, 'checkbox should be checked when inheritance is enabled by default').toBeChecked();
     await checkbox.uncheck();
     await expect(checkbox, 'moderator should be able to clear the checkbox').not.toBeChecked();
+    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+  }
+
+  async inheritLockSettingsCheckboxIsNotOffered() {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+
+    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+    await this.modPage.waitAndClick(e.moreOptionsToggle);
+
+    await this.modPage.hasElement(e.allowChoiceRoom, 'should display the options of the create breakout panel');
+    await this.modPage.wasRemoved(
+      e.inheritLockSettingsCheckbox,
+      'should not offer the "Propagate the current lock settings" checkbox in a meeting without lock settings',
+    );
     await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
   }
 
@@ -593,5 +607,39 @@ export class Create extends MultiUsers {
       listbox.locator('li[role="option"]', { hasText: e.rejectedPresentationFileName }),
       'should not offer the rejected presentation as a breakout room slide',
     ).toHaveCount(0);
+  }
+
+  // breakoutRoomsCaptureSlides / breakoutRoomsCaptureNotes on the create call pre-tick the capture options
+  async captureOptionsFollowCreateParameters() {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+
+    await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 });
+    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+    await this.modPage.waitAndClick(e.moreOptionsToggle);
+    await expect(
+      this.modPage.page.locator(e.captureBreakoutWhiteboard),
+      'should pre-tick Save whiteboard when the meeting was created with breakoutRoomsCaptureSlides=true',
+    ).toBeChecked();
+    await expect(
+      this.modPage.page.locator(e.captureBreakoutSharedNotes),
+      'should pre-tick Save shared notes when the meeting was created with breakoutRoomsCaptureNotes=true',
+    ).toBeChecked();
+  }
+
+  // Creates the rooms with the capture options set to the given state, whatever they came up as
+  async createWithCaptureOptions(captureWhiteboard: boolean, captureNotes: boolean) {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+    if (!this?.userPage) throw new Error('userPage not initialized');
+
+    await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 });
+    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+    await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
+    await this.modPage.waitAndClick(e.moreOptionsToggle);
+    await Create.setCheckboxChecked(this.modPage.page, e.captureBreakoutWhiteboard, captureWhiteboard);
+    await Create.setCheckboxChecked(this.modPage.page, e.captureBreakoutSharedNotes, captureNotes);
+    await this.modPage.waitAndClick(e.createBreakoutRoomsButton, ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.hasElement(e.modalConfirmButton, 'should invite the attendee to join the breakout room');
+    await this.userPage.waitAndClick(e.modalDismissButton);
+    await this.modPage.setHeightWidthViewPortSize(); // reset to default size
   }
 }

@@ -1,0 +1,18 @@
+<recording>
+  <id>dbebceff4b9b4683a171899bbb922ccab6a420fb-1700014400000</id>
+  <state>processed</state>
+  <published>false</published>
+  <start_time>1700014400000</start_time>
+  <end_time>1700014460000</end_time>
+  <participants>1</participants>
+  <playback/>
+  <meeting id="dbebceff4b9b4683a171899bbb922ccab6a420fb-1700014400000" externalId="conform-rec-d" name="Conform Recordings D" breakout="false"/>
+  <breakout/>
+  <breakoutRooms/>
+  <meta>
+    <conform-color>red</conform-color>
+    <isBreakout>false</isBreakout>
+    <meetingId>conform-rec-d</meetingId>
+    <meetingName>Conform Recordings D</meetingName>
+  </meta>
+</recording>

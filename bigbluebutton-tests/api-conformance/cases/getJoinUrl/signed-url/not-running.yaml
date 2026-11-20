@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# getJoinUrl answers only while the meeting is running, that is while
+# someone is in it. A join that only redirects puts nobody there.
+id: getJoinUrl.signed-url.not-running
+title: getJoinUrl refuses a meeting nobody is in
+endpoint: getJoinUrl
+class: contract
+tags: [ci]
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Not running}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: join
+    client: ann
+    params: {meetingID: "${uid}", fullName: Ann, role: moderator, redirect: "false"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {annToken: /response/session_token}
+  - call: getJoinUrl
+    client: ann
+    params: {sessionToken: "${annToken}"}
+    expect:
+      format: json
+      returncode: FAILED
+      message: Meeting not found
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

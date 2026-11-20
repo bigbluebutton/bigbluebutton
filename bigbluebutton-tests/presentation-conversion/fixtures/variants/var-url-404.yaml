@@ -1,0 +1,9 @@
+id: var-url-404
+title: URL that answers 404
+tier: variant
+file: ../../../playwright/core/media/sample-with-mask.pdf
+upload: { method: create-url, url: "{base}/does-not-exist.pdf" }
+catalog: [Preupload via create API]
+pages: 0
+expect: dropped
+checks: [outcome]

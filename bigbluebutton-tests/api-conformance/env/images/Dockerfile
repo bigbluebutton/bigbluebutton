@@ -7,7 +7,7 @@
 # The LibreOffice the bbb-libreoffice-docker package converts Office
 # documents with; make -C env passes the tag bbb-libreoffice/docker/Dockerfile
 # names.
-ARG LIBREOFFICE_IMAGE=bigbluebutton/bbb-libreoffice:25.8.4.2-20260129-151200
+ARG LIBREOFFICE_IMAGE=bigbluebutton/bbb-libreoffice:26.8.3.1-20261120-120000
 FROM ${LIBREOFFICE_IMAGE} AS libreoffice
 
 # Ubuntu 24.04, as packaged servers run, with the bigbluebutton user every
@@ -157,11 +157,13 @@ COPY --from=runner . .
 RUN CGO_ENABLED=0 go build -o /bbb-conform ./cmd/bbb-conform
 
 # Follows the bus and reads redis and the data directory for the bus, redis
-# and fs steps. It only reads.
+# and fs steps. It writes only the suite's fixture recordings: it installs
+# them into the data directory when it starts, and puts them back for the
+# restore steps.
 FROM base AS tap
 COPY --from=runner-build /bbb-conform /usr/local/bin/bbb-conform
 USER bigbluebutton
-CMD ["bbb-conform", "tap", "--listen", "0.0.0.0:8099"]
+CMD ["bbb-conform", "tap", "--listen", "0.0.0.0:8099", "--recordings", "/fixtures/recordings"]
 HEALTHCHECK --interval=2s --timeout=5s --start-period=30s \
   CMD curl -fsS http://127.0.0.1:8099/info | grep -q '"subscribed":true'
 

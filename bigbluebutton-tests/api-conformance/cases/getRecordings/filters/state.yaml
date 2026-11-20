@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# state is a comma-separated list of published, unpublished, deleted,
+# processing and processed, or any; without it, published and unpublished
+# recordings are listed. bbb-web looks for processing and processed
+# recordings in the same directory, recording/process, so either one lists
+# what's there whatever its metadata's state says; asking for both, or any,
+# finds such a recording twice, and the two are merged into one recording
+# with two formats. An unknown state matches nothing.
+# conform-rec-a has a published and an unpublished session, conform-rec-c
+# a deleted one and conform-rec-d a processed one.
+id: getRecordings.filters.state
+title: getRecordings by state (${case})
+endpoint: getRecordings
+class: contract
+tags: [ci]
+requires: [recordings-fs]
+variants:
+  - {id: default, vars: {case: none given, state: null, count: 2}}
+  - {id: any, vars: {case: any, state: any, count: 4}}
+  - {id: published, vars: {case: published, state: published, count: 1}}
+  - {id: unpublished, vars: {case: unpublished, state: unpublished, count: 1}}
+  - {id: deleted, vars: {case: deleted, state: deleted, count: 1}}
+  - {id: processing, vars: {case: processing, state: processing, count: 1}}
+  - {id: processed, vars: {case: processed, state: processed, count: 1}}
+  - {id: processing-processed, vars: {case: processing and processed, state: "processing,processed", count: 1}}
+  - {id: list, vars: {case: a list, state: "published,deleted", count: 2}}
+  - {id: unknown, vars: {case: an unknown state, state: archived, count: 0}}
+steps:
+  - call: getRecordings
+    params: {meetingID: "conform-rec-a,conform-rec-c,conform-rec-d", state: "${state}"}
+    expect:
+      returncode: SUCCESS
+      xpath:
+        /response/recordings/recording:
+          count: ${count}

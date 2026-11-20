@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A breakout room's create needs its sequence, an integer: without one, or
+# with another value, create should refuse it (with FAILED, like any other
+# bad parameter). A defect: bbb-web answers 500 (expectations/bbb-web.yaml).
+id: create.breakouts.sequence
+title: create refuses a breakout room without an integer sequence
+endpoint: create
+class: defect
+tags: [ci]
+requires: [akka]
+variants:
+  - id: missing
+    vars: {sequence: null}
+  - id: not-a-number
+    vars: {sequence: one}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Parent}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - call: create
+    params: {meetingID: "${intId}-1", name: Room, isBreakout: "true", parentMeetingID: "${intId}", sequence: "${sequence}"}
+    expect: {status: 200, returncode: FAILED}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

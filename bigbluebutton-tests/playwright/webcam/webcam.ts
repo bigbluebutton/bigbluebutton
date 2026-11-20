@@ -241,6 +241,65 @@ export class Webcam extends Page {
     await expect(webcamVideoLocator).toHaveScreenshot('disable-self-view.png');
   }
 
+  // Settings > Application > "Disable self-view (all cameras)": the user's own tiles are
+  // hidden, everyone else keeps receiving the stream.
+  async disableSelfViewInSettings() {
+    await this.waitAndClick(e.settingsSidebarButton);
+    await this.hasElementNotChecked(e.selfViewDisableToggleBtn, 'self-view should start enabled');
+    await this.waitAndClickElement(e.selfViewDisableToggleBtn);
+    await this.hasElementChecked(e.selfViewDisableToggleBtn, 'should turn "Disable self-view" on');
+    await this.waitAndClick(e.saveSettingsButton);
+    await this.wasRemoved(e.saveSettingsButton, 'should close the settings after saving');
+  }
+
+  async hasSelfViewDisabledInSettings(description: string) {
+    await this.waitAndClick(e.settingsSidebarButton);
+    await this.hasElementChecked(e.selfViewDisableToggleBtn, description);
+    await this.waitAndClick(e.closeModal);
+    await this.wasRemoved(e.saveSettingsButton, 'should close the settings, nothing was changed');
+  }
+
+  async hasOwnVideoHidden(when: string) {
+    await this.hasText(
+      e.webcamStreamItem,
+      e.selfViewDisabledLabel,
+      `the own tile should say that self-view is disabled ${when}`,
+    );
+    // The video element stays in the tile (the stream is still published) inside a
+    // container the client hides; a zero-size video while it is still loading would
+    // satisfy toBeHidden on its own, so check the container's display.
+    const ownVideo = this.page.locator(e.currentUserLocalStreamVideo);
+    await expect(ownVideo, `the own stream should still be in the camera dock ${when}`).toBeAttached();
+    await expect(ownVideo.locator('..'), `the own video should be hidden ${when}`).toHaveCSS('display', 'none');
+  }
+
+  // The own tile mounts after the webcam preview closes and reads the setting then, so the
+  // preview - on the first share and from the video settings of a shared camera - must leave
+  // the setting alone. The preview itself shows the camera regardless of the setting.
+  async selfViewStaysDisabledAfterSharing() {
+    await this.waitAndClick(e.joinVideo);
+    await this.hasElement(
+      e.webcamMirroredVideoPreview,
+      'the preview should show the camera while self-view is disabled',
+    );
+    await this.waitAndClick(e.startSharingWebcam);
+    await this.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
+    await this.hasElement(e.webcamStreamItem, 'should add the own tile to the camera dock', VIDEO_LOADING_WAIT_TIME);
+    await this.hasOwnVideoHidden('after sharing through the preview');
+    await this.hasSelfViewDisabledInSettings('should keep "Disable self-view" on after sharing');
+
+    await this.waitAndClick(e.videoDropdownMenu);
+    await this.waitAndClick(e.advancedVideoSettingsBtn);
+    await this.hasElement(
+      e.webcamMirroredVideoPreview,
+      'the video settings should show the camera while self-view is disabled',
+    );
+    await this.waitAndClick(e.cancelSharingWebcam);
+    await this.wasRemoved(e.webcamSettingsModal, 'should close the video settings');
+    await this.hasOwnVideoHidden('after the video settings were closed');
+    await this.hasSelfViewDisabledInSettings('should keep "Disable self-view" on after the video settings');
+  }
+
   async managingNewBackground() {
     await this.waitAndClick(e.joinVideo);
     await this.waitAndClick(e.backgroundSettingsTitle);

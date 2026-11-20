@@ -389,6 +389,8 @@ This pattern can be repeated for additional recording formats. Note that it's ve
 
 After you edit the configuration file, you must restart the recording processing queue: `systemctl restart bbb-rap-resque-worker.service` in order to pick up the changes.
 
+You can confirm the result with `bbb-record --list-workflows`, which lists the enabled processing steps separately from the installed processing scripts. A format that appears only under the installed scripts is not part of the workflow yet, and `bbb-record --rebuild <recording_id> --format formatname` will refuse to rebuild it, because processing it would remove the existing output without publishing a replacement.
+
 To disable one or more enabled recording formats for a single meeting, pass `meta_bbb-disable-recording-formats` on the `create` API call with a comma-separated list of format names. For example, `meta_bbb-disable-recording-formats=video,presentation` (or `meta_bbb-disable-recording-formats=[video,presentation]`) skips the `video` and `presentation` recording formats for that meeting. The format names are case-insensitive and match the format part of the recording steps. Disabled formats are not processed or published, so they do not trigger recording-ready callbacks.
 
 The following script enables the video recording format.
@@ -670,7 +672,7 @@ public:
                 users: 100
 ```
 
-In the example above, `paginationToggleEnabled: false` hides the "Video pagination" switch in Settings, so no user can turn pagination off. To keep the switch for moderators only, leave `paginationToggleEnabled: true` and set `paginationToggleModeratorOnly: true`:
+In the example above, `paginationToggleEnabled: false` hides the "Video pagination" switch in Settings, so no user can turn pagination off. To let only moderators change it, leave `paginationToggleEnabled: true` and set `paginationToggleModeratorOnly: true`:
 
 ```
 public:
@@ -680,9 +682,9 @@ public:
             paginationToggleModeratorOnly: true
 ```
 
-A user who cannot see the switch always gets the default from `public.app.defaultSettings.application.paginationEnabled`, even if they changed it earlier (for example, before being demoted from moderator).
+Viewers still see the switch, disabled and showing the default from `public.app.defaultSettings.application.paginationEnabled`, with a tooltip saying only moderators can change it. They always get that default, even if they changed it earlier (for example, before being demoted from moderator).
 
-The switch only shows when the user's page size is above `0`. With the default `desktopPageSizes.moderator: 0`, moderators on desktop see every webcam and get no switch; set a moderator page size to give it to them.
+The switch shows whatever the user's page size is, but it only has an effect when that page size is above `0`. With the default `desktopPageSizes.moderator: 0`, moderators on desktop see every webcam whichever way the switch is set; set a moderator page size for it to apply to them.
 
 #### Use custom images for virtual background
 

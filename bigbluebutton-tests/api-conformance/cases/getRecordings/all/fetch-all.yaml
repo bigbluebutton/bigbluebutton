@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# With no meetingID or recordID, getRecordings lists every published and
+# unpublished recording (allowFetchAllRecordings, on by default). Serial:
+# the cases that publish, unpublish and delete recordings run alone and put
+# them back afterwards, so the list is the fixture tree's.
+id: getRecordings.all.fetch-all
+title: getRecordings with no filter lists every published and unpublished recording
+endpoint: getRecordings
+class: contract
+tags: [ci, serial]
+requires: [recordings-fs]
+steps:
+  - call: getRecordings
+    expect:
+      returncode: SUCCESS
+      xpath:
+        /response/recordings/recording: {count: 10}
+        /response/recordings/recording[state!='published' and state!='unpublished']: {count: 0}

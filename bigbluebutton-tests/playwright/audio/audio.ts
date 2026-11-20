@@ -2,11 +2,13 @@ import { expect } from '@playwright/test';
 
 import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
+import { isLiveKit } from '../core/livekit';
 import { allowMedia } from '../core/mediaPermissions';
 import { expectAudioReceived } from '../core/rtcStatsProbe';
 import { MultiUsers } from '../user/multiusers';
 import { awayIndicatorLocator, hasUserListMicState, isTalkingLocator, setAway } from '../user/util';
 import { remoteWebcamContentCheck } from '../webcam/util';
+import { getLocalMicState } from './liveKitProbe';
 import {
   areRemoteAudioElementsPlaying,
   connectMicrophone,
@@ -498,6 +500,17 @@ export class Audio extends MultiUsers {
     ).toBeVisible();
   }
 
+  async unmuteRequestWithdrawnByMuteAll() {
+    await this.moderatorRequestsUnmute();
+    await this.modPage.waitAndClick(e.muteAllUsers);
+    await this.userPage.wasRemoved(
+      e.simpleModal,
+      'muting everyone should withdraw the pending unmute request',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await this.userPage.hasElement(e.unmuteMicButton, 'the attendee should stay muted');
+  }
+
   async unmuteConsentAccepted() {
     const { username } = this.userPage;
     await this.moderatorRequestsUnmute();
@@ -508,6 +521,89 @@ export class Audio extends MultiUsers {
       isTalkingLocator(this.modPage, username),
       'the moderator should hear the attendee after they consent',
     ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+  }
+
+  // The moderator unmutes the attendee without asking, once per LiveKit mic state:
+  // never published, muted by going away, published after a mute, and unpublished.
+  // The away attendee stays away.
+  async unmuteWithoutConsent() {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+    if (!this?.userPage) throw new Error('userPage not initialized');
+
+    await joinMutedMicrophone(this.userPage);
+    await this.modPage.waitAndClick(e.usersListSidebarButton);
+    if (isLiveKit) {
+      const mic = await getLocalMicState(this.userPage.page);
+      expect(mic.micPublications, 'the muted microphone should not be published yet').toBe(0);
+    }
+    await this.moderatorUnmutesAttendee({ expectToast: isLiveKit });
+
+    const prevAwayMuted = () => this.userPage.page.evaluate(() => window.sessionStorage.getItem('BBB_prevAwayMuted'));
+    await setAway(this.userPage);
+    await this.userPage.hasElement(e.unmuteMicButton, 'going away should mute the attendee');
+    expect(await prevAwayMuted(), 'going away should record that it muted the microphone').toBe('true');
+    await this.moderatorUnmutesAttendee();
+    await expect(
+      awayIndicatorLocator(this.modPage, this.userPage.username),
+      'the attendee should stay away after a moderator unmutes them',
+    ).toBeVisible();
+    // A stale flag would unmute the attendee again on a later return from away.
+    // Only LiveKit runs this unmute in the attendee's client.
+    if (isLiveKit) {
+      expect(await prevAwayMuted(), 'the moderator unmute should clear the flag of the mic muted by away').toBe(
+        'false',
+      );
+    }
+
+    await this.moderatorMutesAttendee();
+    if (isLiveKit) {
+      const mic = await getLocalMicState(this.userPage.page);
+      expect(mic.micPublications, 'the muted microphone should still be published').toBeGreaterThan(0);
+    }
+    await this.moderatorUnmutesAttendee();
+
+    await this.moderatorMutesAttendee();
+    if (isLiveKit) {
+      await expect
+        .poll(async () => (await getLocalMicState(this.userPage.page)).micPublications, {
+          message: 'the muted microphone should be unpublished',
+          timeout: ELEMENT_WAIT_EXTRA_LONG_TIME,
+        })
+        .toBe(0);
+    }
+    await this.moderatorUnmutesAttendee();
+  }
+
+  // The toast is only checked when asked: it closes by itself, so a later step
+  // could miss it.
+  private async moderatorUnmutesAttendee({ expectToast = false } = {}) {
+    const { username } = this.userPage;
+    const attendeeRow = this.modPage.page.locator(e.userListItem, { hasText: username });
+
+    await attendeeRow.locator(e.unmuteUser).click();
+    if (expectToast) {
+      await this.userPage.hasText(
+        e.toastContainer,
+        e.unmutedByModeratorToast,
+        'should tell the attendee that a moderator unmuted them',
+      );
+    }
+    await this.userPage.hasElement(e.muteMicButton, 'should unmute the attendee');
+    await this.userPage.wasRemoved(e.simpleModal, 'should not ask the attendee for consent');
+    await expect(
+      isTalkingLocator(this.modPage, username),
+      'the moderator should hear the unmuted attendee',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+    await expect(attendeeRow.locator(e.muteUser), 'the moderator should see the attendee unmuted').toBeVisible();
+  }
+
+  private async moderatorMutesAttendee() {
+    const { username } = this.userPage;
+    const attendeeRow = this.modPage.page.locator(e.userListItem, { hasText: username });
+
+    await attendeeRow.locator(e.muteUser).click();
+    await this.userPage.hasElement(e.unmuteMicButton, 'should mute the attendee');
+    await expect(attendeeRow.locator(e.unmuteUser), 'the moderator should see the attendee muted').toBeVisible();
   }
 
   // Meeting created with audioBridge=bbb-webrtc-sfu only, so cameras stay on the server default

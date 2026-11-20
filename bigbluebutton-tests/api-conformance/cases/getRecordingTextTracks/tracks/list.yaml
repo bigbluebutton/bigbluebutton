@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# getRecordingTextTracks lists the tracks in the recording's captions.json,
+# in its order, each with an href to fetch it through nginx:
+# <serverURL>/bigbluebutton/textTrack/<token>/<record ID>/<kind>_<lang>.vtt,
+# with a new single-use token each time (masks.yaml hides it). Serial,
+# like every case that gets tokens from getRecordingTextTracks.
+id: getRecordingTextTracks.tracks.list
+title: getRecordingTextTracks lists a recording's caption tracks
+endpoint: getRecordingTextTracks
+class: contract
+tags: [ci, serial]
+requires: [recordings-fs]
+steps:
+  - call: getRecordingTextTracks
+    params: {recordID: e633b9434f359d31c1be30832b42a91ac0fb0e92-1700000000000}
+    expect:
+      format: json
+      returncode: SUCCESS
+      headers: {Cache-Control: no-cache}
+      jsonpath:
+        $.response.tracks[*]: {count: 2}
+        $.response.tracks[0].kind: subtitles
+        $.response.tracks[0].lang: en
+        $.response.tracks[0].label: English
+        $.response.tracks[0].source: upload
+        $.response.tracks[0].href: {regex: '^\Q${baseUrl}\E/bigbluebutton/textTrack/[0-9a-f]{40}/e633b9434f359d31c1be30832b42a91ac0fb0e92-1700000000000/subtitles_en\.vtt$'}
+        $.response.tracks[1].kind: captions
+        $.response.tracks[1].lang: fr-CA
+        $.response.tracks[1].label: Français (Canada)
+        $.response.tracks[1].source: live
+        $.response.tracks[1].href: {regex: '/e633b9434f359d31c1be30832b42a91ac0fb0e92-1700000000000/captions_fr-CA\.vtt$'}

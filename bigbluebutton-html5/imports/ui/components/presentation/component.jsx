@@ -15,7 +15,6 @@ import { ACTIONS } from '../layout/enums';
 import browserInfo from '/imports/utils/browserInfo';
 import { addAlert } from '../screenreader-alert/service';
 import { debounce } from '/imports/utils/debounce';
-import { throttle } from '/imports/utils/throttle';
 import LocatedErrorBoundary from '/imports/ui/components/common/error-boundary/located-error-boundary/component';
 import FallbackView from '/imports/ui/components/common/fallback-errors/fallback-view/component';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
@@ -85,12 +84,9 @@ class Presentation extends PureComponent {
       ignorePresentationRestoring: true,
     };
 
-    const PAN_ZOOM_INTERV = window.meetingClientSettings.public.presentation.panZoomInterval || 200;
-
     this.getSvgRef = this.getSvgRef.bind(this);
     this.zoomChanger = debounce(this.zoomChanger.bind(this), 200);
     this.updateLocalPosition = this.updateLocalPosition.bind(this);
-    this.panAndZoomChanger = throttle(this.panAndZoomChanger.bind(this), PAN_ZOOM_INTERV);
     this.fitToWidthHandler = this.fitToWidthHandler.bind(this);
     this.onFullscreenChange = this.onFullscreenChange.bind(this);
     this.getPresentationSizesAvailable = this.getPresentationSizesAvailable.bind(this);
@@ -551,11 +547,6 @@ class Presentation extends PureComponent {
     };
   }
 
-  panAndZoomChanger(w, h, x, y) {
-    const { zoomSlide } = this.props;
-    zoomSlide(w, h, x, y);
-  }
-
   renderPresentationToolbar(toolbarWidth) {
     const {
       currentSlide,
@@ -916,7 +907,6 @@ Presentation.propTypes = {
     presentationAreaWidth: PropTypes.number.isRequired,
     presentationAreaHeight: PropTypes.number.isRequired,
   }),
-  zoomSlide: PropTypes.func.isRequired,
   setMultiUserWhiteboardEnabled: PropTypes.func.isRequired,
   setMultiUserWhiteboardDisabled: PropTypes.func.isRequired,
   multiUserSize: PropTypes.number.isRequired,

@@ -35,6 +35,7 @@ func cmdTap(args []string, stdout, stderr io.Writer) int {
 	keys := fl.String("redis-keys", "meeting:*,recording:*,captions:*", "globs of the redis keys it may read")
 	maxMB := fl.Int("max-mb", 128, "the most the log keeps, in MiB")
 	maxAge := fl.Duration("max-age", 2*time.Hour, "how long the log keeps what it saw")
+	recordings := fl.String("recordings", "", "a tree of fixture recordings laid out like the data directory, e.g. fixtures/recordings: the tap writes them into the data directory when it starts and puts them back on request; test servers only")
 	if err := fl.Parse(args); err != nil {
 		if errors.Is(err, flag.ErrHelp) {
 			return exitOK
@@ -62,6 +63,10 @@ func cmdTap(args []string, stdout, stderr io.Writer) int {
 	if *passwordEnv != "" {
 		ropts.Password = os.Getenv(*passwordEnv)
 	}
+	if *recordings != "" && *dataDir == "" {
+		fmt.Fprintln(stderr, "bbb-conform tap: --recordings needs --data-dir")
+		return exitUsage
+	}
 	if *dataDir != "" {
 		if st, err := os.Stat(*dataDir); err != nil || !st.IsDir() {
 			fmt.Fprintf(stderr, "bbb-conform tap: data directory %q not found\n", *dataDir)
@@ -74,7 +79,8 @@ func cmdTap(args []string, stdout, stderr io.Writer) int {
 		return exitUsage
 	}
 	s, err := tap.Start(tap.Config{Redis: ropts, Channels: splitList(*channels), DataDir: *dataDir, Watch: splitList(*watch),
-		RedisKeys: splitList(*keys), Hosts: splitList(*hosts), Token: token, MaxBytes: *maxMB << 20, MaxAge: *maxAge})
+		RedisKeys: splitList(*keys), Hosts: splitList(*hosts), Token: token, MaxBytes: *maxMB << 20, MaxAge: *maxAge,
+		Recordings: *recordings})
 	if err != nil {
 		ln.Close()
 		fmt.Fprintf(stderr, "bbb-conform tap: %v\n", err)
@@ -91,6 +97,9 @@ func cmdTap(args []string, stdout, stderr io.Writer) int {
 		srv.Shutdown(sctx)
 	}()
 	fmt.Fprintf(stderr, "bbb-conform tap: serving http://%s, following %s on %s; test servers only\n", ln.Addr(), *channels, ropts.Addr)
+	if *recordings != "" {
+		fmt.Fprintf(stderr, "bbb-conform tap: installed the fixture recordings in %s into %s\n", *recordings, *dataDir)
+	}
 	if err := srv.Serve(ln); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		fmt.Fprintf(stderr, "bbb-conform tap: %v\n", err)
 		return exitFailed

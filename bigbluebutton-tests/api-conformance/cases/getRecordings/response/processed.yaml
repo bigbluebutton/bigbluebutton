@@ -1,0 +1,22 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A recording record-and-playback has processed but not published has an
+# empty playback element in its metadata.xml: getRecordings gives it one
+# format with type and url unknown, and sizes of 0.
+id: getRecordings.response.processed
+title: getRecordings describes a processed, unpublished recording
+endpoint: getRecordings
+class: contract
+tags: [ci]
+requires: [recordings-fs]
+steps:
+  - call: getRecordings
+    params: {recordID: dbebceff4b9b4683a171899bbb922ccab6a420fb-1700014400000, state: processed}
+    expect:
+      returncode: SUCCESS
+      xpath:
+        /response/recordings/recording/state: processed
+        /response/recordings/recording/published: "false"
+        /response/recordings/recording/rawSize: "0"
+        /response/recordings/recording/playback/format: {count: 1}
+        /response/recordings/recording/playback/format/type: unknown
+        /response/recordings/recording/playback/format/url: unknown

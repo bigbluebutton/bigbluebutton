@@ -101,6 +101,11 @@ const AplicationContainer = styled.div`
   padding-bottom: 1.5rem;
 `;
 
+const TooltipTarget = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
 export default {
   Row,
   Col,
@@ -122,4 +127,5 @@ export default {
   LanguageContainer,
   AplicationContainer,
   ApplicationTitle,
+  TooltipTarget,
 };

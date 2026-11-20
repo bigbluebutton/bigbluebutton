@@ -128,6 +128,7 @@ const ChatMessageReactions: React.FC<ChatMessageReactionsProps> = (props) => {
 
   return (
     <Styled.ReactionsWrapper
+      className="bbb-chat-message__reactions"
       tabIndex={keyboardFocused ? 0 : -1}
       ref={wrapperRef}
       onKeyDown={rove}

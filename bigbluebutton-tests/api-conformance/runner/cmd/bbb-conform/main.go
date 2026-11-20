@@ -224,7 +224,7 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 	jsonFile := fl.String("json", "", "write a JSON report here")
 	expectFile := fl.String("expect", "", "the target's expected-failure list")
 	goldenDir := fl.String("golden", "", "compare each step with the recordings in this directory, e.g. golden/bbb-web")
-	masksFile := fl.String("masks", "", "with --golden: extra normalization rules (default: masks.yaml next to the cases directory)")
+	masksFile := fl.String("masks", "", "with --golden: extra normalization rules (default: masks.d/*.yaml and masks.yaml next to the cases directory)")
 	verbose := fl.Bool("v", false, "list every failed check and warning")
 	failOnSkip := fl.Bool("fail-on-skip", false, "fail the run if any case is skipped, e.g. in CI, where every case selected should run")
 	if err := fl.Parse(args); err != nil {
@@ -469,7 +469,7 @@ func cmdDiff(args []string, stdout, stderr io.Writer) int {
 	exclude := fl.String("exclude-tags", "", "skip cases with any of these comma-separated tags")
 	ids := fl.String("id", "", "only cases whose ID matches one of these comma-separated globs")
 	parallel := fl.Int("parallel", 4, "cases to run at once on each target")
-	masksFile := fl.String("masks", "", "extra normalization rules (default: masks.yaml next to the cases directory)")
+	masksFile := fl.String("masks", "", "extra normalization rules (default: masks.d/*.yaml and masks.yaml next to the cases directory)")
 	mdFile := fl.String("md", "", "write a Markdown report here")
 	jsonFile := fl.String("json", "", "write a JSON report here")
 	failOnDiff := fl.Bool("fail-on-diff", false, "exit 1 when any case differs, or couldn't be compared because a side ERRORed")
@@ -567,16 +567,32 @@ func cmdDiff(args []string, stdout, stderr io.Writer) int {
 }
 
 // loadRules returns the normalization rules: the built-in ones plus those
-// of masksFile, or of masks.yaml next to the cases directory if it exists.
+// of masksFile or, without it, those of the *.yaml files in masks.d and of
+// masks.yaml next to the cases directory, in that order. masks.d holds the
+// rules of a server that answers more than the suite records (a fork's own
+// fields), kept apart so the suite's masks.yaml stays the same.
 func loadRules(masksFile, cases string) (*normalize.Rules, error) {
-	if masksFile == "" {
-		def := filepath.Join(filepath.Dir(filepath.Clean(cases)), "masks.yaml")
-		if _, err := os.Stat(def); err != nil {
-			return normalize.Default(), nil
-		}
-		masksFile = def
+	if masksFile != "" {
+		return normalize.Load(masksFile)
 	}
-	return normalize.Load(masksFile)
+	dir := filepath.Dir(filepath.Clean(cases))
+	// ReadDir, not Glob: the path is literal, and an unreadable masks.d
+	// fails instead of loading no rules. It sorts the entries by name.
+	var files []string
+	entries, err := os.ReadDir(filepath.Join(dir, "masks.d"))
+	if err != nil && !errors.Is(err, fs.ErrNotExist) {
+		return nil, err
+	}
+	for _, e := range entries {
+		if !e.IsDir() && strings.HasSuffix(e.Name(), ".yaml") {
+			files = append(files, filepath.Join(dir, "masks.d", e.Name()))
+		}
+	}
+	def := filepath.Join(dir, "masks.yaml")
+	if _, err := os.Stat(def); err == nil {
+		files = append(files, def)
+	}
+	return normalize.Load(files...)
 }
 
 type listFlag []string

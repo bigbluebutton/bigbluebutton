@@ -21,10 +21,14 @@ package org.bigbluebutton.api.service.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,19 +36,27 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.MissingNode;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.bigbluebutton.api.Util;
 import org.bigbluebutton.api.RecordingService;
 import org.bigbluebutton.api.domain.Recording;
 import org.bigbluebutton.api.domain.RecordingMetadata;
+import org.bigbluebutton.api.domain.RecordingProcessingInfo;
 import org.bigbluebutton.api.messaging.messages.MakePresentationDownloadableMsg;
 import org.bigbluebutton.api.service.XmlService;
 import org.bigbluebutton.api.util.RecordingMetadataReaderHelper;
 import org.bigbluebutton.api2.domain.UploadedTrack;
+import org.bigbluebutton.common2.redis.RedisStorageService;
+import org.bigbluebutton.common2.redis.ResqueJobs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,6 +79,13 @@ public class RecordingServiceFileImpl implements RecordingService {
     private String presentationBaseDir;
     private String defaultServerUrl;
     private String defaultTextTrackUrl;
+    private RedisStorageService redisStorageService;
+
+    // The status directories in which a .fail marker records a failed step.
+    private static final String[] FAILED_STEP_DIRS = {"archived", "sanity", "processed", "published"};
+    // record-and-playback's Resque queues are named rap:<step>.
+    private static final String RAP_QUEUE_PREFIX = "rap:";
+    private static final ObjectMapper JSON = new ObjectMapper();
 
     private void copyPresentationFile(File presFile, File dlownloadableFile) {
         try {
@@ -137,6 +156,114 @@ public class RecordingServiceFileImpl implements RecordingService {
             }
         } catch (IOException e) {
             log.error("Exception occurred when trying to create {} file.", done, e);
+        }
+    }
+
+    /**
+     * Where this server's recordings are in the record-and-playback pipeline.
+     * The status markers are read before Resque's jobs: rap-starter queues a
+     * job before it removes the marker that asked for it, and the events job
+     * removes its marker only once it runs, so work is seen in one place or
+     * the other.
+     *
+     * @throws RuntimeException if the markers or Resque's jobs can't be read,
+     *         or the status directory is missing
+     */
+    public RecordingProcessingInfo getRecordingProcessingInfo() {
+        if (redisStorageService == null) {
+            throw new IllegalStateException("No Redis connection to read the recording queues from");
+        }
+        // bbb-record-core's install creates the status directories. Without
+        // them (a recording volume that isn't mounted, for example) nothing
+        // can be told, whereas each missing directory below would read as empty.
+        if (!new File(recordStatusDir).isDirectory()) {
+            throw new IllegalStateException("No recording status directory at " + recordStatusDir);
+        }
+        RecordingProcessingCounter counter = new RecordingProcessingCounter();
+        File statusDir = new File(recordStatusDir).getParentFile();
+        File archivedDir = new File(statusDir, "archived");
+
+        // Recorded meetings that rap-starter hasn't queued for archiving yet.
+        forEachFile(new File(recordStatusDir), ".done", counter::queued);
+        // Ended meetings whose events are still to be kept (meetingKeepEvents).
+        // After a failed archive rap-starter never queues their events job, and
+        // the archive's .fail counts instead.
+        forEachFile(new File(statusDir, "ended"), ".done", (name, time) -> {
+            if (!new File(archivedDir, name + ".fail").exists()) {
+                counter.queued(name, time);
+            }
+        });
+        // Caption uploads that rap-caption-inbox hasn't processed yet.
+        forEachFile(new File(getCaptionTrackInboxDir()), "-track.json", counter::queued);
+        for (String step : FAILED_STEP_DIRS) {
+            forEachFile(new File(statusDir, step), ".fail", (name, time) -> counter.failed(name));
+        }
+
+        ResqueJobs jobs = redisStorageService.readResqueJobs(RAP_QUEUE_PREFIX);
+        for (String job : jobs.queued()) {
+            JsonNode args = readJson(job).path("args").path(0);
+            JsonNode queuedAt = args.path("queued_at");
+            counter.queued(jobName(args, job), queuedAt.canConvertToLong() ? queuedAt.asLong() : null);
+        }
+        for (String work : jobs.running()) {
+            JsonNode running = readJson(work);
+            // Only a job known to be on another queue is left out: one that
+            // can't be read may be a recording's step.
+            JsonNode queue = running.path("queue");
+            if (!queue.isTextual() || queue.asText().startsWith(RAP_QUEUE_PREFIX)) {
+                counter.running(jobName(running.path("payload").path("args").path(0), work), startedAt(running));
+            }
+        }
+        return counter.result();
+    }
+
+    // The meeting a job is for, or the job itself if it doesn't say: a job
+    // still counts as a recording's work even if it can't be read.
+    private static String jobName(JsonNode args, String job) {
+        String meetingId = args.path("meeting_id").asText();
+        return meetingId.isEmpty() ? job : meetingId;
+    }
+
+    // When the worker started the job (Resque's run_at, ISO 8601), in
+    // milliseconds since the epoch, or null if it doesn't say.
+    private static Long startedAt(JsonNode running) {
+        try {
+            return OffsetDateTime.parse(running.path("run_at").asText()).toInstant().toEpochMilli();
+        } catch (DateTimeParseException e) {
+            return null;
+        }
+    }
+
+    private static JsonNode readJson(String json) {
+        try {
+            return JSON.readTree(json);
+        } catch (JsonProcessingException e) {
+            log.warn("Unreadable Resque job: {}", json);
+            return MissingNode.getInstance();
+        }
+    }
+
+    // Calls action with the name, less suffix, and the modification time of
+    // each file in dir whose name ends with suffix. A missing dir has none.
+    private static void forEachFile(File dir, String suffix, BiConsumer<String, Long> action) {
+        try (DirectoryStream<Path> files = Files.newDirectoryStream(dir.toPath())) {
+            for (Path file : files) {
+                String name = file.getFileName().toString();
+                if (!name.endsWith(suffix)) {
+                    continue;
+                }
+                long time;
+                try {
+                    time = Files.getLastModifiedTime(file).toMillis();
+                } catch (NoSuchFileException e) {
+                    continue; // Picked up since it was listed.
+                }
+                action.accept(name.substring(0, name.length() - suffix.length()), time);
+            }
+        } catch (NoSuchFileException e) {
+            // Nothing has created the directory yet.
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -423,6 +550,10 @@ public class RecordingServiceFileImpl implements RecordingService {
     }
 
     public void setXmlService(XmlService xmlService) { this.xmlService = xmlService; }
+
+    public void setRedisStorageService(RedisStorageService redisStorageService) {
+        this.redisStorageService = redisStorageService;
+    }
 
     private boolean shouldIncludeState(List<String> states, String type) {
         boolean r = false;
