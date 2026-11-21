@@ -45,7 +45,8 @@ RUN rm /etc/nginx/conf.d/default.conf \
     && sed -i -e '/include \/etc\/nginx\/conf.d\/\*.conf;/a\    include /etc/nginx/sites-enabled/*;' \
         -e '/include \/etc\/nginx\/conf.d\/\*.conf;/a\    include /tmp/*.conf;' \
         -e 's/worker_connections  1024;/worker_connections 10000;/' \
-        -e 's/^events {/worker_rlimit_nofile 10000;\n\nevents {/' /etc/nginx/nginx.conf \
+        -e 's/^events {/worker_rlimit_nofile 10000;\n\nevents {/' \
+        -e 's|^error_log  /var/log/nginx/error.log notice;|error_log  /var/log/nginx/error.log error;|' /etc/nginx/nginx.conf \
     && sed -i -e 's/listen   80;/listen   8080;/' -e 's/listen \[::\]:80;/listen [::]:8080;/' \
         /etc/nginx/sites-available/bigbluebutton \
     && sed -i -e 's/listen 127.0.0.1:8185;/listen 8185;/' -e 's/server 127.0.0.1:8085;/server graphql-server:8085;/' \
