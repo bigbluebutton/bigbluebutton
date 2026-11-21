@@ -60,7 +60,7 @@ Rules the manifest lint enforces:
 | kind | each slide SVG is `vector` (pdftocairo output), `raster` (one embedded PNG, no `<path`), or `blank` (the 317-byte blank slide) |
 | aspect | slide aspect ratio within 1 % of the PDF page box, or of the manifest value |
 | exif | no JPEG embedded in a slide SVG carries an EXIF Orientation other than 1 (#26001) |
-| text | `textfiles/slide-N.txt` equals its golden |
+| text | `textfiles/slide-<pageId>.txt` equals its golden |
 | marker | the rendered slide shows the marker picture upright and unmirrored |
 | pixels | the rendered slide matches its golden PNG within the tolerance |
 | thumb | the thumbnail matches its golden PNG within the tolerance |

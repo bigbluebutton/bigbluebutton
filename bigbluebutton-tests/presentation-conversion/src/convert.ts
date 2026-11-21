@@ -88,8 +88,10 @@ function meetingRoot(target: Target, key: string): string {
   return path.join(target.presentationDir, target.layout.split('{presId}')[0].replace(/\{meetingId\}/g, key));
 }
 
-function filePattern(pattern: string, n: number): string {
-  return pattern.replace('{n}', String(n));
+/** {n} is the page number; {id} is the page id, read from pres_page, so a page without a known id has no file. */
+function filePattern(pattern: string, n: number, pageId?: string): string | null {
+  if (pattern.includes('{id}') && !pageId) return null;
+  return pattern.replace('{n}', String(n)).replace('{id}', pageId ?? '');
 }
 
 export class Converter {
@@ -313,11 +315,17 @@ export class Converter {
     return this.hashCache.get(cacheKey)!;
   }
 
-  private async artifactSizes(dir: string, pages: number): Promise<string | null> {
+  private namesFilesByPageId(): boolean {
+    return Object.values(this.target.files).some((pattern) => pattern.includes('{id}'));
+  }
+
+  private async artifactSizes(dir: string, pages: number, pageIds: Map<number, string>): Promise<string | null> {
     const sizes: number[] = [];
     for (let n = 1; n <= pages; n++) {
       for (const pattern of [this.target.files.svg, this.target.files.thumb, this.target.files.text]) {
-        const s = await statSize(path.join(dir, filePattern(pattern, n)));
+        const file = filePattern(pattern, n, pageIds.get(n));
+        if (file === null) return null;
+        const s = await statSize(path.join(dir, file));
         if (s === null) return null;
         sizes.push(s);
       }
@@ -419,7 +427,11 @@ export class Converter {
       pages = await this.pdfPageCount(dir, s.presId!);
     }
     if (!pages) return false;
-    const sizes = await this.artifactSizes(dir, pages);
+    const pageIds = new Map<number, string>();
+    if (this.db && this.namesFilesByPageId()) {
+      for (const p of await this.db.pages(s.presId!)) pageIds.set(p.num, p.pageId);
+    }
+    const sizes = await this.artifactSizes(dir, pages, pageIds);
     if (sizes !== null && sizes === s.lastSizes) return true;
     s.lastSizes = sizes ?? undefined;
     if (s.completedSeenAt && now - s.completedSeenAt > COMPLETED_GRACE_MS) {
@@ -447,7 +459,8 @@ export class Converter {
       s.pagesUnread = `the pres_page query failed: ${errorText(e)}`;
     }
     s.slideUrl = dbPages.find((p) => p.num === 1)?.urls.svg;
-    const rel = (f: string) => (fs.existsSync(path.join(server, f)) ? path.relative(profileWorkDir(), path.join(server, f)) : undefined);
+    const rel = (f: string | null) =>
+      f !== null && fs.existsSync(path.join(server, f)) ? path.relative(profileWorkDir(), path.join(server, f)) : undefined;
     const pages: CollectedPage[] = [];
     for (let n = 1; n <= count; n++) {
       const ref = path.join(base, 'ref', `page-${n}.png`);
@@ -455,10 +468,10 @@ export class Converter {
       const dbp = dbPages.find((p) => p.num === n);
       pages.push({
         n,
-        svg: rel(filePattern(this.target.files.svg, n)),
-        thumb: rel(filePattern(this.target.files.thumb, n)),
-        text: rel(filePattern(this.target.files.text, n)),
-        png: rel(filePattern(this.target.files.png, n)),
+        svg: rel(filePattern(this.target.files.svg, n, dbp?.pageId)),
+        thumb: rel(filePattern(this.target.files.thumb, n, dbp?.pageId)),
+        text: rel(filePattern(this.target.files.text, n, dbp?.pageId)),
+        png: rel(filePattern(this.target.files.png, n, dbp?.pageId)),
         ref: fs.existsSync(ref) ? path.relative(profileWorkDir(), ref) : undefined,
         refThumb: fs.existsSync(refThumb) ? path.relative(profileWorkDir(), refThumb) : undefined,
         box: boxes[n],
