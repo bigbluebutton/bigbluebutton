@@ -56,6 +56,9 @@ public class PresentationFileProcessor {
     private final ExecutorService supervisor;
     private volatile boolean processPresentation = false;
 
+    // Cache entries name their files by page id and carry a manifest; entries of the older form are never read.
+    static final String CACHE_KEY_SUFFIX = ".v2.tar.gz";
+
     private BlockingQueue<UploadedPresentation> presentations = new LinkedBlockingQueue<UploadedPresentation>();
 
     public PresentationFileProcessor(int numConversionThreads) {
@@ -85,13 +88,16 @@ public class PresentationFileProcessor {
         }
 
         //Download presentation outputs from cache (if enabled)
+        boolean restoredFromCache = false;
         try {
             pres.setUploadedFileHash(s3FileManager.generateHash(pres.getUploadedFile()));
-            String remoteFileName = pres.getUploadedFileHash() + ".tar.gz";
+            String remoteFileName = pres.getUploadedFileHash() + CACHE_KEY_SUFFIX;
             if(meeting.isPresentationConversionCacheEnabled() && s3FileManager.exists(remoteFileName)) {
                 S3Object s3Object = s3FileManager.download(remoteFileName);
                 File parentDir = new File(pres.getUploadedFile().getParent());
-                TarGzManager.decompress(s3Object, parentDir.getAbsolutePath());
+                List<String> pageIds = ConversionCacheRestore.restore(s3Object, parentDir);
+                pres.adoptPageIds(pageIds);
+                restoredFromCache = true;
                 log.info("Presentation outputs restored from cache successfully for {}.", pres.getId());
             }
         } catch (Exception e) {
@@ -105,6 +111,10 @@ public class PresentationFileProcessor {
             }
         } else if (SupportedFileTypes.isImageFile(pres.getFileType())) {
             pres.setNumberOfPages(1);
+        }
+
+        if (!restoredFromCache) {
+            pres.mintPageIds(pres.getNumberOfPages());
         }
 
         long maxConversionTime = pres.getMaxTotalConversionTime();

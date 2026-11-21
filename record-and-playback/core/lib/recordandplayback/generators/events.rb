@@ -44,6 +44,26 @@ module BigBlueButton
       participants_ids.length
     end
 
+    # A page id: a lowercase UUID v4. Recordings made since pages have ids name their pages this way.
+    PAGE_ID_PATTERN = /\A[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\z/
+
+    def self.page_id?(id)
+      !id.nil? && PAGE_ID_PATTERN.match?(id)
+    end
+
+    # The page ids of each converted presentation, in page order, keyed by presentation id. Empty for
+    # recordings made before pages had ids: those identify pages by their number.
+    def self.get_page_ids(events)
+      page_ids = {}
+      events.xpath("/recording/event[@eventname='ConversionCompletedEvent']").each do |event|
+        ids = event.at_xpath('pageIds')&.text
+        next if ids.nil? || ids.empty?
+
+        page_ids[event.at_xpath('presentationName').text] = ids.split(',')
+      end
+      page_ids
+    end
+
     # Get the meeting metadata
     def self.get_meeting_metadata(events_xml)
       BigBlueButton.logger.info("Task: Getting meeting metadata")

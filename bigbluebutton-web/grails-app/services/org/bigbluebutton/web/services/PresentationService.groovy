@@ -22,6 +22,7 @@ import org.bigbluebutton.api.domain.Meeting
 import org.bigbluebutton.api.service.ServiceUtils
 import org.bigbluebutton.presentation.DocumentConversionService
 import org.bigbluebutton.presentation.UploadedPresentation
+import org.bigbluebutton.presentation.imp.PageArtifacts
 import org.springframework.beans.factory.annotation.Autowired
 import jakarta.annotation.PostConstruct
 import jakarta.annotation.PreDestroy
@@ -188,45 +189,25 @@ class PresentationService {
 		documentConversionService.sendDocConversionFailedOnMimeType(pres, fileMime, fileExtension)
 	}
 
-	def showSvgImage(String conf, String room, String presentationName, String id) {
-		resolvePresentationFile(conf, room, presentationName, "svgs", "slide${id}.svg")
+	// Page artifacts are named by page id (PageArtifacts); the callers check the id format first.
+	def showSvgImage(String conf, String room, String presentationName, String pageId) {
+		pageArtifact(conf, room, presentationName, PageArtifacts.Type.SVG, pageId)
 	}
 
-	def showThumbnail = {conf, room, presentationName, thumb ->
-		def thumbFile = resolvePresentationFile(conf, room, presentationName, "thumbnails", "thumb-${thumb}.png")
-		log.debug "showing ${thumbFile.absolutePath}"
-
-		thumbFile
+	def showThumbnail = {conf, room, presentationName, pageId ->
+		pageArtifact(conf, room, presentationName, PageArtifacts.Type.THUMBNAIL, pageId)
 	}
 
-	def showPng = {conf, room, presentationName, page ->
-		def pngFile = resolvePresentationFile(conf, room, presentationName, "pngs", "slide-${page}.png")
-		log.debug "showing ${pngFile.absolutePath}"
-
-		pngFile
+	def showPng = {conf, room, presentationName, pageId ->
+		pageArtifact(conf, room, presentationName, PageArtifacts.Type.PNG, pageId)
 	}
 
-	def showTextfile = {conf, room, presentationName, textfile ->
-		def txt = resolvePresentationFile(conf, room, presentationName, "textfiles", "slide-${textfile}.txt")
-		log.debug "showing ${txt.absolutePath}"
-
-		txt
+	def showTextfile = {conf, room, presentationName, pageId ->
+		pageArtifact(conf, room, presentationName, PageArtifacts.Type.TEXT, pageId)
 	}
 
-	def numberOfThumbnails = {conf, room, name ->
-		def thumbDir = resolvePresentationFile(conf, room, name, "thumbnails")
-		thumbDir.listFiles().length
-	}
-
-	def numberOfSvgs = {conf, room, name ->
-		def SvgsDir = resolvePresentationFile(conf, room, name, "svgs")
-		SvgsDir.listFiles().length
-	}
-
-	def numberOfTextfiles = {conf, room, name ->
-		def textfilesDir = resolvePresentationFile(conf, room, name, "textfiles")
-		log.debug textfilesDir.absolutePath
-		textfilesDir.listFiles().length
+	private File pageArtifact(Object conf, Object room, Object presentationName, PageArtifacts.Type type, String pageId) {
+		resolvePresentationFile(conf, room, presentationName, type.directory, type.fileName(pageId))
 	}
 
 	def roomDirectory = {conf, room ->

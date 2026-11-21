@@ -7,6 +7,7 @@ import { ChangeStyles } from './changeStyles';
 import { DrawShape } from './drawShape';
 import { EditedShapeRemoved } from './editedShapeRemoved';
 import { MultiUserWhiteboard } from './multiUserWhiteboard';
+import { PageIdentity } from './pageIdentity';
 import { ShapeOptions } from './shapeOptions';
 import { ShapeTools } from './shapeTools';
 import { SlideChangeBlank } from './slideChangeBlank';
@@ -454,5 +455,40 @@ test.describe.parallel('Clear annotations', { tag: '@ci' }, () => {
     const whiteboard = new MultiUserWhiteboard(browser, context);
     await whiteboard.initPages(page, testInfo);
     await whiteboard.cancelClearAnnotations();
+  });
+});
+
+// Pages are identified by a page id that does not change; these check what used the page number before.
+test.describe.parallel('Page identity', { tag: '@ci' }, () => {
+  test('Annotations stay on their slide across a presentation switch', async ({ browser, context, page }, testInfo) => {
+    const pageIdentity = new PageIdentity(browser, context);
+    await pageIdentity.initPages(page, testInfo);
+    await pageIdentity.annotationsStayOnTheirSlideAcrossPresentations();
+  });
+
+  test('Taking presenter, then navigating and toggling the infinite whiteboard', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    const pageIdentity = new PageIdentity(browser, context);
+    await pageIdentity.initModPage(page, { testInfo });
+    await pageIdentity.initModPage2(context, {
+      testInfo,
+      clientSettingsOverrides: { public: { whiteboard: { allowInfiniteWhiteboard: true } } },
+    });
+    await pageIdentity.takePresenterThenNavigateAndToggleInfiniteWhiteboard();
+  });
+
+  test('Removing a presentation while another user draws', async ({ browser, context, page }, testInfo) => {
+    const pageIdentity = new PageIdentity(browser, context);
+    await pageIdentity.initPages(page, testInfo);
+    await pageIdentity.removePresentationWhileAnotherUserDraws();
+  });
+
+  test('Each slide keeps its own zoom', async ({ browser, context, page }, testInfo) => {
+    const pageIdentity = new PageIdentity(browser, context);
+    await pageIdentity.initModPage(page, { testInfo });
+    await pageIdentity.zoomIsKeptPerSlide();
   });
 });

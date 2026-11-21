@@ -2,6 +2,7 @@ package org.bigbluebutton.core.apps.presentationpod
 
 import org.apache.commons.codec.digest.DigestUtils
 import org.bigbluebutton.common2.domain._
+import org.bigbluebutton.common2.msgs.PageRef
 import org.bigbluebutton.core.domain._
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.util.RandomStringGenerator
@@ -56,6 +57,21 @@ object PresentationPodsApp {
   def pageBelongsToMeeting(state: MeetingState2x, pageId: String): Boolean = {
     state.presentationPodManager.getAllPresentationPodsInMeeting()
       .exists(_.presentations.values.exists(_.pages.contains(pageId)))
+  }
+
+  def findPresentationPage(state: MeetingState2x, pageId: String): Option[(PresentationInPod, PresentationPage)] = {
+    state.presentationPodManager.getAllPresentationPodsInMeeting().view
+      .flatMap(_.presentations.values)
+      .flatMap(pres => pres.pages.get(pageId).map(page => (pres, page)))
+      .headOption
+  }
+
+  // Position of each page of this meeting at the time of the call. Ids that are not pages of the
+  // meeting (a poll published while screen sharing uses "deskshare") are left out.
+  def pageRefsFor(state: MeetingState2x, whiteboardIds: Iterable[String]): Map[String, PageRef] = {
+    whiteboardIds.toSet.flatMap { (wbId: String) =>
+      findPresentationPage(state, wbId).map { case (pres, page) => wbId -> PageRef(pres.id, page.num) }
+    }.toMap
   }
 
   def getNumberOfPresentationPods(state: MeetingState2x): Int = state.presentationPodManager.getNumberOfPods()

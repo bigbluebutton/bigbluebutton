@@ -4,6 +4,7 @@ import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.apps.presentationpod.PresentationPodsApp
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.{ Roles, Users2x }
 
@@ -17,7 +18,9 @@ trait SendWhiteboardAnnotationsPubMsgHdlr extends RightsManagementTrait {
       val envelope = BbbCoreEnvelope(SendWhiteboardAnnotationsEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(SendWhiteboardAnnotationsEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 
-      val body = SendWhiteboardAnnotationsEvtMsgBody(whiteboardId, annotations)
+      // A batch may hold annotations of several pages: each one names its page in wbId.
+      val pageRefs = PresentationPodsApp.pageRefsFor(state, whiteboardId +: annotations.map(_.wbId).toSeq)
+      val body = SendWhiteboardAnnotationsEvtMsgBody(whiteboardId, annotations, pageRefs)
       val event = SendWhiteboardAnnotationsEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)

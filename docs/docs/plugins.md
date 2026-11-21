@@ -921,7 +921,7 @@ export const { logger: pluginLogger } = BbbPluginSdk.getPluginApi(uuid);
 
 ### Realtime data consumption
 
-- `useCurrentPresentation` hook: provides information regarding the current presentation;
+- `useCurrentPresentation` hook: provides information regarding the current presentation. `currentPage.id` is the page id, an opaque id that does not change when pages move; `currentPage.num` is the position of the page in the presentation, which can change. Do not read the page number out of the id;
 - `useLoadedUserList` hook: provides information regarding the loaded user list (displayed in the screen);
 - `useCurrentUser` hook: provides information regarding the current user;
 - `useUsersBasicInfo` hook: provides information regarding all users (only crucial information: userId, name and role);

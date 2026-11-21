@@ -141,6 +141,8 @@ unless FileTest.directory?(target_dir)
     BigBlueButton.logger.info('Created an updated metadata.xml with start_time and end_time')
 
     version_atleast_2_6_0 = BigBlueButton::Events.bbb_version_compare(@doc, 2, 6, 0)
+    # Recordings with page ids name the slide files by page id; older ones by page number.
+    identity_mode = !BigBlueButton::Events.get_page_ids(@doc).empty?
     # Start processing raw files
     presentation_text = {}
     presentations.each do |pres|
@@ -168,7 +170,7 @@ unless FileTest.directory?(target_dir)
           BigBlueButton.logger.warn("Could not find pdf file for presentation #{pres}")
         end
 
-        unless pres_pdf.empty?
+        unless pres_pdf.empty? || identity_mode
           text = {}
           1.upto(num_pages) do |page|
             BigBlueButton::Presentation.extract_png_page_from_pdf(
@@ -185,6 +187,17 @@ unless FileTest.directory?(target_dir)
         BigBlueButton::Presentation.convert_image_to_png(
           images[0], "#{target_pres_dir}/slide-1.png", '1600x1600'
         ) if !version_atleast_2_6_0
+      end
+
+      if identity_mode
+        # Index the text of every slide, keyed by its file name (slide-<pageId>).
+        text = {}
+        Dir.glob("#{pres_dir}/textfiles/*.txt").sort.each do |text_file|
+          t = File.read(text_file, encoding: 'UTF-8')
+          text[File.basename(text_file, '.txt')] = t.encode('UTF-8', invalid: :replace)
+          FileUtils.cp(text_file, "#{target_pres_dir}/textfiles")
+        end
+        presentation_text[pres] = text unless text.empty?
       end
 
       # Copy thumbnails from raw files

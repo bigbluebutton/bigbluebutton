@@ -37,6 +37,10 @@ testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD")
 // test tree compilable; without this, Test/compile fails and NO test in this module runs.
 Test / unmanagedSources / excludeFilter := HiddenFileFilter || "RecMetaXmlHelperTests *.scala"
 
+// The presentation processing tests share ServiceUtils' static MeetingService: suites running in
+// parallel would replace each other's meeting halfway through a test.
+Test / parallelExecution := false
+
 Seq(Revolver.settings: _*)
 
 lazy val commonWeb = (project in file(".")).settings(name := "bbb-common-web", libraryDependencies ++= Dependencies.runtime).settings(compileSettings)

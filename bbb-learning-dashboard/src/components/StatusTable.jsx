@@ -229,17 +229,19 @@ class StatusTable extends React.Component {
                 const padding = isRTL ? 'paddingLeft' : 'paddingRight';
                 const URLPrefix = `/bigbluebutton/presentation/${meetingId}/${meetingId}`;
                 const {
-                  presentationId, pageNum, pageToken, presentationName,
+                  presentationId, pageNum, pageId, pageToken, presentationName,
                 } = slide || {};
                 const tokenParams = pageToken && sessionToken
                   ? `?${new URLSearchParams({ pageToken, sessionToken })}`
                   : '';
+                // Slides are named by page id; data recorded before page ids had only the number.
+                const page = pageId || pageNum;
                 const slideUrl = presentationBase
-                  ? `${presentationBase}/${presentationId}/svgs/slide${pageNum}.svg`
-                  : `${URLPrefix}/${presentationId}/svg/${pageNum}${tokenParams}`;
+                  ? `${presentationBase}/${presentationId}/svgs/slide${page}.svg`
+                  : `${URLPrefix}/${presentationId}/svg/${page}${tokenParams}`;
                 const thumbUrl = presentationBase
-                  ? `${presentationBase}/${presentationId}/thumbnails/thumb-${pageNum}.png`
-                  : `${URLPrefix}/${presentationId}/thumbnail/${pageNum}${tokenParams}`;
+                  ? `${presentationBase}/${presentationId}/thumbnails/thumb-${page}.png`
+                  : `${URLPrefix}/${presentationId}/thumbnail/${page}${tokenParams}`;
                 return (
                   <td
                     key={start}

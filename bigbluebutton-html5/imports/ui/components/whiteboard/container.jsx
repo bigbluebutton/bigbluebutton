@@ -41,7 +41,7 @@ import {
   PRESENTATION_SET_ZOOM,
   PRES_ANNOTATION_DELETE,
   PRES_ANNOTATION_SUBMIT,
-  PRESENTATION_SET_PAGE,
+  PRESENTATION_SET_PAGE_BY_NUM,
   PRESENTATION_PUBLISH_CURSOR,
 } from '../presentation/mutations';
 import { useMergedCursorData } from './hooks.ts';
@@ -208,7 +208,6 @@ const WhiteboardContainer = (props) => {
     };
   }, []);
 
-  const curPageNum = currentPresentationPage?.num;
   const curPageId = currentPresentationPage?.pageId;
   const isInfiniteWhiteboard = currentPresentationPage?.infiniteWhiteboard;
   const curPageIdRef = useRef();
@@ -227,23 +226,23 @@ const WhiteboardContainer = (props) => {
   const wBAccessChanged = usePrevious(hasWBAccess) !== hasWBAccess;
 
   const [presentationSetZoom] = useMutation(PRESENTATION_SET_ZOOM);
-  const [presentationSetPage] = useMutation(PRESENTATION_SET_PAGE);
+  const [presentationSetPageByNum] = useMutation(PRESENTATION_SET_PAGE_BY_NUM);
   const [presentationDeleteAnnotations] = useMutation(PRES_ANNOTATION_DELETE);
   const [presentationSubmitAnnotations] = useMutation(PRES_ANNOTATION_SUBMIT);
   const [presentationPublishCursor] = useMutation(PRESENTATION_PUBLISH_CURSOR);
 
-  const setPresentationPage = (pageId) => {
-    presentationSetPage({
+  // Called from a key handler set up once: read the page row at call time, so the number is sent
+  // with the total of the same row.
+  const skipToSlide = (slideNum) => {
+    const page = currentPresentationPageRef.current;
+    if (!page) return;
+    presentationSetPageByNum({
       variables: {
-        presentationId,
-        pageId,
+        presentationId: page.presentationId,
+        pageNum: slideNum,
+        seenTotalPages: page.totalPages,
       },
     });
-  };
-
-  const skipToSlide = (slideNum) => {
-    const slideId = `${presentationId}/${slideNum}`;
-    setPresentationPage(slideId);
   };
 
   const removeShapes = (shapeIds) => {
@@ -504,7 +503,7 @@ const WhiteboardContainer = (props) => {
 
   const { isIphone, isPhone } = deviceInfo;
 
-  const assetId = AssetRecordType.createId(curPageNum);
+  const assetId = AssetRecordType.createId(curPageId);
   const assets = [{
     id: assetId,
     typeName: 'asset',
@@ -546,7 +545,7 @@ const WhiteboardContainer = (props) => {
     isLocked: true,
     opacity: 1,
     meta: {},
-    id: `shape:BG-${curPageNum}`,
+    id: `shape:BG-${curPageId}`,
     type: 'image',
     props: {
       w: currentPresentationPage?.scaledWidth + 1.5 || 1,
@@ -556,7 +555,7 @@ const WhiteboardContainer = (props) => {
       url: '',
       crop: null,
     },
-    parentId: `page:${curPageNum}`,
+    parentId: `page:${curPageId}`,
     index: 'a0',
     typeName: 'shape',
   });
@@ -614,7 +613,7 @@ const WhiteboardContainer = (props) => {
           darkTheme: Settings?.application?.darkTheme,
           selectedLayout: Settings?.layout?.selectedLayout,
           isInfiniteWhiteboard,
-          curPageNum,
+          curPageId,
           setEditor,
           layoutChanged,
         }}
