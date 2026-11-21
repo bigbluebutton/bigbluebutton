@@ -48,7 +48,7 @@ RUN rm /etc/nginx/conf.d/default.conf \
         -e 's/^events {/worker_rlimit_nofile 10000;\n\nevents {/' /etc/nginx/nginx.conf \
     && sed -i -e 's/listen   80;/listen   8080;/' -e 's/listen \[::\]:80;/listen [::]:8080;/' \
         /etc/nginx/sites-available/bigbluebutton \
-    && sed -i -e 's/listen 127.0.0.1:8185;/listen 8185;/' -e 's/server 127.0.0.1:8085;/server graphql-server:8085;/' \
+    && sed -i -e 's/listen 127.0.0.1:8185;/listen 8185;/' -e 's/server 127.0.0.1:8085;/server graphql-server:8085 resolve;/' \
         /etc/nginx/sites-available/hasura-loadbalancer.conf \
     && ln -s /dev/stdout /var/log/nginx/bigbluebutton.access.log
 
