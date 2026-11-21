@@ -29,7 +29,6 @@
 
 require '../../core/lib/recordandplayback'
 require 'bbbevents'
-require "java_properties"
 require "jwt"
 require 'net/http'
 require 'optparse'
@@ -57,9 +56,7 @@ raise 'Missing required -m option.' if options[:meeting_id].nil?
 
 meeting_id = options[:meeting_id]
 
-# This script lives in scripts/post_events
-# while properties.yaml lives in scripts/
-props = YAML.safe_load(File.open('../../core/scripts/bigbluebutton.yml'))
+props = BigBlueButton.read_props
 
 recording_dir = props['recording_dir']
 events_dir = props['events_dir']
@@ -67,14 +64,20 @@ meeting_events_dir = "#{events_dir}/#{meeting_id}"
 process_dir = "#{recording_dir}/process/events/#{meeting_id}"
 
 def send_data(analytics_url, secret, payload)
+  destination = BigBlueButton::CallbackDestination.check(
+    analytics_url, policy: BigBlueButton::CallbackDestination.policy_from_bbb_web
+  )
+  unless destination.admitted?
+    BigBlueButton::CallbackDestination.log_refusal(destination)
+    return
+  end
+
   # Setup a token that expires in 24hrs
   exp = Time.now.to_i + 24 * 3600
   exp_payload = { :exp => exp }
   token = JWT.encode exp_payload, secret, 'HS512', { typ: 'JWT' }
 
-  uri = URI.parse(analytics_url)
-  http = Net::HTTP.new(uri.host, uri.port)
-  http.use_ssl = (uri.scheme == 'https')
+  uri = destination.uri
 
   # Setup a request and attach our JWT token
   request = Net::HTTP::Post.new(uri.request_uri, {
@@ -89,12 +92,12 @@ def send_data(analytics_url, secret, payload)
   # Display debug results
   #http.set_debug_output($stdout)
 
-  response = http.request(request)
+  response = BigBlueButton::CallbackDestination.post(destination, request)
   code = response.code.to_i
   BigBlueButton.logger.info(response.body)
 
   if code < 200 || code >= 300
-    BigBlueButton.logger.info("Failed when calling #{uri.request_uri}")
+    BigBlueButton.logger.info("Failed when calling #{uri.path}")
   else
     BigBlueButton.logger.info("Success")
   end
@@ -145,7 +148,7 @@ begin
   data_json_path = "#{meeting_events_dir}/data.json"
 
   # Only process meetings that include analytics_callback_url
-  events_xml = File.open(events_xml_path, 'r') { |io| Nokogiri::XML(io) }
+  events_xml = Nokogiri::XML(File.read(events_xml_path))
   metadata = events_xml.at_xpath('/recording/metadata')
 
   analytics_callback_url = metadata.attributes['analytics-callback-url']&.content
@@ -155,16 +158,8 @@ begin
     filepathOverride = "/etc/bigbluebutton/bbb-web.properties"
     hasOverride = File.file?(filepathOverride)
 
-    bbb_props = JavaProperties::Properties.new("/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties")
-    
-    # If the file does exists: 
-    if (hasOverride)
-      bbbOverrideProps = JavaProperties::Properties.new(filepathOverride)
-      # Override the props
-      bbbOverrideProps.each do |key, prop|
-        bbb_props[key]=prop
-      end
-    end
+    bbb_props = BigBlueButton.read_java_props("/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties")
+    bbb_props.merge!(BigBlueButton.read_java_props(filepathOverride)) if hasOverride
 
     secret = bbb_props[:securitySalt]
     external_meeting_id = metadata.attributes['meetingId']&.content
@@ -173,12 +168,8 @@ begin
     events_data = BBBEvents.parse(events_xml_path)
 
     # Write JSON data to file.
-    File.open(data_json_path, 'w') do |f|
-      f.write(events_data.to_json)
-    end
-
-    json_file = File.open(data_json_path)
-    data = JSON.load(json_file)
+    File.write(data_json_path, events_data.to_json)
+    data = JSON.parse(File.read(data_json_path))
 
     format_analytics_data!(data)
 
@@ -190,21 +181,14 @@ begin
       data: data
     }
 
-    # Convert CamelCase keys to snake_keys for the whole payload.
-    # This is a sledgehammer to force keys to be consistent.
-    payload.deep_transform_keys! do |key|
-      k = key.to_s.underscore rescue key
-      k.to_sym rescue key
-    end
-
-    BigBlueButton.logger.info(payload.to_json)
+    BigBlueButton.logger.info("Analytics payload ready (#{payload.to_json.bytesize} bytes)")
 
     send_data(analytics_callback_url, secret, payload)
   end
 
 rescue => e
     BigBlueButton.logger.info("Rescued")
-    BigBlueButton.logger.info(e.to_s)
+    BigBlueButton.logger.info(e.full_message(highlight: false, order: :top).chomp)
 end
 
 BigBlueButton.logger.info("Analytics Post Events for [#{meeting_id}] ends")

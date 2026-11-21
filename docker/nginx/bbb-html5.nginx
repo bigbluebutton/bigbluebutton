@@ -1,0 +1,3 @@
+location /html5client {
+    proxy_pass http://html5-client:8080;
+}

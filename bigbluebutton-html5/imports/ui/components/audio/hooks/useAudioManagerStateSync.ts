@@ -13,10 +13,10 @@ import Auth from '/imports/ui/services/auth';
  * This is a no-op when public.media.livekit.audio.useLiveKitAudioState is false.
  */
 const useAudioManagerStateSync = () => {
-  const { data: unmutedUsers, loading: unmutedLoading } = useWhoIsUnmuted();
-  const { data: talkingUsers, loading: talkingLoading } = useWhoIsTalking();
-  const shouldUseLiveKitAudioState = useShouldUseLiveKitAudioState();
   const currentUserId = Auth.userID as string;
+  const { data: currentUserUnmuted, loading: unmutedLoading } = useWhoIsUnmuted(currentUserId);
+  const { data: currentUserTalking, loading: talkingLoading } = useWhoIsTalking(currentUserId);
+  const shouldUseLiveKitAudioState = useShouldUseLiveKitAudioState();
   /* eslint no-underscore-dangle: 0 */
   // @ts-ignore - AudioManager is untyped
   const currentMuteState = useReactiveVar(AudioManager._isMuted.value) as boolean;
@@ -27,7 +27,7 @@ const useAudioManagerStateSync = () => {
   useEffect(() => {
     if (!shouldUseLiveKitAudioState || unmutedLoading || !currentUserId) return;
 
-    const newMuteState = !unmutedUsers[currentUserId];
+    const newMuteState = !currentUserUnmuted;
 
     if (currentMuteState !== newMuteState) {
       AudioManager.isMuted = newMuteState;
@@ -40,7 +40,7 @@ const useAudioManagerStateSync = () => {
     }
   }, [
     currentUserId,
-    unmutedUsers,
+    currentUserUnmuted,
     unmutedLoading,
     currentMuteState,
     shouldUseLiveKitAudioState,
@@ -50,7 +50,7 @@ const useAudioManagerStateSync = () => {
   useEffect(() => {
     if (!shouldUseLiveKitAudioState || talkingLoading || !currentUserId) return;
 
-    const isTalking = talkingUsers[currentUserId];
+    const isTalking = currentUserTalking;
     // Respect mute state: if muted, talking should be false
     const newTalkingState = isTalking && !currentMuteState;
 
@@ -60,7 +60,7 @@ const useAudioManagerStateSync = () => {
     }
   }, [
     currentUserId,
-    talkingUsers,
+    currentUserTalking,
     talkingLoading,
     currentMuteState,
     currentTalkingState,

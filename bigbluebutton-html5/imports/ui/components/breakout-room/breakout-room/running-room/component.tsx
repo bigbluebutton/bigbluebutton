@@ -3,6 +3,7 @@ import React, {
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/component';
 import BBBMenu from '/imports/ui/components/common/menu/component';
@@ -10,6 +11,7 @@ import Trigger from '/imports/ui/components/common/control-header/right/componen
 import {
   BREAKOUT_ROOM_END_ALL,
   BREAKOUT_ROOM_MOVE_USER,
+  BREAKOUT_ROOM_UNASSIGN_USER,
   BREAKOUT_ROOM_SEND_MESSAGE_TO_ALL,
   BREAKOUT_ROOM_REQUEST_JOIN_URL,
   USER_TRANSFER_VOICE_TO_MEETING,
@@ -26,6 +28,7 @@ import { setBreakoutWindowRef } from '../service';
 import { useStopMediaOnMainRoom } from '/imports/ui/components/breakout-room/hooks';
 import { notify } from '/imports/ui/services/notification';
 import logger from '/imports/startup/client/logger';
+import { useUserLiveKitMemberships } from '/imports/ui/components/livekit/memberships-manager/hooks';
 
 const intlMessages = defineMessages({
   breakoutTitle: {
@@ -92,6 +95,10 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.stopListeningToRoom',
     description: 'Stop listening to breakout room audio',
   },
+  listenAlreadyInRoom: {
+    id: 'app.createBreakoutRoom.listenAlreadyInRoom',
+    description: 'Listen option label while the user is joined in that breakout room',
+  },
   sendMessage: {
     id: 'app.chat.submitLabel',
     description: 'Send message button label',
@@ -124,10 +131,11 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
 
   const [localRoomNames, setLocalRoomNames] = useState<Record<string, string>>({});
   const [requestingJoinForRoomId, setRequestingJoinForRoomId] = useState<string | null>(null);
-  const [listeningToRoomId, setListeningToRoomId] = useState<string | null>(null);
+  const [localListeningToRoomId, setLocalListeningToRoomId] = useState<string | null>(null);
 
   const [breakoutRoomEndAll] = useMutation(BREAKOUT_ROOM_END_ALL);
   const [breakoutRoomMoveUser] = useMutation(BREAKOUT_ROOM_MOVE_USER);
+  const [breakoutRoomUnassignUser] = useMutation(BREAKOUT_ROOM_UNASSIGN_USER);
   const [sendMessageToAll] = useMutation(BREAKOUT_ROOM_SEND_MESSAGE_TO_ALL);
   const [requestJoinUrl] = useMutation(BREAKOUT_ROOM_REQUEST_JOIN_URL);
   const [breakoutRoomTransfer] = useMutation(USER_TRANSFER_VOICE_TO_MEETING);
@@ -146,11 +154,20 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
   }));
 
   const breakoutProps = meetingData?.breakoutRoomsCommonProperties;
-  const isUsingLiveKit = meetingData?.audioBridge === 'livekit';
   const sendInvitationToModerators = breakoutProps?.sendInvitationToModerators ?? false;
   const breakoutDurationInSeconds = breakoutProps?.durationInSeconds ?? 0;
   const parsedStartedAt = new Date(breakoutProps?.startedAt ?? '').getTime();
   const breakoutStartedAt = Number.isFinite(parsedStartedAt) ? parsedStartedAt : 0;
+
+  const isUsingLiveKit = meetingData?.audioBridge === 'livekit';
+  const memberships = useUserLiveKitMemberships();
+  // FreeSWITCH listen-in has no actual gql info to guide it, so its target room is tracked
+  // optimistically here.
+  // On LiveKit the membership data is the source of truth: the breakout-listen
+  // membership's roomName is the breakout meeting id being listened to.
+  const listeningToRoomId = isUsingLiveKit
+    ? (memberships.find((m) => m.purpose === 'breakout-listen')?.roomName ?? null)
+    : localListeningToRoomId;
 
   const assignedUserIds = useMemo(() => {
     const ids = new Set<string>();
@@ -185,7 +202,21 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
     }
   }, [breakouts, requestingJoinForRoomId, stopMediaOnMainRoom, isPresenter]);
 
+  // The FS/mediasoup path tracks listen state locally (LK derives it from
+  // memberships); keep it in sync or the menu keeps a stale "Stop listening".
+  const setLocalListenTarget = useCallback((roomId: string | null) => {
+    if (!isUsingLiveKit) setLocalListeningToRoomId(roomId);
+  }, [isUsingLiveKit]);
+
   const handleEnterRoom = useCallback((breakout: BreakoutRoomType) => {
+    // If listening-in to a breakout, return audio to main before _fully joining_
+    // a breakout.
+    if (listeningToRoomId) {
+      breakoutRoomTransfer({
+        variables: { fromMeetingId: listeningToRoomId, toMeetingId: meetingId },
+      });
+      setLocalListenTarget(null);
+    }
     if (breakout.joinURL) {
       const win = window.open(breakout.joinURL, '_blank');
       if (win) {
@@ -196,9 +227,17 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
       requestJoinUrl({ variables: { breakoutRoomMeetingId: breakout.breakoutRoomMeetingId } });
       setRequestingJoinForRoomId(breakout.breakoutRoomMeetingId);
     }
-  }, [requestJoinUrl, stopMediaOnMainRoom, isPresenter]);
+  }, [
+    requestJoinUrl, stopMediaOnMainRoom, isPresenter,
+    listeningToRoomId,
+    breakoutRoomTransfer,
+    meetingId,
+    setLocalListenTarget,
+  ]);
 
   const handleListenToRoom = useCallback((breakout: BreakoutRoomType) => {
+    if (breakout.isUserCurrentlyInRoom) return;
+
     if (listeningToRoomId === breakout.breakoutRoomMeetingId) {
       breakoutRoomTransfer({
         variables: {
@@ -206,7 +245,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
           toMeetingId: meetingId,
         },
       });
-      setListeningToRoomId(null);
+      setLocalListenTarget(null);
     } else {
       breakoutRoomTransfer({
         variables: {
@@ -214,9 +253,9 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
           toMeetingId: breakout.breakoutRoomMeetingId,
         },
       });
-      setListeningToRoomId(breakout.breakoutRoomMeetingId);
+      setLocalListenTarget(breakout.breakoutRoomMeetingId);
     }
-  }, [listeningToRoomId, breakoutRoomTransfer, meetingId]);
+  }, [listeningToRoomId, setLocalListenTarget, breakoutRoomTransfer, meetingId]);
 
   const padNum = (n: number) => n.toString().padStart(2, '0');
 
@@ -237,11 +276,25 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
     ev.dataTransfer.setData('text', JSON.stringify({ userId: visUserId, fromRoomId, userName }));
     const ghost = document.createElement('div');
     ghost.textContent = userName;
-    ghost.style.cssText = 'position:absolute;top:-9999px;padding:4px 8px;background:#fff;border:1px solid #ccc;border-radius:4px;font-size:0.85rem;white-space:nowrap;';
+    ghost.style.cssText = 'position:absolute;top:-9999px;padding:4px 8px;background:var(--color-white-surface, var(--color-white, #fff));border:1px solid var(--color-border-muted, #ccc);border-radius:4px;font-size:0.85rem;white-space:nowrap;';
     document.body.appendChild(ghost);
     ev.dataTransfer.setDragImage(ghost, 0, 0);
     requestAnimationFrame(() => ghost.remove());
   };
+
+  const handleUnassignUser = useCallback((unassignedUserId: string, breakoutRoomMeetingId: string) => {
+    breakoutRoomUnassignUser({
+      variables: {
+        userId: unassignedUserId,
+        breakoutRoomMeetingId,
+      },
+    }).catch((err: unknown) => {
+      logger.error(
+        { logCode: 'breakout_unassign_user_failed', extraInfo: { error: err } },
+        'Failed to unassign user from breakout room',
+      );
+    });
+  }, [breakoutRoomUnassignUser]);
 
   const handleDrop = useCallback((toRoomId: string) => (ev: React.DragEvent) => {
     ev.preventDefault();
@@ -259,6 +312,11 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
       return;
     }
     if (fromRoomMeetingId === toRoomId) return;
+
+    if (toRoomId === meetingId) {
+      handleUnassignUser(droppedUserId, fromRoomMeetingId);
+      return;
+    }
 
     breakoutRoomMoveUser({
       variables: {
@@ -288,7 +346,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
         'Failed to move user between breakout rooms',
       );
     });
-  }, [breakoutRoomMoveUser, breakouts, intl]);
+  }, [breakoutRoomMoveUser, handleUnassignUser, breakouts, intl, meetingId]);
 
   const SCROLL_ZONE = 60;
   const SCROLL_SPEED = 8;
@@ -328,45 +386,43 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
       <Styled.Separator />
 
       <Styled.ScrollContent ref={scrollContainerRef} onDragOver={handleScrollDragOver}>
-        {unassignedUsers.length > 0 && (
-          <Styled.UsersSection
-            onDragOver={(ev) => {
-              ev.preventDefault();
-              ev.currentTarget.classList.add('drag-over');
-            }}
-            onDragEnter={(ev) => {
-              ev.preventDefault();
-              ev.currentTarget.classList.add('drag-over');
-            }}
-            onDragLeave={(ev) => {
-              ev.currentTarget.classList.remove('drag-over');
-            }}
-            onDrop={handleDrop(meetingId)}
-            id="breakoutBox-0"
-          >
-            <Styled.UsersSectionHeader>
-              <span>{intl.formatMessage(intlMessages.unassignedUsers)}</span>
-              <Styled.UserCount>{padNum(unassignedUsers.length)}</Styled.UserCount>
-            </Styled.UsersSectionHeader>
-            <Styled.UsersList>
-              {unassignedUsers
-                .sort((a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name))
-                .map((user: { userId: string; name: string }) => (
-                  <Styled.UserItem
-                    key={user.userId}
-                    data-test="draggableUser"
-                    draggable
-                    onDragStart={(ev) => dragStart(ev, user.userId, meetingId, user.name)}
-                  >
-                    {user.name}
-                    {user.userId === userId
-                      ? ` (${intl.formatMessage(intlMessages.you)})`
-                      : ''}
-                  </Styled.UserItem>
-                ))}
-            </Styled.UsersList>
-          </Styled.UsersSection>
-        )}
+        <Styled.UsersSection
+          onDragOver={(ev) => {
+            ev.preventDefault();
+            ev.currentTarget.classList.add('drag-over');
+          }}
+          onDragEnter={(ev) => {
+            ev.preventDefault();
+            ev.currentTarget.classList.add('drag-over');
+          }}
+          onDragLeave={(ev) => {
+            ev.currentTarget.classList.remove('drag-over');
+          }}
+          onDrop={handleDrop(meetingId)}
+          id="breakoutBox-0"
+        >
+          <Styled.UsersSectionHeader>
+            <span>{intl.formatMessage(intlMessages.unassignedUsers)}</span>
+            <Styled.UserCount>{padNum(unassignedUsers.length)}</Styled.UserCount>
+          </Styled.UsersSectionHeader>
+          <Styled.UsersList>
+            {unassignedUsers
+              .sort((a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name))
+              .map((user: { userId: string; name: string }) => (
+                <Styled.UserItem
+                  key={user.userId}
+                  data-test="draggableUser"
+                  draggable
+                  onDragStart={(ev) => dragStart(ev, user.userId, meetingId, user.name)}
+                >
+                  {user.name}
+                  {user.userId === userId
+                    ? ` (${intl.formatMessage(intlMessages.you)})`
+                    : ''}
+                </Styled.UserItem>
+              ))}
+          </Styled.UsersList>
+        </Styled.UsersSection>
 
         <Styled.RoomCardsContainer data-test="breakoutRoomList">
           {breakouts.map((breakout) => {
@@ -453,14 +509,19 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                           dataTest: breakout.isUserCurrentlyInRoom ? 'alreadyConnected' : `askToJoinRoom${breakout.sequence}`,
                           onClick: () => handleEnterRoom(breakout),
                         },
-                        ...(!isUsingLiveKit ? [{
+                        {
                           key: `listen-${breakout.breakoutRoomMeetingId}`,
-                          label: isListening
-                            ? intl.formatMessage(intlMessages.stopListeningToRoom)
-                            : intl.formatMessage(intlMessages.listenToRoom),
-                          dataTest: 'listenToBreakoutRoomButton',
+                          // A live full join in this room (another tab) would play the
+                          // listen-in mic back to the user through that session.
+                          label: breakout.isUserCurrentlyInRoom
+                            ? intl.formatMessage(intlMessages.listenAlreadyInRoom)
+                            : intl.formatMessage(
+                              isListening ? intlMessages.stopListeningToRoom : intlMessages.listenToRoom,
+                            ),
+                          disabled: breakout.isUserCurrentlyInRoom,
+                          dataTest: `listenToBreakoutRoomButton${breakout.sequence}`,
                           onClick: () => handleListenToRoom(breakout),
-                        }] : []),
+                        },
                       ]}
                       opts={{
                         id: `breakout-room-options-${breakout.breakoutRoomMeetingId}`,
@@ -500,15 +561,10 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                           <Styled.UserRemoveBtn
                             type="button"
                             aria-label={intl.formatMessage(intlMessages.unassignUser)}
+                            data-test="unassignUserFromBreakoutRoom"
                             onClick={(e: React.MouseEvent) => {
                               e.stopPropagation();
-                              breakoutRoomMoveUser({
-                                variables: {
-                                  userId: participant.userId,
-                                  fromBreakoutRoomMeetingId: breakout.breakoutRoomMeetingId,
-                                  toBreakoutRoomMeetingId: meetingId,
-                                },
-                              });
+                              handleUnassignUser(participant.userId, breakout.breakoutRoomMeetingId);
                             }}
                           >
                             ✕
@@ -549,19 +605,24 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
         </Styled.MegaphoneChatArea>
       )}
       <Styled.BottomBar>
-        {/* @ts-ignore */}
-        <Styled.MegaphoneBtn
-          label={intl.formatMessage(intlMessages.megaphoneLabel)}
-          onClick={() => setMegaphoneOpen(!megaphoneOpen)}
-          title={intl.formatMessage(intlMessages.megaphoneTooltip)}
-          data-test="megaphoneButton"
-        />
-        {/* @ts-ignore */}
-        <Styled.FinishBtn
-          label={intl.formatMessage(intlMessages.finishLabel)}
-          onClick={handleFinish}
-          data-test="finishBreakoutButton"
-        />
+        <Styled.ButtonWrapper>
+          <BBButton
+            variant="secondary"
+            label={intl.formatMessage(intlMessages.megaphoneLabel)}
+            tooltipLabel={intl.formatMessage(intlMessages.megaphoneTooltip)}
+            onClick={() => setMegaphoneOpen(!megaphoneOpen)}
+            dataTest="megaphoneButton"
+          />
+        </Styled.ButtonWrapper>
+        <Styled.ButtonWrapper>
+          <BBButton
+            variant="primary"
+            color="danger"
+            label={intl.formatMessage(intlMessages.finishLabel)}
+            onClick={handleFinish}
+            dataTest="finishBreakoutButton"
+          />
+        </Styled.ButtonWrapper>
       </Styled.BottomBar>
     </Styled.PanelContent>
   );

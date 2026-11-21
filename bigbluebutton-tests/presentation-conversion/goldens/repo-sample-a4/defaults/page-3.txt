@@ -1,0 +1,20 @@
+Contents
+
+1   Template                                                                    5
+    1.1 How to compile a .tex file to a .pdf file . . . . . . . . . . . . .     5
+        1.1.1 Tools . . . . . . . . . . . . . . . . . . . . . . . . . . . .     5
+        1.1.2 How to use the tools . . . . . . . . . . . . . . . . . . . .      5
+    1.2 How to write a document . . . . . . . . . . . . . . . . . . . . . .     6
+        1.2.1 The main document . . . . . . . . . . . . . . . . . . . . .       6
+        1.2.2 Chapters . . . . . . . . . . . . . . . . . . . . . . . . . .      6
+        1.2.3 Spell-checking . . . . . . . . . . . . . . . . . . . . . . .      6
+    1.3 LATEX and pdfLATEX capabilities . . . . . . . . . . . . . . . . . . .   7
+        1.3.1 Overview . . . . . . . . . . . . . . . . . . . . . . . . . .      7
+        1.3.2 LATEX . . . . . . . . . . . . . . . . . . . . . . . . . . . .     7
+        1.3.3 pdfLATEX . . . . . . . . . . . . . . . . . . . . . . . . . .      7
+        1.3.4 Examples . . . . . . . . . . . . . . . . . . . . . . . . . .      7
+
+
+
+
+                                        3

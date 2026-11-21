@@ -1,0 +1,24 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# Unlike a validation error, a createTime mismatch honours redirect=false and
+# is answered with XML.
+id: join.create-time.mismatch-xml
+title: join with another createTime and redirect=false is refused with XML
+endpoint: join
+class: contract
+tags: [ci]
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Join createTime}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: join
+    params: {meetingID: "${uid}", fullName: Ann, role: viewer, createTime: "1", redirect: "false"}
+    expect: {status: 200, returncode: FAILED, messageKey: mismatchCreateTimeParam}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

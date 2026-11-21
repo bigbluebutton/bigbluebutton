@@ -40,16 +40,9 @@ object PadsApp2x {
 }
 
 class PadsApp2x(implicit val context: ActorContext)
-  extends PadGroupCreatedEvtMsgHdlr
-  with PadCreateReqMsgHdlr
-  with PadCreatedEvtMsgHdlr
-  with BNSharedNotesCreatedEvtMsgHdlr
+  extends BNSharedNotesCreatedEvtMsgHdlr
   with BNSharedNotesUpdatedEvtMsgHdlr
-  with PadCreateSessionReqMsgHdlr
-  with PadSessionCreatedEvtMsgHdlr
-  with PadSessionDeletedSysMsgHdlr
-  with PadUpdatedSysMsgHdlr
-  with PadContentSysMsgHdlr
+  // TODO(4.1 etherpad removal, #25720): drop once bbb-transcription-controller is confirmed not to publish PadUpdatePubMsg
   with PadUpdatePubMsgHdlr
   with PadPinnedReqMsgHdlr {
 }

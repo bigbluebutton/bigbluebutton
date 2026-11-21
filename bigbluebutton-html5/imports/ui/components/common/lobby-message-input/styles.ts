@@ -1,11 +1,12 @@
 import styled from 'styled-components';
 import Button from '@mui/material/Button';
 import {
-  colorWhite,
   colorBorder,
-  colorText,
+  colorBorderSurface,
   colorGrayLabel,
   colorGreen600,
+  colorText,
+  colorWhiteSurface,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   fontSizeBase,
@@ -20,13 +21,13 @@ const InputWrapper = styled.div`
   border-radius: 0.75rem;
   overflow-y: hidden;
   border: 1px solid ${colorBorder};
-  background-color: ${colorWhite};
+  background-color: ${colorWhiteSurface};
   align-items: center;
   padding: 0.4rem 0.4rem 0.4rem 0;
   gap: 3px;
 
   &:focus-within {
-    box-shadow: 0 0 0 ${xsPadding} ${colorBorder};
+    box-shadow: 0 0 0 ${xsPadding} ${colorBorderSurface};
   }
 `;
 

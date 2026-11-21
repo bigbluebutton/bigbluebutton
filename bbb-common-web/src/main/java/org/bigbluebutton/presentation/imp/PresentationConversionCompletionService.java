@@ -3,8 +3,10 @@ package org.bigbluebutton.presentation.imp;
 import com.google.gson.Gson;
 import org.bigbluebutton.api.domain.Meeting;
 import org.bigbluebutton.api.service.ServiceUtils;
+import org.bigbluebutton.presentation.RejectedPresentationRegistry;
 import org.bigbluebutton.presentation.messages.IPresentationCompletionMessage;
 import org.bigbluebutton.presentation.messages.PageConvertProgressMessage;
+import org.bigbluebutton.presentation.messages.PresentationConversionDiscardMessage;
 import org.bigbluebutton.presentation.messages.PresentationConvertMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +23,7 @@ public class PresentationConversionCompletionService {
 
     private SlidesGenerationProgressNotifier notifier;
     private S3FileManager s3FileManager;
+    private RejectedPresentationRegistry rejectedPresentations;
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor(r -> {
         Thread t = new Thread(r, "conv-msg-consumer");
@@ -71,9 +74,24 @@ public class PresentationConversionCompletionService {
 
             log.info("Storing presentation with key {}", presentationToConvertKey);
             presentationsToConvert.put(presentationToConvertKey, p);
+        } else if (msg instanceof PresentationConversionDiscardMessage m) {
+            String presentationToConvertKey = m.presId + "_" + m.meetingId;
+            if (presentationsToConvert.remove(presentationToConvertKey) != null) {
+                log.info("Discarded rejected presentation with key {}", presentationToConvertKey);
+            }
         } else if (msg instanceof PageConvertProgressMessage m) {
             log.info("Handling PageConvertProgressMessage");
             String presentationToConvertKey = m.presId + "_" + m.meetingId;
+
+            // Pages of a rejected presentation that were already running still report in.
+            // Stop tracking it instead of completing it; its files are deleted separately.
+            if (rejectedPresentations != null && rejectedPresentations.isRejected(m.meetingId, m.presId)) {
+                if (presentationsToConvert.remove(presentationToConvertKey) != null) {
+                    log.info("Stopped tracking rejected presentation with key {}", presentationToConvertKey);
+                }
+                return;
+            }
+
             PresentationToConvert p = presentationsToConvert.get(presentationToConvertKey);
 
             if (p != null) {
@@ -175,5 +193,9 @@ public class PresentationConversionCompletionService {
 
     public void setS3FileManager(S3FileManager s3FileManager) {
         this.s3FileManager = s3FileManager;
+    }
+
+    public void setRejectedPresentationRegistry(RejectedPresentationRegistry rejectedPresentations) {
+        this.rejectedPresentations = rejectedPresentations;
     }
 }

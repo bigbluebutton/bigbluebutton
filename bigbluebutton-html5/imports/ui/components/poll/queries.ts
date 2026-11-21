@@ -31,20 +31,13 @@ export interface PollInfo {
   questionText: string;
   ended: boolean;
   multipleResponses: boolean;
+  numResponders: number;
   type: string;
   users: Array<UserInfo>;
   responses: Array<ResponseInfo>;
   users_aggregate: {
     aggregate: {
       count: number;
-    };
-  };
-  responses_aggregate: {
-    aggregate: {
-      count: number;
-      sum: {
-        optionResponsesCount: number;
-      }
     };
   };
 }
@@ -72,6 +65,7 @@ subscription getCurrentPollData {
       questionText
       ended
       multipleResponses
+      numResponders
       quiz
       type
       users {
@@ -90,14 +84,6 @@ subscription getCurrentPollData {
       users_aggregate {
         aggregate {
           count
-        }
-      }
-      responses_aggregate {
-        aggregate {
-          count
-          sum {
-            optionResponsesCount
-          }
         }
       }
     }

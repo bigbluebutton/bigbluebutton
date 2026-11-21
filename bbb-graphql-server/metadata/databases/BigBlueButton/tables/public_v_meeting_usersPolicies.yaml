@@ -12,6 +12,7 @@ select_permissions:
       columns:
         - allowModsToEjectCameras
         - allowModsToUnmuteUsers
+        - allowModsToRequestCameraShare
         - authenticatedGuest
         - allowPromoteGuestToModerator
         - guestLobbyMessage
@@ -24,6 +25,7 @@ select_permissions:
         - userCameraCap
         - webcamsOnlyForModerator
         - multiUserWhiteboardEnabled
+        - requireUserConsentBeforeUnmuting
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId
@@ -32,6 +34,7 @@ select_permissions:
       columns:
         - allowModsToEjectCameras
         - allowModsToUnmuteUsers
+        - allowModsToRequestCameraShare
         - allowPromoteGuestToModerator
         - authenticatedGuest
         - guestLobbyMessage
@@ -44,6 +47,7 @@ select_permissions:
         - userCameraCap
         - webcamsOnlyForModerator
         - multiUserWhiteboardEnabled
+        - requireUserConsentBeforeUnmuting
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId

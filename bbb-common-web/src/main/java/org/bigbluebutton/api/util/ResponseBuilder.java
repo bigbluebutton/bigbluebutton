@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.bigbluebutton.api.domain.Meeting;
 import org.bigbluebutton.api.domain.RecordingMetadata;
+import org.bigbluebutton.api.domain.RecordingProcessingInfo;
 import org.bigbluebutton.api.domain.UserSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -182,6 +183,18 @@ public class ResponseBuilder {
         return xmlText.toString();
     }
 
+    public String buildGetRecordingProcessingInfo(RecordingProcessingInfo info, String returnCode) {
+        StringWriter xmlText = new StringWriter();
+
+        Map<String, Object> data = new HashMap<String, Object>();
+        data.put("returnCode", returnCode);
+        data.put("info", info);
+
+        processData(getTemplate("get-recording-processing-info.ftlx"), data, xmlText);
+
+        return xmlText.toString();
+    }
+
     public String buildEndRunning(String msgKey, String msg, String returnCode) {
         StringWriter xmlText = new StringWriter();
 
@@ -222,12 +235,14 @@ public class ResponseBuilder {
         return xmlText.toString();
     }
 
-    public String buildInsertDocumentResponse(String message, String returnCode) {
+    // msgKey may be null on a SUCCESS response that has nothing to warn about.
+    public String buildInsertDocumentResponse(String msgKey, String message, String returnCode) {
 
         StringWriter xmlText = new StringWriter();
 
         Map<String, Object> data = new HashMap<String, Object>();
         data.put("returnCode", returnCode);
+        data.put("msgKey", msgKey);
         data.put("message", message);
 
         processData(getTemplate("insert-document.ftlx"), data, xmlText);

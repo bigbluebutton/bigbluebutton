@@ -5,8 +5,10 @@ import { clone } from 'radash';
 import { MenuItem } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import UnsavedChangesModal from '/imports/ui/components/common/modal/unsaved-changes/component';
+import deviceInfo from '/imports/utils/deviceInfo';
 import Styled from './styles';
 import LobbyMessageInput from '/imports/ui/components/common/lobby-message-input/component';
 
@@ -187,6 +189,7 @@ const propTypes = {
   isChatEnabled: PropTypes.bool.isRequired,
   isPrivateChatEnabled: PropTypes.bool.isRequired,
   isSharedNotesEnabled: PropTypes.bool.isRequired,
+  isLockSettingsEnabled: PropTypes.bool.isRequired,
   isOpen: PropTypes.bool,
   priority: PropTypes.string,
 };
@@ -260,6 +263,7 @@ class LockViewersComponent extends Component {
       updateWebcamsOnlyForModerator,
       changeGuestPolicy,
       setLobbyMessage,
+      isLockSettingsEnabled,
     } = this.props;
 
     const {
@@ -270,11 +274,13 @@ class LockViewersComponent extends Component {
       presentationPolicy,
     } = this.state;
 
-    const finalLockSettings = { ...lockSettingsProps };
-    finalLockSettings.presenterPolicy = presentationPolicy;
+    if (isLockSettingsEnabled) {
+      const finalLockSettings = { ...lockSettingsProps };
+      finalLockSettings.presenterPolicy = presentationPolicy;
 
-    updateLockSettings(finalLockSettings);
-    updateWebcamsOnlyForModerator(usersProp.webcamsOnlyForModerator);
+      updateLockSettings(finalLockSettings);
+      updateWebcamsOnlyForModerator(usersProp.webcamsOnlyForModerator);
+    }
     changeGuestPolicy(guestPolicy);
 
     if (!lobbyMessageEnabled) {
@@ -581,6 +587,7 @@ class LockViewersComponent extends Component {
       isOpen,
       priority,
       closeModal,
+      isLockSettingsEnabled,
     } = this.props;
 
     const { selectedTab, unsavedModalOpen } = this.state;
@@ -595,28 +602,51 @@ class LockViewersComponent extends Component {
       );
     }
 
+    // the participant permissions and the presentation policy are both lock settings
     const tabs = [
       {
         label: intlMessages.participantPermissionsTab,
         icon: 'lock_viewers',
         dataTest: 'participantPermissionsTab',
+        allowed: isLockSettingsEnabled,
       },
       {
         label: intlMessages.guestPolicyTab,
         icon: 'guest_policy',
         dataTest: 'guestPolicyTab',
+        allowed: true,
       },
       {
         label: intlMessages.presentationPermissionsTab,
         icon: 'presentation_permission',
         dataTest: 'presentationPermissionsTab',
+        allowed: isLockSettingsEnabled,
       },
-    ];
+    ].filter((tab) => tab.allowed);
 
     return (
       <Styled.LockViewersModal
         contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
         title={intl.formatMessage(intlMessages.lockViewersTitle)}
+        contentStyle={deviceInfo.isMobile ? { height: '90vh' } : { minWidth: 'min(55rem, 90vw)' }}
+        showDividers
+        shouldCloseOnOverlayClick
+        footerContent={(
+          <>
+            <BBButton
+              variant="secondary"
+              dataTest="cancelLockSettings"
+              label={intl.formatMessage(intlMessages.buttonCancel)}
+              onClick={closeModal}
+            />
+            <BBButton
+              variant="primary"
+              dataTest="applyLockSettings"
+              label={intl.formatMessage(intlMessages.buttonApply)}
+              onClick={() => this.handleSave()}
+            />
+          </>
+        )}
         {...{
           isOpen,
           onRequestClose: this.handleClose,
@@ -640,30 +670,20 @@ class LockViewersComponent extends Component {
               </Styled.SettingsTabSelector>
             ))}
           </Styled.SettingsTabList>
-          <Styled.SettingsTabPanel selectedClassName="is-selected">
-            {this.renderParticipantPermissionsTab()}
-          </Styled.SettingsTabPanel>
+          {isLockSettingsEnabled && (
+            <Styled.SettingsTabPanel selectedClassName="is-selected">
+              {this.renderParticipantPermissionsTab()}
+            </Styled.SettingsTabPanel>
+          )}
           <Styled.SettingsTabPanel selectedClassName="is-selected">
             {this.renderGuestPolicyTab()}
           </Styled.SettingsTabPanel>
-          <Styled.SettingsTabPanel selectedClassName="is-selected">
-            {this.renderPresentationPermissionsTab()}
-          </Styled.SettingsTabPanel>
+          {isLockSettingsEnabled && (
+            <Styled.SettingsTabPanel selectedClassName="is-selected">
+              {this.renderPresentationPermissionsTab()}
+            </Styled.SettingsTabPanel>
+          )}
         </Styled.SettingsTabs>
-        <Styled.ActionsContainer>
-          <Styled.ActionButton
-            onClick={closeModal}
-            data-test="cancelLockSettings"
-          >
-            {intl.formatMessage(intlMessages.buttonCancel)}
-          </Styled.ActionButton>
-          <Styled.ActionButtonPrimary
-            onClick={() => this.handleSave()}
-            data-test="applyLockSettings"
-          >
-            {intl.formatMessage(intlMessages.buttonApply)}
-          </Styled.ActionButtonPrimary>
-        </Styled.ActionsContainer>
       </Styled.LockViewersModal>
     );
   }

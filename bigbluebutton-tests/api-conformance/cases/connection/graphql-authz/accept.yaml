@@ -1,0 +1,43 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# checkGraphqlAuthorization answers JSON to what its callers send: any
+# Accept, or none, as bbb-graphql-middleware sends, and a browser's request,
+# which nginx passes on with the browser's User-Agent and Accept.
+id: connection.graphql-authz.accept
+title: checkGraphqlAuthorization answers JSON to ${case}
+endpoint: connection
+class: contract
+tags: [ci]
+requires: [akka]
+variants:
+  - {id: any, vars: {case: "Accept: */*", ua: Go-http-client/1.1, accept: "*/*"}}
+  - {id: none, vars: {case: a request without Accept, ua: Go-http-client/1.1, accept: null}}
+  - {id: json, vars: {case: "Accept: application/json", ua: Go-http-client/1.1, accept: application/json}}
+  - {id: browser, vars: {case: a browser asking for a page, ua: "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0", accept: "text/html,application/xhtml+xml,*/*;q=0.8"}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: "Hook test"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: join
+    client: ann
+    params: {meetingID: "${uid}", fullName: Ann, role: moderator, redirect: "false"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {annToken: /response/session_token}
+  - route: connection-graphql-authz
+    client: ann
+    headers: {x-session-token: "${annToken}", User-Agent: "${ua}", Accept: "${accept}"}
+    expect:
+      status: 200
+      headers: {Content-Type: {regex: '^application/json'}}
+      jsonpath: {$.response: authorized}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

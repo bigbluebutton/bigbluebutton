@@ -17,17 +17,23 @@ const DEFAULT_ANIMATION = 'shift-away';
 const ANIMATION_NONE = 'none';
 const TIP_OFFSET = [0, 10];
 
+// Every tooltip updates on its parent's renders; the animation setting only
+// changes when the user edits it, so the document-wide re-sync runs once per change.
+let syncedAnimations;
+
 const propTypes = {
   title: PropTypes.string,
   position: PropTypes.oneOf(['right', 'left', 'bottom', 'top']),
   children: PropTypes.element.isRequired,
   className: PropTypes.string,
+  trigger: PropTypes.string,
 };
 
 const defaultProps = {
   position: 'bottom',
   className: null,
   title: '',
+  trigger: 'mouseenter focus',
 };
 
 class Tooltip extends Component {
@@ -59,6 +65,7 @@ class Tooltip extends Component {
       title,
       delay,
       placement,
+      trigger,
     } = this.props;
 
     const Settings = getSettingsSingletonInstance();
@@ -99,16 +106,31 @@ class Tooltip extends Component {
       offset: TIP_OFFSET,
       placement: overridePlacement,
       touch: ['hold', 1000],
+      trigger,
       theme: 'bbbtip',
       maxWidth: 300,
     };
     this.tooltip = Tippy(`#${this.tippySelectorId}`, options);
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps) {
     const Settings = getSettingsSingletonInstance();
     const { animations } = Settings.application;
     const { title } = this.props;
+
+    const elem = document.getElementById(this.tippySelectorId);
+    const ownTippy = elem && elem._tippy;
+    if (ownTippy && title !== prevProps.title) {
+      ownTippy.setProps({ content: title, appendTo: document.body });
+    } else if (ownTippy && ownTippy.state.isShown && ownTippy.popperInstance) {
+      // The parent may have moved the element (e.g. a reordered list) without
+      // changing the title; a shown tooltip has to follow it.
+      ownTippy.popperInstance.update();
+    }
+
+    if (animations === syncedAnimations) return;
+    syncedAnimations = animations;
+
     const elements = document.querySelectorAll('[id^="tippy-"]');
 
     Array.from(elements).filter((e) => {
@@ -133,10 +155,6 @@ class Tooltip extends Component {
       }
       instance.setProps(newProps);
     });
-
-    const elem = document.getElementById(this.tippySelectorId);
-    const opts = { content: title, appendTo: document.body };
-    if (elem && elem._tippy) elem._tippy.setProps(opts);
   }
 
   componentWillUnmount() {
@@ -147,7 +165,11 @@ class Tooltip extends Component {
   }
 
   onShow() {
+    const { title } = this.props;
+    if (!title) return false;
+
     document.addEventListener('keyup', this.handleEscapeHide);
+    return true;
   }
 
   onHide() {
@@ -168,6 +190,7 @@ class Tooltip extends Component {
       children,
       className,
       title,
+      trigger,
       ...restProps
     } = this.props;
 

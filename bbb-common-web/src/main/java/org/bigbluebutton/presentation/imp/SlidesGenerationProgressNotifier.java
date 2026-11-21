@@ -64,6 +64,18 @@ public class SlidesGenerationProgressNotifier {
             maxUploadFileSize);
     messagingService.sendDocConversionMsg(progress);
   }
+
+  public void sendUploadFailedMessage(PresentationUploadToken pres, String errorDetail) {
+    PresentationUploadFailed message = new PresentationUploadFailed(
+            pres.podId,
+            pres.meetingId,
+            pres.presentationId,
+            pres.filename,
+            ConversionMessageConstants.PRESENTATION_UPLOAD_FAILED_KEY,
+            errorDetail);
+    messagingService.sendDocConversionMsg(message);
+  }
+
   public void sendInvalidMimeTypeMessage(UploadedPresentation pres, String fileMime, String fileExtension) {
     DocInvalidMimeType invalidMimeType = new DocInvalidMimeType(
             pres.getPodId(),
@@ -109,6 +121,18 @@ public class SlidesGenerationProgressNotifier {
             ConversionMessageConstants.SCAN_FAILED_KEY,
             pres.getTemporaryPresentationId(),
             pres.getId()
+    );
+    messagingService.sendDocConversionMsg(message);
+  }
+
+  public void sendConversionRateLimited(UploadedPresentation pres) {
+    ConversionRateLimitExceeded message = new ConversionRateLimitExceeded(
+            pres.getPodId(),
+            pres.getMeetingId(),
+            pres.getId(),
+            pres.getName(),
+            ConversionMessageConstants.CONVERSION_RATE_LIMIT_EXCEEDED_KEY,
+            "Per-meeting presentation conversion rate limit exceeded"
     );
     messagingService.sendDocConversionMsg(message);
   }

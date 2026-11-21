@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# guest and auth must be booleans, and createTime an integer. Each variant
+# sends one malformed value to an existing meeting, so that error is the only
+# one.
+id: join.validation.types
+title: join rejects a malformed ${param}
+endpoint: join
+class: contract
+tags: [ci]
+requires: [akka]
+defs:
+  base: &base {guest: null, auth: null, createTime: null}
+variants:
+  - id: guest
+    vars: {<<: *base, param: guest, guest: "yes", message: Guest must be a boolean value (true or false)}
+  - id: auth
+    vars: {<<: *base, param: auth, auth: "yes", message: Auth must be a boolean value (true or false)}
+  - id: create-time
+    vars: {<<: *base, param: createTime, createTime: "soon", message: Value must be an integral number}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Join validation}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: join
+    params: {meetingID: "${uid}", fullName: Ann, role: viewer, guest: "${guest}", auth: "${auth}", createTime: "${createTime}"}
+    expect: {status: 302, redirect: {query: {errors: {contains: '"message":"${message}","key":"validationError"'}}}}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

@@ -1,5 +1,5 @@
 expressServer:
-  host: 127.0.0.1
+  host: 127.0.0.1 # or SERVER_HOST from the environment
   port: 8787
   maxContentLength: 1500
   maxConnectionsPerSessionToken: 3
@@ -10,7 +10,10 @@ hocuspocusServer:
 
 commandExecution:
   workDir: /tmp/shared-notes-dropbox/
-  runnerScript: /usr/share/bbb-shared-notes-server/run-in-systemd.sh
+  # Socket of bbb-shared-notes-conversion.socket, which converts HTML to PDF
+  conversionSocket: /run/bbb-shared-notes-conversion.sock
+  # Seconds. The conversion service has its own limit (RuntimeMaxSec=30): raise both,
+  # the other with `systemctl edit bbb-shared-notes-conversion@.service`
   timeout: 30
 
 bbbWeb:
@@ -31,7 +34,6 @@ redis:
       - to-akka-apps-redis-channel
     subscribe:
       - from-akka-apps-redis-channel
-      - from-etherpad-redis-channel
 
 rateLimit:
   maxRequestsPerWindow: 60

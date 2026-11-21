@@ -1,27 +1,27 @@
-import React, { memo, useState } from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import deviceInfo from '/imports/utils/deviceInfo';
 import browserInfo from '/imports/utils/browserInfo';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
-import { useMutation } from '@apollo/client';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Styled from './styles';
 import ScreenshareBridgeService from '/imports/api/screenshare/client/bridge/service';
 import {
   shareScreen,
   screenshareHasEnded,
   useIsCameraAsContentBroadcasting,
+  useIsScreenshareAllowedOnDevice,
   useShowButtonForNonPresenters,
 } from '/imports/ui/components/screenshare/service';
 import { SCREENSHARING_ERRORS } from '/imports/api/screenshare/client/bridge/errors';
 import Button from '/imports/ui/components/common/button/component';
 import { listItemBgHover } from '/imports/ui/stylesheets/styled-components/palette';
-import { EXTERNAL_VIDEO_STOP } from '../../external-video-player/mutations';
+import useEjectPresentationAreaContent from '/imports/ui/core/hooks/useEjectPresentationAreaContent';
 import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 
-const { isMobile } = deviceInfo;
-const { isSafari, isTabletApp } = browserInfo;
+const { isSafari } = browserInfo;
 
 const propTypes = {
   intl: PropTypes.objectOf(Object).isRequired,
@@ -96,7 +96,7 @@ const intlMessages = defineMessages({
   toastHelpLabel: {
     id: 'app.screenshare.screenshareToastHelpLabel',
     description: 'Label of the help button in toast notifications that opens external link',
-  }
+  },
 });
 
 const getErrorLocale = (errorCode) => {
@@ -150,8 +150,9 @@ const ScreenshareButton = ({
   isConnected,
   screenshareDataSavingSetting,
 }) => {
+  // eslint-disable-next-line max-len
   const TROUBLESHOOTING_URLS = window.meetingClientSettings.public.media.screenshareTroubleshootingLinks;
-  const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
+  const ejectPresentationAreaContent = useEjectPresentationAreaContent();
   const isCameraAsContentBroadcasting = useIsCameraAsContentBroadcasting();
 
   const {
@@ -182,10 +183,11 @@ const ScreenshareButton = ({
     } = error;
 
     const localizedError = getErrorLocale(errorCode);
-    const helpInfo =  getHelpInfoForError(errorCode);
+    const helpInfo = getHelpInfoForError(errorCode);
     const toastType = getToastType(errorCode);
 
     if (localizedError) {
+      // eslint-disable-next-line max-len
       notify(intl.formatMessage(localizedError, { errorCode }), toastType, 'desktop', { ...helpInfo });
       logger.error({
         logCode: 'screenshare_failed',
@@ -197,16 +199,13 @@ const ScreenshareButton = ({
   };
 
   const RenderScreenshareUnavailableModal = (otherProps) => (
-    <Styled.ScreenShareModal
-      hideBorder
+    <ModalSimple
       contentLabel={intl.formatMessage(intlMessages.screenShareUnavailable)}
+      title={intl.formatMessage(intlMessages.screenShareUnavailable)}
       {...otherProps}
     >
-      <Styled.Title>
-        {intl.formatMessage(intlMessages.screenShareUnavailable)}
-      </Styled.Title>
       <p>{intl.formatMessage(intlMessages.screenShareNotSupported)}</p>
-    </Styled.ScreenShareModal>
+    </ModalSimple>
   );
 
   const amIBroadcasting = isScreenBroadcasting && amIPresenter;
@@ -222,9 +221,10 @@ const ScreenshareButton = ({
   }
 
   const showButtonForNonPresenters = useShowButtonForNonPresenters();
+  const isScreenshareAllowedOnDevice = useIsScreenshareAllowedOnDevice();
 
   const shouldAllowScreensharing = enabled
-    && (!isMobile || isTabletApp)
+    && isScreenshareAllowedOnDevice
     && (amIPresenter || showButtonForNonPresenters);
 
   const dataTest = isScreenBroadcasting ? 'stopScreenShare' : 'startScreenShare';
@@ -237,6 +237,7 @@ const ScreenshareButton = ({
           ? (
             <Styled.Container>
               <Button
+                // eslint-disable-next-line max-len
                 disabled={(!isConnected && !isScreenBroadcasting) || !screenshareDataSavingSetting || !amIPresenter}
                 icon={amIBroadcasting ? 'desktop' : 'desktop_off'}
                 data-test={dataTest}
@@ -245,7 +246,7 @@ const ScreenshareButton = ({
                 color={amIBroadcasting ? 'primary' : 'default'}
                 hideLabel
                 circle
-                size="lg"
+                size={deviceInfo.isMobile ? 'md' : 'lg'}
                 loading={loading}
                 onClick={amIBroadcasting
                   ? screenshareHasEnded
@@ -253,8 +254,12 @@ const ScreenshareButton = ({
                     if (isSafari && !ScreenshareBridgeService.HAS_DISPLAY_MEDIA) {
                       openScreenshareUnavailableModal();
                     } else {
-                      // eslint-disable-next-line max-len
-                      shareScreen(isCameraAsContentBroadcasting, stopExternalVideoShare, amIPresenter, handleFailure);
+                      shareScreen(
+                        isCameraAsContentBroadcasting,
+                        () => ejectPresentationAreaContent('screenshare'),
+                        amIPresenter,
+                        handleFailure,
+                      );
                     }
                   }}
                 id={amIBroadcasting ? 'unshare-screen-button' : 'share-screen-button'}
@@ -267,8 +272,6 @@ const ScreenshareButton = ({
         <RenderScreenshareUnavailableModal
           onRequestClose={closeScreenshareUnavailableModal}
           priority="low"
-          setIsOpen={isScreenshareUnavailableModalOpen
-            ? closeScreenshareUnavailableModal : openScreenshareUnavailableModal}
           isOpen={isScreenshareUnavailableModalOpen}
         />
       )}

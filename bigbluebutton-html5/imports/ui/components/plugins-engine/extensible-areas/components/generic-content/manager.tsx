@@ -3,6 +3,7 @@ import {
   useState,
   useContext,
   useCallback,
+  useRef,
 } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { GenericContentType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/generic-content-item/enums';
@@ -15,6 +16,8 @@ import { PluginsContext } from '../../../../components-data/plugin-context/conte
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import { shouldPinAppsGalleryItem } from '/imports/ui/components/apps-gallery/service';
+import { removeGenericContentBadge } from '/imports/ui/core/local-states/useGenericContentBadges';
+import { removeGenericContentMenuName } from '/imports/ui/core/local-states/useGenericContentMenuNames';
 
 const GenericContentPluginStateContainer = ((
   props: ExtensibleAreaComponentManagerProps,
@@ -37,14 +40,6 @@ const GenericContentPluginStateContainer = ((
 
   const { pluginName } = pluginApi;
 
-  const excludeById = useCallback(
-    (arr1: PluginSdk.GenericContentInterface[], arr2: PluginSdk.GenericContentInterface[]) => {
-      const idsSet = new Set(arr2.map((item) => item.id));
-      return arr1.filter((item) => !idsSet.has(item.id));
-    },
-    [],
-  );
-
   const genericContentSidekickId = useCallback(
     (id: string) => (
       PANELS.GENERIC_CONTENT_SIDEKICK + id
@@ -59,27 +54,8 @@ const GenericContentPluginStateContainer = ((
     [],
   );
 
-  const unregisterExcludedSidekickContentsFromApps = useCallback(
-    (
-      currentGenericContentItems: PluginSdk.GenericContentInterface[],
-      newGenericContentItems: PluginSdk.GenericContentInterface[],
-    ) => {
-      const currentGenericSidekickContentItems = filterSidekick(currentGenericContentItems);
-      const newGenericSidekickContentItems = filterSidekick(newGenericContentItems);
-      if (currentGenericSidekickContentItems.length === 0) return;
-      const excluded = excludeById(
-        currentGenericSidekickContentItems,
-        newGenericSidekickContentItems,
-      );
-      excluded.forEach((gs) => {
-        layoutContextDispatch({
-          type: ACTIONS.UNREGISTER_SIDEBAR_APP,
-          id: genericContentSidekickId(gs.id),
-        });
-      });
-    },
-    [],
-  );
+  // Ids of the sidekick items this plugin currently has registered as sidebar apps.
+  const registeredSidekickItemIdsRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     if (pluginName === undefined) return;
@@ -98,6 +74,21 @@ const GenericContentPluginStateContainer = ((
         genericContentItems: aggregatedGenericContentItems,
       }));
     const genericContentSidekickArea = filterSidekick(genericContentItems) as PluginSdk.GenericContentSidekickArea[];
+
+    // Unregister only the sidekick apps that went away: unregistering one drops it from
+    // the pinned apps, and registering it again would send it to the end of that list.
+    // The badge and menu name a plugin set for an app that went away go with it.
+    const sidekickItemIds = new Set(genericContentSidekickArea.map((gci) => gci.id));
+    registeredSidekickItemIdsRef.current.forEach((itemId) => {
+      if (sidekickItemIds.has(itemId)) return;
+      layoutContextDispatch({
+        type: ACTIONS.UNREGISTER_SIDEBAR_APP,
+        id: genericContentSidekickId(itemId),
+      });
+      removeGenericContentBadge(itemId);
+      removeGenericContentMenuName(itemId);
+    });
+    registeredSidekickItemIdsRef.current = sidekickItemIds;
 
     genericContentSidekickArea.forEach((genericContentItem) => {
       layoutContextDispatch({
@@ -136,10 +127,7 @@ const GenericContentPluginStateContainer = ((
 
   pluginApi.setGenericContentItems = (items: PluginSdk.GenericContentInterface[]) => {
     const itemsWithId = items.map(generateItemWithId) as PluginSdk.GenericContentInterface[];
-    setGenericContentItems((currentGenericContentItems) => {
-      unregisterExcludedSidekickContentsFromApps(currentGenericContentItems, items);
-      return itemsWithId;
-    });
+    setGenericContentItems(itemsWithId);
     return itemsWithId.map((i) => i.id);
   };
   return null;

@@ -1,0 +1,7 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.welcome.html-event-handlers
+target bbb-web
+
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.welcomeProp
+$.core.body.props.welcomeProp.welcomeMsg "<b>bold</b><img src=\"https://img.example/x.png\">\n<br>\n<br>\nThis server is running <a href=\"https://bigbluebutton.org/\" target=\"_blank\"><u>BigBlueButton</u></a>."
+$.core.body.props.welcomeProp.welcomeMsgForModerators ""

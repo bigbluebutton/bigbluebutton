@@ -10,7 +10,7 @@ import { Input } from '/imports/ui/components/layout/layoutTypes';
 // useIsPanelOpened instead, since a parameterized hook can't be called a
 // variable number of times per render.
 const useIsSpecificPanelOpened = (panelId: string) => layoutSelectInput((i: Input) => (
-  i.sidebarContent.sidebarContentPanel === panelId
+  (i.sidebarContent.isOpen === true && i.sidebarContent.sidebarContentPanel === panelId)
   || (i.sidebarContentAuxiliary.isOpen === true && i.sidebarContentAuxiliary.sidebarContentPanel === panelId)
 ));
 

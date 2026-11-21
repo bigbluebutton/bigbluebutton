@@ -1,9 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import Styled from './styles';
+import Button from '/imports/ui/components/common/button/component';
 import Session from '/imports/ui/services/storage/in-memory';
 import { listItemBgHover } from '/imports/ui/stylesheets/styled-components/palette';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -42,7 +43,6 @@ const PresentationOptionsContainer = ({
   hasPinnedSharedNotes,
   hasGenericContent,
   hasCameraAsContent,
-  isDarkThemeEnabled,
 }) => {
   let buttonType = 'presentation';
   if (hasExternalVideo) {
@@ -62,7 +62,7 @@ const PresentationOptionsContainer = ({
     && !hasPinnedSharedNotes && !hasGenericContent
     && !hasCameraAsContent;
   return (
-    <Styled.PresentationButton
+    <Button
       icon={`${buttonType}${!presentationIsOpen ? '_off' : ''}`}
       label={intl.formatMessage(!presentationIsOpen ? intlMessages.restorePresentationLabel
         : intlMessages.minimizePresentationLabel)}
@@ -75,7 +75,7 @@ const PresentationOptionsContainer = ({
         : intlMessages.minimizePresentationDesc)}
       hideLabel
       circle
-      size="lg"
+      size={deviceInfo.isMobile ? 'md' : 'lg'}
       onClick={(e) => {
         e.currentTarget.blur();
         setPresentationIsOpen(layoutContextDispatch, !presentationIsOpen);
@@ -86,7 +86,6 @@ const PresentationOptionsContainer = ({
       id="restore-presentation"
       disabled={!isThereCurrentPresentation}
       data-test={!presentationIsOpen ? 'restorePresentation' : 'minimizePresentation'}
-      $isDarkThemeEnabled={isDarkThemeEnabled}
       hoverColor={listItemBgHover}
     />
   );

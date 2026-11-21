@@ -1,0 +1,52 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# Once a meeting has ended, checkAuthorization refuses its users' session
+# tokens, even with the join's HTTP session, and even in a meeting that
+# allowed requests without one.
+id: connection.authz.after-end
+title: checkAuthorization refuses a token of an ended meeting ${case}
+endpoint: connection
+class: contract
+tags: [ci]
+requires: [akka]
+variants:
+  - {id: with-session, vars: {case: with the join's session, allow: null, client: ann, golden: compare}}
+  # Sent without cookies: not recorded.
+  - {id: without-session, vars: {case: that allowed requests without a session, allow: "true", client: nobody, golden: "off"}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: "Hook test", allowRequestsWithoutSession: "${allow}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: join
+    client: ann
+    params: {meetingID: "${uid}", fullName: Ann, role: moderator, redirect: "false"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {annToken: /response/session_token}
+  - route: connection-authz
+    client: "${client}"
+    headers: {X-Original-URI: "/bbb-webrtc-sfu?sessionToken=${annToken}"}
+    golden: off
+    expect: {status: 200, body: authorized}
+  # end answers before bbb-web has dropped the meeting; again until it has.
+  - call: end
+    params: {meetingID: "${uid}"}
+    golden: off
+    eventually: {within: 5s, every: 100ms, until: {messageKey: notFound}}
+    expect: {messageKey: notFound}
+  - route: connection-authz
+    client: "${client}"
+    headers: {X-Original-URI: "/bbb-webrtc-sfu?sessionToken=${annToken}"}
+    golden: "${golden}"
+    expect:
+      status: 401
+      body: unauthorized
+      headers: {User-Id: {absent: true}}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

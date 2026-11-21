@@ -6,6 +6,7 @@ import org.bigbluebutton.core.apps.users.UsersApp
 import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers
 import org.bigbluebutton.core.db.UserDAO
 import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor, OutMsgRouter }
+import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait UserLeftVoiceConfEvtMsgHdlr {
@@ -38,7 +39,7 @@ trait UserLeftVoiceConfEvtMsgHdlr {
     } yield {
       if (GuestsWaiting.findWithIntId(liveMeeting.guestsWaiting, user.intId) != None) {
         GuestsWaiting.remove(liveMeeting.guestsWaiting, user.intId)
-        UsersApp.guestWaitingLeft(liveMeeting, user.intId, outGW)
+        UsersApp.guestWaitingLeft(liveMeeting, user.intId)
       }
       Users2x.remove(liveMeeting.users2x, user.intId)
       UserDAO.softDelete(user.meetingId, user.intId)
@@ -65,7 +66,8 @@ trait UserLeftVoiceConfEvtMsgHdlr {
         msg.body.voiceConf,
         user.intId,
         Some(user.copy(muted = true, talking = false)),
-        leftVoiceConf = true
+        leftVoiceConf = true,
+        hideUserList = MeetingStatus2x.getPermissions(liveMeeting.status).hideUserList
       )
       outGW.send(eventUserVoiceStatus)
 

@@ -4,6 +4,8 @@ import { USER_LEAVE_MEETING } from '/imports/ui/core/graphql/mutations/userMutat
 import { useMutation } from '@apollo/client';
 import Session from '/imports/ui/services/storage/in-memory';
 import logger from '/imports/startup/client/logger';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
+import { ModalPriority } from '/imports/ui/components/common/modal/generic/component';
 
 import Styled from './styles';
 
@@ -41,7 +43,8 @@ interface RecordingNotifyModalProps {
   toggleShouldNotify: () => void;
   closeModal: () => void;
   isOpen: boolean;
-  priority: string;
+  priority: ModalPriority;
+  notifyRecordingAppend: string;
 }
 
 const RecordingNotifyModal: React.FC<RecordingNotifyModalProps> = ({
@@ -49,8 +52,10 @@ const RecordingNotifyModal: React.FC<RecordingNotifyModalProps> = ({
   closeModal,
   isOpen,
   priority,
+  notifyRecordingAppend,
 }) => {
   const [userLeaveMeeting] = useMutation(USER_LEAVE_MEETING);
+  const hasRecordingAppend = notifyRecordingAppend.trim().length > 0;
 
   const intl = useIntl();
   const skipButtonHandle = useCallback(() => {
@@ -74,35 +79,53 @@ const RecordingNotifyModal: React.FC<RecordingNotifyModalProps> = ({
   }, []);
 
   return (
-    <Styled.RecordingNotifyModal
+    <ModalSimple
       contentLabel={intl.formatMessage(intlMessages.title)}
-      shouldShowCloseButton={false}
+      dataTest="recordingNotifyModal"
       title={intl.formatMessage(intlMessages.title)}
-      {...{
-        isOpen,
-        priority,
-        modalIsOpen: isOpen,
-      }}
+      isOpen={isOpen}
+      onRequestClose={closeModal}
+      priority={priority}
+      shouldCloseOnOverlayClick={false}
+      shouldCloseOnEsc={false}
+      hideCloseButton
+      noFooter={false}
+      footerContent={(
+        <>
+          <Styled.ScreenreaderLabel id="recordingNotifyContinueLabel">
+            {intl.formatMessage(intlMessages.continueAriaLabel)}
+          </Styled.ScreenreaderLabel>
+          <Styled.ScreenreaderLabel id="recordingNotifyLeaveLabel">
+            {intl.formatMessage(intlMessages.leaveAriaLabel)}
+          </Styled.ScreenreaderLabel>
+          <Styled.Footer>
+            <Styled.FooterButton
+              variant="secondary"
+              dataTest="recordingNotifyLeave"
+              label={intl.formatMessage(intlMessages.leave)}
+              onClick={skipButtonHandle}
+              ariaLabelledBy="recordingNotifyLeaveLabel"
+            />
+            <Styled.FooterButton
+              variant="primary"
+              dataTest="recordingNotifyContinue"
+              label={intl.formatMessage(intlMessages.continue)}
+              onClick={handleContinueInRecordedSession}
+              ariaLabelledBy="recordingNotifyContinueLabel"
+            />
+          </Styled.Footer>
+        </>
+      )}
     >
-      <Styled.Container>
-        <Styled.Description>
-          {intl.formatMessage(intlMessages.description)}
-        </Styled.Description>
-        <Styled.Footer>
-          <Styled.NotifyButton
-            color="primary"
-            label={intl.formatMessage(intlMessages.continue)}
-            onClick={handleContinueInRecordedSession}
-            aria-label={intl.formatMessage(intlMessages.continueAriaLabel)}
-          />
-          <Styled.NotifyButton
-            label={intl.formatMessage(intlMessages.leave)}
-            onClick={skipButtonHandle}
-            aria-label={intl.formatMessage(intlMessages.leaveAriaLabel)}
-          />
-        </Styled.Footer>
-      </Styled.Container>
-    </Styled.RecordingNotifyModal>
+      <Styled.Description data-test="recordingNotifyDescription">
+        {intl.formatMessage(intlMessages.description)}
+        {hasRecordingAppend ? (
+          <Styled.AppendDescription data-test="recordingNotifyAppend">
+            {notifyRecordingAppend}
+          </Styled.AppendDescription>
+        ) : null}
+      </Styled.Description>
+    </ModalSimple>
   );
 };
 

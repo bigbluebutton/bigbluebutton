@@ -52,6 +52,10 @@ export function useIsBreakoutRoomsEnabled() {
   return useDisabledFeatures().indexOf('breakoutRooms') === -1;
 }
 
+export function useIsLockSettingsEnabled() {
+  return useDisabledFeatures().indexOf('lockSettings') === -1;
+}
+
 export function useIsVirtualBackgroundsEnabled() {
   return useDisabledFeatures().indexOf('virtualBackgrounds') === -1 && window.meetingClientSettings.public.virtualBackgrounds.enabled;
 }
@@ -105,6 +109,13 @@ export function useIsInfiniteWhiteboardEnabled() {
   return (
     useDisabledFeatures().indexOf('infiniteWhiteboard') === -1
     && window.meetingClientSettings.public.whiteboard.allowInfiniteWhiteboard
+  );
+}
+
+export function useIsInfiniteWhiteboardInBreakoutsEnabled() {
+  return (
+    useDisabledFeatures().indexOf('infiniteWhiteboard') === -1
+    && window.meetingClientSettings.public.whiteboard.allowInfiniteWhiteboardInBreakouts
   );
 }
 
@@ -164,4 +175,14 @@ export function useIsEmojiPickerEnabled() {
   const EMOJI_PICKER_ENABLED = window.meetingClientSettings.public.chat.emojiPicker.enable;
   return useDisabledFeatures().indexOf('chatEmojiPicker') === -1
     && EMOJI_PICKER_ENABLED;
+}
+
+export function useIsWebcamGridEnabled() {
+  const GRID_ENABLED = window.meetingClientSettings.public.kurento.pagination.gridEnabled ?? true;
+  return useDisabledFeatures().indexOf('webcamGrid') === -1 && GRID_ENABLED;
+}
+
+export function useIsLayoutViewEnabled() {
+  const LAYOUT_VIEW_ENABLED = window.meetingClientSettings.public.layout.layoutViewEnabled ?? true;
+  return useDisabledFeatures().indexOf('layoutView') === -1 && LAYOUT_VIEW_ENABLED;
 }

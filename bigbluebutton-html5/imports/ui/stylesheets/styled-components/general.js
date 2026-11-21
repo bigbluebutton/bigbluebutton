@@ -44,6 +44,9 @@ const minModalHeight = '20rem';
 const descriptionMargin = '3.5rem';
 const navbarHeight = '3.9375rem';
 const barsPadding = '0.8rem'; // so user-list and chat title is aligned with the presentation title
+const mobileNavbarButtonSize = '1.75rem';
+const mobileNavbarButtonGap = '0.5rem';
+const mobileNavigationSidebarToggleButtonSize = '2rem';
 const navigationSidebarLogoPadding = '15%';
 const navigationSidebarListItemsContainerGap = 'calc(18rem / 14)';
 const navigationSidebarListItemsContainerGapSmallHeight = 'calc(9rem / 14)';
@@ -53,9 +56,10 @@ const navigationSidebarListItemsWidth = '65%';
 const navigationSidebarIconSize = 'calc(18rem / 14)';
 const navigationSidebarIconSizeSmallHeight = '1rem';
 const navigationSidebarNotificationBadgeSize = '14px';
-const navigationSidebarNotificationBadgeFontSize = '7px';
-const navigationSidebarNotificationBadgeBottom = '-3px';
-const navigationSidebarNotificationBadgeRight = '-1px';
+const navigationSidebarNotificationBadgeFontSize = '9px';
+const navigationSidebarNotificationBadgePaddingX = '3px';
+const navigationSidebarNotificationBadgeBottom = '-2px';
+const navigationSidebarNotificationBadgeRight = '-2px';
 const navigationSidebarBorderRadius = '48px';
 const navigationSidebarPaddingY = '20px';
 const navigationSidebarMargin = `${SIDEBAR_NAVIGATION_MARGIN_PERCENTAGE_WIDTH * 100}vw`;
@@ -64,6 +68,9 @@ const toastContentWidth = '98%';
 const modalMargin = '3rem';
 const settingsModalHeight = '50rem';
 const settingsModalWidth = '70rem';
+// Design System floor for the buttons of confirmation dialogs: 119px at the
+// 14px desktop root, 136px at the 16px mobile root.
+const confirmationButtonMinWidth = '8.5rem';
 const titlePositionLeft = '2.2rem';
 const userIndicatorsOffset = '-5px';
 const indicatorPadding = '.45rem'; // used to center presenter indicator icon in Chrome / Firefox / Edge
@@ -105,7 +112,7 @@ const pollStatsElementWidth = '17%';
 const pollSmMargin = '0.3125rem';
 const pollMdMargin = '0.7rem';
 const pollResultWidth = '15rem';
-const pollInputHeight = '2.5rem';
+const pollInputHeight = '3.5rem';
 const pollWidth = '18rem';
 const overlayIndex = '999';
 const overlayOpacity = '0.349';
@@ -160,6 +167,9 @@ export {
   descriptionMargin,
   navbarHeight,
   barsPadding,
+  mobileNavbarButtonSize,
+  mobileNavbarButtonGap,
+  mobileNavigationSidebarToggleButtonSize,
   navigationSidebarLogoPadding,
   navigationSidebarListItemsContainerGap,
   navigationSidebarListItemsContainerGapSmallHeight,
@@ -170,6 +180,7 @@ export {
   navigationSidebarIconSizeSmallHeight,
   navigationSidebarNotificationBadgeSize,
   navigationSidebarNotificationBadgeFontSize,
+  navigationSidebarNotificationBadgePaddingX,
   navigationSidebarNotificationBadgeBottom,
   navigationSidebarNotificationBadgeRight,
   navigationSidebarBorderRadius,
@@ -261,6 +272,7 @@ export {
   appsModalPaddingBottom,
   settingsModalHeight,
   settingsModalWidth,
+  confirmationButtonMinWidth,
   borderRadiusRounded,
   avatarBorderRadius,
   moderatorAvatarBorderRadius,

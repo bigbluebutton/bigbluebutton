@@ -1,5 +1,5 @@
-import React, { memo, useEffect, useState } from 'react';
-import { FetchResult } from '@apollo/client';
+import React, { memo, useState } from 'react';
+import cx from 'classnames';
 import { IntlShape, defineMessages, injectIntl } from 'react-intl';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { debounce } from '/imports/utils/debounce';
@@ -8,7 +8,6 @@ import Button from '/imports/ui/components/common/button/component';
 import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
 import PreviewService from '/imports/ui/components/video-preview/service';
 import { CameraSettingsDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/camera-settings-dropdown-item/enums';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { CameraSettingsDropdownInterface } from 'bigbluebutton-html-plugin-sdk';
 import { listItemBgHover } from '/imports/ui/stylesheets/styled-components/palette';
 import VideoService from '../service';
@@ -59,14 +58,8 @@ const JOIN_VIDEO_DELAY_MILLISECONDS = 500;
 interface JoinVideoButtonProps {
   cameraSettingsDropdownItems: CameraSettingsDropdownInterface[];
   hasVideoStream: boolean;
-  updateSettings: (
-    obj: object,
-    msgDescriptor: object | null,
-    mutation: (settings: Record<string, unknown>) => void,
-  ) => void;
   disableReason: string | undefined;
   status: string;
-  setLocalSettings: (settings: Record<string, unknown>) => Promise<FetchResult<object>>;
   exitVideo: () => void;
   stopVideo: (cameraId?: string | undefined) => void;
   intl: IntlShape;
@@ -78,9 +71,7 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
   hasVideoStream,
   status,
   disableReason,
-  updateSettings,
   cameraSettingsDropdownItems,
-  setLocalSettings,
   exitVideo: exit,
   stopVideo,
   videoConnecting,
@@ -98,7 +89,6 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
 
   const [propsToPassModal, setPropsToPassModal] = useState<{ isVisualEffects?: boolean }>({});
   const [forceOpen, setForceOpen] = useState(false);
-  const [wasSelfViewDisabled, setWasSelfViewDisabled] = useState(false);
 
   const {
     isOpen: isVideoPreviewModalOpen,
@@ -113,20 +103,6 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
     if (isOpen) openVideoPreviewModal();
     else closeVideoPreviewModal();
   };
-
-  useEffect(() => {
-    const Settings = getSettingsSingletonInstance();
-    const isSelfViewDisabled = Settings.application.selfViewDisable;
-
-    if (isVideoPreviewModalOpen && isSelfViewDisabled) {
-      setWasSelfViewDisabled(true);
-      const obj = {
-        application:
-          { ...Settings.application, selfViewDisable: false },
-      };
-      updateSettings(obj, null, setLocalSettings);
-    }
-  }, [isVideoPreviewModalOpen]);
 
   const handleOnClick = debounce(() => {
     switch (status) {
@@ -235,13 +211,14 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
     <>
       <Styled.OffsetBottom>
         <Button
+          className={cx('bbb-video-toggle', { 'bbb-video-toggle--off': !hasVideoStream })}
           label={label}
           data-test={hasVideoStream ? 'leaveVideo' : 'joinVideo'}
           onClick={handleOnClick}
           hideLabel
           color={hasVideoStream ? 'primary' : 'default'}
           icon={hasVideoStream ? 'video' : 'video_off'}
-          size="lg"
+          size={deviceInfo.isMobile ? 'md' : 'lg'}
           circle
           disabled={!!disableReason}
           loading={videoConnecting}
@@ -253,19 +230,6 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
         <VideoPreviewContainer
           {...{
             callbackToClose: () => {
-              if (wasSelfViewDisabled) {
-                setTimeout(() => {
-                  const obj = {
-                    application: {
-                      // @ts-expect-error -> Untyped object.
-                      ...Settings.application,
-                      selfViewDisable: true,
-                    },
-                  };
-                  updateSettings(obj, null, setLocalSettings);
-                  setWasSelfViewDisabled(false);
-                }, 100);
-              }
               setPropsToPassModal({});
               setForceOpen(false);
             },

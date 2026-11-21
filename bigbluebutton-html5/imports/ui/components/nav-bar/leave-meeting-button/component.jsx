@@ -109,6 +109,7 @@ class LeaveMeetingButton extends PureComponent {
         {
           key: 'list-item-end-meeting',
           dataTest: 'endMeetingButton',
+          className: 'bbb-menu__item--end-meeting',
           icon: 'close',
           label: intl.formatMessage(intlMessages.endMeetingLabel),
           description: intl.formatMessage(intlMessages.endMeetingDesc),
@@ -143,7 +144,7 @@ class LeaveMeetingButton extends PureComponent {
     const isDisabled = actions.length === 0 && !connected;
 
     return (
-      <Styled.LeaveButtonWrapper>
+      <Styled.LeaveButtonWrapper className="bbb-leave-button">
         <BBBMenu
           customStyles={!ismobile ? customStyles : null}
           trigger={(
@@ -168,6 +169,7 @@ class LeaveMeetingButton extends PureComponent {
           )}
           actions={actions}
           disabled={isDisabled}
+          overrideMobileStyles
           opts={{
             id: 'app-leave-meeting-menu',
             keepMounted: true,

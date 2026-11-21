@@ -1,0 +1,5 @@
+<modules>
+  <module name="presentation">
+    <document name="${filename}">${base64File("presentations/b.txt")}</document>
+  </module>
+</modules>

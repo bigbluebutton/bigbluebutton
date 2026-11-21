@@ -28,6 +28,7 @@ import { ObjectToCustomQueryHookContainerMap, QueryHookWithArgumentContainerToRe
 import CustomQueryHookContainer from './domain/shared/custom-query/hook-manager';
 import CustomDataConsumptionHooksErrorBoundary from './error-boundary/handler';
 import UsersBasicInfoHookContainer from './domain/users/users-basic-info/hook-manager';
+import TimerHookContainer from './domain/timer/hook-manager';
 import { EssentialHookInformation } from './domain/shared/types';
 import MeetingDataHookContainer from './domain/meeting/meeting-data/hook-manager';
 
@@ -42,6 +43,7 @@ const hooksMap:{
   [DataConsumptionHooks.MEETING]: MeetingHookContainer,
   [DataConsumptionHooks.MEETING_DATA]: MeetingDataHookContainer,
   [DataConsumptionHooks.USERS_BASIC_INFO]: UsersBasicInfoHookContainer,
+  [DataConsumptionHooks.TIMER]: TimerHookContainer,
 };
 
 const SubscriptionHooksMapWithArguments: {

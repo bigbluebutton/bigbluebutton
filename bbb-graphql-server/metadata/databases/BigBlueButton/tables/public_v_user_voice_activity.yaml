@@ -29,6 +29,25 @@ select_permissions:
         - userId
         - voiceActivityAt
       filter:
-        meetingId:
-          _eq: X-Hasura-MeetingId
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - _or:
+              - user:
+                  isModerator:
+                    _eq: true
+              - userId:
+                  _eq: X-Hasura-UserId
+              - meetingId:
+                  _eq: X-Hasura-NotLockedInMeeting
+              - _exists:
+                  _table:
+                    name: v_meeting_lockSettings
+                    schema: public
+                  _where:
+                    _and:
+                      - meetingId:
+                          _eq: X-Hasura-MeetingId
+                      - hideUserList:
+                          _eq: false
     comment: ""

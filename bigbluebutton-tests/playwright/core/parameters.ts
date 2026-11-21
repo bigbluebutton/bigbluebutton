@@ -22,6 +22,7 @@ export interface ParametersData {
   moderatorPW: string;
   attendeePW: string;
   hostname: string | undefined;
+  pluginStubManifestUrl: string | undefined;
 }
 
 export const parameters: ParametersData = {
@@ -32,4 +33,5 @@ export const parameters: ParametersData = {
   moderatorPW: 'mp',
   attendeePW: 'ap',
   hostname: parseHostname(bbbUrl),
+  pluginStubManifestUrl: process.env.PLUGIN_STUB_MANIFEST_URL,
 };

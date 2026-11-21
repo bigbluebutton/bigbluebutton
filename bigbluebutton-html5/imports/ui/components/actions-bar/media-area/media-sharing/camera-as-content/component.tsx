@@ -11,16 +11,18 @@ import VideoService from '/imports/ui/components/video-provider/service';
 import PreviewService from '/imports/ui/components/video-preview/service';
 import ProfileStyled from '/imports/ui/components/profile-settings/styles';
 import ModalStyled from '../styles';
+import Icon from '/imports/ui/components/common/icon/component';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import * as ScreenShareService from '/imports/ui/components/screenshare/service';
 import { useStopVideo, useStreams } from '/imports/ui/components/video-provider/hooks';
 import { useVideoPreview } from '/imports/ui/components/video-preview/hooks/useVideoPreview';
 import BBBVideoStream from '/imports/ui/services/webrtc-base/bbb-video-stream';
+import useEjectPresentationAreaContent from '/imports/ui/core/hooks/useEjectPresentationAreaContent';
 
 interface CameraAsContentViewProps {
   intl: IntlShape;
   onActionCompleted: () => void;
   hasCameraAsContent: boolean;
-  stopExternalVideoShare: () => void;
 }
 
 const intlMessages: { [key: string]: { id: string; description?: string } } = defineMessages({
@@ -50,9 +52,9 @@ const CameraAsContentView: React.FC<CameraAsContentViewProps> = ({
   intl,
   hasCameraAsContent,
   onActionCompleted,
-  stopExternalVideoShare,
 }) => {
   const { formatMessage } = intl;
+  const ejectPresentationAreaContent = useEjectPresentationAreaContent();
   // @ts-ignore
   const settingsStorage = window.meetingClientSettings.public.app.userSettingsStorage;
   const initialWebcamDeviceId = useStorageKey('WebcamDeviceId', settingsStorage) as string || null;
@@ -171,7 +173,7 @@ const CameraAsContentView: React.FC<CameraAsContentViewProps> = ({
 
     ScreenShareService.shareScreen(
       hasCameraAsContent,
-      stopExternalVideoShare,
+      () => ejectPresentationAreaContent('screenshare'),
       // eslint-disable-next-line no-underscore-dangle
       true,
       handleFailure,
@@ -244,12 +246,13 @@ const CameraAsContentView: React.FC<CameraAsContentViewProps> = ({
             : <span>{formatMessage(intlMessages.webcamNotFoundLabel)}</span>}
         </ProfileStyled.DeviceContainer>
       </Styled.Content>
-      <ModalStyled.FooterContainer>
-        <ModalStyled.ConfirmationButton
-          data-test={!hasCameraAsContent ? 'StartCameraAsContent' : 'StopCameraAsContent'}
+      <ModalStyled.FooterContainer className="bbb-media-sharing__footer">
+        <BBButton
+          dataTest={!hasCameraAsContent ? 'StartCameraAsContent' : 'StopCameraAsContent'}
           label={!hasCameraAsContent
             ? formatMessage(intlMessages.shareLabel) : formatMessage(intlMessages.stopSharingLabel)}
-          color={!hasCameraAsContent ? 'primary' : 'danger'}
+          variant="primary"
+          color={!hasCameraAsContent ? 'default' : 'danger'}
           onClick={async () => {
             if (hasCameraAsContent) {
               ScreenShareService.screenshareHasEnded();
@@ -277,7 +280,8 @@ const CameraAsContentView: React.FC<CameraAsContentViewProps> = ({
             }
           }}
           disabled={isCameraLoading || !availableWebcams || availableWebcams.length === 0 || isTransitioning}
-          icon={hasCameraAsContent ? 'video_off' : undefined}
+          iconStart={hasCameraAsContent ? <Icon iconName="video_off" /> : undefined}
+          fullWidth
         />
       </ModalStyled.FooterContainer>
     </>

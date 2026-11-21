@@ -7,13 +7,14 @@ import {
   smPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  colorBorder,
-  userThumbnailBorder,
-  btnPrimaryBorder,
   btnDefaultColor,
+  btnPrimaryBorder,
+  colorBorder,
   colorGrayLabel,
   colorPrimary,
-  colorWhite,
+  colorWhiteBorder,
+  colorWhiteSurface,
+  userThumbnailBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeSmallest } from '/imports/ui/stylesheets/styled-components/typography';
 import Button from '/imports/ui/components/common/button/component';
@@ -25,9 +26,13 @@ const minThumbnailSize = '80px';
 // (narrower) profile settings sidebar panel. The thumbnails take up the leftover
 // width themselves, which keeps a single spacing value between them and around
 // them -- padding and gap must stay equal for the spacing to read as uniform.
+// `$columns` pins the count where the container is too tight for auto-fill to
+// be stable (the list's scrollbar alone is enough to drop a column).
 const BgWrapper = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(${minThumbnailSize}, 1fr));
+  grid-template-columns: ${({ $columns }) => ($columns
+    ? `repeat(${$columns}, 1fr)`
+    : `repeat(auto-fill, minmax(${minThumbnailSize}, 1fr))`)};
   gap: ${lgPadding};
   padding: ${lgPadding};
 `;
@@ -86,8 +91,8 @@ const ThumbnailButton = styled(Button)`
 `;
 
 const Select = styled.select`
-  background-color: ${colorWhite};
-  border: ${borderSize} solid ${colorWhite};
+  background-color: ${colorWhiteSurface};
+  border: ${borderSize} solid ${colorWhiteBorder};
   border-radius: ${borderSize};
   border-bottom: 0.1rem solid ${colorBorder};
   color: ${colorGrayLabel};

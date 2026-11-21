@@ -38,9 +38,11 @@ const getStorageMuteStateKey = () => {
   const meetingStaticStore = meetingStaticData.getMeetingData();
   const isBreakout = meetingStaticStore?.isBreakout;
   const parentMeetingId = meetingStaticStore?.breakoutPolicies?.parentMeetingId;
+  // Auth.meetingID is only set once in the meeting, so pre-join writers would
+  // otherwise key this off null.
   const meetingId = isBreakout && parentMeetingId
     ? parentMeetingId
-    : Auth.meetingID;
+    : Auth.meetingID ?? meetingStaticStore?.meetingId;
 
   return `${MUTED_KEY}_${meetingId}`;
 };
@@ -155,9 +157,9 @@ const hasMicrophonePermission = async ({
   try {
     let status = permissionStatus;
 
-    // If the browser doesn't support the Permissions API, we can't check
-    // microphone permissions - return null (unknown)
-    if (navigator?.permissions?.query == null) return null;
+    // Without the Permissions API there is no state to read: ask gUM, as when
+    // the query itself fails below
+    if (navigator?.permissions?.query == null) return checkWithGUM();
 
     if (!status) {
       ({ state: status } = await navigator.permissions.query({ name: 'microphone' }));
@@ -224,6 +226,7 @@ export default {
     return AudioManager.isAudioConnected();
   },
   isUsingAudio: () => AudioManager.isUsingAudio(),
+  isUsingLiveKit: () => AudioManager.isBridgeLiveKit(),
   isConnecting: () => AudioManager.isConnecting,
   isReconnecting: () => AudioManager.isReconnecting,
   isListenOnly: () => AudioManager.isListenOnly,

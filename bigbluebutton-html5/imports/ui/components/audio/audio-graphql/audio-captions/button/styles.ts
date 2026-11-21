@@ -2,11 +2,11 @@ import styled from 'styled-components';
 import Button from '/imports/ui/components/common/button/component';
 import Toggle from '/imports/ui/components/common/switch/component';
 import {
-  colorWhite,
-  colorPrimary,
-  colorOffWhite,
   colorDangerDark,
+  colorOffWhite,
+  colorPrimary,
   colorSuccess,
+  colorWhiteBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 // @ts-ignore - as button comes from JS, we can't provide its props
@@ -15,7 +15,7 @@ const ClosedCaptionToggleButton = styled(Button)`
     span {
       box-shadow: none;
       background-color: transparent !important;
-      border-color: ${colorWhite} !important;
+      border-color: ${colorWhiteBorder} !important;
     }
   `}
 `;

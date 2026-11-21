@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# record=1 passes validation, which accepts 1 and 0 as booleans, but create
+# then reads it as false, so the meeting isn't recorded. Whether 1 should
+# mean true is still to be decided (the triage tag).
+id: create.validation.record-one
+title: create with record=1
+endpoint: create
+class: compat
+tags: [triage]
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Record, record: "1"}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: getMeetingInfo
+    params: {meetingID: "${uid}"}
+    golden: document
+    expect: {returncode: SUCCESS}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

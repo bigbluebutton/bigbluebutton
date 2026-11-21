@@ -1,0 +1,7 @@
+# want: 7: steps[0].wait: 'soon' does not match pattern
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+steps:
+  - wait: soon

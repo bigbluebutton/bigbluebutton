@@ -54,6 +54,65 @@ import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStat
 const RECONNECT_SYNC_DELAY_MS = 750;
 const VISIBILITY_REFETCH_DELAY_MS = 500;
 
+const throttleWithTrailing = (func, interval) => {
+  let pendingArgs = null;
+  let trailingTimer = null;
+  let lastInvokeTime = 0;
+
+  const throttled = throttle(
+    { interval },
+    (...args) => {
+      lastInvokeTime = performance.now();
+      func(...args);
+    },
+  );
+
+  const scheduleTrailing = () => {
+    if (trailingTimer) return;
+
+    const elapsed = performance.now() - lastInvokeTime;
+    const delay = Math.max(interval - elapsed, 1);
+
+    trailingTimer = setTimeout(() => {
+      trailingTimer = null;
+      if (!pendingArgs) return;
+
+      // Radash's internal timer may not have fired yet.
+      if (throttled.isThrottled()) {
+        scheduleTrailing();
+        return;
+      }
+      const args = pendingArgs;
+      pendingArgs = null;
+      throttled(...args);
+    }, delay);
+  };
+
+  const throttledWithTrailing = (...args) => {
+    if (!throttled.isThrottled()) {
+      pendingArgs = null;
+      if (trailingTimer) {
+        clearTimeout(trailingTimer);
+        trailingTimer = null;
+      }
+      throttled(...args);
+      return;
+    }
+    // Always keep only the latest cursor position.
+    pendingArgs = args;
+    scheduleTrailing();
+  };
+
+  throttledWithTrailing.cancel = () => {
+    pendingArgs = null;
+    if (trailingTimer) {
+      clearTimeout(trailingTimer);
+      trailingTimer = null;
+    }
+  };
+  return throttledWithTrailing;
+};
+
 const WhiteboardContainer = (props) => {
   const {
     zoomChanger,
@@ -243,20 +302,29 @@ const WhiteboardContainer = (props) => {
     });
   }, [hasWBAccess, isPresenter]);
 
-  const throttledPublishCursorUpdate = useMemo(() => {
-    return throttle(
-    { interval: WHITEBOARD_CONFIG.cursorInterval },
-    publishCursorUpdate,
+  const throttledPublishCursorUpdate = useMemo(() =>
+    throttleWithTrailing(
+      publishCursorUpdate,
+      WHITEBOARD_CONFIG.cursorInterval,
+    ),
+    [publishCursorUpdate, WHITEBOARD_CONFIG.cursorInterval, curPageId],
   );
-  }, [publishCursorUpdate]);
+
+  useEffect(() => () => {
+    throttledPublishCursorUpdate.cancel();
+  }, [throttledPublishCursorUpdate]);
 
   const isMultiUserActive = whiteboardWriters.filter((u) => !u.presenter)?.length > 0;
   const cursorArray = useMergedCursorData();
 
   const connectedStatus = useReactiveVar(connectionStatus.getConnectedStatusVar());
 
+  // Read when the sync runs: isMultiUserActive and hasWBAccess arrive in separate renders.
+  const canResyncRef = useRef(false);
+  canResyncRef.current = isMultiUserActive && hasWBAccess;
+
   useEffect(() => {
-    setTimeout(async () => {
+    const syncTimer = setTimeout(async () => {
       if (!currentPresentationPageRef.current?.pageId || !editor || !connectedStatus) return;
       try {
         const result = await refetchInitialPageAnnotations();
@@ -275,7 +343,7 @@ const WhiteboardContainer = (props) => {
           if (shape.id.startsWith('shape:BG-')) return;
           const serverAnn = serverMap.get(shape.id);
           if (!serverAnn) {
-            if (isMultiUserActive && hasWBAccess) {
+            if (canResyncRef.current) {
               shapesToResync.push(shape);
             } else {
               shapesToRemove.push(shape.id);
@@ -319,6 +387,7 @@ const WhiteboardContainer = (props) => {
         );
       }
     }, RECONNECT_SYNC_DELAY_MS);
+    return () => clearTimeout(syncTimer);
   }, [
     connectedStatus,
     isMultiUserActive,

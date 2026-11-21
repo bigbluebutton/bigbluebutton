@@ -34,6 +34,7 @@ import {
   useIsChatMessageReactionsEnabled,
   useIsEditChatMessageEnabled,
   useIsDeleteChatMessageEnabled,
+  useIsPinChatMessageEnabled,
 } from '/imports/ui/services/features';
 import { CHAT_DELETE_REACTION_MUTATION, CHAT_SEND_REACTION_MUTATION } from './page/chat-message/mutations';
 import logger from '/imports/startup/client/logger';
@@ -247,11 +248,16 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   const CHAT_REACTIONS_ENABLED = useIsChatMessageReactionsEnabled();
   const CHAT_EDIT_ENABLED = useIsEditChatMessageEnabled();
   const CHAT_DELETE_ENABLED = useIsDeleteChatMessageEnabled();
+  const CHAT_PIN_ENABLED = useIsPinChatMessageEnabled()
+    && window.meetingClientSettings.public.chat.toolbar.includes('pin')
+    && currentUser?.isModerator
+    && chatId === window.meetingClientSettings.public.chat.public_group_id;
   const messageToolbarIsEnabled = [
     CHAT_REPLY_ENABLED,
     CHAT_REACTIONS_ENABLED,
     CHAT_EDIT_ENABLED,
     CHAT_DELETE_ENABLED,
+    CHAT_PIN_ENABLED,
   ].some((config) => config);
 
   const [chatSendReaction] = useMutation(CHAT_SEND_REACTION_MUTATION);
@@ -537,11 +543,6 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     }
   };
 
-  const hasMessageToolbar = CHAT_DELETE_ENABLED
-    || CHAT_EDIT_ENABLED
-    || CHAT_REPLY_ENABLED
-    || CHAT_REACTIONS_ENABLED;
-
   const updateRefs = useCallback((el: HTMLDivElement | null) => {
     messageListContainerRef.current = el;
     startSentinelParentRefProxy.current = el;
@@ -577,6 +578,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
             <MessageListWrapper>
               <MessageList
                 id="chat-list"
+                className="bbb-chat__list"
                 key="message-list-wrapper"
                 onMouseUp={() => {
                   setScrollToTailEventHandler();
@@ -617,7 +619,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                 data-test="chatMessages"
                 isRTL={isRTL}
                 ref={updateRefs}
-                $hasMessageToolbar={hasMessageToolbar}
+                $hasMessageToolbar={messageToolbarIsEnabled}
               >
                 {showStartSentinel && (
                 <div
@@ -634,7 +636,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                   role="list"
                   aria-live="polite"
                   ref={messageListRef}
-                  tabIndex={hasMessageToolbar ? 0 : -1}
+                  tabIndex={messageToolbarIsEnabled ? 0 : -1}
                   onKeyDown={rove}
                 >
                   {Array.from({ length: pagesToLoad }, (_v, k) => k + (firstPageToLoad)).map((page) => {
@@ -728,4 +730,5 @@ const ChatMessageListContainer: React.FC = () => {
   );
 };
 
-export default ChatMessageListContainer;
+// Takes no props: the memo keeps re-renders of the chat panel from reaching it.
+export default React.memo(ChatMessageListContainer);

@@ -1,0 +1,6 @@
+# want: 5: class: value must be one of 'contract', 'compat', 'defect'
+id: create.x.y
+title: t
+endpoint: create
+class: normative
+steps: [{call: create}]

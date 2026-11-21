@@ -1,0 +1,15 @@
+# want: 9: steps[0]: a HEAD response has no body, so it can't be checked with returncode, xpath
+# want: 9: steps[0]: a HEAD response has no body to capture "v"
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+steps:
+  - call: create
+    method: HEAD
+    expect:
+      status: 200
+      returncode: SUCCESS
+      xpath: {/response/version: exists}
+      headers: {Cache-Control: no-cache}
+    capture: {v: /response/version, ct: "header:Content-Type"}

@@ -1,19 +1,62 @@
 import { expect } from '@playwright/test';
 
-import { CI, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME, UPLOAD_PDF_WAIT_TIME } from '../core/constants';
+import {
+  CI,
+  ELEMENT_WAIT_EXTRA_LONG_TIME,
+  ELEMENT_WAIT_LONGER_TIME,
+  ELEMENT_WAIT_TIME,
+  UPLOAD_PDF_WAIT_TIME,
+} from '../core/constants';
 import { elements as e } from '../core/elements';
+import { prepareForScreenshot, screenshotMask } from '../core/screenshots';
 import { checkNotificationText } from '../notifications/util';
+import { type GraphqlSockets } from '../reconnection/util';
 import { MultiUsers } from '../user/multiusers';
 import {
+  buildExecutableNamedPdf,
+  buildPdfWithPages,
+  buildTruncatedPdf,
   checkSvgIndex,
+  expectExternalVideoPlaying,
   expectSlidesEqualBetweenPages,
+  EXTERNAL_VIDEO_URL,
+  fixtureFile,
+  GeneratedFile,
   getCurrentPresentationHeight,
+  getCurrentSlideAspectRatio,
+  getCurrentSlideDarkPixelRatio,
+  getCurrentSlideSvg,
+  getExternalVideoTime,
   getSlideOuterHtml,
+  HeldUploadTokenRequest,
+  holdUploadRequests,
+  isExternalVideoPaused,
+  listPresentations,
+  loseUploadAnswers,
+  LostUploadAnswer,
+  refuseUploadRequests,
+  routeExternalVideo,
+  sendStalledUpload,
+  sendUploadWithoutItsMeeting,
+  startUpload,
+  stopInterceptingUploadRequests,
   uploadMultiplePresentations,
+  uploadRefusedPresentation,
   uploadSinglePresentation,
+  uploadToastOf,
 } from './util';
 
 const defaultZoomLevel = '100%';
+
+// bbb-web gives a client presentationUploadStartTimeout (300 s by default) to start sending a
+// file and looks for the uploads that did not every 15 s.
+const UPLOAD_START_TIMEOUT = 360000;
+// bbb-web stops waiting for the rest of a request body after about a minute.
+const UPLOAD_STALL_TIMEOUT = 120000;
+// bbb-apps-akka gives a user whose connection closed 10 s to come back, and every 10 s removes
+// the users who did not.
+const USER_RECONNECT_GRACE = 10000;
+const USER_REMOVAL_TIME = 2 * USER_RECONNECT_GRACE + ELEMENT_WAIT_LONGER_TIME;
 
 export class Presentation extends MultiUsers {
   async skipSlide() {
@@ -27,13 +70,17 @@ export class Presentation extends MultiUsers {
 
     await this.modPage.waitAndClick(e.nextSlide);
     await this.modPage.hasElement(e.whiteboard, 'should display the next slide on the whiteboard');
-    await this.modPage.page.waitForTimeout(1000);
+    await expect
+      .poll(() => getSlideOuterHtml(this.modPage), { message: 'should change to slide 2' })
+      .toContain('/svg/2');
 
     await checkSvgIndex(this.modPage, '/svg/2');
 
     await this.modPage.waitAndClick(e.prevSlide);
     await this.modPage.hasElement(e.whiteboard, 'should display the previous slide on the whiteboard');
-    await this.modPage.page.waitForTimeout(1000);
+    await expect
+      .poll(() => getSlideOuterHtml(this.modPage), { message: 'should change to slide 1' })
+      .toContain('/svg/1');
 
     await checkSvgIndex(this.modPage, '/svg/1');
   }
@@ -53,46 +100,46 @@ export class Presentation extends MultiUsers {
     await blurActive();
     await this.modPage.press('ArrowRight');
     await this.modPage.page.waitForFunction(
-       ([whiteboardSelector, expectedSvg]) => {
-         const whiteboard = document.querySelector(whiteboardSelector);
-         return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
-       },
-       [e.whiteboard, '/svg/2'],
-       { timeout: ELEMENT_WAIT_LONGER_TIME },
-     );
+      ([whiteboardSelector, expectedSvg]) => {
+        const whiteboard = document.querySelector(whiteboardSelector);
+        return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
+      },
+      [e.whiteboard, '/svg/2'],
+      { timeout: ELEMENT_WAIT_LONGER_TIME },
+    );
 
     await blurActive();
     await this.modPage.press('ArrowLeft');
     await this.modPage.page.waitForFunction(
-       ([whiteboardSelector, expectedSvg]) => {
-         const whiteboard = document.querySelector(whiteboardSelector);
-         return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
-       },
-       [e.whiteboard, '/svg/1'],
-       { timeout: ELEMENT_WAIT_LONGER_TIME },
-     );
+      ([whiteboardSelector, expectedSvg]) => {
+        const whiteboard = document.querySelector(whiteboardSelector);
+        return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
+      },
+      [e.whiteboard, '/svg/1'],
+      { timeout: ELEMENT_WAIT_LONGER_TIME },
+    );
 
     await blurActive();
     await this.modPage.press('PageDown');
     await this.modPage.page.waitForFunction(
-       ([whiteboardSelector, expectedSvg]) => {
-         const whiteboard = document.querySelector(whiteboardSelector);
-         return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
-       },
-       [e.whiteboard, '/svg/2'],
-       { timeout: ELEMENT_WAIT_LONGER_TIME },
-     );
+      ([whiteboardSelector, expectedSvg]) => {
+        const whiteboard = document.querySelector(whiteboardSelector);
+        return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
+      },
+      [e.whiteboard, '/svg/2'],
+      { timeout: ELEMENT_WAIT_LONGER_TIME },
+    );
 
     await blurActive();
     await this.modPage.press('PageUp');
     await this.modPage.page.waitForFunction(
-       ([whiteboardSelector, expectedSvg]) => {
-         const whiteboard = document.querySelector(whiteboardSelector);
-         return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
-       },
-       [e.whiteboard, '/svg/1'],
-       { timeout: ELEMENT_WAIT_LONGER_TIME },
-     );
+      ([whiteboardSelector, expectedSvg]) => {
+        const whiteboard = document.querySelector(whiteboardSelector);
+        return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
+      },
+      [e.whiteboard, '/svg/1'],
+      { timeout: ELEMENT_WAIT_LONGER_TIME },
+    );
   }
 
   async shareCameraAsContent() {
@@ -170,7 +217,9 @@ export class Presentation extends MultiUsers {
       e.presentationContainer,
       'should not display the presentation container after the default presentation is removed',
     );
+    await this.modPage.wasRemoved(e.presentationThumbnails, 'should not list the removed presentation');
     await this.modPage.press('Escape');
+    await this.modPage.wasRemoved(e.restorePresentation, 'should not offer to restore the removed presentation');
 
     // because the previous presentation was removed, the one to be uploaded is expected to be the only one (index 0)
     await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName, UPLOAD_PDF_WAIT_TIME, 0);
@@ -201,66 +250,65 @@ export class Presentation extends MultiUsers {
       );
       return;
     }
+    await routeExternalVideo(this.context);
     await this.modPage.waitAndClick(e.shareExternalVideoBtn);
     await this.modPage.hasElement(
       e.closeIcon,
       'should display the close modal button after the moderator opens the modal for sharing external video',
     );
-    await this.modPage.fill(e.videoModalInput, e.youtubeLink);
+    await this.modPage.fill(e.videoModalInput, EXTERNAL_VIDEO_URL);
     await this.modPage.waitAndClick(e.startShareVideoBtn);
+    await this.modPage.press('Escape'); // close the media sharing menu
 
-    const modFrame = await this.modPage.getYoutubeFrame();
-    if (!modFrame) throw Error('Failed to get video frame element for moderator');
-    const userFrame = await this.userPage.getYoutubeFrame();
-    if (!userFrame) throw Error('Failed to get video frame element for attendee');
-
-    await modFrame.hasElement(
-      'video',
+    await this.modPage.hasElement(
+      e.externalVideo,
       'should display the element frame for the video that is being shared for the moderator',
     );
-    await userFrame.hasElement(
-      'video',
+    await this.userPage.hasElement(
+      e.externalVideo,
       'should display the element frame for the video that is being shared for the attendee',
     );
+    await expectExternalVideoPlaying(this.modPage, 'should play the shared video for the moderator');
+    await expectExternalVideoPlaying(this.userPage, 'should play the shared video for the attendee');
   }
 
   async checkVideoAfterUserJoins() {
-    await this.modPage.page.waitForTimeout(ELEMENT_WAIT_LONGER_TIME);
-
-    const user2Frame = await this.userPage2.getYoutubeFrame();
-    if (!user2Frame) throw Error('Failed to get video frame element for attendee 2');
-    await user2Frame.hasElement(
-      'video',
-      'should display the element frame for the video that is being shared for the attendee',
+    await this.userPage2.hasElement(
+      e.externalVideo,
+      'should display the element frame for the video that is being shared for the attendee who joined later',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
     );
+    await expectExternalVideoPlaying(this.userPage2, 'should play the shared video for the attendee who joined later');
   }
 
   async pauseExternalVideo() {
-    const modFrame = await this.modPage.getYoutubeFrame();
-    if (!modFrame) throw Error('Failed to get video frame element');
+    await this.modPage.hasElement(e.externalVideo, 'should display the video element before pausing');
+    expect(await isExternalVideoPaused(this.modPage), 'should be playing before the moderator pauses it').toBe(false);
 
-    await modFrame.hasElement('video', 'should display the video element before pausing');
+    // what the player's native pause control does
+    await this.modPage.page.locator(e.externalVideo).evaluate((video: HTMLVideoElement) => video.pause());
 
-    const playButton = modFrame.frame.locator('.ytp-play-button');
-    await playButton.waitFor({ state: 'visible', timeout: 5000 });
-
-    await expect(playButton).toHaveAttribute('data-title-no-tooltip', 'Pause');
-
-    await playButton.click();
-    await this.modPage.page.waitForTimeout(ELEMENT_WAIT_TIME);
-
-    await expect(playButton).toHaveAttribute('data-title-no-tooltip', 'Play');
+    await expect
+      .poll(() => isExternalVideoPaused(this.modPage), { message: 'should pause the video for the moderator' })
+      .toBe(true);
+    await expect
+      .poll(() => isExternalVideoPaused(this.userPage), {
+        message: 'should pause the video for the attendee when the presenter pauses it',
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      })
+      .toBe(true);
   }
 
   async changePresenterWhileVideoPlaying() {
-    await this.modPage.waitAndClick(e.userListItem);
+    await this.modPage.waitAndClick(e.usersListSidebarButton);
+    await this.modPage.waitAndClick(e.moreOptionsUserItemButton);
     await this.modPage.waitAndClick(e.makePresenter);
     await this.userPage.closeAllToastNotifications();
 
-    const userFrame = await this.userPage.getYoutubeFrame();
-    if (!userFrame) throw Error('Failed to get video frame element');
-
-    await userFrame.hasElement('video', 'should display the element frame for the video that is being shared');
+    await this.userPage.hasElement(
+      e.externalVideo,
+      'should display the element frame for the video that is being shared',
+    );
     await this.modPage.wasRemoved(
       e.stopExternalVideoBtn,
       'should remove the stop external video button from the moderator when presenter change',
@@ -273,91 +321,79 @@ export class Presentation extends MultiUsers {
   }
 
   async endExternalVideo() {
+    await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.stopExternalVideoBtn);
     await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard after stopping the external video');
+    await this.userPage.wasRemoved(e.externalVideo, 'should stop the external video for the attendee');
   }
 
   // Regression test for issue #25472: when the presenter scrubs the external video while
   // it is playing, the new position must be broadcast so viewers follow. react-player only
-  // surfaces a native seek event for FilePlayer; every hosted provider (YouTube here, plus
-  // Vimeo, Twitch, etc.) does not, so the client detects the discontinuity in onProgress and
-  // re-broadcasts it. This test drives YouTube, the common case. We assert the behaviour
-  // users actually care about: the viewer's playhead advances to the presenter's new
-  // position. That is stronger than counting outbound mutations and immune to WebSocket
-  // timing. Assumes startExternalVideo() already shared the video (chained in the spec).
+  // surfaces a native seek event for FilePlayer; every hosted provider (YouTube, Vimeo,
+  // Twitch, etc.) does not, so the client detects the discontinuity in onProgress and
+  // re-broadcasts it. The shared video here is a file, so the presenter's seeked event is
+  // swallowed before react-player sees it, leaving the onProgress detection as the only path,
+  // as with YouTube. We assert the behaviour users actually care about: the viewer's playhead
+  // advances to the presenter's new position. That is stronger than counting outbound
+  // mutations and immune to WebSocket timing. Assumes startExternalVideo() already shared the
+  // video (chained in the spec).
   async seekExternalVideoWhilePlaying() {
     const { externalVideoPlayer } = this.modPage.settings || {};
     // startExternalVideo() already asserted the share button is absent when the feature is
     // disabled; nothing to seek in that case.
     if (!externalVideoPlayer) return;
 
-    // startExternalVideo() already fetched both frames and asserted the video element is
-    // present for moderator and viewer, so we only fetch the handles we need to drive here.
-    const modFrame = await this.modPage.getYoutubeFrame();
-    if (!modFrame) throw Error('Failed to get video frame element for moderator');
-    const userFrame = await this.userPage.getYoutubeFrame();
-    if (!userFrame) throw Error('Failed to get video frame element for attendee');
-
-    const readCurrentTime = (frame: typeof modFrame) =>
-      frame.frame.locator('video').evaluate((v: HTMLVideoElement) => v.currentTime);
-
     // Let the video play a few onProgress ticks so the presenter's baseline is seeded. Poll
     // for real advance (one tick is enough) instead of a fixed 15s wait, which cuts most of
     // that time off this @ci test.
-    const playbackStart = await readCurrentTime(modFrame);
+    const playbackStart = await getExternalVideoTime(this.modPage);
     await expect
-      .poll(() => readCurrentTime(modFrame), {
+      .poll(() => getExternalVideoTime(this.modPage), {
         message: 'moderator video should be playing before the seek',
         timeout: ELEMENT_WAIT_EXTRA_LONG_TIME,
       })
       .toBeGreaterThan(playbackStart + 3);
 
-    // Derive the seek target from the real duration instead of a hardcoded value: if
-    // youtubeLink changes, a fixed target could exceed the video length, YouTube would clamp
+    // Derive the seek target from the real duration instead of a hardcoded value: if the
+    // fixture changes, a fixed target could exceed the video length, the player would clamp
     // to the end and fire onEnded, nulling the baseline (an opaque failure). The guard also
     // covers v.duration being NaN (metadata not loaded), which would otherwise yield
-    // seekTarget = NaN, a no-op seekTo, and an opaque toBeGreaterThan(NaN) failure.
-    const duration = await modFrame.frame.locator('video').evaluate((v: HTMLVideoElement) => v.duration);
+    // seekTarget = NaN, a no-op seek, and an opaque toBeGreaterThan(NaN) failure.
+    const modVideo = this.modPage.page.locator(e.externalVideo);
+    const duration = await modVideo.evaluate((video: HTMLVideoElement) => video.duration);
     expect(duration, 'fixture video must be long enough to seek within').toBeGreaterThan(120);
     const seekTarget = Math.floor(duration * 0.75);
 
     // Self-validate against a fixture swap: the seek target must be well ahead of where
     // natural playback has reached, or "the viewer followed the seek" would be satisfied by
     // ordinary playback and prove nothing.
-    const beforeSeek = await readCurrentTime(userFrame);
+    const beforeSeek = await getExternalVideoTime(this.userPage);
     expect(seekTarget - beforeSeek, 'seek target must be far ahead of natural playback').toBeGreaterThan(60);
 
-    // Scrub the YouTube player forward while it is playing. This is the path that does not
-    // emit a react-player onSeek event (the root cause of #25472). Scope the iframe lookup to
-    // the shared-video container (e.youtubeFrame) for consistency with getYoutubeFrame.
-    await this.modPage.page.evaluate(
-      ({ target, frameSelector }) => {
-        const iframe = document.querySelector<HTMLIFrameElement>(`${frameSelector} iframe`);
-        if (iframe && iframe.contentWindow) {
-          iframe.contentWindow.postMessage(
-            JSON.stringify({ event: 'command', func: 'seekTo', args: [target, true] }),
-            '*',
-          );
-        }
-      },
-      { target: seekTarget, frameSelector: e.youtubeFrame },
-    );
+    // Scrub the presenter's player forward while it is playing, without the seeked event
+    // that would reach react-player's onSeek (the path #25472 is about).
+    await this.modPage.page.evaluate(() => {
+      window.addEventListener('seeked', (event) => event.stopImmediatePropagation(), { capture: true });
+    });
+    await modVideo.evaluate((video: HTMLVideoElement, target: number) => {
+      // eslint-disable-next-line no-param-reassign
+      video.currentTime = target;
+    }, seekTarget);
 
-    // Assert the PRESENTER actually seeked before checking the viewer. If the postMessage
-    // silently no-ops (YouTube protocol change, enablejsapi regression, iframe not matched),
-    // failing here points at the command, not at a phantom "viewer did not follow" product bug.
+    // Assert the PRESENTER actually seeked before checking the viewer, so a seek that did
+    // not happen points at the test, not at a phantom "viewer did not follow" product bug.
     await expect
-      .poll(() => readCurrentTime(modFrame), {
+      .poll(() => getExternalVideoTime(this.modPage), {
         message: 'presenter should have seeked',
         timeout: ELEMENT_WAIT_EXTRA_LONG_TIME,
       })
       .toBeGreaterThan(seekTarget - 5);
 
-    // YouTube re-buffers after a seek, so the viewer lands a little short of the target and
-    // then climbs; allow this much slack below the target when confirming the follow.
+    // The viewer buffers after the seek, so it may land a little short of the target and
+    // then climb; allow this much slack below the target when confirming the follow.
     const VIEWER_FOLLOW_TOLERANCE_SECONDS = 15;
     await expect
-      .poll(() => readCurrentTime(userFrame), {
+      .poll(() => getExternalVideoTime(this.userPage), {
         message: 'viewer should follow the presenter mid-play external video seek',
         timeout: ELEMENT_WAIT_EXTRA_LONG_TIME,
       })
@@ -365,7 +401,7 @@ export class Presentation extends MultiUsers {
 
     // Upper-bound the viewer position so an overshoot to the end (which a one-sided lower
     // bound would let pass) fails the test instead of reading as a follow.
-    const viewerAfter = await readCurrentTime(userFrame);
+    const viewerAfter = await getExternalVideoTime(this.userPage);
     expect(viewerAfter, 'viewer should land near the seek target, not overshoot to the end').toBeLessThan(
       seekTarget + 30,
     );
@@ -425,6 +461,45 @@ export class Presentation extends MultiUsers {
         maxDiffPixels: 1000,
       });
     }
+  }
+
+  async maskRasterizationFallbackTest() {
+    // wait for whiteboard to load and no notifications
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitForSelector(e.skipSlide);
+    await this.modPage.closeAllToastNotifications();
+
+    await uploadSinglePresentation(this.modPage, e.maskSamplePdf, UPLOAD_PDF_WAIT_TIME);
+
+    // secondary check: the uploaded slide is visibly present
+    await this.modPage.hasElement(e.currentSlideImg, 'should display the uploaded slide as the current slide image');
+
+    // 4.0 renders slides as tldraw image assets, so a visual snapshot cannot tell a rasterized
+    // (embedded-PNG) slide apart from a vector slide of the same content. Inspect the served
+    // slide SVG file instead, deriving its URL from the current tl-image asset.
+    const slideSvgUrl = await this.modPage.page.evaluate(
+      ([selector]) => {
+        const element = document.querySelector(selector) as HTMLElement | null;
+        return element?.style?.backgroundImage?.split('"')[1] ?? null;
+      },
+      [e.currentSlideImg],
+    );
+    // the asset URL carries pageToken/sessionToken query params, e.g. .../svg/1?pageToken=...
+    expect(slideSvgUrl, 'should resolve the served slide SVG url from the current slide asset').toMatch(
+      /\/svg\/\d+(\?|$)/,
+    );
+
+    const slideSvgResponse = await this.modPage.page.request.get(slideSvgUrl as string);
+    expect(slideSvgResponse.ok(), 'should fetch the served slide SVG').toBeTruthy();
+    const slideSvgContent = await slideSvgResponse.text();
+
+    // A rasterized slide is the embedded-PNG SVG produced by SvgImageCreatorImp.createSvgWithEmbeddedPng():
+    // a single <image href="data:image/png;base64,..."> and no vector elements. pdftocairo vector output
+    // instead uses xlink:href for embedded bitmaps and contains <path> elements.
+    expect(slideSvgContent, 'served slide SVG should be the rasterized embedded-PNG form').toMatch(
+      /<image href="data:image\/png;base64,/,
+    );
+    expect(slideSvgContent, 'rasterized slide SVG should contain no vector <path> elements').not.toMatch(/<path[\s>]/);
   }
 
   async uploadOtherPresentationsFormat() {
@@ -516,6 +591,64 @@ export class Presentation extends MultiUsers {
     }
   }
 
+  // Regression test for https://github.com/bigbluebutton/bigbluebutton/issues/23953
+  // The PDF embeds a soft-masked (SMask) image inside a transparency group. poppler's
+  // cairo backend (pdftocairo) fails to composite it and produces a fully blank slide,
+  // while the client reports the conversion as successful. The slide must render its
+  // content (a large black rectangle) instead of a blank page.
+  async blurredImagePresentationRendersTest() {
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitForSelector(e.skipSlide);
+    await this.modPage.closeAllToastNotifications();
+
+    // Snapshot the attendee's slide first: uploadSinglePresentation only waits on
+    // the moderator page, so the attendee assertion below must wait for the new
+    // slide to propagate before measuring it.
+    const userSlideBeforeUpload = await getSlideOuterHtml(this.userPage);
+
+    await uploadSinglePresentation(this.modPage, e.blurImagePresentationFileName, UPLOAD_PDF_WAIT_TIME);
+    await this.modPage.closeAllToastNotifications();
+
+    const modDarkRatio = await getCurrentSlideDarkPixelRatio(this.modPage);
+    expect(
+      modDarkRatio,
+      'the uploaded PDF slide should render its embedded figure (a black rectangle), not a blank page (issue #23953)',
+    ).toBeGreaterThan(0.02);
+
+    // The attendee must receive the same non-blank slide.
+    await this.userPage.closeAllToastNotifications();
+    await expect
+      .poll(() => getSlideOuterHtml(this.userPage), {
+        message: 'the attendee should receive the uploaded presentation slide',
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      })
+      .not.toBe(userSlideBeforeUpload);
+    const userDarkRatio = await getCurrentSlideDarkPixelRatio(this.userPage);
+    expect(
+      userDarkRatio,
+      'the attendee should also see the embedded figure rendered on the slide (issue #23953)',
+    ).toBeGreaterThan(0.02);
+  }
+
+  // Counterpart of the test above: an ordinary soft-masked image (e.g. a transparent PNG)
+  // converts to a correct SVG, so the check that rasterizes the slides pdftocairo gets wrong
+  // (issue #23953) must leave it as a vector slide. Assumes the default maskTagThreshold=0.
+  async softMaskedSlideStaysVectorTest() {
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitForSelector(e.skipSlide);
+    await this.modPage.closeAllToastNotifications();
+
+    await uploadSinglePresentation(this.modPage, e.maskSamplePdf, UPLOAD_PDF_WAIT_TIME);
+
+    const slideSvgContent = await getCurrentSlideSvg(this.modPage);
+    expect(slideSvgContent, 'slide SVG should keep its soft masks as vector <mask> elements').toMatch(/<mask[\s>]/);
+    // A rasterized slide is a single <image href="data:image/png;base64,...">, while pdftocairo
+    // vector output references its embedded bitmaps with xlink:href.
+    expect(slideSvgContent, 'slide SVG should not be the rasterized embedded-PNG form').not.toMatch(
+      /<image href="data:image\/png;base64,/,
+    );
+  }
+
   async uploadMultiplePresentationsTest() {
     // wait for whiteboard to load and no notifications
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
@@ -563,7 +696,12 @@ export class Presentation extends MultiUsers {
     await expect(fitToWidthBorderColorOff, 'should match the white color').toBe('rgba(0, 0, 0, 0)');
 
     await this.modPage.waitAndClick(e.fitToWidthButton);
-    await this.modPage.page.waitForTimeout(500);
+    await expect(fitToWidthButtonLocator, 'should turn fit to width on').toHaveCSS('border-color', 'rgb(6, 23, 42)');
+    await expect
+      .poll(async () => (await this.modPage.getElementBoundingBox(e.whiteboard))?.width, {
+        message: 'should widen the whiteboard',
+      })
+      .toBeGreaterThan(Number(width1));
 
     // check if its on
     const fitToWidthBorderColorOn = await fitToWidthButtonLocator.evaluate(
@@ -664,7 +802,10 @@ export class Presentation extends MultiUsers {
     await this.modPage.waitAndClick(e.mediaAreaButton);
     await this.modPage.waitAndClick(e.managePresentations);
     await this.modPage.waitAndClick(e.removePresentation);
-    await this.modPage.hasElementDisabled(e.sharePresentationButton, 'should disable the share presentation button when there is no presentation');
+    await this.modPage.hasElementDisabled(
+      e.sharePresentationButton,
+      'should disable the share presentation button when there is no presentation',
+    );
 
     await this.modPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the moderator');
     await this.modPage.wasRemoved(
@@ -710,6 +851,33 @@ export class Presentation extends MultiUsers {
       .toBe(true);
   }
 
+  async uploadPresentationKeepsSourceDimensions() {
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitForSelector(e.skipSlide);
+    await this.modPage.closeAllToastNotifications();
+
+    await uploadSinglePresentation(this.modPage, e.nonDefaultRatioPresentationFileName);
+
+    // sample.pdf pages are 595.27x841.89 pt (A4 portrait, ratio ~0.707). bbb-web derives the
+    // slide dimensions from the SVG the converter emits, so the rendered slide must keep that
+    // portrait ratio. No other presentation in the meeting shares it: if the dimensions ever
+    // collapsed to the 1440x1080 (4:3 = 1.33) default, or if the upload silently reverted to
+    // the 1920x1080 (16:9 = 1.78) default deck, the ratio would not match. Both are rejected.
+    //
+    // Coverage scope: this is a regression guard for the dimension pipeline (the width/height
+    // probe that pdftocairo SVGs always satisfy). It does NOT exercise the viewBox fallback in
+    // readSvgDims/parseViewBoxDims - that branch is only reached when width/height are absent
+    // or unparseable, and pdftocairo always emits them. See the PR body for why the viewBox
+    // path is defensive (defence in depth) rather than covered by a real upload.
+    const sourceAspectRatio = 595.27 / 841.89;
+    await expect
+      .poll(async () => getCurrentSlideAspectRatio(this.modPage), {
+        message: 'should render the slide with the source A4-portrait aspect ratio, not a default',
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      })
+      .toBeCloseTo(sourceAspectRatio, 1);
+  }
+
   async uploadAndRemoveAllPresentations() {
     await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName);
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
@@ -728,8 +896,8 @@ export class Presentation extends MultiUsers {
       2,
       'should display both default and uploaded presentation on the manage presentations modal',
     );
-    await this.modPage.waitAndClick(e.removePresentation);  // remove first presentation
-    await this.modPage.waitAndClick(e.removePresentation);  // remove second presentation
+    await this.modPage.waitAndClick(e.removePresentation); // remove first presentation
+    await this.modPage.waitAndClick(e.removePresentation); // remove second presentation
 
     await this.modPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the moderator');
     await this.modPage.wasRemoved(
@@ -817,24 +985,27 @@ export class Presentation extends MultiUsers {
     await this.modPage.waitAndClick(e.multiUsersWhiteboardOn);
     await this.modPage.waitAndClick(e.whiteboardOptionsButton, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.toolVisibility);
-    const screenshotOptions = {
-      maxDiffPixels: 1000,
-    };
     await this.modPage.wasRemoved(e.wbToolbar, 'should not display the whiteboard toolbar for the moderator');
-    if (!CI)
+    if (!CI) {
+      const restoreFocus = await prepareForScreenshot(this.modPage);
       await expect(this.modPage.page, 'should not display the presentation toolbar').toHaveScreenshot(
         'mod-hide-toolbars.png',
-        screenshotOptions,
+        { maxDiffPixels: 1000, mask: screenshotMask(this.modPage.page) },
       );
+      await restoreFocus();
+    }
     await this.userPage.hasElement(
       e.wbToolbar,
       'should display the whiteboard toolbar for the viewer with whiteboard access',
     );
-    if (!CI)
+    if (!CI) {
+      const restoreFocus = await prepareForScreenshot(this.userPage);
       await expect(this.userPage.page, 'should display the presentation toolbar').toHaveScreenshot(
         'user-toolbars.png',
-        screenshotOptions,
+        { maxDiffPixels: 1000, mask: screenshotMask(this.userPage.page) },
       );
+      await restoreFocus();
+    }
   }
 
   async zoom() {
@@ -885,5 +1056,330 @@ export class Presentation extends MultiUsers {
 
     await this.modPage.selectSlide('Slide 13');
     await expect(wbBox).toHaveScreenshot('moderator1-select-slide13.png');
+  }
+
+  async truncatedPdfIsRefused() {
+    await uploadRefusedPresentation(this.modPage, buildTruncatedPdf(), e.presentationPageCountFailedLabel);
+  }
+
+  async executableNamedPdfIsRefused() {
+    await uploadRefusedPresentation(this.modPage, buildExecutableNamedPdf(), e.presentationInvalidMimeTypeLabel);
+  }
+
+  // One page over maxNumPages, assumed to be the default 200
+  async tooManyPagesIsRefused() {
+    await uploadRefusedPresentation(this.modPage, buildPdfWithPages(201), e.presentationPageCountExceededLabel);
+  }
+
+  // The file of an upload-failure test, under a name that tells its upload toast apart.
+  private static fileToUpload(name: string): GeneratedFile {
+    return { ...fixtureFile('sample.pdf'), name };
+  }
+
+  private async startHeldUpload(file: GeneratedFile): Promise<string> {
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.closeAllToastNotifications();
+    const held = await holdUploadRequests(this.modPage);
+    await startUpload(this.modPage, file);
+    const uploadUrl = await held.url;
+    await expect(
+      uploadToastOf(this.modPage, file.name),
+      'should show the upload as in progress while its request is on the way',
+    ).toBeVisible();
+    return uploadUrl;
+  }
+
+  private async secondModeratorTakesPresenter() {
+    await this.modPage2.waitAndClick(e.usersListSidebarButton);
+    await this.modPage2.waitAndClick(e.moreOptionsUserItemButton);
+    await this.modPage2.waitAndClick(e.takePresenter);
+    await this.modPage2.hasElement(e.wbToolbar, 'should make the second moderator the presenter');
+  }
+
+  // An upload that is never finished nor failed is shown as uploading to every later presenter.
+  private async nextPresenterIsNotShownTheUpload(fileName: string) {
+    await this.secondModeratorTakesPresenter();
+    // the list also proves that the presentations have reached this client
+    expect(
+      await listPresentations(this.modPage2),
+      'should not list the failed upload for the next presenter',
+    ).not.toContain(fileName);
+    await expect(
+      uploadToastOf(this.modPage2, fileName),
+      'should not show the failed upload as uploading to the next presenter',
+    ).toHaveCount(0);
+  }
+
+  private async fileIsListedOnce(fileName: string) {
+    await this.modPage.waitAndClick(e.mediaAreaButton);
+    await this.modPage.waitAndClick(e.managePresentations);
+    await expect(
+      this.modPage.page.locator(e.presentationNames).filter({ hasText: fileName }),
+      `should list ${fileName} once`,
+    ).toHaveCount(1, { timeout: UPLOAD_PDF_WAIT_TIME });
+    await this.modPage.press('Escape');
+    // an upload of the file that was left waiting would keep the upload toast open
+    await expect(
+      uploadToastOf(this.modPage, fileName),
+      `should leave no upload of ${fileName} in progress`,
+    ).toHaveCount(0, { timeout: ELEMENT_WAIT_LONGER_TIME });
+  }
+
+  // closeAllToastNotifications does not reach the upload toast
+  private async closeUploadToastOf(fileName: string) {
+    await uploadToastOf(this.modPage, fileName).click();
+    await this.modPage.page.mouse.move(0, 0); // a pointer left on a toast keeps it open
+    await expect(
+      uploadToastOf(this.modPage, fileName),
+      'should close the notice of the failed upload when it is clicked',
+    ).toHaveCount(0);
+  }
+
+  async refusedUploadCanBeSentAgain() {
+    const file = Presentation.fileToUpload('refused-upload.pdf');
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.closeAllToastNotifications();
+    await refuseUploadRequests(this.modPage);
+    await startUpload(this.modPage, file);
+    await checkNotificationText(this.modPage, `${file.name}: ${e.presentationUploadFailedLabel}`);
+    await expect(
+      uploadToastOf(this.modPage, file.name),
+      'should not keep showing the refused upload as uploading',
+    ).toHaveCount(0, { timeout: ELEMENT_WAIT_LONGER_TIME });
+
+    await stopInterceptingUploadRequests(this.modPage);
+    await startUpload(this.modPage, file);
+    await this.fileIsListedOnce(file.name);
+  }
+
+  // The client's own request is held, so only the server can end this upload.
+  async uploadRefusedByServerIsShownAsFailed() {
+    const file = Presentation.fileToUpload('refused-by-server.pdf');
+    const uploadUrl = await this.startHeldUpload(file);
+    await sendUploadWithoutItsMeeting(this.modPage, uploadUrl, file);
+    await expect(
+      uploadToastOf(this.modPage, file.name),
+      'should tell the uploader that the upload failed',
+    ).toContainText(e.presentationUploadFailedLabel, { timeout: ELEMENT_WAIT_LONGER_TIME });
+
+    // An upload left as uploading came back on every slide change after its notice was closed
+    await this.closeUploadToastOf(file.name);
+    await this.modPage.waitAndClick(e.nextSlide);
+    await expect
+      .poll(() => getSlideOuterHtml(this.modPage), { message: 'should change to slide 2' })
+      .toContain('/svg/2');
+    await expect(
+      uploadToastOf(this.modPage, file.name),
+      'should not show the failed upload again once its notice was closed',
+    ).toHaveCount(0);
+    await this.nextPresenterIsNotShownTheUpload(file.name);
+  }
+
+  async uploadIsDroppedWhenItsUploaderLeaves() {
+    const file = Presentation.fileToUpload('uploader-leaves.pdf');
+    await this.startHeldUpload(file);
+    await this.secondModeratorTakesPresenter();
+    await expect(
+      uploadToastOf(this.modPage2, file.name),
+      'should show the upload as in progress to the next presenter while its uploader is there',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+
+    // Leaving the page, as closing its tab does. Closing it from here would send the held request.
+    await this.modPage.page.goto('about:blank');
+    await expect(
+      uploadToastOf(this.modPage2, file.name),
+      'should drop the upload once its uploader has left',
+    ).toHaveCount(0, { timeout: USER_REMOVAL_TIME });
+    expect(await listPresentations(this.modPage2), 'should not list the upload of the user who left').not.toContain(
+      file.name,
+    );
+  }
+
+  // A removed user is out of the meeting at once, without the wait a closed connection gets
+  async uploadIsDroppedWhenItsUploaderIsRemoved() {
+    const file = Presentation.fileToUpload('uploader-removed.pdf');
+    await this.startHeldUpload(file);
+    await this.secondModeratorTakesPresenter();
+    await expect(
+      uploadToastOf(this.modPage2, file.name),
+      'should show the upload as in progress to the next presenter while its uploader is there',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+
+    const uploaderRow = this.modPage2.page.locator(e.userListItem).filter({ hasText: this.modPage.username });
+    await uploaderRow.locator(e.moreOptionsUserItemButton).click();
+    // every row has its own copy of the menu, and the closed ones stay in the DOM
+    await this.modPage2.page.locator(`${e.removeUser}:visible`).first().click();
+    await this.modPage2.waitAndClick(e.removeUserConfirmationBtn);
+    await expect(
+      uploadToastOf(this.modPage2, file.name),
+      'should drop the upload once its uploader has been removed',
+    ).toHaveCount(0, { timeout: ELEMENT_WAIT_LONGER_TIME });
+    expect(await listPresentations(this.modPage2), 'should not list the upload of the removed user').not.toContain(
+      file.name,
+    );
+  }
+
+  // The spec routes the uploader's graphql sockets with routeGraphqlSockets before it joins
+  async uploadIsKeptWhenTheConnectionOfItsUploaderDrops(uploaderSockets: GraphqlSockets) {
+    const file = Presentation.fileToUpload('uploader-reconnects.pdf');
+    await this.startHeldUpload(file);
+    await this.secondModeratorTakesPresenter();
+    await expect(
+      uploadToastOf(this.modPage2, file.name),
+      'should show the upload as in progress to the next presenter while its uploader is there',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+
+    expect(uploaderSockets.drop(), 'should drop the graphql connection of the uploader').toBeGreaterThan(0);
+    // bbb-apps-akka learns of the closed connection at once, and the notice of an upload dropped
+    // on that news closes about 3 s later. Most of the time the user is given to come back is
+    // ample for that, and too short for the user to have been removed.
+    await this.modPage2.page.waitForTimeout(0.8 * USER_RECONNECT_GRACE);
+    await expect(
+      uploadToastOf(this.modPage2, file.name),
+      'should keep the upload of a user whose connection dropped: the page goes on sending the file',
+    ).toBeVisible();
+  }
+
+  // The server has the file; only its answer did not reach the client
+  async uploadWhoseAnswerIsLostIsKept(answer: LostUploadAnswer) {
+    const file = Presentation.fileToUpload(answer === 'no answer' ? 'lost-answer.pdf' : 'answer-timed-out.pdf');
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.closeAllToastNotifications();
+    const lost = await loseUploadAnswers(this.modPage, file, answer);
+    await startUpload(this.modPage, file);
+    // Before this the client has not seen its request go wrong, and has had no reason to remove
+    // the presentation: the checks below would pass without having tested anything.
+    await lost.pageRequestEnded;
+    await this.fileIsListedOnce(file.name);
+  }
+
+  // The spec holds the token request with holdUploadTokenRequest before the moderator joins
+  async lateUploadTokenIsNotLeftUploading(tokenRequest: HeldUploadTokenRequest) {
+    const file = Presentation.fileToUpload('late-token.pdf');
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.closeAllToastNotifications();
+    await startUpload(this.modPage, file);
+    await this.modPage.hasText(
+      e.smallToastMsg,
+      e.presentationUploadCouldNotStartLabel,
+      'should tell the presenter that the upload could not start once the token is overdue',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+
+    // Only now does the request reach the server, which creates a presentation for it
+    tokenRequest.release();
+    await expect
+      .poll(() => tokenRequest.removalRequested(), {
+        message: 'should ask the server to remove the presentation of the token that came too late',
+        timeout: ELEMENT_WAIT_EXTRA_LONG_TIME,
+      })
+      .toBe(true);
+    await expect(
+      uploadToastOf(this.modPage, file.name),
+      'should not leave the upload the client had given up on showing as uploading',
+    ).toHaveCount(0, { timeout: ELEMENT_WAIT_LONGER_TIME });
+    expect(
+      await listPresentations(this.modPage),
+      'should not list the upload the client had given up on',
+    ).not.toContain(file.name);
+    // The client asking is not the server removing: a presentation still there, waiting for its
+    // file, is shown as uploading to the next presenter.
+    await this.nextPresenterIsNotShownTheUpload(file.name);
+  }
+
+  async uploadThatNeverArrivesIsShownAsFailed() {
+    const file = Presentation.fileToUpload('never-sent.pdf');
+    await this.startHeldUpload(file);
+    await expect(
+      uploadToastOf(this.modPage, file.name),
+      'should tell the uploader that the upload failed once the time to start it has passed',
+    ).toContainText(e.presentationUploadFailedLabel, { timeout: UPLOAD_START_TIMEOUT });
+    await this.nextPresenterIsNotShownTheUpload(file.name);
+  }
+
+  async stalledUploadIsShownAsFailed() {
+    const file = Presentation.fileToUpload('stalled-upload.pdf');
+    const uploadUrl = await this.startHeldUpload(file);
+    const stalled = sendStalledUpload(uploadUrl, file);
+    try {
+      await expect(
+        uploadToastOf(this.modPage, file.name),
+        'should tell the uploader that the upload failed once the server stops waiting for the file',
+      ).toContainText(e.presentationUploadFailedLabel, { timeout: UPLOAD_STALL_TIMEOUT });
+      // otherwise something else ended the upload, such as the time it had to start
+      await expect
+        .poll(() => stalled.state(), {
+          message: 'should have the server end the stalled request',
+          timeout: ELEMENT_WAIT_LONGER_TIME,
+        })
+        .toBe('closed by the server');
+    } finally {
+      stalled.close();
+    }
+
+    await this.closeUploadToastOf(file.name);
+    await stopInterceptingUploadRequests(this.modPage);
+    await startUpload(this.modPage, file);
+    await this.fileIsListedOnce(file.name);
+  }
+
+  private async openPresentationManager() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.mediaAreaButton);
+    await this.modPage.waitAndClick(e.managePresentations);
+    await this.modPage.hasElement(
+      e.presentationFileUpload,
+      'should display the presentation space for uploading a new file, when the manage presentations is opened',
+    );
+    await this.modPage.hasElement(
+      e.presentationThumbnails,
+      'should list the current presentation in the presentation manager',
+    );
+  }
+
+  // The spec sets uploadSizeMax to the size of the mask sample PDF, so that file sits exactly on the limit
+  async fileOverSizeLimitIsNotSent() {
+    const atTheLimit = fixtureFile(e.maskSamplePdf);
+    const limit = atTheLimit.buffer.length;
+    const overTheLimit = {
+      name: 'over-the-limit.pdf',
+      mimeType: 'application/pdf',
+      buffer: Buffer.alloc(limit + 1, 0x25),
+    };
+    let uploads = 0;
+    this.modPage.page.on('request', (request) => {
+      if (request.method() === 'POST' && request.url().endsWith('/upload')) uploads += 1;
+    });
+
+    await this.openPresentationManager();
+    const thumbnailsBefore = await this.modPage.getSelectorCount(e.presentationThumbnails);
+    await this.modPage.page.setInputFiles(e.presentationFileUpload, [atTheLimit, overTheLimit]);
+
+    await expect(
+      this.modPage.page.locator(e.smallToastMsg).filter({ hasText: overTheLimit.name }),
+      'should say why the file was refused',
+    ).toContainText(`${e.presentationTooLargeLabel} ${(limit / 1000).toFixed(2)} kB`);
+    // The uploads of a drop start together, so once the file at the limit is listed every POST of the drop is out
+    await this.modPage.waitUntilHaveCountSelector(e.presentationThumbnails, thumbnailsBefore + 1, UPLOAD_PDF_WAIT_TIME);
+    expect(uploads, 'should send only the file at the limit').toBe(1);
+    await expect(
+      this.modPage.page.locator(e.presentationNames).filter({ hasText: overTheLimit.name }),
+      'should not add the refused file to the presentations',
+    ).toHaveCount(0);
+  }
+
+  // The spec sets uploadSizeMax to 50 MB and uploadPagesMax to 7
+  async uploadConstraintsHintShowsLimits() {
+    await this.openPresentationManager();
+    await this.modPage.hasText(
+      e.uploadConstraintsHint,
+      'each file may not exceed 50 MB and 7 pages',
+      'should display both limits on the upload panel',
+    );
+  }
+
+  async uploadConstraintsHintIsHidden() {
+    await this.openPresentationManager();
+    await this.modPage.wasRemoved(e.uploadConstraintsHint, 'should not display the limits when the hint is off');
   }
 }

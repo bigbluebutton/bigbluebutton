@@ -1,4 +1,5 @@
 upstream hasura {
+    zone hasura 512k;
     least_conn;
     server 127.0.0.1:8085;
     # you might want to add more bbb-graphql-server@ instances to balance the

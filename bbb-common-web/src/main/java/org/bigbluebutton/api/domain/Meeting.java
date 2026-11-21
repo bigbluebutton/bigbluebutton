@@ -50,26 +50,24 @@ public class Meeting {
 	private long endTime = 0;
 	private boolean forciblyEnded = false;
 	private String telVoice;
-	private String webVoice;
 	private String moderatorPass = "";
 	private String viewerPass = "";
 	private int learningDashboardCleanupDelayInMinutes;
 	private String learningDashboardAccessToken;
 	private ArrayList<String> disabledFeatures;
 	private Boolean notifyRecordingIsOn;
+	private String notifyRecordingAppend = "";
 	private String welcomeMsgTemplate;
 	private String welcomeMsg;
 	private String welcomeMsgForModerators = "";
 	private String loginUrl;
 	private String logoutUrl;
-	private int logoutTimer = 0;
 	private int maxUsers;
 	private String bannerColor = "#FFFFFF";
 	private String bannerText = "";
 	private boolean record;
 	private boolean autoStartRecording = false;
 	private boolean allowStartStopRecording = false;
-	private String sharedNotesEditor = "etherpad";
 	private String sharedNotesInitialContentJsonUrl = "";
 	private ArrayList<Object> sharedNotesInitialContentJson;
 	private String sharedNotesInitialContentMarkdownUrl = "";
@@ -90,22 +88,18 @@ public class Meeting {
 	private  ArrayList<PluginManifest> pluginManifests;
 	private String html5PluginSdkVersion;
 	private String guestPolicy = GuestPolicy.ASK_MODERATOR;
-	private String guestLobbyMessage = "";
-	private Map<String,String> usersWithGuestLobbyMessages;
 	private Boolean authenticatedGuest = false;
 	private Boolean allowPromoteGuestToModerator = false;
 	private long waitingGuestUsersTimeout = 30000;
 	private String meetingLayout = MeetingLayout.SMART_LAYOUT;
 	private boolean userHasJoined = false;
-	private Map<String, String> guestUsersWithPositionInWaitingLine;
 	private Map<String, String> metadata;
 	private final Map<String, String> pluginMetadataParametersMap;
 	private Map<String, Object> userCustomData;
 	private final ConcurrentMap<String, User> users;
 	private final ConcurrentMap<String, RegisteredUser> registeredUsers;
-	private final ConcurrentMap<String, Long> enteredUsers;
 	private final Boolean isBreakout;
-	private final List<String> breakoutRooms = new ArrayList<>();
+	private final List<BreakoutRoomIds> breakoutRooms = new ArrayList<>();
 	private ArrayList<Group> groups = new ArrayList<Group>();
 	private String customLogoURL = "";
 	private String customDarkLogoURL = "";
@@ -117,6 +111,8 @@ public class Meeting {
 	private Boolean requireUserConsentBeforeUnmuting = false;
 	private Boolean allowRequestsWithoutSession = false;
 	private Boolean allowModsToEjectCameras = false;
+	private Boolean allowModsToRequestCameraShare = false;
+	private Boolean hideUsersWithoutCamera = false;
 	private Boolean meetingKeepEvents;
 	private String presentationUploadExternalDescription;
 	private String presentationUploadExternalUrl;
@@ -151,6 +147,7 @@ public class Meeting {
 		pluginManifests = builder.pluginManifests;
 		html5PluginSdkVersion = builder.html5PluginSdkVersion;
 		notifyRecordingIsOn = builder.notifyRecordingIsOn;
+		notifyRecordingAppend = builder.notifyRecordingAppend;
 		presentationUploadExternalDescription = builder.presentationUploadExternalDescription;
 		presentationUploadExternalUrl = builder.presentationUploadExternalUrl;
 		if (builder.viewerPass == null){
@@ -170,14 +167,12 @@ public class Meeting {
         bannerText = builder.bannerText;
         loginUrl = builder.loginUrl;
         logoutUrl = builder.logoutUrl;
-        logoutTimer = builder.logoutTimer;
         defaultAvatarURL = builder.defaultAvatarURL;
         defaultBotAvatarURL = builder.defaultBotAvatarURL;
 				defaultWebcamBackgroundURL = builder.defaultWebcamBackgroundURL;
         record = builder.record;
         autoStartRecording = builder.autoStartRecording;
         allowStartStopRecording = builder.allowStartStopRecording;
-        sharedNotesEditor = builder.sharedNotesEditor;
 		sharedNotesInitialContentJsonUrl = builder.sharedNotesInitialContentJsonUrl;
 		sharedNotesInitialContentMarkdownUrl = builder.sharedNotesInitialContentMarkdownUrl;
 		sharedNotesInitialContentMarkdown = builder.sharedNotesInitialContentMarkdown;
@@ -189,7 +184,6 @@ public class Meeting {
         userCameraCap = builder.userCameraCap;
         maxPinnedCameras = builder.maxPinnedCameras;
         duration = builder.duration;
-        webVoice = builder.webVoice;
         telVoice = builder.telVoice;
         welcomeMsgTemplate = builder.welcomeMsgTemplate;
         welcomeMsg = builder.welcomeMsg;
@@ -215,21 +209,22 @@ public class Meeting {
 				cameraBridge = builder.cameraBridge;
 				screenShareBridge = builder.screenShareBridge;
 				audioBridge = builder.audioBridge;
-		guestUsersWithPositionInWaitingLine = new HashMap<>();
-        userCustomData = new HashMap<>();
-		usersWithGuestLobbyMessages = new HashMap<>();
+        userCustomData = new ConcurrentHashMap<>();
 
         users = new ConcurrentHashMap<>();
         registeredUsers = new ConcurrentHashMap<>();
-        enteredUsers = new  ConcurrentHashMap<>();
     }
 
-	public void addBreakoutRoom(String meetingId) {
-		breakoutRooms.add(meetingId);
+	public void addBreakoutRoom(String externalId, String internalId) {
+		breakoutRooms.add(new BreakoutRoomIds(externalId, internalId));
 	}
 
 	public List<String> getBreakoutRooms() {
-		return breakoutRooms;
+		return breakoutRooms.stream().map(BreakoutRoomIds::externalId).collect(Collectors.toList());
+	}
+
+	public List<String> getBreakoutRoomsInternalIds() {
+		return breakoutRooms.stream().map(BreakoutRoomIds::internalId).collect(Collectors.toList());
 	}
 
 	public Map<String, String> getMetadata() {
@@ -270,29 +265,6 @@ public class Meeting {
 		return usersWithExtId;
 	}
 
-	public void guestIsWaiting(String userId) {
-		RegisteredUser ruser = registeredUsers.get(userId);
-		if (ruser != null) {
-			ruser.updateGuestWaitedOn();
-		}
-	}
-
-	public void setLeftGuestLobby(String userId, Boolean bool) {
-		RegisteredUser ruser = registeredUsers.get(userId);
-		if (ruser != null) {
-			ruser.setLeftGuestLobby(bool);
-		}
-	}
-
-	public Boolean didGuestUserLeaveGuestLobby(String userId) {
-		RegisteredUser ruser = registeredUsers.get(userId);
-
-		if (ruser != null) {
-			return ruser.getLeftGuestLobby();
-		}
-		return true;
-	}
-
 	public void setGuestStatusWithId(String userId, String guestStatus) {
     	User user = getUserById(userId);
     	if (user != null) {
@@ -308,25 +280,6 @@ public class Meeting {
 
 	public RegisteredUser getRegisteredUserWithUserId(String userId) {
 		return registeredUsers.get(userId);
-	}
-
-	public RegisteredUser getRegisteredUserWithAuthToken(String authToken) {
-		for (RegisteredUser ruser : registeredUsers.values()) {
-			if (ruser.authToken.equals(authToken)) {
-				return ruser;
-			}
-		}
-
-		return null;
-	}
-
-	public String getGuestStatusWithAuthToken(String authToken) {
-		RegisteredUser rUser = getRegisteredUserWithAuthToken(authToken);
-		if (rUser != null) {
-			return rUser.getGuestStatus();
-		}
-
-		return GuestPolicy.DENY;
 	}
 
 	public ArrayList<Group> getGroups() { return groups; }
@@ -449,10 +402,6 @@ public class Meeting {
 	    return parentMeetingId;
 	}
 
-	public String getWebVoice() {
-		return webVoice;
-	}
-
 	public String getTelVoice() {
 		return telVoice;
 	}
@@ -497,6 +446,10 @@ public class Meeting {
 		return notifyRecordingIsOn;
 	}
 
+	public String getNotifyRecordingAppend() {
+		return notifyRecordingAppend;
+	}
+
 	public String getPresentationUploadExternalDescription() {
 		return presentationUploadExternalDescription;
 	}
@@ -524,14 +477,6 @@ public class Meeting {
 		return defaultWebcamBackgroundURL;
 	}
 
-	public void setWaitingPositionsInWaitingQueue(HashMap<String, String> guestUsersWithPositionInWaitingLine) {
-		this.guestUsersWithPositionInWaitingLine = guestUsersWithPositionInWaitingLine;
-	}
-
-	public String getWaitingPositionsInWaitingQueue(String userId) {
-		return guestUsersWithPositionInWaitingLine.get(userId);
-	}
-
 	public void setGuestPolicy(String policy) {
 		guestPolicy = policy;
 	}
@@ -551,21 +496,6 @@ public class Meeting {
     public void setMultiUserWhiteboardEnabled(Boolean multiUserWhiteboardEnabled) {
         this.multiUserWhiteboardEnabled = multiUserWhiteboardEnabled;
     }
-
-	public void setGuestLobbyMessage(String message) {
-		guestLobbyMessage = message;
-	}
-
-	public String getGuestLobbyMessage(String guestId) {
-		if (usersWithGuestLobbyMessages.containsKey(guestId) && usersWithGuestLobbyMessages.get(guestId) != "") {
-			return usersWithGuestLobbyMessages.get(guestId);
-		}
-		return guestLobbyMessage;
-	}
-
-	public void setPrivateGuestLobbyMessage(String guestId, String message) {
-		usersWithGuestLobbyMessages.put(guestId, message);
-	}
 
 	public void setAuthenticatedGuest(Boolean authGuest) {
 		authenticatedGuest = authGuest;
@@ -661,10 +591,6 @@ public class Meeting {
 		return maxUserConcurrentAccesses;
 	}
 
-	public int getLogoutTimer() {
-		return logoutTimer;
-	}
-
 	public String getBannerColor() {
 		return bannerColor;
 	}
@@ -683,10 +609,6 @@ public class Meeting {
 
 	public boolean getAllowStartStopRecording() {
 		return allowStartStopRecording;
-	}
-
-	public String getSharedNotesEditor() {
-		return sharedNotesEditor;
 	}
 
 	public String getSharedNotesInitialContentJsonUrl() {
@@ -821,6 +743,22 @@ public class Meeting {
     return allowModsToEjectCameras;
   }
 
+  public void setAllowModsToRequestCameraShare(Boolean value) {
+    allowModsToRequestCameraShare = value;
+  }
+
+  public Boolean getAllowModsToRequestCameraShare() {
+    return allowModsToRequestCameraShare;
+  }
+
+  public void setHideUsersWithoutCamera(Boolean value) {
+    hideUsersWithoutCamera = value;
+  }
+
+  public Boolean getHideUsersWithoutCamera() {
+    return hideUsersWithoutCamera;
+  }
+
 	public void userJoined(User user) {
 		User u = getUserById(user.getInternalUserId());
 		if (u != null) {
@@ -828,8 +766,6 @@ public class Meeting {
 		} else {
 			if (!userHasJoined) userHasJoined = true;
 			this.users.put(user.getInternalUserId(), user);
-			// Clean this user up from the entered user's list
-			removeEnteredUser(user.getInternalUserId());
 		}
 	}
 
@@ -991,29 +927,6 @@ public class Meeting {
         return registeredUsers;
     }
 
-    public ConcurrentMap<String, Long> getEnteredUsers() {
-        return this.enteredUsers;
-    }
-
-    public void userEntered(String userId) {
-        // Skip if user already joined
-        User u = getUserById(userId);
-        if (u != null) return;
-
-        if (!enteredUsers.containsKey(userId)) {
-            Long time = System.currentTimeMillis();
-            this.enteredUsers.put(userId, time);
-        }
-    }
-
-    public Long removeEnteredUser(String userId) {
-        return this.enteredUsers.remove(userId);
-    }
-
-    public Long getEnteredUserById(String userId) {
-        return this.enteredUsers.get(userId);
-    }
-
 	public void setMaxNumPages(int maxNumPages) { this.maxNumPages = maxNumPages; }
 	public int getMaxNumPages() { return maxNumPages; }
 
@@ -1037,6 +950,12 @@ public class Meeting {
         this.sharedNotesInitialContentMarkdownFromPayload = sharedNotesInitialContentMarkdownFromPayload;
     }
 
+	// Both IDs are captured at breakout-creation time and kept together so they can't drift apart.
+	// The internal ID is needed for Learning Dashboard cleanup: a breakout is dropped from
+	// MeetingService's live registry as soon as it ends, so by the time this parent meeting ends
+	// there's no live Meeting object left to read it back from.
+	public record BreakoutRoomIds(String externalId, String internalId) {}
+
     /***
 	 * Meeting Builder
 	 *
@@ -1050,7 +969,6 @@ public class Meeting {
     	private boolean autoStartRecording;
     	private boolean recordFullDurationMedia;
         private boolean allowStartStopRecording;
-        private String sharedNotesEditor;
 		private String sharedNotesInitialContentJsonUrl;
 		private String sharedNotesInitialContentMarkdownUrl;
 		private String sharedNotesInitialContentMarkdown;
@@ -1068,10 +986,10 @@ public class Meeting {
 		private ArrayList<PluginManifest> pluginManifests;
 		private String html5PluginSdkVersion;
 		private Boolean notifyRecordingIsOn;
+		private String notifyRecordingAppend = "";
 		private String presentationUploadExternalDescription;
 		private String presentationUploadExternalUrl;
     	private int duration;
-    	private String webVoice;
     	private String telVoice;
     	private String welcomeMsgTemplate;
     	private String welcomeMsg;
@@ -1082,7 +1000,6 @@ public class Meeting {
 			private String cameraBridge;
 			private String screenShareBridge;
 			private String audioBridge;
-    	private int logoutTimer;
     	private Map<String, String> metadata;
     	private Map<String, String> pluginMetadataParametersMap;
     	private String dialNumber;
@@ -1138,11 +1055,6 @@ public class Meeting {
 
     	public Builder withAllowStartStopRecording(boolean allow) {
     		this.allowStartStopRecording = allow;
-    		return this;
-    	}
-
-		public Builder withSharedNotesEditor(String type) {
-    		this.sharedNotesEditor = type;
     		return this;
     	}
 
@@ -1211,11 +1123,6 @@ public class Meeting {
 					return this;
 				}
 
-    	public Builder withWebVoice(String w) {
-    		this.webVoice = w;
-    		return this;
-    	}
-
     	public Builder withTelVoice(String t) {
     		this.telVoice = t;
     		return this;
@@ -1266,6 +1173,11 @@ public class Meeting {
 	    	return this;
 	    }
 
+		public Builder withNotifyRecordingAppend(String message) {
+			this.notifyRecordingAppend = message;
+			return this;
+		}
+
     	public Builder withPresentationUploadExternalDescription(String d) {
 	    	this.presentationUploadExternalDescription = d;
 	    	return this;
@@ -1314,11 +1226,6 @@ public class Meeting {
     	public Builder withLogoutUrl(String l) {
     	  logoutUrl = l;
     	  return this;
-    	}
-
-    	public Builder withLogoutTimer(int l) {
-    		logoutTimer = l;
-    		return this;
     	}
 
     	public Builder withBannerColor(String c) {

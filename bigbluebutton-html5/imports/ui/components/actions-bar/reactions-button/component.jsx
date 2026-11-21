@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { defineMessages } from 'react-intl';
 import PropTypes from 'prop-types';
+import deviceInfo from '/imports/utils/deviceInfo';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import { convertRemToPixels } from '/imports/utils/dom-utils';
 import { SET_REACTION_EMOJI } from '/imports/ui/core/graphql/mutations/userMutations';
@@ -100,6 +101,7 @@ const ReactionsButton = (props) => {
     onClick: () => (currentUserReaction !== 'none' ? handleReactionSelect('none') : null),
     customStyles: actionCustomStyles,
     dataTest: 'remove-reaction',
+    className: 'bbb-menu__item--remove-reaction',
   });
 
   const svgIcon = currentUserReaction === 'none' ? 'reactions' : null;
@@ -133,7 +135,7 @@ const ReactionsButton = (props) => {
             color={showEmojiPicker || customIcon ? 'primary' : 'default'}
             hideLabel
             circle
-            size="lg"
+            size={deviceInfo.isMobile ? 'md' : 'lg'}
             hoverColor={listItemBgHover}
           />
         </Styled.ReactionsDropdown>

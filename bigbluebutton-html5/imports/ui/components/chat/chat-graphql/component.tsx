@@ -183,6 +183,7 @@ const Chat: React.FC<ChatProps> = ({
       <ChatHeader />
       <Styled.Separator />
       <Styled.ContentWrapper
+        className="bbb-chat"
         id="scroll-box"
       >
         {shouldShowChatButtons ? (

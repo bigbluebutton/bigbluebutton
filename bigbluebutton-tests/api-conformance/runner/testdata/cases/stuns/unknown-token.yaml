@@ -1,0 +1,13 @@
+id: stuns.session.unknown-token
+title: stuns reports an unknown session token at the top level of its JSON
+endpoint: stuns
+class: compat
+steps:
+  - call: stuns
+    params: {sessionToken: nope}
+    expect:
+      format: json
+      returncode: FAILED
+      jsonpath:
+        $.message: Could not find conference.
+        $.logoutURL: {exists: true}

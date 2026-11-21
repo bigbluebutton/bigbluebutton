@@ -2,9 +2,17 @@ import { expect } from '@playwright/test';
 
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
+import { Page } from '../core/page';
 import { checkTextContent } from '../core/util';
 import { MultiUsers } from '../user/multiusers';
-import { checkLastMessageSent, openPrivateChat, openPublicChat } from './util';
+import {
+  checkLastMessageSent,
+  countPublicMessageCreatedAtTies,
+  openPrivateChat,
+  openPublicChat,
+  sendPublicMessages,
+  sendPublicMessagesInBatches,
+} from './util';
 
 export class Chat extends MultiUsers {
   async sendPublicMessage() {
@@ -19,8 +27,14 @@ export class Chat extends MultiUsers {
 
   async sendPrivateMessage() {
     await this.modPage.hasElement(e.chatBox, 'should display the chat box element when chat is open');
-    await this.modPage.wasRemoved(e.publicChatButton, 'should not display the public chat button when there is no private messages');
-    await this.modPage.wasRemoved(e.privateChatButton, 'should not display the private chat button when there is no private messages');
+    await this.modPage.wasRemoved(
+      e.publicChatButton,
+      'should not display the public chat button when there is no private messages',
+    );
+    await this.modPage.wasRemoved(
+      e.privateChatButton,
+      'should not display the private chat button when there is no private messages',
+    );
     await openPrivateChat(this.modPage);
     await this.modPage.hasElement(
       e.hidePrivateChat,
@@ -32,7 +46,10 @@ export class Chat extends MultiUsers {
     await this.modPage.fill(e.chatBox, e.message1);
     await this.modPage.waitAndClick(e.sendButton);
     await this.userPage.waitAndClick(e.privateChatButton);
-    await this.userPage.hasElement(e.privateChatItem, 'should display the private chat item when user receives a private message');
+    await this.userPage.hasElement(
+      e.privateChatItem,
+      'should display the private chat item when user receives a private message',
+    );
     await this.userPage.waitAndClick(e.privateChatItem);
     await this.userPage.hasElement(
       e.hidePrivateChat,
@@ -143,32 +160,106 @@ export class Chat extends MultiUsers {
   }
 
   async characterLimit() {
-    const { maxMessageLength } = this.modPage.settings || {};
+    const { maxMessageLength = 0 } = this.modPage.settings || {};
+    expect(maxMessageLength, 'should read chat.max_message_length from the client settings').toBeGreaterThan(0);
+    const longestMessage = e.uniqueCharacterMessage.repeat(maxMessageLength);
+    const receivedMessages = this.userPage.page.locator(e.chatUserMessageText);
 
     await openPublicChat(this.modPage);
-
-    const initialMessagesCount = await this.modPage.getSelectorCount(e.chatUserMessageText);
-    // TODO test depends on the maxMessageLength; in case not available, loop until not able to type anymore
-    await this.modPage.page.fill(e.chatBox, e.uniqueCharacterMessage.repeat(maxMessageLength || 1000));
-    await this.modPage.waitAndClick(e.sendButton);
-    await this.modPage.hasElement(
-      e.chatUserMessageText,
-      'should display only one message text sent by the user on the public chat',
+    await this.modPage.fill(e.chatBox, longestMessage);
+    await this.modPage.wasRemoved(
+      e.errorTypingIndicator,
+      'should not warn about a message of exactly the maximum length',
     );
-    await this.modPage.hasElementCount(
-      e.chatUserMessageText,
-      initialMessagesCount + 1,
-      'should display 2 messages on the public chat',
-    );
-
-    await this.modPage.page.fill(e.chatBox, e.uniqueCharacterMessage.repeat(maxMessageLength || 1000));
-    await this.modPage.type(e.chatBox, '123'); // it should has no effect
-    await this.modPage.hasElement(e.errorTypingIndicator, 'Should appear the warning message below the chat box');
     await this.modPage.waitAndClick(e.sendButton);
-    await this.modPage.hasElementCount(
-      e.chatUserMessageText,
-      initialMessagesCount + 2,
-      'should display 2 additional messages on the public chat',
+    await expect(receivedMessages, 'should deliver the message of the maximum length').toHaveText([longestMessage]);
+
+    // what is typed past the limit is dropped, with a warning
+    await this.modPage.fill(e.chatBox, longestMessage);
+    await this.modPage.type(e.chatBox, '123');
+    await this.modPage.hasValue(e.chatBox, longestMessage, 'should keep only the maximum number of characters');
+    await this.modPage.hasText(
+      e.errorTypingIndicator,
+      `${e.chatMaxLengthWarning} ${maxMessageLength} characters`,
+      'should warn that the message is too long',
+    );
+    await this.modPage.waitAndClick(e.sendButton);
+    await expect(receivedMessages, 'should deliver the message cut at the maximum length').toHaveText([
+      longestMessage,
+      longestMessage,
+    ]);
+    await this.modPage.wasRemoved(e.errorTypingIndicator, 'should remove the warning once the message is sent');
+    await this.modPage.hasValue(e.chatBox, '', 'should empty the chat box once the message is sent');
+  }
+
+  async lateJoinerLoadsOlderMessages() {
+    const messages = Array.from(
+      { length: 120 },
+      (_v, index) => `History message ${String(index + 1).padStart(3, '0')}`,
+    );
+    await openPublicChat(this.modPage);
+    await sendPublicMessages(this.modPage, messages);
+    await checkLastMessageSent(this.modPage, messages[messages.length - 1]);
+
+    await this.initUserPage();
+    const receivedMessages = this.userPage.page.locator(e.chatUserMessageText);
+    const firstMessage = receivedMessages.filter({ hasText: messages[0] });
+    await checkLastMessageSent(this.userPage, messages[messages.length - 1]);
+    // the client loads the most recent pages of 50 messages on join
+    await expect(firstMessage, 'should not load the oldest messages on join').toHaveCount(0);
+
+    const chatMessagesBox = await this.userPage.page.locator(e.chatMessages).boundingBox();
+    if (!chatMessagesBox) throw new Error('chat messages boundingBox is null');
+    await this.userPage.page.mouse.move(
+      chatMessagesBox.x + chatMessagesBox.width / 2,
+      chatMessagesBox.y + chatMessagesBox.height / 2,
+    );
+    await expect(async () => {
+      await this.userPage.page.mouse.wheel(0, -2000);
+      await expect(firstMessage).toBeVisible({ timeout: 1000 });
+    }, 'should load the oldest message when scrolling up').toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
+    await expect(receivedMessages, 'should show the whole history').toHaveCount(messages.length);
+    expect((await receivedMessages.allInnerTexts()).sort(), 'should show every message of the history').toEqual(
+      [...messages].sort(),
+    );
+  }
+
+  async lateJoinerLoadsMessagesInSequence() {
+    const messages = Array.from(
+      { length: 120 },
+      (_v, index) => `Ordered history message ${String(index + 1).padStart(3, '0')}`,
+    );
+    await openPublicChat(this.modPage);
+    await sendPublicMessagesInBatches(this.modPage, messages, 20);
+    await checkLastMessageSent(this.modPage, messages[messages.length - 1]);
+    const createdAtTieCount = await countPublicMessageCreatedAtTies(this.modPage);
+    this.modPage.testInfo?.annotations.push({
+      type: 'createdAt ties in oldest page',
+      description: String(createdAtTieCount),
+    });
+
+    await this.initUserPage();
+    const receivedMessages = this.userPage.page.locator(e.chatUserMessageText);
+    const firstMessage = receivedMessages.filter({ hasText: messages[0] });
+    await checkLastMessageSent(this.userPage, messages[messages.length - 1]);
+    const chatMessagesBox = await this.userPage.page.locator(e.chatMessages).boundingBox();
+    if (!chatMessagesBox) throw new Error('chat messages boundingBox is null');
+    await this.userPage.page.mouse.move(
+      chatMessagesBox.x + chatMessagesBox.width / 2,
+      chatMessagesBox.y + chatMessagesBox.height / 2,
+    );
+    await expect(async () => {
+      await this.userPage.page.mouse.wheel(0, -2000);
+      await expect(firstMessage).toBeVisible({ timeout: 1000 });
+    }, 'should load the oldest message when scrolling up').toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
+
+    await expect(receivedMessages, 'should show every user message').toHaveCount(messages.length);
+    const sequences = await this.userPage.page
+      .locator(e.chatMessageItem)
+      .evaluateAll((items) => items.map((item) => Number(item.getAttribute('data-sequence'))));
+    expect(sequences, 'should not repeat a message sequence').toHaveLength(new Set(sequences).size);
+    expect(sequences, 'should show chat messages in their server sequence').toEqual(
+      Array.from({ length: sequences.length }, (_v, index) => index + 1),
     );
   }
 
@@ -204,15 +295,7 @@ export class Chat extends MultiUsers {
   }
 
   async sendEmoji() {
-    const { emojiPickerEnabled } = this.modPage.settings || {};
-
     await openPublicChat(this.modPage);
-
-    if (!emojiPickerEnabled) {
-      await this.modPage.hasElement(e.chatBox, 'should display the chat box element');
-      await this.modPage.wasRemoved(e.emojiPickerButton, 'should not display the emoji picker button element');
-      return;
-    }
 
     const message = this.modPage.page.locator(e.chatUserMessageText);
     await expect(message, 'should not display any messages on the public chat').toHaveCount(0);
@@ -223,21 +306,12 @@ export class Chat extends MultiUsers {
 
     await this.modPage.waitForSelector(e.chatUserMessageText);
     await expect(message, 'should display only one message that contains an emoji on the public chat').toHaveCount(1);
+    await checkLastMessageSent(this.modPage, e.thumbsUpEmoji);
   }
 
   async emojiCopyChat() {
-    const { emojiPickerEnabled } = this.modPage.settings || {};
-
     await openPublicChat(this.modPage);
 
-    if (!emojiPickerEnabled) {
-      await this.modPage.hasElement(e.chatBox, 'should display the chat box element on the public chat');
-      await this.modPage.wasRemoved(
-        e.emojiPickerButton,
-        'should not display the emoji picker button on the public chat',
-      );
-      return;
-    }
     await this.modPage.waitAndClick(e.emojiPickerButton);
     await this.modPage.getByLabelAndClick(e.thumbsUpEmoji);
     await this.modPage.waitAndClick(e.sendButton);
@@ -262,7 +336,10 @@ export class Chat extends MultiUsers {
     await this.modPage.hasElement(e.sendButton, 'should display the send button element');
     await this.modPage.waitAndClick(e.hidePublicChat);
     await this.modPage.wasRemoved(e.chatTitle, 'should not display the chat title element after hiding the messages');
-    await this.modPage.wasRemoved(e.chatOptions, 'should not display the chat options element after hiding the messages');
+    await this.modPage.wasRemoved(
+      e.chatOptions,
+      'should not display the chat options element after hiding the messages',
+    );
     await this.modPage.wasRemoved(e.chatBox, 'should not display the chat box element after hiding the messages');
     await this.modPage.wasRemoved(e.sendButton, 'should not display the send button element after hiding the messages');
   }
@@ -299,14 +376,7 @@ export class Chat extends MultiUsers {
   }
 
   async emojiSaveChat() {
-    const { emojiPickerEnabled } = this.modPage.settings || {};
-
     await openPublicChat(this.modPage);
-    if (!emojiPickerEnabled) {
-      await this.modPage.hasElement(e.chatBox, 'should display the public chat box');
-      await this.modPage.wasRemoved(e.emojiPickerButton, 'should not display the emoji picker button');
-      return;
-    }
     await this.modPage.waitAndClick(e.emojiPickerButton);
     await this.modPage.getByLabelAndClick(e.thumbsUpEmoji);
     await this.modPage.waitAndClick(e.sendButton);
@@ -324,8 +394,6 @@ export class Chat extends MultiUsers {
   }
 
   async emojiSendPrivateChat() {
-    const { emojiPickerEnabled } = this.modPage.settings || {};
-
     await openPrivateChat(this.modPage);
     await this.modPage.hasElement(
       e.hidePrivateChat,
@@ -334,14 +402,6 @@ export class Chat extends MultiUsers {
     // prevent a race condition when running on a deployed server
     await this.modPage.page.waitForTimeout(500);
     // modPage send message
-    if (!emojiPickerEnabled) {
-      await this.modPage.hasElement(e.chatBox, 'should display the public chat box');
-      await this.modPage.wasRemoved(
-        e.emojiPickerButton,
-        'should not display the emoji picker button on the public chat',
-      );
-      return;
-    }
     await this.modPage.waitAndClick(e.emojiPickerButton);
     await this.modPage.getByLabelAndClick(e.thumbsUpEmoji);
     await this.modPage.waitAndClick(e.sendButton);
@@ -532,7 +592,10 @@ export class Chat extends MultiUsers {
       return;
     }
     await this.userPage.waitAndClick(e.privateChatButton);
-    await this.userPage.hasElement(e.privateChatItem, 'should display the private chat item when the user receives a private message');
+    await this.userPage.hasElement(
+      e.privateChatItem,
+      'should display the private chat item when the user receives a private message',
+    );
     await this.userPage.waitAndClick(e.privateChatItem);
     // check sent messages
     await checkLastMessageSent(this.modPage, e.convertedEmojiMessage);
@@ -551,6 +614,46 @@ export class Chat extends MultiUsers {
       lastMessageLocatorUser,
       'should the last message sent on private chat to be the auto converted emoji',
     ).toHaveText(e.convertedEmojiMessage);
+  }
+
+  async presenterChangeAnnouncement() {
+    const moderatorName = this.modPage.username;
+    const attendeeName = this.userPage.username;
+    const announcement = (testPage: Page, text: string | RegExp) =>
+      testPage.page.locator(e.chatNotificationMessageText).filter({ hasText: text });
+
+    await expect(
+      announcement(this.userPage, new RegExp(`^${moderatorName} is now the presenter$`)),
+      'should announce the moderator, who became presenter on joining, without anyone setting it',
+    ).toBeVisible();
+
+    await this.modPage.waitAndClick(e.usersListSidebarButton);
+    const attendeeRow = this.modPage.page.locator(e.userListItem).filter({ hasText: attendeeName });
+    await attendeeRow.locator(e.moreOptionsUserItemButton).click();
+    await this.modPage.getVisibleLocator(e.makePresenter).click();
+    const attendeeIsPresenter = `${attendeeName} is now the presenter, set by ${moderatorName}`;
+    await expect(
+      announcement(this.userPage, attendeeIsPresenter),
+      'should announce the new presenter and who set it to the attendee',
+    ).toBeVisible();
+
+    await this.modPage.page.locator(e.currentUser).locator(e.moreOptionsUserItemButton).click();
+    await this.modPage.getVisibleLocator(e.takePresenter).click();
+    const moderatorIsPresenter = `${moderatorName} is now the presenter, set by ${moderatorName}`;
+    await expect(
+      announcement(this.userPage, moderatorIsPresenter),
+      'should announce the moderator taking the presenter role back to the attendee',
+    ).toBeVisible();
+
+    await this.modPage.waitAndClick(e.messagesSidebarButton);
+    await expect(
+      announcement(this.modPage, attendeeIsPresenter),
+      'should announce the new presenter to the moderator',
+    ).toBeVisible();
+    await expect(
+      announcement(this.modPage, moderatorIsPresenter),
+      'should announce the moderator taking the presenter role back to the moderator',
+    ).toBeVisible();
   }
 
   async chatDisabledUserLeaves() {

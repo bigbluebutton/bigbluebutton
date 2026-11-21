@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SECRET=$(grep sharedSecret /etc/bigbluebutton/bbb-apps-akka.conf | sed 's/^.*=//')
+SECRET=$(grep sharedSecret /etc/bigbluebutton/bbb-apps-akka.conf | sed 's/^[^=]*=//;s/,.*//')
 URL=$(grep bigbluebutton.web.serverURL= /etc/bigbluebutton/bbb-web.properties | sed 's/^.*=//')
 
 echo BBB_URL="$URL/bigbluebutton/api"

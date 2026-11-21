@@ -4,7 +4,6 @@ import com.softwaremill.quicklens._
 import org.bigbluebutton.core.db.{
   UserDAO,
   UserSessionTokenDAO,
-  UserLivekitDAO
 }
 import org.bigbluebutton.core.domain.BreakoutRoom2x
 
@@ -12,8 +11,7 @@ object RegisteredUsers {
   def create(meetingId: String, userId: String, extId: String, name: String, firstName: String, lastName: String, roles: String,
              authToken: String, sessionToken: Vector[String], avatar: String, webcamBackground: String, color: String, bot: Boolean,
              guest: Boolean, authenticated: Boolean, guestStatus: String, excludeFromDashboard: Boolean, enforceLayout: String, logoutUrl: String,
-             joinRequestMetadata: Map[String, String], userMetadata: Map[String, String], loggedOut: Boolean,
-             livekitToken: Option[String] = None): RegisteredUser = {
+             joinRequestMetadata: Map[String, String], userMetadata: Map[String, String], loggedOut: Boolean): RegisteredUser = {
     new RegisteredUser(
       userId,
       extId,
@@ -44,7 +42,6 @@ object RegisteredUsers {
       joinRequestMetadata,
       userMetadata,
       loggedOut,
-      livekitToken = livekitToken
     )
   }
 
@@ -72,6 +69,10 @@ object RegisteredUsers {
     users.toVector.filter(ru => id == ru.externId)
   }
 
+  def findAllSessionsWithUserId(id: String, users: RegisteredUsers): Vector[RegisteredUser] = {
+    findWithUserId(id, users).toVector.flatMap(ru => findAllWithExternUserId(ru.externId, users))
+  }
+
   def getRegisteredUserWithToken(token: String, userId: String, regUsers: RegisteredUsers): Option[RegisteredUser] = {
     def isSameUserId(ru: RegisteredUser, userId: String): Option[RegisteredUser] = {
       if (userId.startsWith(ru.id)) {
@@ -92,7 +93,7 @@ object RegisteredUsers {
   }
 
   def numUniqueJoinedUsers(regUsers: RegisteredUsers): Int = {
-    regUsers.toVector.filter(_.joined).map(_.externId).distinct.length
+    regUsers.toVector.filter(u => u.joined && !u.banned).map(_.externId).distinct.length
   }
 
   def numRegisteredUsers(regUsers: RegisteredUsers): Int = {
@@ -101,27 +102,26 @@ object RegisteredUsers {
 
   def add(users: RegisteredUsers, user: RegisteredUser, meetingId: String): Vector[RegisteredUser] = {
 
-    findWithExternUserId(user.externId, users) match {
-      case Some(u) =>
-        if (u.banned) {
-          // Banned user is rejoining. Don't add so that validate token
-          // will fail and can't join.
-          // ralam april 21, 2020
-          val bannedUser = user.copy(banned = true)
-          UserDAO.insert(meetingId, bannedUser)
-          users.save(bannedUser)
-        } else {
-          // If user hasn't been ejected, we allow user to join
-          // as the user might be joining using 2 browsers for
-          // better management of meeting.
-          // ralam april 21, 2020
-          UserDAO.insert(meetingId, user)
-          users.save(user)
-        }
-      case None =>
-        UserDAO.insert(meetingId, user)
-        users.save(user)
+    if (findAllWithExternUserId(user.externId, users).exists(_.banned)) {
+      val bannedUser = user.copy(banned = true)
+      UserDAO.insert(meetingId, bannedUser)
+      users.save(bannedUser)
+    } else {
+      UserDAO.insert(meetingId, user)
+      users.save(user)
     }
+  }
+
+  def revokeExtId(users: RegisteredUsers, extId: String): Unit = {
+    users.addRevokedExtId(extId)
+  }
+
+  def restoreExtId(users: RegisteredUsers, extId: String): Unit = {
+    users.removeRevokedExtId(extId)
+  }
+
+  def isExtIdRevoked(users: RegisteredUsers, extId: String): Boolean = {
+    users.isRevokedExtId(extId)
   }
 
   private def banOrEjectUser(ejectedUser: RegisteredUser, users: RegisteredUsers, ban: Boolean): RegisteredUser = {
@@ -225,20 +225,27 @@ object RegisteredUsers {
     u
   }
 
-  def setLivekitToken(users: RegisteredUsers, user: RegisteredUser, token: String): RegisteredUser = {
-    val u = user.copy(livekitToken = Some(token))
-    users.save(u)
-    UserLivekitDAO.insert(u.meetingId, u.id, token)
-    u
-  }
 }
 
 class RegisteredUsers {
   private var regUsers = new collection.immutable.HashMap[String, RegisteredUser]
+  private var revokedExtIds = collection.immutable.Set.empty[String]
 
   private def toVector: Vector[RegisteredUser] = regUsers.values.toVector
 
-  private def save(user: RegisteredUser): Vector[RegisteredUser] = {
+  private def addRevokedExtId(extId: String): Unit = {
+    revokedExtIds += extId
+  }
+
+  private def removeRevokedExtId(extId: String): Unit = {
+    revokedExtIds -= extId
+  }
+
+  private def isRevokedExtId(extId: String): Boolean = {
+    revokedExtIds.contains(extId)
+  }
+
+  private[models] def save(user: RegisteredUser): Vector[RegisteredUser] = {
     regUsers += user.authToken -> user
     regUsers.values.toVector
   }
@@ -283,6 +290,5 @@ case class RegisteredUser(
     userMetadata:             Map[String, String],
     loggedOut:                Boolean,
     lastBreakoutRoom:         BreakoutRoom2x = null,
-    livekitToken:             Option[String] = None,
 )
 

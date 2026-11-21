@@ -8,6 +8,7 @@ import { defineMessages, useIntl } from 'react-intl';
 import {
   useMutation,
 } from '@apollo/client';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import Styled from './styles';
 import { layoutDispatch } from '../../layout/context';
 import { ACTIONS, PANELS } from '../../layout/enums';
@@ -26,6 +27,7 @@ import logger from '/imports/startup/client/logger';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import Auth from '/imports/ui/services/auth';
 import PanelHeader from '/imports/ui/components/common/panel-header/component';
+import usePanelClose from '/imports/ui/components/common/panel-header/usePanelClose';
 import TimerTimeSection from './timer-time-section/component';
 
 const MILLI_IN_MINUTE = 60000;
@@ -210,50 +212,79 @@ const TimerPanelComponent: React.FC<TimerPanelProps> = ({
     );
   }, [songTrack, stopwatch, running, handleMusicSwitchChange, intl]);
 
+  const deactivateButton = (
+    <Styled.ButtonWrapper>
+      <BBButton
+        variant="secondary"
+        className="bbb-action-button bbb-action-button--secondary"
+        label={intl.formatMessage(intlMessages.deactivate)}
+        onClick={handleDeactivate}
+        dataTest="deactivateTimer"
+      />
+    </Styled.ButtonWrapper>
+  );
+
   let controlButtons;
   if (running) {
     controlButtons = (
       <Styled.ButtonRow>
-        <Styled.ResetButton
-          color="secondary"
-          label={intl.formatMessage(intlMessages.reset)}
-          onClick={handleReset}
-          data-test="resetTimerStopWatch"
-        />
-        <Styled.ControlButton
-          color="danger"
-          label={intl.formatMessage(intlMessages.stop)}
-          onClick={timerStop}
-          data-test="startStopTimer"
-        />
+        <Styled.ButtonWrapper>
+          <BBButton
+            variant="secondary"
+            className="bbb-action-button bbb-action-button--secondary"
+            label={intl.formatMessage(intlMessages.reset)}
+            onClick={handleReset}
+            dataTest="resetTimerStopWatch"
+          />
+        </Styled.ButtonWrapper>
+        <Styled.ButtonWrapper>
+          <BBButton
+            variant="primary"
+            color="danger"
+            className="bbb-action-button bbb-action-button--danger"
+            label={intl.formatMessage(intlMessages.stop)}
+            onClick={() => timerStop()}
+            dataTest="startStopTimer"
+          />
+        </Styled.ButtonWrapper>
       </Styled.ButtonRow>
     );
   } else if (isPaused) {
     controlButtons = (
       <Styled.ButtonRow>
-        <Styled.ResetButton
-          color="secondary"
-          label={intl.formatMessage(intlMessages.reset)}
-          onClick={handleReset}
-          data-test="resetTimerStopWatch"
-        />
-        <Styled.ControlButton
-          color="primary"
-          label={intl.formatMessage(intlMessages.start)}
-          onClick={timerStart}
-          data-test="startStopTimer"
-        />
+        <Styled.ButtonWrapper>
+          <BBButton
+            variant="secondary"
+            className="bbb-action-button bbb-action-button--secondary"
+            label={intl.formatMessage(intlMessages.reset)}
+            onClick={handleReset}
+            dataTest="resetTimerStopWatch"
+          />
+        </Styled.ButtonWrapper>
+        <Styled.ButtonWrapper>
+          <BBButton
+            variant="primary"
+            className="bbb-action-button bbb-action-button--primary"
+            label={intl.formatMessage(intlMessages.start)}
+            onClick={() => timerStart()}
+            dataTest="startStopTimer"
+          />
+        </Styled.ButtonWrapper>
       </Styled.ButtonRow>
     );
   } else {
     controlButtons = (
       <Styled.ButtonRow>
-        <Styled.ControlButton
-          color="primary"
-          label={intl.formatMessage(intlMessages.start)}
-          onClick={timerStart}
-          data-test="startStopTimer"
-        />
+        {deactivateButton}
+        <Styled.ButtonWrapper>
+          <BBButton
+            variant="primary"
+            className="bbb-action-button bbb-action-button--primary"
+            label={intl.formatMessage(intlMessages.start)}
+            onClick={() => timerStart()}
+            dataTest="startStopTimer"
+          />
+        </Styled.ButtonWrapper>
       </Styled.ButtonRow>
     );
   }
@@ -305,12 +336,11 @@ const TimerPanelComponent: React.FC<TimerPanelProps> = ({
           <Styled.FooterSeparator />
           <Styled.ControlsContainer>
             {controlButtons}
-            <Styled.DeactivateButton
-              color="default"
-              label={intl.formatMessage(intlMessages.deactivate)}
-              onClick={handleDeactivate}
-              data-test="deactivateTimer"
-            />
+            {(running || isPaused) && (
+              <Styled.ButtonRow>
+                {deactivateButton}
+              </Styled.ButtonRow>
+            )}
           </Styled.ControlsContainer>
         </Styled.TimerContent>
       </Styled.TimerScrollableContent>
@@ -325,8 +355,15 @@ const TimerPanelContaier: React.FC = () => {
   const [timerActivate] = useMutation(TIMER_ACTIVATE);
   const { data: timerData } = useTimer();
   const { data: currentUser } = useCurrentUser();
+  const { closePanel } = usePanelClose(PANELS.TIMER);
 
-  const amIModerator = !!currentUser?.isModerator;
+  const amIModerator = currentUser?.isModerator;
+
+  useEffect(() => {
+    if (amIModerator === false) {
+      closePanel();
+    }
+  }, [amIModerator, closePanel]);
 
   const activateTimer = useCallback(() => {
     if ((timerData?.active) || !amIModerator) return;
@@ -363,7 +400,7 @@ const TimerPanelContaier: React.FC = () => {
 
   const currentTimer = timerData;
 
-  if (currentTimer?.active) {
+  if (amIModerator && currentTimer?.active) {
     const {
       stopwatch,
       songTrack,

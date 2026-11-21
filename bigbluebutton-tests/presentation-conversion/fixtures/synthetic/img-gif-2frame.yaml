@@ -1,0 +1,18 @@
+id: img-gif-2frame
+title: "Two-frame animated GIF of the marker"
+tier: synthetic
+file: img-gif-2frame.gif
+issues: []
+catalog: ["File-type detection"]
+upload:
+  method: create
+pages: 0
+expect: dropped
+kind: any
+marker: true
+aspect: 1.5
+checks: [outcome]
+profiles: [defaults]
+notes: >-
+  gif is not in bbb-web's supported extensions; this records how the upload is refused. If it were
+  accepted, `convert -auto-orient` would write a 2-page PDF (measured with ImageMagick 6.9.12-98).

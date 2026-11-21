@@ -2,10 +2,10 @@ import React, { useEffect, useReducer, useRef } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
 import PropTypes from 'prop-types';
 import { clone } from 'ramda';
-import { getDeviceType, presentationContentHasChanges } from './utils';
+import { getDeviceType, presentationContentHasChanges, LAYOUTS_SYNC } from './utils';
 import {
   ACTIONS, PRESENTATION_AREA, PANELS,
-  CAMERADOCK_POSITION,
+  CAMERADOCK_POSITION, LAYOUT_ELEMENTS, SYNC,
 } from '/imports/ui/components/layout/enums';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE, INITIAL_OUTPUT_STATE } from './initState';
@@ -21,6 +21,9 @@ import {
   removePluginUnpinnedApp,
 } from '/imports/ui/components/apps-gallery/service';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import useSettings from '/imports/ui/services/settings/hooks/useSettings';
+import { SETTINGS } from '/imports/ui/services/settings/enums';
 
 // variable to debug in console log
 const debug = false;
@@ -1160,6 +1163,7 @@ const reducer = (state, action) => {
         resizableEdge,
         zIndex,
         focusedId,
+        isLocalOnly = false,
       } = action.value;
       const { cameraDock } = state.output;
       if (cameraDock.display === display
@@ -1176,7 +1180,8 @@ const reducer = (state, action) => {
         && cameraDock.isDraggable === isDraggable
         && cameraDock.zIndex === zIndex
         && cameraDock.resizableEdge === resizableEdge
-        && cameraDock.focusedId === focusedId) {
+        && cameraDock.focusedId === focusedId
+        && cameraDock.isLocalOnly === isLocalOnly) {
         return state;
       }
       return {
@@ -1202,6 +1207,7 @@ const reducer = (state, action) => {
             resizableEdge,
             zIndex,
             focusedId,
+            isLocalOnly,
           },
         },
       };
@@ -1724,13 +1730,53 @@ const reducer = (state, action) => {
     case ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA: {
       const { presentationAreaContentActions } = state;
       if (action.value.open) {
-        presentationAreaContentActions.push(action);
+        const { replacesGenericContentId, ...value } = action.value;
+        const replacedIndex = replacesGenericContentId
+          ? presentationAreaContentActions.findIndex((p) => (
+            p.value.content === PRESENTATION_AREA.GENERIC_CONTENT
+            && p.value.genericContentId === replacesGenericContentId
+          ))
+          : -1;
+        if (replacedIndex !== -1) {
+          presentationAreaContentActions.splice(replacedIndex, 1, { ...action, value });
+          // The pile keeps its shape, so nothing re-derives the area: point it at the new item
+          const { genericMainContent } = state.input;
+          if (genericMainContent.genericContentId === replacesGenericContentId) {
+            return {
+              ...state,
+              presentationAreaContentActions,
+              input: {
+                ...state.input,
+                genericMainContent: {
+                  ...genericMainContent,
+                  genericContentId: value.genericContentId,
+                },
+              },
+            };
+          }
+        } else if (value.content === PRESENTATION_AREA.GENERIC_CONTENT) {
+          // Plugin content goes under the core content on top (screenshare, external video,
+          // pinned notes) and shows once that content stops. For a new share, the presenter's
+          // client stops it. Content restored after a reload, or seen by a late joiner, must
+          // not cover what everyone else sees.
+          let index = presentationAreaContentActions.length;
+          while (index > 0 && ![
+            PRESENTATION_AREA.GENERIC_CONTENT,
+            PRESENTATION_AREA.WHITEBOARD_OPEN,
+          ].includes(presentationAreaContentActions[index - 1].value.content)) {
+            index -= 1;
+          }
+          presentationAreaContentActions.splice(index, 0, { ...action, value });
+        } else {
+          presentationAreaContentActions.push({ ...action, value });
+        }
       } else {
         let indexesOfOpenedContent = presentationAreaContentActions.reduce((indexes, p, index) => {
           if (action.value.content === PRESENTATION_AREA.GENERIC_CONTENT) {
+            // Not filtered by open: minimizing the presentation area marks its top
+            // item as closed, and that item must still go away when the plugin removes it
             if (
               p.value.content === action.value.content
-              && p.value.open
               && p.value.genericContentId === action.value.genericContentId
             ) {
               indexes.push(index);
@@ -1766,6 +1812,7 @@ const updatePresentationAreaContent = (
   previousPresentationAreaContentActions,
   layoutContextDispatch,
   isPresentationEnabled,
+  followerPresentationOpen,
 ) => {
   const { layoutType } = layoutContextState;
   const { sidebarContent, sidebarContentAuxiliary, sharedNotes } = layoutContextState.input;
@@ -1885,7 +1932,17 @@ const updatePresentationAreaContent = (
           type: ACTIONS.SET_NOTES_IS_PINNED,
           value: !lastPresentationContentInPile.value.open,
         });
-        shouldOpenPresentation = Session.getItem('presentationLastState');
+        // The pop back to the whiteboard is a shared transition, driven by
+        // meeting state on every client at once. Followers of a synchronized
+        // layout restore to the meeting presentation state (mirroring
+        // replicatePresentationState) so they land on the same view as the
+        // presenter, instead of on their own local memory.
+        if (typeof followerPresentationOpen === 'boolean') {
+          shouldOpenPresentation = followerPresentationOpen;
+          Session.setItem('presentationLastState', followerPresentationOpen);
+        } else {
+          shouldOpenPresentation = Session.getItem('presentationLastState');
+        }
         break;
       }
       default:
@@ -1915,9 +1972,24 @@ const LayoutContextProvider = (props) => {
 
   const { data: currentMeeting } = useMeeting((m) => ({
     componentsFlags: m.componentsFlags,
+    layout: m.layout,
   }));
 
   const isSharedNotesPinned = currentMeeting?.componentsFlags?.isSharedNotesPinned;
+
+  const { data: currentUser } = useCurrentUser((user) => ({
+    presenter: user.presenter,
+  }));
+  const { selectedLayout } = useSettings(SETTINGS.LAYOUT);
+
+  const meetingLayout = currentMeeting?.layout;
+  const notInitialLayoutValues = !!meetingLayout?.setByUserId
+    && meetingLayout.setByUserId !== 'system';
+  const layoutReplicatesPresentationState = !!LAYOUTS_SYNC[selectedLayout]
+    ?.[SYNC.REPLICATE_ELEMENTS]?.includes(LAYOUT_ELEMENTS.PRESENTATION_STATE);
+  const followerPresentationOpen = (
+    !currentUser?.presenter && notInitialLayoutValues && layoutReplicatesPresentationState
+  ) ? !meetingLayout.presentationMinimized : undefined;
 
   const [layoutContextState, layoutContextDispatch] = useReducer(reducer, initState);
   const isPresentationEnabled = useIsPresentationEnabled();
@@ -1926,9 +1998,15 @@ const LayoutContextProvider = (props) => {
   const previousLayoutType = usePrevious(layoutType);
 
   useEffect(() => {
+    const currentPile = layoutContextState.presentationAreaContentActions;
+    const previousPile = previousPresentationAreaContentActions.current;
+    const top = (pile) => pile[pile.length - 1]?.value;
     if (
-      layoutContextState.presentationAreaContentActions.length
-      !== previousPresentationAreaContentActions.current.length
+      currentPile.length !== previousPile.length
+      // A plugin replacing its generic content in a single render keeps the pile size
+      || top(currentPile)?.genericContentId !== top(previousPile)?.genericContentId
+      // So does one content replacing another (e.g. an external video unpinning the notes)
+      || top(currentPile)?.content !== top(previousPile)?.content
     ) {
       updatePresentationAreaContent(
         layoutContextState,
@@ -1936,6 +2014,7 @@ const LayoutContextProvider = (props) => {
         previousPresentationAreaContentActions,
         layoutContextDispatch,
         isPresentationEnabled,
+        followerPresentationOpen,
       );
     }
   }, [layoutContextState, isPresentationEnabled]);

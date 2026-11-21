@@ -28,6 +28,7 @@ import org.bigbluebutton.api.messaging.messages.PresentationUploadToken
 import org.bigbluebutton.api.util.ParamsUtil
 import org.bigbluebutton.presentation.SupportedFileTypes
 import org.bigbluebutton.presentation.UploadedPresentation
+import org.bigbluebutton.web.filters.PresentationUploadFilter
 import org.bigbluebutton.web.services.PresentationService
 import org.grails.web.mime.DefaultMimeUtility
 import org.springframework.web.util.UriComponentsBuilder
@@ -53,8 +54,15 @@ class PresentationController {
     '/bigbluebutton/presentation/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)/pdf/([A-Za-z0-9]+)/annotated_slides\\.pdf'
   )
 
-  def index = {
-    render(view: 'upload-file')
+  private static final Pattern UPLOAD_URI_PATTERN = PresentationUploadFilter.UPLOAD_URI_PATTERN
+
+  private static final int MAX_LOGGED_PARAM_LENGTH = 64
+
+  private static String sanitizeForLog(Object value) {
+    if (value == null) return "null"
+    String sanitized = String.valueOf(value).replaceAll('[^A-Za-z0-9_./-]', '?')
+    return sanitized.length() > MAX_LOGGED_PARAM_LENGTH ?
+            sanitized.substring(0, MAX_LOGGED_PARAM_LENGTH) + "..." : sanitized
   }
 
   def checkPresentationAuthorization = {
@@ -86,8 +94,9 @@ class PresentationController {
 
       def slideMatcher = SLIDE_URI_PATTERN.matcher(uriPath)
       if (slideMatcher.matches()) {
-        def meetingIdFromUri = slideMatcher.group(2)
-        if (meetingIdFromUri != userSession.meetingID) {
+        def conferenceFromUri = slideMatcher.group(1)
+        def roomFromUri = slideMatcher.group(2)
+        if (conferenceFromUri != userSession.meetingID || roomFromUri != userSession.meetingID) {
           response.setStatus(403)
           response.outputStream << 'forbidden'
           return
@@ -95,9 +104,11 @@ class PresentationController {
 
         def pageToken = extractQueryParam(uri, "pageToken")
         if (presentationService.pageTokenSecret) {
+          def conference = slideMatcher.group(1)
+          def room = slideMatcher.group(2)
           def presId = slideMatcher.group(3)
           def pageNum = slideMatcher.group(5)
-          def expectedToken = generatePageToken(presId, Integer.parseInt(pageNum), presentationService.pageTokenSecret)
+          def expectedToken = generatePageToken(conference, room, presId, Integer.parseInt(pageNum), presentationService.pageTokenSecret)
           if (pageToken == null || pageToken != expectedToken) {
             response.setStatus(403)
             response.outputStream << 'invalid-token'
@@ -152,10 +163,20 @@ class PresentationController {
     return UriComponentsBuilder.fromUriString(uri).build().getQueryParams().getFirst(paramName)
   }
 
-  private static String generatePageToken(String presId, int page, String secret) {
+  private static String generatePageToken(String conference, String room, String presId, int page, String secret) {
     Mac mac = Mac.getInstance("HmacSHA256")
     mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"))
-    return mac.doFinal("${presId}|${page}".getBytes(StandardCharsets.UTF_8)).collect { String.format('%02x', it) }.join()
+    return mac.doFinal("${conference}|${room}|${presId}|${page}".getBytes(StandardCharsets.UTF_8)).collect { String.format('%02x', it) }.join()
+  }
+
+  private boolean rejectInvalidPresentationPath(Object conference, Object room, Object presentationName) {
+    try {
+      presentationService.presentationDirectory(conference, room, presentationName)
+      return false
+    } catch (IllegalArgumentException ignored) {
+      response.setStatus(403)
+      return true
+    }
   }
 
   private UserSession validateSession() {
@@ -208,8 +229,18 @@ class PresentationController {
       } else {
         log.debug "NO SUCCESS \n"
 
-        //Send upload error message
+        // An unknown or already used token is refused as such: there is no upload to report a
+        // file size error on, and without x-file-too-large nginx answers 403 rather than 413.
         PresentationUploadToken presUploadToken = meetingService.getPresentationUploadToken(presentationToken);
+        if (presUploadToken == null) {
+          response.setStatus(403);
+          response.addHeader("Cache-Control", "no-cache")
+          response.contentType = 'text/plain'
+          response.outputStream << 'invalid auth token';
+          return;
+        }
+
+        //Send upload error message
         meetingService.sendPresentationUploadMaxFilesizeMessage(presUploadToken, originalContentLength, maxUploadFileSize as int);
 
         response.setStatus(403);
@@ -224,19 +255,48 @@ class PresentationController {
   }
 
   def upload = {
-    // check if the authorization token provided is valid
-    if (null == params.authzToken || !meetingService.authzTokenIsValid(params.authzToken)) {
-      log.debug "WARNING! AuthzToken=" + params.authzToken + " was not valid in meetingId=" + params.conference
+    // The token is taken from the request path, which is the only form the upload endpoint is
+    // reachable through. Anything else is refused without consuming a token.
+    def requestUri = request.requestURI == null ? "" : request.requestURI.split('\\?')[0]
+    def uriMatcher = UPLOAD_URI_PATTERN.matcher(requestUri)
+    if (!uriMatcher.matches()) {
+      log.debug("Refusing presentation upload that did not arrive on the upload path." +
+              " uri=" + sanitizeForLog(requestUri))
+      response.setStatus(403)
+      response.addHeader("Cache-Control", "no-cache")
+      response.contentType = 'text/plain'
+      response.outputStream << 'invalid auth token'
+      return
+    }
+    def authzToken = uriMatcher.group(1)
+
+    // Atomically validate and consume the single-use authorization token.
+    // Only the first concurrent POST with a given token gets a non-null result;
+    // any replay (or an unknown token) gets null and is rejected.
+    PresentationUploadToken presUploadToken = meetingService.consumePresentationUploadToken(authzToken)
+    if (presUploadToken == null) {
+      log.debug "WARNING! AuthzToken=" + sanitizeForLog(authzToken) + " was not valid (or already used) in meetingId=" + sanitizeForLog(params.conference)
+      response.setStatus(403)
       response.addHeader("Cache-Control", "no-cache")
       response.contentType = 'text/plain'
       response.outputStream << 'invalid auth token'
       return
     }
 
-    PresentationUploadToken presUploadToken = meetingService.getPresentationUploadToken(params.authzToken)
-    meetingService.expirePresentationUploadToken(params.authzToken)
+    if (!presUploadToken.isValidFor(params.conference)) {
+      log.warn "Presentation upload token scope mismatch for requested meetingId=" + sanitizeForLog(params.conference)
+      // The token is spent, so this upload cannot be sent again. A request whose body was cut
+      // short (the client left, or stalled until the connection timed out) also ends here, with
+      // no parameters at all and nobody left to answer, so bbb-apps-akka is told that it failed.
+      meetingService.sendPresentationUploadFailedMessage(presUploadToken, "Upload request refused or incomplete")
+      response.setStatus(403)
+      response.addHeader("Cache-Control", "no-cache")
+      response.contentType = 'text/plain'
+      response.outputStream << 'upload token scope mismatch'
+      return
+    }
 
-    def meetingId = params.conference
+    def meetingId = presUploadToken.meetingId
     if (Util.isMeetingIdValidFormat(meetingId)) {
       def meeting = meetingService.getNotEndedMeetingWithId(meetingId)
       if (meeting == null) {
@@ -263,7 +323,14 @@ class PresentationController {
     }
 
     def isDownloadable = params.boolean('is_downloadable') //instead of params.is_downloadable
-    def podId = params.pod_id
+    def podId = presUploadToken.podId
+    if (params.pod_id != null && params.pod_id != podId) {
+      log.warn("Ignoring pod_id parameter that does not match the upload token." +
+              " meetingId=" + meetingId +
+              " presentationId=" + presUploadToken.presentationId +
+              " tokenPodId=" + podId +
+              " requestedPodId=" + sanitizeForLog(params.pod_id))
+    }
 
     // Defaults current to false (optional upload parameter)
     def current = false
@@ -272,7 +339,7 @@ class PresentationController {
       current = params.current.toBoolean()
     }
     
-    log.debug "@Default presentation pod" + podId
+    log.debug "Presentation pod from upload token: " + podId
 
     def uploadFailed = false
     def uploadFailReasons = new ArrayList<String>()
@@ -298,7 +365,7 @@ class PresentationController {
     }
 
     if (presFilename == "" || filenameExt == "") {
-      log.debug("Upload failed. Invalid filename " + presOrigFilename)
+      log.debug("Upload failed. Invalid filename " + sanitizeForLog(presOrigFilename))
       uploadFailReasons.add("invalid_filename")
       uploadFailed = true
     } else {
@@ -311,7 +378,7 @@ class PresentationController {
       }
     }
 
-    log.debug("processing file upload " + presFilename + " (presId: " + presId + ")")
+    log.debug("processing file upload " + sanitizeForLog(presFilename) + " (presId: " + presId + ")")
     def presentationBaseUrl = presentationService.presentationBaseUrl
     def isPresentationMimeTypeValid = SupportedFileTypes.isPresentationMimeTypeValid(pres, filenameExt)
     UploadedPresentation uploadedPres = new UploadedPresentation(
@@ -322,10 +389,11 @@ class PresentationController {
             presFilename,
             presentationBaseUrl,
             current,
-            params.authzToken,
+            authzToken,
             uploadFailed,
             uploadFailReasons
     )
+    uploadedPres.setSystemUpload(presUploadToken.isSystemUpload())
     if (isPresentationMimeTypeValid) {
       if (isDownloadable) {
         log.debug "@Setting file to be downloadable..."
@@ -333,7 +401,7 @@ class PresentationController {
       }
       uploadedPres.setUploadedFile(pres);
       presentationService.processUploadedPresentation(uploadedPres)
-      log.debug("file upload success " + presFilename)
+      log.debug("file upload success " + sanitizeForLog(presFilename))
       response.addHeader("Cache-Control", "no-cache")
       response.contentType = 'text/plain'
       response.outputStream << 'upload-success'
@@ -341,7 +409,7 @@ class PresentationController {
       def mimeType = SupportedFileTypes.detectMimeType(pres)
       presentationService.sendDocConversionFailedOnMimeType(uploadedPres, mimeType, filenameExt)
       org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlingErrors(pres)
-      log.debug("file upload failed " + presFilename)
+      log.debug("file upload failed " + sanitizeForLog(presFilename))
       response.addHeader("Cache-Control", "no-cache")
       response.contentType = 'text/plain'
       response.outputStream << 'upload-failed'
@@ -350,19 +418,6 @@ class PresentationController {
 
   def testConversion = {
     presentationService.testConversionProcess()
-  }
-
-  //handle external presentation server 
-  def delegate = {
-    def presentation_name = request.getParameter('presentation_name')
-    def conference = request.getParameter('conference')
-    def room = request.getParameter('room')
-    def returnCode = request.getParameter('returnCode')
-    def totalSlides = request.getParameter('totalSlides')
-    def slidesCompleted = request.getParameter('slidesCompleted')
-
-    presentationService.processDelegatedPresentation(conference, room, presentation_name, returnCode, totalSlides, slidesCompleted)
-    redirect(action: list)
   }
 
   def showSvgImage = {
@@ -374,11 +429,12 @@ class PresentationController {
     def rm = params.room
     def slide = params.id
 
-    if (conf != userSession.meetingID) { response.setStatus(403); return }
+    if (conf != userSession.meetingID || rm != userSession.meetingID) { response.setStatus(403); return }
+    if (rejectInvalidPresentationPath(conf, rm, presentationName)) return
     if (presentationService.pageTokenSecret) {
       def pageToken = params.pageToken
       if (!slide?.isInteger()) { response.setStatus(403); return }
-      def expected = generatePageToken(presentationName, Integer.parseInt(slide), presentationService.pageTokenSecret)
+      def expected = generatePageToken(conf, rm, presentationName, Integer.parseInt(slide), presentationService.pageTokenSecret)
       if (pageToken == null || pageToken != expected) { response.setStatus(403); return }
     }
 
@@ -408,11 +464,12 @@ class PresentationController {
     def rm = params.room
     def thumb = params.id
 
-    if (conf != userSession.meetingID) { response.setStatus(403); return }
+    if (conf != userSession.meetingID || rm != userSession.meetingID) { response.setStatus(403); return }
+    if (rejectInvalidPresentationPath(conf, rm, presentationName)) return
     if (presentationService.pageTokenSecret) {
       def pageToken = params.pageToken
       if (!thumb?.isInteger()) { response.setStatus(403); return }
-      def expected = generatePageToken(presentationName, Integer.parseInt(thumb), presentationService.pageTokenSecret)
+      def expected = generatePageToken(conf, rm, presentationName, Integer.parseInt(thumb), presentationService.pageTokenSecret)
       if (pageToken == null || pageToken != expected) { response.setStatus(403); return }
     }
 
@@ -443,11 +500,12 @@ class PresentationController {
     def rm = params.room
     def png = params.id
 
-    if (conf != userSession.meetingID) { response.setStatus(403); return }
+    if (conf != userSession.meetingID || rm != userSession.meetingID) { response.setStatus(403); return }
+    if (rejectInvalidPresentationPath(conf, rm, presentationName)) return
     if (presentationService.pageTokenSecret) {
       def pageToken = params.pageToken
       if (!png?.isInteger()) { response.setStatus(403); return }
-      def expected = generatePageToken(presentationName, Integer.parseInt(png), presentationService.pageTokenSecret)
+      def expected = generatePageToken(conf, rm, presentationName, Integer.parseInt(png), presentationService.pageTokenSecret)
       if (pageToken == null || pageToken != expected) { response.setStatus(403); return }
     }
 
@@ -475,11 +533,12 @@ class PresentationController {
     def rm = params.room
     def textfile = params.id
 
-    if (conf != userSession.meetingID) { response.setStatus(403); return }
+    if (conf != userSession.meetingID || rm != userSession.meetingID) { response.setStatus(403); return }
+    if (rejectInvalidPresentationPath(conf, rm, presentationName)) return
     if (presentationService.pageTokenSecret) {
       def pageToken = params.pageToken
       if (!textfile?.isInteger()) { response.setStatus(403); return }
-      def expected = generatePageToken(presentationName, Integer.parseInt(textfile), presentationService.pageTokenSecret)
+      def expected = generatePageToken(conf, rm, presentationName, Integer.parseInt(textfile), presentationService.pageTokenSecret)
       if (pageToken == null || pageToken != expected) { response.setStatus(403); return }
     }
 
@@ -576,7 +635,8 @@ class PresentationController {
     def conf = params.conference
     def rm = params.room
 
-    if (conf != userSession.meetingID) { response.setStatus(403); return }
+    if (conf != userSession.meetingID || rm != userSession.meetingID) { response.setStatus(403); return }
+    if (rejectInvalidPresentationPath(conf, rm, presentationName)) return
 
     def numThumbs = presentationService.numberOfThumbnails(conf, rm, presentationName)
     response.addHeader("Cache-Control", "no-cache")
@@ -605,7 +665,8 @@ class PresentationController {
     def conf = params.conference
     def rm = params.room
 
-    if (conf != userSession.meetingID) { response.setStatus(403); return }
+    if (conf != userSession.meetingID || rm != userSession.meetingID) { response.setStatus(403); return }
+    if (rejectInvalidPresentationPath(conf, rm, filename)) return
 
     def numThumbs = presentationService.numberOfThumbnails(conf, rm, filename)
     withFormat {
@@ -633,7 +694,8 @@ class PresentationController {
     def conf = params.conference
     def rm = params.room
 
-    if (conf != userSession.meetingID) { response.setStatus(403); return }
+    if (conf != userSession.meetingID || rm != userSession.meetingID) { response.setStatus(403); return }
+    if (rejectInvalidPresentationPath(conf, rm, filename)) return
 
     def numSvgs = presentationService.numberOfSvgs(conf, rm, filename)
     withFormat {
@@ -661,7 +723,8 @@ class PresentationController {
     def conf = params.conference
     def rm = params.room
 
-    if (conf != userSession.meetingID) { response.setStatus(403); return }
+    if (conf != userSession.meetingID || rm != userSession.meetingID) { response.setStatus(403); return }
+    if (rejectInvalidPresentationPath(conf, rm, filename)) return
 
     def numFiles = presentationService.numberOfTextfiles(conf, rm, filename)
 

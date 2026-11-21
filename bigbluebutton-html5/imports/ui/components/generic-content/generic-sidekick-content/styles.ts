@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorWhiteSurface } from '/imports/ui/stylesheets/styled-components/palette';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import {
   PanelContent as BasePanelContent,
@@ -7,7 +7,7 @@ import {
 } from '/imports/ui/components/sidebar-content/styles';
 
 const Container = styled.div`
-  background-color: ${colorWhite};
+  background-color: ${colorWhiteSurface};
   display: flex;
   flex-grow: 1;
   flex-direction: column;

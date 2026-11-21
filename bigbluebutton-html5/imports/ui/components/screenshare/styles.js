@@ -32,12 +32,17 @@ const ScreenshareContainer = styled.div`
   width: 100%;
   height: 100%;
   border-radius: ${lgBorderRadius};
+  overflow: hidden;
 
   ${({ switched }) => !switched && `
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
+  `}
+
+  ${({ fullscreen }) => fullscreen && `
+    border-radius: 0;
   `}
 `;
 

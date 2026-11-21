@@ -12,11 +12,9 @@ import Styled from './styles';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import PollingContainer from '/imports/ui/components/polling/container';
 import { ACTIONS } from '../layout/enums';
-import DEFAULT_VALUES from '../layout/defaultValues';
 import browserInfo from '/imports/utils/browserInfo';
 import { addAlert } from '../screenreader-alert/service';
 import { debounce } from '/imports/utils/debounce';
-import { throttle } from '/imports/utils/throttle';
 import LocatedErrorBoundary from '/imports/ui/components/common/error-boundary/located-error-boundary/component';
 import FallbackView from '/imports/ui/components/common/fallback-errors/fallback-view/component';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
@@ -86,12 +84,9 @@ class Presentation extends PureComponent {
       ignorePresentationRestoring: true,
     };
 
-    const PAN_ZOOM_INTERV = window.meetingClientSettings.public.presentation.panZoomInterval || 200;
-
     this.getSvgRef = this.getSvgRef.bind(this);
     this.zoomChanger = debounce(this.zoomChanger.bind(this), 200);
     this.updateLocalPosition = this.updateLocalPosition.bind(this);
-    this.panAndZoomChanger = throttle(this.panAndZoomChanger.bind(this), PAN_ZOOM_INTERV);
     this.fitToWidthHandler = this.fitToWidthHandler.bind(this);
     this.onFullscreenChange = this.onFullscreenChange.bind(this);
     this.getPresentationSizesAvailable = this.getPresentationSizesAvailable.bind(this);
@@ -467,7 +462,7 @@ class Presentation extends PureComponent {
 
   zoomChanger(zoom) {
     const { currentSlide } = this.props;
-    let boundZoom = parseInt(zoom, 10);
+    let boundZoom = Math.round(zoom);
     const min = currentSlide?.infiniteWhiteboard ? MIN_PERCENT : HUNDRED_PERCENT;
     if (boundZoom < min) {
       boundZoom = min;
@@ -552,15 +547,9 @@ class Presentation extends PureComponent {
     };
   }
 
-  panAndZoomChanger(w, h, x, y) {
-    const { zoomSlide } = this.props;
-    zoomSlide(w, h, x, y);
-  }
-
-  renderPresentationToolbar(svgWidth = 0) {
+  renderPresentationToolbar(toolbarWidth) {
     const {
       currentSlide,
-      isMobile,
       fullscreenElementId,
       fullscreenContext,
       layoutContextDispatch,
@@ -580,12 +569,6 @@ class Presentation extends PureComponent {
 
     if (!currentSlide) return null;
 
-    const { presentationToolbarMinWidth } = DEFAULT_VALUES;
-
-    const toolbarWidth = (this.refWhiteboardArea && svgWidth > presentationToolbarMinWidth)
-      || isMobile
-      ? svgWidth
-      : presentationToolbarMinWidth;
     return (
       <PresentationToolbarContainer
         {...{
@@ -676,7 +659,6 @@ class Presentation extends PureComponent {
       isRTL = false,
       presentationBounds,
       fullscreenContext,
-      isMobile,
       currentPresentationId,
       intl,
       fullscreenElementId,
@@ -727,18 +709,6 @@ class Presentation extends PureComponent {
 
     const toolbarHeight = getToolbarHeight();
 
-    const { presentationToolbarMinWidth } = DEFAULT_VALUES;
-
-    const isLargePresentation = svgWidth > presentationToolbarMinWidth;
-
-    const containerWidth = isLargePresentation
-      ? svgWidth
-      : presentationToolbarMinWidth;
-
-    const mobileAwareContainerWidth = isMobile
-      ? presentationBounds.width
-      : containerWidth;
-
     const slideContent = currentSlide?.content
       ? `${intl.formatMessage(intlMessages.slideContentStart)}
     ${currentSlide.content}
@@ -756,9 +726,12 @@ class Presentation extends PureComponent {
       || presentationBounds.height === 0;
     if (!presentationIsOpen || presentationIsHidden) return null;
 
+    const toolbarWidth = Math.min(svgWidth || presentationBounds.width, presentationBounds.width);
+
     return (
       <>
         <Styled.PresentationContainer
+          className="bbb-presentation"
           role="region"
           data-test="presentationContainer"
           ref={(ref) => {
@@ -779,6 +752,7 @@ class Presentation extends PureComponent {
         >
           <h2 className="sr-only">{intl.formatMessage(intlMessages.presentationHeader)}</h2>
           <Styled.Presentation
+            className="bbb-presentation__content"
             ref={(ref) => {
               this.refPresentation = ref;
             }}
@@ -871,11 +845,8 @@ class Presentation extends PureComponent {
                   ref={(ref) => {
                     this.refPresentationToolbar = ref;
                   }}
-                  style={{
-                    width: mobileAwareContainerWidth,
-                  }}
                 >
-                  {this.renderPresentationToolbar(svgWidth)}
+                  {this.renderPresentationToolbar(toolbarWidth)}
                 </Styled.PresentationToolbar>
               )}
             </Styled.SvgContainer>
@@ -931,13 +902,11 @@ Presentation.propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  isMobile: PropTypes.bool.isRequired,
   fullscreenContext: PropTypes.bool.isRequired,
   presentationAreaSize: PropTypes.shape({
     presentationAreaWidth: PropTypes.number.isRequired,
     presentationAreaHeight: PropTypes.number.isRequired,
   }),
-  zoomSlide: PropTypes.func.isRequired,
   setMultiUserWhiteboardEnabled: PropTypes.func.isRequired,
   setMultiUserWhiteboardDisabled: PropTypes.func.isRequired,
   multiUserSize: PropTypes.number.isRequired,

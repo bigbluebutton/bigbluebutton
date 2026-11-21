@@ -1,0 +1,7 @@
+# want: 7: steps[0].redis: additional properties 'field' not allowed
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+steps:
+  - redis: {key: k, field: f}

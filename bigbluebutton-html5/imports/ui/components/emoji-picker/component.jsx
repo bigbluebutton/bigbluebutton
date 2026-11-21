@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { injectIntl } from 'react-intl';
 import Picker from '@emoji-mart/react';
+import useSettings from '/imports/ui/services/settings/hooks/useSettings';
+import { SETTINGS } from '/imports/ui/services/settings/enums';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -15,6 +17,7 @@ const EmojiPicker = (props) => {
     intl,
     onEmojiSelect,
   } = props;
+  const { darkTheme } = useSettings(SETTINGS.APPLICATION);
 
   const i18n = {
     search: intl.formatMessage({ id: 'app.emojiPicker.search' }),
@@ -64,7 +67,7 @@ const EmojiPicker = (props) => {
       i18n={i18n}
       previewPosition="none"
       skinTonePosition="none"
-      theme="light"
+      theme={darkTheme ? 'dark' : 'light'}
       dynamicWidth
       exceptEmojis={emojisToExclude}
       autoFocus

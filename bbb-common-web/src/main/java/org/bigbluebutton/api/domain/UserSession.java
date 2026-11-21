@@ -38,7 +38,6 @@ public class UserSession {
   public Boolean guest = false;
   public Boolean authed = false;
   public String voicebridge = null;
-  public String webvoiceconf = null;
   public String mode = null;
   public String record = null;
   public String welcome = null;
@@ -51,7 +50,6 @@ public class UserSession {
   public String guestStatus = GuestPolicy.ALLOW;
   public String clientUrl = null;
   public Boolean excludeFromDashboard = false;
-  public Boolean leftGuestLobby = false;
 
   private AtomicInteger connections = new AtomicInteger(0);
   
@@ -118,10 +116,6 @@ public class UserSession {
 
   public String getVoicebridge() {
     return voicebridge;
-  }
-
-  public String getWebvoiceconf() {
-    return webvoiceconf;
   }
 
   public String getMode() {

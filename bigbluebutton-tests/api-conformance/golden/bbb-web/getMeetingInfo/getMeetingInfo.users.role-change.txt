@@ -1,0 +1,51 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case getMeetingInfo.users.role-change
+target bbb-web
+
+== step 7: call getMeetingInfo
+status 200
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "SUCCESS"
+/response/meetingName "Users"
+/response/meetingID "${uid}"
+/response/internalMeetingID "<sha1(meetingID)>-<time>"
+/response/createTime "<time>"
+/response/createDate "<date>"
+/response/voiceBridge "<random>"
+/response/dialNumber "613-555-1234"
+/response/attendeePW "<random>"
+/response/moderatorPW "<random>"
+/response/running "true"
+/response/duration "0"
+/response/hasUserJoined "true"
+/response/recording "false"
+/response/hasBeenForciblyEnded "false"
+/response/startTime "<time>"
+/response/endTime "<time>"
+/response/participantCount "2"
+/response/listenerCount "0"
+/response/voiceParticipantCount "0"
+/response/videoCount "0"
+/response/maxUsers "0"
+/response/moderatorCount "2"
+/response/attendees/attendee/userID "ann"
+/response/attendees/attendee/fullName "Ann"
+/response/attendees/attendee/role "MODERATOR"
+/response/attendees/attendee/isPresenter "true"
+/response/attendees/attendee/isListeningOnly "false"
+/response/attendees/attendee/hasJoinedVoice "false"
+/response/attendees/attendee/hasVideo "false"
+/response/attendees/attendee/clientType "HTML5"
+/response/attendees/attendee/customdata
+/response/attendees/attendee/userID "vic"
+/response/attendees/attendee/fullName "Vic"
+/response/attendees/attendee/role "MODERATOR"
+/response/attendees/attendee/isPresenter "false"
+/response/attendees/attendee/isListeningOnly "false"
+/response/attendees/attendee/hasJoinedVoice "false"
+/response/attendees/attendee/hasVideo "false"
+/response/attendees/attendee/clientType "HTML5"
+/response/attendees/attendee/customdata
+/response/metadata
+/response/isBreakout "false"

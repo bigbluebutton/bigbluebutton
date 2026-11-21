@@ -114,6 +114,12 @@ export const SWAP_SCREENSHARE = gql`
   }
 `;
 
+export const SET_HIDE_USERS_WITHOUT_CAMERA = gql`
+  mutation($hideUsersWithoutCamera: Boolean!) {
+   meetingLayoutSetHideUsersWithoutCamera(hideUsersWithoutCamera: $hideUsersWithoutCamera)
+  }
+`;
+
 export default {
   SET_CAMERA_PINNED,
   SET_RAISE_HAND,

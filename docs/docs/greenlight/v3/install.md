@@ -31,7 +31,7 @@ To install Greenlight, simply run the `bbb-install` script with your chosen conf
 To run the script, simply run the command below, replacing `[OPTIONS]`, with the your chosen configurations.
 
 ```bash
-wget -qO- https://raw.githubusercontent.com/bigbluebutton/bbb-install/v2.7.x-release/bbb-install.sh | bash -s -- [OPTIONS] -g
+wget -qO- https://raw.githubusercontent.com/bigbluebutton/bbb-install/v4.1.x-release/bbb-install.sh | bash -s -- [OPTIONS] -g
 ```
 
 After the script completes, a success message will appear in the console with the URL to access Greenlight confirming that BigBlueButton was installed/upgraded alongside with Greenlight.
@@ -185,7 +185,7 @@ So, to deploy Greenlight on a relative URL root path of **/gl**:
 For systems using [BigBlueButton Install Script](#bbb-install-script) one would simply run **while ensuring to include the -g option**:
 
 ```bash
-wget -qO- https://raw.githubusercontent.com/bigbluebutton/bbb-install/v2.7.x-release/bbb-install.sh | GL_PATH=/gl bash -s -- [options] -g
+wget -qO- https://raw.githubusercontent.com/bigbluebutton/bbb-install/v4.1.x-release/bbb-install.sh | GL_PATH=/gl bash -s -- [options] -g
 ```
 
 For systems using [Greenlight Install Script](#greenlight-install-script) one would simply run:

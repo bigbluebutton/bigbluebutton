@@ -1,0 +1,8 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case join.validation.types-guest
+target bbb-web
+
+== step 2: call join
+status 302
+location ${baseUrl}?errors=[{"message":"Guest must be a boolean value (true or false)","key":"validationError"}]
+body (redirect)

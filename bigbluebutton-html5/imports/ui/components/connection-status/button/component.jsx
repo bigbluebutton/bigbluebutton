@@ -1,9 +1,11 @@
 import React, { PureComponent } from 'react';
+import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/common/button/component';
 import ConnectionStatusModalComponent from '/imports/ui/components/connection-status/modal/container';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import SettingsMenuContainer from '/imports/ui/components/settings/container';
+import { SETTINGS_TABS } from '/imports/ui/components/settings/enums';
 import Icon from '/imports/ui/components/connection-status/icon/component';
 import Styled from './styles';
 import { isMobile } from '/imports/utils/deviceInfo';
@@ -19,8 +21,6 @@ const intlMessages = defineMessages({
     description: 'Connection status button description',
   },
 });
-
-const DATA_SAVINGS_TAB_NUMBER = 2;
 
 class ConnectionStatusButton extends PureComponent {
   static renderIcon(level = 'normal') {
@@ -42,7 +42,7 @@ class ConnectionStatusButton extends PureComponent {
           if (!adjustYourSettingsModal.isOpen) return null;
           return (
             <SettingsMenuContainer
-              selectedTab={DATA_SAVINGS_TAB_NUMBER}
+              selectedTab={SETTINGS_TABS.DATA_SAVING}
               {...{
                 onRequestClose: () => adjustYourSettingsModal.close(),
                 priority: 'medium',
@@ -100,6 +100,7 @@ class ConnectionStatusButton extends PureComponent {
       return (
         <Styled.ButtonWrapper>
           <Button
+            className="bbb-connection-status-button bbb-connection-status-button--offline"
             customIcon={ConnectionStatusButton.renderIcon()}
             label={intl.formatMessage(intlMessages.label)}
             hideLabel
@@ -142,6 +143,10 @@ class ConnectionStatusButton extends PureComponent {
     return (
       <Styled.ButtonWrapper>
         <Button
+          className={cx(
+            'bbb-connection-status-button',
+            `bbb-connection-status-button--${myCurrentStatus || 'normal'}`,
+          )}
           customIcon={ConnectionStatusButton.renderIcon(myCurrentStatus)}
           label={intl.formatMessage(intlMessages.label)}
           hideLabel

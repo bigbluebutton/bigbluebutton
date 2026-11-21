@@ -44,6 +44,8 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: UserJoinedMeetingEvtMsg                        => logMessage(msg)
       case m: RecordingStatusChangedEvtMsg                   => logMessage(msg)
       case m: WebcamsOnlyForModeratorChangedEvtMsg           => logMessage(msg)
+      case m: RequestUserCameraCmdMsg                        => logMessage(msg)
+      case m: CameraRequestAnswerReqMsg                      => logMessage(msg)
       case m: UserLeftMeetingEvtMsg                          => logMessage(msg)
       case m: PresenterUnassignedEvtMsg                      => logMessage(msg)
       case m: PresenterAssignedEvtMsg                        => logMessage(msg)
@@ -180,16 +182,10 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       // Guest Management
       case m: GuestsWaitingApprovedMsg => logMessage(msg)
       case m: GuestsWaitingApprovedEvtMsg => logMessage(msg)
-      case m: GuestWaitingLeftEvtMsg => logMessage(msg)
-      case m: GuestsWaitingForApprovalEvtMsg => logMessage(msg)
-      case m: UpdatePositionInWaitingQueueReqMsg => logMessage(msg)
-      case m: PosInWaitingQueueUpdatedRespMsg => logMessage(msg)
       case m: SetGuestPolicyCmdMsg => logMessage(msg)
       case m: GuestPolicyChangedEvtMsg => logMessage(msg)
       case m: SetGuestLobbyMessageCmdMsg => logMessage(msg)
-      case m: GuestLobbyMessageChangedEvtMsg => logMessage(msg)
       case m: SetPrivateGuestLobbyMessageCmdMsg => logMessage(msg)
-      case m: PrivateGuestLobbyMsgChangedEvtMsg => logMessage(msg)
 
       // System
       case m: ClientToServerLatencyTracerMsg => traceMessage(msg)
@@ -212,29 +208,17 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: BroadcastLayoutEvtMsg => logMessage(msg)
 
       // Pads
-      case m: PadCreateGroupCmdMsg => logMessage(msg)
-      case m: PadGroupCreatedEvtMsg => logMessage(msg)
-      case m: PadGroupCreatedRespMsg => logMessage(msg)
-      case m: PadCreateReqMsg => logMessage(msg)
-      case m: PadCreateCmdMsg => logMessage(msg)
-      case m: PadCreatedEvtMsg => logMessage(msg)
       case m: BNSharedNotesCreatedEvtMsg => logMessage(msg)
       case m: BNSharedNotesUpdatedEvtMsg => logMessage(msg)
       case m: PadCreatedRespMsg => logMessage(msg)
-      case m: PadCreateSessionReqMsg => logMessage(msg)
-      case m: PadCreateSessionCmdMsg => logMessage(msg)
-      case m: PadSessionCreatedEvtMsg => logMessage(msg)
-      case m: PadSessionCreatedRespMsg => logMessage(msg)
-      case m: PadSessionDeletedSysMsg => logMessage(msg)
-      case m: PadSessionDeletedEvtMsg => logMessage(msg)
-      case m: PadUpdatedSysMsg => logMessage(msg)
-      case m: PadUpdatedEvtMsg => logMessage(msg)
+      // TODO(4.1 etherpad removal, #25720)
       case m: PadUpdatePubMsg => logMessage(msg)
       case m: PadUpdateCmdMsg => logMessage(msg)
 
       // Breakouts
       case m: CreateBreakoutRoomsCmdMsg => logMessage(msg)
       case m: ChangeUserBreakoutReqMsg => logMessage(msg)
+      case m: UnassignUserFromBreakoutReqMsg => logMessage(msg)
 
       case _ => // ignore message
     }

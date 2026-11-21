@@ -8,16 +8,18 @@ import HoldButton from '/imports/ui/components/presentation/presentation-toolbar
 import Button from '/imports/ui/components/common/button/component';
 import { FlexRow, FlexColumn } from '/imports/ui/stylesheets/styled-components/placeholders';
 import {
+  appsGalleryOutlineColor,
+  colorBlueLight,
   colorBorder,
   colorDanger,
+  colorDisabledSurface,
   colorGray,
   colorGrayLight,
-  colorWhite,
-  colorPrimary,
-  colorBlueLight,
-  appsGalleryOutlineColor,
   colorGrayUserListToolbar,
+  colorPrimary,
   colorText,
+  colorWhite,
+  colorWhiteSurface,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeSmall, fontSizeBase, fontSizeSmaller } from '/imports/ui/stylesheets/styled-components/typography';
 import {
@@ -32,7 +34,6 @@ import {
   Separator as BaseSeparator,
   PanelContent as BasePanelContent,
 } from '/imports/ui/components/sidebar-content/styles';
-import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 
 type withValidProp = {
   valid: boolean;
@@ -234,7 +235,7 @@ const InputRoomsLabel = styled.label<withValidProp>`
 `;
 
 const GeneralSelect = `
-  background-color: ${colorWhite};
+  background-color: ${colorWhiteSurface};
   color: ${colorGray};
   border: 1px solid ${colorBorder};
   border-radius: ${borderRadius};
@@ -290,7 +291,7 @@ const LabelText = styled.p<LabelTextProps>`
 `;
 
 const DurationInput = styled.input`
-  background-color: ${colorWhite};
+  background-color: ${colorWhiteSurface};
   color: ${colorGray};
   border: 1px solid ${colorBorder};
   border-radius: ${borderRadius};
@@ -517,24 +518,6 @@ const ActionButton = styled(Button)`
   margin: 1.5rem auto;
 `;
 
-const Modal = styled(ModalSimple)`
-  padding: 0;
-  border-radius: 1rem;
-  min-width: 50vw;
-  max-width: 80vw;
-  max-height: 95vh;
-
-  @media ${smallOnly} {
-    min-width: 100% !important;
-    max-width: 100% !important;
-    height: auto !important;
-    max-height: 90vh;
-    margin: 5vh auto;
-    display: flex;
-    flex-direction: column;
-  }
-`;
-
 const ModalContentWrapper = styled.div`
   padding: 1rem;
 `;
@@ -602,7 +585,7 @@ const FooterButton = styled.button`
   }
 
   &:disabled {
-    background-color: #aaa;
+    background-color: ${colorDisabledSurface};
     cursor: not-allowed;
   }
 `;
@@ -676,7 +659,6 @@ export default {
   BreakoutSlideLabel,
   ActionButtonContainer,
   ActionButton,
-  Modal,
   ModalContentWrapper,
   RandomAssignLabel,
   RandomAssignButton,

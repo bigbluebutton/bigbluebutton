@@ -21,6 +21,7 @@ import {
   mostSimilarLanguage,
 } from '/imports/ui/components/audio/audio-graphql/audio-captions/speech/service';
 import Styled from './styles';
+import AudioCaptionsOnDeviceNotice from '/imports/ui/components/audio/audio-graphql/audio-captions/on-device-notice/component';
 
 const messages: { [key: string]: { id: string; description?: string } } = {
   auto: {
@@ -47,6 +48,7 @@ const AudioCaptionsSpeechSelector: React.FC<AudioCaptionsSpeechSelectorProps> = 
   speechLocale,
   speechVoices,
   speechChecked,
+  inAudioModal = false,
 }) => {
   const useLocaleHook = useFixedLocale();
   const intl = useIntl();
@@ -87,7 +89,17 @@ const AudioCaptionsSpeechSelector: React.FC<AudioCaptionsSpeechSelectorProps> = 
     }
   }, [speechLocale]);
 
-  if (useLocaleHook || !speechLocale || !speechChecked) return null;
+  if (!speechLocale || !speechChecked) return null;
+
+  // A forced locale has no language to pick, but its on-device language pack still has to be
+  // downloaded when transcription is on outside the audio modal, which the notice does
+  if (useLocaleHook) {
+    return (
+      <Styled.CaptionsSelectorContainer>
+        <AudioCaptionsOnDeviceNotice locale={speechLocale} inAudioModal={inAudioModal} />
+      </Styled.CaptionsSelectorContainer>
+    );
+  }
 
   return (
     <Styled.CaptionsSelectorContainer>
@@ -122,6 +134,7 @@ const AudioCaptionsSpeechSelector: React.FC<AudioCaptionsSpeechSelectorProps> = 
           </MenuItem>
         ))}
       </Styled.CaptionsSelector>
+      <AudioCaptionsOnDeviceNotice locale={speechLocale} inAudioModal={inAudioModal} />
     </Styled.CaptionsSelectorContainer>
   );
 };
@@ -129,6 +142,7 @@ const AudioCaptionsSpeechSelector: React.FC<AudioCaptionsSpeechSelectorProps> = 
 const AudioCaptionsSpeechSelectorContainer: React.FC<AudioCaptionsSpeechSelectorContainerProps> = ({
   speechChecked,
   speechVoices,
+  inAudioModal = false,
 }) => {
   const {
     data: currentUser,
@@ -145,6 +159,7 @@ const AudioCaptionsSpeechSelectorContainer: React.FC<AudioCaptionsSpeechSelector
       speechLocale={currentUser.speechLocale ?? ''}
       speechVoices={speechVoices}
       speechChecked={speechChecked}
+      inAudioModal={inAudioModal}
     />
   );
 };

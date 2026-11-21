@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# The methods this route maps (UrlMappings.groovy). Each sends the same stateless,
+# deterministic request, which gets the endpoint's own answer rather than the fallback
+# an unmapped method gets: expect pins that answer, the recording the rest.
+id: getJoinUrl.method.allowed
+title: getJoinUrl answers ${method} with its own handler
+endpoint: getJoinUrl
+class: contract
+tags: [ci]
+variants:
+  - {id: get, vars: {method: GET}}
+  - {id: post, vars: {method: POST}}
+steps:
+  - call: getJoinUrl
+    method: "${method}"
+    params: {sessionToken: "${uid}"}
+    expect: {format: json, jsonpath: {$.response.message: "Invalid session token"}}

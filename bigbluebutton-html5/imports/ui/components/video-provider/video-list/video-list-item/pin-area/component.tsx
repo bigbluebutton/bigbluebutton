@@ -38,9 +38,10 @@ const PinArea: React.FC<PinAreaProps> = (props) => {
   if (!pinned && !presenter) return null;
 
   return (
-    <Styled.PinButtonWrapper>
+    <Styled.PinButtonWrapper className="bbb-webcam__pin-area">
       {presenter && (
         <Styled.PresenterButton
+          className="bbb-webcam__presenter-badge"
           color="primary"
           icon="presentation"
           size="sm"

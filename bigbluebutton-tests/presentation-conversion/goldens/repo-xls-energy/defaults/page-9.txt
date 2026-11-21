@@ -1,0 +1,113 @@
+                                                                                                                         Energy and Climate Courses at Stanford
+
+
+                                                                                                                                                     Theory and practice of thermal recovery methods: steam
+                                                                                                                                                     drive, cyclic steam injections, and in situ combustion.
+                                                                    Spr,
+  ENERGY 226      Thermal Recovery Methods                                                Lecture    Enginee                                         Models of combined mass and energy transport. Estimates
+                                                 --        3      Alternat      --                           Graduates      --       Castanier, L                                                                       None
+                                                                                           (15)        ring                                          of heated reservoir volume and oil recovery performance.
+                                                                  e Years
+                                                                                                                                                     Wellbore heat losses, recovery production, and field
+                                                                                                                                                     examples.
+                                                                                                                                                     The physics, theories, and methods of evaluating chemical,
+                                                                                                                                                     miscible, and thermal enhanced oil recovery projects.
+                                                                                                                                                     Existing methods and screening techniques, and analytical
+  ENERGY 227       Enhanced Oil Recovery                          Alternat                           Enginee                                         and simulation based means of evaluating project
+                                                 --        3                    --                           Graduates      --        Kovscek, A     effectiveness. Dispersion-convection-adsorption equations,
+                                                                  e Years                              ring
+                                                                                                                                                     coupled heat, and mass balances and phase behavior
+                                                                                                                                                     provide requisite building blocks for evaluation.
+
+
+                                                                                                                       ENERGY                        State of the art tools and analyses; the technology, rock
+                                                                                                                          130 or                     physical basis, and applications of each measurement.
+                                                                                                                       equivalen                     Hands-on computer-based analyses illustrate instructional
+                                                                                                                         t; basic                    material. Guest speakers on formation evaluation topics.
+                                                                                                                            well
+                                                                                                              Upper-
+                                                                                                                        logging;
+                   Advanced Topics in Well                                                Lecture,              level
+  ENERGY 230                                                                                         Enginee                and
+                          Logging                --        3        Spr         --        with field         undergrad               Lindblom, R                                                                        None
+                                                                                                       ring            standard
+                                                                                         trip (8-12)         uates and
+                                                                                                                        practice
+                                                                                                             graduates
+                                                                                                                            and
+                                                                                                                       applicatio
+                                                                                                                            n of
+                                                                                                                         electric
+                                                                                                                       well logs
+                                                                                                                                                     Project addressing a reservoir management problem by
+                                                                                          Lecture,
+                  Reservoir Characterization                                                                                                         studying an outcrop analog, constructing geostatistical
+                                                                                          with field                                 Graham, S;
+  ENERGY 246       and Flow Modeling with                                                            Enginee                                         reservoir models, and performing flow simulation. How to
+                                               GES 246     3        Aut         --         and lab           Graduate       --       Tchelepi, H;
+                        Outcrop Data                                                                   ring                                          use outcrop observations in quantitative geological
+                                                                                         component                                   Boucher, A
+                                                                                                                                                     modeling and flow simulation. Relationships between
+                                                                                            s (25)
+                                                                                                                                                     disciplines. Weekend field trip.
+                                                                                                                                                     On-the-job training for master's degree students under the
+                  Master's Report on Energy                                                                                                                                                                                            May be
+  ENERGY 255                                                                             Independe Enginee            Consent                        guidance of on-site supervisors. Students submit a report
+                      Industry Training          --      1 to 3    Sum          --                         Graduates                     Staff                                                                          None         repeated for
+                                                                                           nt work   ring            of adviser                      detailing work activities, problems, assignments, and key
+                                                                                                                                                                                                                                        credit.
+                                                                                                                                                     results.
+                                                                                                                                                     Conceptual models of heat and mass flows within
+                                                                                                                                                     geothermal reservoirs. The fundamentals of fluid/heat flow
+                                                                                                                                                     in porous media; convective/conductive regimes, dispersion
+                    Geothermal Reservoir                                                 Lecture; 2           Seniors                                of solutes, reactions in porous media, stability of fluid
+  ENERGY 269                                                                                         Enginee
+                        Engineering              --        3        Spr         --       field trips            and         --         Horne, R      interfaces, liquid and vapor flows. Interpretation of              None
+                                                                                                       ring
+                                                                                           (25-30)           graduates                               geochemical, geological, and well data to determine
+                                                                                                                                                     reservoir properties/characteristics. Geothermal plants and
+                                                                                                                                                     the integrated geothermal system.
+                                                                   Aut,                                                                              None
+                      Special Topics in
+  ENERGY 273                                                       Win,                              Enginee
+                    Petroleum Engineering        --      1 to 3                 --                           Graduates      --           Staff
+                                                                   Spr,                                ring
+                                                                   Sum
+                                                                                          Seminar                                                     Interdisciplinary exploration of current energy challenges
+                                                                                                             Undergra
+                                                                   Aut,                      (70    Science/                                         and opportunities, with talks by faculty, visitors, and                            May be
+  ENERGY 301           Energy Seminar                                                                         duates
+                                               CEE 301     1       Win,         --        enrolled, Enginee                 --         Horne, R      students.                                                      http://woods.stanford.edu/cgi-bin/energyseminar.php
+                                                                                                                                                                                                                                      repeated for
+                                                                                                                and
+                                                                   Spr                       150      ring                                                                                                                               credit.
+                                                                                                             Graduates
+                                                                                         attendees)
+                  Doctoral Report on Energy                                                                                                          On-the-job training for doctoral students under the guidance                      May be
+  ENERGY 355                                                                             Independe Enginee   PhD     Consent
+                      Industry Training          --      1 to 3    Sum          --                                                       Staff       of on-site supervisors. Students submit a report on work           None         repeated for
+                                                                                           nt work   ring  students of advisor
+                                                                                                                                                     activities, problems, assignments, and results.                                    credit.
+                                                                                                                                                     How quantitative understanding of the Earth helps inform
+                                                                                                                                                     decisions about energy supply. How can enough energy be
+                        Energy and the
+                                                                                                                                                     provided to support future growth and development
+   EESS 37N       Environment on the Back of                      Alternat
+                                                 --        3               DB-NatSci      Introsem   Science Freshmen       --                       throughout the world without damaging the natural
+                         an Envelope                              e Years
+                                                                                                                                                     environment? Focus is on simple quantitative observations
+                                                                                                                                                     and calculations that facilitate evaluation of potential
+                                                                                                                                                     solutions to this problem; algebra only, no calculus.
+                                                                                                                                                   Changes in the long- and short-term carbon cycle and
+                                                                                                                                                   global climate through the burning of fossil fuels since the
+                                                                                                                                                   Industrial Revolution. How people can shrink their carbon
+                     The Carbon Cycle:                                                                                                             footprints. Long-term sources and sinks of carbon and how
+   EESS 39N
+                    Reducing Your Impact         --        3        Spr      DB-NatSci    Introsem   Science Freshmen       --      Chamberlain, P they are controlled by tectonics and short-term sources and
+                                                                                                                                                   sinks and the interaction between the biosphere and ocean.
+                                                                                                                                                   How people can shrink their carbon footprints. Held at the
+                                                                                                                                                   Stanford Community Farm.
+
+
+
+Last updated: March 17, 2009                                                                                                                                                                                                                 Send additions and corrections to leighj@stanford.edu

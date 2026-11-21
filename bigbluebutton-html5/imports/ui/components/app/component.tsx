@@ -3,6 +3,7 @@ import { useIntl } from 'react-intl';
 import PollingContainer from '/imports/ui/components/polling/container';
 import ActivityCheckContainer from '/imports/ui/components/activity-check/container';
 import RequestUnmuteContainer from '/imports/ui/components/request-unmute-modal/container';
+import RequestCameraContainer from '/imports/ui/components/request-camera-modal/container';
 import ToastContainer from '/imports/ui/components/common/toast/container';
 import WakeLockContainer from '../wake-lock/container';
 import NotificationsBarContainer from '../notifications-bar/container';
@@ -22,6 +23,7 @@ import EmojiRainContainer from '../emoji-rain/container';
 import Styled from './styles';
 import LayoutEngine from '../layout/layout-manager/layoutEngine';
 import NavBarContainer from '../nav-bar/container';
+import ConnectionStatusContainer from '../connection-status/component';
 import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
 import SidebarContentAuxiliaryContainer from '/imports/ui/components/sidebar-content/sidebar-content-auxiliary/container';
@@ -38,8 +40,9 @@ import FloatingWindowContainer from '/imports/ui/components/floating-window/cont
 import WebRTCStatsObserver from '/imports/ui/components/stats/component';
 import ChatAlertContainerGraphql from '../chat/chat-graphql/alert/component';
 import VoiceActivityAdapter from '../../core/adapters/voice-activity';
+import LiveKitVoiceActivityAdapter from '../../core/adapters/livekit-voice-activity';
 import LayoutObserver from '../layout/observer';
-import BBBLiveKitRoomContainer from '/imports/ui/components/livekit/component';
+import LiveKitMembershipsManager from '/imports/ui/components/livekit/memberships-manager/component';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 import AudioCaptionsLiveContainer from '/imports/ui/components/audio/audio-graphql/audio-captions/live/component';
 import BreakoutRoomsAppObserver from '../breakout-room/breakout-observer/component';
@@ -150,7 +153,9 @@ const App: React.FC<AppProps> = ({
         >
           <ActivityCheckContainer />
           <DocumentTitleManager />
+          <ConnectionStatusContainer />
           <RequestUnmuteContainer />
+          <RequestCameraContainer />
           <ScreenReaderAlertContainer />
           <BannerBarContainer />
           <NotificationsBarContainer />
@@ -183,7 +188,7 @@ const App: React.FC<AppProps> = ({
             <PresentationUploaderToastContainer intl={intl} />
           )}
           <BreakoutJoinConfirmationContainerGraphQL />
-          <BBBLiveKitRoomContainer />
+          <LiveKitMembershipsManager />
           <AudioContainer currentUserHasVoice={currentUserHasVoice} />
           {!hideNotificationToasts && isNotificationEnabled && (
             <ToastContainer rtl />
@@ -196,6 +201,7 @@ const App: React.FC<AppProps> = ({
           {renderActionsBar()}
           <EmojiRainContainer />
           <VoiceActivityAdapter />
+          <LiveKitVoiceActivityAdapter />
         </Styled.Layout>
         <RequestPresenterContainer />
       </>
@@ -207,6 +213,8 @@ const App: React.FC<AppProps> = ({
     <>
       <ScreenReaderAlertAdapter />
       <PluginsEngineManager pluginConfig={pluginConfig} />
+      {/* The plugins engine consumes voice state in this layout too. */}
+      <LiveKitVoiceActivityAdapter />
       <LayoutEngine />
       <LayoutObserver />
       <GlobalStyles />
@@ -217,6 +225,7 @@ const App: React.FC<AppProps> = ({
           height: '100%',
         }}
       >
+        <ConnectionStatusContainer />
         <ScreenReaderAlertContainer />
         <PresentationContainer
           darkTheme={darkTheme}

@@ -1,4 +1,7 @@
 import styled from 'styled-components';
+import {
+  colorBlack,
+} from '/imports/ui/stylesheets/styled-components/palette';
 import Button from '/imports/ui/components/common/button/component';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
@@ -29,7 +32,7 @@ const EchoTestButton = styled(Button)`
   }
 
   span:last-child {
-    color: black;
+    color: ${colorBlack};
     font-size: 1rem;
     font-weight: 600;
   }

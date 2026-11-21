@@ -1,0 +1,23 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A welcome message of 5,000 characters is accepted whole.
+id: create.welcome.long
+title: create with a 5,000-character welcome message
+endpoint: create
+class: compat
+tags: [ci]
+requires: [akka, bus]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Welcome, welcome: '${repeat("w", 5000)}'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.props.welcomeProp]
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

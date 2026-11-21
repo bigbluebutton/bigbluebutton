@@ -20,7 +20,6 @@ if [ $DISTRO != "amzn2" ]; then
   cp assets/zzz-bbb-docker-libreoffice  staging/etc/sudoers.d/zzz-bbb-docker-libreoffice
 fi
 
-cp assets/etherpad-export.sh staging/usr/share/bbb-libreoffice-conversion/etherpad-export.sh
 cp assets/convert-local.sh  staging/usr/share/bbb-libreoffice-conversion/convert-cool.sh
 cp assets/convert-local.sh  staging/usr/share/bbb-libreoffice-conversion/convert-local.sh
 cp assets/convert-remote.sh staging/usr/share/bbb-libreoffice-conversion/convert-remote.sh
@@ -28,7 +27,6 @@ cp assets/convert-remote.sh staging/usr/share/bbb-libreoffice-conversion/convert
 chmod +x staging/usr/share/bbb-libreoffice-conversion/convert-cool.sh
 chmod +x staging/usr/share/bbb-libreoffice-conversion/convert-local.sh
 chmod +x staging/usr/share/bbb-libreoffice-conversion/convert-remote.sh
-chmod +x staging/usr/share/bbb-libreoffice-conversion/etherpad-export.sh
 
 
 cp -r docker staging/usr/share/bbb-libreoffice

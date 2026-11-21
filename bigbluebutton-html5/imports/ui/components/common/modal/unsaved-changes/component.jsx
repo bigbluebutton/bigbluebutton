@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, useIntl } from 'react-intl';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Styled from './styles';
 
 const intlMessages = defineMessages({
@@ -30,29 +31,35 @@ const UnsavedChangesModal = ({ isOpen, onCancel, onConfirm }) => {
   const intl = useIntl();
 
   return (
-    <Styled.Modal
+    <ModalSimple
       title={intl.formatMessage(intlMessages.title)}
-      modalIsOpen={isOpen}
-      dismiss={{ callback: onCancel }}
+      isOpen={isOpen}
       onRequestClose={onCancel}
+      noFooter={false}
+      footerContent={(
+        <Styled.Footer>
+          <Styled.FooterButton
+            variant="secondary"
+            dataTest="unsavedChangesCancel"
+            label={intl.formatMessage(intlMessages.cancelLabel)}
+            onClick={onCancel}
+          />
+          <Styled.FooterButton
+            variant="primary"
+            dataTest="unsavedChangesIgnore"
+            label={intl.formatMessage(intlMessages.ignoreButtonLabel)}
+            onClick={onConfirm}
+          />
+        </Styled.Footer>
+      )}
     >
-      <Styled.Content>
-        <Styled.Text>
-          {intl.formatMessage(intlMessages.message)}
-        </Styled.Text>
-        <Styled.IgnoreText>
-          {intl.formatMessage(intlMessages.ignoreMessage)}
-        </Styled.IgnoreText>
-        <Styled.ActionsContainer>
-          <Styled.ActionButton onClick={onCancel} data-test="unsavedChangesCancel">
-            {intl.formatMessage(intlMessages.cancelLabel)}
-          </Styled.ActionButton>
-          <Styled.ActionButton onClick={onConfirm} data-test="unsavedChangesIgnore">
-            {intl.formatMessage(intlMessages.ignoreButtonLabel)}
-          </Styled.ActionButton>
-        </Styled.ActionsContainer>
-      </Styled.Content>
-    </Styled.Modal>
+      <Styled.Text>
+        {intl.formatMessage(intlMessages.message)}
+      </Styled.Text>
+      <Styled.IgnoreText>
+        {intl.formatMessage(intlMessages.ignoreMessage)}
+      </Styled.IgnoreText>
+    </ModalSimple>
   );
 };
 

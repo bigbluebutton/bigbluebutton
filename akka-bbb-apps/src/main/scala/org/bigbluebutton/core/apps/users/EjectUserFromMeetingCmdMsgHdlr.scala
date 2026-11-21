@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.api.EjectUserFromBreakoutInternalMsg
+import org.bigbluebutton.core.api.{ EjectUserFromBreakoutInternalMsg, UpdateBreakoutUserAccessInternalMsg }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.bus.BigBlueButtonEvent
@@ -39,6 +39,10 @@ trait EjectUserFromMeetingCmdMsgHdlr extends RightsManagementTrait {
         if (registeredUser.externId != ejectedByUser.externId) {
           val ban = banUser
 
+          if (liveMeeting.props.meetingProp.isBreakout) {
+            RegisteredUsers.revokeExtId(liveMeeting.registeredUsers, registeredUser.externId)
+          }
+
           // Eject users
           //println("****************** User " + ejectedBy + " ejecting user " + userId)
           // User might have joined using multiple browsers.
@@ -54,6 +58,8 @@ trait EjectUserFromMeetingCmdMsgHdlr extends RightsManagementTrait {
                 room.users.filter(u => u.extId == ru.id + "-" + room.sequence).foreach(user => {
                   eventBus.publish(BigBlueButtonEvent(room.id, EjectUserFromBreakoutInternalMsg(meetingId, room.id, user.extId, ejectedBy, reason, EjectReasonCode.EJECT_USER, ban)))
                 })
+
+                eventBus.publish(BigBlueButtonEvent(room.id, UpdateBreakoutUserAccessInternalMsg(meetingId, room.id, ru.id + "-" + room.sequence, revoked = true)))
               }
             }
 

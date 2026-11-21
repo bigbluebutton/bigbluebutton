@@ -1,0 +1,26 @@
+# defs holds anchors; << merges them. Keys written next to a merge win.
+id: getMeetingInfo.fields.metadata
+title: getMeetingInfo lists create's meta_ params with lower-cased keys
+endpoint: getMeetingInfo
+class: contract
+defs:
+  meeting: &meeting
+    meetingID: "${uid}"
+    name: Meta
+steps:
+  - call: create
+    params:
+      <<: *meeting
+      meta_Color: blue
+  - call: getMeetingInfo
+    params: {meetingID: "${uid}"}
+    expect:
+      xpath:
+        /response/metadata/color: blue
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {<<: *meeting}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

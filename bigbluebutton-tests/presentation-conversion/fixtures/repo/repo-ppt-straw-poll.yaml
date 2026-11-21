@@ -1,0 +1,10 @@
+id: repo-ppt-straw-poll
+title: Legacy PowerPoint 97-2003 deck (347 KB) from the old bbb-web test resources
+tier: repo
+file: ../../../../bigbluebutton-web/test/resources/3-07_CPAC_Straw_Poll.ppt
+catalog: [LibreOffice process failures]
+pages: 18
+expect: converted
+kind: any
+tolerance: { maxDiffPixelRatio: 0.04 }
+checks: [outcome, pages, kind, aspect, text]

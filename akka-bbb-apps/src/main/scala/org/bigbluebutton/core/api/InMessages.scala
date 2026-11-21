@@ -97,6 +97,15 @@ case class SendMessageToBreakoutRoomInternalMsg(parentId: String, breakoutId: St
 case class EjectUserFromBreakoutInternalMsg(parentId: String, breakoutId: String, extUserId: String, ejectedBy: String, reason: String, reasonCode: String, ban: Boolean) extends InMessage
 
 /**
+ * Sent by parent meeting to breakout room to update whether an external user id is accepted in the room.
+ * @param parentId
+ * @param breakoutId
+ * @param extUserId
+ * @param revoked
+ */
+case class UpdateBreakoutUserAccessInternalMsg(parentId: String, breakoutId: String, extUserId: String, revoked: Boolean) extends InMessage
+
+/**
  * Sent by parent meeting to breakout room to import annotated slides.
  * @param userId
  * @param parentMeetingId
@@ -106,10 +115,20 @@ case class EjectUserFromBreakoutInternalMsg(parentId: String, breakoutId: String
 case class CapturePresentationReqInternalMsg(userId: String, parentMeetingId: String, filename: String, allPages: Boolean = true) extends InMessage
 
 /**
+ * Periodic LiveKit token refresh request sent by a context scheduler to the MeetingActor.
+ */
+case class LiveKitTokenRefreshInternalMsg(userId: String, roomName: String) extends InMessage
+
+/**
  * Sent to the same meeting to force a new presenter to the Pod
  * @param presenterId
  */
 case class SetPresenterInDefaultPodInternalMsg(presenterId: String) extends InMessage
+
+/**
+ * Deadline for a LK token mint
+ */
+case class LiveKitMintTimeoutInternalMsg(userId: String, roomName: String, mintNonce: Long) extends InMessage
 
 /**
  * Sent by GraphqlActionsActor to inform MeetingActor that user disconnected

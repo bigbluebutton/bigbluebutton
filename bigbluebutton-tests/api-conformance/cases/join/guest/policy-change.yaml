@@ -1,0 +1,43 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A guest policy that a moderator changes in the meeting applies to the
+# joins that follow: bbb-web learns of it from akka-apps'
+# GuestPolicyChangedEvtMsg. Under ASK_MODERATOR a guest waits; once the
+# policy is ALWAYS_ACCEPT, a guest is let in.
+id: join.guest.policy-change
+title: A guest policy changed in the meeting applies to later joins
+endpoint: join
+class: contract
+tags: [ci, presence]
+requires: [akka, presence]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Guest policy, guestPolicy: ASK_MODERATOR}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: moderator}}
+    golden: off
+  - call: join
+    params: {meetingID: "${uid}", fullName: Gus, role: viewer, guest: "true", redirect: "false"}
+    expect: {returncode: SUCCESS, xpath: {/response/guestStatus: WAIT}}
+  - graphql:
+      as: ann
+      query: "mutation SetPolicy($guestPolicy: String!) { guestUsersSetPolicy(guestPolicy: $guestPolicy) }"
+      variables: {guestPolicy: ALWAYS_ACCEPT}
+    golden: off
+  - bus: {name: GuestPolicyChangedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+    expect: {jsonpath: {$.core.body.policy: ALWAYS_ACCEPT}}
+  - call: join
+    params: {meetingID: "${uid}", fullName: Gus, role: viewer, guest: "true", redirect: "false"}
+    eventually: {within: 5s, every: 200ms, until: {xpath: {/response/guestStatus: ALLOW}}}
+    expect: {returncode: SUCCESS, xpath: {/response/guestStatus: ALLOW}}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}
