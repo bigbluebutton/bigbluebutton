@@ -99,7 +99,6 @@
     "eventemitter2": "~6.4.6",
     "fast-json-patch": "^3.1.1",
     "fast-uri": "^3.1.8",
-    "flat": "^5.0.2",
     "focus-trap-react": "^10.2.1",
     "graphql": "^16.8.1",
     "graphql-ws": "^5.16.0",
