@@ -14,6 +14,7 @@ export interface PresentationRow {
 
 export interface PageRow {
   presentationId: string;
+  pageId: string;
   num: number;
   width: number;
   height: number;
@@ -53,7 +54,7 @@ export class StatusDb {
 
   async pages(presentationId: string): Promise<PageRow[]> {
     const rows = await this.queryJson<Omit<PageRow, 'urls'> & { urlsJson: Record<string, string> | null }>(
-      `select "presentationId", "num", coalesce("width",0)::float as "width", coalesce("height",0)::float as "height",
+      `select "presentationId", "pageId", "num", coalesce("width",0)::float as "width", coalesce("height",0)::float as "height",
               coalesce("uploadCompleted",false) as "uploadCompleted", "urlsJson"
          from pres_page where "presentationId" = '${presentationId.replace(/'/g, "''")}' order by "num"`,
     );
