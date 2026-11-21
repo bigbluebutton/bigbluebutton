@@ -36,18 +36,28 @@ const (
 	PosLast   = "last"
 )
 
-func newHash(alg string) (hash.Hash, error) {
+// HashFunc returns the constructor of a checksum algorithm's hash: sha1,
+// sha256, sha384 or sha512.
+func HashFunc(alg string) (func() hash.Hash, error) {
 	switch alg {
 	case "sha1":
-		return sha1.New(), nil
+		return sha1.New, nil
 	case "sha256":
-		return sha256.New(), nil
+		return sha256.New, nil
 	case "sha384":
-		return sha512.New384(), nil
+		return sha512.New384, nil
 	case "sha512":
-		return sha512.New(), nil
+		return sha512.New, nil
 	}
 	return nil, fmt.Errorf("unknown checksum algorithm %q", alg)
+}
+
+func newHash(alg string) (hash.Hash, error) {
+	f, err := HashFunc(alg)
+	if err != nil {
+		return nil, err
+	}
+	return f(), nil
 }
 
 // Digest returns the lowercase hex digest of s.

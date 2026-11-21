@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# learningDashboard gives a moderator the meeting's learning dashboard
+# data: a JSON document, as a string, that akka-apps updates every few
+# seconds. Its contents are recorded, not compared.
+id: learningDashboard.response.data
+title: learningDashboard gives a moderator the meeting's dashboard data
+endpoint: learningDashboard
+class: contract
+tags: [ci, presence]
+requires: [akka, presence]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Dashboard}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: moderator}}
+    golden: off
+    capture: {annToken: $.sessionToken}
+  # bbb-web learns of the join from akka-apps a moment later, and writes
+  # the data when akka-apps sends it.
+  - call: learningDashboard
+    client: ann
+    params: {sessionToken: "${annToken}"}
+    eventually: {within: 15s, every: 500ms, until: {returncode: SUCCESS}}
+    golden: document
+    expect:
+      format: json
+      returncode: SUCCESS
+      jsonpath:
+        $.response.data: {contains: '"name":"Dashboard"'}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

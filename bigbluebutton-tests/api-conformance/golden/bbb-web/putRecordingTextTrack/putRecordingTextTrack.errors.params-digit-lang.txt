@@ -11,3 +11,7 @@ body json
 $.response.message "Malformed lang param, received=123"
 $.response.messageKey "invalidLang"
 $.response.returncode "FAILED"
+
+== step 2: fs captions/inbox/*-track.*
+$.found false
+$.path "captions/inbox/*-track.*"

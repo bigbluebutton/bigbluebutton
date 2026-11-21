@@ -44,3 +44,6 @@ body xml
 /response/recordings/recording/playback/format/length "1"
 /response/recordings/recording/playback/format/size "3145728"
 /response/recordings/recording/data
+
+== step 4: bus UnpublishedRecordingSysMsg (document)
+$ null

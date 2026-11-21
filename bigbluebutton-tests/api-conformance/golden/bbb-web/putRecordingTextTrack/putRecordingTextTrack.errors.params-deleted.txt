@@ -11,3 +11,7 @@ body json
 $.response.message "No recording was found for <sha1(?)>-<time>"
 $.response.messageKey "noRecordings"
 $.response.returncode "FAILED"
+
+== step 2: fs captions/inbox/*-track.*
+$.found false
+$.path "captions/inbox/*-track.*"

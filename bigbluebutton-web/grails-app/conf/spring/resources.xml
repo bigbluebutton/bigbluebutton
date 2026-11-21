@@ -65,6 +65,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="rejectedPresentationRegistry" ref="rejectedPresentationRegistry"/>
         <property name="stunTurnService" ref="stunTurnService"/>
         <property name="userCleanupTimerTask" ref="userCleanupTimerTask"/>
+        <property name="presentationUploadStartTimeout" value="${presentationUploadStartTimeout:300}"/>
         <property name="sessionsCleanupDelayInMinutes" value="${sessionsCleanupDelayInMinutes}"/>
         <property name="gw" ref="bbbWebApiGWApp"/>
         <property name="callbackUrlService" ref="callbackUrlService"/>
@@ -77,6 +78,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="sharedNotesRedirectValidator" ref="sharedNotesRedirectValidator"/>
         <property name="secureUrlDownloader" ref="secureUrlDownloader"/>
         <property name="maxSharedNotesInitialContentUrlPayloadSize" value="${maxSharedNotesInitialContentUrlPayloadSize}"/>
+    </bean>
+
+    <bean id="presentationUploadFilter" class="org.bigbluebutton.web.filters.PresentationUploadFilter">
+        <property name="meetingService" ref="meetingService"/>
     </bean>
 
     <bean id="oldMessageReceivedGW" class="org.bigbluebutton.api2.bus.OldMessageReceivedGW">

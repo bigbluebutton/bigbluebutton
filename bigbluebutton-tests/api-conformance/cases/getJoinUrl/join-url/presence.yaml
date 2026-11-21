@@ -1,0 +1,57 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# Joining through a getJoinUrl link gives the same user a working session,
+# which bbb-web registers with akka-apps (RegisterUserSessionTokenReqMsg)
+# along with the signed sessionName and, with replaceSession=true, the token
+# it replaces.
+id: getJoinUrl.join-url.presence
+title: Joining through a getJoinUrl link gives the user another working session
+endpoint: getJoinUrl
+class: contract
+tags: [ci, presence]
+requires: [akka, presence, bus]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Join link}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - presence: {action: join, as: mod, args: {meetingID: "${uid}", fullName: Mod, role: moderator}}
+    golden: off
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: viewer}}
+    golden: off
+    capture: {annId: $.userId, annToken: $.sessionToken}
+  # bbb-web learns of the join from akka-apps a moment later.
+  - call: getJoinUrl
+    client: ann
+    params: {sessionToken: "${annToken}", sessionName: Phone, replaceSession: "true"}
+    eventually: {within: 10s, every: 200ms, until: {returncode: SUCCESS}}
+    golden: off
+    expect: {format: json, returncode: SUCCESS}
+    capture: {joinUrl: $.response.url}
+  - presence: {action: join, as: phone, joinUrl: "${joinUrl}"}
+    golden: off
+    expect:
+      jsonpath:
+        $.userId: "${annId}"
+        $.name: Ann
+        $.role: VIEWER
+    capture: {phoneToken: $.sessionToken}
+  - bus: {name: RegisterUserSessionTokenReqMsg, meetingId: "${intId}", within: 5s}
+    expect:
+      jsonpath:
+        $.core.body.userId: "${annId}"
+        $.core.body.sessionToken: "${phoneToken}"
+        $.core.body.sessionName: Phone
+        $.core.body.replaceSessionToken: "${annToken}"
+  - graphql: {as: phone, query: "query Me { user_current { userId name role } }"}
+    expect:
+      jsonpath:
+        $.data.user_current[0].userId: "${annId}"
+        $.data.user_current[0].role: VIEWER
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

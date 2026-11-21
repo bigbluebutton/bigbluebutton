@@ -1,13 +1,18 @@
 package tmpl
 
 import (
+	"crypto/hmac"
 	"encoding/base64"
 	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
+	"time"
+
+	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/signer"
 )
 
 // Env is what evaluation can see.
@@ -19,6 +24,8 @@ type Env struct {
 	// Checksum computes hash(call + query + salt) as lowercase hex. The
 	// runner provides it; validation never evaluates.
 	Checksum func(alg, call, query string) (string, error)
+	// Now is the clock now() reads; nil means time.Now.
+	Now func() time.Time
 }
 
 // Func is a template function. Arguments arrive as text.
@@ -73,6 +80,42 @@ var funcs = map[string]Func{
 		}
 		return env.Checksum(a[0], a[1], a[2])
 	}},
+	// hmac is the Base64 of an HMAC, as TURN credentials use.
+	"hmac": {3, func(_ *Env, a []string) (string, error) {
+		h, err := signer.HashFunc(a[0])
+		if err != nil {
+			return "", fmt.Errorf("hmac: %w", err)
+		}
+		m := hmac.New(h, []byte(a[1]))
+		m.Write([]byte(a[2]))
+		return base64.StdEncoding.EncodeToString(m.Sum(nil)), nil
+	}},
+	// now is the current Unix time in seconds.
+	"now": {0, func(env *Env, _ []string) (string, error) {
+		clock := time.Now
+		if env.Now != nil {
+			clock = env.Now
+		}
+		return strconv.FormatInt(clock().Unix(), 10), nil
+	}},
+	"add": {2, func(_ *Env, a []string) (string, error) {
+		x, err1 := strconv.ParseInt(a[0], 10, 64)
+		y, err2 := strconv.ParseInt(a[1], 10, 64)
+		if err1 != nil || err2 != nil {
+			return "", fmt.Errorf("add: %q and %q must be integers", a[0], a[1])
+		}
+		return strconv.FormatInt(x+y, 10), nil
+	}},
+}
+
+// FuncNames lists the template functions, sorted.
+func FuncNames() []string {
+	names := make([]string, 0, len(funcs))
+	for name := range funcs {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	return names
 }
 
 // LookupFunc returns the function called name.

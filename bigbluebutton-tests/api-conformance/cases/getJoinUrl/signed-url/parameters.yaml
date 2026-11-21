@@ -12,11 +12,12 @@
 # stay part of the name.
 #
 # The regex pins every parameter and its value: bbb-web's own in its order,
-# then the userdata in the order the request sent them. It leaves two
-# things open: the checksum's algorithm (bbb-web always signs with sha1) and
-# a '&' before the first parameter (bbb-web adds one). join accepting the
-# URL shows the checksum is right, since join.checksum.rejected shows join
-# refuses a wrong one.
+# then the userdata in the order the request sent them. It leaves one thing
+# open: a '&' before the first parameter (bbb-web adds one). The checksum is
+# made with the strongest algorithm the server accepts, sha512 with the
+# default supportedChecksumAlgorithms (getJoinUrl.signed-url.algorithm has
+# another). The check step recomputes it from the query and the salt, and
+# join accepting the URL shows join reads it the same way.
 id: getJoinUrl.signed-url.parameters
 title: getJoinUrl signs exactly the ${role}'s own parameters
 endpoint: getJoinUrl
@@ -55,8 +56,11 @@ steps:
       format: json
       returncode: SUCCESS
       jsonpath:
-        $.response.url: {regex: '^\Q${baseUrl}\E/bigbluebutton/api/join\?&?fullName=Ann&meetingID=${uid}&role=${signedRole}&redirect=true&existingUserID=${annId}${userdata}&checksum=([0-9a-f]{40}|[0-9a-f]{64}|[0-9a-f]{96}|[0-9a-f]{128})$'}
+        $.response.url: {regex: '^\Q${baseUrl}\E/bigbluebutton/api/join\?&?fullName=Ann&meetingID=${uid}&role=${signedRole}&redirect=true&existingUserID=${annId}${userdata}&checksum=[0-9a-f]{128}$'}
     capture: {joinUrl: $.response.url}
+  - check:
+      - value: '${match(joinUrl, "checksum=([0-9a-f]+)$")}'
+        expect: '${checksum("sha512", "join", match(joinUrl, "[?](.*)&checksum="))}'
   - url: "${joinUrl}"
     client: bob
     expect:

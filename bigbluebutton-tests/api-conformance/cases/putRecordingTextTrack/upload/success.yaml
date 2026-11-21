@@ -1,9 +1,12 @@
 # yaml-language-server: $schema=../../../runner/schema/case.schema.json
-# A track for a published recording is accepted: bbb-web leaves it in the
-# captions inbox for record-and-playback, which T10b's fs cases look at,
-# and answers with the record ID. lang only needs a locale's form, so a
-# language no one speaks is accepted too. Serial, with the recording and
-# its captions put back before and after, which also clears the inbox.
+# A track for a published recording is accepted, and bbb-web answers with
+# the record ID. lang only needs a locale's form, so a language no one
+# speaks is accepted too. bbb-web leaves the track in the captions inbox
+# for record-and-playback: the upload as <record ID>-<ms>-track.txt, and
+# its description as -track.json, written as .json.tmp and then renamed.
+# The description gives lang as a language tag (en_US becomes en-US) and,
+# without a label, the language's name. Serial, with the recording and its
+# captions put back before and after, which also clears the inbox.
 id: putRecordingTextTrack.upload.success
 title: putRecordingTextTrack accepts a ${kind} track with lang ${lang}
 endpoint: putRecordingTextTrack
@@ -11,11 +14,12 @@ class: contract
 tags: [ci, serial]
 defs:
   rec: &rec 52388302b3d61ff0ce98e0d6192952f38e0604aa-1700032400000
+  vtt: &vtt "WEBVTT\n\n00:00:01.000 --> 00:00:02.000\nHello.\n"
 variants:
-  - {id: en, vars: {kind: subtitles, lang: en, label: English}}
-  - {id: underscore, vars: {kind: captions, lang: en_US, label: null}}
-  - {id: dash, vars: {kind: subtitles, lang: fr-CA, label: Français}}
-  - {id: unknown-language, vars: {kind: subtitles, lang: xx, label: null}}
+  - {id: en, vars: {kind: subtitles, lang: en, label: English, tag: en, shown: English}}
+  - {id: underscore, vars: {kind: captions, lang: en_US, label: null, tag: en-US, shown: English}}
+  - {id: dash, vars: {kind: subtitles, lang: fr-CA, label: Français, tag: fr-CA, shown: Français}}
+  - {id: unknown-language, vars: {kind: subtitles, lang: xx, label: null, tag: xx, shown: xx}}
 steps:
   - restore: {recordings: [*rec]}
   - call: putRecordingTextTrack
@@ -24,12 +28,26 @@ steps:
     body:
       multipart:
         files:
-          - {field: file, filename: track.vtt, contentType: text/vtt, content: "WEBVTT\n\n00:00:01.000 --> 00:00:02.000\nHello.\n"}
+          - {field: file, filename: track.vtt, contentType: text/vtt, content: *vtt}
     expect:
       format: json
       returncode: SUCCESS
       messageKey: upload_text_track_success
       message: Text track uploaded successfully
       jsonpath: {$.response.recordId: *rec}
+  - fs: {path: captions/inbox/52388302b3d61ff0ce98e0d6192952f38e0604aa-1700032400000-*-track.json}
+    expect:
+      jsonpath:
+        $.contents.record_id: *rec
+        $.contents.kind: "${kind}"
+        $.contents.lang: "${tag}"
+        $.contents.label: "${shown}"
+        $.contents.original_filename: track.vtt
+        $.contents.content_type: text/vtt
+        $.contents.temp_filename: {regex: '^52388302b3d61ff0ce98e0d6192952f38e0604aa-1700032400000-[0-9]+-track\.txt$'}
+  - fs: {path: captions/inbox/52388302b3d61ff0ce98e0d6192952f38e0604aa-1700032400000-*-track.txt}
+    expect: {contents: *vtt}
+  - fs: {path: captions/inbox/52388302b3d61ff0ce98e0d6192952f38e0604aa-1700032400000-*-track.json.tmp}
+    expect: {exists: false}
 teardown:
   - restore: {recordings: [*rec]}

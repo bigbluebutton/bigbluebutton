@@ -1,0 +1,41 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# getJoinUrl encodes each value once, so a meeting ID and a name with
+# spaces, '+', '&', '%' and non-ASCII letters decode back to themselves:
+# joining through the URL lands in the same meeting, as the same user, with
+# the same name.
+id: getJoinUrl.signed-url.encoding
+title: getJoinUrl's URL decodes back to the meeting ID and the name
+endpoint: getJoinUrl
+class: contract
+tags: [ci, presence]
+requires: [akka, presence]
+steps:
+  - call: create
+    params: {meetingID: "Q&A 50%+1 é ${uid}", name: Encoding}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - presence: {action: join, as: ann, args: {meetingID: "Q&A 50%+1 é ${uid}", fullName: "Zoë Núñez & Co 100%+1", role: viewer}}
+    golden: off
+    capture: {annId: $.userId, annToken: $.sessionToken}
+  - call: getJoinUrl
+    client: ann
+    params: {sessionToken: "${annToken}"}
+    eventually: {within: 10s, every: 200ms, until: {returncode: SUCCESS}}
+    expect: {format: json, returncode: SUCCESS}
+    capture: {joinUrl: $.response.url}
+  - presence: {action: join, as: ann2, joinUrl: "${joinUrl}"}
+    golden: off
+    expect:
+      jsonpath:
+        $.userId: "${annId}"
+        $.name: "Zoë Núñez & Co 100%+1"
+  - graphql: {as: ann2, query: "query Me { meeting { extId name } }"}
+    expect:
+      jsonpath:
+        $.data.meeting[0].extId: "Q&A 50%+1 é ${uid}"
+        $.data.meeting[0].name: Encoding
+teardown:
+  - call: end
+    params: {meetingID: "Q&A 50%+1 é ${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

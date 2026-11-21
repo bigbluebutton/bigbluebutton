@@ -1,0 +1,40 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# sendChatMessage posts to the meeting's public chat, as an API message
+# from userName, "System" by default.
+id: sendChatMessage.chat.stored
+title: sendChatMessage posts to the public chat as ${sender}
+endpoint: sendChatMessage
+class: contract
+tags: [ci, presence]
+requires: [akka, presence]
+variants:
+  - id: default-name
+    vars: {sender: System, userName: null}
+  - id: user-name
+    vars: {sender: Api Bot, userName: Api Bot}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Chat}
+    golden: off
+    expect: {returncode: SUCCESS}
+  # sendChatMessage needs a running meeting: someone in it.
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: moderator}}
+    golden: off
+  # bbb-web learns of the join from akka-apps a moment later.
+  - call: sendChatMessage
+    params: {meetingID: "${uid}", message: "Hello ${uid}", userName: "${userName}"}
+    eventually: {within: 10s, every: 200ms, until: {returncode: SUCCESS}}
+    expect: {returncode: SUCCESS}
+  - graphql: {as: ann, query: "query Chat { chat_message_public { message senderName messageType } }"}
+    eventually: {within: 5s, every: 500ms, until: {jsonpath: {"$.data.chat_message_public[?(@.messageType == 'api')].message": "Hello ${uid}"}}}
+    expect:
+      jsonpath:
+        "$.data.chat_message_public[?(@.messageType == 'api')].message": "Hello ${uid}"
+        "$.data.chat_message_public[?(@.messageType == 'api')].senderName": "${sender}"
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

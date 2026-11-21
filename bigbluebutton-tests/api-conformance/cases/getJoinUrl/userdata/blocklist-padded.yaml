@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# getJoinUrlUserdataBlocklist entries are trimmed: the
+# userdata-blocklist-padded profile pads them with spaces, a tab and a
+# newline, and they still drop a viewer's params, but not the unlisted lang.
+id: getJoinUrl.userdata.blocklist-padded
+title: getJoinUrl trims getJoinUrlUserdataBlocklist entries
+endpoint: getJoinUrl
+class: contract
+tags: [presence, disruptive]
+requires: [akka, presence]
+profile: userdata-blocklist-padded
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Userdata}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: "viewer"}}
+    golden: off
+    capture: {annId: $.userId, annToken: $.sessionToken}
+  # bbb-web learns of the join from akka-apps a moment later.
+  - call: getJoinUrl
+    client: ann
+    raw_query: 'sessionToken=${annToken}&userdata-bbb_record_permission=false&userdata-bbb_record_video=false&userdata-bbb_presenter_tools=pencil&userdata-bbb_multi_user_tools=pencil&userdata-lang=fr'
+    eventually: {within: 10s, every: 200ms, until: {returncode: SUCCESS}}
+    expect:
+      format: json
+      returncode: SUCCESS
+      jsonpath:
+        $.response.url: {regex: '^\Q${baseUrl}\E/bigbluebutton/api/join\?&?fullName=Ann&meetingID=${uid}&role=VIEWER&redirect=true&existingUserID=${annId}\Q&userdata-lang=fr\E&checksum=[0-9a-f]{128}$'}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

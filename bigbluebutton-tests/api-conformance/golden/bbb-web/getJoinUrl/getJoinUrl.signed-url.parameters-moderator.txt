@@ -11,7 +11,7 @@ $.response.message "Join URL provided successfully."
 $.response.returncode "SUCCESS"
 $.response.url "${baseUrl}${apiPrefix}join?checksum=<token>&existingUserID=w_<id>&fullName=Ann&meetingID=${uid}&redirect=true&role=MODERATOR&userdata-bbb_presenter_tools=pencil&userdata-bbb_show_session_details_on_join=false"
 
-== step 4: url ${joinUrl}
+== step 5: url ${joinUrl}
 status 302
 header Set-Cookie JSESSIONID=<token>; HttpOnly; Path=/; Secure
 location ${baseUrl}/html5client/?sessionToken=<token>

@@ -28,6 +28,7 @@ import org.bigbluebutton.api.messaging.messages.PresentationUploadToken
 import org.bigbluebutton.api.util.ParamsUtil
 import org.bigbluebutton.presentation.SupportedFileTypes
 import org.bigbluebutton.presentation.UploadedPresentation
+import org.bigbluebutton.web.filters.PresentationUploadFilter
 import org.bigbluebutton.web.services.PresentationService
 import org.grails.web.mime.DefaultMimeUtility
 import org.springframework.web.util.UriComponentsBuilder
@@ -53,9 +54,7 @@ class PresentationController {
     '/bigbluebutton/presentation/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)/pdf/([A-Za-z0-9]+)/annotated_slides\\.pdf'
   )
 
-  private static final Pattern UPLOAD_URI_PATTERN = Pattern.compile(
-    '/bigbluebutton/presentation/([A-Za-z0-9_-]+)/upload'
-  )
+  private static final Pattern UPLOAD_URI_PATTERN = PresentationUploadFilter.UPLOAD_URI_PATTERN
 
   private static final int MAX_LOGGED_PARAM_LENGTH = 64
 
@@ -286,6 +285,10 @@ class PresentationController {
 
     if (!presUploadToken.isValidFor(params.conference)) {
       log.warn "Presentation upload token scope mismatch for requested meetingId=" + sanitizeForLog(params.conference)
+      // The token is spent, so this upload cannot be sent again. A request whose body was cut
+      // short (the client left, or stalled until the connection timed out) also ends here, with
+      // no parameters at all and nobody left to answer, so bbb-apps-akka is told that it failed.
+      meetingService.sendPresentationUploadFailedMessage(presUploadToken, "Upload request refused or incomplete")
       response.setStatus(403)
       response.addHeader("Cache-Control", "no-cache")
       response.contentType = 'text/plain'

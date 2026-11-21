@@ -2,13 +2,14 @@
 # putRecordingTextTrack checks, in this order: recordID, that the recording
 # is published or unpublished, kind (subtitles or captions), then lang,
 # which must have a locale's form (a language, and optionally a country,
-# with - or _). Each failure is a JSON error; nothing is written. These
-# run in parallel: the upload never gets that far.
+# with - or _). Each failure is a JSON error, and nothing reaches the
+# captions inbox. Serial, so that no other case's upload is in the inbox
+# when it looks.
 id: putRecordingTextTrack.errors.params
 title: putRecordingTextTrack fails with ${key} (${case})
 endpoint: putRecordingTextTrack
 class: contract
-tags: [ci]
+tags: [ci, serial]
 requires: [recordings-fs]
 defs:
   base: &base {rid: 52388302b3d61ff0ce98e0d6192952f38e0604aa-1700032400000, kind: subtitles, lang: en}
@@ -35,3 +36,5 @@ steps:
         files:
           - {field: file, filename: track.vtt, contentType: text/vtt, content: "WEBVTT\n\n00:00:01.000 --> 00:00:02.000\nHello.\n"}
     expect: {format: json, returncode: FAILED, messageKey: "${key}", message: "${msg}"}
+  - fs: {path: "captions/inbox/*-track.*"}
+    expect: {exists: false}
