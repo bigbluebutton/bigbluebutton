@@ -7,6 +7,7 @@ import Styled from './styles';
 import { uniqueId } from '/imports/utils/string-utils';
 
 const propTypes = {
+  id: PropTypes.string,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
@@ -22,6 +23,7 @@ const propTypes = {
 };
 
 const defaultProps = {
+  id: undefined,
   kind: 'audioinput',
   blocked: false,
   deviceId: '',
@@ -81,6 +83,7 @@ class DeviceSelector extends Component {
 
   render() {
     const {
+      id,
       intl,
       kind,
       blocked,
@@ -117,6 +120,7 @@ class DeviceSelector extends Component {
 
     return (
       <Styled.Select
+        id={id}
         value={deviceId}
         onChange={this.handleSelectChange}
         disabled={!options.length}

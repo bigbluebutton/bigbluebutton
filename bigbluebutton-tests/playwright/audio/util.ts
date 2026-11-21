@@ -9,13 +9,14 @@ export const E2E_ECHO_TEST_SETTINGS_OVERRIDE: ClientSettingsOverrides = {
   public: { media: { localEchoTest: { enabled: false } } },
 };
 
-export async function connectMicrophone(testPage: Page) {
+export async function connectMicrophone(testPage: Page, afterAudioSettingsOpen?: (page: Page) => Promise<void>) {
   if (!testPage.settings) throw new Error('testPage.settings is not defined');
   const { autoJoinAudioModal, skipEchoTest, skipEchoTestOnJoin, listenOnlyMode } = testPage.settings || {};
 
   if (!autoJoinAudioModal) await testPage.waitAndClick(e.joinAudio);
   if (listenOnlyMode) await testPage.clickMicrophoneButton();
   const shouldSkipEchoTest = skipEchoTest || skipEchoTestOnJoin;
+  if (afterAudioSettingsOpen && !shouldSkipEchoTest) await afterAudioSettingsOpen(testPage);
   if (!shouldSkipEchoTest) {
     await testPage.waitForSelector(e.stopHearingButton);
     await testPage.waitAndClick(e.joinEchoTestButton);
@@ -33,8 +34,17 @@ export async function connectMicrophone(testPage: Page) {
   await testPage.hasElement(e.audioDropdownMenu, 'should display the audio dropdown menu after joining audio');
 }
 
-export async function isAudioItemSelected(testPage: Page, audioSelector: string) {
+export async function expectAudioDeviceSelectorsToBeNamed(testPage: Page) {
+  await expect(testPage.page.getByRole('combobox', { name: /^Microphone/ })).toBeVisible();
+  await expect(testPage.page.getByRole('combobox', { name: /^Speaker/ })).toBeVisible();
+}
+
+export async function isAudioItemSelected(testPage: Page, audioSelector: string, groupName: string) {
   await testPage.waitForSelector(audioSelector);
+  const item = testPage.page.locator(audioSelector);
+  await expect(item).toHaveAttribute('role', 'menuitemradio');
+  await expect(item).toHaveAttribute('aria-checked', 'true');
+  await expect(item).toHaveAccessibleName(new RegExp(`^${groupName}: `));
   const isSelected = await testPage.page.evaluate(
     ([selector, icon]) => {
       const element = document.querySelector(selector) as Element | null;
