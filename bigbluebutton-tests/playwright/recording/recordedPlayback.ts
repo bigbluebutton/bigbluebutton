@@ -8,7 +8,7 @@ import {
   RECORDING_PROCESSING_WAIT_TIME,
 } from '../core/constants';
 import { elements as e, playbackElements } from '../core/elements';
-import { getRecordings } from '../core/endpoints';
+import { getMeetingInfo, getRecordingProcessingInfo, getRecordings } from '../core/endpoints';
 import { answerPollOption, openPoll } from '../polling/util';
 import { startScreenshare } from '../screenshare/util';
 import { getBlockNoteEditorLocator, startSharedNotesBlockNote } from '../sharednotes/blocknote/util';
@@ -33,6 +33,7 @@ const SCREENSHARE_START_SECONDS = 8;
 const SHAPE_START_SECONDS = 4;
 const PAUSE_SECONDS = 15;
 const RESUMED_SECONDS = 6;
+const PROCESSING_RECORDING_SECONDS = 5;
 const RECORDING_POLL_INTERVAL = 10000;
 // The recorded fake speech has an RMS of about 0.09 (-21 dBFS); a recording without a
 // microphone has digital silence, about 0.00003 (-91 dBFS).
@@ -183,6 +184,13 @@ export async function waitForPublishedRecording(
   return { recordId, recording: recording! };
 }
 
+// getRecordingProcessingInfo's processing: 'true' while the server has recordings queued
+// or running, 'false' once it has none; undefined if the call failed.
+async function processingState(): Promise<string | undefined> {
+  const { data } = await getRecordingProcessingInfo();
+  return data.response.processing?.[0];
+}
+
 export class RecordedPlayback extends Recording {
   private get recordingButton() {
     return this.modPage.page.locator(`${e.recordingIndicator} button`);
@@ -206,6 +214,42 @@ export class RecordedPlayback extends Recording {
     const endedAt = Date.now();
     await this.modPage.hasElement(e.meetingEndedModal, 'should display the meeting ended modal for the moderator');
     return endedAt;
+  }
+
+  // Records a few seconds and ends the meeting, then follows getRecordingProcessingInfo as a
+  // script draining the server would: once bbb-web no longer knows the meeting, its
+  // recording is queued or running; processing then turns false, by which time the
+  // recording is published.
+  async processingUntilPublished(): Promise<void> {
+    const { meetingId } = this.modPage;
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.toggleRecording('Pause recording', 'the recording should start');
+    await this.modPage.page.waitForTimeout(PROCESSING_RECORDING_SECONDS * 1000);
+    await this.endRecordedMeeting();
+
+    // bbb-web answers apiCall's errors in JSON (axios asks for JSON first), so the unknown
+    // meeting's returncode is the string 'FAILED', not the one-element array of an XML answer
+    await expect
+      .poll(async () => (await getMeetingInfo(meetingId)).data.response.returncode, {
+        message: 'bbb-web should forget the ended meeting',
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      })
+      .toBe('FAILED');
+    expect(await processingState(), "the ended meeting's recording should be queued or running").toBe('true');
+
+    await expect
+      .poll(processingState, {
+        message: 'the server should finish processing its recordings',
+        timeout: RECORDING_PROCESSING_WAIT_TIME,
+        intervals: [RECORDING_POLL_INTERVAL],
+      })
+      .toBe('false');
+    const { data } = await getRecordings(meetingId);
+    const recording: RecordingData | undefined = data.response.recordings?.[0]?.recording?.[0];
+    expect(
+      findPlaybackFormat(recording, 'presentation'),
+      'the recording should be published in the presentation format once processing is false',
+    ).toBeTruthy();
   }
 
   // The moderator talks (fake speech) with the camera on through about 20 s of recording,

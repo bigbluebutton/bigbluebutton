@@ -296,7 +296,7 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
     if (!freeJoin) {
       return (
         <>
-          <Styled.InfoCard>
+          <Styled.InfoCard data-test="breakoutNotAssigned">
             <Icon iconName="unassigned" />
             <Styled.InfoText>
               {intl.formatMessage(intlMessages.notAssignedLabel)}

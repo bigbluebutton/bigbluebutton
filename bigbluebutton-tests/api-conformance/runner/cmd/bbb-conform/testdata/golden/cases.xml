@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="bbb-conform fake" tests="25" failures="0" errors="0" skipped="1" time="0.000">
+<testsuites name="bbb-conform fake" tests="26" failures="0" errors="0" skipped="1" time="0.000">
   <testsuite name="create" tests="12" failures="0" errors="0" skipped="1" time="0.000">
     <testcase name="create.body.forms" classname="create" file="../../testdata/cases/create/body-forms.yaml" line="1" time="0.000"></testcase>
     <testcase name="create.duplicate.same-passwords" classname="create" file="../../testdata/cases/create/duplicate-same-passwords.yaml" line="1" time="0.000"></testcase>
@@ -37,7 +37,8 @@
     <testcase name="join.presence.two-users" classname="join" file="../../testdata/cases/join/presence-two-users.yaml" line="4" time="0.000"></testcase>
     <testcase name="join.redirect.session-token" classname="join" file="../../testdata/cases/join/session-token.yaml" line="1" time="0.000"></testcase>
   </testsuite>
-  <testsuite name="stuns" tests="1" failures="0" errors="0" skipped="0" time="0.000">
+  <testsuite name="stuns" tests="2" failures="0" errors="0" skipped="0" time="0.000">
+    <testcase name="stuns.response.turn-credentials" classname="stuns" file="../../testdata/cases/stuns/turn-credentials.yaml" line="6" time="0.000"></testcase>
     <testcase name="stuns.session.unknown-token" classname="stuns" file="../../testdata/cases/stuns/unknown-token.yaml" line="1" time="0.000"></testcase>
   </testsuite>
   <testsuite name="version" tests="1" failures="0" errors="0" skipped="0" time="0.000">

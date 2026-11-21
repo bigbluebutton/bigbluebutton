@@ -6,7 +6,7 @@ import VideoService from '/imports/ui/components/video-provider/service';
 import * as ScreenShareService from '/imports/ui/components/screenshare/service';
 import logger from '/imports/startup/client/logger';
 import { SCREENSHARING_ERRORS } from '/imports/api/screenshare/client/bridge/errors';
-import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
+import useEjectPresentationAreaContent from '/imports/ui/core/hooks/useEjectPresentationAreaContent';
 import {
   useSharedDevices, useHasVideoStream, useHasCapReached, useIsCamSharingLocked, useStreams,
   useExitVideo,
@@ -25,7 +25,7 @@ const VideoPreviewContainer = (props) => {
     setIsOpen,
   } = props;
   const cameraAsContentDeviceId = ScreenShareService.useCameraAsContentDeviceIdType();
-  const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
+  const ejectPresentationAreaContent = useEjectPresentationAreaContent();
   const [setAway] = useMutation(SET_AWAY);
   const streams = useStreams();
   const exitVideo = useExitVideo();
@@ -74,7 +74,7 @@ const VideoPreviewContainer = (props) => {
     };
     ScreenShareService.shareScreen(
       isCameraAsContentBroadcasting,
-      stopExternalVideoShare,
+      () => ejectPresentationAreaContent('screenshare'),
       true, handleFailure, { stream: Service.getStream(deviceId)._mediaStream },
     );
     ScreenShareService.setCameraAsContentDeviceId(deviceId);

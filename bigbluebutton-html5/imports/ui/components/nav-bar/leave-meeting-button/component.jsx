@@ -109,6 +109,7 @@ class LeaveMeetingButton extends PureComponent {
         {
           key: 'list-item-end-meeting',
           dataTest: 'endMeetingButton',
+          className: 'bbb-menu__item--end-meeting',
           icon: 'close',
           label: intl.formatMessage(intlMessages.endMeetingLabel),
           description: intl.formatMessage(intlMessages.endMeetingDesc),

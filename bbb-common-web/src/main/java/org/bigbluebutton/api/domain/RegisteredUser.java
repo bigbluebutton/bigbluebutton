@@ -7,24 +7,19 @@ public class RegisteredUser {
 
     private String guestStatus;
     private Boolean excludeFromDashboard;
-    private Long guestWaitedOn;
-    private Boolean leftGuestLobby;
     private String enforceLayout;
     private String logoutUrl;
 
     public RegisteredUser(String authToken, String userId, String guestStatus, Boolean excludeFromDashboard,
-                          Boolean leftGuestLobby, String enforceLayout, String logoutUrl) {
+                          String enforceLayout, String logoutUrl) {
         this.authToken = authToken;
         this.userId = userId;
         this.guestStatus = guestStatus;
         this.excludeFromDashboard = excludeFromDashboard;
-        this.leftGuestLobby = leftGuestLobby;
         this.enforceLayout = enforceLayout;
         this.logoutUrl = logoutUrl;
 
-        Long currentTimeMillis = System.currentTimeMillis();
-        this.registeredOn = currentTimeMillis;
-        this.guestWaitedOn = currentTimeMillis;
+        this.registeredOn = System.currentTimeMillis();
     }
 
     public void setGuestStatus(String status) {
@@ -33,14 +28,6 @@ public class RegisteredUser {
 
     public String getGuestStatus() {
         return guestStatus;
-    }
-
-    public void setLeftGuestLobby(boolean bool) {
-        this.leftGuestLobby = bool;
-    }
-
-    public Boolean getLeftGuestLobby() {
-        return leftGuestLobby;
     }
 
     public void setExcludeFromDashboard(Boolean excludeFromDashboard) {
@@ -65,13 +52,5 @@ public class RegisteredUser {
 
     public Boolean getExcludeFromDashboard() {
         return excludeFromDashboard;
-    }
-
-    public void updateGuestWaitedOn() {
-        this.guestWaitedOn = System.currentTimeMillis();
-    }
-
-    public Long getGuestWaitedOn() {
-        return this.guestWaitedOn;
     }
 }

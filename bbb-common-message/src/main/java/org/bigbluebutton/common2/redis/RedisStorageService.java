@@ -20,6 +20,8 @@
 package org.bigbluebutton.common2.redis;
 
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -182,6 +184,46 @@ public class RedisStorageService extends RedisAwareCommunicator {
         RedisCommands<String, String> commands = connection.sync();
         result = commands.hmset(key, info);
         return result;
+    }
+
+    // Lists the jobs in the Resque queues named with ARGV[1] as a prefix, and
+    // what every Resque worker is running. Resque's keys start with "resque:".
+    private static final String READ_RESQUE_JOBS = String.join("\n",
+            "local prefix = ARGV[1]",
+            "local queued = {}",
+            "for _, queue in ipairs(redis.call('SMEMBERS', 'resque:queues')) do",
+            "  if string.sub(queue, 1, #prefix) == prefix then",
+            "    for _, job in ipairs(redis.call('LRANGE', 'resque:queue:' .. queue, 0, -1)) do",
+            "      queued[#queued + 1] = job",
+            "    end",
+            "  end",
+            "end",
+            "local running = {}",
+            "for _, worker in ipairs(redis.call('SMEMBERS', 'resque:workers')) do",
+            "  local job = redis.call('GET', 'resque:worker:' .. worker)",
+            "  if job then running[#running + 1] = job end",
+            "end",
+            "return {queued, running}");
+
+    /**
+     * Reads the jobs queued in the Resque queues whose names start with
+     * queuePrefix, and the jobs Resque's workers are running. One script
+     * reads both, and Redis runs a script atomically, so a job a worker
+     * queues for the next step before it finishes the current one is seen
+     * in one place or the other.
+     */
+    public ResqueJobs readResqueJobs(String queuePrefix) {
+        RedisCommands<String, String> commands = connection.sync();
+        List<Object> result = commands.eval(READ_RESQUE_JOBS, ScriptOutputType.MULTI, new String[0], queuePrefix);
+        return new ResqueJobs(strings(result.get(0)), strings(result.get(1)));
+    }
+
+    private static List<String> strings(Object list) {
+        List<String> out = new ArrayList<>();
+        for (Object o : (List<?>) list) {
+            out.add((String) o);
+        }
+        return out;
     }
 
     public Boolean checkConnectionStatusBasic() {

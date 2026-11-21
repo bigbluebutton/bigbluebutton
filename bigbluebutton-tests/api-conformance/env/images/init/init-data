@@ -9,6 +9,6 @@ mkdir -p "$d/recording/raw" "$d/recording/process" "$d/recording/publish" \
 	"$d/recording/status/sanity" "$d/recording/status/published" "$d/recording/status/ended" \
 	"$d/published" "$d/deleted" "$d/unpublished" "$d/captions/inbox" "$d/events" "$d/basic_stats" \
 	"$d/configs" "$d/diagnostics" "$d/learning-dashboard"
-# Fixture recordings (fixtures/recordings/) will be copied in here.
+# The tap installs the suite's fixture recordings (fixtures/recordings/).
 chown -R bigbluebutton:bigbluebutton "$d"
 chmod o+rx "$d"

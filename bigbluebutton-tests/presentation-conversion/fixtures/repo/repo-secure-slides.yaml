@@ -1,0 +1,9 @@
+id: repo-secure-slides
+title: 17 A4 pages encrypted with an owner password (printing allowed only)
+tier: repo
+file: ../../../../bigbluebutton-web/test/resources/secure-slides.pdf
+catalog: [Encrypted PDFs]
+pages: 17
+expect: converted
+kind: any
+checks: [outcome, pages, kind, aspect, exif, text]

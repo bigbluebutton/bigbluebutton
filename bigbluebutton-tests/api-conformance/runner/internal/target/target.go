@@ -81,11 +81,13 @@ type TLS struct {
 // Route is where a non-API route lives. Path may hold {name} placeholders,
 // filled from a step's pathParams. Base, or the variable BaseEnv names,
 // replaces the target's baseUrl, e.g. to reach bbb-web's nginx-internal
-// hooks directly.
+// hooks directly. Subrequest sends the route's steps the way nginx sends an
+// auth_request subrequest (see client.Prepared.CookiesFrom).
 type Route struct {
-	Path    string `yaml:"path"`
-	Base    string `yaml:"base"`
-	BaseEnv string `yaml:"baseEnv"`
+	Path       string `yaml:"path"`
+	Base       string `yaml:"base"`
+	BaseEnv    string `yaml:"baseEnv"`
+	Subrequest bool   `yaml:"subrequest"`
 
 	unavailable bool // BaseEnv names a variable that isn't set
 }
@@ -96,11 +98,14 @@ type Profile struct {
 }
 
 // Var is a value cases read as ${target.<name>}. Secret values are redacted
-// from reports.
+// from reports. Capability, when set, is a capability the target has
+// while the var has a value, so the cases that need the value are skipped
+// rather than failed on a target that doesn't say it.
 type Var struct {
-	Value  string `yaml:"value"`
-	Env    string `yaml:"env"`
-	Secret bool   `yaml:"secret"`
+	Value      string `yaml:"value"`
+	Env        string `yaml:"env"`
+	Secret     bool   `yaml:"secret"`
+	Capability string `yaml:"capability"`
 }
 
 var (
@@ -218,6 +223,12 @@ func (t *Target) complete(getenv func(string) string) error {
 			v.Value = getenv(v.Env)
 			t.Vars[name] = v
 		}
+		if v.Capability != "" && !slices.Contains(known, v.Capability) {
+			return fmt.Errorf("vars.%s: unknown capability %q (known: %s)", name, v.Capability, strings.Join(known, ", "))
+		}
+	}
+	if err := t.varCapabilities(); err != nil {
+		return err
 	}
 	if t.TLS.CAFile != "" && !filepath.IsAbs(t.TLS.CAFile) {
 		t.TLS.CAFile = filepath.Join(t.Dir, t.TLS.CAFile)
@@ -346,6 +357,33 @@ func (t *Target) completeSink(getenv func(string) string) error {
 		t.Capabilities = append(t.Capabilities, "callbacks")
 	case t.SinkURL == "" && t.Has("callbacks"):
 		return fmt.Errorf("capability callbacks needs a sink: set sinkUrl or BBB_SINK_URL")
+	}
+	return nil
+}
+
+// varCapabilities gives the target each capability a var with a value
+// names. One the target lists while none of its vars has a value is an
+// error: its cases would fail rather than skip.
+func (t *Target) varCapabilities() error {
+	given := map[string]bool{}
+	var names []string
+	for _, v := range t.Vars {
+		if v.Capability == "" {
+			continue
+		}
+		if _, seen := given[v.Capability]; !seen {
+			names = append(names, v.Capability)
+		}
+		given[v.Capability] = given[v.Capability] || v.Value != ""
+	}
+	sort.Strings(names)
+	for _, c := range names {
+		switch {
+		case given[c] && !t.Has(c):
+			t.Capabilities = append(t.Capabilities, c)
+		case !given[c] && t.Has(c):
+			return fmt.Errorf("capability %s needs a var that gives it to have a value", c)
+		}
 	}
 	return nil
 }

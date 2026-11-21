@@ -1,0 +1,11 @@
+id: var-name-mixed-ext
+title: Mixed-case extension
+tier: variant
+file: ../../../playwright/core/media/sample-with-mask.pdf
+upload: { method: insertDocument, name: "mixed.pDf" }
+issues: [13486]
+catalog: [Filenames]
+pages: 1
+expect: converted
+kind: vector
+checks: [outcome, pages, kind, aspect, served]

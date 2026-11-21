@@ -159,8 +159,17 @@ const Bottom = styled(PositionedDiv)`
   justify-content: flex-end;
 `;
 
+// A section whose buttons all render nothing is left empty in the DOM, so the
+// separators next to it are hidden from what actually rendered.
 const Separator = styled(BaseSeparator)`
-    width: 50%;
+  width: 50%;
+
+  ${Top}:empty + &,
+  ${Center}:empty + &,
+  &:has(+ ${Center}:empty),
+  &:has(+ ${Bottom}:empty) {
+    display: none;
+  }
 `;
 
 export default {

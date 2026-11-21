@@ -39,7 +39,7 @@ trait UserLeftVoiceConfEvtMsgHdlr {
     } yield {
       if (GuestsWaiting.findWithIntId(liveMeeting.guestsWaiting, user.intId) != None) {
         GuestsWaiting.remove(liveMeeting.guestsWaiting, user.intId)
-        UsersApp.guestWaitingLeft(liveMeeting, user.intId, outGW)
+        UsersApp.guestWaitingLeft(liveMeeting, user.intId)
       }
       Users2x.remove(liveMeeting.users2x, user.intId)
       UserDAO.softDelete(user.meetingId, user.intId)

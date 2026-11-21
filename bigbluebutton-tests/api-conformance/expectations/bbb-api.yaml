@@ -28,3 +28,4 @@ expected:
   - {id: "updateRecordings.*", reason: the recording calls aren't implemented}
   - {id: "getRecordingTextTracks.*", reason: the recording calls aren't implemented}
   - {id: "putRecordingTextTrack.*", reason: the recording calls aren't implemented}
+  - {id: "getRecordingProcessingInfo.*", reason: the recording calls aren't implemented}

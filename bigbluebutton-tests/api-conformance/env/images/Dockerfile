@@ -49,8 +49,9 @@ COPY --chmod=755 images/bbb-web/convert.sh /usr/share/bbb-libreoffice-conversion
 RUN missing=$(ldd /opt/libreoffice*/program/soffice.bin /opt/libreoffice*/program/libmergedlo.so | grep 'not found' || true) \
  && if [ -n "$missing" ]; then echo "LibreOffice is missing: $missing" >&2; exit 1; fi
 RUN --mount=type=bind,from=debs,target=/debs unpack 'bbb-web_*.deb' \
- # What after-install.sh does to the packaged properties, but the host and
- # salt, which the stack's /etc/bigbluebutton/bbb-web.properties sets.
+ # What after-install.sh does to the packaged properties, but the host, the
+ # salt and the page-token secret, which the stack's
+ # /etc/bigbluebutton/bbb-web.properties sets.
  && props=/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties \
  && sed -i -e 's/placementsThreshold=8000/placementsThreshold=800/g' \
       -e 's/imageTagThreshold=8000/imageTagThreshold=800/g' \
@@ -157,11 +158,13 @@ COPY --from=runner . .
 RUN CGO_ENABLED=0 go build -o /bbb-conform ./cmd/bbb-conform
 
 # Follows the bus and reads redis and the data directory for the bus, redis
-# and fs steps. It only reads.
+# and fs steps. It writes only the suite's fixture recordings: it installs
+# them into the data directory when it starts, and puts them back for the
+# restore steps.
 FROM base AS tap
 COPY --from=runner-build /bbb-conform /usr/local/bin/bbb-conform
 USER bigbluebutton
-CMD ["bbb-conform", "tap", "--listen", "0.0.0.0:8099"]
+CMD ["bbb-conform", "tap", "--listen", "0.0.0.0:8099", "--recordings", "/fixtures/recordings"]
 HEALTHCHECK --interval=2s --timeout=5s --start-period=30s \
   CMD curl -fsS http://127.0.0.1:8099/info | grep -q '"subscribed":true'
 

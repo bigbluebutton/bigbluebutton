@@ -124,6 +124,10 @@ class UrlMappings {
       action = [GET: 'getRecordingsHandler', POST: 'getRecordingsHandler']
     }
 
+    "/bigbluebutton/api/getRecordingProcessingInfo"(controller: "recording") {
+      action = [GET: 'getRecordingProcessingInfoHandler', POST: 'getRecordingProcessingInfoHandler']
+    }
+
     "/bigbluebutton/api/updateRecordings"(controller: "recording") {
       action = [GET: 'updateRecordingsHandler', POST: 'updateRecordingsHandler']
     }

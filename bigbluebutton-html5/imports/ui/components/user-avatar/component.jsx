@@ -61,7 +61,11 @@ const UserAvatar = ({
           color={color}
         >
 
-          <Styled.Talking talking={talking && !muted} animations={animations} />
+          <Styled.Talking
+            className="bbb-avatar__talking"
+            talking={talking && !muted}
+            animations={animations}
+          />
 
           {avatar != null && avatar.length !== 0 && !emoji
             ? (

@@ -1,0 +1,7 @@
+# want: 7: hmac: unknown checksum algorithm "md5"
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+steps:
+  - {call: create, params: {name: '${hmac("md5", "k", "d")}'}}

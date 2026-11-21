@@ -1,0 +1,7 @@
+              Roadmap
+• Get it stable and used in TIM
+• app/desktop
+  sharing/scheduling/webphone/recording
+• Examine app_conference
+• Investigate SipX/OpenSER/FreeSwitch
+• Investigate adhearsion

@@ -40,11 +40,15 @@ type Error struct {
 func (e *Error) Error() string { return fmt.Sprintf("tap: %s (HTTP %d)", e.Msg, e.Status) }
 
 func (c *Client) get(ctx context.Context, p string, q url.Values, v any) error {
+	return c.do(ctx, http.MethodGet, p, q, v)
+}
+
+func (c *Client) do(ctx context.Context, method, p string, q url.Values, v any) error {
 	u := c.base + p
 	if len(q) > 0 {
 		u += "?" + q.Encode()
 	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
+	req, err := http.NewRequestWithContext(ctx, method, u, nil)
 	if err != nil {
 		return err
 	}
@@ -135,4 +139,16 @@ func (c *Client) FS(ctx context.Context, m Mark, glob string) (*FSResult, error)
 	v := url.Values{"instance": {m.Instance}, "after": {strconv.FormatInt(m.Seq, 10)}, "path": {glob}}
 	var r FSResult
 	return &r, c.get(ctx, "/fs", v, &r)
+}
+
+// Restore puts fixture recordings back as the tap's tree has them.
+func (c *Client) Restore(ctx context.Context, ids []string) error {
+	var r RestoreResult
+	return c.do(ctx, http.MethodPost, "/recordings/restore", url.Values{"id": ids}, &r)
+}
+
+// RestoreAll puts every fixture recording back.
+func (c *Client) RestoreAll(ctx context.Context) error {
+	var r RestoreResult
+	return c.do(ctx, http.MethodPost, "/recordings/restore", url.Values{"all": {"1"}}, &r)
 }

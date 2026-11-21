@@ -2,8 +2,8 @@ import styled from 'styled-components';
 import { phoneLandscape, smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import { borderRadius } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  colorSuccess,
-  colorDanger,
+  timerRunningBg,
+  timerStoppedBg,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeBase, fontSizeXS } from '/imports/ui/stylesheets/styled-components/typography';
 
@@ -13,8 +13,8 @@ interface TimerButtonProps {
   hide: boolean;
 }
 
-const colorTimerRunning = `${colorSuccess}`;
-const colorTimerStopped = `${colorDanger}`;
+const colorTimerRunning = timerRunningBg;
+const colorTimerStopped = timerStoppedBg;
 const timerMarginSM = '.5rem';
 const timerPaddingSM = '.25rem';
 const timerPaddingXL = '1.62rem';

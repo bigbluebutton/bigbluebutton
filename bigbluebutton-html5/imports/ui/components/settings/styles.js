@@ -50,7 +50,6 @@ const SettingsTabList = styled(TabList)`
   margin: 0;
   padding: 0;
   width: calc(100% / 3);
-  height: 39rem;
 
   @media ${smallOnly} {
     width: 100%;

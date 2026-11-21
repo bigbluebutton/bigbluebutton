@@ -471,6 +471,7 @@ class PresentationToolbar extends PureComponent {
         </Styled.QuickPollButtonWrapper>
         <Styled.PresentationSlideControls className="bbb-presentation-toolbar__slide-controls">
           <Styled.PrevSlideButton
+            className="bbb-presentation-toolbar__prev"
             role="button"
             aria-label={prevSlideAriaLabel}
             aria-describedby={
@@ -491,6 +492,7 @@ class PresentationToolbar extends PureComponent {
             title={intl.formatMessage(intlMessages.selectLabel)}
           >
             <Styled.SkipSlideSelect
+              className="bbb-presentation-toolbar__slide-select"
               id="skipSlide"
               aria-label={intl.formatMessage(intlMessages.skipSlideLabel)}
               aria-describedby="skipSlideDesc"
@@ -505,6 +507,7 @@ class PresentationToolbar extends PureComponent {
             </Styled.SkipSlideSelect>
           </TooltipContainer>
           <Styled.NextSlideButton
+            className="bbb-presentation-toolbar__next"
             role="button"
             aria-label={nextSlideAriaLabel}
             aria-describedby={
@@ -553,6 +556,7 @@ class PresentationToolbar extends PureComponent {
           )}
 
           <Styled.WBAccessButton
+            className="bbb-presentation-toolbar__multi-user"
             data-test={multiUser ? 'turnMultiUsersWhiteboardOff' : 'turnMultiUsersWhiteboardOn'}
             role="button"
             aria-label={multiUserLabel}
@@ -595,6 +599,7 @@ class PresentationToolbar extends PureComponent {
             </Styled.ZoomToolWrapper>
           ) : null}
           <Styled.FitToWidthButton
+            className="bbb-presentation-toolbar__fit-to-width"
             setRef={(ref) => { this.fitToWidthButton = ref; }}
             role="button"
             data-test="fitToWidthButton"

@@ -193,15 +193,10 @@ export interface Transcription {
 }
 
 export interface DefaultSettings {
-  layout: LayoutSettings
   application: Application
   audio: Audio
   dataSaving: DataSaving
   transcription: Transcription
-}
-export interface LayoutSettings {
-  selectedLayout: string
-  pushLayout: boolean
 }
 
 export interface Application {
@@ -220,6 +215,7 @@ export interface Application {
   paginationEnabled: boolean
   whiteboardToolbarAutoHide: boolean
   recordingIndicatorAutoCollapse: boolean
+  selfViewDisable: boolean
   pushToTalkEnabled: boolean
   autoCloseReactionsBar: boolean
   darkTheme: boolean
@@ -239,78 +235,22 @@ export interface DataSaving {
 }
 
 export interface Shortcuts {
-  openOptions: OpenOptions
-  toggleUserList: ToggleUserList
-  openLeaveMenu: OpenLeaveMenu
-  toggleMute: ToggleMute
-  joinAudio: JoinAudio
-  leaveAudio: LeaveAudio
-  togglePublicChat: TogglePublicChat
-  hidePrivateChat: HidePrivateChat
-  closePrivateChat: ClosePrivateChat
-  raiseHand: RaiseHand
-  openActions: OpenActions
-  openDebugWindow: OpenDebugWindow
+  openOptions: ShortcutSetting
+  toggleUserList: ShortcutSetting
+  openLeaveMenu: ShortcutSetting
+  toggleMute: ShortcutSetting
+  joinAudio: ShortcutSetting
+  leaveAudio: ShortcutSetting
+  togglePublicChat: ShortcutSetting
+  hidePrivateChat: ShortcutSetting
+  closePrivateChat: ShortcutSetting
+  raiseHand: ShortcutSetting
+  openActions: ShortcutSetting
+  openDebugWindow: ShortcutSetting
 }
 
-export interface OpenOptions {
+export interface ShortcutSetting {
   accesskey: string
-  descId: string
-}
-
-export interface ToggleUserList {
-  accesskey: string
-  descId: string
-}
-
-export interface OpenLeaveMenu {
-  accesskey: string
-  descId: string
-}
-
-export interface ToggleMute {
-  accesskey: string
-  descId: string
-}
-
-export interface JoinAudio {
-  accesskey: string
-  descId: string
-}
-
-export interface LeaveAudio {
-  accesskey: string
-  descId: string
-}
-
-export interface TogglePublicChat {
-  accesskey: string
-  descId: string
-}
-
-export interface HidePrivateChat {
-  accesskey: string
-  descId: string
-}
-
-export interface ClosePrivateChat {
-  accesskey: string
-  descId: string
-}
-
-export interface RaiseHand {
-  accesskey: string
-  descId: string
-}
-
-export interface OpenActions {
-  accesskey: string
-  descId: string
-}
-
-export interface OpenDebugWindow {
-  accesskey: string
-  descId: string
 }
 
 export interface Branding {
@@ -499,6 +439,7 @@ export interface Poll {
 
 export interface Captions {
   background: string
+  maxTextLength: number
   font: Font
   lines: number
   time: number
@@ -725,6 +666,7 @@ export interface Audio2 {
 
 export interface Screenshare2 {
   showButtonForNonPresenters: boolean
+  enableOnMobile: boolean
 }
 
 export interface LocalEchoTest {
@@ -779,7 +721,6 @@ export interface Presentation {
   allowDownloadOriginal: boolean
   allowDownloadWithAnnotations: boolean
   allowSnapshotOfCurrentSlide: boolean
-  panZoomThrottle: number
   restoreOnUpdate: boolean
   uploadEndpoint: string
   fileUploadConstraintsHint: boolean

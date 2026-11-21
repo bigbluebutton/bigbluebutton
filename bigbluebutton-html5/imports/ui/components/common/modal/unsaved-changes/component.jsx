@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, useIntl } from 'react-intl';
-import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Styled from './styles';
 
@@ -38,20 +37,20 @@ const UnsavedChangesModal = ({ isOpen, onCancel, onConfirm }) => {
       onRequestClose={onCancel}
       noFooter={false}
       footerContent={(
-        <>
-          <BBButton
+        <Styled.Footer>
+          <Styled.FooterButton
             variant="secondary"
             dataTest="unsavedChangesCancel"
             label={intl.formatMessage(intlMessages.cancelLabel)}
             onClick={onCancel}
           />
-          <BBButton
+          <Styled.FooterButton
             variant="primary"
             dataTest="unsavedChangesIgnore"
             label={intl.formatMessage(intlMessages.ignoreButtonLabel)}
             onClick={onConfirm}
           />
-        </>
+        </Styled.Footer>
       )}
     >
       <Styled.Text>

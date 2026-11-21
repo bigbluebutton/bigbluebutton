@@ -1,0 +1,24 @@
+id: pdf-use-tags-2p
+title: "About 2000 and more than 10100 Helvetica glyphs around the 10000 <use threshold"
+tier: synthetic
+file: pdf-use-tags-2p.pdf
+issues: [24143, 24189]
+catalog: ["SVG too complex for the client"]
+upload:
+  method: create
+pages: 2
+expect: converted
+expectByProfile:
+  tight-limits: converted
+kind: { defaults: vector, low-thresholds: raster, tight-limits: vector }
+pageOverrides:
+  1: { kind: { defaults: vector, low-thresholds: raster, tight-limits: vector } }
+  2: { kind: { defaults: raster, low-thresholds: raster, tight-limits: blank } }
+marker: false
+aspect: auto
+profiles: [defaults, low-thresholds, tight-limits]
+goldenProfiles: [defaults, low-thresholds, tight-limits]
+notes: >-
+  cairo writes one <use per glyph, spaces included. useTagThreshold is 10000 (500 in
+  low-thresholds). Under tight-limits, maxBigSvgSize of 200000 bytes turns the dense page-2 raster
+  (a 2048 px PNG embedded as base64) into the blank slide (observed on 4.0.0-rc.5).

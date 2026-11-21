@@ -249,12 +249,17 @@ const FetchingAnimation = styled.span<{ animations: boolean }>`
   }
 `;
 
+// Sized by the video's own aspect ratio, so the box never ends up wider than
+// the image: iOS WebKit stops painting a camera preview whose first frames are
+// pillarboxed (object-fit: contain) once the capture rotates to portrait.
 const VideoPreview = styled.video<{mirroredVideo: boolean}>`
-  height: 100%;
-  width: 100%;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
 
   @media ${smallOnly} {
-    height: 10rem;
+    max-height: 10rem;
   }
 
   ${({ mirroredVideo }) => mirroredVideo && `

@@ -60,6 +60,19 @@ object BreakoutRoomUserDAO {
     this.refreshBreakoutRoomsVisibleForUsers(meetingId, userId)
   }
 
+  def unassignUser(meetingId: String, userId: String) = {
+    DatabaseConnection.enqueue(
+      TableQuery[BreakoutRoomUserDbTableDef]
+        .filter(_.meetingId === meetingId)
+        .filter(_.userId === userId)
+        .map(u => u.assignedAt)
+        .update(None)
+    )
+
+    //it will remove the rooms that are no longer visible to the user
+    this.refreshBreakoutRoomsVisibleForUsers(meetingId, userId)
+  }
+
   def updateUserJoined(breakoutRoomUser: BreakoutUser, parentMeetingUser: RegisteredUser, breakoutRoom: BreakoutRoom2x) = {
       DatabaseConnection.enqueue(
         sqlu"""UPDATE "breakoutRoom_user" SET

@@ -1,0 +1,13 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case textTrack.file.fetch
+target bbb-web
+
+== step 2: url ${href}
+status 200
+header Content-Type text/plain
+body text 64 bytes, sha256 e08a908010a2
+
+== step 3: url ${href} (document)
+status 401
+header Content-Type text/html
+body text "401 Authorization Required"

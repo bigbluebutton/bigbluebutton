@@ -130,6 +130,7 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
           role="button"
           tabIndex={0}
           onClick={isModerator ? onClick : () => {}}
+          className="bbb-timer-indicator__button"
           data-test="timeIndicator"
         >
           <Styled.TimerContent>

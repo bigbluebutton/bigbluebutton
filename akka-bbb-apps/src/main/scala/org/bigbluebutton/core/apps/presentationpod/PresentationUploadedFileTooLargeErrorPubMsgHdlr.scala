@@ -36,6 +36,14 @@ trait PresentationUploadedFileTooLargeErrorPubMsgHdlr {
       "actualFileSize" -> msg.body.fileSize.toString
     )
 
+    // A document inserted through the API has no row until its conversion starts, and one refused for
+    // its size never gets there, so a plain UPDATE would record nothing. Insert the row with its reason
+    // (a no-op when the client's upload path already created it from the upload token), then record the
+    // error on the row that exists.
+    PresPresentationDAO.insertRejectedUpload(
+      liveMeeting.props.meetingProp.intId, "", "", msg.body.presentationId, msg.body.presentationName,
+      msg.body.messageKey, errorDetails
+    )
     PresPresentationDAO.updateErrors(msg.body.presentationId, msg.body.messageKey, errorDetails)
     broadcastEvent(msg)
     state
