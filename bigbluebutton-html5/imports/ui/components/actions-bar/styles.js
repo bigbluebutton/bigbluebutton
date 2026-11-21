@@ -3,7 +3,6 @@ import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints
 import { smPaddingX, smPaddingY, barsPadding } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorWhite,
-  colorBackground,
   btnDefaultBg,
   btnDefaultColor,
   defaultBorder,
@@ -20,7 +19,6 @@ const ActionsBar = styled.div`
 const ActionsBarWrapper = styled.section`
   flex: 1;
   padding: ${barsPadding};
-  background-color: ${colorBackground};
   position: relative;
   order: 3;
 `;

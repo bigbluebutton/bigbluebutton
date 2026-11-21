@@ -4,7 +4,6 @@ import {
   colorPrimary,
   colorBorder,
   appsPanelTextColor,
-  colorBackground,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   borderSize,
@@ -22,7 +21,6 @@ import { textFontWeight } from '../../stylesheets/styled-components/typography';
 
 const SidebarContentBackdrop = styled.div<{isRTL: boolean, isMobile: boolean}>`
   position: absolute;
-  background-color: ${colorBackground};
   ${({ isMobile, isRTL }) => !isMobile && `
     padding: ${isRTL
     ? `

@@ -17,7 +17,6 @@ import {
 import {
   colorWhite,
   notificationBadgeBg,
-  colorBackground,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 import { Separator as BaseSeparator } from '/imports/ui/components/sidebar-content/styles';
@@ -30,11 +29,9 @@ const NavigationSidebarBackdrop = styled.div<{animations: boolean, isMobile: boo
   position: absolute;
 
   ${({ isMobile }) => !isMobile && `
-    background-color: ${colorBackground};
     padding: ${navigationSidebarMargin};
   `}
   ${({ isMobile, animations }) => isMobile && `
-    background-color: transparent;
     ${animations && 'transition: height 0.2s ease-out, background-color 0.4s ease-out;'}
   `}
 `;
