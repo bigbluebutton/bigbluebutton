@@ -210,6 +210,9 @@ class BigBlueButtonActor(
         bbbMsgBus.subscribe(m.actorRef, m.props.meetingProp.intId)
         bbbMsgBus.subscribe(m.actorRef, m.props.voiceProp.voiceConf)
 
+        // Ask for the shared notes pad only now: its reply is routed through bbbMsgBus.
+        m.actorRef ! InitSharedNotesInternalMsg(m.props.meetingProp.intId)
+
         RunningMeetings.add(meetings, m)
 
       case Some(m) =>
