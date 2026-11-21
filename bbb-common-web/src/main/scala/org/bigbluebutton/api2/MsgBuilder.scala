@@ -23,10 +23,10 @@ import scala.util.{ Try, Using }
 object MsgBuilder {
   private lazy val logger: Logger = LoggerFactory.getLogger("msg-builder")
 
-  private def generatePageToken(presId: String, page: Int, secret: String): String = {
+  private def generatePageToken(conference: String, room: String, presId: String, page: Int, secret: String): String = {
     val mac = Mac.getInstance("HmacSHA256")
     mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"))
-    mac.doFinal(s"$presId|$page".getBytes(StandardCharsets.UTF_8)).map("%02x".format(_)).mkString
+    mac.doFinal(s"$conference|$room|$presId|$page".getBytes(StandardCharsets.UTF_8)).map("%02x".format(_)).mkString
   }
 
   def buildDestroyMeetingSysCmdMsg(msg: DestroyMeetingMessage): BbbCommonEnvCoreMsg = {
@@ -102,8 +102,8 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
-  def generatePresentationPage(presId: String, presBaseUrl: String, presParentPath: String, page: Int, pageTokenSecret: String = ""): PresentationPageConvertedVO = {
-    val pageToken = if (pageTokenSecret.nonEmpty) generatePageToken(presId, page, pageTokenSecret) else ""
+  def generatePresentationPage(conference: String, room: String, presId: String, presBaseUrl: String, presParentPath: String, page: Int, pageTokenSecret: String = ""): PresentationPageConvertedVO = {
+    val pageToken = if (pageTokenSecret.nonEmpty) generatePageToken(conference, room, presId, page, pageTokenSecret) else ""
     val tokenParam = if (pageToken.nonEmpty) "?pageToken=" + pageToken else ""
     val thumbUrl = presBaseUrl + "/thumbnail/" + page + tokenParam
     val txtUrl = presBaseUrl + "/textfiles/" + page + tokenParam
@@ -159,7 +159,7 @@ object MsgBuilder {
     val envelope = BbbCoreEnvelope(PresentationPageConvertedSysMsg.NAME, routing)
     val header = BbbClientMsgHeader(PresentationPageConvertedSysMsg.NAME, msg.meetingId, msg.authzToken)
 
-    val page = generatePresentationPage(msg.presId, msg.presBaseUrl, msg.presParentPath, msg.page.intValue(), pageTokenSecret)
+    val page = generatePresentationPage(msg.meetingId, msg.meetingId, msg.presId, msg.presBaseUrl, msg.presParentPath, msg.page.intValue(), pageTokenSecret)
 
     val body = PresentationPageConvertedSysMsgBody(
       podId = msg.podId,
@@ -232,6 +232,18 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
+  // As buildPresentationConversionRateLimitedMsg: bbb-apps-akka tells the two apart by messageKey.
+  def buildPresentationUploadFailedMsg(msg: PresentationUploadFailed): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(PresentationConversionFailedErrorSysPubMsg.NAME, routing)
+    val header = BbbClientMsgHeader(PresentationConversionFailedErrorSysPubMsg.NAME, msg.meetingId, "notUsed")
+    val body = PresentationConversionFailedErrorSysPubMsgBody(podId = msg.podId, messageKey = msg.messageKey,
+      presentationId = msg.presentationId, presName = msg.filename, meetingId = msg.meetingId,
+      errorDetail = msg.errorDetail)
+    val req = PresentationConversionFailedErrorSysPubMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+
   def buildPresentationConversionEndedSysMsg(msg: DocPageCompletedProgress): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(PresentationConversionEndedSysMsg.NAME, routing)
@@ -251,7 +263,7 @@ object MsgBuilder {
     val envelope = BbbCoreEnvelope(PresentationConversionCompletedSysPubMsg.NAME, routing)
     val header = BbbClientMsgHeader(PresentationConversionCompletedSysPubMsg.NAME, msg.meetingId, msg.authzToken)
 
-    val pages = generatePresentationPages(msg.presId, msg.numPages.intValue(), msg.presBaseUrl, pageTokenSecret)
+    val pages = generatePresentationPages(msg.meetingId, msg.meetingId, msg.presId, msg.numPages.intValue(), msg.presBaseUrl, pageTokenSecret)
     val presentation = PresentationVO(msg.presId, msg.temporaryPresentationId, msg.filename,
       current = msg.current.booleanValue(), pages.values.toVector, msg.downloadable.booleanValue(),
       msg.removable.booleanValue(),
@@ -263,13 +275,13 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
-  def generatePresentationPages(presId: String, numPages: Int, presBaseUrl: String, pageTokenSecret: String = ""): scala.collection.immutable.Map[String, PageVO] = {
+  def generatePresentationPages(conference: String, room: String, presId: String, numPages: Int, presBaseUrl: String, pageTokenSecret: String = ""): scala.collection.immutable.Map[String, PageVO] = {
     val pages = new scala.collection.mutable.HashMap[String, PageVO]
     for (i <- 1 to numPages) {
       val id = presId + "/" + i
       val num = i
       val current = if (i == 1) true else false
-      val pageToken = if (pageTokenSecret.nonEmpty) generatePageToken(presId, i, pageTokenSecret) else ""
+      val pageToken = if (pageTokenSecret.nonEmpty) generatePageToken(conference, room, presId, i, pageTokenSecret) else ""
       val tokenParam = if (pageToken.nonEmpty) "?pageToken=" + pageToken else ""
       val thumbnail = presBaseUrl + "/thumbnail/" + i + tokenParam
 

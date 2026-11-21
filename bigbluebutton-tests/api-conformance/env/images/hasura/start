@@ -4,6 +4,8 @@
 # the metadata applied and consistent.
 set -eu
 set -a
+# As the unit: loopback, unless the package's config binds elsewhere.
+HASURA_GRAPHQL_SERVER_HOST=127.0.0.1
 . /etc/default/bbb-graphql-server
 set +a
 # The port the unit's name gives, and the admin secret config.yaml (the

@@ -19,7 +19,7 @@ WORKDIR /usr/share/bbb-shared-notes-server
 COPY --from=build /app/dist ./
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/assets ./assets
-COPY package.json package-lock.json blocknote_schema.sql run-in-systemd.sh ./
+COPY package.json package-lock.json blocknote_schema.sql ./
 COPY config/default.yml ./config/
 
 # Listen on all interfaces; deployments mount /etc/bigbluebutton/bbb-shared-notes-server.yml

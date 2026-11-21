@@ -101,11 +101,13 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
             lockSettings.disableNotes, lockSettings.hideUserList, lockSettings.lockOnJoin,
             lockSettings.lockOnJoinConfigurable, lockSettings.hideViewersCursor, lockSettings.hideViewersAnnotation)
         else
-          (false, false, false, false, false, false, false, false, false, false)
+          // No restriction, but lockOnJoin stays on: it is what makes the locks a moderator
+          // applies later in the room bind the attendees (they join with locked = lockOnJoin).
+          (false, false, false, false, false, false, true, false, false, false)
 
       // webcamsOnlyForModerator ("See other viewers webcams") is not part of
       // LockSettingsProps, so propagate it from the parent's live status too.
-      // When not inheriting we send `false` explicitly (mirroring the lock-settings
+      // When not inheriting we send `false` explicitly (like the restrictions in the
       // tuple above), which overrides the bbb-web server-config default for the breakout.
       val webcamsOnlyForModerator =
         if (msg.body.inheritLockSettings)
@@ -127,7 +129,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
         liveMeeting.props.password.viewerPass,
         breakout.presId,
         roomSlides,
-        msg.body.record,
+        msg.body.record && liveMeeting.props.breakoutProps.record,
         liveMeeting.props.recordProp.autoStartRecording,
         liveMeeting.props.recordProp.allowStartStopRecording,
         liveMeeting.props.breakoutProps.privateChatEnabled,

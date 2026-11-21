@@ -46,6 +46,7 @@ import org.bigbluebutton.core.db.{
   MeetingDAO,
   MeetingVoiceDAO,
   NotificationDAO,
+  PresPresentationDAO,
   TimerDAO,
   UserDAO,
   UserStateDAO
@@ -337,6 +338,9 @@ class MeetingActor(
   }
 
   private def initLockSettings(liveMeeting: LiveMeeting, lockSettingsProp: LockSettingsProps): Unit = {
+    // lockSettingsProp is already neutralized at meeting-prop build time when lockSettings is in
+    // disabledFeatures (see BbbWebApiGWApp.createMeeting), so the runtime permissions stay in sync
+    // with the meeting_lockSettings DB row by construction.
     val settings = Permissions(
       disableCam = lockSettingsProp.disableCam,
       disableMic = lockSettingsProp.disableMic,
@@ -570,6 +574,7 @@ class MeetingActor(
       case m: UpdateBreakoutRoomsTimeReqMsg        => state = handleUpdateBreakoutRoomsTimeMsg(m, state)
       case m: SendMessageToAllBreakoutRoomsReqMsg  => state = handleSendMessageToAllBreakoutRoomsMsg(m, state)
       case m: ChangeUserBreakoutReqMsg             => state = handleChangeUserBreakoutReqMsg(m, state)
+      case m: UnassignUserFromBreakoutReqMsg       => state = handleUnassignUserFromBreakoutReqMsg(m, state)
       case m: BreakoutRoomCallModeratorReqMsg =>
         updateUserLastActivity(m.header.userId)
         state = handleBreakoutRoomCallModeratorMsg(m, state)
@@ -721,7 +726,6 @@ class MeetingActor(
       case m: CaptionSubmitTranscriptPubMsg           => captionApp2x.handle(m, liveMeeting, msgBus)
 
       // Guests
-      case m: GetGuestsWaitingApprovalReqMsg          => handleGetGuestsWaitingApprovalReqMsg(m)
       case m: SetGuestPolicyCmdMsg =>
         handleSetGuestPolicyMsg(m)
         updateUserLastActivity(m.header.userId)
@@ -731,8 +735,6 @@ class MeetingActor(
       case m: GuestsWaitingApprovedMsg =>
         handleGuestsWaitingApprovedMsg(m)
         updateUserLastActivity(m.header.userId)
-      case m: GetGuestPolicyReqMsg               => handleGetGuestPolicyReqMsg(m)
-      case m: UpdatePositionInWaitingQueueReqMsg => handleUpdatePositionInWaitingQueueReqMsg(m)
       case m: SetPrivateGuestLobbyMessageCmdMsg =>
         handleSetPrivateGuestLobbyMessageCmdMsg(m)
         updateUserLastActivity(m.header.userId)
@@ -1038,7 +1040,7 @@ class MeetingActor(
           val diff = System.currentTimeMillis() - regUser.graphqlDisconnectedOn
           if (diff > liveMeeting.props.usersProp.waitingGuestUsersTimeout) {
             GuestsWaiting.remove(liveMeeting.guestsWaiting, regUser.id)
-            UsersApp.guestWaitingLeft(liveMeeting, regUser.id, outGW)
+            UsersApp.guestWaitingLeft(liveMeeting, regUser.id)
           }
         }
       }
@@ -1064,16 +1066,19 @@ class MeetingActor(
   var lastRecBreakSentOn = expiryTracker.startedOnInMs
 
   def setRecordingChapterBreak(): Unit = {
-    val now = System.currentTimeMillis()
-    val elapsedInMs = now - lastRecBreakSentOn
-    val elapsedInMin = TimeUtil.millisToMinutes(elapsedInMs)
+    val now = TimeUtil.timeNowInMs()
+    // Without full-duration media, starting or resuming the recording also starts a new audio file,
+    // so the chapter counts from there.
+    val chapterStartedOn =
+      if (props.recordProp.recordFullDurationMedia) lastRecBreakSentOn
+      else math.max(lastRecBreakSentOn, state.recordingTracker.startedOnInMs)
 
     if (props.recordProp.record &&
       (MeetingStatus2x.isRecording(liveMeeting.status) || props.recordProp.recordFullDurationMedia) &&
       recordingChapterBreakLengthInMinutes > 0 &&
-      elapsedInMin > recordingChapterBreakLengthInMinutes) {
+      now - chapterStartedOn >= TimeUtil.minutesToMillis(recordingChapterBreakLengthInMinutes)) {
       lastRecBreakSentOn = now
-      val event = MsgBuilder.buildRecordingChapterBreakSysMsg(props.meetingProp.intId, TimeUtil.timeNowInMs())
+      val event = MsgBuilder.buildRecordingChapterBreakSysMsg(props.meetingProp.intId, now)
       outGW.send(event)
 
       VoiceApp.stopRecordingVoiceConference(liveMeeting, outGW)
@@ -1223,6 +1228,13 @@ class MeetingActor(
           // request ongoing poll to end
           Polls.handleStopPollReqMsg(state, u.intId, liveMeeting)
         }
+
+        // The uploads this user had not finished sending have nobody left to end them. Not done
+        // when the user's connection closes: a client that reconnects goes on sending its file.
+        PresPresentationDAO.updateErrorsOfAwaitingUploadsOfUser(
+          u.meetingId, u.intId, "PRESENTATION_UPLOAD_FAILED",
+          Map("PRESENTATION_UPLOAD_FAILED" -> "Uploader left the meeting")
+        )
 
         UserStateDAO.updateExpired(u.meetingId, u.intId, expired = true)
         UsersApp.removeUserLiveKitMemberships(liveMeeting, liveMeeting.props.meetingProp.intId, u.intId, outGW)

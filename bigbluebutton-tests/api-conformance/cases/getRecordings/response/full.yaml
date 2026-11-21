@@ -1,0 +1,42 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# What getRecordings says about a recording, built from its metadata.xml:
+# one recording element however many formats it was published in, a
+# playback format for each (length in whole minutes; the presentation
+# format's preview images inline), the recording's size the sum of its
+# formats', its metadata, the breakout element even when it isn't a
+# breakout room, and data. A1 is published as presentation and video.
+id: getRecordings.response.full
+title: getRecordings describes a recording published in two formats
+endpoint: getRecordings
+class: contract
+tags: [ci]
+requires: [recordings-fs]
+steps:
+  - call: getRecordings
+    params: {recordID: e633b9434f359d31c1be30832b42a91ac0fb0e92-1700000000000}
+    expect:
+      returncode: SUCCESS
+      xpath:
+        /response/recordings/recording: {count: 1}
+        /response/recordings/recording/recordID: e633b9434f359d31c1be30832b42a91ac0fb0e92-1700000000000
+        /response/recordings/recording/meetingID: conform-rec-a
+        /response/recordings/recording/internalMeetingID: e633b9434f359d31c1be30832b42a91ac0fb0e92-1700000000000
+        /response/recordings/recording/name: Conform Recordings A
+        /response/recordings/recording/isBreakout: "false"
+        /response/recordings/recording/published: "true"
+        /response/recordings/recording/state: published
+        /response/recordings/recording/startTime: "1700000000000"
+        /response/recordings/recording/endTime: "1700001800000"
+        /response/recordings/recording/participants: "3"
+        /response/recordings/recording/rawSize: "839551"
+        /response/recordings/recording/size: "24575809"
+        /response/recordings/recording/metadata/conform-color: blue
+        /response/recordings/recording/metadata/meetingId: conform-rec-a
+        /response/recordings/recording/breakout/parentId: unknown
+        /response/recordings/recording/breakoutRooms: {absent: true}
+        /response/recordings/recording/playback/format: {count: 2}
+        /response/recordings/recording/playback/format[type='presentation']/length: "29"
+        /response/recordings/recording/playback/format[type='presentation']/preview/images/image: {count: 3}
+        /response/recordings/recording/playback/format[type='video']/size: "23488102"
+        /response/recordings/recording/playback/format[type='video']/preview: {absent: true}
+        /response/recordings/recording/data/format/type: conform-data

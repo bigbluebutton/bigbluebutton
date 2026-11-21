@@ -817,6 +817,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
           >
             <Styled.Input
               id="message-input"
+              className="bbb-chat-form__textarea"
               ref={textAreaRef}
               placeholder={intl.formatMessage(messages.inputPlaceholder, { chatName: title })}
               aria-label={intl.formatMessage(messages.inputLabel, { chatName: title })}
@@ -897,6 +898,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
                   variant="contained"
                   disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}
                   type="submit"
+                  className="bbb-chat-form__send"
                   data-test="sendMessageButton"
                   aria-label={intl.formatMessage(messages.submitLabel)}
                 >

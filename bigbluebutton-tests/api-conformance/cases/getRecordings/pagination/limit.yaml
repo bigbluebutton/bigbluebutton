@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# limit pages the list: the answer then carries totalElements, the number
+# of recordings before paging. A limit below 1 counts as 1 and one above
+# 100 as 100; one that isn't an integer turns paging off. offset skips
+# that many recordings first; one that is negative or not an integer counts
+# as 0.
+# Recordings come in the order of the recordID list: B1, the breakout
+# parent and its first room, each with one format.
+id: getRecordings.pagination.limit
+title: getRecordings pages the list (${case})
+endpoint: getRecordings
+class: contract
+tags: [ci]
+requires: [recordings-fs]
+defs:
+  base: &base {offset: null, total: 3}
+variants:
+  - {id: first, vars: {<<: *base, case: "limit 1", limit: "1", count: 1}}
+  - {id: second-page, vars: {<<: *base, case: "limit 2, offset 1", limit: "2", offset: "1", count: 2}}
+  - {id: past-limit, vars: {<<: *base, case: "a limit past the end", limit: "5", count: 3}}
+  - {id: zero, vars: {<<: *base, case: "limit 0 counts as 1", limit: "0", count: 1}}
+  - {id: negative, vars: {<<: *base, case: "a negative limit counts as 1", limit: "-4", count: 1}}
+  - {id: over-100, vars: {<<: *base, case: "a limit over 100", limit: "101", count: 3}}
+  - {id: negative-offset, vars: {<<: *base, case: "a negative offset counts as 0", limit: "1", offset: "-3", count: 1}}
+  - {id: non-integer-offset, vars: {<<: *base, case: "an offset that isn't an integer counts as 0", limit: "1", offset: x, count: 1}}
+steps:
+  - call: getRecordings
+    params:
+      recordID: "e449065b81c433bf7e5aae59e5854db148d5fa28-1700007200000,18e5f907ce98e6c297471554522029c6118e2aff-1700018000000,aaf6466158b3f54add039d90754c86b695f52222-1700018011301"
+      limit: "${limit}"
+      offset: "${offset}"
+    expect:
+      returncode: SUCCESS
+      xpath:
+        /response/recordings/recording:
+          count: ${count}
+        /response/totalElements: "${total}"

@@ -32,10 +32,12 @@ const getWaitLayout = () => {
 };
 
 /**
- * @returns {string | null} PANELS.USERLIST, PANELS.CHAT, or null.
+ * @param {boolean} isChatEnabled
+ * @returns {string | null} PANELS.USERLIST, PANELS.CHAT, or null when no panel should open.
  */
 const getInitialSidebarContentPanel = (isChatEnabled) => {
   // Safe at load time: consumers call this after window.meetingClientSettings is populated.
+  if (getFromUserSettings('bbb_hide_sidebar_navigation', false)) return null;
   const { chat, layout } = window.meetingClientSettings.public;
   const shouldOpenParticipants = getFromUserSettings(
     'bbb_show_participants_on_login',

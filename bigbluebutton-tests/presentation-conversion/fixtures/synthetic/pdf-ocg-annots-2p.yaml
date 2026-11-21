@@ -1,0 +1,19 @@
+id: pdf-ocg-annots-2p
+title: "Red block in an OCG that is OFF by default; Widget annotation drawn from /AP"
+tier: synthetic
+file: pdf-ocg-annots-2p.pdf
+issues: [9486]
+catalog: ["Optional content", "Form fields"]
+upload:
+  method: create
+pages: 2
+expect: converted
+kind: vector
+marker: false
+aspect: auto
+profiles: [defaults]
+notes: >-
+  Page 1: green block visible, red block inside /OC BDC ... EMC whose OCG is listed in
+  /OCProperties /D /OFF; the red block must not show. Page 2: push-button Widget (/F 4, printable)
+  whose /AP /N form draws a blue box with white Helvetica text; the catalog has an /AcroForm
+  without NeedAppearances. pdftocairo 24.02 hides the OCG and draws the widget.

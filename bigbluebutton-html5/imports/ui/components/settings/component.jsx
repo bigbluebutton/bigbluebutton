@@ -330,11 +330,11 @@ class Settings extends Component {
       isPresenter,
       showGuestNotification,
       layoutContextDispatch,
-      selectedLayout,
       isScreenSharingEnabled,
       isVideoEnabled,
       isReactionsEnabled,
       paginationToggleEnabled,
+      paginationToggleLocked,
       isChatEnabled,
       isShowAudioFiltersEnabled,
     } = this.props;
@@ -362,10 +362,10 @@ class Settings extends Component {
             openingFontSize={this.openingFontSize}
             displaySettingsStatus={this.displaySettingsStatus}
             layoutContextDispatch={layoutContextDispatch}
-            selectedLayout={selectedLayout}
             isPresenter={isPresenter}
             isReactionsEnabled={isReactionsEnabled}
             paginationToggleEnabled={paginationToggleEnabled}
+            paginationToggleLocked={paginationToggleLocked}
           />
         ),
       },
@@ -502,11 +502,13 @@ class Settings extends Component {
           <>
             <BBButton
               variant="secondary"
+              className="bbb-action-button bbb-action-button--secondary"
               label={intl.formatMessage(intlMessages.CancelLabel)}
               onClick={this.performClose}
             />
             <BBButton
               variant="primary"
+              className="bbb-action-button bbb-action-button--primary"
               dataTest="saveSettingsButton"
               label={intl.formatMessage(intlMessages.SaveLabel)}
               onClick={this.handleSave}

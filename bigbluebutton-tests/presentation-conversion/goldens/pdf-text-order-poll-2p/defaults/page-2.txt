@@ -1,0 +1,7 @@
+Left column   Right column
+
+First point   Second point
+
+Third point   Fourth point
+
+Fifth point   Sixth point

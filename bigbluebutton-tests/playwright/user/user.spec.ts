@@ -121,6 +121,12 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await timer.timerCountdownForAttendeeTest();
     });
 
+    test('Closes timer panel on demotion', async ({ browser, context, page }, testInfo) => {
+      const timer = new Timer(browser, context);
+      await timer.initPages(page, testInfo);
+      await timer.closesPanelOnDemotion();
+    });
+
     test('Leave Meeting', async ({ browser, context, page }, testInfo) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page, { testInfo });
@@ -583,6 +589,13 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await multiusers.muteAllUsersExceptPresenter();
     });
 
+    test('Clear all status icon', async ({ browser, context, page }, testInfo) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page, { testInfo });
+      await multiusers.initModPage2(context, { testInfo });
+      await multiusers.clearAllStatusIcon();
+    });
+
     test('End meeting', async ({ browser, context, page }, testInfo) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page, { testInfo });
@@ -617,5 +630,19 @@ test.describe.parallel('Emoji rain', { tag: '@nightly' }, () => {
       clientSettingsOverrides: emojiRainSettingsOverride(true, numberOfEmojis),
     });
     await multiusers.emojiRainForEveryReaction(numberOfEmojis);
+  });
+
+  test('Raising the hand right after a reaction does not replay its rain', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    const numberOfEmojis = 5;
+    const multiusers = new MultiUsers(browser, context);
+    await multiusers.initModPage(page, {
+      testInfo,
+      clientSettingsOverrides: emojiRainSettingsOverride(true, numberOfEmojis),
+    });
+    await multiusers.emojiRainOnceWhenRaisingHandAfterReaction(numberOfEmojis);
   });
 });

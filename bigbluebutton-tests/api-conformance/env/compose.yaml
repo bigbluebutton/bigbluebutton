@@ -132,7 +132,8 @@ services:
       net: {condition: service_started}
       redis: {condition: service_healthy}
 
-  # The suite's tap, for the bus, redis and fs steps.
+  # The suite's tap, for the bus, redis and fs steps, and the fixture
+  # recordings, which it installs into the data directory and restores.
   tap:
     <<: *pod
     build: {<<: *build, target: tap}
@@ -142,7 +143,8 @@ services:
     # without its token.
     env_file: [{path: ./.state/tokens.env, required: false}]
     volumes:
-      - data:/var/bigbluebutton:ro
+      - data:/var/bigbluebutton
+      - ../fixtures:/fixtures:ro
     depends_on:
       net: {condition: service_started}
       init: {condition: service_completed_successfully}

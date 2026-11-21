@@ -182,7 +182,7 @@ body xml
 	}
 	x, y := stuns(`{"url":"stun:b"},{"url":"stun:a"}`), stuns(`{"url":"stun:a"},{"url":"stun:b"}`)
 	check(t, x, strings.Join(y, "\n"))
-	if !strings.Contains(strings.Join(x, "\n"), `$.turnServers[].username "<expiry>:w_abcdefghijkl"`) || !strings.Contains(strings.Join(x, "\n"), `$.turnServers[].password "<token>"`) {
+	if !strings.Contains(strings.Join(x, "\n"), `$.turnServers[].username "<expiry>:<user ID>"`) || !strings.Contains(strings.Join(x, "\n"), `$.turnServers[].password "<token>"`) {
 		t.Errorf("TURN credentials not masked:\n%s", strings.Join(x, "\n"))
 	}
 }
@@ -321,11 +321,12 @@ body xml
 /response/list/item
 /response/other/flag "off"`)
 	for body, want := range map[string]string{
-		"masks: [{field: a, as: nope}]\n":                "unknown kind",
-		"masks: [{as: token}]\n":                         "give field or path",
-		"masks: [{field: a, as: regex, regex: \"(\"}]\n": "bad regex",
-		"unordred: []\n":                                 "unordred",
-		"drop: [{value: x}]\n":                           "path is required",
+		"masks: [{field: a, as: nope}]\n":                     "unknown kind",
+		"masks: [{as: token}]\n":                              "give field or path",
+		"masks: [{field: a, as: regex, regex: \"(\"}]\n":      "bad regex",
+		"unordred: []\n":                                      "unordred",
+		"drop: [{value: x}]\n":                                "path is required",
+		"masks: [{field: a, as: time, onlyMatching: true}]\n": "onlyMatching needs as: regex",
 	} {
 		if err := os.WriteFile(p, []byte(body), 0o644); err != nil {
 			t.Fatal(err)
@@ -336,10 +337,63 @@ body xml
 	}
 }
 
-func TestSuiteMasksFileLoads(t *testing.T) {
-	if _, err := Load("../../../masks.yaml"); err != nil {
+func TestLoadSeveralFiles(t *testing.T) {
+	first := writeMasks(t, "masks: [{field: meetingName, as: token}]\ndrop: [{path: /response/extra, value: \"false\"}]\n")
+	second := writeMasks(t, "masks: [{field: meetingName, as: time}, {field: voiceBridge, as: token}]\n")
+	r, err := Load(first, second)
+	if err != nil {
 		t.Fatal(err)
 	}
+	o := obs(200, nil, `<response><meetingName>Secret</meetingName><voiceBridge>71234</voiceBridge><extra>false</extra></response>`)
+	// The first file's mask wins for meetingName, the second file adds
+	// voiceBridge's over the built-in one, and the first file's drop holds.
+	check(t, Response(o, ctx("bbbc-u0u0u0"), r), `
+status 200
+body xml
+/response/meetingName "<token>"
+/response/voiceBridge "<token>"`)
+	if _, err := Load(first, filepath.Join(t.TempDir(), "missing.yaml")); err == nil {
+		t.Error("Load with a missing file should fail")
+	}
+}
+
+// An onlyMatching mask leaves the values its regex doesn't match to the
+// next mask for the node: a mask for the captions inbox's paths doesn't
+// hide the built-in one for learning dashboard files. Without it, the first
+// mask for a node takes every value.
+func TestOnlyMatchingMask(t *testing.T) {
+	uid := "bbbc-u7"
+	intID := sha(uid) + "-1792520978099"
+	dashboard := []byte(`{"path":"learning-dashboard/` + intID + `/zq8wmu1b2c3d/learning_dashboard_data.json"}`)
+	track := []byte(`{"path":"captions/inbox/` + intID + `-1792520978123-track.json"}`)
+	const mask = `{field: path, as: regex, regex: '-[0-9]{13}-track\.', replace: '-<ms>-track.'`
+	r, err := Load(writeMasks(t, "masks: ["+mask+", onlyMatching: true}]\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	check(t, Document(dashboard, ctx(uid), r), `
+$.path "learning-dashboard/<sha1(meetingID)>-<time>/<token>/learning_dashboard_data.json"`)
+	check(t, Document(track, ctx(uid), r), `
+$.path "captions/inbox/<sha1(meetingID)>-<time>-<ms>-track.json"`)
+	r, err = Load(writeMasks(t, "masks: ["+mask+"}]\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	check(t, Document(dashboard, ctx(uid), r), `
+$.path "learning-dashboard/<sha1(meetingID)>-<time>/zq8wmu1b2c3d/learning_dashboard_data.json"`)
+}
+
+func TestSuiteMasksFileLoads(t *testing.T) {
+	r, err := Load("../../../masks.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	// The suite's masks leave a learning dashboard file's token to the
+	// built-in mask.
+	uid := "bbbc-u8"
+	file := `{"path":"learning-dashboard/` + sha(uid) + `-1792520978099/zq8wmu1b2c3d/learning_dashboard_data.json"}`
+	check(t, Document([]byte(file), ctx(uid), r), `
+$.path "learning-dashboard/<sha1(meetingID)>-<time>/<token>/learning_dashboard_data.json"`)
 }
 
 func TestHeadersUntouchedAndCookies(t *testing.T) {

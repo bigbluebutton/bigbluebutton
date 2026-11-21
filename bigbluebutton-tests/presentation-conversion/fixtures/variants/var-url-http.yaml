@@ -1,0 +1,9 @@
+id: var-url-http
+title: Plain http URL (fetchUrlSupportedProtocols allows https only)
+tier: variant
+file: ../../../playwright/core/media/sample-with-mask.pdf
+upload: { method: create-url, url: "http://{host}/pcf-http-not-allowed.pdf" }
+catalog: [Preupload via create API]
+pages: 0
+expect: dropped
+checks: [outcome]

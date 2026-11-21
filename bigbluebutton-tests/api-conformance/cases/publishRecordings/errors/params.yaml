@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# publishRecordings needs recordID and publish, and at least one of the
+# record IDs must be a published or unpublished recording's. Record IDs
+# are case-sensitive, and a deleted recording isn't found. These change
+# nothing, so they run in parallel.
+id: publishRecordings.errors.params
+title: publishRecordings fails with ${key} (${case})
+endpoint: publishRecordings
+class: contract
+tags: [ci]
+requires: [recordings-fs]
+variants:
+  - id: missing-record-id
+    vars: {case: no recordID, rid: null, publish: "true", key: missingParamRecordID, msg: You must specify a recordID.}
+  - id: missing-publish
+    vars: {case: no publish, rid: db0c52cbb08b78549a52cb6f29e4d8dc236977bd-1700021600000, publish: null, key: missingParamPublish, msg: You must specify a publish value true or false.}
+  - id: unknown
+    vars: {case: an unknown recording, rid: 0000000000000000000000000000000000000000-1700000000000, publish: "true", key: notFound, msg: We could not find recordings}
+  - id: deleted
+    vars: {case: a deleted recording, rid: eb226ead35ff4ce5f368741d13015c9b648e49f2-1700010800000, publish: "true", key: notFound, msg: We could not find recordings}
+  - id: upper-case
+    vars: {case: an upper-case record ID, rid: 4D64FF980226CDC0DE5D24362BF27A829E1A8AB2-1700025200000, publish: "true", key: notFound, msg: We could not find recordings}
+steps:
+  - call: publishRecordings
+    params: {recordID: "${rid}", publish: "${publish}"}
+    expect: {returncode: FAILED, messageKey: "${key}", message: "${msg}"}

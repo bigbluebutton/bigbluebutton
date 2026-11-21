@@ -11,6 +11,7 @@ import {
   AUDIO_CAPTIONS_SIDEBAR_SETTINGS,
   DisabledFeatures,
   INFINITE_WHITEBOARD_SETTINGS,
+  VIEWERS_IN_WEBCAM_LIMIT_SETTINGS,
 } from './disabledFeatures';
 import { encodeCustomParams, getAllShortcutParams, hexToRgb, preUploadedPresentationModule } from './util';
 
@@ -391,6 +392,52 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     });
 
     test.describe(() => {
+      test('Lock Settings', async ({ browser, context, page }, testInfo) => {
+        const disabledFeatures = new DisabledFeatures(browser, context);
+        await disabledFeatures.initModPage(page, { createParameter: c.lockSettingsDisabled, testInfo });
+        await disabledFeatures.lockSettings();
+      });
+      test('Lock Settings (exclude)', { tag: '@nightly' }, async ({ browser, context, page }, testInfo) => {
+        const disabledFeatures = new DisabledFeatures(browser, context);
+        await disabledFeatures.initModPage(page, { createParameter: c.lockSettingsExclude, testInfo });
+        await disabledFeatures.lockSettingsExclude();
+      });
+      test('Lock Settings (server-side enforcement)', async ({ browser, context, page }, testInfo) => {
+        const disabledFeatures = new DisabledFeatures(browser, context);
+        await disabledFeatures.initModPage(page, { createParameter: c.lockSettingsDisabledWithChatLock, testInfo });
+        await disabledFeatures.initUserPage(context, { testInfo });
+        await disabledFeatures.lockSettingsServerEnforcement();
+      });
+      test(
+        'Lock Settings (no webcam lock suggestion)',
+        { tag: '@media' },
+        async ({ browser, context, page }, testInfo) => {
+          const disabledFeatures = new DisabledFeatures(browser, context);
+          await disabledFeatures.initModPage(page, {
+            createParameter: c.lockSettingsDisabled,
+            clientSettingsOverrides: VIEWERS_IN_WEBCAM_LIMIT_SETTINGS,
+            testInfo,
+          });
+          await disabledFeatures.initUserPage(context, { testInfo });
+          await disabledFeatures.webcamLockSuggestion(false);
+        },
+      );
+      test(
+        'Webcam lock suggestion (lock settings not disabled)',
+        { tag: ['@media', '@nightly'] },
+        async ({ browser, context, page }, testInfo) => {
+          const disabledFeatures = new DisabledFeatures(browser, context);
+          await disabledFeatures.initModPage(page, {
+            clientSettingsOverrides: VIEWERS_IN_WEBCAM_LIMIT_SETTINGS,
+            testInfo,
+          });
+          await disabledFeatures.initUserPage(context, { testInfo });
+          await disabledFeatures.webcamLockSuggestion(true);
+        },
+      );
+    });
+
+    test.describe(() => {
       test('Screenshare', async ({ browser, context, page }, testInfo) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
         await disabledFeatures.initModPage(page, { createParameter: c.screenshareDisabled, testInfo });
@@ -602,6 +649,36 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, { joinParameter: c.hideParticipantsOnLogin, testInfo });
     await customParam.hideParticipantsOnLogin();
+  });
+
+  test('Hide Sidebar Navigation on Login', async ({ browser, context, page }, testInfo) => {
+    linkIssue(26358);
+    const customParam = new CustomParameters(browser, context);
+    await customParam.initModPage(page, { joinParameter: c.hideSidebarNavigation, testInfo });
+    await customParam.initModPage2(context, { testInfo });
+    await customParam.hideSidebarNavigation();
+  });
+
+  test('Hide Sidebar Navigation with Public Chat on Login', async ({ browser, context, page }, testInfo) => {
+    linkIssue(26358);
+    const customParam = new CustomParameters(browser, context);
+    await customParam.initModPage(page, {
+      joinParameter: c.hideSidebarNavigationAndShowPublicChatOnLogin,
+      testInfo,
+    });
+    await customParam.initModPage2(context, { testInfo });
+    await customParam.hideSidebarNavigation();
+  });
+
+  test('Hide Sidebar Navigation with Participants on Login', async ({ browser, context, page }, testInfo) => {
+    linkIssue(26358);
+    const customParam = new CustomParameters(browser, context);
+    await customParam.initModPage(page, {
+      joinParameter: c.hideSidebarNavigationAndShowParticipantsOnLogin,
+      testInfo,
+    });
+    await customParam.initModPage2(context, { testInfo });
+    await customParam.hideSidebarNavigation();
   });
 
   // The participants panel follows the phone guard, not the mobile one: tablets open it

@@ -1,0 +1,8 @@
+# want: 8: steps[0].check[0].expect.between: minItems: got 1, want 2
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+steps:
+  - check:
+      - {value: "5", expect: {between: [1]}}

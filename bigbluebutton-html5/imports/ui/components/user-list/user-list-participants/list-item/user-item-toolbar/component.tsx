@@ -148,7 +148,7 @@ const UserItemToolbar: React.FC<UserItemToolbarProps> = ({
   const addSeparator = onlyAllowedPinnedToolbarOptions.length > 0;
 
   return (
-    <Styled.ToolbarContainer>
+    <Styled.ToolbarContainer className="bbb-user-list-item__toolbar">
       {onlyAllowedPinnedToolbarOptions.map((allowedPinnedToolbarOption) => (
         'resolve' in allowedPinnedToolbarOption
           ? (

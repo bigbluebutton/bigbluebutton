@@ -467,6 +467,7 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
           isCustomVirtualBackgroundsEnabled={isCustomVirtualBackgroundsEnabled}
           renderSettingsLabel={false}
           hideNotificationToasts={hideNotificationToasts}
+          columns={3}
         />
       </Styled.Fragment>
     );

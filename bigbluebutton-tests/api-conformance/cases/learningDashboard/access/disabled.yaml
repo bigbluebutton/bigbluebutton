@@ -1,0 +1,30 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# With learningDashboard in disabledFeatures, learningDashboard refuses
+# even a moderator.
+id: learningDashboard.access.disabled
+title: learningDashboard refuses a meeting that disabled it
+endpoint: learningDashboard
+class: contract
+tags: [ci, presence]
+requires: [akka, presence]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Dashboard, disabledFeatures: learningDashboard}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: moderator}}
+    golden: off
+    capture: {annToken: $.sessionToken}
+  # bbb-web learns of the join from akka-apps a moment later.
+  - call: learningDashboard
+    client: ann
+    params: {sessionToken: "${annToken}"}
+    eventually: {within: 10s, every: 200ms, until: {message: Learning Dashboard disabled for this meeting}}
+    expect: {format: json, returncode: FAILED, message: Learning Dashboard disabled for this meeting}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

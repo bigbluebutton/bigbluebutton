@@ -1,9 +1,11 @@
 import styled from 'styled-components';
 import {
   colorPrimary,
-  colorSuccess,
+  colorWhite,
   colorWarning,
   colorDanger,
+  btnWarningColor,
+  connectionStatusGoodBg,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 const StatusIconWrapper = styled.div`
@@ -11,10 +13,14 @@ const StatusIconWrapper = styled.div`
   padding: 1.5rem;
 
   ${({ color }) => {
-    let bgColor = colorSuccess;
+    let bgColor = connectionStatusGoodBg;
     bgColor = color === 'warning' ? colorWarning : bgColor;
     bgColor = color === 'danger' ? colorDanger : bgColor;
-    return `background-color: ${bgColor};`
+    const iconColor = color === 'warning' ? btnWarningColor : colorWhite;
+    return `
+      background-color: ${bgColor};
+      color: ${iconColor};
+    `;
   }}
 `;
 
