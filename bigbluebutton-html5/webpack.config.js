@@ -1,5 +1,6 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
@@ -22,6 +23,29 @@ process.stdout.write(`Building: ${process.env.TARGET}\n`);
 // map under the bundle's file name. A new name per rebuild would keep every
 // old bundle and map (~100 MB each) in the cache until maxAge.
 const bundleFilename = env === prodEnv ? 'bundle.[fullhash].js' : 'bundle.js';
+
+// Dev builds: the scripts of recent builds, by URL. Each URL carries a hash of
+// the script's bytes, and the dev server answers it from here, so a page always
+// gets the exact bytes its URLs name (see setupMiddlewares).
+const devScriptsByUrl = new Map();
+let devBuild = 0;
+
+// Stores this build's scripts and returns their URLs. The scripts of the last
+// 10 builds stay available, for pages loaded before a rebuild.
+const storeDevScripts = (compilation, files) => {
+  devBuild += 1;
+  const urls = files.map((file) => {
+    const content = compilation.getAsset(file).source.buffer();
+    const hash = crypto.createHash('sha256').update(content).digest('hex').slice(0, 20);
+    const url = `${file}?contenthash=${hash}`;
+    devScriptsByUrl.set(url, { content, build: devBuild });
+    return url;
+  });
+  devScriptsByUrl.forEach(({ build }, url) => {
+    if (build <= devBuild - 10) devScriptsByUrl.delete(url);
+  });
+  return urls;
+};
 
 const config = {
   entry: './client/main.tsx',
@@ -82,6 +106,10 @@ const config = {
           },
           bundleHash: fullhash,
           isProduction: env === prodEnv,
+          // Dev builds split the page's code into several files (see
+          // splitChunks below); main.html loads each one of them, with a hash
+          // of its bytes in the URL
+          devScripts: env === prodEnv ? [] : storeDevScripts(compilation, assets.js),
         };
       },
     }),
@@ -213,10 +241,52 @@ if (env === prodEnv) {
   };
 } else {
   config.mode = devEnv;
+  const mainEntryOnly = (chunk) => chunk.name === 'main';
+  // Split the code the page loads at startup into several files, so that the
+  // browser downloads again only the ones an edit changed: node_modules in
+  // vendors-*.js, imports/ in app-*.js, and the rest (webpack's runtime and
+  // client/) in bundle.js. maxSize makes webpack cut each group into parts
+  // along folder boundaries. The parts stay few: each file is a request on
+  // the first load, and one more for its source map when DevTools is open.
+  // Only the main entry: the connection-status worker keeps loading alone,
+  // and Mermaid stays lazy.
+  config.optimization = {
+    splitChunks: {
+      cacheGroups: {
+        vendors: {
+          test: /[\\/]node_modules[\\/]/,
+          chunks: mainEntryOnly,
+          name: 'vendors',
+          filename: '[name].js',
+          minSize: 1000000,
+          maxSize: 8000000,
+          enforce: true,
+        },
+        app: {
+          test: path.join(__dirname, 'imports') + path.sep,
+          chunks: mainEntryOnly,
+          name: 'app',
+          filename: '[name].js',
+          minSize: 300000,
+          // It defaults to minSize, and bundle.js is left with less than that
+          minRemainingSize: 0,
+          maxSize: 1500000,
+          enforce: true,
+        },
+      },
+    },
+  };
   config.devServer = {
     port: 3000,
     hot: true,
     allowedHosts: 'all',
+    // Make the browser revalidate every file, and answer unchanged ones with a
+    // 304 instead of sending them again. Strong ETags hash the content, so they
+    // still match after a restart or when webpack rewrites the same bytes.
+    devMiddleware: {
+      etag: 'strong',
+      cacheControl: 'no-cache',
+    },
     client: {
       overlay: false,
       webSocketURL: 'auto://0.0.0.0:0/html5client/ws',
@@ -237,6 +307,35 @@ if (env === prodEnv) {
           next();
         }
       });
+
+      // A script URL with a content hash always gets the bytes that hash
+      // names, from the scripts of recent builds: during a rebuild, after it,
+      // and whether or not the browser already holds the page's other scripts.
+      // Those bytes never change, so the browser keeps them without asking
+      // again. A hash the dev server no longer holds (a page from more than
+      // 10 builds ago, or from before a restart) gets a script that reloads
+      // the page, instead of other bytes that would mix two builds. Other
+      // URLs go on to webpack-dev-middleware and revalidate. This runs after
+      // compression, like webpack-dev-middleware.
+      const serveScriptByHash = (req, res, next) => {
+        const { pathname, searchParams } = new URL(req.url, 'http://localhost');
+        const hash = searchParams.get('contenthash');
+        if (req.method !== 'GET' || !hash) {
+          next();
+          return;
+        }
+        const script = devScriptsByUrl.get(`${pathname.slice(1)}?contenthash=${hash}`);
+        res.setHeader('Content-Type', 'text/javascript; charset=utf-8');
+        if (!script) {
+          res.setHeader('Cache-Control', 'no-store');
+          res.end('window.location.reload();');
+          return;
+        }
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+        res.end(script.content);
+      };
+      const devMiddlewareIndex = middlewares.findIndex(({ name }) => name === 'webpack-dev-middleware');
+      middlewares.splice(devMiddlewareIndex, 0, { name: 'serve-script-by-hash', middleware: serveScriptByHash });
 
       return middlewares;
     },
