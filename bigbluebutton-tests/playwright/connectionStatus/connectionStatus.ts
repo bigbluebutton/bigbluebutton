@@ -2,8 +2,18 @@ import { expect } from '@playwright/test';
 
 import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
+import { readRows } from '../core/graphql';
 import { MultiUsers } from '../user/multiusers';
 import { checkNetworkStatus, expectHeartbeatsAccepted, type HeartbeatFrames, openConnectionStatus } from './util';
+
+// public.stats.lastEntriesCap in settings.yml
+const HISTORY_CAP = 20;
+const HISTORY_FILL_TIMEOUT = 60000;
+const HISTORY_QUERY =
+  'subscription { user_connectionStatusHistory(order_by: { statusUpdatedAt: desc }) { statusUpdatedAt } }';
+interface HistoryRow {
+  statusUpdatedAt: string;
+}
 
 export class ConnectionStatus extends MultiUsers {
   async connectionStatusModal() {
@@ -101,5 +111,28 @@ export class ConnectionStatus extends MultiUsers {
   async heartbeatWithHiddenNavBar(heartbeats: HeartbeatFrames) {
     await this.modPage.hasHiddenElementCount(e.navbarBackground, 0, 'should not render the navigation bar');
     await expectHeartbeatsAccepted(heartbeats, ELEMENT_WAIT_LONGER_TIME);
+  }
+
+  async historyKeepsLatestReports() {
+    const readHistory = () => readRows<HistoryRow>(this.modPage, HISTORY_QUERY, 'user_connectionStatusHistory');
+
+    await expect
+      .poll(async () => (await readHistory()).length, {
+        message: 'should fill the connection status history up to the default public.stats.lastEntriesCap',
+        timeout: HISTORY_FILL_TIMEOUT,
+        intervals: [2000],
+      })
+      .toBe(HISTORY_CAP);
+
+    const [newest] = await readHistory();
+    await expect
+      .poll(
+        async () => {
+          const rows = await readHistory();
+          return { rows: rows.length, hasNewerReport: rows[0]?.statusUpdatedAt !== newest?.statusUpdatedAt };
+        },
+        { message: 'should drop the oldest report when a new one arrives', timeout: ELEMENT_WAIT_EXTRA_LONG_TIME },
+      )
+      .toEqual({ rows: HISTORY_CAP, hasNewerReport: true });
   }
 }
