@@ -162,15 +162,14 @@ RangeLoop:
 
 					if query != "" {
 						if strings.HasPrefix(query, "subscription") {
+							// The id is looked up before the limit is checked, so a resend is not counted as a new subscription.
 							browserConnection.ActiveSubscriptionsMutex.RLock()
 							existingSubscriptionData, queryIdExists := browserConnection.ActiveSubscriptions[queryId]
+							totalOfActiveSubscriptions := len(browserConnection.ActiveSubscriptions)
 							browserConnection.ActiveSubscriptionsMutex.RUnlock()
 
-							if !queryIdExists && config.GetConfig().Server.MaxConnectionConcurrentSubscriptions > 0 {
-								browserConnection.ActiveSubscriptionsMutex.RLock()
-								totalOfActiveSubscriptions := len(browserConnection.ActiveSubscriptions)
-								browserConnection.ActiveSubscriptionsMutex.RUnlock()
-
+							if config.GetConfig().Server.MaxConnectionConcurrentSubscriptions > 0 &&
+								!isResend(existingSubscriptionData, queryIdExists, hc.Id) {
 								if totalOfActiveSubscriptions >= config.GetConfig().Server.MaxConnectionConcurrentSubscriptions {
 									// Log what is holding the slots once per connection, so the cause can be
 									// identified without flooding the log on every rejected subscription.
@@ -514,6 +513,20 @@ func traverseSelectionSet(selectionSet *ast.SelectionSet, currentDepth int) int 
 	}
 
 	return maxDepth
+}
+
+// isResend reports whether a subscribe repeats a subscription this browser connection already holds:
+// the id is stored as a subscription, and the entry was last stored for another Hasura connection.
+// A query, a mutation, or a subscription already stored for this Hasura connection is not a resend.
+func isResend(existing common.GraphQlSubscription, exists bool, hasuraConnectionId string) bool {
+	if !exists || existing.LastSeenOnHasuraConnection == hasuraConnectionId {
+		return false
+	}
+	switch existing.Type {
+	case common.Subscription, common.Streaming, common.SubscriptionAggregate:
+		return true
+	}
+	return false
 }
 
 func sendErrorMessage(browserConnection *common.BrowserConnection, messageId string, errorMessage string) {
