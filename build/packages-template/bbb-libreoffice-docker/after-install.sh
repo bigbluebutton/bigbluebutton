@@ -7,13 +7,21 @@ if ! which docker > /dev/null; then
 	exit 0
 fi
 
-#if ! docker image inspect bbb-soffice > /dev/null 2>&1; then
-	cd /usr/share/bbb-libreoffice
+# Image that runs soffice; convert-local.sh reads the same file at every conversion
+IMAGE="$(cat /usr/share/bbb-libreoffice/docker-image)"
+
+# docker run pulls a missing image by itself; pull it now so the first conversion does not have to
+if ! docker image inspect "$IMAGE" > /dev/null 2>&1; then
 	echo "#"
-	echo "# Building bbb-libreoffice docker image"
+	echo "# Pulling the bbb-libreoffice docker image $IMAGE"
 	echo "#"
-	docker build -t bbb-soffice docker/
-#fi
+	docker pull "$IMAGE"
+fi
+
+# Earlier packages tagged a local copy of the image as bbb-soffice; nothing uses that alias any more
+if docker image inspect bbb-soffice > /dev/null 2>&1; then
+	docker image rm bbb-soffice || true
+fi
 
 
 chmod +x /usr/share/bbb-libreoffice-conversion/convert-cool.sh
@@ -25,9 +33,16 @@ if [ ! -L /usr/share/bbb-libreoffice-conversion/convert.sh ]; then
 	ln -s /usr/share/bbb-libreoffice-conversion/convert-local.sh /usr/share/bbb-libreoffice-conversion/convert.sh
 fi
 
-cat > /etc/sudoers.d/zzz-bbb-docker-libreoffice <<HERE
-bigbluebutton ALL=(ALL) NOPASSWD: /usr/bin/docker run --rm --memory=1g --memory-swap=1g --network none --env=HOME=/tmp/ -w /tmp/ --user=[0-9][0-9][0-9][0-9][0-9] -v /tmp/bbb-soffice-bigbluebutton/tmp.[0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z]/\:/data/ -v /usr/share/fonts/\:/usr/share/fonts/\:ro -v /usr/share/fontconfig/\:/usr/share/fontconfig/\:ro -v /etc/fonts/\:/etc/fonts/\:ro -v /var/cache/fontconfig/\:/var/cache/fontconfig/\:ro --rm bbb-soffice sh -c timeout [0-9][0-9][0-9]s /usr/bin/soffice -env\:UserInstallation=file\:///tmp/ --convert-to pdf --outdir /data /data/file
-HERE
+# Render the sudoers rule for the exact docker run line of convert-local.sh (sudoers wants ':' as '\:');
+# build.sh renders the packaged copy of this file the same way
+IMAGE_SUDOERS="${IMAGE//:/\\:}"
+TEMPLATE="$(cat /usr/share/bbb-libreoffice/zzz-bbb-docker-libreoffice.template)"
+echo "${TEMPLATE//@BBB_LIBREOFFICE_IMAGE@/$IMAGE_SUDOERS}" > /etc/sudoers.d/zzz-bbb-docker-libreoffice
+chmod 0440 /etc/sudoers.d/zzz-bbb-docker-libreoffice
+chown root:root /etc/sudoers.d/zzz-bbb-docker-libreoffice
+if command -v visudo > /dev/null; then
+	visudo -cqf /etc/sudoers.d/zzz-bbb-docker-libreoffice
+fi
 
 #for i in `seq 1 4` ; do
 #
