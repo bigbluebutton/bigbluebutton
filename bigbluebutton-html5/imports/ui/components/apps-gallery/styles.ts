@@ -6,6 +6,7 @@ import {
   unpinnedAppIconColor,
   colorWhite,
   colorBorder,
+  colorText,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   titlesFontWeight,
@@ -69,6 +70,7 @@ const AppTitleWrapper = styled.div`
 `;
 
 const AppTitle = styled.div`
+  color: ${colorText};
   min-width: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -145,6 +147,7 @@ const PinApp = styled.div<{pinned: boolean}>`
 `;
 
 const DescWrapper = styled.div`
+  color: ${colorText};
   padding: 0 ${contentSidebarPadding} 0;
   display: flex;
   align-items: flex-start;
@@ -333,6 +336,7 @@ const TilePinApp = styled.div<{ pinned: boolean }>`
 `;
 
 const TileTitle = styled.div`
+  color: ${colorText};
   text-align: center;
   font-size: ${fontSizeBase};
   font-weight: ${headingsFontWeight};
