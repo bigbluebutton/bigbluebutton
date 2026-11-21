@@ -13,6 +13,10 @@ inputs:
     description: "Lines to append to /etc/bigbluebutton/bbb-web.properties before the services restart (default: none)"
     required: false
     default: ""
+  bbb-apps-akka-conf:
+    description: "HOCON lines to append to /etc/bigbluebutton/bbb-apps-akka.conf before the services restart (default: none)"
+    required: false
+    default: ""
 runs:
   using: "composite"
   steps:
@@ -202,8 +206,10 @@ runs:
         NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
         ACTIONS_RUNNER_DEBUG: true
         BBB_WEB_PROPERTIES: ${{ inputs.bbb-web-properties }}
+        BBB_APPS_AKKA_CONF: ${{ inputs.bbb-apps-akka-conf }}
       run: |
         printf '%s\n' "$BBB_WEB_PROPERTIES" > /tmp/bbb-web-extra.properties
+        printf '%s\n' "$BBB_APPS_AKKA_CONF" > /tmp/bbb-apps-akka-extra.conf
         sudo -i <<'EOF'
         set -e
         cd /root/
@@ -243,6 +249,8 @@ runs:
         echo "fetchUrlAllowedLocalHosts=bbb-ci.test" | tee -a /etc/bigbluebutton/bbb-web.properties
         # Settings the calling job asked for (input bbb-web-properties), e.g. for @setting-required tests
         sed '/^$/d' /tmp/bbb-web-extra.properties | tee -a /etc/bigbluebutton/bbb-web.properties
+        # Likewise for bbb-apps-akka (input bbb-apps-akka-conf); the file includes the packaged defaults first
+        sed '/^$/d' /tmp/bbb-apps-akka-extra.conf | tee -a /etc/bigbluebutton/bbb-apps-akka.conf
         cat > /etc/bigbluebutton/bbb-conf/apply-config.sh << HERE
         #!/bin/bash
 
