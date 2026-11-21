@@ -1,11 +1,11 @@
-FROM node:24.22.2-alpine@sha256:a34ab6d7f6f4813f4d0c5469d74685604b962fbdbf5793a7bc7b4998ecb867c8 AS build
+FROM node:24.22.3-alpine@sha256:116b800c3754b440ee0aa3ed2f20f5bf3d99a554bfd9adeea09ea8017f6e85f5 AS build
 
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --no-progress --omit=dev
 COPY . .
 
-FROM node:24.22.2-alpine@sha256:a34ab6d7f6f4813f4d0c5469d74685604b962fbdbf5793a7bc7b4998ecb867c8
+FROM node:24.22.3-alpine@sha256:116b800c3754b440ee0aa3ed2f20f5bf3d99a554bfd9adeea09ea8017f6e85f5
 
 # cairosvg and ghostscript as the package depends on; pdftocairo is set in config/settings.json
 RUN apk add --no-cache py3-cairosvg ghostscript poppler-utils \
