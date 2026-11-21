@@ -1,0 +1,25 @@
+name: GraphQL - user list must stay multiplexed per meeting
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "bbb-graphql-server/metadata/**"
+      - "bbb-graphql-server/scripts/check-userlist-cohort-safety.py"
+      - ".github/workflows/graphql-userlist-cohort-check.yml"
+permissions:
+  contents: read
+jobs:
+  userlist-cohort-check:
+    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-24.04' }}
+    steps:
+      - name: Checkout PR's source merged into its target branch
+        uses: actions/checkout@v5
+        with:
+          ref: refs/pull/${{ github.event.number }}/merge
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: install pyyaml
+        run: pip install pyyaml
+      - name: no per-user session variable reachable from the user list
+        run: python3 bbb-graphql-server/scripts/check-userlist-cohort-safety.py

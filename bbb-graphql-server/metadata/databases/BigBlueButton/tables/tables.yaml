@@ -66,6 +66,8 @@
 - "!include public_v_user_guest.yaml"
 - "!include public_v_user_livekit_room.yaml"
 - "!include public_v_user_lockSettings.yaml"
+- "!include public_v_user_list_camera.yaml"
+- "!include public_v_user_list_voice.yaml"
 - "!include public_v_user_metadata.yaml"
 - "!include public_v_user_presenceLog.yaml"
 - "!include public_v_user_reaction.yaml"

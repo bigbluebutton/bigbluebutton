@@ -237,7 +237,7 @@ Permission: Restricted by Lock Settings
 - `speechLocale`
 - `userId`
 ### Relationships:
-- `cameras: Array` [Type user_camera](#type-user_camera)
+- `cameras: Array` **Type user_list_camera** (same fields as [user_camera](#type-user_camera), meeting-scoped permission: never filtered by the current user)
 - `connectionStatus: Object` [Type user_connectionstatus](#type-user_connectionstatus)
 - `lastBreakoutRoom: Object` [Type breakoutRoom_user](#type-breakoutroom_user)
 - `lastBreakoutRoomAssigned: Object` [Type breakoutRoom_user](#type-breakoutroom_user)
@@ -245,7 +245,7 @@ Permission: Restricted by Lock Settings
 - `presPagesWritable: Array` [Type pres_page_writers](#type-pres_page_writers)
 - `userLockSettings: Object` **Type user_lockSettings**
   - `disablePublicChat`
-- `voice: Object` [Type user_voice](#type-user_voice)
+- `voice: Object` **Type user_list_voice** (same fields as [user_voice](#type-user_voice), meeting-scoped permission: never filtered by the current user)
 
 ## Type: pres_annotation_curr
 ### Fields:
