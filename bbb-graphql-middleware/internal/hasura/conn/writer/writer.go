@@ -64,6 +64,7 @@ func HasuraConnectionWriter(hc *common.HasuraConnection, wg *sync.WaitGroup, ini
 	err := hc.Websocket.Write(hc.Context, websocket.MessageText, initMessage)
 	if err != nil {
 		hc.BrowserConn.Logger.Errorf("error on write authentication (init) message (we're disconnected from hasura): %v", err)
+		hc.SetCloseReason(common.ReconnectionHasuraWriteError)
 		return
 	}
 
@@ -84,6 +85,7 @@ RangeLoop:
 				err := json.Unmarshal(fromBrowserMessage, &browserMessage)
 				if err != nil {
 					hc.BrowserConn.Logger.Errorf("failed to unmarshal message: %v", err)
+					hc.SetCloseReason(common.ReconnectionInvalidBrowserMessage)
 					return
 				}
 
@@ -92,7 +94,7 @@ RangeLoop:
 
 					// Rate limiter from config max_connection_queries_per_minute
 					ctxRateLimiter, cancelRateLimiter := context.WithTimeout(hc.Context, 30*time.Second)
-					errRateLimiter := hc.BrowserConn.FromBrowserToHasuraRateLimiter.Wait(ctxRateLimiter)
+					errRateLimiter := common.WaitForRateLimiter(ctxRateLimiter, hc.BrowserConn.FromBrowserToHasuraRateLimiter, common.GqlQueryRateLimitWait, common.GqlQueryRateLimitExceededCounter)
 					cancelRateLimiter()
 					if errRateLimiter != nil {
 						sendErrorMessage(
@@ -111,6 +113,8 @@ RangeLoop:
 					streamCursorField := ""
 					streamCursorVariableName := ""
 					var streamCursorInitialValue interface{}
+					queryIdExists := false
+					var existingSubscriptionData common.GraphQlSubscription
 
 					query := browserMessage.Payload.Query
 
@@ -161,7 +165,7 @@ RangeLoop:
 					if query != "" {
 						if strings.HasPrefix(query, "subscription") {
 							browserConnection.ActiveSubscriptionsMutex.RLock()
-							existingSubscriptionData, queryIdExists := browserConnection.ActiveSubscriptions[queryId]
+							existingSubscriptionData, queryIdExists = browserConnection.ActiveSubscriptions[queryId]
 							browserConnection.ActiveSubscriptionsMutex.RUnlock()
 
 							if !queryIdExists && config.GetConfig().Server.MaxConnectionConcurrentSubscriptions > 0 {
@@ -187,6 +191,7 @@ RangeLoop:
 											Warn("Concurrent subscription limit reached")
 									}
 
+									recordSubscriptionLimitRejection(subscriptionTypeOf(query), browserMessage.Payload.OperationName)
 									sendErrorMessage(
 										browserConnection,
 										queryId,
@@ -227,7 +232,7 @@ RangeLoop:
 								streamCursorInitialValue = existingSubscriptionData.StreamCursorCurrValue
 							}
 
-							if strings.Contains(query, "_stream(") && strings.Contains(query, "cursor: {") {
+							if isStreamingQuery(query) {
 								messageType = common.Streaming
 								if !queryIdExists {
 									streamCursorField, streamCursorVariableName, streamCursorInitialValue = common.GetStreamCursorPropsFromBrowserMessage(browserMessage)
@@ -241,7 +246,7 @@ RangeLoop:
 								}
 							}
 
-							if strings.Contains(query, "_aggregate") && strings.Contains(query, "aggregate {") {
+							if isAggregateQuery(query) {
 								messageType = common.SubscriptionAggregate
 							}
 						}
@@ -258,11 +263,16 @@ RangeLoop:
 						jsonPatchSupported = true
 					}
 
+					operationNameLabel := common.MetricOperationName(browserMessage.Payload.OperationName)
+
 					browserConnection.ActiveSubscriptionsMutex.Lock()
+					// A record of this id, whatever its type, makes this message a resend.
+					_, alreadyActive := browserConnection.ActiveSubscriptions[queryId]
 					browserConnection.ActiveSubscriptions[queryId] = common.GraphQlSubscription{
 						Id:                         queryId,
 						Message:                    fromBrowserMessage,
 						OperationName:              browserMessage.Payload.OperationName,
+						OperationNameLabel:         operationNameLabel,
 						StreamCursorField:          streamCursorField,
 						StreamCursorVariableName:   streamCursorVariableName,
 						StreamCursorCurrValue:      streamCursorInitialValue,
@@ -271,17 +281,18 @@ RangeLoop:
 						Type:                       messageType,
 						LastReceivedDataChecksum:   lastReceivedDataChecksum,
 						LastReceivedData:           lastReceivedData,
+						FirstDataReceived:          existingSubscriptionData.FirstDataReceived,
 					}
+					browserConnection.NoteActiveSubscriptionsLocked()
 					// hc.BrowserConn.Logger.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
 					browserConnection.ActiveSubscriptionsMutex.Unlock()
 
+					if messageType != common.Query && messageType != common.Mutation && config.GetConfig().Server.MaxConnectionConcurrentSubscriptions > 0 {
+						logOnTwoThirdsOfLimit(browserConnection, config.GetConfig().Server.MaxConnectionConcurrentSubscriptions)
+					}
+
 					// Add Prometheus Metrics
-					common.GqlSubscribeCounter.
-						With(prometheus.Labels{
-							"type":          string(messageType),
-							"operationName": browserMessage.Payload.OperationName,
-						}).
-						Inc()
+					recordSubscriptionStart(messageType, operationNameLabel, alreadyActive)
 
 					// Dump of all subscriptions for analysis purpose
 					if dumpQueriesDir != "" {
@@ -307,6 +318,9 @@ RangeLoop:
 				if browserMessage.Type == "complete" {
 					// Remove subscriptions from ActivitiesOverview here once Hasura-Reader will ignore "complete" msg for them
 					browserConnection.ActiveSubscriptionsMutex.Lock()
+					if subscription, ok := browserConnection.ActiveSubscriptions[browserMessage.ID]; ok {
+						common.RecordSubscriptionRemoved(subscription, common.RemovedByClient)
+					}
 					delete(browserConnection.ActiveSubscriptions, browserMessage.ID)
 					// hc.BrowserConn.Logger.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
 					browserConnection.ActiveSubscriptionsMutex.Unlock()
@@ -335,11 +349,15 @@ RangeLoop:
 					continue
 				} else {
 					// Sending to Hasura
+					if browserMessage.Type == "subscribe" {
+						startFirstDataWait(browserConnection, browserMessage.ID)
+					}
 					hc.BrowserConn.Logger.Tracef("sending to hasura: %s", string(fromBrowserMessage))
 					errWrite := hc.Websocket.Write(hc.Context, websocket.MessageText, fromBrowserMessage)
 					if errWrite != nil {
 						if !errors.Is(errWrite, context.Canceled) {
 							hc.BrowserConn.Logger.Errorf("error on write (we're disconnected from hasura): %v", errWrite)
+							hc.SetCloseReason(common.ReconnectionHasuraWriteError)
 						}
 						return
 					}
@@ -515,4 +533,88 @@ func removeValueFromSlice(mapWithSlices map[string][]string, key string, value s
 	}
 
 	return removed, mapWithSlices
+}
+
+// recordSubscriptionStart counts a subscription started by the browser. A message whose id is
+// already active is a retransmission after a reconnection to Hasura, which the retransmitter
+// counts, so it is not counted again here.
+func recordSubscriptionStart(messageType common.QueryType, operationNameLabel string, alreadyActive bool) {
+	if alreadyActive {
+		return
+	}
+	common.GqlSubscribeCounter.
+		With(prometheus.Labels{
+			"type":          string(messageType),
+			"operationName": operationNameLabel,
+		}).
+		Inc()
+}
+
+// startFirstDataWait starts the wait for a subscription's first data each time it is forwarded
+// to Hasura, until that data arrives. A record is written without a start, so a subscription
+// held while the user is not in the meeting does not wait meanwhile, and a retransmission after
+// a reconnection waits from the resend.
+func startFirstDataWait(browserConnection *common.BrowserConnection, queryId string) {
+	browserConnection.ActiveSubscriptionsMutex.Lock()
+	defer browserConnection.ActiveSubscriptionsMutex.Unlock()
+	subscription, ok := browserConnection.ActiveSubscriptions[queryId]
+	if !ok || subscription.FirstDataReceived {
+		return
+	}
+	subscription.FirstDataPendingSince = time.Now()
+	browserConnection.ActiveSubscriptions[queryId] = subscription
+}
+
+func isStreamingQuery(query string) bool {
+	return strings.Contains(query, "_stream(") && strings.Contains(query, "cursor: {")
+}
+
+func isAggregateQuery(query string) bool {
+	return strings.Contains(query, "_aggregate") && strings.Contains(query, "aggregate {")
+}
+
+// subscriptionTypeOf is the type a subscription query is given below, for a subscription that
+// is rejected before it gets there.
+func subscriptionTypeOf(query string) common.QueryType {
+	switch {
+	case isAggregateQuery(query):
+		return common.SubscriptionAggregate
+	case isStreamingQuery(query):
+		return common.Streaming
+	}
+	return common.Subscription
+}
+
+// recordSubscriptionLimitRejection counts a subscription rejected by the per-connection limit of
+// concurrent subscriptions.
+func recordSubscriptionLimitRejection(messageType common.QueryType, operationName string) {
+	common.GqlSubscriptionLimitRejectedCounter.
+		WithLabelValues(string(messageType), common.MetricOperationName(operationName)).
+		Inc()
+}
+
+// logOnTwoThirdsOfLimit logs, once per connection, what holds a connection's subscriptions when
+// their number reaches two thirds of the limit: early enough to see a leak before subscriptions
+// are rejected.
+func logOnTwoThirdsOfLimit(browserConnection *common.BrowserConnection, limit int) {
+	browserConnection.ActiveSubscriptionsMutex.RLock()
+	activeSubscriptions := len(browserConnection.ActiveSubscriptions)
+	browserConnection.ActiveSubscriptionsMutex.RUnlock()
+
+	if activeSubscriptions < limit*2/3 || !browserConnection.SubscriptionTwoThirdsLogged.CompareAndSwap(false, true) {
+		return
+	}
+
+	browserConnection.ActiveSubscriptionsMutex.RLock()
+	operationNames := make([]string, 0, len(browserConnection.ActiveSubscriptions))
+	for _, subscription := range browserConnection.ActiveSubscriptions {
+		operationNames = append(operationNames, subscription.OperationName)
+	}
+	browserConnection.ActiveSubscriptionsMutex.RUnlock()
+
+	browserConnection.Logger.
+		WithField("activeSubscriptions", len(operationNames)).
+		WithField("limit", limit).
+		WithField("activeSubscriptionsByOperation", subscriptionlimit.SummarizeByOperation(operationNames)).
+		Warn("Concurrent subscription count reached two thirds of the limit")
 }

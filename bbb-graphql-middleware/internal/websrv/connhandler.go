@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"slices"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -84,7 +85,7 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	connectionLogger.Infof("browser connection accepted")
 
 	if common.HasReachedMaxGlobalConnections() {
-		common.WsConnectionRejectedCounter.With(prometheus.Labels{"reason": "limit of server connections exceeded"}).Inc()
+		common.WsConnectionRejectedCounter.With(prometheus.Labels{"reason": rejectionReason("connections_limit_exceeded")}).Inc()
 		disconnectWithError(
 			browserWsConn,
 			browserConnectionContext,
@@ -122,7 +123,11 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 
 	thisConnection.Logger.Infof("browser connection stored")
 
+	// Set once the connection init is accepted; read when the connection closes.
+	acceptedAtInit := false
 	defer func() {
+		recordConnectionClose(&thisConnection, acceptedAtInit)
+
 		sessionTokenRemoved := ""
 		BrowserConnectionsMutex.Lock()
 		if _, bcExists := BrowserConnections[browserConnectionId]; bcExists {
@@ -157,8 +162,10 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	// Check authorization and obtain user session variables from bbb-web
-	if errorOnInitConnection, errorMessageId := connectionInitHandler(&thisConnection); errorOnInitConnection != nil {
-		common.WsConnectionRejectedCounter.With(prometheus.Labels{"reason": errorOnInitConnection.Error()}).Inc()
+	errorOnInitConnection, errorMessageId := connectionInitHandler(&thisConnection)
+	recordConnectionInit(errorOnInitConnection, errorMessageId)
+	acceptedAtInit = errorOnInitConnection == nil
+	if errorOnInitConnection != nil {
 		disconnectWithError(
 			browserWsConn,
 			browserConnectionContext,
@@ -171,8 +178,6 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 			connectionLogger)
 		return
 	}
-
-	common.WsConnectionAcceptedCounter.Inc()
 
 	common.AddUserConnection(thisConnection.SessionToken)
 	defer common.RemoveUserConnection(thisConnection.SessionToken)
@@ -194,7 +199,8 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 					BrowserConnectionsMutex.RUnlock()
 					if thisBrowserConnection != nil {
 						thisConnection.Logger.Infof("created hasura client")
-						hasura.HasuraClient(thisBrowserConnection)
+						closeReason, _ := hasura.HasuraClient(thisBrowserConnection)
+						recordHasuraReconnection(browserConnectionContext, closeReason)
 					}
 					time.Sleep(100 * time.Millisecond)
 				}
@@ -292,6 +298,7 @@ func invalidateHasuraConnectionForSessionToken(browserConnection *common.Browser
 
 	// Cancel the Hasura connection context to clean up resources.
 	if hasuraConnection != nil && hasuraConnection.ContextCancelFunc != nil {
+		hasuraConnection.SetCloseReason(common.ReconnectionReason(reason))
 		hasuraConnection.ContextCancelFunc()
 	}
 
@@ -562,6 +569,90 @@ func connectionInitHandler(browserConnection *common.BrowserConnection) (error, 
 	}
 
 	return nil, ""
+}
+
+var registerConnectionMetricsOnce sync.Once
+
+// RegisterConnectionMetrics registers the metrics computed from the open connections when they
+// are collected, once however many times it is called.
+func RegisterConnectionMetrics() {
+	registerConnectionMetricsOnce.Do(func() {
+		prometheus.MustRegister(prometheus.NewGaugeFunc(prometheus.GaugeOpts{
+			Name: "ws_connection_subscriptions_max",
+			Help: "Highest number of active subscriptions held by a single Websocket connection",
+		}, maxActiveSubscriptions))
+	})
+}
+
+// maxActiveSubscriptions is the highest number of active subscriptions among the open
+// connections. It copies the connections and releases the connections lock before reading each
+// one, as InvalidateIdleBrowserConnectionsRoutine does, so a collection does not hold up
+// connections opening or closing.
+func maxActiveSubscriptions() float64 {
+	BrowserConnectionsMutex.RLock()
+	browserConnections := make([]*common.BrowserConnection, 0, len(BrowserConnections))
+	for _, browserConnection := range BrowserConnections {
+		browserConnections = append(browserConnections, browserConnection)
+	}
+	BrowserConnectionsMutex.RUnlock()
+
+	highest := 0
+	for _, browserConnection := range browserConnections {
+		browserConnection.ActiveSubscriptionsMutex.RLock()
+		if n := len(browserConnection.ActiveSubscriptions); n > highest {
+			highest = n
+		}
+		browserConnection.ActiveSubscriptionsMutex.RUnlock()
+	}
+	return float64(highest)
+}
+
+// recordHasuraReconnection counts a connection to Hasura that ended while the browser is still
+// connected: the middleware connects to Hasura again.
+func recordHasuraReconnection(browserConnectionContext context.Context, reason string) {
+	if browserConnectionContext.Err() != nil {
+		return
+	}
+	common.GqlHasuraReconnectionCounter.WithLabelValues(reason).Inc()
+}
+
+// rejectionReasons are the errorMessageIds a connection can be rejected with here; any other id
+// (one forwarded from akka-apps, for instance) is counted as "other".
+var rejectionReasons = []string{
+	"param_missing",
+	"too_many_connections",
+	"check_authorization_error",
+	"meeting_not_found",
+	"user_not_found",
+	"connections_limit_exceeded",
+}
+
+// rejectionReason is the reason label of ws_connection_rejected for an errorMessageId.
+func rejectionReason(errorMessageId string) string {
+	if slices.Contains(rejectionReasons, errorMessageId) {
+		return errorMessageId
+	}
+	return "other"
+}
+
+// recordConnectionInit counts the outcome of a connection's init: rejected with its reason, or
+// accepted. A rejected connection is not counted as accepted.
+func recordConnectionInit(errorOnInitConnection error, errorMessageId string) {
+	if errorOnInitConnection != nil {
+		common.WsConnectionRejectedCounter.With(prometheus.Labels{"reason": rejectionReason(errorMessageId)}).Inc()
+		return
+	}
+	common.WsConnectionAcceptedCounter.Inc()
+}
+
+// recordConnectionClose counts, when a connection closes, the subscriptions it still held and,
+// for a connection accepted at init, the highest number of subscriptions it held. A connection
+// rejected at init (or gone before it) never held any, and is left out of the peak.
+func recordConnectionClose(browserConnection *common.BrowserConnection, acceptedAtInit bool) {
+	common.RecordConnectionSubscriptionsRemoved(browserConnection)
+	if acceptedAtInit {
+		common.RecordConnectionSubscriptionsPeak(browserConnection)
+	}
 }
 
 func disconnectWithError(

@@ -2,6 +2,7 @@ package akka_apps
 
 import (
 	"bbb-graphql-middleware/config"
+	"bbb-graphql-middleware/internal/common"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -17,7 +18,26 @@ var sessionVarsHookUrl = config.GetConfig().SessionVarsHook.Url
 var internalError = fmt.Errorf("server internal error")
 var internalErrorId = "internal_error"
 
+// AkkaAppsGetSessionVariablesFrom asks akka-apps (/userInfo) for the session variables of a
+// session token, measuring each request in the session variables hook metrics.
 func AkkaAppsGetSessionVariablesFrom(browserConnectionId string, sessionToken string, clientSessionUUID string) (map[string]string, error, string) {
+	start := time.Now()
+	sessionVariables, err, errorId := getSessionVariables(browserConnectionId, sessionToken, clientSessionUUID)
+	common.SessionVarsHookRequestDuration.Observe(time.Since(start).Seconds())
+
+	result := common.HookRequestOk
+	switch {
+	case err == internalError:
+		result = common.HookRequestError
+	case err != nil:
+		result = common.HookRequestUnauthorized
+	}
+	common.SessionVarsHookRequestCounter.WithLabelValues(result).Inc()
+
+	return sessionVariables, err, errorId
+}
+
+func getSessionVariables(browserConnectionId string, sessionToken string, clientSessionUUID string) (map[string]string, error, string) {
 	logger := log.WithField("_routine", "AkkaAppsClient").
 		WithField("browserConnectionId", browserConnectionId).
 		WithField("sessionToken", sessionToken).

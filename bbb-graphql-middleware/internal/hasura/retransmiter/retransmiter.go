@@ -34,6 +34,9 @@ func RetransmitSubscriptionStartMessages(hc *common.HasuraConnection) {
 	for _, subscription := range subscriptionsToProcess {
 		if subscription.LastSeenOnHasuraConnection != hc.Id {
 			hc.BrowserConn.Logger.Tracef("retransmiting subscription start: %v", string(subscription.Message))
+			common.GqlSubscriptionRetransmittedCounter.
+				WithLabelValues(string(subscription.Type), subscription.MetricLabel()).
+				Inc()
 
 			if subscription.Type == common.Streaming && subscription.StreamCursorCurrValue != nil {
 				hc.BrowserConn.FromBrowserToHasuraChannel.SendWait(hc.Context, common.PatchQuerySettingLastCursorValue(subscription))

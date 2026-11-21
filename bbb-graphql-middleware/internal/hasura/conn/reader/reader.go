@@ -36,22 +36,25 @@ func HasuraConnectionReader(hc *common.HasuraConnection, wg *sync.WaitGroup) {
 		if err != nil {
 			if errors.Is(err, context.Canceled) {
 				hc.BrowserConn.Logger.Debugf("Closing Hasura ws connection as Context was cancelled!")
-			} else if errors.As(err, &closeError) {
-				hc.WebsocketCloseError = closeError
-				hc.BrowserConn.Logger.Debugf("Hasura WebSocket connection closed: status = %v, reason = %s", closeError.Code, closeError.Reason)
-				// TODO check if it should send {"type":"connection_error","payload":"Authentication hook unauthorized this request"}
 			} else {
-				if websocket.CloseStatus(err) == -1 {
-					// It doesn't have a CloseError, it will reconnect do Hasura
+				hc.SetCloseReason(common.ReconnectionHasuraReadError)
+				if errors.As(err, &closeError) {
+					hc.WebsocketCloseError = closeError
+					hc.BrowserConn.Logger.Debugf("Hasura WebSocket connection closed: status = %v, reason = %s", closeError.Code, closeError.Reason)
+					// TODO check if it should send {"type":"connection_error","payload":"Authentication hook unauthorized this request"}
 				} else {
-					// In case Hasura sent an CloseError, it will forward it to browser and disconnect
-					hc.WebsocketCloseError = &websocket.CloseError{
-						Code:   websocket.CloseStatus(err),
-						Reason: "Graphql connection closed with error" + err.Error(),
+					if websocket.CloseStatus(err) == -1 {
+						// It doesn't have a CloseError, it will reconnect do Hasura
+					} else {
+						// In case Hasura sent an CloseError, it will forward it to browser and disconnect
+						hc.WebsocketCloseError = &websocket.CloseError{
+							Code:   websocket.CloseStatus(err),
+							Reason: "Graphql connection closed with error" + err.Error(),
+						}
 					}
-				}
 
-				hc.BrowserConn.Logger.Debugf("Error reading message from Hasura: %v", err)
+					hc.BrowserConn.Logger.Debugf("Error reading message from Hasura: %v", err)
+				}
 			}
 			return
 		}
@@ -86,9 +89,17 @@ func handleMessageReceivedFromHasura(hc *common.HasuraConnection, message []byte
 
 	// Check if subscription is still active!
 	if hasuraMessageInfo.ID != "" {
-		hc.BrowserConn.ActiveSubscriptionsMutex.RLock()
-		subscription, ok := hc.BrowserConn.ActiveSubscriptions[hasuraMessageInfo.ID]
-		hc.BrowserConn.ActiveSubscriptionsMutex.RUnlock()
+		var subscription common.GraphQlSubscription
+		var ok bool
+		if hasuraMessageInfo.Type == "next" {
+			// Read the record and settle its first data in one lock, so the copy used (and
+			// written back) below is already the settled one.
+			subscription, ok = recordFirstData(hc, hasuraMessageInfo.ID)
+		} else {
+			hc.BrowserConn.ActiveSubscriptionsMutex.RLock()
+			subscription, ok = hc.BrowserConn.ActiveSubscriptions[hasuraMessageInfo.ID]
+			hc.BrowserConn.ActiveSubscriptionsMutex.RUnlock()
+		}
 		if !ok {
 			hc.BrowserConn.Logger.Debugf("Subscription with Id %s doesn't exist anymore, skipping response.", hasuraMessageInfo.ID)
 			return
@@ -103,7 +114,7 @@ func handleMessageReceivedFromHasura(hc *common.HasuraConnection, message []byte
 			common.GqlReceivedDataCounter.
 				With(prometheus.Labels{
 					"type":          string(subscription.Type),
-					"operationName": subscription.OperationName,
+					"operationName": subscription.MetricLabel(),
 				}).
 				Inc()
 		}
@@ -221,10 +232,42 @@ func handleStreamingMessage(hc *common.HasuraConnection, message []byte, subscri
 	}
 }
 
+// recordFirstData reads a subscription's record for a data message and, on its first data
+// message, observes the time it waited for it, once. The record it returns, and keeps, has the
+// first data settled. Once settled, the record is only read, under the read lock; the write lock
+// is taken only until the first data of the subscription is settled.
+func recordFirstData(hc *common.HasuraConnection, queryId string) (common.GraphQlSubscription, bool) {
+	hc.BrowserConn.ActiveSubscriptionsMutex.RLock()
+	subscription, ok := hc.BrowserConn.ActiveSubscriptions[queryId]
+	hc.BrowserConn.ActiveSubscriptionsMutex.RUnlock()
+	if !ok || subscription.FirstDataReceived {
+		return subscription, ok
+	}
+
+	hc.BrowserConn.ActiveSubscriptionsMutex.Lock()
+	subscription, ok = hc.BrowserConn.ActiveSubscriptions[queryId]
+	pendingSince := subscription.FirstDataPendingSince
+	if ok && !subscription.FirstDataReceived {
+		subscription.FirstDataReceived = true
+		subscription.FirstDataPendingSince = time.Time{}
+		hc.BrowserConn.ActiveSubscriptions[queryId] = subscription
+	}
+	hc.BrowserConn.ActiveSubscriptionsMutex.Unlock()
+
+	if ok && !pendingSince.IsZero() {
+		common.GqlSubscriptionFirstDataDuration.WithLabelValues(string(subscription.Type)).Observe(time.Since(pendingSince).Seconds())
+	}
+	return subscription, ok
+}
+
 func handleCompleteMessage(hc *common.HasuraConnection, queryId string) {
 	hc.BrowserConn.ActiveSubscriptionsMutex.Lock()
-	queryType := hc.BrowserConn.ActiveSubscriptions[queryId].Type
-	operationName := hc.BrowserConn.ActiveSubscriptions[queryId].OperationName
+	subscription, active := hc.BrowserConn.ActiveSubscriptions[queryId]
+	queryType := subscription.Type
+	operationName := subscription.OperationName
+	if active {
+		common.RecordSubscriptionRemoved(subscription, common.RemovedByHasura)
+	}
 	delete(hc.BrowserConn.ActiveSubscriptions, queryId)
 	hc.BrowserConn.ActiveSubscriptionsMutex.Unlock()
 	hc.BrowserConn.Logger.Debugf("%s (%s) with Id %s finished by Hasura.", queryType, operationName, queryId)
@@ -272,7 +315,7 @@ func getHasuraMessage(message []byte, subscription common.GraphQlSubscription, m
 	common.GqlReceivedDataPayloadSize.
 		With(prometheus.Labels{
 			"type":          string(subscription.Type),
-			"operationName": subscription.OperationName,
+			"operationName": subscription.MetricLabel(),
 		}).
 		Observe(float64(dataSize))
 
@@ -287,7 +330,7 @@ func getHasuraMessage(message []byte, subscription common.GraphQlSubscription, m
 			common.GqlReceivedDataPayloadLength.
 				With(prometheus.Labels{
 					"type":          string(subscription.Type),
-					"operationName": subscription.OperationName,
+					"operationName": subscription.MetricLabel(),
 				}).
 				Observe(float64(dataLength))
 
