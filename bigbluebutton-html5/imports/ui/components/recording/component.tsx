@@ -108,25 +108,27 @@ const RecordingComponent: React.FC<RecordingComponentProps> = ({
       (
         <Styled.NotificationContent>
           <Styled.NotificationActions>
-            <Styled.CancelButton
-              data-test="cancelRecordingButton"
+            <Styled.ActionButton
+              variant="subtle"
+              dataTest="cancelRecordingButton"
+              label={cancelButtonLabel}
               onClick={handleCancel}
-            >
-              {cancelButtonLabel}
-            </Styled.CancelButton>
-            <Styled.ConfirmationButton
-              data-test="confirmRecordingButton"
+            />
+            <Styled.ActionButton
+              variant="primary"
+              dataTest="confirmRecordingButton"
+              label={confirmationButtonLabel}
               onClick={handleConfirm}
-            >
-              <Styled.SvgCapsule>
-                {recordingStatus ? (
-                  <Icon iconName="pause" />
-                ) : (
-                  <SvgIcon iconName="recording" />
-                )}
-              </Styled.SvgCapsule>
-              {confirmationButtonLabel}
-            </Styled.ConfirmationButton>
+              iconStart={(
+                <Styled.SvgCapsule>
+                  {recordingStatus ? (
+                    <Icon iconName="pause" />
+                  ) : (
+                    <SvgIcon iconName="recording" />
+                  )}
+                </Styled.SvgCapsule>
+              )}
+            />
           </Styled.NotificationActions>
         </Styled.NotificationContent>
       ),

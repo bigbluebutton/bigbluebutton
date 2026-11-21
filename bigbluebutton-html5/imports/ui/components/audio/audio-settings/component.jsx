@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
+import ModalFooterButton from '/imports/ui/components/common/modal/footer-button/component';
 import AudioModalFooterContext from '../audio-modal/context';
 import AudioTestContainer from '/imports/ui/components/audio/audio-test/container';
 import Styled from './styles';
@@ -466,15 +466,15 @@ class AudioSettings extends React.Component {
     // downloaded
     setFooterContent(
       <>
-        <BBButton
-          variant="secondary"
+        <ModalFooterButton
+          variant="subtle"
           label={(isConnected || skipAudioOptions())
             ? intl.formatMessage(intlMessages.cancelLabel)
             : intl.formatMessage(intlMessages.backLabel)}
           onClick={handleBack}
           disabled={isConnecting || transcriptionNotReady}
         />
-        <BBButton
+        <ModalFooterButton
           variant="primary"
           dataTest="joinEchoTestButton"
           label={isConnected

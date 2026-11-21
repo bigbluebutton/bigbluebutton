@@ -1,9 +1,6 @@
 import styled from 'styled-components';
-import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
-import {
-  jumboPaddingY,
-  confirmationButtonMinWidth,
-} from '/imports/ui/stylesheets/styled-components/general';
+import ModalFooterButton from '/imports/ui/components/common/modal/footer-button/component';
+import { jumboPaddingY } from '/imports/ui/stylesheets/styled-components/general';
 import { colorGray } from '/imports/ui/stylesheets/styled-components/palette';
 import { lineHeightBase } from '/imports/ui/stylesheets/styled-components/typography';
 
@@ -37,21 +34,18 @@ const Checkbox = styled.input`
   }
 `;
 
+// The buttons keep their own width and stay at the end of the row; when the
+// pair does not fit (a long label on a phone), the row wraps instead of
+// stretching them across the dialog.
 const Footer = styled.div`
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-end;
   gap: 0.75rem;
 `;
 
-// A floor keeps a one-word label ("Pin", "Yes") from rendering as a square
-// next to a wider sibling. Once the pair stacks on a phone, each button fills
-// its line; side by side the footer shrinks to fit its buttons, so there is no
-// room to grow into. Two floors plus a long label can be wider than a phone
-// screen, so the label wraps instead of overflowing.
-const FooterButton = styled(BBButton)`
-  min-width: ${confirmationButtonMinWidth};
-  flex-grow: 1;
+// A label wider than the whole line wraps instead of overflowing.
+const FooterButton = styled(ModalFooterButton)`
   white-space: normal;
 `;
 

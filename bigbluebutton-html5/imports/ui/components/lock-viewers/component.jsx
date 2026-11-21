@@ -5,7 +5,7 @@ import { clone } from 'radash';
 import { MenuItem } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
+import ModalFooterButton from '/imports/ui/components/common/modal/footer-button/component';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import UnsavedChangesModal from '/imports/ui/components/common/modal/unsaved-changes/component';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -633,13 +633,13 @@ class LockViewersComponent extends Component {
         shouldCloseOnOverlayClick
         footerContent={(
           <>
-            <BBButton
-              variant="secondary"
+            <ModalFooterButton
+              variant="subtle"
               dataTest="cancelLockSettings"
               label={intl.formatMessage(intlMessages.buttonCancel)}
               onClick={closeModal}
             />
-            <BBButton
+            <ModalFooterButton
               variant="primary"
               dataTest="applyLockSettings"
               label={intl.formatMessage(intlMessages.buttonApply)}
