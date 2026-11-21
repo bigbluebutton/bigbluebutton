@@ -103,6 +103,7 @@ const PresentationOnlyLayout = (props) => {
       calculatesSidebarContentWidth,
       calculatesSidebarContentBounds,
       calculatesMediaAreaBounds,
+      calculatesContentColumnBounds,
       isTablet,
     } = props;
     const { captionsMargin } = DEFAULT_VALUES;
@@ -118,9 +119,10 @@ const PresentationOnlyLayout = (props) => {
       sidebarNavWidth.horizontalSpaceOccupied,
       sidebarContentWidth.width,
     );
-    const navbarBounds = calculatesNavbarBounds(mediaAreaBounds);
-    const actionbarBounds = calculatesActionbarBounds(mediaAreaBounds);
     const sidebarSize = sidebarContentWidth.width + sidebarNavWidth.horizontalSpaceOccupied;
+    const contentColumnBounds = calculatesContentColumnBounds(sidebarSize);
+    const navbarBounds = calculatesNavbarBounds(contentColumnBounds);
+    const actionbarBounds = calculatesActionbarBounds(contentColumnBounds);
     const mediaBounds = calculatesMediaBounds(mediaAreaBounds, sidebarSize);
     const sidebarContentHeight = calculatesSidebarContentHeight();
     const cameraDockBounds = calculatesCameraDockBounds();

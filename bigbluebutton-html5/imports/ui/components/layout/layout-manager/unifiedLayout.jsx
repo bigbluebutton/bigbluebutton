@@ -628,6 +628,7 @@ const UnifiedLayout = (props) => {
       calculatesSidebarContentWidth,
       calculatesSidebarContentBounds,
       calculatesMediaAreaBounds,
+      calculatesContentColumnBounds,
       isTablet,
     } = props;
     const cameraPosition = getCameraDockPosition();
@@ -646,8 +647,12 @@ const UnifiedLayout = (props) => {
       sidebarNavWidth.horizontalSpaceOccupied,
       sidebarContentWidth.width + sidebarContentAuxiliaryWidth.width,
     );
-    const navbarBounds = calculatesNavbarBounds(mediaAreaBounds);
-    const actionbarBounds = calculatesActionbarBounds(mediaAreaBounds);
+    const contentColumnBounds = calculatesContentColumnBounds(
+      sidebarNavWidth.horizontalSpaceOccupied
+        + sidebarContentWidth.width + sidebarContentAuxiliaryWidth.width,
+    );
+    const navbarBounds = calculatesNavbarBounds(contentColumnBounds);
+    const actionbarBounds = calculatesActionbarBounds(contentColumnBounds);
     const cameraDockBounds = calculatesCameraDockBounds(
       sidebarNavWidth.horizontalSpaceOccupied,
       sidebarContentWidth.width + sidebarContentAuxiliaryWidth.width,
