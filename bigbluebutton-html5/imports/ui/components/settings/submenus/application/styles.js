@@ -1,72 +1,17 @@
 import styled from 'styled-components';
-import {
-  colorBorder,
-  colorGrayLabel,
-} from '/imports/ui/stylesheets/styled-components/palette';
+import { colorBlack, colorGrayLabel } from '/imports/ui/stylesheets/styled-components/palette';
 import SpinnerStyles from '/imports/ui/components/common/loading-screen/styles';
-import Styled from '/imports/ui/components/settings/submenus/styles';
+import SubMenusStyle from '/imports/ui/components/settings/submenus/styles';
 import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
-
-const Row = styled(Styled.Row)``;
-
-const Col = styled(Styled.Col)`
-  display: flex;
-  flex-grow: 1;
-  flex-basis: 0;
-
-  &:last-child {
-    padding-right: 0;
-    padding-left: 0;
-
-    [dir="rtl"] & {
-      padding-right: 0.1rem;
-      padding-left: 0;
-    }
-  }
-`;
-
-const FormElement = styled(Styled.FormElement)``;
-
-const Label = styled(Styled.Label)`
-  margin-left: 0.5rem;
-  color: ${colorGrayLabel};
-  font-size: ${fontSizeBase};
-`;
-
-const FormElementRight = styled(Styled.FormElementRight)`
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  margin-left: 0;
-`;
-
-const Select = styled(Styled.Select)``;
-
-const Title = styled(Styled.Title)``;
-
-const ApplicationTitle = styled(Styled.Title)`
-  font-size: ${fontSizeBase};
-  font-weight: 600;
-  margin-bottom: 0;
-  padding-bottom: 1.5rem;
-`;
-
-const Form = styled(Styled.Form)``;
 
 const SpinnerOverlay = styled(SpinnerStyles.Spinner)`
   & > div {
-    background-color: black;
+    background-color: ${colorBlack};
   }
 `;
 
-const Bounce1 = styled(SpinnerStyles.Bounce1)``;
-
-const Bounce2 = styled(SpinnerStyles.Bounce2)``;
-
-const Separator = styled.hr`
-  margin: 2.5rem 0;
-  border: 1px solid ${colorBorder};
-  opacity: 0.25;
+const ToggleGroup = styled(SubMenusStyle.Group)`
+  gap: 0.25rem;
 `;
 
 const BoldLabel = styled.label`
@@ -75,57 +20,17 @@ const BoldLabel = styled.label`
   font-weight: bold;
 `;
 
-const PullContentRight = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  flex-flow: row;
-  align-items: center;
-`;
-
-const LocalesDropdownSelect = styled.div`
-  width: 100%;
-  margin-top: 0.5rem;
-`;
-
 const ExampleText = styled.p`
+  flex-grow: 1;
+  margin: 0;
   color: ${colorGrayLabel};
-  font-size: ${(props) => props.style.fontSize || '16px'};
-`;
-
-const FontContainer = styled.div`
-`;
-const LanguageContainer = styled.div`
-  padding-bottom: 1.5rem;
-`;
-const AplicationContainer = styled.div`
-  padding-bottom: 1.5rem;
-`;
-
-const TooltipTarget = styled.div`
-  display: flex;
-  align-items: center;
 `;
 
 export default {
-  Row,
-  Col,
-  FormElement,
-  Label,
-  FormElementRight,
-  Select,
-  Title,
-  Form,
   SpinnerOverlay,
-  Bounce1,
-  Bounce2,
-  Separator,
+  Bounce1: SpinnerStyles.Bounce1,
+  Bounce2: SpinnerStyles.Bounce2,
   BoldLabel,
-  PullContentRight,
-  LocalesDropdownSelect,
   ExampleText,
-  FontContainer,
-  LanguageContainer,
-  AplicationContainer,
-  ApplicationTitle,
-  TooltipTarget,
+  ToggleGroup,
 };

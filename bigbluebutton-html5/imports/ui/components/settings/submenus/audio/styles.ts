@@ -7,39 +7,12 @@ import {
   colorPrimary,
   colorStandout,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import Styled from '/imports/ui/components/settings/submenus/styles';
 import {
   fontSizeBase,
   fontSizeSmall,
   headingsFontWeight,
   textFontWeight,
-  titlesFontWeight,
 } from '/imports/ui/stylesheets/styled-components/typography';
-
-const Form = styled(Styled.Form)``;
-
-const AudioMenuContainer = styled.div`
-  padding-bottom: 1.5rem;
-`;
-
-const AudioTitle = styled(Styled.Title)`
-  color: ${appsPanelTextColor};
-  font-size: ${fontSizeBase};
-  font-style: normal;
-  font-weight: ${titlesFontWeight};
-  line-height: normal;
-  margin-bottom: 0.5rem;
-`;
-
-const AudioSubtitle = styled(Styled.SubTitle)`
-  color: ${appsPanelTextColor};
-  font-size: ${fontSizeBase};
-  font-style: normal;
-  font-weight: ${textFontWeight};
-  line-height: normal;
-  margin: 0;
-  padding-bottom: 1.5rem;
-`;
 
 const RoundRadio = materialStyled(Radio)(() => ({
   width: 24,
@@ -123,10 +96,6 @@ const FilterOption = styled.label`
 `;
 
 export default {
-  Form,
-  AudioMenuContainer,
-  AudioTitle,
-  AudioSubtitle,
   RoundRadio,
   FilterGroup,
   FilterOption,

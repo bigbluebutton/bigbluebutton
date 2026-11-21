@@ -65,7 +65,6 @@ const ShortcutsTabList = styled(TabList)`
   margin-top: 1rem;
   padding: 0;
   width: calc(100% / 3);
-  height: 100%;
   overflow-y: auto;
 
   @media ${smallOnly} {
@@ -110,7 +109,6 @@ const ShortcutsTabSelector = styled(Tab)`
     min-height: 3rem;
     border-radius: 8px;
     background: ${colorWhite};
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     transition: all 0.2s ease;
     margin: 0 2px;
     text-overflow: ellipsis;
@@ -144,7 +142,6 @@ const ShortcutsTabSelector = styled(Tab)`
     color: ${colorText};
     background-color: ${settingsModalTabSelected};
     font-weight: bold;
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
   }
 `;
 

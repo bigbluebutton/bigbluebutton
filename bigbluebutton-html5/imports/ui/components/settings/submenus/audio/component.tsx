@@ -1,6 +1,8 @@
 import React from 'react';
+import { BBBTypography } from '@bigbluebutton/bbb-ui-components-react/Typography';
 import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
+import SubMenusStyle from '../styles';
 import Styled from './styles';
 import {
   AudioFilterMode, AudioFilterOption, AudioMenuProps, AudioMenuState,
@@ -237,17 +239,17 @@ class AudioMenu extends BaseMenu {
     } = this.props;
 
     return (
-      <Styled.AudioMenuContainer>
-        <Styled.AudioTitle id={AUDIO_SECTION_TITLE_ID}>
-          {intl.formatMessage(intlMessages.audioTabTitle)}
-        </Styled.AudioTitle>
-        <Styled.AudioSubtitle>
-          {intl.formatMessage(intlMessages.audioTabSubtitle)}
-        </Styled.AudioSubtitle>
-        <Styled.Form>
-          {this.renderAudioFilters()}
-        </Styled.Form>
-      </Styled.AudioMenuContainer>
+      <SubMenusStyle.Section>
+        <SubMenusStyle.Group>
+          <BBBTypography variant="selected" as="h3" id={AUDIO_SECTION_TITLE_ID}>
+            {intl.formatMessage(intlMessages.audioTabTitle)}
+          </BBBTypography>
+          <BBBTypography as="h4">
+            {intl.formatMessage(intlMessages.audioTabSubtitle)}
+          </BBBTypography>
+        </SubMenusStyle.Group>
+        {this.renderAudioFilters()}
+      </SubMenusStyle.Section>
     );
   }
 }
