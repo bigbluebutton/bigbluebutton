@@ -68,9 +68,8 @@ class HoldDownButton extends PureComponent {
     } = this.props;
 
     return (
+      // eslint-disable-next-line jsx-a11y/no-static-element-interactions
       <span
-        role="button"
-        aria-roledescription="interactive"
         key={uniqueKey}
         onClick={this.onClick}
         onMouseDown={this.mouseDownHandler}
