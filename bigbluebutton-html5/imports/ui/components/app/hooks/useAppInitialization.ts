@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import ReactModal from 'react-modal';
 import AppService from '/imports/ui/components/app/service';
 import Session from '/imports/ui/services/storage/in-memory';
 import browserInfo from '/imports/utils/browserInfo';
@@ -11,7 +10,6 @@ const useAppInitialization = () => {
     const { osName = '' } = deviceInfo;
 
     Session.setItem('videoPreviewFirstOpen', true);
-    ReactModal.setAppElement('#app');
 
     const body = document.getElementsByTagName('body')[0];
 

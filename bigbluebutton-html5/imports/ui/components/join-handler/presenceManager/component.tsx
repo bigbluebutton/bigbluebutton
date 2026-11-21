@@ -166,7 +166,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   },
   [joinErrorCode, joinErrorMessage]);
 
-  const errorCode = loggedOut ? 'user_logged_out_reason' : joinErrorCode || ejectReasonCode;
+  const errorCode = loggedOut ? 'user_logged_out_reason' : ejectReasonCode || joinErrorCode;
 
   const userCurrentlyInMeeting = allowToRender && !(meetingEnded || joinErrorCode || ejectReasonCode || loggedOut);
 

@@ -7,7 +7,7 @@ import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.bus.BigBlueButtonEvent
 import org.bigbluebutton.core.db.{ BreakoutRoomUserDAO, NotificationDAO }
 import org.bigbluebutton.core.domain.MeetingState2x
-import org.bigbluebutton.core.models.{ RegisteredUsers, Users2x }
+import org.bigbluebutton.core.models.{ EjectReasonCode, RegisteredUsers, Users2x }
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
@@ -46,7 +46,7 @@ trait ChangeUserBreakoutReqMsgHdlr extends RightsManagementTrait {
         for {
           roomFrom <- breakoutModel.rooms.get(msg.body.fromBreakoutId)
         } yield {
-          BreakoutHdlrHelpers.ejectUserFromBreakoutRoom(eventBus, meetingId, roomFrom, msg.body.userId, msg.header.userId, "User moved to another room")
+          BreakoutHdlrHelpers.ejectUserFromBreakoutRoom(eventBus, meetingId, roomFrom, msg.body.userId, msg.header.userId, "User moved to another room", EjectReasonCode.BREAKOUT_USER_MOVED)
         }
 
         BreakoutHdlrHelpers.revokeUserAccessToBreakoutRooms(
