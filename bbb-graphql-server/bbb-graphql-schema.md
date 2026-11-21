@@ -238,7 +238,6 @@ Permission: Restricted by Lock Settings
 - `userId`
 ### Relationships:
 - `cameras: Array` [Type user_camera](#type-user_camera)
-- `connectionStatus: Object` [Type user_connectionstatus](#type-user_connectionstatus)
 - `lastBreakoutRoom: Object` [Type breakoutRoom_user](#type-breakoutroom_user)
 - `lastBreakoutRoomAssigned: Object` [Type breakoutRoom_user](#type-breakoutroom_user)
 - `meeting: Object` [Type meeting](#type-meeting)
