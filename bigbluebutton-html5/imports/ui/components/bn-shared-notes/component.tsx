@@ -34,17 +34,24 @@ import {
   BlockTypeSelect,
   blockTypeSelectItems,
   ColorStyleButton,
+  ComponentProps,
   ComponentsContext,
   FormattingToolbar,
   getDefaultReactSlashMenuItems,
   NestBlockButton,
+  preventFocusOnTap,
   SuggestionMenuController,
   UnnestBlockButton,
   useComponentsContext,
   useCreateBlockNote,
 } from '@blocknote/react';
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { Menu as MantineMenu } from '@mantine/core';
+import {
+  Button as MantineButton,
+  CheckIcon as MantineCheckIcon,
+  Menu as MantineMenu,
+} from '@mantine/core';
+import { HiChevronDown } from 'react-icons/hi';
 
 import { Plugin, PluginKey, Transaction } from '@tiptap/pm/state';
 import { Extension } from '@tiptap/core';
@@ -161,7 +168,109 @@ const intlMessages = defineMessages({
     id: 'app.notes.blocknote.maxCharCountError',
     description: 'Error message for when number of typed characters exceeds the maximum',
   },
+  title: {
+    id: 'app.notes.title',
+  },
+  blockTypeSelectLabel: {
+    id: 'app.notes.blocknote.blockTypeSelectLabel',
+  },
 });
+
+const AccessibleToolbarSelect = React.forwardRef<
+  HTMLDivElement,
+  ComponentProps['FormattingToolbar']['Select'] & {
+    ariaLabel: string;
+  }
+>(({
+  ariaLabel,
+  className,
+  items,
+  isDisabled,
+  portalElement,
+  preventFocusOnOpen,
+}, ref) => {
+  const [opened, setOpened] = React.useState(false);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
+  React.useImperativeHandle(ref, () => dropdownRef.current as HTMLDivElement);
+  const selectedItem = items.find((item) => item.isSelected);
+  if (!selectedItem) return null;
+
+  const moveFocusOutsideMenu = (backward: boolean) => {
+    const trigger = triggerRef.current;
+    const controls = Array.from(document.querySelectorAll<HTMLElement>(
+      'button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])',
+    )).filter((element) => element.offsetParent !== null && element.tabIndex >= 0);
+    const triggerIndex = trigger ? controls.indexOf(trigger) : -1;
+    controls[triggerIndex + (backward ? -1 : 1)]?.focus();
+  };
+
+  const handleOpenChange = (nextOpened: boolean) => {
+    setOpened(nextOpened);
+    if (nextOpened && !preventFocusOnOpen) {
+      window.setTimeout(() => dropdownRef.current?.querySelector<HTMLElement>('[data-menu-item]')?.focus());
+    }
+  };
+
+  const handleMenuKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Tab') {
+      event.preventDefault();
+      setOpened(false);
+      window.setTimeout(() => moveFocusOutsideMenu(event.shiftKey));
+    }
+  };
+
+  return (
+    <MantineMenu
+      opened={opened}
+      onChange={handleOpenChange}
+      withinPortal={!!portalElement}
+      portalProps={portalElement ? { target: portalElement } : undefined}
+      transitionProps={{ exitDuration: 0 }}
+      disabled={isDisabled}
+      trapFocus={false}
+      middlewares={{
+        flip: true, shift: true, inline: false, size: true,
+      }}
+    >
+      <MantineMenu.Target>
+        <MantineButton
+          ref={triggerRef}
+          aria-label={ariaLabel}
+          data-test="blockTypeSelect"
+          onMouseDown={preventFocusOnTap}
+          leftSection={selectedItem.icon}
+          rightSection={<HiChevronDown />}
+          size="xs"
+          variant="subtle"
+          disabled={isDisabled}
+        >
+          {selectedItem.text}
+        </MantineButton>
+      </MantineMenu.Target>
+      <MantineMenu.Dropdown
+        className={className}
+        ref={dropdownRef}
+      >
+        {items.map((item) => (
+          <MantineMenu.Item
+            key={item.text}
+            onClick={item.onClick}
+            onKeyDownCapture={handleMenuKeyDown}
+            leftSection={item.icon}
+            rightSection={item.isSelected
+              ? <MantineCheckIcon size={10} className="bn-tick-icon" />
+              : <div className="bn-tick-space" />}
+            disabled={item.isDisabled}
+          >
+            {item.text}
+          </MantineMenu.Item>
+        ))}
+      </MantineMenu.Dropdown>
+    </MantineMenu>
+  );
+});
+AccessibleToolbarSelect.displayName = 'AccessibleToolbarSelect';
 
 // Mantine's Menu defaults to trapFocus:true, trapping Tab inside open dropdowns.
 // Replace Generic.Menu.Root with this to let Tab exit the menu (WAI-ARIA pattern).
@@ -189,13 +298,33 @@ const AccessibleMenuRoot: React.FC<{
 // AccessibleMenuRoot — fixes both ColorStyleButton and TextAlignSelect.
 function ToolbarWithAccessibleMenus({ children }: { children: React.ReactNode }) {
   const components = useComponentsContext()!;
+  const intl = useIntl();
+  const AccessibleBlockTypeSelect = React.useCallback((
+    props: ComponentProps['FormattingToolbar']['Select'],
+  ) => {
+    const blockType = props.items.find((item) => item.isSelected)?.text ?? '';
+    return (
+      <AccessibleToolbarSelect
+        ariaLabel={intl.formatMessage(intlMessages.blockTypeSelectLabel, { blockType })}
+        className={props.className}
+        items={props.items}
+        isDisabled={props.isDisabled}
+        portalElement={props.portalElement}
+        preventFocusOnOpen={props.preventFocusOnOpen}
+      />
+    );
+  }, [intl]);
   const patchedComponents = React.useMemo(() => ({
     ...components,
     Generic: {
       ...components.Generic,
       Menu: { ...components.Generic.Menu, Root: AccessibleMenuRoot },
     },
-  }), [components]);
+    FormattingToolbar: {
+      ...components.FormattingToolbar,
+      Select: AccessibleBlockTypeSelect,
+    },
+  }), [AccessibleBlockTypeSelect, components]);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return <ComponentsContext.Provider value={patchedComponents as any}>{children}</ComponentsContext.Provider>;
 }
@@ -284,6 +413,12 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
   );
 
   const editor = useCreateBlockNote(withCollaboration({
+    domAttributes: {
+      editor: {
+        'aria-label': intl.formatMessage(intlMessages.title),
+        'data-test': 'blockNoteEditor',
+      },
+    },
     tabBehavior: 'prefer-indent',
     collaboration: {
       provider: { awareness: hocuspocusProvider.awareness || undefined },

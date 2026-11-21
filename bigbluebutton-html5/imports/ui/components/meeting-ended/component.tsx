@@ -229,12 +229,13 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
 
                   <Styled.MeetingEndedButton
                     color="default"
+                    data-test="learningDashboardButton"
                     onClick={() => openLearningDashboardUrl(learningDashboardAccessToken,
                       meetingId,
                       authToken,
                       learningDashboardBase,
                       locale)}
-                    aria-details={intl.formatMessage(intlMessage.open_activity_report_btn)}
+                    aria-label={intl.formatMessage(intlMessage.open_activity_report_btn)}
                   >
                     <Icon
                       iconName="multi_whiteboard"
@@ -253,15 +254,19 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
               // @ts-ignore
               allow_numeric_tld: true,
             }) ? (
-              <Styled.MeetingEndedButton
-                color="primary"
-                onClick={() => confirmRedirect(isBreakout, allowRedirect)}
-                /* @eslint-disable-next-line */
-                aria-details={intl.formatMessage(intlMessage.confirmDesc)}
-                data-test="redirectButton"
-              >
-                {intl.formatMessage(intlMessage.buttonOkay)}
-              </Styled.MeetingEndedButton>
+              <>
+                <Styled.MeetingEndedButton
+                  color="primary"
+                  onClick={() => confirmRedirect(isBreakout, allowRedirect)}
+                  aria-describedby="meeting-ended-confirm-desc"
+                  data-test="redirectButton"
+                >
+                  {intl.formatMessage(intlMessage.buttonOkay)}
+                </Styled.MeetingEndedButton>
+                <span className="sr-only" id="meeting-ended-confirm-desc">
+                  {intl.formatMessage(intlMessage.confirmDesc)}
+                </span>
+              </>
               ) : null
           }
 

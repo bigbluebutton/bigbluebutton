@@ -18,9 +18,11 @@ const EmojiPicker = (props) => {
 
   const i18n = {
     search: intl.formatMessage({ id: 'app.emojiPicker.search' }),
-    notfound: intl.formatMessage({ id: 'app.emojiPicker.notFound' }),
+    search_no_results_1: intl.formatMessage({ id: 'app.emojiPicker.notFound' }),
     clear: intl.formatMessage({ id: 'app.emojiPicker.clear' }),
-    skintext: intl.formatMessage({ id: 'app.emojiPicker.skintext' }),
+    skins: {
+      choose: intl.formatMessage({ id: 'app.emojiPicker.skintext' }),
+    },
     categories: {
       people: intl.formatMessage({ id: 'app.emojiPicker.categories.people' }),
       nature: intl.formatMessage({ id: 'app.emojiPicker.categories.nature' }),
@@ -30,6 +32,7 @@ const EmojiPicker = (props) => {
       objects: intl.formatMessage({ id: 'app.emojiPicker.categories.objects' }),
       symbols: intl.formatMessage({ id: 'app.emojiPicker.categories.symbols' }),
       flags: intl.formatMessage({ id: 'app.emojiPicker.categories.flags' }),
+      frequent: intl.formatMessage({ id: 'app.emojiPicker.categories.recent' }),
       recent: intl.formatMessage({ id: 'app.emojiPicker.categories.recent' }),
       search: intl.formatMessage({ id: 'app.emojiPicker.categories.search' }),
     },
@@ -58,17 +61,19 @@ const EmojiPicker = (props) => {
   });
 
   return (
-    <Picker
-      onEmojiSelect={(emojiObject, event) => onEmojiSelect(emojiObject, event)}
-      emojiSize={24}
-      i18n={i18n}
-      previewPosition="none"
-      skinTonePosition="none"
-      theme="light"
-      dynamicWidth
-      exceptEmojis={emojisToExclude}
-      autoFocus
-    />
+    <div data-test="emojiPicker">
+      <Picker
+        onEmojiSelect={(emojiObject, event) => onEmojiSelect(emojiObject, event)}
+        emojiSize={24}
+        i18n={i18n}
+        previewPosition="none"
+        skinTonePosition="none"
+        theme="light"
+        dynamicWidth
+        exceptEmojis={emojisToExclude}
+        autoFocus
+      />
+    </div>
   );
 };
 

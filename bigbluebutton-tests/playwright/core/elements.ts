@@ -56,6 +56,7 @@ export const elements = {
   removedFromSessionMessage: 'You have been removed from the session',
   bannedFromSessionMessage: 'You have been removed for the remaining duration of this session.',
   redirectButton: 'button[data-test="redirectButton"]',
+  learningDashboardButton: 'button[data-test="learningDashboardButton"]',
   leaveMeetingDropdown: 'button[data-test="leaveMeetingDropdown"]',
   directLogoutButton: 'li[data-test="directLogoutButton"]',
   returnToMainRoomButton: 'li[data-test="returnToMainRoomButton"]',
@@ -308,6 +309,7 @@ export const elements = {
 
   // Emoji picker
   emojiPickerButton: 'button[data-test="emojiPickerButton"]',
+  emojiPicker: 'div[data-test="emojiPicker"]',
   thumbsUpEmoji: '👍',
   grinningFaceEmoji: '😀',
 
@@ -418,6 +420,8 @@ export const elements = {
   blockNoteReadOnly: '#bn-notes-scroll-container .bn-editor[contenteditable="false"]',
   blockNoteSideMenu: '#bn-notes-scroll-container .bn-side-menu',
   blockNoteToolbar: 'div[data-test="blockNoteToolbar"]',
+  blockNoteEditorByDataTest: '[data-test="blockNoteEditor"]',
+  blockTypeSelect: 'button[data-test="blockTypeSelect"]',
   blockNoteLinkToolbar: '.bn-link-toolbar',
   blockNoteLinkForm: '.bn-form-popover',
   blockNoteUnderlineButton: 'div[data-test="blockNoteToolbar"] button[aria-label="Underline"]',

@@ -733,6 +733,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             {ENABLE_EMOJI_PICKER ? (
               <Tooltip title={<span style={{ fontSize: '0.9rem' }}>{intl.formatMessage(messages.emojiButtonLabel)}</span>} arrow>
                 <Styled.EmojiButton
+                  aria-label={intl.formatMessage(messages.emojiButtonLabel)}
                   sx={{
                     alignSelf: 'center',
                     height: '100%',
