@@ -428,6 +428,8 @@ export interface Poll {
   enabled: boolean
   allowCustomResponseInput: boolean
   maxCustom: number
+  maxQuestionLength: number
+  maxOptionLength: number
   maxTypedAnswerLength: number
   chatMessage: boolean
   quickPollConfirmationStep: boolean

@@ -13,6 +13,7 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { GetHasCurrentPresentationResponse, getHasCurrentPresentation } from './queries';
 import {
   getSplittedQuestionAndOptions,
+  limitQuestionAndOptionLines,
   pollTypes,
   pollTypesKeys,
   validateInput,
@@ -232,6 +233,8 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
   const isQuizEnabled = useIsQuizEnabled();
   const ALLOW_CUSTOM_INPUT = POLL_SETTINGS.allowCustomResponseInput;
   const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
+  const MAX_QUESTION_CHARS = POLL_SETTINGS.maxQuestionLength;
+  const MAX_OPTION_CHARS = POLL_SETTINGS.maxOptionLength;
 
   const intl = useIntl();
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -492,7 +495,9 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
     index: number,
   ) => {
     const list = [...optList];
-    const validatedVal = validateInput(e.target.value).replace(/\s{2,}/g, ' ');
+    // The option field is multi-line only to wrap long text: a pasted line break
+    // becomes a space, as it did in the single-line field.
+    const validatedVal = validateInput(e.target.value.replace(/[\r\n]/g, ' ')).replace(/\s{2,}/g, ' ');
     const charsRemovedCount = e.target.value.length - validatedVal.length;
     const clearError = validatedVal.length > 0 && type !== pollTypes.Response;
     const input = e.target;
@@ -568,7 +573,27 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
       setQuestion(validatedInput);
       setError(clearError ? null : error);
     } else {
-      setQuestionAndOptionsFn(validatedInput);
+      const limitedInput = limitQuestionAndOptionLines(
+        validatedInput,
+        MAX_QUESTION_CHARS,
+        MAX_OPTION_CHARS,
+      );
+      const textarea = e.target;
+      if (limitedInput !== validatedInput && textarea instanceof HTMLTextAreaElement) {
+        // Cutting a line moves the caret to the end of the text: put it back where it was,
+        // minus what was cut before it.
+        const leadingCut = textarea.value.length - validatedInput.length;
+        const textBeforeCaret = validatedInput
+          .slice(0, Math.max(0, (textarea.selectionStart ?? 0) - leadingCut));
+        const caret = limitQuestionAndOptionLines(
+          textBeforeCaret,
+          MAX_QUESTION_CHARS,
+          MAX_OPTION_CHARS,
+        ).length;
+        textarea.value = limitedInput;
+        textarea.setSelectionRange(caret, caret);
+      }
+      setQuestionAndOptionsFn(limitedInput);
     }
   };
 

@@ -387,13 +387,13 @@ const ResultLeft = styled.td`
     padding: 0 0 0 .5rem;
   }
   padding-bottom: .25rem;
-  word-break: break-all;
+  overflow-wrap: anywhere;
 `;
 
 const ResultRight = styled.td`
   padding-bottom: .25rem;
   padding-right: 0.5rem;
-  word-break: break-all;
+  overflow-wrap: anywhere;
 `;
 
 const Main = styled.div`
@@ -492,7 +492,7 @@ const Stats = styled.div`
 
 const Title = styled.span`
   font-weight: bold;
-  word-break: break-all;
+  overflow-wrap: anywhere;
   white-space: pre-wrap;
 `;
 
@@ -739,12 +739,11 @@ const SelectedCorrectAnswerIndicator = styled.span<SelectedCorrectAnswerIndicato
   `}
 `;
 
+// Sits under the option instead of over it, so it never hides the option text.
 const CorrectLabel = styled.div`
-  position: absolute;
-  top: 50%;
-  right: 2rem;
-  transform:  translate(0, -50%);
-  border-radius: 9999px; 
+  align-self: flex-start;
+  margin-top: 0.25rem;
+  border-radius: 9999px;
   color: ${colorGreen600};
   background-color: ${colorGreen100};
   padding: 0.25rem 0.50rem;
@@ -752,8 +751,22 @@ const CorrectLabel = styled.div`
   line-height: ${lineHeightComputed};
 `;
 
+const OptionsLegend = styled.ul`
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  text-align: start;
+  font-size: ${fontSizeSmaller};
+  overflow-wrap: anywhere;
+
+  li + li {
+    margin-top: 0.25rem;
+  }
+`;
+
 const PollInputContainer = styled.div`
   display: flex;
+  flex-direction: column;
   flex: 1 1 0%;
   position: relative;
 `;
@@ -814,6 +827,7 @@ export default {
   TypedResponseHint,
   SelectedCorrectAnswerIndicator,
   CorrectLabel,
+  OptionsLegend,
   PollInputContainer,
   PollQuestionAreaWrapper,
 };
