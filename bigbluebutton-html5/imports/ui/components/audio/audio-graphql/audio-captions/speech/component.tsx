@@ -543,6 +543,9 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
       || muted
       || !connected
       || !inputStream
+      // Switching to listen only while unmuted leaves a stream with no audio track for
+      // a moment, and hark throws on one (createMediaStreamSource needs an audio track).
+      || inputStream.getAudioTracks().length === 0
     ) {
       return () => {};
     }

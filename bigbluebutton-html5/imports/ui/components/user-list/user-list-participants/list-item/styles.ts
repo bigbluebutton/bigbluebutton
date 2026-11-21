@@ -16,6 +16,9 @@ interface AvatarProps {
   moderator?: boolean;
   presenter?: boolean;
   talking?: boolean;
+  muted?: boolean;
+  audioState?: 'unmuted' | 'muted' | 'listenOnly' | 'none';
+  you?: boolean;
   color?: string;
   animations?: boolean;
   emoji?: boolean;

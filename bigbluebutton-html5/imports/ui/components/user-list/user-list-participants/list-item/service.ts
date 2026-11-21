@@ -127,6 +127,19 @@ const intlMessages = defineMessages({
     description: 'Label for lowering a user raised hand',
   },
 });
+export type UserAudioState = 'unmuted' | 'muted' | 'listenOnly' | 'none';
+
+// The audio state shown on the avatar in the user list, as in 3.0: not in the audio at
+// all, listening only, or in it with the microphone muted or unmuted.
+export const getAudioState = (user: User, isUnmuted: boolean): UserAudioState => {
+  const { voice } = user;
+  // Checked first: a user who leaves the audio keeps the listen only flags of the
+  // device they had, and is only marked as deafened.
+  if (!voice?.joined || voice?.deafened) return 'none';
+  if (voice?.listenOnly || voice?.listenOnlyInputDevice) return 'listenOnly';
+  return isUnmuted ? 'unmuted' : 'muted';
+};
+
 export const isVoiceOnlyUser = (userId: string) => userId.toString().startsWith('v_');
 
 export const isMe = (userId: string) => userId === Auth.userID;

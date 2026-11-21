@@ -20,6 +20,7 @@ import {
   hasWhiteboardWriteAccess,
   isMe,
   createToolbarOptions,
+  getAudioState,
 } from './service';
 import { UserListItemProps } from './types';
 import { User } from '/imports/ui/Types/user';
@@ -74,6 +75,7 @@ const TalkingAvatar: React.FC<TalkingAvatarProps> = ({ user, children }) => {
 
   return (
     <Styled.Avatar
+      audioState={getAudioState(user, !!isUnmuted)}
       data-test-presenter={user.presenter ? '' : undefined}
       data-test-avatar="userAvatar"
       moderator={user.isModerator}
