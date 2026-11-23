@@ -6,7 +6,7 @@ Administration                10          4
 Support Services               2          9
 Environmental                 35         17   =Subdivision
                Air            16          8
-     Water/Waste               2          6
+     W ater/W aste             2          6
       Env/Housing              9          2
              Food              8          1
 Human Health                  29         30
@@ -14,5 +14,5 @@ Human Health                  29         30
  Injury Prevention             2          2
             Dental             0          1
        ID/STD/Lab             13         14
-         MCH/WIC              12         10
+         MCH/W IC             12         10
   Total responses             76         60
