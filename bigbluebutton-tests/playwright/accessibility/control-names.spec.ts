@@ -68,14 +68,22 @@ test.describe.parallel('Accessible control names', { tag: '@ci' }, () => {
       .toBe(true);
     await modPage.page.keyboard.press('Tab');
     await expect(menu).toBeHidden();
-    expect(await modPage.page.evaluate((target) => document.activeElement === target, forwardTabTarget)).toBe(true);
+    await expect
+      .poll(() => modPage.page.evaluate((target) => document.activeElement === target, forwardTabTarget), {
+        message: 'Tab should move focus to the next control after closing the menu',
+      })
+      .toBe(true);
 
     await blockTypeSelect.focus();
     await modPage.page.keyboard.press('Enter');
     await expect(menu).toBeVisible();
     await modPage.page.keyboard.press('Shift+Tab');
     await expect(menu).toBeHidden();
-    expect(await modPage.page.evaluate((target) => document.activeElement === target, backwardTabTarget)).toBe(true);
+    await expect
+      .poll(() => modPage.page.evaluate((target) => document.activeElement === target, backwardTabTarget), {
+        message: 'Shift+Tab should move focus to the previous control after closing the menu',
+      })
+      .toBe(true);
 
     await blockTypeSelect.focus();
     await modPage.page.keyboard.press('Enter');
