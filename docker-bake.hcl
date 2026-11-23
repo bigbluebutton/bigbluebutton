@@ -29,7 +29,7 @@ group "default" {
     "apps-akka", "web", "html5-client", "learning-dashboard",
     "graphql-actions", "graphql-middleware", "graphql-server",
     "export-annotations", "shared-notes-server", "record-and-playback", "nginx",
-    "webrtc-sfu", "webrtc-recorder", "webhooks", "playback",
+    "webrtc-sfu", "webrtc-recorder", "webhooks", "playback", "init",
   ]
 }
 
@@ -170,4 +170,15 @@ target "playback" {
   tags     = tags("playback")
   context  = "./docker/bbb-playback"
   contexts = { placeholders = "." }
+}
+
+# Creates the databases and the data directories; the schemas come from this commit's sources
+target "init" {
+  inherits = ["_image"]
+  tags     = tags("init")
+  context  = "./docker/bbb-init"
+  contexts = {
+    graphql-server      = "./bbb-graphql-server"
+    shared-notes-server = "./bbb-shared-notes-server"
+  }
 }

@@ -17,6 +17,7 @@ updates:
       - /bbb-shared-notes-server
       - /bigbluebutton-html5
       - /bigbluebutton-web
+      - /docker/bbb-init
       - /docker/bbb-playback
       - /docker/bbb-webhooks
       - /docker/bbb-webrtc-recorder
