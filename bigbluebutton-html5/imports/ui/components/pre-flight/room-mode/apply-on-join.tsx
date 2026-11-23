@@ -17,7 +17,6 @@ import { ROOM_MODE_APPLY_TIMEOUT, useRoomModeApplier } from './applier';
 import {
   ResolvedRoomModeSettings,
   RoomModeChoice,
-  RoomModeEdits,
   RoomModeRoomValues,
   settingsToApply,
 } from './settings';
@@ -36,14 +35,6 @@ const intlMessages = defineMessages({
     description: 'Action in the room mode toast: opens the room modes tab with the pick pre-selected',
   },
 });
-
-// The guest policy the pre-flight showed is the one applied: left unedited,
-// it is the room's current one, not the policy the room was created with.
-const withShownGuestPolicy = (edits: RoomModeEdits, shown: RoomModeRoomValues): RoomModeEdits => (
-  edits.guestPolicy === undefined && shown.guestPolicy !== undefined
-    ? { ...edits, guestPolicy: shown.guestPolicy }
-    : edits
-);
 
 const NOT_APPLIED_TOAST_ID = 'roomModeNotApplied';
 
@@ -170,13 +161,10 @@ const RoomModeApplyOnJoin: React.FC<RoomModeApplyOnJoinProps> = ({
       logCode: 'pre_flight_room_mode_apply_skipped',
       extraInfo: { modeId: choiceRef.current.modeId, reason: 'another moderator is in the room' },
     }, 'Room mode not applied: the room is already running');
-    // The room is running: the pick can still be applied from the room, as
-    // the pre-flight showed it.
+    // The room is running: the pick, with its edits, can still be applied
+    // from the room.
     const { modeId, edits } = choiceRef.current;
-    notifyRoomModeNotApplied(intl, 'roomRunning', {
-      modeId,
-      edits: withShownGuestPolicy(edits, roomValuesRef.current),
-    });
+    notifyRoomModeNotApplied(intl, 'roomRunning', { modeId, edits });
     onDoneRef.current();
   };
 
@@ -203,8 +191,7 @@ const RoomModeApplyOnJoin: React.FC<RoomModeApplyOnJoinProps> = ({
       return;
     }
 
-    const shown = roomValuesRef.current;
-    const settings = settingsToApply(mode, withShownGuestPolicy(edits, shown), shown);
+    const settings = settingsToApply(mode, edits, roomValuesRef.current);
     apply(mode, settings, () => doneRef.current)
       .then(() => finish(undefined, settings))
       .catch((error) => finish((error as Error).message || 'unknown error'));
