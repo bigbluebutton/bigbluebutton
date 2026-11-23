@@ -132,10 +132,12 @@ export class GuestPolicy extends MultiUsers {
     await this.modPage.waitAndClick(e.sendLobbyMessage);
     const successStatus = this.modPage.page.getByRole('status');
     await expect(successStatus).toHaveAttribute('aria-atomic', 'true');
-    await expect(successStatus).toHaveText(`Message sent successfully!: ${firstMessage}`);
     const visibleSuccessLabel = successStatus.locator('[data-test="lobbyMessageSuccessLabel"]');
     await expect(visibleSuccessLabel).toHaveText('Message sent successfully!');
     await expect(visibleSuccessLabel).toBeVisible();
+    await expect(visibleSuccessLabel).toHaveAttribute('aria-hidden', 'true');
+    const screenReaderSuccess = visibleSuccessLabel.locator('xpath=following-sibling::span');
+    await expect(screenReaderSuccess).toHaveText(`Message sent successfully!: ${firstMessage}`);
     await this.userPage.hasText(
       e.guestMessage,
       new RegExp(firstMessage),
@@ -148,7 +150,7 @@ export class GuestPolicy extends MultiUsers {
     ).toBe(true);
     await this.modPage.fill(e.waitingUsersLobbyMessage, secondMessage);
     await this.modPage.waitAndClick(e.sendLobbyMessage);
-    await expect(successStatus).toHaveText(`Message sent successfully!: ${secondMessage}`);
+    await expect(screenReaderSuccess).toHaveText(`Message sent successfully!: ${secondMessage}`);
   }
 
   async allowAllAuthenticated() {
@@ -234,10 +236,12 @@ export class GuestPolicy extends MultiUsers {
     await this.modPage.waitAndClick(e.sendPrivateLobbyMessage);
     const successStatus = this.modPage.page.getByRole('status');
     await expect(successStatus).toHaveAttribute('aria-atomic', 'true');
-    await expect(successStatus).toHaveText(`Message sent successfully!: ${firstMessage}`);
     const visibleSuccessLabel = successStatus.locator('[data-test="lobbyMessageSuccessLabel"]');
     await expect(visibleSuccessLabel).toHaveText('Message sent successfully!');
     await expect(visibleSuccessLabel).toBeVisible();
+    await expect(visibleSuccessLabel).toHaveAttribute('aria-hidden', 'true');
+    const screenReaderSuccess = visibleSuccessLabel.locator('xpath=following-sibling::span');
+    await expect(screenReaderSuccess).toHaveText(`Message sent successfully!: ${firstMessage}`);
     await this.userPage.hasText(
       e.guestMessage,
       new RegExp(firstMessage),
@@ -252,7 +256,7 @@ export class GuestPolicy extends MultiUsers {
     await this.modPage.waitAndClick(e.privateMessageGuest);
     await this.modPage.fill(e.inputPrivateLobbyMessage, secondMessage);
     await this.modPage.waitAndClick(e.sendPrivateLobbyMessage);
-    await expect(successStatus).toHaveText(`Message sent successfully!: ${secondMessage}`);
+    await expect(screenReaderSuccess).toHaveText(`Message sent successfully!: ${secondMessage}`);
   }
 
   async acceptSpecificUser() {

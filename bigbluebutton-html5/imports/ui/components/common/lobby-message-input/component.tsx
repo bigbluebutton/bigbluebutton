@@ -120,8 +120,8 @@ const LobbyMessageInput: React.FC<LobbyMessageInputProps> = ({
           {messageSent && (
             <Styled.SuccessContent>
               <CheckCircleOutlineIcon fontSize="small" />
-              <span data-test="lobbyMessageSuccessLabel">{successLabel}</span>
-              <Styled.VisuallyHidden>{`: ${lastSentMessage}`}</Styled.VisuallyHidden>
+              <span data-test="lobbyMessageSuccessLabel" aria-hidden="true">{successLabel}</span>
+              <Styled.VisuallyHidden>{`${successLabel}: ${lastSentMessage}`}</Styled.VisuallyHidden>
             </Styled.SuccessContent>
           )}
         </Styled.SuccessMessage>
