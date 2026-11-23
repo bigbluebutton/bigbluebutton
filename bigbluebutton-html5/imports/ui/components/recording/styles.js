@@ -1,18 +1,5 @@
 import styled from 'styled-components';
-import { btnPrimaryBg } from '/imports/ui/stylesheets/styled-components/palette';
-import {
-  lgBorderRadius,
-  confirmationButtonMinWidth,
-} from '/imports/ui/stylesheets/styled-components/general';
-
-// The floor as a shrinkable basis: a short label still renders at the floor,
-// and on a narrow phone the buttons shrink down to their labels instead of
-// overflowing the toast. They never wrap - the pair always stays on one row.
-const confirmationButtonFloor = `
-  flex: 0 1 ${confirmationButtonMinWidth};
-  min-width: max-content;
-  white-space: nowrap;
-`;
+import ModalFooterButton from '/imports/ui/components/common/modal/footer-button/component';
 
 const NotificationContent = styled.div`
   display: flex;
@@ -20,52 +7,18 @@ const NotificationContent = styled.div`
   align-items: flex-start;
 `;
 
+// The same actions row as a modal footer: the buttons keep their own width at
+// the end of the row, and wrap only when the pair does not fit the toast.
 const NotificationActions = styled.div`
   display: flex;
-  justify-content: space-around;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.75rem;
   margin-top: 1.5rem;
   width: 100%;
 `;
 
-const ConfirmationButton = styled.button`
-  background-color: ${btnPrimaryBg};
-  color: white;
-  ${confirmationButtonFloor}
-  padding: 10px 24px;
-  border: none;
-  border-radius: ${lgBorderRadius};
-  font-size: 1rem;
-  font-weight: 400;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  
-  svg {
-    margin-right: 0.5rem;
-  }
-
-  &:hover {
-    opacity: 0.8;
-  }
-`;
-
-const CancelButton = styled.button`
-  background-color: transparent;
-  color: #333;
-  ${confirmationButtonFloor}
-  padding: 10px 24px;
-  font-size: 1rem;
-  font-weight: 400;
-  cursor: pointer;
-  margin-right: 16px;
-  border-radius: ${lgBorderRadius};
-  border: none;
-
-  &:hover {
-    background-color: #f4f4f4;
-  }
-`;
+const ActionButton = ModalFooterButton;
 
 const TitleText = styled.h3`
   font-size: 1.125rem;
@@ -84,14 +37,12 @@ const DescriptionText = styled.p`
 const SvgCapsule = styled.div`
   width: 1.5rem;
   height: 1.5rem;
-  margin-right: 0.5rem;
 `;
 
 export default {
   NotificationContent,
   NotificationActions,
-  ConfirmationButton,
-  CancelButton,
+  ActionButton,
   TitleText,
   DescriptionText,
   SvgCapsule,

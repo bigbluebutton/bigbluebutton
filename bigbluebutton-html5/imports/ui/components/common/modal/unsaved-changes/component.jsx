@@ -39,7 +39,7 @@ const UnsavedChangesModal = ({ isOpen, onCancel, onConfirm }) => {
       footerContent={(
         <Styled.Footer>
           <Styled.FooterButton
-            variant="secondary"
+            variant="subtle"
             dataTest="unsavedChangesCancel"
             label={intl.formatMessage(intlMessages.cancelLabel)}
             onClick={onCancel}

@@ -172,56 +172,26 @@ const Footer = styled.div`
   flex-direction: column;
 `;
 
-const FooterContainer = styled.div<{showStopAllButton: boolean}>`
+// The same row as the other modal footers: the buttons keep their own width at
+// the end of the row and wrap when they do not fit, instead of stacking full
+// width on a phone. Stop sharing all webcams sits at the start of the row.
+const FooterContainer = styled.div`
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  justify-content: ${({ showStopAllButton }) => (showStopAllButton ? 'flex-start' : 'flex-end')};
-
-  @media ${smallOnly} {
-    display: flex;
-    flex-direction: column;
-  }
+  justify-content: flex-end;
+  gap: 0.75rem;
 `;
 
 const Actions = styled.div`
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
-
-  [dir="rtl"] & {
-    margin-right: auto;
-    background:red;
-    margin-left: ${borderSizeLarge};
-  }
-
-  & > :first-child {
-    margin-right: ${borderSizeLarge};
-    margin-left: inherit;
-
-    [dir="rtl"] & {
-      margin-right: inherit;
-      margin-left: ${borderSizeLarge};
-    }
-  }
+  gap: 0.75rem;
 `;
 
 const ExtraActions = styled.div`
-  margin-right: auto;
-  margin-left: ${borderSizeLarge};
-
-  [dir="rtl"] & {
-    margin-left: auto;
-    margin-right: ${borderSizeLarge};
-  }
-
-  & > :first-child {
-    margin-left: ${borderSizeLarge};
-    margin-right: inherit;
-
-    [dir="rtl"] & {
-      margin-left: inherit;
-      margin-right: ${borderSizeLarge};
-    }
-  }
+  margin-inline-end: auto;
 `;
 
 const ellipsis = keyframes`
@@ -361,10 +331,6 @@ const IconSvg = styled.img<{darkThemeState: boolean}>`
 
 `;
 
-const ButtonWrapper = styled.div`
-  margin: 0 0.5rem;
-`;
-
 const Fragment = styled(ScrollboxVertical)`
 `;
 
@@ -386,7 +352,6 @@ export default {
   VideoCol,
   BackgroundCol,
   IconSvg,
-  ButtonWrapper,
   Label,
   Select,
   Content,

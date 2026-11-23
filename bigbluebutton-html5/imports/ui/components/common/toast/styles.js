@@ -131,7 +131,6 @@ const ToastMessage = styled.div`
   overflow-wrap: break-word;
   word-break: break-word;
   color: black !important;
-  font-family: Arial, sans-serif;
 
   ${({ small }) => small && `
     font-size: 80%;
