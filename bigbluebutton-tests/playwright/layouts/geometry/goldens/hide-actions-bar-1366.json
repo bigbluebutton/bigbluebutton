@@ -1,0 +1,70 @@
+{
+  "scenario": {
+    "id": "hide-actions-bar-1366",
+    "profile": {
+      "width": 1366,
+      "height": 768
+    },
+    "hideActionsBar": true
+  },
+  "capturedWith": "dist-base (bundle.8184c460488bf2b301d9.js)",
+  "geometry": {
+    "viewport": {
+      "width": 1366,
+      "height": 768
+    },
+    "attributes": {
+      "layout": "unified"
+    },
+    "regions": {
+      "navBar": {
+        "x": 371,
+        "y": 0,
+        "width": 982,
+        "height": 85,
+        "visible": true,
+        "id": "Navbar"
+      },
+      "actionsBar": null,
+      "sidebarNavigation": {
+        "x": 14,
+        "y": 14,
+        "width": 60,
+        "height": 741,
+        "visible": true
+      },
+      "sidebarContent": {
+        "x": 87,
+        "y": 0,
+        "width": 283,
+        "height": 768,
+        "visible": true
+      },
+      "sidebarContentPanel": {
+        "x": 87,
+        "y": 31,
+        "width": 270,
+        "height": 707,
+        "visible": true
+      },
+      "sidebarContentAuxiliary": null,
+      "sidebarContentAuxiliaryPanel": null,
+      "cameraDock": null,
+      "presentation": {
+        "x": 371,
+        "y": 85,
+        "width": 982,
+        "height": 683,
+        "visible": true
+      },
+      "screenShare": null,
+      "externalVideo": null,
+      "genericContent": null,
+      "pinnedNotes": null
+    },
+    "multi": {
+      "banners": [],
+      "dropZones": []
+    }
+  }
+}

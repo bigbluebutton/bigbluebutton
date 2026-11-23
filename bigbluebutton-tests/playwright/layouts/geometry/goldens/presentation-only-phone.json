@@ -1,0 +1,46 @@
+{
+  "scenario": {
+    "id": "presentation-only-phone",
+    "profile": {
+      "width": 390,
+      "height": 844,
+      "phone": true
+    },
+    "layout": "PRESENTATION_ONLY"
+  },
+  "capturedWith": "dist-base (bundle.8184c460488bf2b301d9.js)",
+  "geometry": {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "attributes": {
+      "layout": "presentationOnly"
+    },
+    "regions": {
+      "navBar": null,
+      "actionsBar": null,
+      "sidebarNavigation": null,
+      "sidebarContent": null,
+      "sidebarContentPanel": null,
+      "sidebarContentAuxiliary": null,
+      "sidebarContentAuxiliaryPanel": null,
+      "cameraDock": null,
+      "presentation": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 844,
+        "visible": true
+      },
+      "screenShare": null,
+      "externalVideo": null,
+      "genericContent": null,
+      "pinnedNotes": null
+    },
+    "multi": {
+      "banners": [],
+      "dropZones": []
+    }
+  }
+}

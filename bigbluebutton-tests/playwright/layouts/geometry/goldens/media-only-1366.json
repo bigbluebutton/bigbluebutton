@@ -1,0 +1,59 @@
+{
+  "scenario": {
+    "id": "media-only-1366",
+    "profile": {
+      "width": 1366,
+      "height": 768
+    },
+    "layout": "MEDIA_ONLY"
+  },
+  "capturedWith": "dist-base (bundle.8184c460488bf2b301d9.js)",
+  "geometry": {
+    "viewport": {
+      "width": 1366,
+      "height": 768
+    },
+    "attributes": {
+      "layout": "mediaOnly"
+    },
+    "regions": {
+      "navBar": {
+        "x": 10,
+        "y": 0,
+        "width": 1346,
+        "height": 85,
+        "visible": true,
+        "id": "Navbar"
+      },
+      "actionsBar": {
+        "x": 10,
+        "y": 704,
+        "width": 1346,
+        "height": 64,
+        "visible": true,
+        "id": "ActionsBar"
+      },
+      "sidebarNavigation": null,
+      "sidebarContent": null,
+      "sidebarContentPanel": null,
+      "sidebarContentAuxiliary": null,
+      "sidebarContentAuxiliaryPanel": null,
+      "cameraDock": null,
+      "presentation": {
+        "x": 10,
+        "y": 95,
+        "width": 1346,
+        "height": 599,
+        "visible": true
+      },
+      "screenShare": null,
+      "externalVideo": null,
+      "genericContent": null,
+      "pinnedNotes": null
+    },
+    "multi": {
+      "banners": [],
+      "dropZones": []
+    }
+  }
+}

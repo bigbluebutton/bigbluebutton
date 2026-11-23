@@ -1,0 +1,65 @@
+{
+  "scenario": {
+    "id": "unified-1366-sidebar-closed",
+    "profile": {
+      "width": 1366,
+      "height": 768
+    },
+    "sidebar": "closed"
+  },
+  "capturedWith": "dist-base (bundle.8184c460488bf2b301d9.js)",
+  "geometry": {
+    "viewport": {
+      "width": 1366,
+      "height": 768
+    },
+    "attributes": {
+      "layout": "unified"
+    },
+    "regions": {
+      "navBar": {
+        "x": 87,
+        "y": 0,
+        "width": 1265,
+        "height": 85,
+        "visible": true,
+        "id": "Navbar"
+      },
+      "actionsBar": {
+        "x": 87,
+        "y": 704,
+        "width": 1265,
+        "height": 64,
+        "visible": true,
+        "id": "ActionsBar"
+      },
+      "sidebarNavigation": {
+        "x": 14,
+        "y": 14,
+        "width": 60,
+        "height": 741,
+        "visible": true
+      },
+      "sidebarContent": null,
+      "sidebarContentPanel": null,
+      "sidebarContentAuxiliary": null,
+      "sidebarContentAuxiliaryPanel": null,
+      "cameraDock": null,
+      "presentation": {
+        "x": 87,
+        "y": 85,
+        "width": 1265,
+        "height": 619,
+        "visible": true
+      },
+      "screenShare": null,
+      "externalVideo": null,
+      "genericContent": null,
+      "pinnedNotes": null
+    },
+    "multi": {
+      "banners": [],
+      "dropZones": []
+    }
+  }
+}

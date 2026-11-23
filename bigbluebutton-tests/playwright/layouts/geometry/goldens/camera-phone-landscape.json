@@ -1,0 +1,73 @@
+{
+  "scenario": {
+    "id": "camera-phone-landscape",
+    "profile": {
+      "width": 844,
+      "height": 390,
+      "phone": true
+    },
+    "cameras": 1
+  },
+  "capturedWith": "dist-base (bundle.8184c460488bf2b301d9.js)",
+  "geometry": {
+    "viewport": {
+      "width": 844,
+      "height": 390
+    },
+    "attributes": {
+      "layout": "unified"
+    },
+    "regions": {
+      "navBar": {
+        "x": 77,
+        "y": 0,
+        "width": 759,
+        "height": 85,
+        "visible": true,
+        "id": "Navbar"
+      },
+      "actionsBar": {
+        "x": 77,
+        "y": 326,
+        "width": 759,
+        "height": 64,
+        "visible": true,
+        "id": "ActionsBar"
+      },
+      "sidebarNavigation": {
+        "x": 8,
+        "y": 8,
+        "width": 60,
+        "height": 373,
+        "visible": true
+      },
+      "sidebarContent": null,
+      "sidebarContentPanel": null,
+      "sidebarContentAuxiliary": null,
+      "sidebarContentAuxiliaryPanel": null,
+      "cameraDock": {
+        "x": 646,
+        "y": 85,
+        "width": 190,
+        "height": 221,
+        "visible": true,
+        "id": "cameraDock"
+      },
+      "presentation": {
+        "x": 77,
+        "y": 85,
+        "width": 549,
+        "height": 241,
+        "visible": true
+      },
+      "screenShare": null,
+      "externalVideo": null,
+      "genericContent": null,
+      "pinnedNotes": null
+    },
+    "multi": {
+      "banners": [],
+      "dropZones": []
+    }
+  }
+}

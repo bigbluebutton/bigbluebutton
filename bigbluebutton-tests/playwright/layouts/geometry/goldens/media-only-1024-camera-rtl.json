@@ -1,0 +1,68 @@
+{
+  "scenario": {
+    "id": "media-only-1024-camera-rtl",
+    "profile": {
+      "width": 1024,
+      "height": 768
+    },
+    "layout": "MEDIA_ONLY",
+    "cameras": 1,
+    "rtl": true
+  },
+  "capturedWith": "dist-base (bundle.8184c460488bf2b301d9.js)",
+  "geometry": {
+    "viewport": {
+      "width": 1024,
+      "height": 768
+    },
+    "attributes": {
+      "layout": "mediaOnly"
+    },
+    "regions": {
+      "navBar": {
+        "x": 0,
+        "y": 0,
+        "width": 1004,
+        "height": 85,
+        "visible": true,
+        "id": "Navbar"
+      },
+      "actionsBar": {
+        "x": 0,
+        "y": 704,
+        "width": 1004,
+        "height": 64,
+        "visible": true,
+        "id": "ActionsBar"
+      },
+      "sidebarNavigation": null,
+      "sidebarContent": null,
+      "sidebarContentPanel": null,
+      "sidebarContentAuxiliary": null,
+      "sidebarContentAuxiliaryPanel": null,
+      "cameraDock": {
+        "x": 30,
+        "y": 95,
+        "width": 1004,
+        "height": 110,
+        "visible": true,
+        "id": "cameraDock"
+      },
+      "presentation": {
+        "x": 20,
+        "y": 215,
+        "width": 1004,
+        "height": 479,
+        "visible": true
+      },
+      "screenShare": null,
+      "externalVideo": null,
+      "genericContent": null,
+      "pinnedNotes": null
+    },
+    "multi": {
+      "banners": [],
+      "dropZones": []
+    }
+  }
+}

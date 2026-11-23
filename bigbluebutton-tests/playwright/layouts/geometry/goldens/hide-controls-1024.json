@@ -1,0 +1,70 @@
+{
+  "scenario": {
+    "id": "hide-controls-1024",
+    "profile": {
+      "width": 1024,
+      "height": 768
+    },
+    "hideControls": true
+  },
+  "capturedWith": "dist-base (bundle.8184c460488bf2b301d9.js)",
+  "geometry": {
+    "viewport": {
+      "width": 1024,
+      "height": 768
+    },
+    "attributes": {
+      "layout": "unified"
+    },
+    "regions": {
+      "navBar": {
+        "x": 364,
+        "y": 0,
+        "width": 650,
+        "height": 43,
+        "visible": true,
+        "id": "Navbar"
+      },
+      "actionsBar": null,
+      "sidebarNavigation": {
+        "x": 10,
+        "y": 10,
+        "width": 60,
+        "height": 748,
+        "visible": true
+      },
+      "sidebarContent": {
+        "x": 80,
+        "y": 0,
+        "width": 283,
+        "height": 768,
+        "visible": true
+      },
+      "sidebarContentPanel": {
+        "x": 80,
+        "y": 31,
+        "width": 273,
+        "height": 707,
+        "visible": true
+      },
+      "sidebarContentAuxiliary": null,
+      "sidebarContentAuxiliaryPanel": null,
+      "cameraDock": null,
+      "presentation": {
+        "x": 364,
+        "y": 43,
+        "width": 650,
+        "height": 683,
+        "visible": true
+      },
+      "screenShare": null,
+      "externalVideo": null,
+      "genericContent": null,
+      "pinnedNotes": null
+    },
+    "multi": {
+      "banners": [],
+      "dropZones": []
+    }
+  }
+}
