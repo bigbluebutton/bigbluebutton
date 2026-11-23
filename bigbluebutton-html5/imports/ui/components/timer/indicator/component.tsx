@@ -77,7 +77,7 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   const [startTimerMutation] = useMutation(TIMER_START);
   const [stopTimerMutation] = useMutation(TIMER_STOP);
   const [songTrackState, setSongTrackState] = useState<string>(songTrack);
-  const [focusedAccessibleName, setFocusedAccessibleName] = useState<string | null>(null);
+  const [focusedTime, setFocusedTime] = useState<string | null>(null);
   const prevElapsed = usePreviousValue<boolean | undefined>(elapsed);
 
   const CDN = window.meetingClientSettings.public.app.cdn;
@@ -166,7 +166,7 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   else if (running && isModerator) accessibleMessage = intlMessages.timerRunningModerator;
   else if (running) accessibleMessage = intlMessages.timerRunningAttendee;
   else if (isModerator) accessibleMessage = intlMessages.timerStoppedModerator;
-  const accessibleName = intl.formatMessage(accessibleMessage, { time });
+  const accessibleName = intl.formatMessage(accessibleMessage, { time: focusedTime ?? time });
 
   return (
     <Styled.TimerWrapper
@@ -178,11 +178,11 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
           $disabled={!isModerator}
           hide={sidebarNavigationIsOpen && sidebarContentIsOpen && !running}
           role="button"
-          aria-label={focusedAccessibleName ?? accessibleName}
+          aria-label={accessibleName}
           aria-disabled={!isModerator}
           tabIndex={0}
-          onFocus={() => setFocusedAccessibleName(accessibleName)}
-          onBlur={() => setFocusedAccessibleName(null)}
+          onFocus={() => setFocusedTime(time)}
+          onBlur={() => setFocusedTime(null)}
           onClick={isModerator ? onClick : () => {}}
           className="bbb-timer-indicator__button"
           data-test="timeIndicator"

@@ -107,6 +107,8 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
       if (innerTimerRef.current) clearTimeout(innerTimerRef.current);
       innerTimerRef.current = setTimeout(() => setEditingTime(null), 500);
     }, DEBOUNCE_DELAY);
+
+    return clamped;
   }, [breakoutRoomSetTime]);
 
   const adjustTime = useCallback((deltaSeconds: number) => {
@@ -122,8 +124,12 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
     const newM = field === 'm' ? Math.max(0, Math.min(59, value)) : minutes;
     const newS = field === 's' ? Math.max(0, Math.min(59, value)) : seconds;
     const totalSeconds = (newH * 3600) + (newM * 60) + newS;
-    commitTimeChange(totalSeconds);
-    const newValues = { h: newH, m: newM, s: newS };
+    const committedTotalSeconds = commitTimeChange(totalSeconds);
+    const newValues = {
+      h: Math.floor(committedTotalSeconds / 3600),
+      m: Math.floor((committedTotalSeconds % 3600) / 60),
+      s: committedTotalSeconds % 60,
+    };
     setFocusedValue((prev) => (prev ? {
       field: prev.field,
       value: newValues[prev.field],

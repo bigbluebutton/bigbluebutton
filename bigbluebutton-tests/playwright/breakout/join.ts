@@ -320,7 +320,11 @@ export class Join extends Create {
     const runningTimeInputs = this.modPage.page.locator(`${e.breakoutRemainingTime} input[type="number"]`);
     for (let index = 0; index < (await runningTimeInputs.count()); index += 1) {
       const input = runningTimeInputs.nth(index);
-      await expect(input).toHaveAttribute('aria-valuetext', String(Number(await input.inputValue())));
+      const { value, valueText } = await input.evaluate((element: HTMLInputElement) => ({
+        value: Number(element.value),
+        valueText: element.getAttribute('aria-valuetext'),
+      }));
+      expect(valueText).toBe(String(value));
     }
     const secondsInput = this.modPage.page.locator(e.breakoutRoomTimerSecondsInput);
     await secondsInput.focus();
@@ -367,6 +371,30 @@ export class Join extends Create {
       /[4-5]:[0-5][0-9]/,
       'should have the time remaining counting down on the breakout room',
     );
+
+    // Once the countdown is below one minute, an edit that would be shorter than
+    // the one-minute minimum must keep exposing the clamped value after settling.
+    await minutesInput.fill('0');
+    await minutesInput.blur();
+    await expect
+      .poll(
+        async () => {
+          const [minutesValue, secondsValue] = await Promise.all([
+            minutesInput.inputValue(),
+            secondsInput.inputValue(),
+          ]);
+          return Number(minutesValue) * 60 + Number(secondsValue);
+        },
+        { timeout: 20000 },
+      )
+      .toBeLessThanOrEqual(45);
+    await secondsInput.focus();
+    await secondsInput.fill('20');
+    await expect(secondsInput).toHaveValue('00');
+    await expect(secondsInput).toHaveAttribute('aria-valuetext', '0');
+    await this.modPage.page.waitForTimeout(2200);
+    await expect(secondsInput).toHaveValue('00');
+    await expect(secondsInput).toHaveAttribute('aria-valuetext', '0');
   }
 
   async inviteUserAfterCreatingRooms() {

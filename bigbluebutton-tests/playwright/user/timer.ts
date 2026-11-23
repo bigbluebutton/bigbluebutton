@@ -90,8 +90,20 @@ export class Timer extends MultiUsers {
     await expect(this.modPage.page.locator(e.timerSecondsInput)).toHaveAttribute('aria-valuetext', '30');
     await this.modPage.hasText(e.timerIndicator, /10:30/, 'should add 30 seconds to the timer indicator');
 
+    // A late focus capture must survive the arrow-button sync timeout, and a field
+    // focused before the timer starts must freeze as soon as the countdown begins.
+    await this.modPage.page.getByRole('button', { name: 'Decrease seconds by 1' }).click();
+    const secondsInput = this.modPage.page.locator(e.timerSecondsInput);
+    await secondsInput.focus();
+    await this.modPage.page.waitForTimeout(1100);
+    const focusedBeforeStart = await secondsInput.inputValue();
+    await this.modPage.page.locator(e.startStopTimer).evaluate((button: HTMLButtonElement) => button.click());
+    await expect(this.modPage.page.locator(e.startStopTimer)).toHaveText('Stop');
+    await this.modPage.page.waitForTimeout(1500);
+    await expect(secondsInput).toHaveValue(focusedBeforeStart);
+    await secondsInput.blur();
+
     // a running timer locks the inputs, which show the countdown
-    await this.clickOnTimerControl();
     await expect(timerIndicatorLocator).toHaveAccessibleName(/Pause timer, 10:[0-2][0-9] remaining/);
     await Timer.checkFocusedIndicatorNameIsStable(timerIndicatorLocator);
     await expect(this.modPage.page.locator(e.timerHoursInput)).toHaveAttribute('aria-disabled', 'true');
@@ -103,14 +115,14 @@ export class Timer extends MultiUsers {
       .toBeLessThan(630);
     expect(
       await this.timerInputsInSeconds(),
-      'should count down from the 10:30 that was set, not from the default duration',
+      'should count down from the adjusted duration, not from the default duration',
     ).toBeGreaterThan(600);
     await expect
       .poll(() => timeInSeconds(timerIndicatorLocator), { message: 'should count down on the timer indicator' })
       .toBeLessThan(630);
     expect(
       await timeInSeconds(timerIndicatorLocator),
-      'should count down on the timer indicator from the 10:30 that was set',
+      'should count down on the timer indicator from the adjusted duration',
     ).toBeGreaterThan(600);
 
     // stopping keeps the remaining time
@@ -127,10 +139,10 @@ export class Timer extends MultiUsers {
 
     // resetting goes back to the duration that was set before starting
     await this.modPage.waitAndClick(e.resetTimerStopwatch);
-    await this.checkTimerInputs('00', '10', '30', 'should reset the timer inputs to the duration set before starting');
+    await this.checkTimerInputs('00', '10', '29', 'should reset the timer inputs to the duration set before starting');
     await this.modPage.hasText(
       e.timerIndicator,
-      /10:30/,
+      /10:29/,
       'should reset the timer indicator to the duration set before starting',
     );
 
@@ -141,9 +153,14 @@ export class Timer extends MultiUsers {
       .toBeLessThan(630);
     expect(
       await timeInSeconds(timerIndicatorLocator),
-      'should count down after starting again from the 10:30 it was reset to',
+      'should count down after starting again from the adjusted duration',
     ).toBeGreaterThan(600);
-    await this.modPage.waitAndClick(e.timerIndicator);
+    await timerIndicatorLocator.focus();
+    const focusedIndicatorName = await timerIndicatorLocator.getAttribute('aria-label');
+    const focusedIndicatorTime = focusedIndicatorName?.match(/\d{2}:\d{2}/)?.[0];
+    expect(focusedIndicatorTime, 'should expose a time in the focused timer name').toBeTruthy();
+    await timerIndicatorLocator.click();
+    await expect(timerIndicatorLocator).toHaveAccessibleName(`Start timer, ${focusedIndicatorTime} remaining`);
     await this.checkStartStopButtonIsStopped(
       'should switch the start/stop button to stopped after clicking on the indicator',
     );

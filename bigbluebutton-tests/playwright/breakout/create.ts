@@ -247,7 +247,11 @@ export class Create extends MultiUsers {
     const runningTimeInputs = this.modPage.page.locator(`${e.breakoutRemainingTime} input[type="number"]`);
     for (let index = 0; index < (await runningTimeInputs.count()); index += 1) {
       const input = runningTimeInputs.nth(index);
-      await expect(input).toHaveAttribute('aria-valuetext', String(Number(await input.inputValue())));
+      const { value, valueText } = await input.evaluate((element: HTMLInputElement) => ({
+        value: Number(element.value),
+        valueText: element.getAttribute('aria-valuetext'),
+      }));
+      expect(valueText).toBe(String(value));
     }
   }
 

@@ -153,12 +153,22 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
   const minutesInputRef = useRef<HTMLInputElement>(null);
   const secondsInputRef = useRef<HTMLInputElement>(null);
   const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const focusCaptureVersionRef = useRef(0);
 
   const [currentPresetIndex, setCurrentPresetIndex] = useState(0);
   const totalPresets = PRESET_SECONDS.length;
 
   useEffect(() => {
-    if (!running) setFocusedRunningValue(null);
+    if (!running) {
+      setFocusedRunningValue(null);
+    } else if (focusedUnit) {
+      const runningValues = {
+        hours: localHours,
+        minutes: localMinutes,
+        seconds: localSeconds,
+      };
+      setFocusedRunningValue(runningValues[focusedUnit]);
+    }
   }, [running]);
 
   // Sync local state with server state when stopped
@@ -252,6 +262,7 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
   };
 
   const handleInputFocus = (unit: 'hours' | 'minutes' | 'seconds', value: number) => {
+    focusCaptureVersionRef.current += 1;
     setFocusedUnit(unit);
     setFocusedRunningValue(running ? value : null);
   };
@@ -310,11 +321,12 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
     setLocalMinutes(newMinutes);
     setLocalSeconds(newSeconds);
     setFocusedUnit(unit);
+    const focusCaptureVersion = focusCaptureVersionRef.current;
 
     if (syncTimeoutRef.current) clearTimeout(syncTimeoutRef.current);
     syncTimeoutRef.current = setTimeout(() => {
       syncTimeWithBackend(newHours, newMinutes, newSeconds);
-      setFocusedUnit(null);
+      if (focusCaptureVersionRef.current === focusCaptureVersion) setFocusedUnit(null);
       syncTimeoutRef.current = null;
     }, 1000);
   }, [running, localHours, localMinutes, localSeconds, syncTimeWithBackend, MAX_HOURS]);
@@ -333,11 +345,12 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
     setLocalMinutes(newMinutes);
     setLocalSeconds(newSeconds);
     setFocusedUnit(unit);
+    const focusCaptureVersion = focusCaptureVersionRef.current;
 
     if (syncTimeoutRef.current) clearTimeout(syncTimeoutRef.current);
     syncTimeoutRef.current = setTimeout(() => {
       syncTimeWithBackend(newHours, newMinutes, newSeconds);
-      setFocusedUnit(null);
+      if (focusCaptureVersionRef.current === focusCaptureVersion) setFocusedUnit(null);
       syncTimeoutRef.current = null;
     }, 1000);
   }, [running, localHours, localMinutes, localSeconds, syncTimeWithBackend]);
