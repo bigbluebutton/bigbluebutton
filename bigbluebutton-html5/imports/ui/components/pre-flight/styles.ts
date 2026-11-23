@@ -9,7 +9,6 @@ import {
   colorPrimary,
   colorBorder,
   colorText,
-  colorDanger,
   itemFocusBorder,
   previewControlBg,
   webcamBackgroundColor,
@@ -230,6 +229,17 @@ const Description = styled.p`
   }
 `;
 
+// A condition of the join, under its description: quieter than the
+// description, which still leads.
+const JoinNotice = styled.p`
+  margin: 0;
+  max-width: 32rem;
+  color: ${colorText};
+  font-size: ${fontSizeBase};
+  font-weight: ${textFontWeight};
+  line-height: 1.375rem;
+`;
+
 const Position = styled.div`
   color: ${colorText};
   font-size: ${fontSizeLarge};
@@ -257,14 +267,6 @@ const MessageText = styled.div`
   color: ${colorText};
   font-size: ${fontSizeBase};
   font-style: italic;
-  line-height: 1.4;
-`;
-
-const ErrorMessage = styled.p`
-  margin: 0;
-  max-width: 32rem;
-  color: ${colorDanger};
-  font-size: ${fontSizeBase};
   line-height: 1.4;
 `;
 
@@ -413,11 +415,11 @@ export default {
   Spinner,
   Heading,
   Description,
+  JoinNotice,
   Position,
   MessageContainer,
   MessageLabel,
   MessageText,
-  ErrorMessage,
   PreviewPlaceholder,
   HeaderColumn,
   ActionBar,

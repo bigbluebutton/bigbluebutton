@@ -676,6 +676,10 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         screenshare: 'medium',
       },
       muteAudioOutputWhenAway: false,
+      skipInitialCamEnumeration: false,
+      screenshareTroubleshootingLinks: {
+        1136: 'https://support.bigbluebutton.org/hc/en-us/articles/1500005316582-Share-my-screen#:~:text=Error%201136%3A%20Permission%20to%20capture,able%20to%20screen%20share%20again',
+      },
       screenshare: {
         showButtonForNonPresenters: false,
         enableOnMobile: false,

@@ -145,6 +145,7 @@ export const useVideoPreview = ({
   const [viewState, setViewState] = useState<string>(VIEW_STATES.finding);
   const [deviceError, setDeviceError] = useState<string | null>(null);
   const [previewError, setPreviewError] = useState<string | null>(null);
+  const [permissionDenied, setPermissionDenied] = useState(false);
   const [skipPreviewFailed, setSkipPreviewFailed] = useState(false);
   const [isCameraLoading, setIsCameraLoading] = useState<boolean>(true);
   const [isAwaitingCameraPermission, setIsAwaitingCameraPermission] = useState<boolean>(false);
@@ -206,6 +207,7 @@ export const useVideoPreview = ({
       logCode: `video_preview_${logCode}_error`,
       extraInfo: { errorName: error.name, errorMessage: error.message },
     }, `Error ${description}`);
+    setPermissionDenied(error.name === 'NotAllowedError');
     setPreviewError(handleGUMError(error));
   }, [handleGUMError]);
 
@@ -214,6 +216,9 @@ export const useVideoPreview = ({
       logCode: `video_preview_${logCode}_error`,
       extraInfo: { errorName: error.name, errorMessage: error.message },
     }, `Error ${description}`);
+    // Not reset otherwise: an empty enumeration after a refused gUM is still
+    // the refusal.
+    if (error.name === 'NotAllowedError') setPermissionDenied(true);
     setViewState(VIEW_STATES.error);
     setDeviceError(handleGUMError(error));
   }, [handleGUMError]);
@@ -583,6 +588,7 @@ export const useVideoPreview = ({
         return null;
       }
       setCurrentVideoStream(bbbVideoStream);
+      setPermissionDenied(false);
       const updatedDevice = updateDeviceId(deviceId);
 
       // The camera we got is already shared: reuse its stream instead of capturing it twice
@@ -956,6 +962,7 @@ export const useVideoPreview = ({
     viewState,
     deviceError,
     previewError,
+    permissionDenied,
     isCameraLoading,
     isAwaitingCameraPermission,
     brightness,

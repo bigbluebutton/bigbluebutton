@@ -591,6 +591,11 @@ export interface Media {
   localEchoTest: LocalEchoTest
   networkPriorities: MediaNetworkPriorities
   muteAudioOutputWhenAway: boolean
+  skipInitialCamEnumeration: boolean
+  // Commented out in settings.yml: keyed by audio error code, absent unless
+  // the deployment sets it.
+  audioTroubleshootingLinks?: Record<string, string>
+  screenshareTroubleshootingLinks: Record<string, string>
   livekit: LiveKitSettings
 }
 
