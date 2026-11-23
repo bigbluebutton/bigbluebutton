@@ -96,9 +96,18 @@ func (c *Config) loadConfigs() {
 		}
 	}
 
-	// SERVER_HOST, if set, wins over the default and the override file
-	if host := os.Getenv("SERVER_HOST"); host != "" {
-		configDefault.Server.Host = host
+	// These variables, if set, win over the default and the override file
+	for name, value := range map[string]*string{
+		"SERVER_HOST":                            &configDefault.Server.Host,
+		"REDIS_HOST":                             &configDefault.Redis.Host,
+		"HASURA_URL":                             &configDefault.Hasura.Url,
+		"HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL": &configDefault.GraphqlActions.Url,
+		"AUTH_HOOK_URL":                          &configDefault.AuthHook.Url,
+		"SESSION_VARS_HOOK_URL":                  &configDefault.SessionVarsHook.Url,
+	} {
+		if env := os.Getenv(name); env != "" {
+			*value = env
+		}
 	}
 
 	// Update the singleton instance with the merged config
