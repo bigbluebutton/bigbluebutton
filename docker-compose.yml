@@ -216,6 +216,7 @@ services:
     environment:
       BIGBLUEBUTTON_WEB_SERVERURL: https://${BBB_DOMAIN}
       SECURITYSALT: ${BBB_SHARED_SECRET}
+      PAGETOKENSECRET: ${BBB_PAGE_TOKEN_SECRET:?}
       REDISHOST: redis
     configs:
       - source: turn-stun-servers.xml

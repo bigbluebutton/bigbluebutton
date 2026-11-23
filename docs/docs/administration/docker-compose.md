@@ -52,6 +52,12 @@ docker compose up -d --force-recreate
 
 Every service restarts, as in a package upgrade. When a schema changed, its database is recreated, so meetings that are running end.
 
+A newer `docker-compose.yml` can need a new value in `.env`; compose then stops and names the variable. `BBB_PAGE_TOKEN_SECRET` (bbb-web's `pageTokenSecret`, separate from `BBB_SHARED_SECRET`) is such a value for installs from before it was added. Add it with
+
+```bash
+echo "BBB_PAGE_TOKEN_SECRET=$(openssl rand -hex 32)" >> .env
+```
+
 ## Data and backup
 
 Data, in `./data` next to `docker-compose.yml`:
