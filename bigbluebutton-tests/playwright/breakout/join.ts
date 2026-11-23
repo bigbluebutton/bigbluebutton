@@ -335,6 +335,21 @@ export class Join extends Create {
     await expect(secondsInput).not.toHaveValue(focusedSeconds);
     await secondsInput.blur();
 
+    const minutesInput = this.modPage.page.locator(e.breakoutRoomTimerMinutesInput);
+    await minutesInput.focus();
+    const initialMinutes = Number(await minutesInput.inputValue());
+    const typedMinutes = Math.max(0, initialMinutes - 2);
+    await minutesInput.fill(String(typedMinutes));
+    await expect(minutesInput).toHaveValue(String(typedMinutes).padStart(2, '0'));
+    await minutesInput.press('ArrowUp');
+    await minutesInput.press('ArrowUp');
+    await expect(minutesInput).toHaveValue(String(typedMinutes + 2).padStart(2, '0'));
+    await minutesInput.blur();
+    await this.modPage.page.waitForTimeout(2200);
+    await minutesInput.focus();
+    await expect(minutesInput).toHaveAttribute('aria-valuetext', String(Number(await minutesInput.inputValue())));
+    await minutesInput.blur();
+
     // Decrease from 15 to 5 minutes by clicking in the minus button 10 times
     for (let i = 0; i < 10; i += 1) {
       await this.modPage.waitAndClick(e.decreaseBreakoutTimeButton);

@@ -157,6 +157,10 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
   const [currentPresetIndex, setCurrentPresetIndex] = useState(0);
   const totalPresets = PRESET_SECONDS.length;
 
+  useEffect(() => {
+    if (!running) setFocusedRunningValue(null);
+  }, [running]);
+
   // Sync local state with server state when stopped
   useEffect(() => {
     if (!running) {

@@ -236,6 +236,11 @@ const TimerInput = styled.input<{isSelected: boolean}>`
     box-shadow: 0 0 0 0.125rem ${colorPrimary};
   `}
 
+  &:read-only {
+    opacity: .75;
+    background-color: transparent;
+  }
+
   &:disabled,
   &[disabled] {
     cursor: not-allowed;

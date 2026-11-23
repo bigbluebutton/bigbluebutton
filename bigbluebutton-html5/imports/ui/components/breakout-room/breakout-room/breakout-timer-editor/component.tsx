@@ -91,9 +91,10 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
   const minutes = Math.floor((displayedTime % 3600) / 60);
   const seconds = displayedTime % 60;
   const padNum = (n: number) => n.toString().padStart(2, '0');
-  const exposedHours = focusedValue?.field === 'h' ? focusedValue.value : hours;
-  const exposedMinutes = focusedValue?.field === 'm' ? focusedValue.value : minutes;
-  const exposedSeconds = focusedValue?.field === 's' ? focusedValue.value : seconds;
+  const frozen = (field: 'h' | 'm' | 's') => focusedValue?.field === field && editingTime === null;
+  const exposedHours = frozen('h') ? focusedValue!.value : hours;
+  const exposedMinutes = frozen('m') ? focusedValue!.value : minutes;
+  const exposedSeconds = frozen('s') ? focusedValue!.value : seconds;
 
   const commitTimeChange = useCallback((newTotalSeconds: number) => {
     const clamped = Math.max(60, newTotalSeconds);
@@ -122,6 +123,11 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
     const newS = field === 's' ? Math.max(0, Math.min(59, value)) : seconds;
     const totalSeconds = (newH * 3600) + (newM * 60) + newS;
     commitTimeChange(totalSeconds);
+    const newValues = { h: newH, m: newM, s: newS };
+    setFocusedValue((prev) => (prev ? {
+      field: prev.field,
+      value: newValues[prev.field],
+    } : prev));
   }, [hours, minutes, seconds, commitTimeChange]);
 
   return (
