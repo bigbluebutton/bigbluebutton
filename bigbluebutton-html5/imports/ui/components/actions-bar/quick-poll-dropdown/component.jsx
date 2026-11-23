@@ -187,9 +187,11 @@ const QuickPollDropdown = (props) => {
 
   const hasTF = safeMatch(trueFalsePatt, content, false);
 
-  // (?!\d): a label's delimiter is never followed by a digit, so dates like
-  // "13.11.25" in a slide footer are not taken as an option labelled 13.
-  const pollRegex = /(?:^|\s{2,})(?:[1-9]|1[0-9]|[A-Sa-s])[.)](?!\d)\s*.*/gm;
+  // (?!\d) on numeric labels only: a number label's delimiter is never
+  // followed by a digit, so dates like "13.11.25" in a slide footer are not
+  // taken as an option labelled 13. Letter labels keep matching text that
+  // starts with a digit, such as "A)2".
+  const pollRegex = /(?:^|\s{2,})(?:(?:[1-9]|1[0-9])[.)](?!\d)|[A-Sa-s][.)])\s*.*/gm;
   let optionsPoll = safeMatch(pollRegex, content, []);
 
   const optionsWithLabels = [];
