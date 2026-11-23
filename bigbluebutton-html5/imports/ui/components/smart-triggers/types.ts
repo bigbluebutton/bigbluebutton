@@ -14,7 +14,7 @@ export type CooldownPolicy =
 
 export type BlockingCooldown = Exclude<CooldownPolicy['kind'], 'time'>;
 
-export type HintPresentation = 'toast' | 'anchored';
+export type HintPresentation = 'toast' | 'anchored' | 'announcement';
 
 export interface HintAction {
   id: string;
@@ -26,6 +26,7 @@ export interface HintContent {
   presentation: HintPresentation;
   message: string;
   icon?: string;
+  soundUrl?: string;
   actions?: HintAction[];
 }
 

@@ -20,7 +20,7 @@ const SmartTriggers: React.FC<SmartTriggersProps> = ({ toastsVisible }) => (
   <>
     {RULES
       .filter((rule) => isRuleEnabled(rule.id))
-      .filter((rule) => rule.presentation === 'anchored' || toastsVisible)
+      .filter((rule) => rule.presentation !== 'toast' || toastsVisible)
       .map((rule) => <RuleHost key={rule.id} useRule={rule.useRule} />)}
   </>
 );

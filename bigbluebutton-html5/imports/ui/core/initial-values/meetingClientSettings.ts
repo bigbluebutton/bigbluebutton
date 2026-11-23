@@ -176,6 +176,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           raiseHandPushAlerts: true,
           guestWaitingAudioAlerts: true,
           guestWaitingPushAlerts: true,
+          presenterAwaySound: true,
           wakeLock: true,
           paginationEnabled: true,
           whiteboardToolbarAutoHide: false,

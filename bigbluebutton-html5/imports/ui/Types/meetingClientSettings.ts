@@ -242,6 +242,7 @@ export interface Application {
   raiseHandPushAlerts: boolean
   guestWaitingAudioAlerts: boolean
   guestWaitingPushAlerts: boolean
+  presenterAwaySound: boolean
   wakeLock: boolean
   paginationEnabled: boolean
   whiteboardToolbarAutoHide: boolean

@@ -5,6 +5,7 @@ import {
   clearHint, dismissHint, resetRule, showHint,
 } from '../service';
 import { hideHintToast, showHintToast } from '../hint-toast/component';
+import announceHint from '../hint-announcement';
 import {
   CooldownPolicy, HintContent, RuleId, SmartTriggerController,
 } from '../types';
@@ -27,6 +28,10 @@ const useSmartTrigger = (ruleId: RuleId, cooldown: CooldownPolicy): SmartTrigger
     const hint = { ...content, ruleId };
     if (!showHint(hint, cooldownRef.current)) return false;
     if (hint.presentation === 'toast') showHintToast(hint, dismiss);
+    if (hint.presentation === 'announcement') {
+      announceHint(hint);
+      clearHint(ruleId);
+    }
     return true;
   }, [ruleId, dismiss]);
 
