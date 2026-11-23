@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A plugin manifest that doesn't come within pluginManifestFetchTimeout
+# seconds (shipped 15; 1 under the short-fetch-timeouts profile) is a load
+# failure (create.plugins.load-failure). bbb-web runs two clocks on the
+# fetch, one on the connection and one on the whole task, and whichever
+# runs out first gives the reason, so the reason isn't recorded. _after=1
+# lets the URL check through and holds back the fetch.
+id: create.plugins.load-failure-timeout
+title: create records a plugin manifest that doesn't come in time (${case})
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus, callbacks]
+variants:
+  - {id: short, vars: {case: a short timeout, delay: 3s}, profile: short-fetch-timeouts, tags: [disruptive]}
+  # Runs alone: it waits for the shipped timeout.
+  - {id: shipped, vars: {case: the shipped timeout, delay: 17s}, tags: [slow, serial]}
+steps:
+  - call: create
+    params:
+      meetingID: "${uid}"
+      name: Plugins
+      pluginManifests: '[{"url":"${sinkUrl}/${uid}/fixtures/plugins/basic.json?_delay=${delay}&_after=1"}]'
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 30s}
+    golden: off
+    expect:
+      jsonpath:
+        $.core.body.props.pluginProp.*.loadFailureReason: {regex: "^(Timeout occurred when fetching plugin manifest URL|I/O error when fetching a plugin URL)"}
+        $.core.body.props.pluginProp.*.loadFailureSource: bbb-web
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# When a meeting ends, bbb-web removes its learning-dashboard data after
+# learningDashboardCleanupDelayInMinutes: the create param, else the
+# setting (shipped 2). It looks again every minute after that, so the data
+# is gone within the delay plus a minute and a half. The meeting isn't
+# recorded: a recorded meeting's data waits for its recording to be
+# archived (end.dashboard.kept).
+id: end.dashboard.cleanup
+title: An ended meeting's learning-dashboard data is removed after ${delay}
+endpoint: end
+class: contract
+tags: [slow]
+requires: [akka, bus, fs]
+variants:
+  - {id: param, vars: {delay: a minute (the create param), minutes: "1", within: 150s}}
+  - {id: shipped, vars: {delay: the shipped two minutes, minutes: null, within: 210s}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Dashboard, record: "false", learningDashboardCleanupDelayInMinutes: "${minutes}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - fs: {path: "learning-dashboard/${intId}/*/learning_dashboard_data.json", within: 15s}
+    golden: off
+    expect: {exists: true}
+  - call: end
+    params: {meetingID: "${uid}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - fs: {path: "learning-dashboard/${intId}/*/learning_dashboard_data.json", within: "${within}"}
+    expect: {exists: false}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

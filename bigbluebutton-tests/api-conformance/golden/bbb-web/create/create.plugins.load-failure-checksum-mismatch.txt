@@ -1,0 +1,9 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.plugins.load-failure-checksum-mismatch
+target bbb-web
+
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.pluginProp
+$.core.body.props.pluginProp['${sinkUrl}/${uid}/fixtures/plugins/basic.json'].loadFailureReason "Plugin's manifest.json checksum mismatch with that of the URL parameter. For more information, see bbb-web"
+$.core.body.props.pluginProp['${sinkUrl}/${uid}/fixtures/plugins/basic.json'].loadFailureSource "bbb-web"
+$.core.body.props.pluginProp['${sinkUrl}/${uid}/fixtures/plugins/basic.json'].manifest.content {}
+$.core.body.props.pluginProp['${sinkUrl}/${uid}/fixtures/plugins/basic.json'].manifest.url "${sinkUrl}/${uid}/fixtures/plugins/basic.json"

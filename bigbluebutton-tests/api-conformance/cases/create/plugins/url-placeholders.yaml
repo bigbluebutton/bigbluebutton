@@ -1,0 +1,42 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A plugin manifest URL can use placeholders, which bbb-web fills in before
+# fetching it: %%MEETING_ID%% (the meeting's external ID),
+# %%BBB_VERSION%% and %%BBB_MAIN_VERSION%% (the release, and its major and
+# minor), %%HTML5_PLUGIN_SDK_VERSION%% and %%HTML5_PLUGIN_SDK_MAIN_VERSION%%
+# (the plugin SDK version, and its major one, or 0.x). The sink sees them
+# filled in, and the URL in pluginProp is the filled-in one.
+id: create.plugins.url-placeholders
+title: create fills in the placeholders of a plugin manifest URL
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus, callbacks]
+steps:
+  - call: create
+    params:
+      meetingID: "${uid}"
+      name: Plugins
+      pluginManifests: '[{"url":"${sinkUrl}/%%MEETING_ID%%/fixtures/plugins/basic.json?conformBbbVersion=%%BBB_VERSION%%&conformBbbMainVersion=%%BBB_MAIN_VERSION%%&conformSdkVersion=%%HTML5_PLUGIN_SDK_VERSION%%&conformSdkMainVersion=%%HTML5_PLUGIN_SDK_MAIN_VERSION%%"}]'
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - sink: {key: "${uid}", within: 5s}
+    expect:
+      path: /${uid}/fixtures/plugins/basic.json
+      query:
+        conformBbbVersion: {regex: '^[0-9]+\.[0-9]+\.[0-9]+'}
+        conformBbbMainVersion: {regex: '^[0-9]+\.[0-9]+$'}
+        conformSdkVersion: {regex: '^[0-9]+\.[0-9]+\.[0-9]+'}
+        conformSdkMainVersion: {regex: '^([0-9]+|0\.x)$'}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.props.pluginProp]
+    expect:
+      jsonpath:
+        $.core.body.props.pluginProp.ConformBasic.manifest.url: {regex: '^\Q${sinkUrl}/${uid}/fixtures/plugins/basic.json?conformBbbVersion=\E[0-9]'}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

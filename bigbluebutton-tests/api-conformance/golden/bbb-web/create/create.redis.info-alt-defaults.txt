@@ -1,0 +1,13 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.redis.info-alt-defaults
+target bbb-web
+
+== step 2: redis meeting:info:${intId}
+$.key "meeting:info:<sha1(meetingID)>-<time>"
+$.ttl -1
+$.type "hash"
+$.value.conform-color "blue"
+$.value.conform-shape "round"
+$.value.isBreakout "false"
+$.value.meetingId "${uid}"
+$.value.meetingName "Redis info"

@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# An override bbb-web can't fetch or read leaves the meeting without one:
+# overrideClientSettings is empty, and create succeeds. Over
+# maxClientSettingsOverrideJsonUrlPayloadSize (shipped 1024 KiB) is too
+# large. The fetch rules (create.fetch.*) refuse a URL the same way.
+id: create.client-settings.failed
+title: create leaves out a client settings override it can't fetch (${case})
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus, callbacks]
+variants:
+  - {id: not-found, vars: {case: 404, file: client-settings/missing.json}}
+  - {id: invalid-json, vars: {case: not JSON, file: client-settings/invalid.json}}
+  - {id: too-large, vars: {case: over the size limit, file: "generated/big.json?_size=1048577"}}
+  - {id: server-error, vars: {case: an error fetching it, file: "client-settings/override.json?_status=500&_after=1"}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Client settings, clientSettingsOverrideJsonUrl: "${sinkUrl}/${uid}/fixtures/${file}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.props.overrideClientSettings]
+    expect:
+      jsonpath:
+        $.core.body.props.overrideClientSettings: ""
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

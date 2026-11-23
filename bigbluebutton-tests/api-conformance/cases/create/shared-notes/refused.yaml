@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# The shared notes' initial content URLs follow the fetch rules
+# (create.fetch.*): a local address whose name fetchUrlAllowedLocalHosts
+# doesn't list (Tier 1 lists sink.test, the same address) is refused, and
+# the notes start empty.
+id: create.shared-notes.refused
+title: create refuses initial content from a local address it may not fetch from
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus]
+steps:
+  - call: create
+    params:
+      meetingID: "${uid}"
+      name: Shared notes
+      sharedNotesInitialContentJsonUrl: "https://localhost:8444/refused/fixtures/shared-notes/initial.json"
+      sharedNotesInitialContentMarkdownUrl: "https://localhost:8444/refused/fixtures/shared-notes/initial.md"
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 10s}
+    select: [$.core.body.props.meetingProp.sharedNotesInitialContentJson, $.core.body.props.meetingProp.sharedNotesInitialContentMarkdown]
+    expect:
+      jsonpath:
+        $.core.body.props.meetingProp.sharedNotesInitialContentJson[*]: {absent: true}
+        $.core.body.props.meetingProp.sharedNotesInitialContentMarkdown: ""
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

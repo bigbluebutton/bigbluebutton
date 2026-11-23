@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# bbb-web refuses a client settings override larger than
+# maxClientSettingsOverrideJsonUrlPayloadSize (shipped 1024 KiB): one of
+# exactly that size is fetched, one a byte larger isn't. The sink's
+# generated JSON is ASCII, so its bytes and characters are the same.
+# Not recorded: the override is the whole file.
+id: create.fetch.payload
+title: create fetches an override ${size}
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus, callbacks]
+variants:
+  - {id: at-limit, vars: {size: at the size limit, bytes: "1048576", want: '^\{"padding":'}}
+  - {id: over-limit, vars: {size: only up to the size limit, bytes: "1048577", want: '^$'}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Fetch rules, clientSettingsOverrideJsonUrl: "${sinkUrl}/${uid}/fixtures/generated/big.json?_size=${bytes}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 30s}
+    golden: off
+    expect:
+      jsonpath:
+        $.core.body.props.overrideClientSettings: {regex: "${want}"}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

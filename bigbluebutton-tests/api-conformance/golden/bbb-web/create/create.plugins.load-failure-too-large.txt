@@ -1,0 +1,9 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.plugins.load-failure-too-large
+target bbb-web
+
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.pluginProp
+$.core.body.props.pluginProp['${sinkUrl}/${uid}/fixtures/generated/big.json?_size=1100000'].loadFailureReason "I/O error when fetching a plugin URL. For more information, see bbb-web"
+$.core.body.props.pluginProp['${sinkUrl}/${uid}/fixtures/generated/big.json?_size=1100000'].loadFailureSource "bbb-web"
+$.core.body.props.pluginProp['${sinkUrl}/${uid}/fixtures/generated/big.json?_size=1100000'].manifest.content {}
+$.core.body.props.pluginProp['${sinkUrl}/${uid}/fixtures/generated/big.json?_size=1100000'].manifest.url "${sinkUrl}/${uid}/fixtures/generated/big.json?_size=1100000"

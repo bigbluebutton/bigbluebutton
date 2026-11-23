@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A plain-http plugin manifest URL is refused as shipped
+# (fetchUrlSupportedProtocols=https): no entry in pluginProp, and the
+# sink's plain-HTTP listener sees nothing.
+id: create.plugins.dropped-http
+title: create drops a plain-http plugin manifest URL
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus, callbacks]
+steps:
+  - call: create
+    params:
+      meetingID: "${uid}"
+      name: Plugins
+      pluginManifests: '[{"url":"${sinkHttpUrl}/${uid}/fixtures/plugins/basic.json"}]'
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 10s}
+    select: [$.core.body.props.pluginProp]
+    expect:
+      jsonpath:
+        $.core.body.props.pluginProp.*: {absent: true}
+  - sink: {key: "${uid}", within: 2s}
+    expect: {absent: true}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

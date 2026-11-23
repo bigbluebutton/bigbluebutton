@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# bbb-web follows a plugin manifest URL's redirect (each hop is checked
+# against the fetch rules, create.fetch.redirect), and the URL in
+# pluginProp is where the manifest was found.
+id: create.plugins.redirect
+title: create records the URL a redirected plugin manifest came from
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus, callbacks]
+steps:
+  - call: create
+    params:
+      meetingID: "${uid}"
+      name: Plugins
+      pluginManifests: '[{"url":"${sinkUrl}/${uid}/moved?_redirect=${sinkUrl}/${uid}/fixtures/plugins/basic.json"}]'
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.props.pluginProp]
+    expect:
+      jsonpath:
+        $.core.body.props.pluginProp.ConformBasic.manifest.url: "${sinkUrl}/${uid}/fixtures/plugins/basic.json"
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

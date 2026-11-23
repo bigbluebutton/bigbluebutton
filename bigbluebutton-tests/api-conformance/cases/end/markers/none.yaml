@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A meeting that is neither recorded nor keeps its events leaves no
+# marker when it ends: record-and-playback has nothing to do. The bus step
+# waits until bbb-web has handled the end; the markers, when there are
+# any, are written as it does.
+id: end.markers.none
+title: An ended meeting that isn't recorded and keeps no events leaves no marker
+endpoint: end
+class: contract
+tags: [ci]
+requires: [akka, bus, fs]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Markers, record: "false", meetingKeepEvents: "false"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  # An end that reaches akka-apps before it has the meeting is lost.
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    golden: off
+  - bus: {name: MeetingEndedEvtMsg, meetingId: "${intId}", within: 10s}
+    golden: off
+  - fs: {path: "recording/status/*/${intId}.done", within: 3s}
+    expect: {absent: true}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

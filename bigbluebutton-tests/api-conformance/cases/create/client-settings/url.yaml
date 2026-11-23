@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# create fetches clientSettingsOverrideJsonUrl and hands what it got, as
+# it got it, to akka-apps as the meeting's overrideClientSettings, which
+# the client applies over its settings. allowOverrideClientSettingsOnCreateCall,
+# shipped false, doesn't stop it: that setting is about an override in
+# create's body.
+id: create.client-settings.url
+title: create fetches the client settings override at clientSettingsOverrideJsonUrl
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus, callbacks]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Client settings, clientSettingsOverrideJsonUrl: "${sinkUrl}/${uid}/fixtures/client-settings/override.json"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.props.overrideClientSettings]
+    expect:
+      jsonpath:
+        $.core.body.props.overrideClientSettings: {regex: '^\{"public":\{"app":\{"clientTitle":"Conform client"\}\}\}\s*$'}
+  # Checked, then fetched.
+  - sink: {key: "${uid}", within: 2s}
+    golden: off
+    expect: {count: 2}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

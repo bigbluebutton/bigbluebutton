@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A plugin manifest bbb-web can't list or may not fetch leaves no entry in
+# pluginProp, and create succeeds: a pluginManifests param that isn't
+# JSON, or a manifest or list URL at a local address whose name
+# fetchUrlAllowedLocalHosts doesn't list (Tier 1 lists sink.test, the
+# same address). The fetch rules are covered in full on
+# clientSettingsOverrideJsonUrl (create.fetch.*).
+id: create.plugins.dropped
+title: create drops a plugin manifest it can't list or may not fetch (${case})
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus]
+variants:
+  - {id: malformed-param, vars: {case: a malformed pluginManifests param, manifests: '[{"url":', list: null}}
+  - {id: local-host, vars: {case: a local manifest URL, manifests: '[{"url":"https://localhost:8444/refused/fixtures/plugins/basic.json"}]', list: null}}
+  - {id: list-local-host, vars: {case: a local pluginManifestsFetchUrl, manifests: null, list: "https://localhost:8444/refused/fixtures/plugins/list.json?_expand=1"}}
+steps:
+  - call: create
+    params:
+      meetingID: "${uid}"
+      name: Plugins
+      pluginManifests: "${manifests}"
+      pluginManifestsFetchUrl: "${list}"
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 10s}
+    select: [$.core.body.props.pluginProp]
+    expect:
+      jsonpath:
+        $.core.body.props.pluginProp.*: {absent: true}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

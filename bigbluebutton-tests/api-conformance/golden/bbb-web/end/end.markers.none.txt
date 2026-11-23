@@ -1,0 +1,7 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case end.markers.none
+target bbb-web
+
+== step 5: fs recording/status/*/${intId}.done
+$.found false
+$.path "recording/status/*/<sha1(meetingID)>-<time>.done"

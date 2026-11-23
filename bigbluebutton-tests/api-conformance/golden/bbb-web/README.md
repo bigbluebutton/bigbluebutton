@@ -80,7 +80,11 @@ there compares like with like.
   `join.session.ignored-params` and `create.breakouts.sequence`) were
   recorded from a stack running packages built from v4.0.x-develop of that
   day (3fc5b07e3d), and `getJoinUrl.signed-url.parameters` was recorded
-  again for its new check step; its answers didn't change.
+  again for its new check step; its answers didn't change. On 2026-11-23
+  the side-effect cases (`create/` redis, breakout-rooms, dashboard,
+  plugins, client-settings, shared-notes and fetch; `end/` markers and
+  dashboard) were recorded from a fresh stack (`make reset`) running
+  packages built from v4.0.x-develop of that day (aca03d0651).
 
 ## Reviewing
 

@@ -1,0 +1,62 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# With pluginManifestCacheEnabled (the plugin-manifest-cache profile),
+# bbb-web keeps a manifest it fetched and serves the next create from it,
+# without checking or fetching the URL again. A URL with %%MEETING_ID%% is
+# never cached: it is checked and fetched for every meeting. Both URLs
+# here are under the case's sink key (%%MEETING_ID%% is the external ID).
+id: create.plugins.cache
+title: create serves a cached plugin manifest, but not one whose URL has %%MEETING_ID%%
+endpoint: create
+class: contract
+tags: [ci, disruptive]
+profile: plugin-manifest-cache
+requires: [akka, bus, callbacks]
+steps:
+  - call: create
+    params:
+      meetingID: "${uid}"
+      name: Plugins
+      pluginManifests: '[{"url":"${sinkUrl}/${uid}/fixtures/plugins/basic.json"},{"url":"${sinkUrl}/%%MEETING_ID%%/fixtures/plugins/second.json"}]'
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: end
+    params: {meetingID: "${uid}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: getMeetingInfo
+    params: {meetingID: "${uid}"}
+    golden: off
+    ignoreResult: true
+    eventually: {within: 5s, every: 100ms, until: {messageKey: notFound}}
+  - call: create
+    params:
+      meetingID: "${uid}"
+      name: Plugins
+      pluginManifests: '[{"url":"${sinkUrl}/${uid}/fixtures/plugins/basic.json"},{"url":"${sinkUrl}/%%MEETING_ID%%/fixtures/plugins/second.json"}]'
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId2: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId2}", within: 5s}
+    select: [$.core.body.props.pluginProp]
+    expect:
+      jsonpath:
+        $.core.body.props.pluginProp.ConformBasic.manifest.content.name: ConformBasic
+        $.core.body.props.pluginProp.ConformSecond.manifest.content.name: ConformSecond
+  # Counted since the case began: the cached manifest was checked and
+  # fetched for the first create only, the other for both.
+  - sink: {key: "${uid}", within: 2s}
+    golden: off
+    expect: {path: "/${uid}/fixtures/plugins/basic.json", count: 2}
+  - sink: {key: "${uid}", within: 2s}
+    golden: off
+    expect: {path: "/${uid}/fixtures/plugins/second.json", count: 4}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

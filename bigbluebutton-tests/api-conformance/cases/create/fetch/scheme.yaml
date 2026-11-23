@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# bbb-web fetches only from URLs whose scheme fetchUrlSupportedProtocols
+# names: shipped, https alone (create.client-settings.url), so a plain-http
+# URL is refused; the fetch-http profile adds http. Shown on
+# clientSettingsOverrideJsonUrl, whose result is one string: a refused URL
+# leaves the override empty. Every fetch create makes follows the same
+# rules (create.plugins.dropped*, create.shared-notes.failed show it for
+# theirs).
+id: create.fetch.scheme
+title: create fetches over http ${when}
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus, callbacks]
+variants:
+  - {id: refused, vars: {when: only when allowed, want: '^$'}}
+  - {id: allowed, vars: {when: under fetch-http, want: '^\{"public":'}, profile: fetch-http, tags: [disruptive]}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Fetch rules, clientSettingsOverrideJsonUrl: "${sinkHttpUrl}/${uid}/fixtures/client-settings/override.json"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 30s}
+    select: [$.core.body.props.overrideClientSettings]
+    expect:
+      jsonpath:
+        $.core.body.props.overrideClientSettings: {regex: "${want}"}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

@@ -1,0 +1,21 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.breakout-rooms.redis-none
+target bbb-web
+
+== step 7: redis meeting:info:${room1}
+$.key "meeting:info:<sha1(?)>-<time>"
+$.ttl -2
+$.type "none"
+$.value null
+
+== step 8: redis meeting:breakout:${room1}
+$.key "meeting:breakout:<sha1(?)>-<time>"
+$.ttl -2
+$.type "none"
+$.value null
+
+== step 9: redis meeting:breakout:rooms:${intId}
+$.key "meeting:breakout:rooms:<sha1(meetingID)>-<time>"
+$.ttl -2
+$.type "none"
+$.value null

@@ -1,0 +1,9 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.plugins.load-failure-invalid-json
+target bbb-web
+
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.pluginProp
+$.core.body.props.pluginProp['${sinkUrl}/${uid}/fixtures/plugins/invalid.json'].loadFailureReason "Failed to parse manifest JSON from a plugin URL. For more information, see bbb-web"
+$.core.body.props.pluginProp['${sinkUrl}/${uid}/fixtures/plugins/invalid.json'].loadFailureSource "bbb-web"
+$.core.body.props.pluginProp['${sinkUrl}/${uid}/fixtures/plugins/invalid.json'].manifest.content {}
+$.core.body.props.pluginProp['${sinkUrl}/${uid}/fixtures/plugins/invalid.json'].manifest.url "${sinkUrl}/${uid}/fixtures/plugins/invalid.json"

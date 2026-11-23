@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A meeting that is neither recorded nor keeps its events gets no
+# meeting:info key: there is no recording to describe. The bus step waits
+# until akka-apps has the meeting, which bbb-web announces after writing
+# the key, if it writes one.
+id: create.redis.none
+title: create stores nothing in redis for a meeting that keeps no events
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus, redis]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Redis none, record: "false", meetingKeepEvents: "false", meta_Conform-Color: blue}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - redis: {key: "meeting:info:${intId}", within: 2s}
+    expect: {absent: true}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}
