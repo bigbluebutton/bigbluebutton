@@ -1,6 +1,9 @@
 package common
 
 import (
+	"sync"
+	"time"
+
 	"bbb-graphql-middleware/config"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -102,7 +105,56 @@ var (
 		},
 		[]string{"application"},
 	)
+	GqlMutationDuration = prometheus.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:    "gql_mutation_duration_milliseconds",
+			Help:    "Time for bbb-graphql-actions to accept a mutation sent by the client, successful mutations only",
+			Buckets: []float64{1, 2.5, 5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000},
+		},
+		// The parsed action name, which bbb-graphql-actions only accepts for its known actions;
+		// the client's operationName is free text
+		[]string{"action"},
+	)
+	GqlSubscriptionFirstData = prometheus.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:    "gql_subscription_first_data_milliseconds",
+			Help:    "Time from a new query or subscription reaching the middleware to its first result from Hasura, successful results only",
+			Buckets: []float64{10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000},
+		},
+		[]string{"type", "operationName"},
+	)
 )
+
+const maxHistogramOperationNames = 500
+
+var (
+	histogramOperationNamesMutex sync.Mutex
+	histogramOperationNames      = map[string]struct{}{}
+)
+
+// HistogramOperationName bounds the operationName label of the latency histograms, which the client
+// sets freely: names past the first maxHistogramOperationNames, or over 100 bytes, become "other".
+// ponytail: first come first served until restart; an allowlist of the client's operations is the upgrade
+func HistogramOperationName(name string) string {
+	if len(name) > 100 {
+		return "other"
+	}
+	histogramOperationNamesMutex.Lock()
+	defer histogramOperationNamesMutex.Unlock()
+	if _, ok := histogramOperationNames[name]; ok {
+		return name
+	}
+	if len(histogramOperationNames) >= maxHistogramOperationNames {
+		return "other"
+	}
+	histogramOperationNames[name] = struct{}{}
+	return name
+}
+
+// MillisecondsSince returns the elapsed time with sub-millisecond precision, for latency histograms.
+func MillisecondsSince(start time.Time) float64 {
+	return float64(time.Since(start).Microseconds()) / 1000
+}
 
 // RegisterMetrics registers the collectors with the default Prometheus registry.
 //
@@ -121,4 +173,6 @@ func RegisterMetrics() {
 		prometheus.MustRegister(GqlReceivedDataPayloadLength)
 	}
 	prometheus.MustRegister(ApplicationsLatency)
+	prometheus.MustRegister(GqlMutationDuration)
+	prometheus.MustRegister(GqlSubscriptionFirstData)
 }

@@ -89,6 +89,8 @@ RangeLoop:
 
 				if browserMessage.Type == "subscribe" {
 					queryId := browserMessage.ID
+					// Before the rate limiter, so time spent queued in a join burst is counted
+					receivedAt := time.Now()
 
 					// Rate limiter from config max_connection_queries_per_minute
 					ctxRateLimiter, cancelRateLimiter := context.WithTimeout(hc.Context, 30*time.Second)
@@ -259,6 +261,12 @@ RangeLoop:
 					}
 
 					browserConnection.ActiveSubscriptionsMutex.Lock()
+					// A query re-sent after a Hasura reconnection keeps its original start time,
+					// so the first-data histogram counts each query once
+					subscribedAt, firstDataObserved := receivedAt, false
+					if previous, exists := browserConnection.ActiveSubscriptions[queryId]; exists {
+						subscribedAt, firstDataObserved = previous.SubscribedAt, previous.FirstDataObserved
+					}
 					browserConnection.ActiveSubscriptions[queryId] = common.GraphQlSubscription{
 						Id:                         queryId,
 						Message:                    fromBrowserMessage,
@@ -271,6 +279,8 @@ RangeLoop:
 						Type:                       messageType,
 						LastReceivedDataChecksum:   lastReceivedDataChecksum,
 						LastReceivedData:           lastReceivedData,
+						SubscribedAt:               subscribedAt,
+						FirstDataObserved:          firstDataObserved,
 					}
 					// hc.BrowserConn.Logger.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
 					browserConnection.ActiveSubscriptionsMutex.Unlock()
