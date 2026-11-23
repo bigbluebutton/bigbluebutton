@@ -1,4 +1,5 @@
 import { expect, Page as PlaywrightPage, Request, WebSocketRoute } from '@playwright/test';
+import { readFileSync } from 'fs';
 import path from 'path';
 
 import {
@@ -27,6 +28,9 @@ const successText = (count: number, position: number) =>
 const failedText = (filename: string) => `${filename}: ${e.insertPagesFailedLabel}`;
 
 type FileToInsert = string | GeneratedFile;
+
+// The event the plugin SDK dispatches for presentation.insertPages (PresentationCommandsEnum.INSERT_PAGES).
+const PLUGIN_INSERT_PAGES_COMMAND = 'PRESENTATION_INSERT_PAGES_COMMAND';
 
 interface HeldUpload {
   requests: Request[];
@@ -1075,5 +1079,126 @@ export class InsertPages extends MultiUsers {
       this.modPage.page.locator(e.ariaPoliteAlert),
       'should alert the screen reader that the slide content changed',
     ).toHaveText(`${e.presentationChangedSlideLabel} 2`, { timeout: ELEMENT_WAIT_LONGER_TIME });
+  }
+
+  // ---------- Ac-C 1 and 2: the plugin command presentation.insertPages ----------
+
+  // Sends the plugin command the way the plugin SDK does: a CustomEvent on the window of the page.
+  private static async sendInsertCommands(testPage: Page, commands: { position: number; file?: string }[]) {
+    const details = commands.map(({ position, file }) =>
+      file
+        ? {
+            position,
+            content: { base64: readFileSync(path.join(__dirname, `../core/media/${file}`)).toString('base64') },
+            mimeType: 'application/pdf',
+            filename: file,
+          }
+        : { position, content: null },
+    );
+    await testPage.page.evaluate(
+      ([eventName, list]) => {
+        list.forEach((detail) => window.dispatchEvent(new CustomEvent(eventName, { detail })));
+      },
+      [PLUGIN_INSERT_PAGES_COMMAND, details] as const,
+    );
+  }
+
+  // From slide 2, three commands sent in a row, without waiting: the 3 pages of a PDF at position 3, a blank
+  // page at position 3 and a blank page at position 0. The blank page of position 3 comes right after the
+  // pages of the PDF, a new page 1 is added, the presenter stays on the same page and no alert fires.
+  async pluginCommandsInARow() {
+    await InsertPages.waitForPresentation(this.modPage);
+    const total = await InsertPages.totalSlides(this.modPage);
+    const deck = await InsertPages.slidePaths(this.modPage, 1, 3);
+    await InsertPages.goToSlide(this.modPage, 2);
+    // the chat message and each slide change leave an alert for 15 s
+    await InsertPages.waitForEmptyAlert(this.modPage, 5);
+    await InsertPages.installProbe(this.modPage);
+    const since = await InsertPages.now(this.modPage);
+
+    await InsertPages.sendInsertCommands(this.modPage, [
+      { position: 3, file: e.insertThreePagesFileName },
+      { position: 3 },
+      { position: 0 },
+    ]);
+
+    await InsertPages.expectTotalSlides(this.modPage, total + 5, 'should insert the 3 pages and the 2 blank pages');
+    await InsertPages.nextRender(this.modPage);
+    await InsertPages.nextRender(this.modPage);
+    expect(
+      (await InsertPages.probeMarks(this.modPage, 'alert', since)).filter((mark) => mark.value),
+      'should fire no screen reader alert',
+    ).toEqual([]);
+    await expect(this.modPage.page.locator(e.ariaPoliteAlert), 'the alert should stay empty').toHaveText('');
+    const shown = (await InsertPages.probeMarks(this.modPage, 'slide', since)).map((mark) => mark.value);
+    expect(
+      shown.filter((value) => value && value !== deck[1]),
+      'the presenter should not change page',
+    ).toEqual([]);
+    await InsertPages.expectCurrentSlide(this.modPage, 3, 'the current page should move from 2 to 3');
+    expect(await InsertPages.slidePath(this.modPage), 'the presenter should stay on the same page').toBe(deck[1]);
+
+    const after = await InsertPages.slidePaths(this.modPage, 1, 8);
+    expect(deck, 'slide 1 should be a new page').not.toContain(after[0]);
+    expect(after.slice(1, 3), 'the old slides 1 and 2 should move to 2 and 3').toEqual(deck.slice(0, 2));
+    const inserted = [
+      { width: 1024, height: 768 },
+      { width: 1280, height: 720 },
+      { width: 1024, height: 768 },
+    ];
+    for (const [index, size] of inserted.entries()) {
+      await InsertPages.goToSlide(this.modPage, index + 4);
+      expect(
+        await InsertPages.slideSize(this.modPage),
+        `slide ${index + 4} should be page ${index + 1} of the file`,
+      ).toEqual(size);
+    }
+    expect(deck, 'slide 7 should be a new page').not.toContain(after[6]);
+    expect(new Set(after.slice(0, 7)).size, 'slides 1 to 7 should be seven different pages').toBe(7);
+    expect(after[7], 'the old slide 3 should come after the blank page of position 3').toBe(deck[2]);
+    this.expectNoPageErrors();
+  }
+
+  // Two commands with a PDF, sent without waiting, with the upload POSTs held: both POSTs are pending at the
+  // same time, and once released the pages of the first command come before those of the second.
+  async pluginCommandsUploadInParallel() {
+    await InsertPages.waitForPresentation(this.modPage);
+    const total = await InsertPages.totalSlides(this.modPage);
+    const deck = await InsertPages.slidePaths(this.modPage, 1, 2);
+    await InsertPages.goToSlide(this.modPage, 1);
+    const held = await InsertPages.holdUploadPost(this.modPage);
+
+    await InsertPages.sendInsertCommands(this.modPage, [
+      { position: 2, file: e.insertThreePagesFileName },
+      { position: 2, file: e.insertSquareFileName },
+    ]);
+    await expect
+      .poll(() => held.requests.length, {
+        message: 'should send the second upload POST while the first one is still pending',
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      })
+      .toBe(2);
+    held.release();
+
+    await InsertPages.expectTotalSlides(this.modPage, total + 5, 'should insert the pages of both files');
+    await InsertPages.expectCurrentSlide(this.modPage, 1, 'the presenter should stay on slide 1');
+    const after = await InsertPages.slidePaths(this.modPage, 1, 7);
+    expect(after[0], 'slide 1 should stay in place').toBe(deck[0]);
+    expect(after[6], 'the old slide 2 should come after the inserted pages').toBe(deck[1]);
+    const expected = [
+      { width: 1024, height: 768 },
+      { width: 1280, height: 720 },
+      { width: 1024, height: 768 },
+      { width: 600, height: 600 },
+      { width: 600, height: 600 },
+    ];
+    for (const [index, size] of expected.entries()) {
+      await InsertPages.goToSlide(this.modPage, index + 2);
+      expect(
+        await InsertPages.slideSize(this.modPage),
+        `slide ${index + 2} should be ${index < 3 ? `page ${index + 1} of the first file` : 'a page of the second file'}`,
+      ).toEqual(size);
+    }
+    this.expectNoPageErrors();
   }
 }
