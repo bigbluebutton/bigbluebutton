@@ -282,7 +282,16 @@ module BigBlueButton
       recOverrideProps = BigBlueButton.load_yaml(filepathRecOverride, fallback: {})
       @props = @props.merge(recOverrideProps)
     end
+    # Environment variables win over both files
+    @props['redis_host'] = ENV['REDIS_HOST'] if env_set?('REDIS_HOST')
+    @props['redis_port'] = Integer(ENV['REDIS_PORT']) if env_set?('REDIS_PORT')
+    @props['playback_host'] = ENV['PLAYBACK_HOST'] if env_set?('PLAYBACK_HOST')
+    @props['bn_notes_endpoint'] = ENV['BN_NOTES_ENDPOINT'] if env_set?('BN_NOTES_ENDPOINT')
     @props
+  end
+
+  def self.env_set?(name)
+    !ENV.fetch(name, '').empty?
   end
 
   # Reads a Java .properties file into a Hash with symbol keys.
@@ -314,8 +323,11 @@ module BigBlueButton
     props
   end
 
-  # The API's shared secret, which signs the callbacks.
+  # The API's shared secret, which signs the callbacks. SHARED_SECRET wins over
+  # bbb-web's properties.
   def self.shared_secret
+    return ENV['SHARED_SECRET'] if env_set?('SHARED_SECRET')
+
     BigBlueButton.read_bbb_web_props[:securitySalt]
   end
 
