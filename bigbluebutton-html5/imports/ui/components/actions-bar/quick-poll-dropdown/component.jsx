@@ -187,7 +187,9 @@ const QuickPollDropdown = (props) => {
 
   const hasTF = safeMatch(trueFalsePatt, content, false);
 
-  const pollRegex = /(?:^|\s{2,})(?:[1-9]|1[0-9]|[A-Sa-s])[.)]\s*.*/gm;
+  // (?!\d): a label's delimiter is never followed by a digit, so dates like
+  // "13.11.25" in a slide footer are not taken as an option labelled 13.
+  const pollRegex = /(?:^|\s{2,})(?:[1-9]|1[0-9]|[A-Sa-s])[.)](?!\d)\s*.*/gm;
   let optionsPoll = safeMatch(pollRegex, content, []);
 
   const optionsWithLabels = [];
