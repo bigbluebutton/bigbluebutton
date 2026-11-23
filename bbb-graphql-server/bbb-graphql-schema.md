@@ -347,6 +347,7 @@ Permission: Restricted to presenters and moderators
 - `pageId`
 - `presentationId`
 - `speakerNotes`
+- `speakerNotesJson`
 
 ## Type: pres_page_curr
 ### Fields:

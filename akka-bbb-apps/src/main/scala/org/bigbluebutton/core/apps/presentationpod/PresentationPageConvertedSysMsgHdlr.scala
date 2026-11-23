@@ -58,6 +58,7 @@ trait PresentationPageConvertedSysMsgHdlr {
       content = msg.body.page.content,
       // Jackson leaves the field null when an older bbb-web omits it
       speakerNotes = Option(msg.body.page.speakerNotes).getOrElse(""),
+      speakerNotesJson = Option(msg.body.page.speakerNotesJson).getOrElse(""),
       current = msg.body.page.current,
       width = msg.body.page.width,
       height = msg.body.page.height,

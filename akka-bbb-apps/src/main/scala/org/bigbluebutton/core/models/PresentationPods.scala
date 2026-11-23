@@ -35,7 +35,8 @@ case class PresentationPage(
     infiniteWhiteboard: Boolean             = false,
     fitToWidth:         Boolean             = false,
     pageToken:          String              = "",
-    speakerNotes:       String              = ""
+    speakerNotes:       String              = "",
+    speakerNotesJson:   String              = ""
 )
 
 object PresentationInPod {

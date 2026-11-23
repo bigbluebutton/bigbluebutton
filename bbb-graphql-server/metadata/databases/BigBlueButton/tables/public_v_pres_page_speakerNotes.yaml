@@ -15,6 +15,7 @@ select_permissions:
         - pageId
         - presentationId
         - speakerNotes
+        - speakerNotesJson
       filter:
         _or:
           - meetingId:

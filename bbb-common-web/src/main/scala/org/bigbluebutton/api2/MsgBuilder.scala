@@ -4,6 +4,7 @@ import org.bigbluebutton.api.messaging.converters.messages._
 import org.bigbluebutton.api.messaging.messages.{ ChatMessageFromApi, RegisterUserSessionToken }
 import org.bigbluebutton.api.service.ServiceUtils
 import org.bigbluebutton.api2.meeting.RegisterUser
+import org.bigbluebutton.api2.util.SpeakerNotesJsonReader
 import org.bigbluebutton.common2.domain.{ DefaultProps, PageVO, PresentationPageConvertedVO, PresentationVO }
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.presentation.messages._
@@ -129,6 +130,9 @@ object MsgBuilder {
 
     val content = readPageTextFile(presParentPath + "/textfiles/slide-" + page.toString + ".txt")
     val speakerNotes = readPageTextFile(presParentPath + "/speakernotes/slide-" + page.toString + ".txt")
+    val speakerNotesJson = SpeakerNotesJsonReader.readValidJson(
+      Paths.get(presParentPath, "speakernotes", s"slide-$page.json")
+    ).getOrElse("")
 
     PresentationPageConvertedVO(
       id = s"$presId/$page",
@@ -136,6 +140,7 @@ object MsgBuilder {
       urls = urls,
       content = content,
       speakerNotes = speakerNotes,
+      speakerNotesJson = speakerNotesJson,
       current = page == 1,
       width = width,
       height = height,
