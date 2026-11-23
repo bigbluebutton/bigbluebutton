@@ -6,7 +6,9 @@ set -eu
 ca=/etc/bigbluebutton/conform/certs/ca.crt
 if [ -f "$ca" ]; then
 	cp "$ca" /usr/local/share/ca-certificates/bbb-conform-ca.crt
-	update-ca-certificates >/dev/null
+	# Its Java keystore hook runs java, as root: without the coverage agent
+	# compose.yaml may pass in, whose data file bbb-web must own.
+	JAVA_TOOL_OPTIONS='' update-ca-certificates >/dev/null
 fi
 set -a
 . /etc/default/bbb-web

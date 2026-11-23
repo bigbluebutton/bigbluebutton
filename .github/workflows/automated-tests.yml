@@ -289,11 +289,13 @@ jobs:
           ls -l env/.state/debs
       - name: Check the package files Tier 1 mirrors
         run: env/tier1/check-copies.sh
+      # bbb-web with JaCoCo's agent, to measure what of it the suite reaches.
       - name: Bring up Tier 1
-        run: make -C env up
+        run: make -C env up COVERAGE=1
       # Every case Tier 1 can run but the slow ones: all but full-stack and
       # slow. A skipped case fails the run.
       - name: Run the suite
+        id: suite
         run: |
           vars=$(make -s -C env env)
           eval "$vars"
@@ -311,6 +313,26 @@ jobs:
           cd runner
           go run ./cmd/bbb-conform gap --results ../out/results.json --md ../out/gap.md --html ../out/gap.html
           cat ../out/gap.md >> "$GITHUB_STEP_SUMMARY"
+      # What of bbb-web the suite reached: JaCoCo's reports go in out/coverage
+      # with the other results, and the per-package table in the summary. A
+      # package below the baseline is a warning; a triage file that doesn't
+      # fit the report fails the step.
+      - name: Measure bbb-web's coverage
+        if: ${{ !cancelled() && steps.suite.outcome != 'skipped' }}
+        run: |
+          make -C env coverage
+          cd runner
+          set -- --report ../out/coverage/jacoco.xml --triage ../coverage/triage.yaml \
+            --md ../out/coverage/summary.md --untriaged ../out/coverage/untriaged.txt
+          # Where bbb-web's Groovy sources are, to name its closures.
+          for d in grails-app/controllers grails-app/services grails-app/init src/main/groovy; do
+            set -- "$@" --sources "../../../bigbluebutton-web/$d"
+          done
+          if [ -f ../coverage/baseline.json ]; then
+            set -- "$@" --baseline ../coverage/baseline.json
+          fi
+          go run ./cmd/bbb-conform coverage "$@"
+          cat ../out/coverage/summary.md >> "$GITHUB_STEP_SUMMARY"
       - name: Collect the services' logs
         if: failure()
         run: |

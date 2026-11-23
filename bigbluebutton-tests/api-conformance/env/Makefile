@@ -14,7 +14,16 @@ COMPOSE += --profile clamav
 SERVICES += clamav
 endif
 
-.PHONY: debs images render up down reset logs ps env profile check-copies
+# COVERAGE=1 starts bbb-web with JaCoCo's agent (up, reset), which adds what
+# it runs to the coverage data at every stop; make coverage writes the report.
+# A later up without it recreates bbb-web without the agent.
+ifeq ($(COVERAGE),1)
+export JAVA_TOOL_OPTIONS := -javaagent:/opt/jacoco/jacocoagent.jar=destfile=/var/bigbluebutton/coverage/bbb-web.exec,append=true,includes=org.bigbluebutton.*
+endif
+# Where make coverage writes the report.
+COVERAGE_OUT ?= $(abspath $(CURDIR)/../out/coverage)
+
+.PHONY: debs images render up down reset logs ps env profile check-copies coverage coverage-clean
 
 # Build the five debs the stack runs, from a snapshot of the tree.
 # PKGS=bbb-web rebuilds just that one.
@@ -67,6 +76,16 @@ profile:
 # since it last followed them.
 check-copies:
 	@$(TIER1)/check-copies.sh
+
+# Write bbb-web's coverage report (XML, CSV, HTML) to COVERAGE_OUT: stop
+# bbb-web so the agent writes what it has, report on the classes that ran,
+# and start bbb-web again. Under the profile switcher's lock.
+coverage:
+	mkdir -p $(STATE) && flock $(STATE)/profile.lock $(TIER1)/coverage.sh report $(COVERAGE_OUT)
+
+# Forget the coverage data, to measure from here on.
+coverage-clean:
+	mkdir -p $(STATE) && flock $(STATE)/profile.lock $(TIER1)/coverage.sh clean
 
 # The variables the runner reads, for eval.
 env:

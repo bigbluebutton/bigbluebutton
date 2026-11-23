@@ -1,0 +1,35 @@
+# What of bbb-web the suite measures, and why each method it doesn't reach
+# is left (README, "Coverage"). bbb-conform coverage reads this with the
+# report make -C env coverage writes.
+scope:
+  - org.bigbluebutton.web
+  - org.bigbluebutton.api
+  - org.bigbluebutton.api2
+  - org.bigbluebutton.presentation
+ignore:
+  # A Groovy closure's body is its doCall, which bbb-conform coverage names
+  # after the member the closure is in (create{}); its class's constructor
+  # and static initializer are the compiler's.
+  - classes: "org.bigbluebutton.**$_*"
+    methods: "<init>|<clinit>"
+    reason: a Groovy closure class's plumbing
+  # bbb-common-web's Scala code is in api2.
+  - classes: "org.bigbluebutton.api2.**"
+    methods: "copy|copy\\$default\\$\\d+|product(Arity|Element|ElementName|ElementNames|Iterator|Prefix)|canEqual|equals|hashCode|toString|unapply|tupled|curried|writeReplace"
+    reason: members the Scala compiler writes for each case class and its companion
+  - classes: "org.bigbluebutton.api2.**"
+    methods: "\\$anonfun\\$.*\\$adapted"
+    reason: the Scala compiler's boxing adapters for anonymous functions; the functions themselves count
+  - classes: "org.bigbluebutton.api2.**$$anonfun$*"
+    methods: "isDefinedAt"
+    reason: the Scala compiler's case test for a partial function such as an actor's receive; its body is applyOrElse
+  - classes: "org.bigbluebutton.api2.**Actor"
+    methods: "self|sender|context|supervisorStrategy|preStart|postStop|preRestart|postRestart|unhandled|around(Receive|PreStart|PostStop|PreRestart|PostRestart)|org\\$apache\\$pekko\\$.*"
+    reason: Pekko's Actor and ActorLogging members, which the Scala compiler copies into each actor
+  - classes: "org.bigbluebutton.web.controllers.*"
+    methods: "withCodec|methodMissing|propertyMissing|getTagLibraryLookup|setTagLibraryLookup|getTaglibNamespace"
+    reason: members Grails's controller traits add to each controller
+# One entry per method in scope the suite doesn't reach: case (with ref, the
+# case or ticket to cover it in), leftover (with ref, its PLAN §3 entry) or
+# excluded (with reason). Notes describe behaviour, never a weakness.
+methods: []
