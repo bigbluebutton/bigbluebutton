@@ -21,7 +21,6 @@ import { RoomModeSummaryView } from '/imports/ui/components/pre-flight/room-mode
 import SummaryStyled from '/imports/ui/components/pre-flight/room-mode/summary/styles';
 import { getRoomMode, RoomModeDefinition } from '/imports/ui/components/pre-flight/room-mode/modes';
 import { ROOM_MODE_APPLY_TIMEOUT, useRoomModeApplier } from '/imports/ui/components/pre-flight/room-mode/applier';
-import useRoomModeBase from '/imports/ui/components/pre-flight/room-mode/base';
 import {
   RoomModeEdits,
   RoomModeRoomValues,
@@ -155,8 +154,8 @@ export const isRoomModeChangePending = ({ pick, edits }: RoomModeChange, current
  * The room modes tab: the same cards and summary as the pre-flight, in two
  * steps as the design draws them. The cards pick a mode; a mode's gear opens
  * its settings, where edits are kept or dropped. Nothing reaches the room
- * until the window's footer applies the change, over the room as it was
- * created (the previous mode does not stay).
+ * until the window's footer applies the change: the new mode's settings,
+ * with what no mode sets left as the room has it.
  */
 const RoomModeTab: React.FC<RoomModeTabProps> = ({
   currentMode,
@@ -169,7 +168,6 @@ const RoomModeTab: React.FC<RoomModeTabProps> = ({
 }) => {
   const intl = useIntl();
   const { ready, apply } = useRoomModeApplier();
-  const { base } = useRoomModeBase();
   const { data: meeting } = useMeeting((m) => ({
     usersPolicies: { guestPolicy: m.usersPolicies?.guestPolicy },
   }));
@@ -186,16 +184,16 @@ const RoomModeTab: React.FC<RoomModeTabProps> = ({
   const lastEditedRef = useRef<RoomModeDefinition | null>(null);
 
   const recordingPolicies = meetingStaticData.getMeetingData()?.recordingPolicies;
-  // What a setting the mode leaves out falls back to: the room as created.
+  // What a setting the mode leaves out shows: the room's current value.
   const roomValues = useMemo<RoomModeRoomValues>(() => {
     const values: RoomModeRoomValues = {
       record: recordingPolicies?.record ?? false,
       autoStartRecording: recordingPolicies?.autoStartRecording ?? false,
     };
-    const guestPolicy = base?.usersPolicies.guestPolicy ?? meeting?.usersPolicies?.guestPolicy;
+    const guestPolicy = meeting?.usersPolicies?.guestPolicy;
     if (guestPolicy) values.guestPolicy = guestPolicy;
     return values;
-  }, [base, meeting?.usersPolicies?.guestPolicy, recordingPolicies]);
+  }, [meeting?.usersPolicies?.guestPolicy, recordingPolicies]);
 
   const selectedId = change.pick ?? currentMode;
 

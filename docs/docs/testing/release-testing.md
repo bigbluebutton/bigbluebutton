@@ -974,7 +974,7 @@ Same settings as the room mode panel. Nothing here reaches the room before "Star
 
 ### Room mode change during the session [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/pre-flight/roomModeSwitch.spec.ts)
 
-Moderators change the room mode from the settings window, in a "Room modes" tab. The new mode is applied over the room as it was created: the previous mode, and anything changed by hand since, do not stay. Same settings as the room mode panel.
+Moderators change the room mode from the settings window, in a "Room modes" tab. The new mode's settings are applied; a setting only the previous mode set goes back to how the session was created, and what no mode sets, such as the guest policy or a lock changed by hand, stays as it is. Same settings as the room mode panel.
 
 1. Create a session with `lockSettingsDisablePublicChat=true&lockSettingsLockOnJoin=false&lockSettingsPresenterPolicy=freeForAll&webcamsOnlyForModerator=true&muteOnStart=false&record=true`, join it as a moderator, pick "Class" and click "Start room". Open the settings window
 
@@ -993,7 +993,7 @@ Moderators change the room mode from the settings window, in a "Room modes" tab.
 4. Close the settings, set the guest policy to "Ask moderator" and lock private chat in "Lock viewers", then open the tab, pick "Meeting" and click "Change room mode"
 
     - The settings window should close and a notice say the room mode changed
-    - The room should have the "Meeting" settings, the guest policy back to the session's own, and private chat unlocked, as the session was created
+    - The room should have the "Meeting" settings, and keep the guest policy on "Ask moderator" and private chat locked, as they were changed
 
 5. Repeat step 4 opening the gear of "Meeting", switching "Whiteboard for everyone" on and clicking "Apply changes" before "Change room mode"
 
