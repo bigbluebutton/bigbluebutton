@@ -25,4 +25,11 @@ const config = JSON.parse(fs.readFileSync(DEFAULT_PATH, 'utf8'));
 const override = fs.existsSync(OVERRIDE_PATH) ?
     JSON.parse(fs.readFileSync(OVERRIDE_PATH, 'utf8')) : {};
 
-export default deepMerge(config, override);
+const settings = deepMerge(config, override);
+
+// These variables, if set, win over the default and the override file
+const env = process.env;
+if (env.BBB_WEB_URL) settings.bbbWebAPI = env.BBB_WEB_URL;
+if (env.REDIS_HOST) settings.redis.host = env.REDIS_HOST;
+
+export default settings;
