@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom/vitest';
+import { cleanup } from '@testing-library/react';
 import fs from 'fs';
 import path from 'path';
 import { afterEach, vi } from 'vitest';
@@ -78,6 +79,8 @@ window.requestAnimationFrame = (cb: FrameRequestCallback) => window.setTimeout((
 window.cancelAnimationFrame = (id: number) => window.clearTimeout(id);
 
 afterEach(() => {
+  // Testing Library auto-cleans only when the runner exposes globals, which this config does not.
+  cleanup();
   resetMeetingClientSettings();
   sessionStorage.clear();
   localStorage.clear();
