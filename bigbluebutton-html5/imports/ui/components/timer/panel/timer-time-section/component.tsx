@@ -145,6 +145,7 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
   const serverSeconds = timeInSeconds % 60;
 
   const [focusedUnit, setFocusedUnit] = useState<'hours' | 'minutes' | 'seconds' | null>(null);
+  const [focusedRunningValue, setFocusedRunningValue] = useState<number | null>(null);
   const [localHours, setLocalHours] = useState(0);
   const [localMinutes, setLocalMinutes] = useState(0);
   const [localSeconds, setLocalSeconds] = useState(0);
@@ -194,6 +195,8 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
   };
 
   const handleHoursBlur = () => {
+    setFocusedRunningValue(null);
+    if (running) return;
     syncTimeWithBackend(localHours, localMinutes, localSeconds);
   };
 
@@ -214,6 +217,8 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
   };
 
   const handleMinutesBlur = () => {
+    setFocusedRunningValue(null);
+    if (running) return;
     syncTimeWithBackend(localHours, localMinutes, localSeconds);
   };
 
@@ -237,7 +242,14 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
   };
 
   const handleSecondsBlur = () => {
+    setFocusedRunningValue(null);
+    if (running) return;
     syncTimeWithBackend(localHours, localMinutes, localSeconds);
+  };
+
+  const handleInputFocus = (unit: 'hours' | 'minutes' | 'seconds', value: number) => {
+    setFocusedUnit(unit);
+    setFocusedRunningValue(running ? value : null);
   };
 
   const changeTime = useCallback((amountInSeconds: number) => {
@@ -340,6 +352,12 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
   const displayedHours = running ? serverHours : localHours;
   const displayedMinutes = running ? serverMinutes : localMinutes;
   const displayedSeconds = running ? serverSeconds : localSeconds;
+  const exposedHours = focusedUnit === 'hours' && focusedRunningValue !== null
+    ? focusedRunningValue : displayedHours;
+  const exposedMinutes = focusedUnit === 'minutes' && focusedRunningValue !== null
+    ? focusedRunningValue : displayedMinutes;
+  const exposedSeconds = focusedUnit === 'seconds' && focusedRunningValue !== null
+    ? focusedRunningValue : displayedSeconds;
 
   return (
     <>
@@ -387,21 +405,21 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
           <Styled.TimeUnitContainer>
             <Styled.TimerInput
               aria-label={intl.formatMessage(intlMessages.hoursAriaLabel)}
-              aria-valuetext={String(displayedHours)}
+              aria-valuetext={String(exposedHours)}
+              aria-disabled={running}
               type="number"
               readOnly={running}
-              disabled={running}
-              value={String(displayedHours).padStart(2, '0')}
+              value={String(exposedHours).padStart(2, '0')}
               max={MAX_HOURS}
               min="0"
               step="1"
               onChange={handleHoursChange}
               onBlur={handleHoursBlur}
-              onFocus={() => setFocusedUnit('hours')}
+              onFocus={() => handleInputFocus('hours', displayedHours)}
               ref={hoursInputRef}
               data-test="timerHoursInput"
               isSelected={!running && focusedUnit === 'hours'}
-              tabIndex={running ? -1 : 0}
+              tabIndex={0}
             />
             <Styled.InputArrows disabled={running} aria-hidden={running} isSelected={!running && focusedUnit === 'hours'}>
               <Styled.InputArrowButton
@@ -436,21 +454,21 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
           <Styled.TimeUnitContainer>
             <Styled.TimerInput
               aria-label={intl.formatMessage(intlMessages.minutesAriaLabel)}
-              aria-valuetext={String(displayedMinutes)}
+              aria-valuetext={String(exposedMinutes)}
+              aria-disabled={running}
               type="number"
               readOnly={running}
-              disabled={running}
-              value={String(displayedMinutes).padStart(2, '0')}
+              value={String(exposedMinutes).padStart(2, '0')}
               max="59"
               min="0"
               step="1"
               onChange={handleMinutesChange}
               onBlur={handleMinutesBlur}
-              onFocus={() => setFocusedUnit('minutes')}
+              onFocus={() => handleInputFocus('minutes', displayedMinutes)}
               ref={minutesInputRef}
               data-test="timerMinutesInput"
               isSelected={!running && focusedUnit === 'minutes'}
-              tabIndex={running ? -1 : 0}
+              tabIndex={0}
             />
             <Styled.InputArrows disabled={running} aria-hidden={running} isSelected={!running && focusedUnit === 'minutes'}>
               <Styled.InputArrowButton
@@ -485,21 +503,21 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
           <Styled.TimeUnitContainer>
             <Styled.TimerInput
               aria-label={intl.formatMessage(intlMessages.secondsAriaLabel)}
-              aria-valuetext={String(displayedSeconds)}
+              aria-valuetext={String(exposedSeconds)}
+              aria-disabled={running}
               type="number"
               readOnly={running}
-              disabled={running}
-              value={String(displayedSeconds).padStart(2, '0')}
+              value={String(exposedSeconds).padStart(2, '0')}
               max="59"
               min="0"
               step="1"
               onChange={handleSecondsChange}
               onBlur={handleSecondsBlur}
-              onFocus={() => setFocusedUnit('seconds')}
+              onFocus={() => handleInputFocus('seconds', displayedSeconds)}
               ref={secondsInputRef}
               data-test="timerSecondsInput"
               isSelected={!running && focusedUnit === 'seconds'}
-              tabIndex={running ? -1 : 0}
+              tabIndex={0}
             />
             <Styled.InputArrows disabled={running} aria-hidden={running} isSelected={!running && focusedUnit === 'seconds'}>
               <Styled.InputArrowButton

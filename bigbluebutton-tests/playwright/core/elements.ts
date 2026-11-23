@@ -173,6 +173,7 @@ export const elements = {
   breakoutRemainingTime: 'div[data-test="breakoutRemainingTime"]',
   breakoutRoomTimerHoursInput: 'input[data-test="breakoutRoomTimerHoursInput"]',
   breakoutRoomTimerMinutesInput: 'input[data-test="breakoutRoomTimerMinutesInput"]',
+  breakoutRoomTimerSecondsInput: 'input[data-test="breakoutRoomTimerSecondsInput"]',
   increaseBreakoutTimeButton: 'button[data-test="increaseBreakoutTimeButton"]',
   decreaseBreakoutTimeButton: 'button[data-test="decreaseBreakoutTimeButton"]',
   roomName1: 'span[data-test="Room 1"]',

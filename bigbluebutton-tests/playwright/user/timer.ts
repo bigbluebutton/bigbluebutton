@@ -94,9 +94,10 @@ export class Timer extends MultiUsers {
     await this.clickOnTimerControl();
     await expect(timerIndicatorLocator).toHaveAccessibleName(/Pause timer, 10:[0-2][0-9] remaining/);
     await Timer.checkFocusedIndicatorNameIsStable(timerIndicatorLocator);
-    await this.modPage.hasElementDisabled(e.timerHoursInput, 'should disable the hours input while running');
-    await this.modPage.hasElementDisabled(e.timerMinutesInput, 'should disable the minutes input while running');
-    await this.modPage.hasElementDisabled(e.timerSecondsInput, 'should disable the seconds input while running');
+    await expect(this.modPage.page.locator(e.timerHoursInput)).toHaveAttribute('aria-disabled', 'true');
+    await expect(this.modPage.page.locator(e.timerMinutesInput)).toHaveAttribute('aria-disabled', 'true');
+    await expect(this.modPage.page.locator(e.timerSecondsInput)).toHaveAttribute('aria-disabled', 'true');
+    await Timer.checkFocusedInputValueIsStable(this.modPage.page.locator(e.timerSecondsInput));
     await expect
       .poll(() => this.timerInputsInSeconds(), { message: 'should count down on the timer inputs' })
       .toBeLessThan(630);
@@ -318,6 +319,20 @@ export class Timer extends MultiUsers {
     await locator.blur();
     await locator.focus();
     await expect(locator).not.toHaveAttribute('aria-label', focusedName ?? '');
+  }
+
+  static async checkFocusedInputValueIsStable(locator: Locator) {
+    await locator.focus();
+    const focusedValue = await locator.inputValue();
+    const focusedValueText = await locator.getAttribute('aria-valuetext');
+    await locator.page().waitForTimeout(1500);
+    await expect(locator).toHaveValue(focusedValue);
+    await expect(locator).toHaveAttribute('aria-valuetext', focusedValueText ?? '');
+
+    await locator.blur();
+    await locator.page().waitForTimeout(1100);
+    await locator.focus();
+    await expect(locator).not.toHaveValue(focusedValue);
   }
 
   // A stopped counter must not move. Reading it once right after the stop can

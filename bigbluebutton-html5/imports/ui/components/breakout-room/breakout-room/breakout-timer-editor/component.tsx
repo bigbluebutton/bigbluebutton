@@ -52,6 +52,7 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
   const [selectedTimerField, setSelectedTimerField] = useState<'h' | 'm' | 's'>('m');
   const [remainingTime, setRemainingTime] = useState<number>(0);
   const [editingTime, setEditingTime] = useState<number | null>(null);
+  const [focusedValue, setFocusedValue] = useState<{ field: 'h' | 'm' | 's'; value: number } | null>(null);
   const [breakoutRoomSetTime] = useMutation(BREAKOUT_ROOM_SET_TIME);
 
   useEffect(() => {
@@ -90,6 +91,9 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
   const minutes = Math.floor((displayedTime % 3600) / 60);
   const seconds = displayedTime % 60;
   const padNum = (n: number) => n.toString().padStart(2, '0');
+  const exposedHours = focusedValue?.field === 'h' ? focusedValue.value : hours;
+  const exposedMinutes = focusedValue?.field === 'm' ? focusedValue.value : minutes;
+  const exposedSeconds = focusedValue?.field === 's' ? focusedValue.value : seconds;
 
   const commitTimeChange = useCallback((newTotalSeconds: number) => {
     const clamped = Math.max(60, newTotalSeconds);
@@ -131,14 +135,16 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
             type="number"
             min={0}
             max={23}
-            value={padNum(hours)}
+            value={padNum(exposedHours)}
             $selected={selectedTimerField === 'h'}
             onClick={() => setSelectedTimerField('h')}
+            onFocus={() => setFocusedValue({ field: 'h', value: hours })}
+            onBlur={() => setFocusedValue(null)}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleTimerInputChange('h', Number(e.target.value));
             }}
             aria-label={intl.formatMessage(intlMessages.timerHours)}
-            aria-valuetext={String(hours)}
+            aria-valuetext={String(exposedHours)}
             data-test="breakoutRoomTimerHoursInput"
           />
           <Styled.InputArrows $selected={selectedTimerField === 'h'}>
@@ -164,14 +170,16 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
             type="number"
             min={0}
             max={59}
-            value={padNum(minutes)}
+            value={padNum(exposedMinutes)}
             $selected={selectedTimerField === 'm'}
             onClick={() => setSelectedTimerField('m')}
+            onFocus={() => setFocusedValue({ field: 'm', value: minutes })}
+            onBlur={() => setFocusedValue(null)}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleTimerInputChange('m', Number(e.target.value));
             }}
             aria-label={intl.formatMessage(intlMessages.timerMinutes)}
-            aria-valuetext={String(minutes)}
+            aria-valuetext={String(exposedMinutes)}
             data-test="breakoutRoomTimerMinutesInput"
           />
           <Styled.InputArrows $selected={selectedTimerField === 'm'}>
@@ -199,14 +207,16 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
             type="number"
             min={0}
             max={59}
-            value={padNum(seconds)}
+            value={padNum(exposedSeconds)}
             $selected={selectedTimerField === 's'}
             onClick={() => setSelectedTimerField('s')}
+            onFocus={() => setFocusedValue({ field: 's', value: seconds })}
+            onBlur={() => setFocusedValue(null)}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleTimerInputChange('s', Number(e.target.value));
             }}
             aria-label={intl.formatMessage(intlMessages.timerSeconds)}
-            aria-valuetext={String(seconds)}
+            aria-valuetext={String(exposedSeconds)}
             data-test="breakoutRoomTimerSecondsInput"
           />
           <Styled.InputArrows $selected={selectedTimerField === 's'}>
