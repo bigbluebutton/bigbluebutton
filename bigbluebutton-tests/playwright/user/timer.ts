@@ -95,6 +95,10 @@ export class Timer extends MultiUsers {
 
     // Arrow-button selection is visual state, not input focus. Starting during
     // its one-second sync interval must leave every input tracking the countdown.
+    // Pin the page clock so the selection timeout cannot clear before the
+    // subscription update reaches the input.
+    await this.modPage.page.clock.install();
+    await this.modPage.page.clock.pauseAt(new Date());
     const secondsInput = this.modPage.page.locator(e.timerSecondsInput);
     await this.modPage.page.getByRole('button', { name: 'Decrease seconds by 1' }).click();
     await this.modPage.page.locator(e.startStopTimer).evaluate((button: HTMLButtonElement) => button.click());
@@ -118,6 +122,8 @@ export class Timer extends MultiUsers {
       Math.abs((await this.timerInputsInSeconds()) - (await timeInSeconds(timerIndicatorLocator))),
       'should keep the unfocused timer inputs synchronized with the live countdown',
     ).toBeLessThanOrEqual(1);
+    await this.modPage.page.clock.fastForward(1000);
+    await this.modPage.page.clock.resume();
     await this.modPage.page.locator(e.startStopTimer).evaluate((button: HTMLButtonElement) => button.click());
     await expect(this.modPage.page.locator(e.startStopTimer)).toHaveText('Start');
     await this.modPage.waitAndClick(e.timerPreset10min);
