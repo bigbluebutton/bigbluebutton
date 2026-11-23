@@ -388,7 +388,7 @@ See the [Server customization page](/administration/customize) for things you ca
 
 ### bbb-libreoffice-docker cannot pull the LibreOffice image
 
-The package `bbb-libreoffice-docker` runs LibreOffice from the Docker image `bigbluebutton/bbb-libreoffice`, pinned to the tag listed in `/usr/share/bbb-libreoffice/docker-image`. When the package is installed, it pulls that image from Docker Hub. On a server that cannot reach Docker Hub (for example behind a firewall or on a network with a local name server) the installation fails with an error such as
+The package `bbb-libreoffice-docker` runs LibreOffice from the Docker image `bigbluebutton/bbb-libreoffice`, pinned to the tag listed in `/usr/share/bbb-libreoffice/docker-image`. When the package is installed, it pulls that image from Docker Hub. On a server that cannot reach Docker Hub (for example behind a firewall, or when its name server cannot resolve `registry-1.docker.io`) the installation fails with an error such as
 
 ```
 # Pulling the bbb-libreoffice docker image bigbluebutton/bbb-libreoffice:26.8.3.1-20261120-120000
@@ -420,6 +420,8 @@ Document conversion runs the image straight from this reference, so Docker pulls
 ```bash
 sudo docker pull "$(cat /usr/share/bbb-libreoffice/docker-image)"
 ```
+
+A server without access to Docker Hub cannot pull the image back, and Office documents fail to convert until it is loaded again. Keep `bbb-libreoffice.tar` from the steps above and run `sudo docker load -i bbb-libreoffice.tar` after a prune.
 
 ## Feedback and reporting bugs
 
