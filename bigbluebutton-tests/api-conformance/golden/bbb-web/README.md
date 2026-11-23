@@ -82,6 +82,11 @@ there compares like with like.
   day (3fc5b07e3d), and `getJoinUrl.signed-url.parameters` was recorded
   again for its new check step; its answers didn't change.
 
+  On 2026-11-23 the breakout room cases (`getMeetingInfo/`, `getMeetings/`
+  and `end/` breakout-rooms) were recorded from a stack running packages
+  built from v4.0.x-develop of that day (aca03d0651; the three commits
+  since, to the HTML5 client and bbb-libreoffice, change none of them).
+
 ## Reviewing
 
 A recording becomes an expectation only after a person reviews it against the
