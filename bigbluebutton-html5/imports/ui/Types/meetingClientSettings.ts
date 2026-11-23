@@ -156,7 +156,6 @@ export interface CooldownSmartTrigger extends SmartTrigger {
 }
 
 export interface TalkingWhileMutedSmartTrigger extends SmartTrigger {
-  interval: number
   speechThresholdDb: number
   hideAfterMs: number
 }
@@ -686,6 +685,7 @@ export interface Audio2 {
   defaultListenOnlyBridge: string
   retryThroughRelay: boolean
   allowAudioJoinCancel: boolean
+  micActivitySampleInterval: number
   audioWasmProcessing?: AudioWasmProcessingSettings
   // See: https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
   microphoneConstraints?: Record<string, unknown>

@@ -96,7 +96,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         enabled: true,
         talkingWhileMuted: {
           enabled: true,
-          interval: 200,
           speechThresholdDb: -50,
           hideAfterMs: 4000,
         },
@@ -663,6 +662,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         defaultListenOnlyBridge: 'livekit',
         retryThroughRelay: false,
         allowAudioJoinCancel: true,
+        micActivitySampleInterval: 200,
         audioWasmProcessing: {
           enabled: false,
           provider: 'bbba',

@@ -175,8 +175,6 @@ public:
       # Clicking it turns the alert off until the user unmutes.
       talkingWhileMuted:
         enabled: true
-        # How often (ms) the audio energy is checked.
-        interval: 200
         # Audio energy threshold (dB) to detect speech.
         speechThresholdDb: -50
         # How long (ms) the alert stays after the user stops speaking.
@@ -994,6 +992,10 @@ public:
       # by closing the audio modal while audio is being negotiated.
       # If false, the audio modal will be locked until the process finishes.
       allowAudioJoinCancel: true
+      # micActivitySampleInterval: how often (ms) the microphone level is sampled
+      # for features that listen to it (e.g. smart triggers). One sampler is
+      # shared by all of them.
+      micActivitySampleInterval: 200
       # audioWasmProcessing: audio input processing through WASM
       #   enabled: whether advanced/WASM processing should be exposed to users.
       #            If false, browser's built-in audio processing will be used instead.

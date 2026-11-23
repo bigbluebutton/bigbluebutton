@@ -59,17 +59,6 @@ export interface LocalAudioState {
   isConnected: boolean;
 }
 
-export interface MicActivityOptions {
-  interval: number;
-  threshold: number;
-  enabled: boolean;
-}
-
-export interface MicActivity {
-  isSpeaking: boolean;
-  lastSignalAt: { readonly current: number };
-}
-
 export interface RuleDefinition {
   id: RuleId;
   presentation: HintPresentation;
