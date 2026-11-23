@@ -77,6 +77,11 @@ test.describe.parallel('Accessible control names', { tag: '@ci' }, () => {
     await blockTypeSelect.focus();
     await modPage.page.keyboard.press('Enter');
     await expect(menu).toBeVisible();
+    await expect
+      .poll(() => menu.evaluate((element) => element.contains(document.activeElement)), {
+        message: 'desktop menu should move focus inside the dropdown',
+      })
+      .toBe(true);
     await modPage.page.keyboard.press('Shift+Tab');
     await expect(menu).toBeHidden();
     await expect
