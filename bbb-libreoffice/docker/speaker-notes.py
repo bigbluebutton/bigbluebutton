@@ -39,8 +39,10 @@ NUMBERING_CHAR_SPECIAL = 6
 NUMBERED_TYPES = NUMBERING_UPPER_LETTERS + NUMBERING_LOWER_LETTERS + (
     NUMBERING_UPPER_ROMAN, NUMBERING_LOWER_ROMAN, NUMBERING_ARABIC)
 FONT_WEIGHT_NORMAL = 100.0
-# FontUnderline / FontStrikeout values that mean "no line"
-NO_LINE_VALUES = (0, 3, 18)
+# com.sun.star.awt.FontUnderline values that mean "no underline": NONE=0, DONTKNOW=4
+NO_UNDERLINE_VALUES = (0, 4)
+# com.sun.star.awt.FontStrikeout values that mean "no strikeout": NONE=0, DONTKNOW=3
+NO_STRIKEOUT_VALUES = (0, 3)
 ROMAN_NUMERALS = ((1000, "M"), (900, "CM"), (500, "D"), (400, "CD"), (100, "C"), (90, "XC"),
                   (50, "L"), (40, "XL"), (10, "X"), (9, "IX"), (5, "V"), (4, "IV"), (1, "I"))
 PDF_FILTERS = (
@@ -114,9 +116,9 @@ def run_value(portion):
     posture = property_or(portion, "CharPosture", None)
     if posture is not None and posture.value != "NONE":
         run["italic"] = True
-    if property_or(portion, "CharUnderline", 0) not in NO_LINE_VALUES:
+    if property_or(portion, "CharUnderline", 0) not in NO_UNDERLINE_VALUES:
         run["underline"] = True
-    if property_or(portion, "CharStrikeout", 0) not in NO_LINE_VALUES:
+    if property_or(portion, "CharStrikeout", 0) not in NO_STRIKEOUT_VALUES:
         run["strikethrough"] = True
     escapement = property_or(portion, "CharEscapement", 0)
     if escapement > 0:
