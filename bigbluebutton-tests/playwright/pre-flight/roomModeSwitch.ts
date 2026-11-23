@@ -158,9 +158,9 @@ export class RoomModeSwitch extends RoomModePanel {
     ).toHaveCount(0);
   }
 
-  // Switching applies the new mode over the room as it was created: the previous
-  // mode and what was changed by hand since are both dropped.
-  async switchesOverBaseConfiguration(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
+  // Switching applies the new mode's settings and leaves what no mode sets, such as
+  // the guest policy or a lock changed by hand, as the room has it.
+  async switchKeepsWhatNoModeSets(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
     await this.startsClass(page, options);
     expect((await setGuestPolicy(this.modPage, 'ASK_MODERATOR')).errors, 'should accept the guest policy').toEqual([]);
     expect((await lockPrivateChat(this.modPage)).errors, 'should accept the private chat lock').toEqual([]);
@@ -174,13 +174,15 @@ export class RoomModeSwitch extends RoomModePanel {
     }).toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
 
     await switchToMeeting(this.modPage);
-    // The guest policy goes back to the room's own, and the meeting preset over the
-    // room as created, not over the class settings.
-    await expectRoomSettings(this.modPage, MEETING_APPLIED, 'should apply the meeting preset over the room as created');
+    await expectRoomSettings(
+      this.modPage,
+      { ...MEETING_APPLIED, guestPolicy: 'ASK_MODERATOR' },
+      'should apply the meeting preset and keep the guest policy changed by hand',
+    );
     expect(
       (await readLockSettings(this.modPage)).disablePrivateChat,
-      'should drop the private chat lock set by hand: the room was created without it',
-    ).toBe(false);
+      'should keep the private chat lock set by hand: no mode sets it',
+    ).toBe(true);
   }
 
   // A control edited in the mode's summary wins over the preset.
@@ -293,7 +295,7 @@ export class RoomModeSwitch extends RoomModePanel {
   }
 
   // A pick the pre-flight skipped because another moderator was in is handed to the
-  // Room modes tab, pre-selected, and applies from there over the room as created.
+  // Room modes tab, pre-selected, and applies from there.
   async picksUpSkippedPick(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
     await this.initModPageWithPanel(page, { createParameter: CLASS_CREATE_PARAMETER, ...options });
     await hasPanel(this.modPage);
@@ -312,7 +314,7 @@ export class RoomModeSwitch extends RoomModePanel {
     ).toHaveAttribute('aria-checked', 'true');
     await this.modPage.waitAndClick(e.settingsRoomModeChangeButton);
     await expectRoomMode(this.modPage, 'class', 'should record the class mode from the tab');
-    await expectRoomSettings(this.modPage, CLASS_APPLIED, 'should apply the class preset over the room as created');
+    await expectRoomSettings(this.modPage, CLASS_APPLIED, 'should apply the class preset from the tab');
   }
 
   // A viewer already in the room follows the switch: Meeting takes the whiteboard back.

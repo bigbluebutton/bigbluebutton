@@ -13,9 +13,9 @@ test.describe.parallel('Room mode change during the session', { tag: '@ci' }, ()
     await roomMode.noTabWhenDisabled(page, { testInfo });
   });
 
-  test('Switching applies the new mode over the room as created', async ({ browser, context, page }, testInfo) => {
+  test('Switching applies the new mode and keeps what no mode sets', async ({ browser, context, page }, testInfo) => {
     const roomMode = new RoomModeSwitch(browser, context);
-    await roomMode.switchesOverBaseConfiguration(page, { testInfo });
+    await roomMode.switchKeepsWhatNoModeSets(page, { testInfo });
   });
 
   test('An edited control wins over the new mode', async ({ browser, context, page }, testInfo) => {
