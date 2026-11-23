@@ -29,7 +29,7 @@ playback_host: 127.0.0.1
 3. Stop the recording service:
 
    systemctl stop bbb-rap-starter
-   systemctl stop bbb-rap-resque-worker
+   systemctl stop bbb-rap-resque-worker bbb-rap-archive-worker
 
 4. Create a recording using BigBlueButton. After logging out, it should have created a <meeting-id>.done file in the
    /var/bigbluebutton/recording/status/recorded directory. Make note of this meeting-id as we use that to tell the script
@@ -129,4 +129,4 @@ playback_host: 127.0.0.1
 9. Deploy your changes with deploy.sh and restarting the recording-related services:
    
    systemctl restart bbb-rap-starter
-   systemctl restart bbb-rap-resque-worker
+   systemctl restart bbb-rap-resque-worker bbb-rap-archive-worker
