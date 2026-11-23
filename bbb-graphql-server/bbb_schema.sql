@@ -49,7 +49,7 @@ create unlogged table "meeting" (
 	"endedReasonCode" varchar(200),
 	"endedBy" varchar(50),
 	"roomMode" varchar(32) default '',
-	-- The room as created, kept so a room mode can be applied over it.
+	-- The room as created, kept so a room mode switch can bring back what the previous mode set.
 	"roomBaseSettings" jsonb
 );
 ALTER TABLE "meeting" ADD COLUMN "createdAt" timestamp with time zone GENERATED ALWAYS AS (to_timestamp("createdTime"::double precision / 1000)) STORED;

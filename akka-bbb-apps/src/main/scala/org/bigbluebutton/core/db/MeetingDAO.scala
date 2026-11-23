@@ -115,10 +115,11 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
 }
 
 object MeetingDAO {
-  // The settings a room mode changes, as the room was created: a mode is applied
-  // over them. Shaped like the lockSettings, usersPolicies and voiceSettings the
-  // client already reads. webcamsOnlyForModerator is there for modes that leave
-  // the webcams as created; today every mode sets them.
+  // The settings a room mode changes, as the room was created: switching modes
+  // brings back what the previous mode set and the new one does not. Shaped
+  // like the lockSettings, usersPolicies and voiceSettings the client already
+  // reads. webcamsOnlyForModerator is there for modes that leave the webcams
+  // as created; today every mode sets them.
   def roomBaseSettings(meetingProps: DefaultProps): JsValue = {
     val lock = meetingProps.lockSettingsProps
     JsonUtils.mapToJson(Map(
