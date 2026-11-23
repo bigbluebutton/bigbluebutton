@@ -8,7 +8,7 @@ import {
   VIDEO_LOADING_WAIT_TIME,
 } from '../core/constants';
 import { elements as e } from '../core/elements';
-import { installClientSettingsOverrides, Page } from '../core/page';
+import { applyClientSettingsOverridesToContext, Page } from '../core/page';
 import { InitExtraPageOptionsProps } from '../user/multiusers';
 import { USER_JOIN_OPERATION } from './preFlight';
 import { ensureProbe, expectRoomMode, expectRoomModeStable, RoomMode } from './roomMode';
@@ -341,7 +341,7 @@ export class RoomModePanel extends RoomMode {
   // the only way they reach the tab the client opens for the room; the attendee
   // gets a context of its own, without them.
   async noPanelInBreakout(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
-    await page.context().addInitScript(installClientSettingsOverrides, ROOM_MODE_PANEL_SETTINGS_OVERRIDE);
+    await applyClientSettingsOverridesToContext(page.context(), ROOM_MODE_PANEL_SETTINGS_OVERRIDE);
     await page.context().addInitScript(watchForPreFlight);
     await this.initModPageWithPanel(page, { ...options, clientSettingsOverrides: undefined });
     await hasPanel(this.modPage);
