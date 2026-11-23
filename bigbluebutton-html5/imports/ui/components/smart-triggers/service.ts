@@ -5,6 +5,8 @@ import {
   Hint,
   RuleId,
   RuleState,
+  HandStillRaisedSignals,
+  HandStillRaisedStage,
   SmartTriggersState,
 } from './types';
 
@@ -81,4 +83,40 @@ export const resetRule = (ruleId: RuleId) => {
 
 export const requestAudioSettings = () => {
   audioSettingsRequest(Date.now());
+};
+
+const advanceHandStillRaisedStage = (
+  stage: HandStillRaisedStage,
+  { muted, talking }: HandStillRaisedSignals,
+): HandStillRaisedStage => {
+  switch (stage) {
+    case 'idle':
+      return 'raised';
+    case 'raised':
+      return muted ? 'raised' : 'unmuted';
+    case 'unmuted':
+      if (muted) return 'raised';
+      return talking ? 'spoke' : 'unmuted';
+    case 'spoke':
+      return muted ? 'done' : 'spoke';
+    default:
+      return stage;
+  }
+};
+
+// Raised hand → unmute → speak → mute. Runs to a fixed point so a hand
+// raised while already unmuted and talking moves through every stage at once.
+export const nextHandStillRaisedStage = (
+  stage: HandStillRaisedStage,
+  signals: HandStillRaisedSignals,
+): HandStillRaisedStage => {
+  if (!signals.raised) return 'idle';
+
+  let current = stage;
+  let next = advanceHandStillRaisedStage(current, signals);
+  while (next !== current) {
+    current = next;
+    next = advanceHandStillRaisedStage(current, signals);
+  }
+  return current;
 };

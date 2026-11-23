@@ -13,6 +13,8 @@ const useLocalAudioState = (): LocalAudioState => {
   const isListenOnly = useReactiveVar(AudioManager._isListenOnly.value) as boolean;
   // @ts-ignore - AudioManager is untyped JS
   const isEchoTest = useReactiveVar(AudioManager._isEchoTest.value) as boolean;
+  // @ts-ignore - AudioManager is untyped JS
+  const isTalking = useReactiveVar(AudioManager._isTalking.value) as boolean;
   const isConnected = useIsAudioConnected();
 
   return {
@@ -20,6 +22,7 @@ const useLocalAudioState = (): LocalAudioState => {
     isMuted,
     isListenOnly,
     isEchoTest,
+    isTalking,
     isConnected,
   };
 };

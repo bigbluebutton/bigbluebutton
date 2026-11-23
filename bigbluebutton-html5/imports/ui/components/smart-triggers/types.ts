@@ -56,7 +56,16 @@ export interface LocalAudioState {
   isMuted: boolean;
   isListenOnly: boolean;
   isEchoTest: boolean;
+  isTalking: boolean;
   isConnected: boolean;
+}
+
+export type HandStillRaisedStage = 'idle' | 'raised' | 'unmuted' | 'spoke' | 'done';
+
+export interface HandStillRaisedSignals {
+  raised: boolean;
+  muted: boolean;
+  talking: boolean;
 }
 
 export interface RuleDefinition {
