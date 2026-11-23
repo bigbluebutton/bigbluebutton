@@ -72,9 +72,10 @@ deployments use their official images.
   record-and-playback) holds the recorded media; `/var/log/bigbluebutton` the recording logs.
 - bbb-web converts office documents by calling `/usr/share/bbb-libreoffice-conversion/convert.sh`
   (`presOfficeConversionExec`); the deployment provides that script.
-- Shared-notes' PDF export calls a runner script (`commandExecution.runnerScript`). The default is
-  upstream's systemd wrapper, which needs systemd, so a deployment configures the runner in its
-  mounted `/etc/bigbluebutton/bbb-shared-notes-server.yml`.
+- Shared-notes' PDF export sends the HTML to `/run/bbb-shared-notes-conversion.sock`
+  (`commandExecution.conversionSocket`), which systemd units serve in a package install. The image
+  has a listener for it, `node bbb-shared-notes-conversion.js`; a deployment runs it as a second
+  container of the image, with the socket's directory shared between both.
 - bbb-graphql-middleware opens 8378 only once its Redis subscription is confirmed and exits when
   it loses it, so a deployment restarts it (restart policy).
 - record-and-playback runs the resque workers by default. The same image runs

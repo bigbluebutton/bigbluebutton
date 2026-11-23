@@ -83,7 +83,6 @@ Backup: `./data` and `.env`. PostgreSQL (a volume) holds only the state of runni
   ```
 
   A file is used as it is; `${…}` from `.env` is only filled in under `content:`.
-- Shared notes run the PDF converter through `commandExecution.runnerScript` in `bbb-shared-notes-server.yml`; the compose file sets it to `timeout`.
 - nginx uses the image's location files and upstreams, which use the default service names. The compose file mounts only its site (port 80 and haproxy's 8081) and `playback.nginx`, because `playback` runs only with the `recording` profile.
 - More Hasura instances: `docker compose up -d --scale graphql-server=2`, then `docker compose exec nginx nginx -s reload`. nginx balances them as on bare metal and looks up the instances only when it starts or reloads, so reload it again after scaling down.
 - Logs: `docker compose logs <service>`; the logs per recording are in the `recording-logs` volume. The compose file sets the `local` logging driver, which rotates the logs; it overrides the host's Docker default (`daemon.json`). Remove it from `x-bbb` to use that default.
@@ -93,6 +92,7 @@ Backup: `./data` and `.env`. PostgreSQL (a volume) holds only the state of runni
 - Media: LiveKit receives all media on one port, 7882/udp, instead of the range 16384-32768 a package install opens.
 - TURN: coturn relays only to LiveKit, inside the compose network, so its relay ports are not opened on the host.
 - There is no FreeSWITCH, so there is no dial-in.
+- The PDF export of the shared notes runs in the `shared-notes-conversion` service instead of the systemd units `bbb-shared-notes-conversion.socket` and `bbb-shared-notes-conversion@.service`: the same wkhtmltopdf command and 30 s limit, in a container without network that shares the socket with `shared-notes-server`.
 - The domain, the IP address and the secrets are set in `.env` instead of with `bbb-conf --setip` and `bbb-conf --setsecret`. There is no `bbb-conf` and no `apply-config.sh`.
 
 ## Common bbb-conf tasks

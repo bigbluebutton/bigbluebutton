@@ -53,6 +53,9 @@
   # shared-notes-server:
   #   image: localhost/bbb-shared-notes-server:dev
   #   pull_policy: never
+  # shared-notes-conversion: # the same image
+  #   image: localhost/bbb-shared-notes-server:dev
+  #   pull_policy: never
 
   # export-annotations:
   #   image: localhost/bbb-export-annotations:dev

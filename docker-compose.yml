@@ -259,9 +259,32 @@ services:
     configs:
       - source: bbb-shared-notes-server.yml
         target: /etc/bigbluebutton/bbb-shared-notes-server.yml
+    volumes:
+      - shared-notes-conversion:/run
     depends_on:
       init:
         condition: service_completed_successfully
+
+  # The PDF export of the shared notes, in place of the package's socket-activated
+  # bbb-shared-notes-conversion units: the image's listener runs the unit's wkhtmltopdf command
+  # per connection, on the socket in the volume shared with shared-notes-server
+  shared-notes-conversion:
+    <<: *bbb
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-shared-notes-server:${BBB_IMAGE_TAG}
+    command:
+      - node
+      - bbb-shared-notes-conversion.js
+    init: true
+    # the unit's isolation: no network, read-only system, a private /tmp
+    network_mode: none
+    read_only: true
+    tmpfs:
+      - /tmp
+    # the unit allows MemoryMax=640M per conversion; this is for the whole container, with up to
+    # 8 conversions at once
+    mem_limit: 1g
+    volumes:
+      - shared-notes-conversion:/run
 
   export-annotations:
     <<: *bbb
@@ -360,6 +383,12 @@ volumes:
   postgres:
   acme-challenge:
   haproxy-run:
+  # the conversion socket; a tmpfs owned by the notes image's user, bigbluebutton (998)
+  shared-notes-conversion:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+      o: uid=998,gid=998,mode=0700
 
 configs:
   # for the recording callbacks, which read the secret from this file
@@ -429,9 +458,6 @@ configs:
 
   bbb-shared-notes-server.yml:
     content: |
-      commandExecution:
-        # PDF export runs its converter through this command (upstream's default needs systemd)
-        runnerScript: timeout
       bbbWeb:
         host: web
       redis:
