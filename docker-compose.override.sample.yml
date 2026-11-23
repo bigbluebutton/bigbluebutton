@@ -1,0 +1,83 @@
+# Sample docker-compose.override.yml for development. Copy it to docker-compose.override.yml,
+# which compose reads next to docker-compose.yml, and uncomment "services:" and what you need.
+#
+# To run your own build of a component, build its image with bake, e.g. for bbb-web:
+#   BBB_IMAGE_REGISTRY=localhost BBB_IMAGE_TAG=dev docker buildx bake -f docker-bake.hcl --load --set '*.platform=linux/amd64' web
+# uncomment its service below, then run `docker compose up -d web`. The bake target is the
+# image name without "bbb-". pull_policy: never lets `docker compose pull` skip the local image.
+#
+# For the HTML5 client, docker/compose/dev/html5.yml runs the webpack dev server instead of an
+# image (see "Develop with Docker Compose" in the development guide). With COMPOSE_FILE set in
+# .env, compose reads this file only when COMPOSE_FILE lists it.
+
+# services:
+  # nginx:
+  #   image: localhost/bbb-nginx:dev
+  #   pull_policy: never
+
+  # apps-akka:
+  #   image: localhost/bbb-apps-akka:dev
+  #   pull_policy: never
+
+  # web:
+  #   image: localhost/bbb-web:dev
+  #   pull_policy: never
+  #   # with a certificate from a local CA: a Java truststore with that CA (development guide)
+  #   environment:
+  #     JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/local/cacerts
+  #   volumes:
+  #     - ./data/certs/cacerts:/etc/ssl/local/cacerts:ro
+
+  # html5-client:
+  #   image: localhost/bbb-html5-client:dev
+  #   pull_policy: never
+
+  # learning-dashboard:
+  #   image: localhost/bbb-learning-dashboard:dev
+  #   pull_policy: never
+
+  # init reads the database schema from the graphql-server and shared-notes-server images set
+  # by BBB_IMAGE_REGISTRY and BBB_IMAGE_TAG in .env, not from the ones below
+  # graphql-server:
+  #   image: localhost/bbb-graphql-server:dev
+  #   pull_policy: never
+
+  # graphql-actions:
+  #   image: localhost/bbb-graphql-actions:dev
+  #   pull_policy: never
+
+  # graphql-middleware:
+  #   image: localhost/bbb-graphql-middleware:dev
+  #   pull_policy: never
+
+  # shared-notes-server:
+  #   image: localhost/bbb-shared-notes-server:dev
+  #   pull_policy: never
+
+  # export-annotations:
+  #   image: localhost/bbb-export-annotations:dev
+  #   pull_policy: never
+
+  # webrtc-sfu:
+  #   image: localhost/bbb-webrtc-sfu:dev
+  #   pull_policy: never
+
+  # webrtc-recorder:
+  #   image: localhost/bbb-webrtc-recorder:dev
+  #   pull_policy: never
+
+  # bake target record-and-playback, used by four services
+  # recording-workers: &recording
+  #   image: localhost/bbb-record-and-playback:dev
+  #   pull_policy: never
+  # recording-starter: *recording
+  # recording-caption-inbox: *recording
+  # recording-cleanup: *recording
+
+  # playback:
+  #   image: localhost/bbb-playback:dev
+  #   pull_policy: never
+
+  # webhooks:
+  #   image: localhost/bbb-webhooks:dev
+  #   pull_policy: never
