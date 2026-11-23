@@ -95,7 +95,7 @@ export const JoiningRoomActions: React.FC<JoiningRoomActionsProps> = ({
   else if (hasFailed) joinButtonLabel = intlMessages.retryLabel;
 
   return (
-    <Styled.JoinButtonWrapper>
+    <Styled.ActionsWrapper>
       <BBButton
         variant="primary"
         disabled={isJoining}
@@ -103,6 +103,6 @@ export const JoiningRoomActions: React.FC<JoiningRoomActionsProps> = ({
         onClick={handleJoin}
         dataTest="preFlightJoinButton"
       />
-    </Styled.JoinButtonWrapper>
+    </Styled.ActionsWrapper>
   );
 };

@@ -116,10 +116,27 @@ export const allowRedirectToLogoutURL = (logoutURL: string) => {
   return false;
 };
 
+// The parameters go ahead of any fragment, and the URL's own query is kept
+// byte for byte: a return URL can be signed over it, which rules out
+// re-serialising it through URLSearchParams.
+export const appendLogoutReason = (
+  logoutUrl: string,
+  reason: string,
+  reasonCode: string,
+): string => {
+  const hashIndex = logoutUrl.indexOf('#');
+  const base = hashIndex === -1 ? logoutUrl : logoutUrl.slice(0, hashIndex);
+  const hash = hashIndex === -1 ? '' : logoutUrl.slice(hashIndex);
+  const separator = base.includes('?') ? '&' : '?';
+  return `${base}${separator}reason=${encodeURIComponent(reason)}`
+    + `&reasonCode=${encodeURIComponent(reasonCode)}${hash}`;
+};
+
 export default {
   JoinErrorCodeTable,
   MeetingEndedTable,
   setLearningDashboardCookie,
   openLearningDashboardUrl,
   allowRedirectToLogoutURL,
+  appendLogoutReason,
 };

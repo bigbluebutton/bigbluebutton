@@ -287,6 +287,12 @@ export const elements = {
   // Pre-flight (setup screen shown before joining)
   preFlight: 'div[data-test="preFlight"]',
   preFlightJoinButton: 'button[data-test="preFlightJoinButton"]',
+  preFlightSessionInfo: '[data-test="preFlightSessionInfo"]',
+  preFlightSessionAge: '[data-test="preFlightSessionAge"]',
+  preFlightErrorDialog: '[data-test="preFlightErrorDialog"]',
+  preFlightGuestDenied: '[data-test="preFlightGuestDenied"]',
+  preFlightErrorNotice: '[data-test="preFlightErrorNotice"]',
+  preFlightLeaveButton: 'button[data-test="preFlightLeaveButton"]',
   preFlightMuteToggle: 'button[data-test="preFlightMuteToggle"]',
   preFlightCameraToggle: 'button[data-test="preFlightCameraToggle"]',
   preFlightCameraDevice: '[data-test="preFlightCameraDevice"]',
