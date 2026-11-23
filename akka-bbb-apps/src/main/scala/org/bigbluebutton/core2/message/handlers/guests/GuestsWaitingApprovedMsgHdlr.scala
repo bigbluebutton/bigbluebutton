@@ -81,10 +81,10 @@ trait GuestsWaitingApprovedMsgHdlr extends HandlerHelpers with RightsManagementT
                         enabled = true
                       )
                     case None =>
-                      println(s"Skipping transferring dial-in user to the "
-                        + "voiceconf: dial-in user already left. meetingId= "
-                        + "${liveMeeting.props.meetingProp.intId}, userId="
-                        + "${dialInUser.intId}")
+                      log.info(
+                        s"Skipping transferring dial-in user to the voiceconf: dial-in user already left. "
+                          + s"meetingId=${liveMeeting.props.meetingProp.intId}, userId=${dialInUser.intId}"
+                      )
                   }
               } else {
                 VoiceApp.removeUserFromVoiceConf(liveMeeting, outGW, dialInUser.extId)
