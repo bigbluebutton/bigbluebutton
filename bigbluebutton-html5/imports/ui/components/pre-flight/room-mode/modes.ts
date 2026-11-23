@@ -56,7 +56,7 @@ const ROOM_MODES: RoomModeDefinition[] = [
     hint: intlMessages.classHint,
     testId: 'Class',
     // A presenter leads, so presenting goes through a moderator and everyone
-    // can draw. The waiting room is left as created.
+    // can draw. The waiting room is left as it is.
     preset: {
       editable: {
         joinMuted: true,
@@ -74,7 +74,7 @@ const ROOM_MODES: RoomModeDefinition[] = [
     hint: intlMessages.meetingHint,
     testId: 'Meeting',
     // Everyone takes part: anyone can present, the whiteboard stays the
-    // presenter's. The waiting room is left as created.
+    // presenter's. The waiting room is left as it is.
     preset: {
       editable: {
         joinMuted: true,

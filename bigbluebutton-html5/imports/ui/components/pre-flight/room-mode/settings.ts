@@ -43,8 +43,8 @@ export interface RoomModeRoomValues extends Partial<RoomModeEditableValues> {
 }
 
 /**
- * What a mode asserts. An editable setting left out stays as the room was
- * created; the automatic ones are applied without asking.
+ * What a mode asserts. An editable setting left out stays as the room has it;
+ * the automatic ones are applied without asking.
  */
 export interface RoomModePreset {
   editable: Partial<RoomModeEditableValues>;
@@ -215,7 +215,7 @@ export const resolveRoomModeSettings = (
   return resolved;
 };
 
-// The modes leave the guest policy as created, so it is sent only when edited
+// The modes leave the guest policy as it is, so it is sent only when edited
 // (or asserted by a mode); a room without chat has no public chat to unlock.
 export const settingsToApply = (
   mode: RoomModeDefinition,

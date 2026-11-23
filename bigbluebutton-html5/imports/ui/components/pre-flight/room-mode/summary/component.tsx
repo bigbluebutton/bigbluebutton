@@ -149,7 +149,7 @@ export const RoomModeSummaryView: React.FC<RoomModeSummaryViewProps> = ({
         <Styled.Controls $locked={locked}>
           {EDITABLE_SETTINGS.map((setting) => {
             const value = values[setting.id];
-            // A setting the mode leaves as created, and whose value the room
+            // A setting the mode leaves out, and whose value the room
             // did not give, cannot be shown truthfully.
             if (value === undefined) return null;
             // As in the lock viewers modal, a room without chat has no public

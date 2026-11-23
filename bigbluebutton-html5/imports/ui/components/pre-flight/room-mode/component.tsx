@@ -161,7 +161,7 @@ export const RoomModeCards: React.FC<RoomModeCardsProps> = ({
 interface RoomModePanelProps {
   // Once Start room is pressed the pick is final: the cards stop taking input.
   isJoining: boolean;
-  // The room's current values for what a mode leaves as created.
+  // The room's current values for what a mode leaves out.
   roomValues: RoomModeRoomValues;
 }
 

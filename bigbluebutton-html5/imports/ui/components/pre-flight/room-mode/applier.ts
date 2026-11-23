@@ -1,5 +1,6 @@
 import { MutableRefObject, useCallback, useRef } from 'react';
 import { useMutation } from '@apollo/client';
+import logger from '/imports/startup/client/logger';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { SET_LOCK_SETTINGS_PROPS, SET_WEBCAM_ONLY_FOR_MODERATOR } from '/imports/ui/components/lock-viewers/mutations';
@@ -8,8 +9,8 @@ import { SET_POLICY } from '/imports/ui/components/user-list/guest-management/wa
 import { SET_MUTED } from '/imports/ui/components/user-list/crowd-action-buttons/mutations';
 import { USER_SET_WHITEBOARD_WRITE_ACCESS } from '/imports/ui/components/presentation/mutations';
 import { SET_ROOM_MODE } from './mutations';
-import { RoomModeDefinition } from './modes';
-import { ResolvedRoomModeSettings } from './settings';
+import { getRoomMode, RoomModeDefinition } from './modes';
+import { ResolvedRoomModeSettings, RoomModeEditableId } from './settings';
 import useRoomModeBase from './base';
 
 // How long the room waits for the mode after SetRoomMode.
@@ -59,14 +60,16 @@ export interface RoomModeApplier {
 }
 
 /**
- * Sets a room mode on a room that is already joined, over the room as it was
- * created: what the mode and the edits leave out goes back to the room's base,
- * so a previous mode and changes made by hand do not stay. Only what differs
- * from the room's state is sent, in order, and the mode last. The mode showing
- * on the user is the proof: the server answers only after publishing, and
- * these commands run in order on the same meeting actor, so the earlier ones
- * have landed. A room created before the server kept its base is changed over
- * its current state instead.
+ * Sets a room mode on a room that is already joined. It changes only what the
+ * new mode and the edits set. A setting the previous mode's preset set and the
+ * new mode's preset leaves out goes back to the room as it was created;
+ * everything else stays as the room has it: a lock no mode sets, a change made
+ * by hand, and an edit applied with the previous mode, which counts as one. Only
+ * what differs from the room's state is sent, in order, and the mode last. The
+ * mode showing on the user is the proof: the server answers only after
+ * publishing, and these commands run in order on the same meeting actor, so
+ * the earlier ones have landed. In a room created before the server kept its
+ * base, what the previous mode set stays as it is.
  */
 export const useRoomModeApplier = (): RoomModeApplier => {
   const { data: meeting } = useMeeting((m) => ({
@@ -108,17 +111,40 @@ export const useRoomModeApplier = (): RoomModeApplier => {
     if (isBreakout) throw new Error('room modes do not apply to breakout rooms');
     if (!lockSettings || !usersPolicies) throw new Error('the meeting data has not arrived');
 
-    // Each setting the mode and the edits leave out takes the base's value.
-    const guestPolicy = settings.guestPolicy ?? base?.usersPolicies.guestPolicy;
-    const joinMuted = settings.joinMuted ?? base?.voiceSettings.muteOnStart;
-    const whiteboard = settings.whiteboard ?? base?.usersPolicies.multiUserWhiteboardEnabled;
+    // A setting the mode and the edits leave out goes back to the base only
+    // when the previous mode set it and the new one does not (one it sets but
+    // that is left out, such as public chat in a room without chat, stays).
+    const previousId = roomModeRef.current;
+    const previous = getRoomMode(previousId ?? null);
+    if (previousId && !previous) {
+      logger.warn({
+        logCode: 'room_mode_previous_unknown',
+        extraInfo: { previousId, modeId: mode.id },
+      }, 'Unknown previous room mode: nothing it set is brought back');
+    }
+    const restores = (id: RoomModeEditableId) => (
+      !!base
+      && previous?.preset.editable[id] !== undefined
+      && mode.preset.editable[id] === undefined
+    );
+    const guestPolicy = settings.guestPolicy
+      ?? (restores('guestPolicy') ? base?.usersPolicies.guestPolicy : undefined);
+    const joinMuted = settings.joinMuted
+      ?? (restores('joinMuted') ? base?.voiceSettings.muteOnStart : undefined);
+    const whiteboard = settings.whiteboard
+      ?? (restores('whiteboard') ? base?.usersPolicies.multiUserWhiteboardEnabled : undefined);
 
     const current = lockSettingsVariables(lockSettings);
-    const from = base ? lockSettingsVariables(base.lockSettings) : current;
+    const baseLock = base ? lockSettingsVariables(base.lockSettings) : current;
+    let { disablePubChat, presenterPolicy } = current;
+    if (settings.publicChat !== undefined) disablePubChat = !settings.publicChat;
+    else if (restores('publicChat')) disablePubChat = baseLock.disablePubChat;
+    if (settings.presenterPolicy !== undefined) presenterPolicy = settings.presenterPolicy;
+    else if (restores('presenterPolicy')) presenterPolicy = baseLock.presenterPolicy;
     const next: LockSettingsVariables = {
-      ...from,
-      disablePubChat: settings.publicChat === undefined ? from.disablePubChat : !settings.publicChat,
-      presenterPolicy: settings.presenterPolicy ?? from.presenterPolicy,
+      ...current,
+      disablePubChat,
+      presenterPolicy,
       lockOnJoin: mode.preset.automatic.lockOnJoin,
     };
     const lockChanged = (Object.keys(next) as (keyof LockSettingsVariables)[])

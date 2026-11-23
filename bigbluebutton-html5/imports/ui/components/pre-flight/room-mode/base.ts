@@ -5,9 +5,10 @@ import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedS
 import { LockSettingsValues } from '/imports/ui/components/lock-viewers/service';
 
 /**
- * The settings a room mode changes, as the room was created. A mode is always
- * applied over them, so switching modes drops the previous mode and anything
- * changed by hand since. Written by the server when the room is created.
+ * The settings a room mode changes, as the room was created. Switching modes
+ * brings a setting back to it when the previous mode set it and the new one
+ * does not; anything else stays as the room has it. Written by the server when
+ * the room is created.
  */
 export interface RoomModeBase {
   // The server writes the lock settings proper, not the row's bookkeeping.
@@ -38,7 +39,7 @@ interface RoomBaseSettingsResponse {
 interface RoomModeBaseState {
   loading: boolean;
   // Null for a room created before the server kept it, or when it cannot be
-  // read: the mode is then applied over the room's current state.
+  // read: what the previous mode set then stays as it is.
   base: RoomModeBase | null;
 }
 
@@ -53,7 +54,7 @@ const useRoomModeBase = (): RoomModeBaseState => {
     logger.warn({
       logCode: 'room_mode_base_read_failed',
       extraInfo: { error: error.message },
-    }, 'Room base settings not read: room modes apply over the current state');
+    }, 'Room base settings not read: a mode switch brings nothing back');
   }, [error]);
 
   // A failed read counts as no base, never as one still loading: the applier
