@@ -354,7 +354,20 @@ export class Join extends Create {
     await expect(minutesInput).toHaveAttribute('aria-valuetext', String(Number(await minutesInput.inputValue())));
     await minutesInput.blur();
 
-    // Decrease from 15 to 5 minutes by clicking in the minus button 10 times
+    // A native step must use the live countdown, not the stale value frozen on focus.
+    await minutesInput.fill('14');
+    await minutesInput.blur();
+    await secondsInput.fill('02');
+    await secondsInput.blur();
+    await this.modPage.page.waitForTimeout(2200);
+    await minutesInput.focus();
+    await expect.poll(async () => Number(await secondsInput.inputValue())).toBeGreaterThan(50);
+    await minutesInput.press('ArrowUp');
+    await expect(minutesInput).toHaveValue('14');
+    await minutesInput.blur();
+    await this.modPage.page.waitForTimeout(2200);
+
+    // Decrease from 14 to 4 minutes by clicking in the minus button 10 times
     for (let i = 0; i < 10; i += 1) {
       await this.modPage.waitAndClick(e.decreaseBreakoutTimeButton);
     }

@@ -90,12 +90,22 @@ export class Timer extends MultiUsers {
     await expect(this.modPage.page.locator(e.timerSecondsInput)).toHaveAttribute('aria-valuetext', '30');
     await this.modPage.hasText(e.timerIndicator, /10:30/, 'should add 30 seconds to the timer indicator');
 
-    // A late focus capture must survive the arrow-button sync timeout, and a field
-    // focused before the timer starts must freeze as soon as the countdown begins.
+    // Blurring before start must clear the focus freeze, while a late focus capture
+    // must survive the arrow-button timeout and freeze when the countdown begins.
     await this.modPage.page.getByRole('button', { name: 'Decrease seconds by 1' }).click();
     const secondsInput = this.modPage.page.locator(e.timerSecondsInput);
     await secondsInput.focus();
     await this.modPage.page.waitForTimeout(1100);
+    const valueBeforeBlur = await secondsInput.inputValue();
+    await secondsInput.blur();
+    await this.modPage.page.locator(e.startStopTimer).evaluate((button: HTMLButtonElement) => button.click());
+    await expect(this.modPage.page.locator(e.startStopTimer)).toHaveText('Stop');
+    await this.modPage.page.waitForTimeout(1500);
+    await expect(secondsInput).not.toHaveValue(valueBeforeBlur);
+    await this.modPage.page.locator(e.startStopTimer).evaluate((button: HTMLButtonElement) => button.click());
+    await expect(this.modPage.page.locator(e.startStopTimer)).toHaveText('Start');
+
+    await secondsInput.focus();
     const focusedBeforeStart = await secondsInput.inputValue();
     await this.modPage.page.locator(e.startStopTimer).evaluate((button: HTMLButtonElement) => button.click());
     await expect(this.modPage.page.locator(e.startStopTimer)).toHaveText('Stop');

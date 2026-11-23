@@ -116,6 +116,15 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
     commitTimeChange(base + deltaSeconds);
   }, [editingTime, remainingTime, commitTimeChange]);
 
+  const handleTimerInputKeyDown = useCallback((
+    event: React.KeyboardEvent<HTMLInputElement>,
+    stepSeconds: number,
+  ) => {
+    if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return;
+    event.preventDefault();
+    adjustTime(event.key === 'ArrowUp' ? stepSeconds : -stepSeconds);
+  }, [adjustTime]);
+
   const handleTimerInputChange = useCallback((
     field: 'h' | 'm' | 's',
     value: number,
@@ -155,6 +164,7 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleTimerInputChange('h', Number(e.target.value));
             }}
+            onKeyDown={(e) => handleTimerInputKeyDown(e, 3600)}
             aria-label={intl.formatMessage(intlMessages.timerHours)}
             aria-valuetext={String(exposedHours)}
             data-test="breakoutRoomTimerHoursInput"
@@ -190,6 +200,7 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleTimerInputChange('m', Number(e.target.value));
             }}
+            onKeyDown={(e) => handleTimerInputKeyDown(e, 60)}
             aria-label={intl.formatMessage(intlMessages.timerMinutes)}
             aria-valuetext={String(exposedMinutes)}
             data-test="breakoutRoomTimerMinutesInput"
@@ -227,6 +238,7 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleTimerInputChange('s', Number(e.target.value));
             }}
+            onKeyDown={(e) => handleTimerInputKeyDown(e, 1)}
             aria-label={intl.formatMessage(intlMessages.timerSeconds)}
             aria-valuetext={String(exposedSeconds)}
             data-test="breakoutRoomTimerSecondsInput"

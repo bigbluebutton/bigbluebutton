@@ -209,6 +209,7 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
   };
 
   const handleHoursBlur = () => {
+    setFocusedUnit(null);
     setFocusedRunningValue(null);
     if (running) return;
     syncTimeWithBackend(localHours, localMinutes, localSeconds);
@@ -231,6 +232,7 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
   };
 
   const handleMinutesBlur = () => {
+    setFocusedUnit(null);
     setFocusedRunningValue(null);
     if (running) return;
     syncTimeWithBackend(localHours, localMinutes, localSeconds);
@@ -256,6 +258,7 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
   };
 
   const handleSecondsBlur = () => {
+    setFocusedUnit(null);
     setFocusedRunningValue(null);
     if (running) return;
     syncTimeWithBackend(localHours, localMinutes, localSeconds);
