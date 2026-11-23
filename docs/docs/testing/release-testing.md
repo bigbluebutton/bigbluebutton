@@ -972,6 +972,12 @@ Same settings as the room mode panel. Nothing here reaches the room before "Star
     - Once the join lands, the room should keep "Meeting" and the settings the session was created with, not the "Class" settings
     - A notice should say "Another moderator set the room mode first, so yours was not applied"
 
+15. Create a session with `lockSettingsDisablePublicChat=true&lockSettingsLockOnJoin=false&lockSettingsPresenterPolicy=freeForAll&webcamsOnlyForModerator=true&muteOnStart=false&record=true&disabledFeatures=lockSettings`, join it as a moderator and pick "Class"
+
+    - The summary should not list "Send public messages", "Presentation Policy" or "Locks also apply to people who join later": the session ignores lock settings
+    - Click "Start room": the room should open with users joining muted and "Whiteboard for everyone" on. The lock settings should stay as the session started them: public messages allowed, no locks for people who join later and webcams visible to everyone. "Presentation Policy" should stay on "Allow participants to present with moderator approval"
+    - Set the mode to "Meeting" from the "Room modes" tab of the settings window: "Whiteboard for everyone" should turn off and the lock settings should stay as they were. The "Meeting" summary in the tab should not list those three settings either
+
 ### Room mode change during the session [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/pre-flight/roomModeSwitch.spec.ts)
 
 Moderators change the room mode from the settings window, in a "Room modes" tab. The new mode's settings are applied; a setting only the previous mode set goes back to how the session was created, and what no mode sets, such as the guest policy or a lock changed by hand, stays as it is. Same settings as the room mode panel.

@@ -16,6 +16,9 @@ test.describe.parallel('Room mode applied after the join', { tag: '@ci' }, () =>
     await test.step('A room without chat keeps its public chat lock', async () => {
       await apply.leavesPublicChatLockedWithoutChat(await apply.newPageForNextRoom(), { testInfo });
     });
+    await test.step('A room with lock settings disabled gets the modes without their locks', async () => {
+      await apply.leavesLockSettingsOutWhenDisabled(await apply.newPageForNextRoom(), { testInfo });
+    });
     await test.step('Start room applies the meeting preset', async () => {
       await apply.appliesMeetingPreset(await apply.newPageForNextRoom(), { testInfo });
     });

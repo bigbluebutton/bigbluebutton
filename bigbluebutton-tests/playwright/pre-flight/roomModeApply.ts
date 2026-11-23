@@ -11,8 +11,10 @@ import {
   ensureProbe,
   expectRoomMode,
   expectRoomModeStable,
+  openRoomModeTab,
   readRoomSettings,
   type RoomSettings,
+  switchToMeeting,
 } from './roomMode';
 import { hasPanel, pickOption, RoomModePanel, startsRoom } from './roomModePanel';
 import { NO_PRE_FLIGHT_INIT_OPTIONS, PRE_FLIGHT_CREATE_PARAMETER } from './util';
@@ -227,6 +229,57 @@ export class RoomModeApply extends RoomModePanel {
       await readRoomSettings(this.modPage),
       'should leave the public chat lock as created in a room without chat',
     ).toEqual({ ...CLASS_APPLIED, disablePublicChat: true });
+  }
+
+  // With lock settings disabled the room is created with every lock off, and the server ignores lock
+  // changes. The summaries leave the locks out, and no mode sends them.
+  async leavesLockSettingsOutWhenDisabled(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
+    let lockSettingsSent = 0;
+    await routeOperation(page, 'SetLockSettings', ({ server, message }) => {
+      lockSettingsSent += 1;
+      server.send(message);
+    });
+
+    await this.picksMode(page, 'class', `${CLASS_CREATE_PARAMETER}&disabledFeatures=lockSettings`, options);
+    await this.modPage.hasElement(e.preFlightRoomModeJoinMuted, 'should list the settings the class mode applies');
+    await this.modPage.wasRemoved(e.preFlightRoomModePublicChat, 'should leave public chat out of the summary');
+    await this.modPage.wasRemoved(
+      e.preFlightRoomModePresenterPolicy,
+      'should leave the presenter policy out of the summary',
+    );
+    await this.modPage.wasRemoved(
+      e.preFlightRoomModeAutomaticLockOnJoin,
+      'should leave the locks on join out of the summary',
+    );
+
+    await startsRoom(this.modPage);
+    await ensureProbe(this.modPage);
+    expect(await readRoomSettings(this.modPage), 'should apply the class preset without its locks').toEqual({
+      ...CLASS_APPLIED,
+      lockOnJoin: false,
+    });
+    expect(lockSettingsSent, 'should not send lock settings the room ignores').toBe(0);
+
+    await switchToMeeting(this.modPage);
+    expect(await readRoomSettings(this.modPage), 'should apply the meeting preset without its locks').toEqual({
+      ...MEETING_APPLIED,
+      presenterPolicy: 'requireApproval',
+      lockOnJoin: false,
+    });
+    expect(lockSettingsSent, 'should not send lock settings from the tab either').toBe(0);
+
+    await openRoomModeTab(this.modPage);
+    await this.modPage.waitAndClick(e.settingsRoomModeEditMeeting);
+    await this.modPage.hasElement(e.settingsRoomModeWhiteboard, 'should list the settings the meeting mode applies');
+    await this.modPage.wasRemoved(e.settingsRoomModePublicChat, "should leave public chat out of the tab's summary");
+    await this.modPage.wasRemoved(
+      e.settingsRoomModePresenterPolicy,
+      "should leave the presenter policy out of the tab's summary",
+    );
+    await this.modPage.wasRemoved(
+      e.settingsRoomModeAutomaticLockOnJoin,
+      "should leave the locks on join out of the tab's summary",
+    );
   }
 
   async appliesMeetingPreset(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
