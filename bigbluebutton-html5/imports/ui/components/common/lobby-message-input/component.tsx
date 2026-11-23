@@ -62,8 +62,10 @@ const LobbyMessageInput: React.FC<LobbyMessageInputProps> = ({
     isSendingTimerRef.current = setTimeout(() => {
       setIsSending(false);
       setMessageSent(true);
-      onSent?.();
-      messageSentTimerRef.current = setTimeout(() => setMessageSent(false), SENT_FEEDBACK_MS);
+      messageSentTimerRef.current = setTimeout(() => {
+        setMessageSent(false);
+        onSent?.();
+      }, SENT_FEEDBACK_MS);
     }, SENDING_DELAY_MS);
   }, [message, onSend, onSent]);
 
@@ -118,7 +120,8 @@ const LobbyMessageInput: React.FC<LobbyMessageInputProps> = ({
           {messageSent && (
             <Styled.SuccessContent>
               <CheckCircleOutlineIcon fontSize="small" />
-              {successLabel}
+              <span data-test="lobbyMessageSuccessLabel">{successLabel}</span>
+              <Styled.VisuallyHidden>{`: ${lastSentMessage}`}</Styled.VisuallyHidden>
             </Styled.SuccessContent>
           )}
         </Styled.SuccessMessage>

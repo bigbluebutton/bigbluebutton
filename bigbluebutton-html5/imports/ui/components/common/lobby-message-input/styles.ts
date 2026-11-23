@@ -12,6 +12,9 @@ import {
   fontSizeSmall,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import { xsPadding } from '/imports/ui/stylesheets/styled-components/general';
+import VisuallyHiddenStyles from '/imports/ui/components/common/visually-hidden/styles';
+
+const { VisuallyHidden } = VisuallyHiddenStyles;
 
 const InputWrapper = styled.div`
   display: flex;
@@ -85,5 +88,6 @@ export default {
   SendButton,
   SuccessMessage,
   SuccessContent,
+  VisuallyHidden,
   TooltipWrapper,
 };
