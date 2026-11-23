@@ -16,7 +16,7 @@ Not covered yet: FreeSWITCH and dial-in, more than one server, Kubernetes, and r
 
 ## Requirements
 
-- one Linux server with Docker Engine 28 or later and the compose plugin 2.35 or later (`init` mounts the database schemas from the images as image volumes);
+- one Linux server with Docker Engine 28 or later and the compose plugin 2.35 or later;
 - a DNS name for it and a public IPv4 address;
 - IPv6 not turned off in the kernel (no `ipv6.disable=1` on the kernel command line): nginx also listens on `[::]` and does not start without it. The server needs no IPv6 address;
 - open ports: 80/tcp and 443/tcp (web, Let's Encrypt, TURN over TLS), 3478/tcp and 3478/udp (TURN), 7882/udp (LiveKit media);

@@ -31,6 +31,11 @@
   # learning-dashboard:
   #   pull_policy: never
 
+  # init creates the databases from the schemas in its own image: build it as well when you
+  # change bbb_schema.sql (graphql-server) or blocknote_schema.sql (shared-notes-server)
+  # init:
+  #   pull_policy: never
+
   # graphql-server:
   #   pull_policy: never
 

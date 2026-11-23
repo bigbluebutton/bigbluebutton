@@ -164,11 +164,8 @@ services:
   # Creates the data directories and the databases, and recreates the databases when the schemas
   # in the images change
   init:
-    image: *postgres
-    command:
-      - sh
-      - /init.sh
-    # the postgres image declares a volume here; init does not need it
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-init:${BBB_IMAGE_TAG}
+    # its base image, postgres, declares a volume here; init does not need it
     tmpfs:
       - /var/lib/postgresql/data
     environment:
@@ -180,20 +177,9 @@ services:
       HASURA_APP_PASSWORD: ${POSTGRES_HASURA_APP_PASSWORD:?}
       BLOCKNOTE_PASSWORD: ${POSTGRES_BLOCKNOTE_PASSWORD:?}
     volumes:
-      - ./docker/compose/init.sh:/init.sh:ro
       - ./data/bigbluebutton:/var/bigbluebutton:z
       - ./data/recordings:/var/lib/bbb-webrtc-recorder:z
       - recording-logs:/var/log/bigbluebutton
-      - type: image
-        source: ${BBB_GRAPHQL_SERVER_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-graphql-server:${BBB_IMAGE_TAG}}
-        target: /schema/graphql
-        image:
-          subpath: usr/share/bbb-graphql-server
-      - type: image
-        source: ${BBB_SHARED_NOTES_SERVER_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-shared-notes-server:${BBB_IMAGE_TAG}}
-        target: /schema/notes
-        image:
-          subpath: usr/share/bbb-shared-notes-server
     depends_on:
       postgres:
         condition: service_healthy
