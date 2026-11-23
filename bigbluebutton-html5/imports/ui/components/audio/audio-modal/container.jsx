@@ -28,6 +28,7 @@ import {
   installOnDeviceLanguage,
   useOnDeviceLanguageForAudio,
 } from '/imports/ui/components/audio/audio-graphql/audio-captions/speech/service';
+import { getAudioModes } from '/imports/ui/components/audio/audio-modes';
 
 const invalidDialNumbers = ['0', '613-555-1212', '613-555-1234', '0000'];
 
@@ -51,9 +52,10 @@ const AudioModalContainer = (props) => {
 
   const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
   const APP_CONFIG = window.meetingClientSettings.public.app;
-  const forceListenOnly = getFromUserSettings('bbb_force_listen_only', APP_CONFIG.forceListenOnly);
-  const listenOnlyMode = forceListenOnly
-    || (getFromUserSettings('bbb_listen_only_mode', APP_CONFIG.listenOnlyMode) && !usingLiveKit);
+  const { forceListenOnlyAttendee, listenOnlyMode } = getAudioModes({
+    isModerator: !!isModerator,
+    usingLiveKit,
+  });
   const skipCheck = getFromUserSettings('bbb_skip_check_audio', APP_CONFIG.skipCheck);
   const skipCheckOnJoin = getFromUserSettings('bbb_skip_check_audio_on_first_join', APP_CONFIG.skipCheckOnJoin);
   // Mobile users have significant trouble figuring out correct audio I/O devices
@@ -83,7 +85,6 @@ const AudioModalContainer = (props) => {
     enabled: LOCAL_ECHO_TEST_ENABLED,
   } = window.meetingClientSettings.public.media.localEchoTest;
 
-  const forceListenOnlyAttendee = forceListenOnly && !isModerator;
   const inputDeviceId = useReactiveVar(AudioManager._inputDeviceId.value);
   const outputDeviceId = useReactiveVar(AudioManager._outputDeviceId.value);
   const showPermissionsOvelay = useReactiveVar(AudioManager._isWaitingPermissions.value);

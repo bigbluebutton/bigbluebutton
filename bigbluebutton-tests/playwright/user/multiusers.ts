@@ -14,7 +14,7 @@ import {
   REACTION_EXPIRY_CHECK_INTERVAL,
 } from './util';
 
-interface InitExtraPageOptionsProps extends InitOptionsProps {
+export interface InitExtraPageOptionsProps extends InitOptionsProps {
   useModMeetingId?: boolean;
 }
 

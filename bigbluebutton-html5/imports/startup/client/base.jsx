@@ -7,13 +7,8 @@ import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import logger from '/imports/startup/client/logger';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-
-const theme = createTheme({
-  typography: {
-    fontFamily: 'Source Sans Pro, Arial, sans-serif',
-  },
-});
+import { ThemeProvider } from '@mui/material/styles';
+import muiTheme from '/imports/ui/services/theme/mui';
 
 const HTML = document.getElementsByTagName('html')[0];
 
@@ -96,7 +91,7 @@ class Base extends Component {
     return (
       <>
         <DebugWindow />
-        <ThemeProvider theme={theme}>
+        <ThemeProvider theme={muiTheme}>
           <AppContainer {...this.props} />
         </ThemeProvider>
       </>

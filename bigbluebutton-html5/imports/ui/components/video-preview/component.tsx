@@ -40,6 +40,8 @@ interface VideoPreviewProps {
   cameraAsContentDeviceId?: string;
   isCamLocked?: boolean;
   forceOpen?: boolean;
+  // Shares the stored camera straight away, skipping this modal's UI.
+  skipPreview?: boolean;
   isOpen: boolean;
   priority?: ModalPriority;
   isVirtualBackgroundsEnabled: boolean;
@@ -167,6 +169,7 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
   cameraAsContentDeviceId,
   isCamLocked = false,
   forceOpen = false,
+  skipPreview = false,
   isOpen,
   priority,
   isVirtualBackgroundsEnabled,
@@ -215,6 +218,7 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
     isCameraAsContent: cameraAsContent,
     isCameraShared: !!isAlreadyShared(initialWebcamDeviceId),
     forceOpen,
+    skipPreview,
     startSharing,
     startSharingCameraAsContent,
   });

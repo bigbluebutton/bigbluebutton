@@ -193,7 +193,7 @@ export function createMeetingUrl(createParameter?: string, customMeetingId?: str
   const defaults = ['allowStartStopRecording=true', 'autoStartRecording=false', `welcome=${parameters.welcome}`].filter(
     (pair) => !overridden.has(pair.split('=')[0]),
   );
-  const baseQuery = [`name=${meetingID}&meetingID=${meetingID}&attendeePW=${ap}&moderatorPW=${mp}`, ...defaults].join(
+  const baseQuery = [`name=${encodeURIComponent(meetingID)}&meetingID=${encodeURIComponent(meetingID)}&attendeePW=${ap}&moderatorPW=${mp}`, ...defaults].join(
     '&',
   );
   const query = createParameter !== undefined ? `${baseQuery}&${createParameter}` : baseQuery;
@@ -266,8 +266,9 @@ export function getJoinURL({ meetingID, fullName, options }: GetJoinUrlProp): st
   const shouldSkipSessionDetailsModal = skipSessionDetailsModal
     ? '&userdata-bbb_show_session_details_on_join=false'
     : ''; // default value in settings.yml is true
-  // Encode before signing: bbb-web checksums the query string as it arrives, already percent-encoded.
-  const baseQuery = `fullName=${encodeURIComponent(fullName)}&meetingID=${meetingID}`
+  // The checksum covers the query string as the server receives it, so values
+  // have to be encoded here - a fullName with a space yields a checksumError.
+  const baseQuery = `fullName=${encodeURIComponent(fullName)}&meetingID=${encodeURIComponent(meetingID)}`
     + `&password=${pw}${shouldSkipSessionDetailsModal}`; // prettier-ignore
   const query = joinParameter !== undefined ? `${baseQuery}&${joinParameter}` : baseQuery;
   const apiCall = `join${query}${parameters.secret}`;

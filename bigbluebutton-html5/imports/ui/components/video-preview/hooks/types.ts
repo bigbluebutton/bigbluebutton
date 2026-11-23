@@ -52,6 +52,12 @@ export interface UseVideoPreviewProps {
   // Only open the camera on mount if the browser already granted access to it
   waitForCameraPermission?: boolean;
   cameraDisabled?: boolean;
+  // Per-instance skip of the preview UI, unlike the global
+  // PreviewService.getSkipVideoPreview().
+  skipPreview?: boolean;
+  // Doesn't enumerate devices nor acquire a stream on mount; the consumer calls
+  // initializeCameras() when the user asks for the camera.
+  deferInitialization?: boolean;
   startSharing?: (deviceId: string) => void;
   startSharingCameraAsContent?: (deviceId: string) => void;
   onStreamChange?: (stream: BBBVideoStream | null) => void;
@@ -72,6 +78,8 @@ export interface UseVideoPreviewReturn {
   videoRef: React.RefObject<HTMLVideoElement>;
   currentVideoStream: React.MutableRefObject<BBBVideoStream | null>;
   getInitialCameraStream: (deviceId: string | null) => Promise<string | null>;
+  // Drops whatever camera acquisition is in flight.
+  invalidateCameraAcquisition: () => void;
   initializeCameras: () => void;
   startPreview: () => void;
   displayPreview: () => void;
