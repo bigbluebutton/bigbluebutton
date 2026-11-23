@@ -3,16 +3,21 @@ set -e
 set -u
 PATH="/bin/:/usr/bin/"
 
-# This is a sample script - adjust it per your need, to use Collabora online.
-# 1 - setup a server with Collabora Online (CODE)
+# This is a sample script - adjust it per your need, to use Collabora online conversion API.
+# 1 - setup a server with Collabora Online (CODE) compatible API
 #   You can run it with
 #      docker run -t -d -p 127.0.0.1:9980:9980 -e "domain=<your-dot-escaped-domain>" \
 #         -e "username=admin" -e "password=S3cRet" --restart always collabora/code
 #   See https://sdk.collaboraonline.com/docs/installation/CODE_Docker_image.html
 #   Or you can use an existing setup you have.
-# 2 - replace the HOST information below with your server host
+# - You can also use OnlyOffice (provides the same API) for better compatibility with MS Office
+#   Run it with
+#      docker run -t -d -p 127.0.0.1:9980:80 -e WOPI_ENABLED=true onlyoffice/documentserver
+#   See https://helpcenter.onlyoffice.com/docs/installation/docs-community-install-docker.aspx
+# 2 - replace the HOST_URL information below with your server host
+#   For local non-TLS onlyoffice/documentserver replace it with http://127.0.0.1:9980
 
-HOST=127.0.0.1
+HOST_URL=https://127.0.0.1:9980
 
 # Set this to "-k" to allow it to work in a test environment, ie with a self signed
 # certificate
@@ -46,6 +51,6 @@ timeoutSecs="${timeoutSecs:0:3}"
 
 # The timeout is important.
 
-timeout $(printf %03d $timeoutSecs)s curl $INSECURE -F "data=@${source}" https://$HOST:9980/cool/convert-to/$convertTo > "${dest}"
+timeout $(printf %03d $timeoutSecs)s curl $INSECURE -F "data=@${source}" $HOST_URL/cool/convert-to/$convertTo > "${dest}"
 
 exit 0
