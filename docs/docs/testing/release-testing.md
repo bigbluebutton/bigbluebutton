@@ -1018,6 +1018,39 @@ Moderators change the room mode from the settings window, in a "Room modes" tab.
     - A notice should say the room mode was not applied, with an "Open room modes" action
     - The action should open the "Room modes" tab with "Class" picked; "Change room mode" should apply it
 
+### Room mode reported in the meeting's events [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/pre-flight/roomModeReport.spec.ts)
+
+The spec reads the events with `redis-cli`, so it runs on the BBB host. Turn on `public.app.preFlight.enabled` and `public.app.preFlight.roomModes.enabled`. Create a session with `record=true`, join it as a moderator, pick "Class" and click "Start room".
+
+To list the room mode events of a meeting, use its internal meeting id:
+
+```bash
+ID=<internal meeting id>
+for n in $(redis-cli LRANGE meeting:$ID:recordings 0 -1); do
+  K=recording:$ID:$n
+  redis-cli HGET $K eventName | grep -q RoomConfigured \
+    && redis-cli HGETALL $K
+done
+```
+
+1. One event should be listed: `roomMode` is `class`, with the moderator's `userId` and the room's `settings`
+
+2. In "Room modes", pick "Meeting" and click "Change room mode"
+
+    - A second event should be listed
+
+3. Click the gear of "Meeting", switch "Whiteboard for everyone" on, click "Apply changes", then click "Change room mode"
+
+    - A third event should be listed
+
+4. Reload the page, then join the session as a second moderator
+
+    - No new event should be listed
+
+5. End the meeting and archive it
+
+    - The events should be in its raw `events.xml`
+
 ## Audio
 
 ### Join audio [(Partially automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/audio/audio.spec.ts)
