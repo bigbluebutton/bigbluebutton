@@ -7,6 +7,7 @@ const SPEAKER_NOTES_QUERY = queryDocument([
     field('num'),
     field('isCurrentPage'),
     field('speakerNotes'),
+    field('speakerNotesJson'),
   ]),
 ]);
 
@@ -16,6 +17,7 @@ export interface SpeakerNotesRow {
   num: number;
   isCurrentPage: boolean;
   speakerNotes: string;
+  speakerNotesJson: Record<string, unknown> | null;
 }
 
 export const getSpeakerNotesRows = async (page: import('@playwright/test').Page): Promise<SpeakerNotesRow[]> => {
