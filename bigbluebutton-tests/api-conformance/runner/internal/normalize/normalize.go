@@ -451,7 +451,7 @@ func (c *Context) substitute(s string) string {
 		s = strings.ReplaceAll(s, c.Salt, "${salt}")
 	}
 	for _, n := range c.named() {
-		s = strings.ReplaceAll(s, c.Named[n], n)
+		s = replaceURL(s, c.Named[n], n)
 	}
 	for _, b := range c.Bases {
 		if b != "" {
@@ -470,6 +470,33 @@ func (c *Context) substitute(s string) string {
 		s = strings.ReplaceAll(s, c.UID, "${uid}")
 	}
 	return s
+}
+
+// replaceURL replaces each u in s with placeholder where u ends there, as
+// url does: not where the text goes on with more of a host, port or path
+// segment (https://h:8444 in https://h:84445, or .../fixtures in
+// .../fixtures-old).
+func replaceURL(s, u, placeholder string) string {
+	var b strings.Builder
+	for {
+		i := strings.Index(s, u)
+		if i < 0 {
+			b.WriteString(s)
+			return b.String()
+		}
+		end := i + len(u)
+		b.WriteString(s[:i])
+		if end < len(s) && urlContinues(s[end]) {
+			b.WriteString(u)
+		} else {
+			b.WriteString(placeholder)
+		}
+		s = s[end:]
+	}
+}
+
+func urlContinues(c byte) bool {
+	return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || strings.IndexByte("-._~:%", c) >= 0
 }
 
 // named lists Named's placeholders whose URL isn't empty, longest URL

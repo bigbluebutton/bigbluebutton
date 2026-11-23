@@ -7,7 +7,9 @@ set -eu
 
 F=/etc/bigbluebutton/bbb-web.properties
 A=/etc/bigbluebutton/bbb-apps-akka.conf
-PENDING=$A.bbb-conform-restart-pending # akka-apps still to be restarted
+# Restarts still owed by a switch that failed part way.
+WEB_PENDING=$F.bbb-conform-restart-pending
+PENDING=$A.bbb-conform-restart-pending
 
 if [ "$(id -u)" != 0 ]; then
 	echo "profile switching needs root on the server" >&2
@@ -56,18 +58,24 @@ stage() {
 }
 
 # install FILE: puts FILE.bbb-conform-next in place, with FILE's owner and
-# mode, and records the state; fails, changing nothing, when FILE already
-# holds it.
+# mode, and records it at once, so a switch that fails later is retried
+# rather than taken for the server's own file. Returns 1 when FILE already
+# held it; exits if it can't be written.
 install() {
 	f=$1
 	next=$f.bbb-conform-next
 	if cmp -s "$next" "$f"; then
 		rm -f "$next"
+		record "$f"
 		return 1
 	fi
-	chown --reference="$f.bbb-conform-orig" "$next"
-	chmod --reference="$f.bbb-conform-orig" "$next"
-	mv "$next" "$f"
+	if ! { chown --reference="$f.bbb-conform-orig" "$next" &&
+		chmod --reference="$f.bbb-conform-orig" "$next" &&
+		mv "$next" "$f"; }; then
+		echo "couldn't write $f" >&2
+		exit 1
+	fi
+	record "$f"
 }
 
 # record FILE: notes what was written, or forgets the profile when FILE is
@@ -99,9 +107,8 @@ elif [ -s "$AKKA_OVERLAY" ]; then
 fi
 
 before=$(strict)
-web=false
 if install "$F" || ! systemctl is-active -q bbb-web; then
-	web=true
+	: >"$WEB_PENDING"
 fi
 if $akka && install "$A"; then
 	: >"$PENDING"
@@ -110,11 +117,13 @@ fi
 
 # Values are read at startup only. akka-apps goes first, so bbb-web's
 # keepalive finds it.
+web=false
 if [ -e "$PENDING" ]; then
 	systemctl restart bbb-apps-akka
-	web=true
+	: >"$WEB_PENDING"
 fi
-if $web; then
+if [ -e "$WEB_PENDING" ]; then
+	web=true
 	. /etc/default/bbb-web 2>/dev/null || true
 	url="http://${LISTEN_ADDRESS:-127.0.0.1}:${LISTEN_PORT:-8090}/bigbluebutton/api"
 	old=$(systemctl show -p MainPID --value bbb-web)
@@ -133,6 +142,7 @@ if $web; then
 		sleep 2
 		waited=$((waited + 2))
 	done
+	rm -f "$WEB_PENDING"
 fi
 if [ -e "$PENDING" ]; then
 	# Healthy once it hears from bbb-web.
@@ -152,9 +162,4 @@ elif $web; then
 	echo "bbb-web restarted with $NAME"
 else
 	echo "bbb-web already runs with $NAME"
-fi
-
-record "$F"
-if $akka; then
-	record "$A"
 fi

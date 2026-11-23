@@ -153,6 +153,10 @@ func TestSinkURLs(t *testing.T) {
 $.plugins.p.manifest.url "${sinkUrl}/${uid}/fixtures/plugins/p.json"
 $.plugins.q.manifest.url "${fixtureUrl}/plugins/q.json"
 $.plugins.r.manifest.url "${sinkHttpUrl}/${uid}/r.json"`)
+	// In text, as in a URL, a named URL is replaced only where it ends.
+	if got := c.substitute("at https://sink.test:8444/fixtures-old/x, https://sink.test:84445 and https://sink.test:8444/fixtures?a"); got != "at ${sinkUrl}/fixtures-old/x, https://sink.test:84445 and ${fixtureUrl}?a" {
+		t.Errorf("substitute = %q", got)
+	}
 }
 
 // A JSON key holding the run's own strings is renamed like a value; one

@@ -1,8 +1,9 @@
 # yaml-language-server: $schema=../../../runner/schema/case.schema.json
 # bbb-web follows a 301, 302 or 303 redirect, up to five in a row, and
 # checks each new URL against the fetch rules; any other answer but 200
-# is refused, a 307 included. The redirects to the override are relative,
-# so they stay under the case's sink key.
+# is refused, a 307 included (create.fetch.redirect-to-http and
+# create.fetch.redirect-to-local: to a URL the rules refuse). The redirects
+# to the override are relative, so they stay under the case's sink key.
 id: create.fetch.redirect
 title: create ${what}
 endpoint: create
@@ -14,8 +15,6 @@ variants:
   - {id: five, vars: {what: follows five redirects in a row, rest: "fixtures/client-settings/override.json?_redirect=self&_first=5", want: '^\{"public":'}}
   - {id: six, vars: {what: refuses a sixth redirect in a row, rest: "fixtures/client-settings/override.json?_redirect=self&_first=6", want: '^$'}}
   - {id: status-307, vars: {what: refuses a 307 redirect, rest: "moved?_status=307&_redirect=fixtures/client-settings/override.json", want: '^$'}}
-  - {id: to-unlisted-local, vars: {what: refuses a redirect to a local address by a name it doesn't list, rest: "moved?_redirect=https://localhost:8444/refused/fixtures/client-settings/override.json", want: '^$'}}
-  - {id: to-http, vars: {what: refuses a redirect to http, rest: "moved?_redirect=http://sink.test:8445/refused/fixtures/client-settings/override.json", want: '^$'}}
 steps:
   - call: create
     params: {meetingID: "${uid}", name: Fetch rules, clientSettingsOverrideJsonUrl: "${sinkUrl}/${uid}/${rest}"}

@@ -488,6 +488,10 @@ to an end callback.
 | `_expand=1` | A fixture file with each `{{origin}}` replaced by the scheme and host the request reached the sink at, such as `https://sink.test:8444`: a fixture that lists other fixtures' URLs, such as a plugin manifest list, then names the sink the way the server reaches it. Not for generated files. |
 | `_size=N` | A generated file's length; only for `fixtures/generated/`. |
 
+`_expand` and `_redirect=self` build URLs from the scheme, host and path the
+sink itself sees, so the server must reach the sink directly, not through a
+proxy that changes them.
+
 An unknown or misplaced `_` param gets a 400, so a misspelt one isn't
 ignored. Every request to a key is recorded, with why the sink couldn't
 answer it as asked when it couldn't (that 400, or a 404 for a fixture that

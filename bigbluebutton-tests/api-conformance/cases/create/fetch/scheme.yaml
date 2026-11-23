@@ -13,8 +13,8 @@ class: contract
 tags: [ci]
 requires: [akka, bus, callbacks]
 variants:
-  - {id: refused, vars: {when: only when allowed, want: '^$'}}
-  - {id: allowed, vars: {when: under fetch-http, want: '^\{"public":'}, profile: fetch-http, tags: [disruptive]}
+  - {id: refused, vars: {when: only when allowed, want: '^$', requests: 0}}
+  - {id: allowed, vars: {when: under fetch-http, want: '^\{"public":', requests: 2}, profile: fetch-http, tags: [disruptive]}
 steps:
   - call: create
     params: {meetingID: "${uid}", name: Fetch rules, clientSettingsOverrideJsonUrl: "${sinkHttpUrl}/${uid}/fixtures/client-settings/override.json"}
@@ -26,6 +26,11 @@ steps:
     expect:
       jsonpath:
         $.core.body.props.overrideClientSettings: {regex: "${want}"}
+  # The sink's plain-HTTP listener: checked and fetched, or never asked.
+  - sink: {key: "${uid}", within: 2s}
+    golden: off
+    expect:
+      count: ${requests}
 teardown:
   # Again until bbb-web no longer knows the meeting: an end that reaches
   # akka-apps before the create does is lost.

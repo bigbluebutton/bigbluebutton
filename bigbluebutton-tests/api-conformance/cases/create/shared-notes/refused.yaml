@@ -1,8 +1,9 @@
 # yaml-language-server: $schema=../../../runner/schema/case.schema.json
 # The shared notes' initial content URLs follow the fetch rules
 # (create.fetch.*): a local address whose name fetchUrlAllowedLocalHosts
-# doesn't list (Tier 1 lists sink.test, the same address) is refused, and
-# the notes start empty.
+# doesn't list is refused, and the notes start empty. Here the sink, at
+# 127.0.0.1 and its port, which Tier 1 reaches but doesn't list (it lists
+# sink.test).
 id: create.shared-notes.refused
 title: create refuses initial content from a local address it may not fetch from
 endpoint: create
@@ -14,8 +15,8 @@ steps:
     params:
       meetingID: "${uid}"
       name: Shared notes
-      sharedNotesInitialContentJsonUrl: "https://localhost:8444/refused/fixtures/shared-notes/initial.json"
-      sharedNotesInitialContentMarkdownUrl: "https://localhost:8444/refused/fixtures/shared-notes/initial.md"
+      sharedNotesInitialContentJsonUrl: 'https://127.0.0.1:${match(sinkUrl, ":([0-9]+)$")}/${uid}/fixtures/shared-notes/initial.json'
+      sharedNotesInitialContentMarkdownUrl: 'https://127.0.0.1:${match(sinkUrl, ":([0-9]+)$")}/${uid}/fixtures/shared-notes/initial.md'
     golden: off
     expect: {returncode: SUCCESS}
     capture: {intId: /response/internalMeetingID}
