@@ -8,6 +8,7 @@ import logger from '/imports/startup/client/logger';
 import { makeCustomHookIdentifier } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/utils';
 import { MutationTriggerHandlerProps } from './types';
 import useUpdateMutationResultForPlugin from './hooks';
+import { markPluginOperation } from '/imports/ui/core/telemetry/plugins';
 
 const MutationTriggerHandler: React.FC<MutationTriggerHandlerProps> = (props: MutationTriggerHandlerProps) => {
   const {
@@ -16,6 +17,7 @@ const MutationTriggerHandler: React.FC<MutationTriggerHandlerProps> = (props: Mu
     count,
   } = props;
   const graphqlMutation = gql(mutation);
+  markPluginOperation(graphqlMutation);
   const [mutate, result] = useMutation(graphqlMutation, options);
 
   useUpdateMutationResultForPlugin(result, mutation, options);

@@ -478,6 +478,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                         title={displayName}
                         onClick={() => setEditingRoomId(breakout.breakoutRoomMeetingId)}
                         data-test={`${roomName}`}
+                        data-telemetry-redact
                       >
                         {displayName}
                       </Styled.RoomCardName>
@@ -552,7 +553,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                             participant.user.name,
                           )}
                         >
-                          <span data-test={`userNameBreakoutRoom-${roomName}`}>
+                          <span data-test={`userNameBreakoutRoom-${roomName}`} data-telemetry-redact>
                             {participant.user.name}
                             {participant.userId === userId
                               ? ` (${intl.formatMessage(intlMessages.you)})`

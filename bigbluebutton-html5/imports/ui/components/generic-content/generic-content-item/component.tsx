@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import * as ReactDOM from 'react-dom/client';
 import { GenericContentItemProps } from './types';
+import { observePluginContent } from '/imports/ui/core/telemetry/plugins';
 
 const GenericContentItem: React.FC<GenericContentItemProps> = (props) => {
   const {
@@ -13,6 +14,7 @@ const GenericContentItem: React.FC<GenericContentItemProps> = (props) => {
   useEffect(() => {
     let rootRef: ReactDOM.Root | null;
     if (elementRef.current && renderFunction) {
+      observePluginContent(renderFunction, elementRef.current);
       rootRef = renderFunction(elementRef.current);
     }
 

@@ -183,6 +183,40 @@ public:
     remainingTimeThresholdInMinutes: 6
     remainingTimeAlertThresholdArray: [1,5]
     enableDebugWindow: true
+    # Client performance telemetry: slow React subtrees, HTTP requests, GraphQL operations
+    # and long tasks. Off by default; with enabled: false no observer is registered.
+    # Inspect it in the debug window or with window.bbbTelemetry.dump() in the console.
+    telemetry:
+      enabled: false
+      # Send a periodic p50/p95/max summary through clientLog.external (needs it enabled), and the
+      # repro trail of the last user actions when an error happens (at most once a minute, 5 per session)
+      logToServer: false
+      # none | otlp. otlp POSTs OTLP/HTTP JSON metrics to otlpUrl every flushIntervalMs
+      exporter: none
+      # Same-origin path by default (see the /api/telemetry nginx location). Must be a BBB /api/telemetry
+      # location, never a backend's ingest URL: the session token only goes to this page's origin and
+      # the GraphQL host, so any other host gets the data without it
+      otlpUrl: /api/telemetry
+      # Fraction of sessions that collect, decided once per session
+      sampleRate: 1
+      # Slow entries kept per kind for the debug window
+      bufferSize: 200
+      flushIntervalMs: 30000
+      thresholds:
+        slowRenderMs: 16
+        slowRequestMs: 1000
+        slowGraphqlMs: 500
+        longTaskMs: 50
+        slowInteractionMs: 200
+        # Plugin load, first UI, panel open and data channel round trip
+        slowPluginMs: 500
+      # WebRTC quality per participant with ObserveRTC's client monitor (score 0-5 and detected issues
+      # such as frozen video or congestion). Needs telemetry.enabled. The ~68 KB gzip library lives in
+      # its own file and is downloaded only when this is on.
+      webrtcMonitor:
+        enabled: false
+        collectingPeriodMs: 5000
+        scriptUrl: compatibility/observertc-client-monitor.min.js
     # Warning: increasing the limit of breakout rooms per meeting
     # can generate excessive overhead to the server. We recommend
     # this value to be kept under 16.

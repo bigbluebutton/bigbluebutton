@@ -10,13 +10,16 @@ import {
 import { DataConsumptionHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/enums';
 
 import { QueryHookWithArgumentsContainerProps } from './types';
+import { markPluginOperation } from '/imports/ui/core/telemetry/plugins';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const CustomQueryHookContainer = (props: QueryHookWithArgumentsContainerProps) => {
   const { hookArguments, resolveQuery } = props;
   const { query: queryFromPlugin, variables } = hookArguments;
 
-  const customQueryData = useQuery(gql`${queryFromPlugin}`, {
+  const queryDocument = gql`${queryFromPlugin}`;
+  markPluginOperation(queryDocument);
+  const customQueryData = useQuery(queryDocument, {
     variables,
   });
   const updateCustomQueryForPlugin = () => {

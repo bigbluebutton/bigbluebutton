@@ -5,6 +5,7 @@ import Draggable from 'react-draggable';
 import Styled from './styles';
 import { Position } from './types';
 import useEnforceBoundariesOnWindowResize from './hooks';
+import { observePluginContent } from '/imports/ui/core/telemetry/plugins';
 
 interface FloatingWindowProps {
   left: number;
@@ -60,6 +61,7 @@ const FloatingWindow: React.FC<FloatingWindowProps> = ({
   useEffect(() => {
     let rootRef: ReactDOM.Root | null;
     if (contentRef.current && renderFunction) {
+      observePluginContent(renderFunction, contentRef.current);
       rootRef = renderFunction(contentRef.current);
     }
 

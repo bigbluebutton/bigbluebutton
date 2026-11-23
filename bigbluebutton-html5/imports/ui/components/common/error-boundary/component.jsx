@@ -4,6 +4,7 @@ import logger, { generateLoggerStreams } from '/imports/startup/client/logger';
 import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
 import Session from '/imports/ui/services/storage/in-memory';
 import { ApolloLink } from '@apollo/client';
+import { reportIncident } from '/imports/ui/core/telemetry/incident';
 
 const propTypes = {
   children: PropTypes.element.isRequired,
@@ -157,6 +158,7 @@ class ErrorBoundary extends Component {
 
   componentDidCatch(error, errorInfo) {
     const { isCritical } = this.props;
+    reportIncident('react_error', error);
 
     if (isCritical) {
       window.dispatchEvent(new Event('StopAudioTracks'));

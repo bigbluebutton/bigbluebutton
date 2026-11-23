@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { PluginLoaderManagerProps } from './types';
 import logger from '/imports/startup/client/logger';
 import { setLogger } from '../utils';
+import { pluginLoadFinished, pluginLoadStarted } from '/imports/ui/core/telemetry/plugins';
 
 const PluginLoaderManager = (props: PluginLoaderManagerProps) => {
   const {
@@ -32,6 +33,7 @@ const PluginLoaderManager = (props: PluginLoaderManagerProps) => {
     const script: HTMLScriptElement = document.createElement('script');
     const loadStartedAt = performance.now();
     script.onload = () => {
+      pluginLoadFinished(plugin.name, false);
       logger.info({
         logCode: 'plugin_loaded',
         extraInfo: {
@@ -42,6 +44,7 @@ const PluginLoaderManager = (props: PluginLoaderManagerProps) => {
       onPluginLoadSettled(uuid, true);
     };
     script.onerror = () => {
+      pluginLoadFinished(plugin.name, true);
       logger.error({
         logCode: 'plugin_load_error',
         extraInfo: {
@@ -58,6 +61,7 @@ const PluginLoaderManager = (props: PluginLoaderManagerProps) => {
     if (plugin.javascriptEntrypointIntegrity) {
       script.setAttribute('integrity', plugin.javascriptEntrypointIntegrity);
     }
+    pluginLoadStarted(plugin.name, plugin.url);
     document.head.appendChild(script);
   }, [plugin, containerRef, isLoggerLoaded]);
   return null;

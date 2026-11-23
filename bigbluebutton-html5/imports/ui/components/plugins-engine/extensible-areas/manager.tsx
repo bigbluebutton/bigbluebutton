@@ -18,6 +18,7 @@ import {
   ExtensibleArea, ExtensibleAreaStateManagerProps,
   ExtensibleAreaComponentManager, ExtensibleAreaMap,
 } from './types';
+import { instrumentPluginApi } from '/imports/ui/core/telemetry/plugins';
 import FloatingWindowPluginStateContainer from './components/floating-window/manager';
 import GenericContentPluginStateContainer from './components/generic-content/manager';
 import ScreenshareHelperPluginStateContainer from './components/screenshare-helper/manager';
@@ -74,7 +75,7 @@ const ExtensibleAreaStateManager = (props: ExtensibleAreaStateManagerProps) => {
                   uuid,
                   generateItemWithId,
                   extensibleAreaMap,
-                  pluginApi,
+                  pluginApi: instrumentPluginApi(pluginApi),
                 }
               }
             />
