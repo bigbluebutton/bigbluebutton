@@ -3,9 +3,11 @@ import React, {
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { ThemeProvider } from '@mui/material/styles';
+import ReactModal from 'react-modal';
 import Styled from './styles';
 import SetupPanel from './setup-panel/component';
 import { PreFlightErrorDialog } from './error-screen/component';
+import PreFlightSettings from './settings/component';
 import PreFlightContext, { AUDIO_MODES, AudioMode } from './context';
 import { setPreFlightCompleted, setPreFlightShareCamera } from './service';
 import { getAudioModeAvailability } from './audio-options';
@@ -23,6 +25,10 @@ import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { setDarkTheme } from '/imports/ui/components/app/service';
 import muiTheme from '/imports/ui/services/theme/mui';
 import meetingStaticData from '/imports/ui/core/singletons/meetingStaticData';
+import { getInitialFontSize } from '/imports/ui/components/settings/service';
+import GlobalStyles from '/imports/ui/stylesheets/styled-components/globalStyles';
+import useCurrentLocale from '/imports/ui/core/local-states/useCurrentLocale';
+import { applyLocaleToDocument, getRestoredLocale } from '/imports/startup/client/intlAdapter';
 import useMediaQuery from '/imports/ui/hooks/useMediaQuery';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
@@ -97,6 +103,24 @@ const PreFlight: React.FC<PreFlightProps> = ({
     setDarkTheme(darkTheme);
   }, [darkTheme]);
 
+  const [currentLocale, setCurrentLocale] = useCurrentLocale();
+  // IntlAdapter does it after the join: without it, the pre-flight shows (and
+  // the settings save) the browser's locale over the one the user picked.
+  useEffect(() => {
+    const restoredLocale = getRestoredLocale(currentLocale);
+    if (restoredLocale) setCurrentLocale(restoredLocale);
+  }, []);
+
+  useEffect(() => {
+    if (currentLocale) applyLocaleToDocument(currentLocale);
+  }, [currentLocale]);
+
+  // Done by App after the join.
+  useEffect(() => {
+    document.getElementsByTagName('html')[0].style.fontSize = getInitialFontSize();
+    ReactModal.setAppElement('#app');
+  }, []);
+
   useEffect(() => {
     if (loadingContextInfo.isLoading) {
       loadingContextInfo.setLoading(false);
@@ -166,6 +190,8 @@ const PreFlight: React.FC<PreFlightProps> = ({
       {/* The device selectors and the virtual background controls are MUI: the
           client's provider only mounts after the join. */}
       <ThemeProvider theme={muiTheme}>
+        {/* Carries the modal overlay, otherwise mounted by App. */}
+        <GlobalStyles />
         <Styled.Page data-test="preFlight">
           {isPhoneWidth && (
             <Styled.HeaderColumn>
@@ -179,6 +205,7 @@ const PreFlight: React.FC<PreFlightProps> = ({
               <CustomBackgroundsProvider>
                 <SetupPanel />
               </CustomBackgroundsProvider>
+              <PreFlightSettings />
             </Styled.SetupColumn>
           )}
           <Styled.ContentColumn>

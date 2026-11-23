@@ -49,6 +49,8 @@ const PreFlightAudioSelectors: React.FC<PreFlightAudioSelectorsProps> = ({ liste
   );
   const { enableDynamicAudioDeviceSelection } = window.meetingClientSettings.public.app;
   // @ts-ignore - temporary while hybrid (meteor+GraphQl)
+  const managerInputDeviceId = useReactiveVar(AudioManager._inputDeviceId.value) as string | null;
+  // @ts-ignore - temporary while hybrid (meteor+GraphQl)
   const outputDeviceId = useReactiveVar(AudioManager._outputDeviceId.value) as string;
   // @ts-ignore - temporary while hybrid (meteor+GraphQl)
   const permissionStatus = useReactiveVar(AudioManager._permissionStatus.value) as string;
@@ -139,9 +141,16 @@ const PreFlightAudioSelectors: React.FC<PreFlightAudioSelectorsProps> = ({ liste
       .catch(() => null);
   }, [listenOnly, permissionStatus, updateDevices]);
 
+  // A microphone picked in the settings' device test lands in the manager.
+  useEffect(() => {
+    if (managerInputDeviceId) setInputDeviceId(managerInputDeviceId);
+  }, [managerInputDeviceId]);
+
   const handleSelectInputDevice = useCallback((deviceId: string) => {
     if (!deviceId) return;
     storeAudioInputDeviceId(deviceId);
+    // Keeps the settings' device test on the same microphone.
+    AudioManager.changeInputDevice(deviceId);
     setInputDeviceId(deviceId);
   }, []);
 

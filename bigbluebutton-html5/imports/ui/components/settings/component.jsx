@@ -17,6 +17,8 @@ import { setUseCurrentLocale } from '../../core/local-states/useCurrentLocale';
 import Transcription from '/imports/ui/components/settings/submenus/transcription/component';
 import UnsavedChangesModal from '/imports/ui/components/common/modal/unsaved-changes/component';
 import { SETTINGS_TABS, getSettingsTabs } from './enums';
+import { applyAudioDeviceSelection, getAudioDeviceSelection } from './service';
+import { notify } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 
 const intlMessages = defineMessages({
   appTabLabel: {
@@ -83,6 +85,10 @@ const intlMessages = defineMessages({
     id: 'app.settings.transcriptionTab.label',
     description: 'label for transcriptions tab',
   },
+  deviceChangeFailed: {
+    id: 'app.audioNotification.deviceChangeFailed',
+    description: 'Device change failed',
+  },
 });
 
 const propTypes = {
@@ -125,11 +131,17 @@ const propTypes = {
     nativeName: PropTypes.string.isRequired,
   })).isRequired,
   isShowAudioFiltersEnabled: PropTypes.bool.isRequired,
+  isAudioDeviceTestEnabled: PropTypes.bool.isRequired,
 };
 
 class Settings extends Component {
   static setHtmlFontSize(size) {
     document.getElementsByTagName('html')[0].style.fontSize = size;
+  }
+
+  static markUnsaved(unsavedKeys, key, changed) {
+    const otherKeys = unsavedKeys.filter((k) => k !== key);
+    return changed ? [...otherKeys, key] : otherKeys;
   }
 
   constructor(props) {
@@ -141,6 +153,11 @@ class Settings extends Component {
 
     const tabs = this.getVisibleTabs();
     const resolvedTabIndex = tabs.indexOf(selectedTab);
+    // Not part of the settings: the devices live in the audio manager.
+    const audioDeviceSelection = getAudioDeviceSelection();
+    // Restored on close. Kept out of the saved settings: the application tab only
+    // reports a font size the user picks, so an untouched one would read as changed.
+    this.openingFontSize = document.getElementsByTagName('html')[0].style.fontSize;
 
     this.state = {
       current: {
@@ -154,13 +171,18 @@ class Settings extends Component {
         application: clone(application),
         audio: clone(audio),
       },
+      audioDeviceSelection,
+      savedAudioDeviceSelection: audioDeviceSelection,
       selectedTab: resolvedTabIndex >= 0 ? resolvedTabIndex : 0,
       unsavedModalOpen: false,
-      hasUnsavedChanges: false,
+      // Keys edited away from their saved value: one edit must not clear another's.
+      unsavedKeys: [],
     };
 
     this.updateSettings = props.updateSettings;
     this.handleUpdateSettings = this.handleUpdateSettings.bind(this);
+    this.handleAudioDeviceSelectionChange = this.handleAudioDeviceSelectionChange.bind(this);
+    this.handleSave = this.handleSave.bind(this);
     this.handleSelectTab = this.handleSelectTab.bind(this);
     this.displaySettingsStatus = this.displaySettingsStatus.bind(this);
     this.handleClose = this.handleClose.bind(this);
@@ -193,24 +215,54 @@ class Settings extends Component {
 
       this.setState({ allLocales: tempAggregateLocales });
     });
-
-    // needed because the initial value is null in the saved state
-    const { saved } = this.state;
-    saved.application.fontSize = document.getElementsByTagName('html')[0].style.fontSize;
-    this.setState({ saved });
   }
 
   handleUpdateSettings(key, newSettings) {
     const { saved } = this.state;
-    const hasUnsavedChanges = JSON.stringify(saved[key]) !== JSON.stringify(newSettings);
+    const changed = JSON.stringify(saved[key]) !== JSON.stringify(newSettings);
 
     this.setState((prevState) => ({
       current: {
         ...prevState.current,
         [key]: newSettings,
       },
-      hasUnsavedChanges,
+      unsavedKeys: Settings.markUnsaved(prevState.unsavedKeys, key, changed),
     }));
+  }
+
+  handleAudioDeviceSelectionChange(audioDeviceSelection) {
+    const { savedAudioDeviceSelection } = this.state;
+    const changed = audioDeviceSelection.inputDeviceId !== savedAudioDeviceSelection.inputDeviceId
+      || audioDeviceSelection.outputDeviceId !== savedAudioDeviceSelection.outputDeviceId;
+
+    this.setState((prevState) => ({
+      audioDeviceSelection,
+      unsavedKeys: Settings.markUnsaved(prevState.unsavedKeys, 'audioDevices', changed),
+    }));
+  }
+
+  handleSave() {
+    const { intl, setIsOpen, setLocalSettings } = this.props;
+    const {
+      current, saved, audioDeviceSelection, savedAudioDeviceSelection,
+    } = this.state;
+
+    this.updateSettings(current, intlMessages.savedAlertLabel, setLocalSettings);
+    applyAudioDeviceSelection(savedAudioDeviceSelection, audioDeviceSelection, () => {
+      notify(intl.formatMessage(intlMessages.deviceChangeFailed), true);
+    });
+
+    if (saved.application.locale !== current.application.locale) {
+      const { language } = formatLocaleCode(saved.application.locale);
+      const newLanguage = current.application.locale;
+      setUseCurrentLocale(newLanguage);
+      document.body.classList.remove(`lang-${language}`);
+    }
+
+    /* We need to use setIsOpen(false) here to prevent submenu state updates,
+    *  from re-opening the modal.
+    */
+    setIsOpen(false);
   }
 
   handleSelectTab(tab) {
@@ -220,9 +272,9 @@ class Settings extends Component {
   }
 
   handleClose() {
-    const { hasUnsavedChanges } = this.state;
+    const { unsavedKeys } = this.state;
 
-    if (hasUnsavedChanges) {
+    if (unsavedKeys.length > 0) {
       this.setState({ unsavedModalOpen: true });
       return;
     }
@@ -237,11 +289,13 @@ class Settings extends Component {
 
   getVisibleTabs() {
     const {
-      isShowAudioFiltersEnabled, isScreenSharingEnabled, isVideoEnabled, isGladiaEnabled,
+      isShowAudioFiltersEnabled, isAudioDeviceTestEnabled, isScreenSharingEnabled, isVideoEnabled,
+      isGladiaEnabled,
     } = this.props;
 
     return getSettingsTabs({
       isShowAudioFiltersEnabled,
+      isAudioDeviceTestEnabled,
       isDataSavingTabEnabled: isScreenSharingEnabled || isVideoEnabled,
       isGladiaEnabled,
     });
@@ -250,7 +304,7 @@ class Settings extends Component {
   performClose() {
     const { saved } = this.state;
     const { setIsOpen } = this.props;
-    Settings.setHtmlFontSize(saved.application.fontSize);
+    Settings.setHtmlFontSize(this.openingFontSize);
     document.getElementsByTagName('html')[0].lang = saved.application.locale;
     setIsOpen(false);
   }
@@ -282,12 +336,15 @@ class Settings extends Component {
       paginationToggleEnabled,
       paginationToggleLocked,
       isChatEnabled,
+      isShowAudioFiltersEnabled,
     } = this.props;
 
     const {
       selectedTab,
       current,
+      saved,
       allLocales,
+      audioDeviceSelection,
     } = this.state;
 
     const tabs = this.getVisibleTabs();
@@ -301,6 +358,8 @@ class Settings extends Component {
             allLocales={allLocales}
             handleUpdateSettings={this.handleUpdateSettings}
             settings={current.application}
+            savedFontSize={saved.application.fontSize}
+            openingFontSize={this.openingFontSize}
             displaySettingsStatus={this.displaySettingsStatus}
             layoutContextDispatch={layoutContextDispatch}
             isPresenter={isPresenter}
@@ -318,6 +377,9 @@ class Settings extends Component {
             handleUpdateSettings={this.handleUpdateSettings}
             settings={current.application}
             audioSettings={current.audio}
+            showProcessing={isShowAudioFiltersEnabled}
+            deviceSelection={audioDeviceSelection}
+            onDeviceSelectionChange={this.handleAudioDeviceSelectionChange}
           />
         ),
       },
@@ -412,13 +474,11 @@ class Settings extends Component {
   render() {
     const {
       intl,
-      setIsOpen,
       isOpen,
-      setLocalSettings,
       modalHeight,
       modalWidth,
     } = this.props;
-    const { current, saved, unsavedModalOpen } = this.state;
+    const { unsavedModalOpen } = this.state;
 
     if (unsavedModalOpen) {
       return (
@@ -451,17 +511,7 @@ class Settings extends Component {
               className="bbb-action-button bbb-action-button--primary"
               dataTest="saveSettingsButton"
               label={intl.formatMessage(intlMessages.SaveLabel)}
-              onClick={() => {
-                this.updateSettings(current, intlMessages.savedAlertLabel, setLocalSettings);
-                if (saved.application.locale !== current.application.locale) {
-                  const { language } = formatLocaleCode(saved.application.locale);
-                  const newLanguage = current.application.locale;
-                  setUseCurrentLocale(newLanguage);
-                  document.body.classList.remove(`lang-${language}`);
-                }
-                // setIsOpen(false) keeps submenu state updates from re-opening the modal.
-                setIsOpen(false);
-              }}
+              onClick={this.handleSave}
             />
           </>
         )}

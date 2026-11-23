@@ -114,6 +114,7 @@ class ApplicationMenu extends BaseMenu {
       settings: props.settings,
       isLargestFontSize: false,
       isSmallestFontSize: false,
+      initialFontSize: null,
       showSelect: false,
       fontSizes: [
         '12px',
@@ -143,12 +144,18 @@ class ApplicationMenu extends BaseMenu {
       fontSizes.sort();
     }
     const fontIndex = fontSizes.indexOf(clientFont);
-    this.changeFontSize(clientFont);
+    // Kept out of the settings, so an untouched size is not saved.
     this.setState({
+      initialFontSize: clientFont,
       isSmallestFontSize: fontIndex <= MIN_FONTSIZE,
       isLargestFontSize: fontIndex >= (fontSizes.length - 1),
       fontSizes,
     });
+  }
+
+  getFontSize() {
+    const { settings, initialFontSize } = this.state;
+    return settings.fontSize || initialFontSize;
   }
 
   handleUpdateFontSize(size) {
@@ -158,11 +165,12 @@ class ApplicationMenu extends BaseMenu {
   }
 
   changeFontSize(size) {
-    const { layoutContextDispatch } = this.props;
+    const { layoutContextDispatch, savedFontSize, openingFontSize } = this.props;
     const obj = this.state;
-    obj.settings.fontSize = size;
+    // Back at the size the modal opened with, the setting is as it was: no change.
+    obj.settings.fontSize = size === openingFontSize ? savedFontSize : size;
     this.setState(obj, () => {
-      ApplicationMenu.setHtmlFontSize(this.state.settings.fontSize);
+      ApplicationMenu.setHtmlFontSize(size);
       this.handleUpdateFontSize(this.state.settings.fontSize);
     });
 
@@ -173,7 +181,7 @@ class ApplicationMenu extends BaseMenu {
   }
 
   handleIncreaseFontSize() {
-    const currentFontSize = this.state.settings.fontSize;
+    const currentFontSize = this.getFontSize();
     const availableFontSizes = this.state.fontSizes;
     const maxFontSize = availableFontSizes.length - 1;
     const canIncreaseFontSize = availableFontSizes.indexOf(currentFontSize) < maxFontSize;
@@ -184,7 +192,7 @@ class ApplicationMenu extends BaseMenu {
   }
 
   handleDecreaseFontSize() {
-    const currentFontSize = this.state.settings.fontSize;
+    const currentFontSize = this.getFontSize();
     const availableFontSizes = this.state.fontSizes;
     const canDecreaseFontSize = availableFontSizes.indexOf(currentFontSize) > MIN_FONTSIZE;
     const fs = canDecreaseFontSize ? availableFontSizes.indexOf(currentFontSize) - 1 : MIN_FONTSIZE;
@@ -360,7 +368,8 @@ class ApplicationMenu extends BaseMenu {
 
   renderFontSizeControl() {
     const { intl } = this.props;
-    const { isLargestFontSize, isSmallestFontSize, settings } = this.state;
+    const { isLargestFontSize, isSmallestFontSize } = this.state;
+    const fontSize = this.getFontSize();
 
     const pixelPercentage = {
       '12px': '75%',
@@ -373,13 +382,13 @@ class ApplicationMenu extends BaseMenu {
     };
 
     const ariaValueLabel = intl.formatMessage(intlMessages.currentValue, {
-      size: `${pixelPercentage[settings.fontSize]}`,
+      size: `${pixelPercentage[fontSize]}`,
     });
 
     return (
       <Styled.Row style={{ alignItems: 'center' }}>
         <Styled.Col style={{ justifyContent: 'flex-start' }}>
-          <Styled.ExampleText style={{ fontSize: settings.fontSize }}>
+          <Styled.ExampleText style={{ fontSize }}>
             {intl.formatMessage(intlMessages.exampleTextLabel)}
           </Styled.ExampleText>
         </Styled.Col>
@@ -403,7 +412,7 @@ class ApplicationMenu extends BaseMenu {
             </Styled.Col>
             <Styled.Col>
               <Styled.BoldLabel>
-                {`${pixelPercentage[settings.fontSize]}`}
+                {`${pixelPercentage[fontSize]}`}
               </Styled.BoldLabel>
             </Styled.Col>
             <Styled.Col>
