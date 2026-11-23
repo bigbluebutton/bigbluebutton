@@ -37,10 +37,14 @@ chmod 0644 /usr/share/bbb-libreoffice/docker-image
 install -Dm644 assets/zzz-bbb-docker-libreoffice /usr/share/bbb-libreoffice/zzz-bbb-docker-libreoffice.template
 
 # Always installed, so a conversion script from an earlier checkout is replaced on upgrade: the one
-# shipped until 4.0 ran the bbb-soffice alias, which this version no longer creates
+# shipped until 4.0 ran the bbb-soffice alias, which this version no longer creates.
+# convert.sh is a symlink, as the package makes it; a converter chosen by pointing it elsewhere is kept
 echo "Installing conversion scripts"
-install -Dm755 assets/convert-local.sh /usr/share/bbb-libreoffice-conversion/convert.sh
+install -Dm755 assets/convert-local.sh /usr/share/bbb-libreoffice-conversion/convert-local.sh
 install -Dm755 assets/convert-cool.sh /usr/share/bbb-libreoffice-conversion/convert-cool.sh
+if [ ! -L /usr/share/bbb-libreoffice-conversion/convert.sh ]; then
+	ln -sf /usr/share/bbb-libreoffice-conversion/convert-local.sh /usr/share/bbb-libreoffice-conversion/convert.sh
+fi
 chown -R root /usr/share/bbb-libreoffice-conversion/
 
 # Always rendered, so a rule written for an earlier image is replaced on upgrade
