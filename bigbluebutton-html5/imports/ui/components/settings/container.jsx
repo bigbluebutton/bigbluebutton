@@ -70,7 +70,6 @@ const SettingsContainer = (props) => {
         isScreenSharingEnabled,
         showGuestNotification,
         isReactionsEnabled,
-        showToggleLabel: false,
         isVideoEnabled: window.meetingClientSettings.public.kurento.enableVideo,
         isGladiaEnabled,
         isChatEnabled,

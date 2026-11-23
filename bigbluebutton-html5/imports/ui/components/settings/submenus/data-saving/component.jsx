@@ -1,8 +1,9 @@
 import React from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
+import { BBBToggle } from '@bigbluebutton/bbb-ui-components-react/Toggle';
+import { BBBTypography } from '@bigbluebutton/bbb-ui-components-react/Typography';
 import BaseMenu from '../base/component';
-import SubMenuStyle from '../styles';
-import Styled from './styles';
+import Styled from '../styles';
 
 const intlMessages = defineMessages({
   dataSavingLabel: {
@@ -36,7 +37,6 @@ class DataSaving extends BaseMenu {
   render() {
     const {
       intl,
-      displaySettingsStatus,
       isScreenSharingEnabled,
       isVideoEnabled,
     } = this.props;
@@ -44,56 +44,30 @@ class DataSaving extends BaseMenu {
     const { viewParticipantsWebcams, viewScreenshare } = this.state.settings;
 
     return (
-      <div>
-        <div>
-          <Styled.Title>{intl.formatMessage(intlMessages.dataSavingLabel)}</Styled.Title>
-          <Styled.SubTitle>{intl.formatMessage(intlMessages.dataSavingDesc)}</Styled.SubTitle>
-        </div>
-        <Styled.Form>
-          {isVideoEnabled
-            ? (
-              <Styled.Row>
-                <Styled.Col>
-                  <Styled.FormElementRight>
-                    <SubMenuStyle.MaterialSwitch
-                      icons="false"
-                      checked={viewParticipantsWebcams}
-                      onChange={() => this.handleToggle('viewParticipantsWebcams')}
-                      aria-labelledby="webcamToggle"
-                      aria-label={`${intl.formatMessage(intlMessages.webcamLabel)} - ${displaySettingsStatus(viewParticipantsWebcams, true)}`}
-                      data-test="webcamToggleBtn"
-                    />
-                    <Styled.Label>
-                      {intl.formatMessage(intlMessages.webcamLabel)}
-                    </Styled.Label>
-                  </Styled.FormElementRight>
-                </Styled.Col>
-              </Styled.Row>
-            )
-            : null}
-          {isScreenSharingEnabled
-            ? (
-              <Styled.Row>
-                <Styled.Col>
-                  <Styled.FormElementRight>
-                    <SubMenuStyle.MaterialSwitch
-                      icons="false"
-                      checked={viewScreenshare}
-                      onChange={() => this.handleToggle('viewScreenshare')}
-                      aria-labelledby="screenShare"
-                      aria-label={`${intl.formatMessage(intlMessages.screenShareLabel)} - ${displaySettingsStatus(viewScreenshare, true)}`}
-                      data-test="desktopSharingToggleBtn"
-                    />
-                    <Styled.Label>
-                      {intl.formatMessage(intlMessages.screenShareLabel)}
-                    </Styled.Label>
-                  </Styled.FormElementRight>
-                </Styled.Col>
-              </Styled.Row>
-            )
-            : null}
-        </Styled.Form>
-      </div>
+      <Styled.Section>
+        <Styled.Group>
+          <BBBTypography variant="selected" as="h3">{intl.formatMessage(intlMessages.dataSavingLabel)}</BBBTypography>
+          <BBBTypography as="h4">{intl.formatMessage(intlMessages.dataSavingDesc)}</BBBTypography>
+        </Styled.Group>
+        <Styled.Group>
+          {isVideoEnabled && (
+            <BBBToggle
+              checked={viewParticipantsWebcams}
+              onChange={() => this.handleToggle('viewParticipantsWebcams')}
+              helperText={intl.formatMessage(intlMessages.webcamLabel)}
+              slotProps={{ input: { 'data-test': 'webcamToggleBtn' } }}
+            />
+          )}
+          {isScreenSharingEnabled && (
+            <BBBToggle
+              checked={viewScreenshare}
+              onChange={() => this.handleToggle('viewScreenshare')}
+              helperText={intl.formatMessage(intlMessages.screenShareLabel)}
+              slotProps={{ input: { 'data-test': 'desktopSharingToggleBtn' } }}
+            />
+          )}
+        </Styled.Group>
+      </Styled.Section>
     );
   }
 }

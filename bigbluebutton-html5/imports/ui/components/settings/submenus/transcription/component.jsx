@@ -1,8 +1,9 @@
 import React from 'react';
-import Toggle from '/imports/ui/components/common/switch/component';
+import { BBBToggle } from '@bigbluebutton/bbb-ui-components-react/Toggle';
+import { BBBTypography } from '@bigbluebutton/bbb-ui-components-react/Typography';
 import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
-import Styled from './styles';
+import Styled from '../styles';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 
 const intlMessages = defineMessages({
@@ -31,67 +32,41 @@ class Transcription extends BaseMenu {
   }
 
   render() {
-    const { intl, showToggleLabel, displaySettingsStatus } = this.props;
+    const { intl } = this.props;
 
     const { partialUtterances, minUtteranceLength } = this.state.settings;
 
     return (
-      <div>
-        <div>
-          <Styled.Title>
+      <Styled.Section>
+        <Styled.Group>
+          <BBBTypography variant="selected" as="h3">
             {intl.formatMessage(intlMessages.transcriptionLabel)}
-          </Styled.Title>
-          <Styled.SubTitle>
+          </BBBTypography>
+          <BBBTypography as="h4">
             {intl.formatMessage(intlMessages.transcriptionDesc)}
-          </Styled.SubTitle>
-        </div>
-
-        <Styled.Form>
+          </BBBTypography>
+        </Styled.Group>
+        <Styled.Group>
+          <BBBToggle
+            checked={!!partialUtterances}
+            onChange={() => this.handleToggle('partialUtterances')}
+            helperText={intl.formatMessage(intlMessages.partialUtterancesLabel)}
+          />
           <Styled.Row>
-            <Styled.Col aria-hidden>
-              <Styled.FormElement>
-                <Styled.Label>
-                  {intl.formatMessage(intlMessages.partialUtterancesLabel)}
-                </Styled.Label>
-              </Styled.FormElement>
-            </Styled.Col>
-            <Styled.Col>
-              <Styled.FormElementRight>
-                <Toggle
-                  icons={false}
-                  defaultChecked={partialUtterances}
-                  onChange={() => this.handleToggle('partialUtterances')}
-                  ariaLabelledBy="partialUtterances"
-                  ariaLabel={`${intl.formatMessage(
-                    intlMessages.partialUtterancesLabel,
-                  )} - ${displaySettingsStatus(partialUtterances, true)}`}
-                  showToggleLabel={showToggleLabel}
-                />
-              </Styled.FormElementRight>
-            </Styled.Col>
+            <Styled.Label aria-hidden>
+              {intl.formatMessage(intlMessages.minUtteranceLengthLabel)}
+            </Styled.Label>
+            <input
+              value={minUtteranceLength}
+              onChange={(e) => this.handleInput('minUtteranceLength', e)}
+              aria-label={intl.formatMessage(intlMessages.minUtteranceLengthLabel)}
+              type="number"
+              max="5"
+              min="0"
+            />
           </Styled.Row>
-          <Styled.Row>
-            <Styled.Col aria-hidden>
-              <Styled.FormElement>
-                <Styled.Label>
-                  {intl.formatMessage(intlMessages.minUtteranceLengthLabel)}
-                </Styled.Label>
-              </Styled.FormElement>
-            </Styled.Col>
-            <Styled.Col>
-              <Styled.FormElementRight>
-                <input
-                  value={minUtteranceLength}
-                  onChange={(e) => this.handleInput('minUtteranceLength', e)}
-                  type="number"
-                  max="5"
-                  min="0"
-                />
-              </Styled.FormElementRight>
-            </Styled.Col>
-          </Styled.Row>
-        </Styled.Form>
-      </div>
+        </Styled.Group>
+      </Styled.Section>
     );
   }
 }

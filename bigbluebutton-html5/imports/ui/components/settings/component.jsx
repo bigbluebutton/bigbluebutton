@@ -9,9 +9,10 @@ import Notification from '/imports/ui/components/settings/submenus/notification/
 import Shortcuts from '/imports/ui/components/settings/submenus/shortcuts/component';
 import { clone } from 'radash';
 import PropTypes from 'prop-types';
-import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
+import { BBButton, BBBScrollArea } from '@bigbluebutton/bbb-ui-components-react';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Styled from './styles';
+import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import { formatLocaleCode } from '/imports/utils/string-utils';
 import { setUseCurrentLocale } from '../../core/local-states/useCurrentLocale';
 import Transcription from '/imports/ui/components/settings/submenus/transcription/component';
@@ -255,18 +256,10 @@ class Settings extends Component {
     setIsOpen(false);
   }
 
-  displaySettingsStatus(status, textOnly = false) {
+  displaySettingsStatus(status) {
     const { intl } = this.props;
-    if (textOnly) {
-      return status ? intl.formatMessage(intlMessages.on)
-        : intl.formatMessage(intlMessages.off);
-    }
-    return (
-      <Styled.ToggleLabel aria-hidden>
-        {status ? intl.formatMessage(intlMessages.on)
-          : intl.formatMessage(intlMessages.off)}
-      </Styled.ToggleLabel>
-    );
+    return status ? intl.formatMessage(intlMessages.on)
+      : intl.formatMessage(intlMessages.off);
   }
 
   renderModalContent() {
@@ -301,7 +294,6 @@ class Settings extends Component {
             allLocales={allLocales}
             handleUpdateSettings={this.handleUpdateSettings}
             settings={current.application}
-            displaySettingsStatus={this.displaySettingsStatus}
             layoutContextDispatch={layoutContextDispatch}
             isPresenter={isPresenter}
             isReactionsEnabled={isReactionsEnabled}
@@ -343,7 +335,6 @@ class Settings extends Component {
           <DataSaving
             settings={current.dataSaving}
             handleUpdateSettings={this.handleUpdateSettings}
-            displaySettingsStatus={this.displaySettingsStatus}
             isScreenSharingEnabled={isScreenSharingEnabled}
             isVideoEnabled={isVideoEnabled}
           />
@@ -356,7 +347,6 @@ class Settings extends Component {
           <Transcription
             handleUpdateSettings={this.handleUpdateSettings}
             settings={current.transcription}
-            displaySettingsStatus={this.displaySettingsStatus}
           />
         ),
       },
@@ -364,7 +354,7 @@ class Settings extends Component {
         ariaId: 'shortcutsTab',
         labelMsg: intlMessages.shortcutsLabel,
         dataTest: 'shortcutsTabButton',
-        noPadding: true,
+        hasOwnScroll: true,
         panel: <Shortcuts />,
       },
       [SETTINGS_TABS.ABOUT]: {
@@ -380,28 +370,36 @@ class Settings extends Component {
         onSelect={this.handleSelectTab}
         selectedIndex={selectedTab}
       >
-        <Styled.SettingsTabList>
-          {tabs.map((tabId) => {
-            const {
-              ariaId, spanId, labelMsg, dataTest,
-            } = tabConfig[tabId];
-            return (
-              <Styled.SettingsTabSelector
-                key={tabId}
-                aria-labelledby={ariaId}
-                selectedClassName="is-selected"
-                data-test={dataTest}
-              >
-                <span id={spanId || ariaId}>{intl.formatMessage(labelMsg)}</span>
-              </Styled.SettingsTabSelector>
-            );
-          })}
-        </Styled.SettingsTabList>
+        <Styled.SettingsTabListArea>
+          <BBBScrollArea fadeColor={colorWhite}>
+            <Styled.SettingsTabList>
+              {tabs.map((tabId) => {
+                const {
+                  ariaId, spanId, labelMsg, dataTest,
+                } = tabConfig[tabId];
+                return (
+                  <Styled.SettingsTabSelector
+                    key={tabId}
+                    aria-labelledby={ariaId}
+                    selectedClassName="is-selected"
+                    data-test={dataTest}
+                  >
+                    <span id={spanId || ariaId}>{intl.formatMessage(labelMsg)}</span>
+                  </Styled.SettingsTabSelector>
+                );
+              })}
+            </Styled.SettingsTabList>
+          </BBBScrollArea>
+        </Styled.SettingsTabListArea>
         {tabs.map((tabId) => {
-          const { panel, noPadding } = tabConfig[tabId];
+          const { panel, hasOwnScroll } = tabConfig[tabId];
           return (
-            <Styled.SettingsTabPanel key={tabId} selectedClassName="is-selected" $noPadding={noPadding}>
-              {panel}
+            <Styled.SettingsTabPanel key={tabId} selectedClassName="is-selected">
+              {hasOwnScroll ? panel : (
+                <BBBScrollArea fadeColor={colorWhite}>
+                  <Styled.SettingsTabContent>{panel}</Styled.SettingsTabContent>
+                </BBBScrollArea>
+              )}
             </Styled.SettingsTabPanel>
           );
         })}

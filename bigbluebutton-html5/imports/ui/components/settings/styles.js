@@ -1,7 +1,4 @@
 import styled from 'styled-components';
-import {
-  smPaddingX,
-} from '/imports/ui/stylesheets/styled-components/general';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import {
   colorGrayDark,
@@ -20,20 +17,15 @@ import {
 } from 'react-tabs';
 import Icon from '/imports/ui/components/common/icon/component';
 
-const ToggleLabel = styled.span`
-  margin-right: ${smPaddingX};
-
-  [dir="rtl"] & {
-    margin: 0 0 0 ${smPaddingX};
-  }
-`;
-
+// contain: size keeps the modal body from growing with the tab content and scrolling as a
+// whole, so the tab list and the panel scroll on their own.
 const SettingsTabs = styled(Tabs)`
   display: flex;
   flex-direction: row;
   width: 100%;
   height: 100%;
   overflow: hidden;
+  contain: size;
 
   @media ${smallOnly} {
     display: flex;
@@ -44,12 +36,21 @@ const SettingsTabs = styled(Tabs)`
   }
 `;
 
+const SettingsTabListArea = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: calc(100% / 3);
+
+  @media ${smallOnly} {
+    width: 100%;
+  }
+`;
+
 const SettingsTabList = styled(TabList)`
   display: flex;
   flex-flow: column;
   margin: 0;
   padding: 0;
-  width: calc(100% / 3);
 
   @media ${smallOnly} {
     width: 100%;
@@ -94,7 +95,6 @@ const SettingsTabSelector = styled(Tab)`
     min-height: 3rem;
     border-radius: 8px;
     background: ${colorWhite};
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     transition: all 0.2s ease;
     margin: 0 2px;
     text-overflow: ellipsis;
@@ -126,7 +126,6 @@ const SettingsTabSelector = styled(Tab)`
     color: ${colorText};
     background-color: ${settingsModalTabSelected};
     font-weight: bold;
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
   }
 `;
 
@@ -142,8 +141,6 @@ const SettingsIcon = styled(Icon)`
 const SettingsTabPanel = styled(TabPanel)`
   display: none;
   flex-grow: 1;
-  // BBBModal already pads the outer edge, so only the side next to the tab list gets 3rem.
-  ${({ $noPadding }) => !$noPadding && 'padding-block: 1.5rem; padding-inline: 3rem 1.5rem'};
   border-left: 1px solid ${colorBorder};
   width: calc(100% / 3 * 2);
 
@@ -168,11 +165,21 @@ const SettingsTabPanel = styled(TabPanel)`
   }
 `;
 
+const SettingsTabContent = styled.div`
+  padding-block: 1.5rem;
+  padding-inline: 3rem 1.5rem;
+
+  @media ${smallOnly} {
+    padding: 0.25rem;
+  }
+`;
+
 export default {
-  ToggleLabel,
   SettingsTabs,
+  SettingsTabListArea,
   SettingsTabList,
   SettingsTabSelector,
   SettingsIcon,
   SettingsTabPanel,
+  SettingsTabContent,
 };
