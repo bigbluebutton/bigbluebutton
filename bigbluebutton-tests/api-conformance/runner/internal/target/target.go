@@ -301,6 +301,13 @@ func (t *Target) Bases() []string {
 	return out
 }
 
+// NamedURLs maps the placeholders a case writes for the sink's URLs to the
+// target's values, empty when it has none: a server reports some of them
+// back, such as a fetched plugin manifest's address.
+func (t *Target) NamedURLs() map[string]string {
+	return map[string]string{"${sinkUrl}": t.SinkURL, "${sinkHttpUrl}": t.SinkHTTPURL, "${fixtureUrl}": t.FixtureURL}
+}
+
 // FillPath replaces each {name} in path with the path-escaped value of
 // params[name]. Params the path doesn't use are ignored, since another
 // target may map the same route with other placeholders.

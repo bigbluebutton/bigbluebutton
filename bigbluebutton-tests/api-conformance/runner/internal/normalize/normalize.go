@@ -24,6 +24,10 @@ type Context struct {
 	Bases     []string // the target's base URLs; replaced by ${baseUrl}
 	APIPrefix string   // replaced by ${apiPrefix} in URLs
 	Salt      string
+	// Named maps a placeholder, such as ${sinkUrl}, to the target's URL it
+	// stands for: URLs the server got from the case, such as a fetched
+	// file's address, which it can report back.
+	Named map[string]string
 	// Sent maps every value the case has sent (query params, form fields)
 	// to the first param that carried it.
 	Sent map[string]string
@@ -183,6 +187,7 @@ func (c *Context) tree(root *node, r *Rules, jsonPaths bool) []string {
 	drop(root, r)
 	c.mask(root, r)
 	c.substituteTree(root)
+	c.renameKeys(root, r)
 	sortTree(root, r)
 	return flatten(root, jsonPaths)
 }
@@ -218,8 +223,12 @@ type node struct {
 	raw    bool // a JSON scalar that is not a string (number, bool, null)
 	list   bool // a JSON array
 	item   bool // one of its elements
-	kids   []*node
-	drop   bool
+	member bool // a JSON object's member, named by its key
+	// renamed says the member's key held one of the run's own strings,
+	// which renameKeys replaced.
+	renamed bool
+	kids    []*node
+	drop    bool
 }
 
 // ruleMatch says whether a scope or unordered rule's pattern names n. A
@@ -295,7 +304,9 @@ func jsonNode(name, path string, v any) *node {
 		}
 		sort.Strings(keys)
 		for _, k := range keys {
-			n.kids = append(n.kids, jsonNode(k, path+"/"+k, t[k]))
+			child := jsonNode(k, path+"/"+k, t[k])
+			child.member = true
+			n.kids = append(n.kids, child)
 		}
 		if len(t) == 0 {
 			n.text, n.isText, n.raw = "{}", true, true
@@ -417,6 +428,13 @@ func (c *Context) url(raw string, r *Rules) string {
 	}
 	base := u.Scheme + "://" + u.Host
 	path := u.EscapedPath()
+	// A named URL can have a path of its own, as ${fixtureUrl} does.
+	for _, n := range c.named() {
+		if rest, ok := strings.CutPrefix(base+path, c.Named[n]); ok && (rest == "" || rest[0] == '/') {
+			base, path = n, rest
+			break
+		}
+	}
 	if c.APIPrefix != "" && strings.HasPrefix(path, c.APIPrefix) {
 		path = "${apiPrefix}" + strings.TrimPrefix(path, c.APIPrefix)
 	}
@@ -431,6 +449,9 @@ func (c *Context) url(raw string, r *Rules) string {
 func (c *Context) substitute(s string) string {
 	if c.Salt != "" {
 		s = strings.ReplaceAll(s, c.Salt, "${salt}")
+	}
+	for _, n := range c.named() {
+		s = strings.ReplaceAll(s, c.Named[n], n)
 	}
 	for _, b := range c.Bases {
 		if b != "" {
@@ -449,6 +470,22 @@ func (c *Context) substitute(s string) string {
 		s = strings.ReplaceAll(s, c.UID, "${uid}")
 	}
 	return s
+}
+
+// named lists Named's placeholders whose URL isn't empty, longest URL
+// first: ${fixtureUrl} is usually ${sinkUrl}/fixtures.
+func (c *Context) named() []string {
+	var out []string
+	for n, u := range c.Named {
+		if u != "" {
+			out = append(out, n)
+		}
+	}
+	sort.Slice(out, func(i, j int) bool {
+		a, b := c.Named[out[i]], c.Named[out[j]]
+		return len(a) > len(b) || (len(a) == len(b) && out[i] < out[j])
+	})
+	return out
 }
 
 // wsBase is the websocket URL that goes with a base URL, such as the
@@ -477,6 +514,55 @@ func (c *Context) substituteTree(root *node) {
 			n.attrs[i].value = c.substitute(n.attrs[i].value)
 		}
 	})
+}
+
+// keySlash stands for a / inside a renamed key in a path, which flatten
+// would otherwise print as a dot.
+const keySlash = "\x00"
+
+// renameKeys replaces the run's own strings in JSON object keys, as
+// substituteTree does in values: bbb-web keys a plugin that failed to load
+// by its manifest's URL. A renamed key that holds a / or a . prints as
+// ['key'], so the path stays readable; a key nothing replaces prints as
+// before. Members are sorted again by their new keys.
+func (c *Context) renameKeys(root *node, r *Rules) {
+	changed := false
+	walk(root, func(n *node) {
+		if !n.member {
+			return
+		}
+		k := c.substitute(n.name)
+		if isURL(n.name) {
+			k = c.url(n.name, r)
+		}
+		if k != n.name {
+			n.name, n.renamed, changed = k, true, true
+		}
+	})
+	if !changed {
+		return
+	}
+	var rebuild func(n *node)
+	rebuild = func(n *node) {
+		resort := false
+		for _, k := range n.kids {
+			switch {
+			case k.item:
+				k.name, k.path = n.name+"[]", n.path+"[]"
+			case k.member && k.renamed && strings.ContainsAny(k.name, "/."):
+				k.path = n.path + "['" + strings.ReplaceAll(k.name, "/", keySlash) + "']"
+				resort = true
+			case k.member:
+				k.path = n.path + "/" + k.name
+				resort = resort || k.renamed
+			}
+			rebuild(k)
+		}
+		if resort {
+			sort.SliceStable(n.kids, func(a, b int) bool { return n.kids[a].name < n.kids[b].name })
+		}
+	}
+	rebuild(root)
 }
 
 // sortTree sorts the siblings unordered rules name, by normalized key and
@@ -557,7 +643,7 @@ func flatten(root *node, jsonPaths bool) []string {
 		}
 		p := n.path
 		if jsonPaths {
-			p = strings.ReplaceAll(p, "/", ".")
+			p = strings.ReplaceAll(strings.ReplaceAll(p, "/", "."), keySlash, "/")
 		}
 		for _, a := range n.attrs {
 			out = append(out, p+"/@"+a.name+" "+strconv.Quote(a.value))

@@ -474,9 +474,11 @@ to an end callback.
 |---|---|
 | `_status=N` | Status N (200 to 599). |
 | `_delay=D` | After D, up to 2m. The request is recorded when it arrives, so a server that gives up still counts as having sent it. |
-| `_redirect=URL` | 302, or `_status`, with that Location. |
+| `_redirect=URL` | 302, or `_status`, with that Location. `_redirect=self` sends the request's own path and query back, so with `_first=N` it is a chain of N redirects that then ends in the answer. |
 | `_type=T` | Content-Type T. |
 | `_first=N` | The params above apply to the first N requests to the path that it still holds; later ones get a plain answer. `_status=500&_first=1` fails once, then succeeds. Only under a key. |
+| `_after=N` | The params above apply only after the first N requests to the path that it still holds, which get a plain answer; with `_first=M`, to the M requests after those. `_status=500&_after=1` succeeds once, then fails: a fetch whose URL is checked with one request and downloaded with another fails the download only. Only under a key. |
+| `_expand=1` | A fixture file with each `{{origin}}` replaced by the scheme and host the request reached the sink at, such as `https://sink.test:8444`: a fixture that lists other fixtures' URLs, such as a plugin manifest list, then names the sink the way the server reaches it. Not for generated files. |
 | `_size=N` | A generated file's length; only for `fixtures/generated/`. |
 
 An unknown or misplaced `_` param gets a 400, so a misspelt one isn't
@@ -834,6 +836,9 @@ steps:
 - A var whose value is `null` removes the mapping entry or list item that is
   exactly `${var}`. That's how a variant leaves a param out. Using a null var
   anywhere else is an error.
+- A var's value is used as written: a template in it isn't expanded. So
+  write `"${sinkUrl}/${uid}/${rest}"` in the step and give the var only
+  `rest`; `validate` refuses a var that refers to a built-in variable.
 - A variant can also set `profile` and `class` (replacing the case's) and
   `requires` and `tags` (added to the case's).
 
@@ -1006,7 +1011,7 @@ These steps check what a call did outside its answer, through the target's
   - `fs` and `redis` steps look every 250ms, and a last time at the end of
     the window. A `redis` step reads the key as it is then.
 - **What matches:** these keys narrow what counts as a match:
-  - `jsonpath`, for all three, on the step's document;
+  - `jsonpath`, for `bus` and `fs`, on the step's document;
   - `contents`, for `fs`;
   - `hash`, `members` (the exact set) and `ttl`, for `redis`.
 

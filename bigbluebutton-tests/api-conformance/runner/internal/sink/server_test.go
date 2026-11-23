@@ -31,6 +31,7 @@ func startWorld(t *testing.T) *world {
 		t.Fatal(err)
 	}
 	write(t, filepath.Join(dir, "plugins", "manifest.json"), `{"name":"p"}`)
+	write(t, filepath.Join(dir, "plugins", "list.json"), `[{"url":"{{origin}}/k/fixtures/plugins/manifest.json"}]`)
 	write(t, filepath.Join(top, "secret.txt"), "outside")
 	s, err := New(Config{Fixtures: dir, MaxBytes: 1 << 20, MaxAge: time.Hour})
 	if err != nil {
@@ -191,10 +192,19 @@ func TestModifiers(t *testing.T) {
 		{"/k/a?_status=500&_first=x", 400, "", "", "bad _first"},
 		{"/k/a?_status=500&_first=0", 400, "", "", "bad _first"},
 		{"/k/a?_first=1", 400, "", "", "none is given"},
+		{"/k/a?_status=500&_after=x", 400, "", "", "bad _after"},
+		{"/k/a?_status=500&_after=0", 400, "", "", "bad _after"},
+		{"/k/a?_after=1", 400, "", "", "none is given"},
 		{"/k/a?_stauts=500", 400, "", "", "unknown modifier _stauts"},
 		{"/k/a?_size=10", 400, "", "", "_size is for generated files"},
 		{"/k/generated/a.txt?_size=10", 400, "", "", "_size is for generated files"},
 		{"/k/fixtures/plugins/manifest.json?_size=10", 400, "", "", "_size is for generated files"},
+		{"/k/fixtures/plugins/list.json?_expand=1", 200, "", "application/json", `[{"url":"https://127.0.0.1:`},
+		{"/fixtures/plugins/list.json?_expand=1&_status=203", 203, "", "application/json", `/k/fixtures/plugins/manifest.json"}]`},
+		{"/k/fixtures/plugins/list.json", 200, "", "", `{{origin}}`},
+		{"/k/fixtures/plugins/list.json?_expand=yes", 400, "", "", "bad _expand"},
+		{"/k/a?_expand=1", 400, "", "", "_expand is for fixture files"},
+		{"/k/fixtures/generated/a.json?_size=10&_expand=1", 400, "", "", "_expand is for fixture files"},
 		{"/fixtures/plugins/manifest.json?_status=201", 201, "", "application/json", `{"name":"p"}`},
 	}
 	for _, tt := range tests {
@@ -205,14 +215,22 @@ func TestModifiers(t *testing.T) {
 				resp.Header.Get("Location"), resp.Header.Get("Content-Type"), body)
 		}
 	}
-	// _first counts what the sink recorded, so it needs a key.
-	if resp, body := w.send(t, "GET", "/fixtures/plugins/manifest.json?_status=500&_first=1", ""); resp.StatusCode != 400 || !strings.Contains(body, "needs a key") {
-		t.Errorf("_first without a key: %d %q", resp.StatusCode, body)
+	// _first and _after count what the sink recorded, so they need a key.
+	for _, m := range []string{"_first", "_after"} {
+		if resp, body := w.send(t, "GET", "/fixtures/plugins/manifest.json?_status=500&"+m+"=1", ""); resp.StatusCode != 400 || !strings.Contains(body, "need a key") {
+			t.Errorf("%s without a key: %d %q", m, resp.StatusCode, body)
+		}
 	}
 	// Every request to a key is recorded, those it refused included.
+	keyed := 0
+	for _, tt := range tests {
+		if strings.HasPrefix(tt.path, "/k/") {
+			keyed++
+		}
+	}
 	r, err := w.client.Received(ctx(t), Query{Key: "k"})
-	if err != nil || len(r.Requests) != len(tests)-1 {
-		t.Errorf("recorded %d of %d: %v", len(r.Requests), len(tests)-1, err)
+	if err != nil || len(r.Requests) != keyed {
+		t.Errorf("recorded %d of %d: %v", len(r.Requests), keyed, err)
 	}
 }
 
@@ -234,6 +252,11 @@ func TestFirst(t *testing.T) {
 	if want := "[500 500 200 200 500 302 200]"; fmt.Sprint(got) != want {
 		t.Errorf("statuses %v, want %s", got, want)
 	}
+	// _redirect=self sends the request back where it came from.
+	resp, _ = w.send(t, "GET", "/k/loop?_redirect=self&_first=2&x=1", "")
+	if loc := resp.Header.Get("Location"); resp.StatusCode != 302 || loc != "/k/loop?_redirect=self&_first=2&x=1" {
+		t.Errorf("_redirect=self: %d, Location %q", resp.StatusCode, loc)
+	}
 	// So is a delay: the second request is answered at once.
 	var took []time.Duration
 	for range 2 {
@@ -243,6 +266,38 @@ func TestFirst(t *testing.T) {
 	}
 	if took[0] < 300*time.Millisecond || took[1] >= 300*time.Millisecond {
 		t.Errorf("answered after %v, want the first delayed and the second not", took)
+	}
+}
+
+func TestAfter(t *testing.T) {
+	w := startWorld(t)
+	var got []int
+	for range 3 {
+		resp, _ := w.send(t, "GET", "/k/dl?_status=500&_after=1", "")
+		got = append(got, resp.StatusCode)
+	}
+	// With _first, only that many after the first _after.
+	for range 4 {
+		resp, _ := w.send(t, "GET", "/k/one?_status=503&_after=1&_first=2", "")
+		got = append(got, resp.StatusCode)
+	}
+	// A fixture is served plain first, then as asked.
+	for range 2 {
+		resp, _ := w.send(t, "GET", "/k/fixtures/plugins/manifest.json?_status=404&_after=1", "")
+		got = append(got, resp.StatusCode)
+	}
+	if want := "[200 500 500 200 503 503 200 200 404]"; fmt.Sprint(got) != want {
+		t.Errorf("statuses %v, want %s", got, want)
+	}
+	// A delay, too: the first request is answered at once.
+	var took []time.Duration
+	for range 2 {
+		start := time.Now()
+		w.send(t, "GET", "/k/slow?_delay=300ms&_after=1", "")
+		took = append(took, time.Since(start))
+	}
+	if took[0] >= 300*time.Millisecond || took[1] < 300*time.Millisecond {
+		t.Errorf("answered after %v, want the first at once and the second delayed", took)
 	}
 }
 
