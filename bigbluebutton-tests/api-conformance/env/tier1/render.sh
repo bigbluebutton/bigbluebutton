@@ -2,7 +2,8 @@
 # Renders the stack's configuration into env/.state/conform, which the
 # services mount at /etc/bigbluebutton/conform:
 #   bbb-web.properties   Tier 1's, plus the profile in force, if any
-#   bbb-apps-akka.conf
+#   bbb-apps-akka.conf   Tier 1's, plus the profile's akka-apps settings, if
+#                        it has any
 #   certs/               the CA and nginx's certificate (certs.sh)
 #   conform.env          the variables the runner reads
 # and, once, env/.state/tokens.env: the tap's and the sink's tokens, which
@@ -45,7 +46,15 @@ write_changed() {
 		cat "$env_dir/bbb-web/profiles/$profile.properties"
 	fi
 } | write_changed "$out/bbb-web.properties"
-subst "$env_dir/akka-apps/bbb-apps-akka.conf.in" | write_changed "$out/bbb-apps-akka.conf"
+# A profile can also carry akka-apps settings, in NAME.akka.conf next to
+# its properties: HOCON, where a later value of a key wins too.
+{
+	subst "$env_dir/akka-apps/bbb-apps-akka.conf.in"
+	if [ -n "$profile" ] && [ -f "$env_dir/bbb-web/profiles/$profile.akka.conf" ]; then
+		printf '\n// bbb-conform profile %s\n' "$profile"
+		cat "$env_dir/bbb-web/profiles/$profile.akka.conf"
+	fi
+} | write_changed "$out/bbb-apps-akka.conf"
 
 tokens=$env_dir/.state/tokens.env
 if [ ! -s "$tokens" ]; then

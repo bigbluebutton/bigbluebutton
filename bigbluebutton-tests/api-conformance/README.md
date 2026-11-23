@@ -159,7 +159,8 @@ profiles:
 
 **Profiles on a full install.** `targets/bbb-web.yaml` lists the suite's
 profiles with `env/full-install/profile.sh` as their command. Each profile
-is an overlay, `env/bbb-web/profiles/<name>.properties`:
+is an overlay, `env/bbb-web/profiles/<name>.properties`, and some also have
+akka-apps settings, `<name>.akka.conf` (HOCON; `chapter-breaks` does):
 
 ```sh
 export BBB_EXEC="docker exec -i bbb40"     # or local, or "ssh root@host"
@@ -172,7 +173,12 @@ env/full-install/profile.sh default        # restore the server's own file
   - it keeps the server's `/etc/bigbluebutton/bbb-web.properties` aside;
   - it writes that file plus the overlay (bbb-web takes the last value of a
     key) and restarts bbb-web;
-  - it waits until the API answers again, about 15 seconds.
+  - with akka-apps settings, it does the same to
+    `/etc/bigbluebutton/bbb-apps-akka.conf` and restarts bbb-apps-akka
+    first, as it also does when the switch changes
+    `clientSettingsOverrideStrictValidation`, which akka-apps reads too;
+  - it waits until the API answers again, about 15 seconds, and after an
+    akka-apps restart until its `/healthz` does.
 - **Applying the profile already in force** restarts nothing.
 - **Safety:** it refuses to touch a profiled file that was edited by hand,
   and it takes a lock, so two switches never overlap.
@@ -295,8 +301,9 @@ access for the first build.
 - **Restarts.** Services are restarted when they exit, as the packages'
   units restart theirs; the GraphQL middleware exits when it loses its
   redis subscription. A profile switch restarts bbb-web, and akka-apps too
-  when it changes `clientSettingsOverrideStrictValidation`, the one
-  bbb-web setting akka-apps reads.
+  when it changes akka-apps' settings (`<name>.akka.conf`, appended to the
+  stack's `bbb-apps-akka.conf`) or `clientSettingsOverrideStrictValidation`,
+  the one bbb-web setting akka-apps reads.
 - **ClamAV.** `make up CLAMAV=1` runs the daemon where bbb-web looks for
   it; the `clamav-scan` profile turns scanning on.
 - **In CI.** The `api-conformance` job of `.github/workflows/automated-tests.yml`

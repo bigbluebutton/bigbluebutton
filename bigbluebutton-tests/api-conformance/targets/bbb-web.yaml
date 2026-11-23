@@ -60,4 +60,9 @@ profiles:
   userdata-blocklist-padded: {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" userdata-blocklist-padded'}
   userdata-blocklist-all: {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" userdata-blocklist-all'}
   short-http-session:    {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" short-http-session'}
+  chapter-breaks:        {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" chapter-breaks'}
+  plugin-manifest-cache: {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" plugin-manifest-cache'}
+  client-settings-strict: {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" client-settings-strict'}
+  fetch-blocked-host:    {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" fetch-blocked-host'}
+  short-fetch-timeouts:  {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" short-fetch-timeouts'}
   default:               {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" default'}
