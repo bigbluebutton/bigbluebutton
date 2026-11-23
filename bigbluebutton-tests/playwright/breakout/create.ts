@@ -208,6 +208,16 @@ export class Create extends MultiUsers {
       '15',
     );
     await expect(this.modPage.page.getByRole('spinbutton', { name: 'Seconds' })).toHaveAttribute('aria-valuetext', '0');
+    for (const name of [
+      'Increase breakout time Hours',
+      'Decrease breakout time Hours',
+      'Increase breakout time Minutes',
+      'Decrease breakout time Minutes',
+      'Increase breakout time Seconds',
+      'Decrease breakout time Seconds',
+    ]) {
+      await expect(this.modPage.page.getByRole('button', { name, exact: true })).toBeVisible();
+    }
 
     // test minimum 5 minutes
     await this.modPage.page.locator(e.durationTime).press('Backspace');
