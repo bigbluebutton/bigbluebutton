@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 import {
-  APOLLO_CLIENT_SETTINGS_MODULE,
+  APOLLO_CLIENT_SETTINGS_OVERRIDE,
   field,
   isApolloClientExposed,
   type MutationResult,
@@ -81,7 +81,7 @@ const ensureProbe = async (page: Page): Promise<void> => {
 
 export class RoomMode extends PreFlight {
   async initModPage(page: Parameters<PreFlight['initModPage']>[0], options: InitExtraPageOptionsProps = {}) {
-    await super.initModPage(page, { createModules: APOLLO_CLIENT_SETTINGS_MODULE, ...options });
+    await super.initModPage(page, { createClientSettingsOverride: APOLLO_CLIENT_SETTINGS_OVERRIDE, ...options });
     await ensureProbe(this.modPage);
   }
 
