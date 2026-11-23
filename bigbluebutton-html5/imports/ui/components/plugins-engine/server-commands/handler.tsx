@@ -4,6 +4,7 @@ import PluginAddLocaleCaptionServerCommandsManager from './caption/add-locale/ma
 import PluginSendMessageChatServerCommandsManager from './chat/send-message/manager';
 import PluginCreatePrivateChatServerCommandsManager from './chat/create-private-chat/manager';
 import PluginUploadPresentationServerCommandsManager from './presentation/upload/manager';
+import PluginInsertPagesServerCommandsManager from './presentation/insert-pages/manager';
 
 const PluginServerCommandsHandler = () => (
   <>
@@ -12,6 +13,7 @@ const PluginServerCommandsHandler = () => (
     <PluginSendMessageChatServerCommandsManager />
     <PluginCreatePrivateChatServerCommandsManager />
     <PluginUploadPresentationServerCommandsManager />
+    <PluginInsertPagesServerCommandsManager />
   </>
 );
 
