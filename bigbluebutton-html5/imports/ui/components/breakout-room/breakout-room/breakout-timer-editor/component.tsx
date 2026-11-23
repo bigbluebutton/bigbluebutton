@@ -113,7 +113,15 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
 
   const adjustTime = useCallback((deltaSeconds: number) => {
     const base = editingTime ?? remainingTime;
-    commitTimeChange(base + deltaSeconds);
+    const committed = commitTimeChange(base + deltaSeconds);
+    setFocusedValue((prev) => (prev ? {
+      field: prev.field,
+      value: {
+        h: Math.floor(committed / 3600),
+        m: Math.floor((committed % 3600) / 60),
+        s: committed % 60,
+      }[prev.field],
+    } : prev));
   }, [editingTime, remainingTime, commitTimeChange]);
 
   const handleTimerInputKeyDown = useCallback((

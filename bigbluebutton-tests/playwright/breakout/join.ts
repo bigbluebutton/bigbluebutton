@@ -363,25 +363,28 @@ export class Join extends Create {
     await minutesInput.focus();
     await expect.poll(async () => Number(await secondsInput.inputValue())).toBeGreaterThan(50);
     await minutesInput.press('ArrowUp');
-    await expect(minutesInput).toHaveValue('14');
-    await minutesInput.blur();
+    await minutesInput.press('ArrowUp');
+    await expect(minutesInput).toHaveValue('15');
     await this.modPage.page.waitForTimeout(2200);
+    await expect(minutesInput).toHaveValue('15');
+    await expect(minutesInput).toHaveAttribute('aria-valuetext', '15');
+    await minutesInput.blur();
 
-    // Decrease from 14 to 4 minutes by clicking in the minus button 10 times
+    // Decrease from 15 to 5 minutes by clicking in the minus button 10 times
     for (let i = 0; i < 10; i += 1) {
       await this.modPage.waitAndClick(e.decreaseBreakoutTimeButton);
     }
 
     await this.modPage.hasValue(
       e.breakoutRoomTimerMinutesInput,
-      '04',
+      '05',
       'should have the breakout room time remaining counting down on the main meeting',
     );
-    await expect(this.modPage.page.locator(e.breakoutRoomTimerMinutesInput)).toHaveAttribute('aria-valuetext', '4');
+    await expect(this.modPage.page.locator(e.breakoutRoomTimerMinutesInput)).toHaveAttribute('aria-valuetext', '5');
 
     await breakoutUserPage.hasText(
       e.timeRemaining,
-      /[4-5]:[0-5][0-9]/,
+      /[5-6]:[0-5][0-9]/,
       'should have the time remaining counting down on the breakout room',
     );
 
