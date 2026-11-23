@@ -2,8 +2,11 @@ import { expect, type Locator } from '@playwright/test';
 
 import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
+import { sendMutation } from '../core/graphql';
 import { MultiUsers } from './multiusers';
 import { timeInSeconds } from './util';
+
+const SET_TIMER_TIME = 'mutation SetTimerTime($time: Int!) { timerSetTime(time: $time) }';
 
 export class Timer extends MultiUsers {
   async stopwatchTest() {
@@ -90,10 +93,45 @@ export class Timer extends MultiUsers {
     await expect(this.modPage.page.locator(e.timerSecondsInput)).toHaveAttribute('aria-valuetext', '30');
     await this.modPage.hasText(e.timerIndicator, /10:30/, 'should add 30 seconds to the timer indicator');
 
+    // Arrow-button selection is visual state, not input focus. Starting during
+    // its one-second sync interval must leave every input tracking the countdown.
+    const secondsInput = this.modPage.page.locator(e.timerSecondsInput);
+    await this.modPage.page.getByRole('button', { name: 'Decrease seconds by 1' }).click();
+    await this.modPage.page.locator(e.startStopTimer).evaluate((button: HTMLButtonElement) => button.click());
+    await expect(this.modPage.page.locator(e.startStopTimer)).toHaveText('Stop');
+    const readSeconds = () =>
+      secondsInput.evaluate((input: HTMLInputElement) => ({
+        value: input.value,
+        valueText: input.getAttribute('aria-valuetext'),
+      }));
+    const secondsWhenStarted = await readSeconds();
+    await sendMutation(this.modPage, SET_TIMER_TIME, 'timerSetTime', { time: 620000 });
+    await expect
+      .poll(readSeconds, {
+        message: 'should keep the unfocused seconds input in sync after an arrow-button adjustment',
+        timeout: 500,
+      })
+      .not.toEqual(secondsWhenStarted);
+    const liveSeconds = await readSeconds();
+    expect(liveSeconds.valueText).toBe(String(Number(liveSeconds.value)));
+    expect(
+      Math.abs((await this.timerInputsInSeconds()) - (await timeInSeconds(timerIndicatorLocator))),
+      'should keep the unfocused timer inputs synchronized with the live countdown',
+    ).toBeLessThanOrEqual(1);
+    await this.modPage.page.locator(e.startStopTimer).evaluate((button: HTMLButtonElement) => button.click());
+    await expect(this.modPage.page.locator(e.startStopTimer)).toHaveText('Start');
+    await this.modPage.waitAndClick(e.timerPreset10min);
+    await this.modPage.waitAndClick(e.timerAdd30s);
+    await this.checkTimerInputs('00', '10', '30', 'should restore the adjusted duration after the regression check');
+    await this.modPage.hasText(
+      e.timerIndicator,
+      /10:30/,
+      'should restore the timer indicator after the regression check',
+    );
+
     // Blurring before start must clear the focus freeze, while a late focus capture
     // must survive the arrow-button timeout and freeze when the countdown begins.
     await this.modPage.page.getByRole('button', { name: 'Decrease seconds by 1' }).click();
-    const secondsInput = this.modPage.page.locator(e.timerSecondsInput);
     await secondsInput.focus();
     await this.modPage.page.waitForTimeout(1100);
     const valueBeforeBlur = await secondsInput.inputValue();
