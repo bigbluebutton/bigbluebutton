@@ -28,7 +28,7 @@ if docker image inspect "$IMAGE" &> /dev/null; then
 	echo "Docker image already exists";
 else
 	echo "Docker image doesn't exist, pulling"
-	docker pull "$IMAGE"
+	docker pull "$IMAGE" || exit 1
 fi
 
 install -d /usr/share/bbb-libreoffice
