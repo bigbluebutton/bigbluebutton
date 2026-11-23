@@ -35,6 +35,7 @@ export interface Hint extends HintContent {
 
 export interface RuleState {
   active: Hint | null;
+  cooldown: CooldownPolicy | null;
   suppressedUntil: number;
   blocked: BlockingCooldown | null;
 }
@@ -48,6 +49,25 @@ export interface SmartTriggerController {
   clear: () => void;
   dismiss: () => void;
   reset: () => void;
+}
+
+export interface LocalAudioState {
+  inputStream: MediaStream | null;
+  isMuted: boolean;
+  isListenOnly: boolean;
+  isEchoTest: boolean;
+  isConnected: boolean;
+}
+
+export interface MicActivityOptions {
+  interval: number;
+  threshold: number;
+  enabled: boolean;
+}
+
+export interface MicActivity {
+  isSpeaking: boolean;
+  lastSignalAt: { readonly current: number };
 }
 
 export interface RuleDefinition {

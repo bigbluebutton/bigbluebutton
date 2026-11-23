@@ -14,7 +14,7 @@ const useSmartTrigger = (ruleId: RuleId, cooldown: CooldownPolicy): SmartTrigger
   cooldownRef.current = cooldown;
 
   const dismiss = useCallback(() => {
-    const dismissed = dismissHint(ruleId, cooldownRef.current);
+    const dismissed = dismissHint(ruleId);
     if (dismissed?.presentation === 'toast') hideHintToast(ruleId);
   }, [ruleId]);
 

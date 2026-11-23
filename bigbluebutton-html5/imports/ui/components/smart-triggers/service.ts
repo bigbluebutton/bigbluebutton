@@ -7,7 +7,9 @@ import {
   SmartTriggersState,
 } from './types';
 
-const EMPTY_RULE_STATE: RuleState = { active: null, suppressedUntil: 0, blocked: null };
+const EMPTY_RULE_STATE: RuleState = {
+  active: null, cooldown: null, suppressedUntil: 0, blocked: null,
+};
 
 export const getSmartTriggersSettings = () => window.meetingClientSettings.public.app.smartTriggers;
 
@@ -46,6 +48,7 @@ export const showHint = (hint: Hint, cooldown: CooldownPolicy, now = Date.now())
 
   setRuleState(hint.ruleId, {
     active: hint,
+    cooldown,
     suppressedUntil: startsTimeCooldown ? now + cooldown.ms : rule.suppressedUntil,
   });
   return true;
@@ -57,13 +60,9 @@ export const clearHint = (ruleId: RuleId): Hint | null => {
   return active;
 };
 
-export const dismissHint = (
-  ruleId: RuleId,
-  cooldown: CooldownPolicy,
-  now = Date.now(),
-): Hint | null => {
-  const { active } = getRuleState(smartTriggersState(), ruleId);
-  if (!active) return null;
+export const dismissHint = (ruleId: RuleId, now = Date.now()): Hint | null => {
+  const { active, cooldown } = getRuleState(smartTriggersState(), ruleId);
+  if (!active || !cooldown) return null;
 
   if (cooldown.kind === 'time') {
     setRuleState(ruleId, { active: null, suppressedUntil: now + cooldown.ms });
