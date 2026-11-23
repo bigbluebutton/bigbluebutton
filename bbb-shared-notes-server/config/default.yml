@@ -17,7 +17,7 @@ commandExecution:
   timeout: 30
 
 bbbWeb:
-  host: 127.0.0.1
+  host: 127.0.0.1 # or BBB_WEB_HOST from the environment
   port: 8090
   presentationEndpoint: /bigbluebutton/presentation
   checkAuthorizationEndpoint: /bigbluebutton/connection/checkGraphqlAuthorization
@@ -26,7 +26,7 @@ log:
   level: info
 
 redis:
-  host: 127.0.0.1
+  host: 127.0.0.1 # or REDIS_HOST from the environment
   port: 6379
   password: null
   channels:
@@ -40,9 +40,9 @@ rateLimit:
   windowInSeconds: 60
 
 postgres:
-  host: 127.0.0.1
+  host: 127.0.0.1 # or POSTGRES_HOST from the environment
   port: 5432
   database: blocknote_app
   user: blocknote_app
-  password: blocknote_app # NOSONAR
+  password: blocknote_app # NOSONAR; or POSTGRES_PASSWORD from the environment
   documentExpireMinutesAfterMeetingEnd: 60
