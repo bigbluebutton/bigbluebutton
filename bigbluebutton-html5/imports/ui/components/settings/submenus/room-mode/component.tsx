@@ -20,7 +20,7 @@ import { RoomModeCards } from '/imports/ui/components/pre-flight/room-mode/compo
 import { RoomModeSummaryView } from '/imports/ui/components/pre-flight/room-mode/summary/component';
 import SummaryStyled from '/imports/ui/components/pre-flight/room-mode/summary/styles';
 import { getRoomMode, RoomModeDefinition } from '/imports/ui/components/pre-flight/room-mode/modes';
-import { useRoomModeApplier } from '/imports/ui/components/pre-flight/room-mode/applier';
+import { ROOM_MODE_APPLY_TIMEOUT, useRoomModeApplier } from '/imports/ui/components/pre-flight/room-mode/applier';
 import useRoomModeBase from '/imports/ui/components/pre-flight/room-mode/base';
 import {
   RoomModeEdits,
@@ -222,8 +222,19 @@ const RoomModeTab: React.FC<RoomModeTabProps> = ({
       const mode = getRoomMode(change.pick);
       if (!mode) return;
       const settings = settingsToApply(mode, change.edits, roomValues);
+      // A request that never answers would keep the window locked: give up as the pre-flight does.
+      let cancelled = false;
+      let timer: ReturnType<typeof setTimeout> | undefined;
       try {
-        await apply(mode, settings);
+        await Promise.race([
+          apply(mode, settings, () => cancelled),
+          new Promise<never>((_, reject) => {
+            timer = setTimeout(() => {
+              cancelled = true;
+              reject(new Error('timed out'));
+            }, ROOM_MODE_APPLY_TIMEOUT);
+          }),
+        ]);
       } catch (error) {
         logger.warn({
           logCode: 'room_mode_change_failed',
@@ -231,6 +242,8 @@ const RoomModeTab: React.FC<RoomModeTabProps> = ({
         }, 'Room mode not changed');
         notify(intl.formatMessage(intlMessages.changeFailed), 'error', 'settings');
         throw error;
+      } finally {
+        clearTimeout(timer);
       }
       logger.info({
         logCode: 'room_mode_changed',
