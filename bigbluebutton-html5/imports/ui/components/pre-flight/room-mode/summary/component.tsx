@@ -14,6 +14,7 @@ import { RoomModeDefinition } from '../modes';
 import {
   AUTOMATIC_SETTINGS,
   EDITABLE_SETTINGS,
+  isHiddenWithoutLockSettings,
   RoomModeEditableId,
   RoomModeEditableValues,
   RoomModeEdits,
@@ -139,6 +140,10 @@ export const RoomModeSummaryView: React.FC<RoomModeSummaryViewProps> = ({
     );
   };
 
+  const automaticSettings = AUTOMATIC_SETTINGS.filter((setting) => (
+    setting.appliesTo(mode.preset, roomValues) && !isHiddenWithoutLockSettings(setting)
+  ));
+
   return (
     <Styled.Settings data-test={`${prefix}Summary`}>
       <Styled.Group role="group" aria-labelledby={editableHeadingId}>
@@ -155,6 +160,7 @@ export const RoomModeSummaryView: React.FC<RoomModeSummaryViewProps> = ({
             // As in the lock viewers modal, a room without chat has no public
             // chat to lock.
             if (setting.id === 'publicChat' && !isChatAvailable()) return null;
+            if (isHiddenWithoutLockSettings(setting)) return null;
             return setting.kind === 'switch'
               ? renderSwitch(setting)
               : renderSelect(setting, String(value));
@@ -167,7 +173,7 @@ export const RoomModeSummaryView: React.FC<RoomModeSummaryViewProps> = ({
           {intl.formatMessage(intlMessages.automatic)}
         </Styled.GroupHeading>
         <Styled.AutomaticList>
-          {AUTOMATIC_SETTINGS.filter((setting) => setting.appliesTo(mode.preset, roomValues)).map((setting) => (
+          {automaticSettings.map((setting) => (
             <Styled.AutomaticItem key={setting.id} data-test={`${prefix}${setting.testId}`}>
               <CheckIcon aria-hidden />
               {intl.formatMessage(setting.label)}

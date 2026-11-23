@@ -6,7 +6,7 @@ import {
   type PolicyOption,
   type PresenterPolicy,
 } from '/imports/ui/components/lock-viewers/policy-options';
-import { isChatAvailable } from '../features';
+import { isChatAvailable, isLockSettingsAvailable } from '../features';
 import type { RoomModeDefinition } from './modes';
 
 // The settings a moderator can change in the pre-flight: only what BBB can
@@ -103,6 +103,8 @@ interface BaseEditableSetting {
   label: MessageDescriptor;
   // Appended to the data-test prefix of the summary that lists it.
   testId: string;
+  // Kept in the lock settings, which a room created with them disabled ignores.
+  lockSetting?: true;
 }
 
 export interface SwitchSetting extends BaseEditableSetting {
@@ -129,6 +131,8 @@ export interface AutomaticSetting {
   label: MessageDescriptor;
   // Appended to the data-test prefix of the summary that lists it.
   testId: string;
+  // As in BaseEditableSetting.
+  lockSetting?: true;
   // Whether the mode applies it; listed only then.
   appliesTo: (preset: RoomModePreset, room: RoomModeRoomValues) => boolean;
 }
@@ -155,6 +159,7 @@ export const EDITABLE_SETTINGS: EditableSetting[] = [
     kind: 'switch',
     label: intlMessages.publicChat,
     testId: 'PublicChat',
+    lockSetting: true,
   },
   {
     id: 'presenterPolicy',
@@ -162,6 +167,7 @@ export const EDITABLE_SETTINGS: EditableSetting[] = [
     label: intlMessages.presenterPolicy,
     testId: 'PresenterPolicy',
     options: PRESENTATION_POLICY_OPTIONS,
+    lockSetting: true,
   },
   {
     id: 'whiteboard',
@@ -175,6 +181,7 @@ export const EDITABLE_SETTINGS: EditableSetting[] = [
 // whether the room may record is fixed at its creation.
 export const AUTOMATIC_SETTINGS: AutomaticSetting[] = [
   {
+    // Listed with lock settings disabled too: such a room is created with every webcam visible.
     id: 'webcams',
     label: intlMessages.webcams,
     testId: 'AutomaticWebcams',
@@ -184,6 +191,7 @@ export const AUTOMATIC_SETTINGS: AutomaticSetting[] = [
     id: 'lockOnJoin',
     label: intlMessages.lockOnJoin,
     testId: 'AutomaticLockOnJoin',
+    lockSetting: true,
     appliesTo: (preset) => preset.automatic.lockOnJoin,
   },
   {
@@ -196,6 +204,11 @@ export const AUTOMATIC_SETTINGS: AutomaticSetting[] = [
     appliesTo: (_preset, room) => room.record && !room.autoStartRecording,
   },
 ];
+
+// As in the lock viewers modal, a room with lock settings disabled does not list them.
+export const isHiddenWithoutLockSettings = (setting: { lockSetting?: true }): boolean => (
+  !!setting.lockSetting && !isLockSettingsAvailable()
+);
 
 /**
  * The value each editable setting will have once the mode is applied: the
@@ -216,7 +229,8 @@ export const resolveRoomModeSettings = (
 };
 
 // The modes leave the guest policy as it is, so it is sent only when edited
-// (or asserted by a mode); a room without chat has no public chat to unlock.
+// (or asserted by a mode). A room without chat has no public chat to unlock,
+// and a room with lock settings disabled ignores them.
 export const settingsToApply = (
   mode: RoomModeDefinition,
   edits: RoomModeEdits,
@@ -227,5 +241,6 @@ export const settingsToApply = (
     delete settings.guestPolicy;
   }
   if (!isChatAvailable()) delete settings.publicChat;
+  EDITABLE_SETTINGS.filter(isHiddenWithoutLockSettings).forEach(({ id }) => delete settings[id]);
   return settings;
 };

@@ -12,6 +12,7 @@ import { SET_ROOM_MODE } from './mutations';
 import { getRoomMode, RoomModeDefinition } from './modes';
 import { ResolvedRoomModeSettings, RoomModeEditableId } from './settings';
 import useRoomModeBase from './base';
+import { isLockSettingsAvailable } from '../features';
 
 // How long the room waits for the mode after SetRoomMode.
 export const ROOM_MODE_WAIT_TIMEOUT = 10000;
@@ -149,12 +150,14 @@ export const useRoomModeApplier = (): RoomModeApplier => {
     };
     const lockChanged = (Object.keys(next) as (keyof LockSettingsVariables)[])
       .some((key) => next[key] !== current[key]);
-    if (lockChanged) {
+    // A room with lock settings disabled ignores them, webcams only for moderator included.
+    const lockSettingsAvailable = isLockSettingsAvailable();
+    if (lockChanged && lockSettingsAvailable) {
       await step('lock settings', () => setLockSettingsProps({ variables: next }));
     }
 
     const { webcamsOnlyForModerator } = mode.preset.automatic;
-    if (webcamsOnlyForModerator !== usersPolicies.webcamsOnlyForModerator) {
+    if (lockSettingsAvailable && webcamsOnlyForModerator !== usersPolicies.webcamsOnlyForModerator) {
       await step('webcams only for moderator', () => setWebcamOnlyForModerator({
         variables: { webcamsOnlyForModerator },
       }));
