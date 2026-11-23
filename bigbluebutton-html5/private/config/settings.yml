@@ -165,11 +165,59 @@ public:
         # The URL to the terms of service for the transcription service
         # Specify the URL for each locale you want:
         # en-US: 'https://xxx/SubtitleTerms'
-    mutedAlert:
+    # Contextual hints driven by in-meeting activity. Hints never act on their own:
+    # each one only suggests an action the user can take. Each rule's cooldownMs
+    # keeps that same hint from showing again for that long (ms) after it shows
+    # or is dismissed.
+    smartTriggers:
       enabled: true
-      interval: 200
-      threshold: -50
-      duration: 4000
+      # Shows a tooltip above the mute button when the user talks while muted.
+      # Clicking it turns the alert off until the user unmutes.
+      talkingWhileMuted:
+        enabled: true
+        # How often (ms) the audio energy is checked.
+        interval: 200
+        # Audio energy threshold (dB) to detect speech.
+        speechThresholdDb: -50
+        # How long (ms) the alert stays after the user stops speaking.
+        hideAfterMs: 4000
+      # Suggests changing the microphone when the user is unmuted but the
+      # microphone has sent no signal for `afterSeconds`.
+      noMicSignal:
+        enabled: true
+        # How long (s) without any signal before the hint shows.
+        afterSeconds: 15
+        # Audio energy (dB) below which the input counts as no signal.
+        signalFloorDb: -95
+        cooldownMs: 300000
+      # Suggests lowering the hand when it is still raised after the user
+      # unmuted, spoke and muted again.
+      handStillRaised:
+        enabled: true
+        cooldownMs: 120000
+      # Offers to switch to a microphone connected while the user is in audio.
+      newMicrophone:
+        enabled: true
+      # Moderators only: suggests checking the audio or pausing the recording when
+      # the meeting is being recorded and nobody has talked for `afterMinutes`.
+      recordingWithNoSpeech:
+        enabled: true
+        afterMinutes: 5
+        cooldownMs: 900000
+      # Presenter only: while the meeting tab is in the background, plays a sound
+      # (opt-in user setting) when someone raises a hand, sends a public chat
+      # message or the presenter is asked to unmute. It plays only for events
+      # whose own audio alert is off, and screen readers always announce it.
+      presenterAway:
+        enabled: true
+        cooldownMs: 2000
+      # Presenter only: suggests minimizing the presentation when it is open and
+      # had no slide change or annotation for `afterMinutes` (with the layout
+      # propagated, this minimizes it for everyone).
+      idlePresentation:
+        enabled: true
+        afterMinutes: 10
+        cooldownMs: 1800000
     appsGallery:
       maxPinnedApps: 3
     # Show the remaining time banner when the meeting has fewer than this many minutes left.

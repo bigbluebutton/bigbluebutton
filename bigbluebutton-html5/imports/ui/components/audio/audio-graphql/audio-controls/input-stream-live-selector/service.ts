@@ -226,7 +226,7 @@ export const restoreFromAway = (
 };
 
 export const isMutedAlertEnabled = () => {
-  const { enabled = false } = window.meetingClientSettings.public.app.mutedAlert;
+  const { enabled = false } = window.meetingClientSettings.public.app.smartTriggers.talkingWhileMuted;
   return enabled;
 };
 

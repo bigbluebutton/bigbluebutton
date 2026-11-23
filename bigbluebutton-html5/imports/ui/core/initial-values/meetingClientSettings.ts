@@ -92,11 +92,41 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           locale: 'disabled',
         },
       },
-      mutedAlert: {
+      smartTriggers: {
         enabled: true,
-        interval: 200,
-        threshold: -50,
-        duration: 4000,
+        talkingWhileMuted: {
+          enabled: true,
+          interval: 200,
+          speechThresholdDb: -50,
+          hideAfterMs: 4000,
+        },
+        noMicSignal: {
+          enabled: true,
+          afterSeconds: 15,
+          signalFloorDb: -95,
+          cooldownMs: 300000,
+        },
+        handStillRaised: {
+          enabled: true,
+          cooldownMs: 120000,
+        },
+        newMicrophone: {
+          enabled: true,
+        },
+        recordingWithNoSpeech: {
+          enabled: true,
+          afterMinutes: 5,
+          cooldownMs: 900000,
+        },
+        presenterAway: {
+          enabled: true,
+          cooldownMs: 2000,
+        },
+        idlePresentation: {
+          enabled: true,
+          afterMinutes: 10,
+          cooldownMs: 1800000,
+        },
       },
       appsGallery: {
         maxPinnedApps: 3,

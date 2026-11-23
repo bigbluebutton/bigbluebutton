@@ -52,7 +52,7 @@ class MutedAlert extends Component {
   }
 
   componentDidMount() {
-    const MUTE_ALERT_CONFIG = window.meetingClientSettings.public.app.mutedAlert;
+    const MUTE_ALERT_CONFIG = window.meetingClientSettings.public.app.smartTriggers.talkingWhileMuted;
 
     this._isMounted = true;
 
@@ -60,7 +60,7 @@ class MutedAlert extends Component {
 
     this.cloneMediaStream();
     if (this.inputStream) {
-      const { interval, threshold, duration } = MUTE_ALERT_CONFIG;
+      const { interval, speechThresholdDb: threshold, hideAfterMs: duration } = MUTE_ALERT_CONFIG;
       this.speechEvents = hark(this.inputStream, { interval, threshold });
       this.speechEvents.on('speaking', () => {
         this.resetTimer();

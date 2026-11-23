@@ -78,7 +78,7 @@ export interface App {
   preloadNextSlides: number
   warnAboutUnsavedContentOnMeetingEnd: boolean
   audioCaptions: AudioCaptions
-  mutedAlert: MutedAlert
+  smartTriggers: SmartTriggers
   appsGallery: AppsGallery
   remainingTimeThresholdInMinutes: number
   remainingTimeAlertThresholdArray: number[]
@@ -147,11 +147,38 @@ export interface Language {
   locale: string
 }
 
-export interface MutedAlert {
+export interface SmartTrigger {
   enabled: boolean
+}
+
+export interface CooldownSmartTrigger extends SmartTrigger {
+  cooldownMs: number
+}
+
+export interface TalkingWhileMutedSmartTrigger extends SmartTrigger {
   interval: number
-  threshold: number
-  duration: number
+  speechThresholdDb: number
+  hideAfterMs: number
+}
+
+export interface NoMicSignalSmartTrigger extends CooldownSmartTrigger {
+  afterSeconds: number
+  signalFloorDb: number
+}
+
+export interface IdleSmartTrigger extends CooldownSmartTrigger {
+  afterMinutes: number
+}
+
+export interface SmartTriggers {
+  enabled: boolean
+  talkingWhileMuted: TalkingWhileMutedSmartTrigger
+  noMicSignal: NoMicSignalSmartTrigger
+  handStillRaised: CooldownSmartTrigger
+  newMicrophone: SmartTrigger
+  recordingWithNoSpeech: IdleSmartTrigger
+  presenterAway: CooldownSmartTrigger
+  idlePresentation: IdleSmartTrigger
 }
 
 export interface AppsGallery {
