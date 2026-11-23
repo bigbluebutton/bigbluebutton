@@ -302,6 +302,23 @@ module BigBlueButton
     JavaProperties::Parser.parse(text)
   end
 
+  # bbb-web's defaults, then the admin's overrides, as bbb-web reads them.
+  BBB_WEB_PROPERTIES = [
+    '/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties',
+    '/etc/bigbluebutton/bbb-web.properties',
+  ].freeze
+
+  def self.read_bbb_web_props(paths = BBB_WEB_PROPERTIES)
+    props = {}
+    paths.each { |path| props.merge!(BigBlueButton.read_java_props(path)) if File.file?(path) }
+    props
+  end
+
+  # The API's shared secret, which signs the callbacks.
+  def self.shared_secret
+    BigBlueButton.read_bbb_web_props[:securitySalt]
+  end
+
   def self.create_redis_publisher
     props = BigBlueButton.read_props
     redis_host = props['redis_host']

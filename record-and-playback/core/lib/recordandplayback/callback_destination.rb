@@ -29,11 +29,6 @@ module BigBlueButton
   # fetchUrlAllowedLocalHosts), and sends the request to the address that was
   # checked, so a second DNS answer cannot redirect it.
   module CallbackDestination
-    BBB_WEB_PROPERTIES = [
-      '/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties',
-      '/etc/bigbluebutton/bbb-web.properties',
-    ].freeze
-
     DEFAULT_PROTOCOLS = 'https'
     CALLBACK_SCHEMES = %w[http https].freeze
 
@@ -66,10 +61,8 @@ module BigBlueButton
       end
     end
 
-    def self.policy_from_bbb_web(paths = BBB_WEB_PROPERTIES)
-      props = {}
-      paths.each { |path| props.merge!(BigBlueButton.read_java_props(path)) if File.file?(path) }
-      policy_from_properties(props)
+    def self.policy_from_bbb_web
+      policy_from_properties(BigBlueButton.read_bbb_web_props)
     end
 
     def self.policy_from_properties(props)

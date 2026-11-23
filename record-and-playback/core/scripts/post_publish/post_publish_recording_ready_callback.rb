@@ -35,7 +35,6 @@ opts = Optimist::options do
 end
 meeting_id = opts[:meeting_id]
 
-bbb_web_properties = "/etc/bigbluebutton/bbb-web.properties"
 events_xml = "/var/bigbluebutton/recording/raw/#{meeting_id}/events.xml"
 
 def get_metadata(key, meeting_metadata)
@@ -79,8 +78,7 @@ begin
   elsif destination
     BigBlueButton.logger.info("Making callback for recording ready notification")
 
-    props = BigBlueButton.read_java_props(bbb_web_properties)
-    secret = props[:securitySalt]
+    secret = BigBlueButton.shared_secret
     external_meeting_id = BigBlueButton::Events.get_external_meeting_id(events_xml)
 
     payload = { meeting_id: external_meeting_id, record_id: meeting_id }
