@@ -11,6 +11,7 @@ import {
 import * as dotenv from 'dotenv';
 import { readFileSync } from 'fs';
 
+import { applyClientBuild } from './clientBuild';
 import {
   ELEMENT_WAIT_EXTRA_LONG_TIME,
   ELEMENT_WAIT_LONGER_TIME,
@@ -84,6 +85,8 @@ export interface InitOptionsProps {
   shouldAvoidLayoutCheck?: boolean;
   forceErrorLogFailure?: boolean;
   clientSettingsOverrides?: ClientSettingsOverrides;
+  /** A built html5 client (dist folder) served to this page instead of the server's; see core/clientBuild.ts */
+  clientDist?: string;
   testInfo?: TestInfo | null;
 }
 
@@ -197,6 +200,7 @@ export class Page {
       shouldAvoidLayoutCheck,
       forceErrorLogFailure,
       clientSettingsOverrides,
+      clientDist,
       testInfo,
     } = initOptions || {};
 
@@ -230,6 +234,7 @@ export class Page {
       options: { isModerator, joinParameter, skipSessionDetailsModal },
     });
     if (clientSettingsOverrides) await this.applyClientSettingsOverrides(clientSettingsOverrides);
+    await applyClientBuild(this.page, clientDist, isModerator ? 'moderator' : 'attendee');
     const response = await this.page.goto(joinUrl);
     await expect(response!.ok()).toBeTruthy();
     const hasErrorLabel = await this.checkElement(e.errorMessageLabel);
