@@ -131,6 +131,7 @@ export class GuestPolicy extends MultiUsers {
     await this.modPage.fill(e.waitingUsersLobbyMessage, firstMessage);
     await this.modPage.waitAndClick(e.sendLobbyMessage);
     const successStatus = this.modPage.page.getByRole('status');
+    await expect(successStatus).toHaveAttribute('aria-atomic', 'true');
     await expect(successStatus).toHaveText(`Message sent successfully!: ${firstMessage}`);
     const visibleSuccessLabel = successStatus.locator('[data-test="lobbyMessageSuccessLabel"]');
     await expect(visibleSuccessLabel).toHaveText('Message sent successfully!');
@@ -232,6 +233,7 @@ export class GuestPolicy extends MultiUsers {
     await this.modPage.fill(e.inputPrivateLobbyMessage, firstMessage);
     await this.modPage.waitAndClick(e.sendPrivateLobbyMessage);
     const successStatus = this.modPage.page.getByRole('status');
+    await expect(successStatus).toHaveAttribute('aria-atomic', 'true');
     await expect(successStatus).toHaveText(`Message sent successfully!: ${firstMessage}`);
     const visibleSuccessLabel = successStatus.locator('[data-test="lobbyMessageSuccessLabel"]');
     await expect(visibleSuccessLabel).toHaveText('Message sent successfully!');

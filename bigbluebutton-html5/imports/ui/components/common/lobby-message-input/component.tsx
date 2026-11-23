@@ -116,7 +116,7 @@ const LobbyMessageInput: React.FC<LobbyMessageInputProps> = ({
         ) : sendButton}
       </Styled.InputWrapper>
       {successLabel && (
-        <Styled.SuccessMessage role="status" aria-live="polite">
+        <Styled.SuccessMessage role="status" aria-live="polite" aria-atomic="true">
           {messageSent && (
             <Styled.SuccessContent>
               <CheckCircleOutlineIcon fontSize="small" />
