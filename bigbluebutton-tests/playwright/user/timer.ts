@@ -109,7 +109,7 @@ export class Timer extends MultiUsers {
     await expect
       .poll(readSeconds, {
         message: 'should keep the unfocused seconds input in sync after an arrow-button adjustment',
-        timeout: 500,
+        timeout: ELEMENT_WAIT_TIME,
       })
       .not.toEqual(secondsWhenStarted);
     const liveSeconds = await readSeconds();
