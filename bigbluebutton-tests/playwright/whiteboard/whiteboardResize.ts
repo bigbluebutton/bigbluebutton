@@ -77,12 +77,12 @@ async function waitForSlideScale(page: Page, scale: number, previousWidth?: numb
 }
 
 // The presentation reserves space for its toolbar after it has measured it; until then the slide is laid out
-// against a provisional height.
+// against a provisional height. Rendered boxes, not inline styles, so it holds whoever sizes the elements.
 function presentationLaidOut(): boolean {
   const slide = document.getElementById('presentationInnerWrapper');
   if (!slide?.parentElement) return true;
   const toolbar = document.getElementById('presentationToolbarWrapper');
-  const reservedForToolbar = parseFloat(slide.parentElement.style.height) - parseFloat(slide.style.height);
+  const reservedForToolbar = slide.parentElement.getBoundingClientRect().height - slide.getBoundingClientRect().height;
   return Math.abs(reservedForToolbar - (toolbar?.clientHeight ?? 0)) < 0.5;
 }
 
