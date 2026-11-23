@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, FormattedMessage } from 'react-intl';
-import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import Icon from '/imports/ui/components/common/icon/component';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Styled from './styles';
@@ -71,28 +70,30 @@ const RequestUnmuteComponent = ({
       priority="high"
       title={intl.formatMessage(intlMessages.modalTitle)}
       onRequestClose={handleDeny}
+      footerContent={(
+        <>
+          <Styled.FooterButton
+            label={denyLabel}
+            dataTest="denyUnmute"
+            iconStart={isSmallViewport ? null : <Icon iconName="mute" />}
+            onClick={handleDeny}
+            variant="secondary"
+            color="danger"
+          />
+          <Styled.FooterButton
+            label={intl.formatMessage(intlMessages.confirmButtonLabel)}
+            dataTest="confirmUnmute"
+            iconStart={isSmallViewport ? null : <Icon iconName="unmute" />}
+            onClick={handleConfirm}
+            variant="primary"
+            color="default"
+          />
+        </>
+      )}
     >
       <Styled.Subtitle>
         <FormattedMessage {...intlMessages.modalSubtitle} />
       </Styled.Subtitle>
-      <Styled.RequestModalContent>
-        <BBButton
-          label={intl.formatMessage(intlMessages.confirmButtonLabel)}
-          dataTest="confirmUnmute"
-          iconStart={<Icon iconName="unmute" />}
-          onClick={handleConfirm}
-          variant="primary"
-          color="default"
-        />
-        <BBButton
-          label={denyLabel}
-          dataTest="denyUnmute"
-          iconStart={<Icon iconName="mute" />}
-          onClick={handleDeny}
-          variant="secondary"
-          color="danger"
-        />
-      </Styled.RequestModalContent>
     </ModalSimple>
   );
 };
