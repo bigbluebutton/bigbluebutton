@@ -69,6 +69,13 @@ export interface HandStillRaisedSignals {
   talking: boolean;
 }
 
+// at makes each new detection a new value, so a hint still on screen is
+// fired again.
+export interface RecordingSilence {
+  kind: 'start' | 'silence';
+  at: number;
+}
+
 export interface RuleDefinition {
   id: RuleId;
   presentation: HintPresentation;

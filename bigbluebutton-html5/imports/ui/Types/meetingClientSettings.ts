@@ -169,13 +169,18 @@ export interface IdleSmartTrigger extends CooldownSmartTrigger {
   afterMinutes: number
 }
 
+export interface RecordingWithNoSpeechSmartTrigger extends SmartTrigger {
+  startCheckSeconds: number
+  maxSilenceMinutes: number
+}
+
 export interface SmartTriggers {
   enabled: boolean
   talkingWhileMuted: TalkingWhileMutedSmartTrigger
   noMicSignal: NoMicSignalSmartTrigger
   handStillRaised: CooldownSmartTrigger
   newMicrophone: SmartTrigger
-  recordingWithNoSpeech: IdleSmartTrigger
+  recordingWithNoSpeech: RecordingWithNoSpeechSmartTrigger
   presenterAway: CooldownSmartTrigger
   idlePresentation: IdleSmartTrigger
 }

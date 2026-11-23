@@ -196,12 +196,16 @@ public:
       # Offers to switch to a microphone connected while the user is in audio.
       newMicrophone:
         enabled: true
-      # Moderators only: suggests checking the audio or pausing the recording when
-      # the meeting is being recorded and nobody has talked for `afterMinutes`.
+      # Moderators only: suggests checking the audio or pausing the recording when a
+      # microphone is on but nobody is heard while the meeting is recorded.
       recordingWithNoSpeech:
         enabled: true
-        afterMinutes: 5
-        cooldownMs: 900000
+        # Seconds after the recording starts or resumes to check that someone
+        # has been heard.
+        startCheckSeconds: 30
+        # Longest silence (minutes) tolerated later in the recording before the
+        # hint shows again.
+        maxSilenceMinutes: 10
       # Presenter only: while the meeting tab is in the background, plays a sound
       # (opt-in user setting) when someone raises a hand, sends a public chat
       # message or the presenter is asked to unmute. It plays only for events

@@ -114,8 +114,8 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         },
         recordingWithNoSpeech: {
           enabled: true,
-          afterMinutes: 5,
-          cooldownMs: 900000,
+          startCheckSeconds: 30,
+          maxSilenceMinutes: 10,
         },
         presenterAway: {
           enabled: true,
