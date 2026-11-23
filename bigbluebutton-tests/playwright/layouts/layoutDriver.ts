@@ -49,6 +49,8 @@ export interface OpenClientOptions {
   /** wait for the presentation to mount (default true; false for layouts without one) */
   expectPresentation?: boolean;
   context?: BrowserContext;
+  /** runs on the new page before it joins (e.g. to start CPU throttling before the load) */
+  onPage?: (page: PlaywrightPage) => Promise<void>;
 }
 
 export async function newDeviceContext(browser: Browser, profile: DeviceProfile = { width: 1366, height: 768 }) {
@@ -60,9 +62,17 @@ export async function newDeviceContext(browser: Browser, profile: DeviceProfile 
 
 /** Joins one user in a fresh context sized for `profile`, and waits for a settled layout. */
 export async function openClient(browser: Browser, testInfo: TestInfo, options: OpenClientOptions = {}): Promise<Page> {
-  const { profile, isModerator = true, context: givenContext, expectPresentation = true, ...initOptions } = options;
+  const {
+    profile,
+    isModerator = true,
+    context: givenContext,
+    expectPresentation = true,
+    onPage,
+    ...initOptions
+  } = options;
   const context = givenContext ?? (await newDeviceContext(browser, profile));
   const page = await context.newPage();
+  if (onPage) await onPage(page);
   const bbbPage = new Page(browser, page, testInfo);
   await bbbPage.init(isModerator, { testInfo, ...initOptions });
   // The presentation mounts once its slide data arrives, after the layout first settles: wait for it
