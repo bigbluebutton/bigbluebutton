@@ -184,7 +184,7 @@ public:
       noMicSignal:
         enabled: true
         # How long (s) without any signal before the hint shows.
-        afterSeconds: 15
+        afterSeconds: 6
         # Audio energy (dB) below which the input counts as no signal.
         signalFloorDb: -95
         cooldownMs: 300000

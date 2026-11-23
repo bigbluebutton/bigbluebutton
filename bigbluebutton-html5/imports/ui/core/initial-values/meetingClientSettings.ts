@@ -101,7 +101,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         },
         noMicSignal: {
           enabled: true,
-          afterSeconds: 15,
+          afterSeconds: 6,
           signalFloorDb: -95,
           cooldownMs: 300000,
         },
