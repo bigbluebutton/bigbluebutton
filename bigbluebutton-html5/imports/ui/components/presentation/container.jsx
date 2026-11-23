@@ -1,4 +1,5 @@
 import React, {
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -35,6 +36,7 @@ import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import usePresentationFitToWidth from '/imports/ui/components/presentation/hooks/usePresentationFitToWidth';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
+import { presentationActivityAt, presentationMounted } from '/imports/ui/components/smart-triggers/signals';
 
 const fetchedpresentation = {};
 const FORCE_RESTORE_PRESENTATION_ON_NEW_EVENTS = 'bbb_force_restore_presentation_on_new_events';
@@ -60,6 +62,15 @@ const PresentationContainer = ({
   const currentPageId = currentPresentationPage?.pageId;
   const currentPresentationId = currentPresentationPage?.presentationId;
   const prevPresentationId = usePreviousValue(currentPresentationId);
+
+  useEffect(() => {
+    presentationMounted(true);
+    return () => presentationMounted(false);
+  }, []);
+
+  useEffect(() => {
+    if (currentPageId) presentationActivityAt(Date.now());
+  }, [currentPageId]);
 
   const {
     data: currentMeeting,
@@ -125,6 +136,7 @@ const PresentationContainer = ({
       const streamStartedAt = new Date(lastUpdatedAt).getTime();
       const hasNewEvent = newestInBatch > Math.max(streamStartedAt, lastSeenEventAt.current);
       lastSeenEventAt.current = Math.max(lastSeenEventAt.current, newestInBatch);
+      if (hasNewEvent) presentationActivityAt(Date.now());
       if (restoreOnUpdate && !presentationIsOpen && hasNewEvent) {
         MediaService.setPresentationIsOpen(layoutContextDispatch, true);
       }
