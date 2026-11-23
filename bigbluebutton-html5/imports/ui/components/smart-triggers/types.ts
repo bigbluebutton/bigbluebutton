@@ -57,6 +57,7 @@ export interface LocalAudioState {
   isListenOnly: boolean;
   isEchoTest: boolean;
   isTalking: boolean;
+  inputDeviceId: string | null;
   isConnected: boolean;
 }
 
