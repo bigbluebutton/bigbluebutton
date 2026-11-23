@@ -128,9 +128,11 @@ export class GuestPolicy extends MultiUsers {
     const initialGuestMessage = await guestMessage.elementHandle();
     const firstMessage = 'first lobby message';
     const secondMessage = 'second lobby message';
+    const successStatus = this.modPage.page.getByRole('status');
+    await expect(successStatus).toBeEmpty();
+    const initialSuccessStatus = await successStatus.elementHandle();
     await this.modPage.fill(e.waitingUsersLobbyMessage, firstMessage);
     await this.modPage.waitAndClick(e.sendLobbyMessage);
-    const successStatus = this.modPage.page.getByRole('status');
     await expect(successStatus).toHaveAttribute('aria-atomic', 'true');
     const visibleSuccessLabel = successStatus.locator('[data-test="lobbyMessageSuccessLabel"]');
     await expect(visibleSuccessLabel).toHaveText('Message sent successfully!');
@@ -138,6 +140,10 @@ export class GuestPolicy extends MultiUsers {
     await expect(visibleSuccessLabel).toHaveAttribute('aria-hidden', 'true');
     const screenReaderSuccess = visibleSuccessLabel.locator('xpath=following-sibling::span');
     await expect(screenReaderSuccess).toHaveText(`Message sent successfully!: ${firstMessage}`);
+    expect(
+      await successStatus.evaluate((node, initialNode) => node === initialNode, initialSuccessStatus),
+      'should update the existing message confirmation status region',
+    ).toBe(true);
     await this.userPage.hasText(
       e.guestMessage,
       new RegExp(firstMessage),
@@ -232,9 +238,11 @@ export class GuestPolicy extends MultiUsers {
     await this.modPage.waitAndClick(e.privateMessageGuest);
     const firstMessage = 'first private message';
     const secondMessage = 'second private message';
+    const successStatus = this.modPage.page.getByRole('status');
+    await expect(successStatus).toBeEmpty();
+    const initialSuccessStatus = await successStatus.elementHandle();
     await this.modPage.fill(e.inputPrivateLobbyMessage, firstMessage);
     await this.modPage.waitAndClick(e.sendPrivateLobbyMessage);
-    const successStatus = this.modPage.page.getByRole('status');
     await expect(successStatus).toHaveAttribute('aria-atomic', 'true');
     const visibleSuccessLabel = successStatus.locator('[data-test="lobbyMessageSuccessLabel"]');
     await expect(visibleSuccessLabel).toHaveText('Message sent successfully!');
@@ -242,6 +250,12 @@ export class GuestPolicy extends MultiUsers {
     await expect(visibleSuccessLabel).toHaveAttribute('aria-hidden', 'true');
     const screenReaderSuccess = visibleSuccessLabel.locator('xpath=following-sibling::span');
     await expect(screenReaderSuccess).toHaveText(`Message sent successfully!: ${firstMessage}`);
+    expect(
+      await successStatus.evaluate((node, initialNode) => node === initialNode, initialSuccessStatus),
+      'should update the existing private message confirmation status region',
+    ).toBe(true);
+    await this.modPage.fill(e.inputPrivateLobbyMessage, secondMessage);
+    await expect(this.modPage.page.locator(e.inputPrivateLobbyMessage)).toBeFocused();
     await this.userPage.hasText(
       e.guestMessage,
       new RegExp(firstMessage),
@@ -252,11 +266,12 @@ export class GuestPolicy extends MultiUsers {
       await guestMessage.evaluate((node, initialNode) => node === initialNode, initialGuestMessage),
       'should update the existing guest message live region',
     ).toBe(true);
-    await expect(successStatus).toHaveCount(0);
-    await this.modPage.waitAndClick(e.privateMessageGuest);
-    await this.modPage.fill(e.inputPrivateLobbyMessage, secondMessage);
+    await expect(successStatus).toBeEmpty();
+    await expect(this.modPage.page.locator(e.inputPrivateLobbyMessage)).toHaveValue(secondMessage);
+    await expect(this.modPage.page.locator(e.inputPrivateLobbyMessage)).toBeFocused();
     await this.modPage.waitAndClick(e.sendPrivateLobbyMessage);
     await expect(screenReaderSuccess).toHaveText(`Message sent successfully!: ${secondMessage}`);
+    await expect(successStatus).toHaveCount(0);
   }
 
   async acceptSpecificUser() {
