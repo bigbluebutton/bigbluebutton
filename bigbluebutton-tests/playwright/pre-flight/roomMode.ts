@@ -177,6 +177,21 @@ export const expectRoomSettingsStable = async (page: Page, expected: RoomSetting
   }
 };
 
+export const openRoomModeTab = async (page: Page) => {
+  await page.waitAndClick(e.settingsSidebarButton);
+  await page.waitAndClick(e.settingsRoomModeTab);
+  await page.hasElement(e.settingsRoomModePanel, 'should display the room modes tab');
+};
+
+// Picks Meeting in the tab and confirms it from the window's footer.
+export const switchToMeeting = async (page: Page) => {
+  await openRoomModeTab(page);
+  await page.waitAndClick(e.settingsRoomModeMeeting);
+  await page.waitAndClick(e.settingsRoomModeChangeButton);
+  await page.wasRemoved(e.settingsRoomModePanel, 'should close the settings once the mode is changed');
+  await expectRoomMode(page, 'meeting', 'should record the meeting mode once it is changed');
+};
+
 export class RoomMode extends PreFlight {
   // The meeting enables the probe on create; requiring it is up to the cases
   // that read or write the room mode.

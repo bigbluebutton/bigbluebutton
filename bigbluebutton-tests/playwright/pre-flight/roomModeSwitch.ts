@@ -11,8 +11,10 @@ import {
   expectRoomMode,
   expectRoomModeStable,
   expectRoomSettingsStable,
+  openRoomModeTab,
   readRoomSettings,
   RoomSettings,
+  switchToMeeting,
 } from './roomMode';
 import { CLASS_APPLIED, MEETING_APPLIED, readWhiteboardWriteAccess, setMuted } from './roomModeApply';
 import { hasPanel, RoomModePanel, startsRoom } from './roomModePanel';
@@ -89,21 +91,6 @@ export const expectRoomSettings = async (page: Page, expected: RoomSettings, mes
   await expect(async () => {
     expect(await readRoomSettings(page), message).toEqual(expected);
   }).toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
-};
-
-export const openRoomModeTab = async (page: Page) => {
-  await page.waitAndClick(e.settingsSidebarButton);
-  await page.waitAndClick(e.settingsRoomModeTab);
-  await page.hasElement(e.settingsRoomModePanel, 'should display the room modes tab');
-};
-
-// Picks Meeting in the tab and confirms it from the window's footer.
-export const switchToMeeting = async (page: Page) => {
-  await openRoomModeTab(page);
-  await page.waitAndClick(e.settingsRoomModeMeeting);
-  await page.waitAndClick(e.settingsRoomModeChangeButton);
-  await page.wasRemoved(e.settingsRoomModePanel, 'should close the settings once the mode is changed');
-  await expectRoomMode(page, 'meeting', 'should record the meeting mode once it is changed');
 };
 
 export class RoomModeSwitch extends RoomModePanel {

@@ -7,16 +7,17 @@ import { getApiCallUrl } from '../core/helpers';
 import { Page } from '../core/page';
 import { readArchivedEvents, readRecordedEvents, type RecordedEvent } from '../core/recordedEvents';
 import { InitExtraPageOptionsProps } from '../user/multiusers';
-import { CLASS_CREATE_PARAMETER, ensureProbe, expectRoomMode, readRoomSettings } from './roomMode';
+import {
+  CLASS_CREATE_PARAMETER,
+  ensureProbe,
+  expectRoomMode,
+  openRoomModeTab,
+  readRoomSettings,
+  switchToMeeting,
+} from './roomMode';
 import { MEETING_APPLIED } from './roomModeApply';
 import { hasNoPanel } from './roomModePanel';
-import {
-  expectRoomSettings,
-  openRoomModeTab,
-  readLockSettings,
-  RoomModeSwitch,
-  switchToMeeting,
-} from './roomModeSwitch';
+import { expectRoomSettings, readLockSettings, RoomModeSwitch } from './roomModeSwitch';
 import { ROOM_MODE_PANEL_INIT_OPTIONS } from './util';
 
 const ROOM_CONFIGURED_EVENT = 'RoomConfiguredEvent';
