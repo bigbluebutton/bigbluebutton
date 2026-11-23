@@ -42,7 +42,7 @@ const intlMessages = defineMessages({
 const CAMERA_DOCK_GRID_SNAP_TOLERANCE = 12;
 const CAMERA_DOCK_GRID_SETTLE_DELAY = 100;
 
-const snapCameraDockDimensionToGrid = (
+export const snapCameraDockDimensionToGrid = (
   dockSize: number,
   gridSize: number | undefined,
   minSize: number,

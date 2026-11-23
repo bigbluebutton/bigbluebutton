@@ -2061,6 +2061,7 @@ const layoutDispatch = () => useContextSelector(LayoutContextSelector, (layout) 
 
 export {
   LayoutContextProvider,
+  reducer,
   layoutSelect,
   layoutSelectInput,
   layoutSelectOutput,
