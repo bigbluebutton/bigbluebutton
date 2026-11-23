@@ -8,6 +8,12 @@
 # slides are neither exported nor counted. A failure while reading notes
 # removes the notes directory but keeps the PDF; the exit code is non-zero only
 # when the PDF could not be written.
+#
+# Next to each non-empty slide-N.txt it also writes slide-N.json, the same notes
+# with their formatting (version 1: paragraphs with list level and marker, runs
+# with emphasis and direct colors). A slide whose formatting cannot be read, or
+# whose JSON would pass MAX_NOTE_CHARS, keeps only its plain text.
+import json
 import os
 import shutil
 import sys
@@ -19,6 +25,24 @@ from com.sun.star.beans import PropertyValue
 MAX_NOTE_CHARS = 1024 * 1024
 CONNECT_TIMEOUT_SECONDS = 30
 NOTES_SHAPE = "com.sun.star.presentation.NotesShape"
+STRUCTURED_NOTES_VERSION = 1
+MAX_LIST_LEVELS = 10
+DEFAULT_BULLET = "\u2022"
+# com.sun.star.style.NumberingType values
+NUMBERING_UPPER_LETTERS = (0, 9)
+NUMBERING_LOWER_LETTERS = (1, 10)
+NUMBERING_UPPER_ROMAN = 2
+NUMBERING_LOWER_ROMAN = 3
+NUMBERING_ARABIC = 4
+NUMBERING_NONE = 5
+NUMBERING_CHAR_SPECIAL = 6
+NUMBERED_TYPES = NUMBERING_UPPER_LETTERS + NUMBERING_LOWER_LETTERS + (
+    NUMBERING_UPPER_ROMAN, NUMBERING_LOWER_ROMAN, NUMBERING_ARABIC)
+FONT_WEIGHT_NORMAL = 100.0
+# FontUnderline / FontStrikeout values that mean "no line"
+NO_LINE_VALUES = (0, 3, 18)
+ROMAN_NUMERALS = ((1000, "M"), (900, "CM"), (500, "D"), (400, "CD"), (100, "C"), (90, "XC"),
+                  (50, "L"), (40, "XL"), (10, "X"), (9, "IX"), (5, "V"), (4, "IV"), (1, "I"))
 PDF_FILTERS = (
     ("com.sun.star.presentation.PresentationDocument", "impress_pdf_Export"),
     ("com.sun.star.drawing.DrawingDocument", "draw_pdf_Export"),
@@ -56,15 +80,156 @@ def pdf_filter_for(document):
     raise ValueError("Unsupported document type")
 
 
-def notes_text(slide):
+def notes_shapes(slide):
     notes_page = slide.NotesPage
-    texts = []
+    shapes = []
     for index in range(notes_page.Count):
         shape = notes_page.getByIndex(index)
         if shape.ShapeType == NOTES_SHAPE:
-            texts.append(shape.getString())
+            shapes.append(shape)
+    return shapes
+
+
+def notes_text(slide):
+    texts = [shape.getString() for shape in notes_shapes(slide)]
     text = "\n".join(texts).replace("\r\n", "\n").replace("\r", "\n").strip()
     return text[:MAX_NOTE_CHARS]
+
+
+def property_or(source, name, fallback):
+    try:
+        return source.getPropertyValue(name)
+    except Exception:
+        return fallback
+
+
+def color_hex(value):
+    return "#%06X" % (value & 0xFFFFFF)
+
+
+def run_value(portion):
+    run = {"text": portion.getString().replace("\r\n", "\n").replace("\r", "\n")}
+    if property_or(portion, "CharWeight", FONT_WEIGHT_NORMAL) > FONT_WEIGHT_NORMAL:
+        run["bold"] = True
+    posture = property_or(portion, "CharPosture", None)
+    if posture is not None and posture.value != "NONE":
+        run["italic"] = True
+    if property_or(portion, "CharUnderline", 0) not in NO_LINE_VALUES:
+        run["underline"] = True
+    if property_or(portion, "CharStrikeout", 0) not in NO_LINE_VALUES:
+        run["strikethrough"] = True
+    escapement = property_or(portion, "CharEscapement", 0)
+    if escapement > 0:
+        run["superscript"] = True
+    elif escapement < 0:
+        run["subscript"] = True
+    color = property_or(portion, "CharColor", -1)
+    if color != -1:
+        run["color"] = color_hex(color)
+    highlight = property_or(portion, "CharBackColor", -1)
+    if highlight != -1 and not property_or(portion, "CharBackTransparent", True):
+        run["highlight"] = color_hex(highlight)
+    return run
+
+
+def letters(value):
+    result = ""
+    current = max(1, value)
+    while current > 0:
+        result = chr(ord("A") + (current - 1) % 26) + result
+        current = (current - 1) // 26
+    return result
+
+
+def roman(value):
+    result = ""
+    remaining = max(1, value)
+    for number, numeral in ROMAN_NUMERALS:
+        while remaining >= number:
+            result += numeral
+            remaining -= number
+    return result
+
+
+def format_number(value, numbering_type):
+    if numbering_type in NUMBERING_UPPER_LETTERS:
+        return letters(value)
+    if numbering_type in NUMBERING_LOWER_LETTERS:
+        return letters(value).lower()
+    if numbering_type == NUMBERING_UPPER_ROMAN:
+        return roman(value)
+    if numbering_type == NUMBERING_LOWER_ROMAN:
+        return roman(value).lower()
+    return str(value)
+
+
+def numbering_rule(paragraph, level):
+    try:
+        rules = paragraph.getPropertyValue("NumberingRules")
+        rule = {item.Name: item.Value for item in rules.getByIndex(level)}
+    except Exception:
+        # Paragraphs outside a list have no numbering rules
+        return None
+    if rule.get("NumberingType", NUMBERING_NONE) == NUMBERING_NONE:
+        return None
+    return rule
+
+
+def reset_deeper_counters(counters, level):
+    for index in range(level + 1, len(counters)):
+        counters[index] = -1
+
+
+def list_value(rule, level, counters):
+    reset_deeper_counters(counters, level)
+    if rule is None:
+        return None
+    numbering_type = rule.get("NumberingType")
+    if numbering_type in NUMBERED_TYPES:
+        start = max(1, rule.get("StartWith") or 1)
+        counters[level] = start if counters[level] < start else counters[level] + 1
+        marker = (rule.get("Prefix") or "") + format_number(counters[level], numbering_type) + (rule.get("Suffix") or "")
+        return {"type": "number", "marker": marker}
+    bullet = rule.get("BulletChar") if numbering_type == NUMBERING_CHAR_SPECIAL else ""
+    return {"type": "bullet", "marker": bullet or DEFAULT_BULLET}
+
+
+def paragraph_value(paragraph, counters):
+    # LibreOffice leaves NumberingLevel empty for paragraphs that are not list items, even
+    # when the notes style defines numbering rules
+    numbering_level = property_or(paragraph, "NumberingLevel", None)
+    level = min(max(0, numbering_level or 0), MAX_LIST_LEVELS - 1)
+    rule = None if numbering_level is None else numbering_rule(paragraph, level)
+    runs = []
+    portions = paragraph.createEnumeration()
+    while portions.hasMoreElements():
+        run = run_value(portions.nextElement())
+        if run["text"]:
+            runs.append(run)
+    return {"level": level, "list": list_value(rule, level, counters), "runs": runs}
+
+
+def structured_notes(slide):
+    paragraphs = []
+    for shape in notes_shapes(slide):
+        counters = [-1] * MAX_LIST_LEVELS
+        enumeration = shape.Text.createEnumeration()
+        while enumeration.hasMoreElements():
+            paragraphs.append(paragraph_value(enumeration.nextElement(), counters))
+    return {"version": STRUCTURED_NOTES_VERSION, "paragraphs": paragraphs}
+
+
+def write_structured_notes(slide, path):
+    try:
+        value = json.dumps(structured_notes(slide), ensure_ascii=False, separators=(",", ":"))
+        if len(value) > MAX_NOTE_CHARS:
+            return
+        with open(path, "w", encoding="utf-8") as notes_file:
+            notes_file.write(value)
+    except Exception as exception:
+        if os.path.exists(path):
+            os.remove(path)
+        print("Could not save formatted speaker notes: %s" % type(exception).__name__, file=sys.stderr)
 
 
 def write_notes(document, notes_dir):
@@ -79,9 +244,12 @@ def write_notes(document, notes_dir):
             if not slide.Visible:
                 continue
             page_number += 1
-            path = os.path.join(notes_dir, "slide-%d.txt" % page_number)
-            with open(path, "w", encoding="utf-8") as notes_file:
-                notes_file.write(notes_text(slide))
+            text = notes_text(slide)
+            path = os.path.join(notes_dir, "slide-%d" % page_number)
+            with open(path + ".txt", "w", encoding="utf-8") as notes_file:
+                notes_file.write(text)
+            if text:
+                write_structured_notes(slide, path + ".json")
     except Exception as exception:
         shutil.rmtree(notes_dir, ignore_errors=True)
         print("Could not save speaker notes: %s" % type(exception).__name__, file=sys.stderr)
