@@ -38,8 +38,9 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
       val validationResult = for {
         _ <- checkIfUserGuestStatusIsAllowed(user)
         _ <- checkIfUserIsBanned(user)
-        _ <- checkIfUserAccessRevoked(user)
+        // A removed user's client rejoins by itself: report the removal, not the revoked room access.
         _ <- checkIfUserEjected(user)
+        _ <- checkIfUserAccessRevoked(user)
         _ <- checkIfUserLoggedOut(user)
         _ <- validateMaxParticipants(user)
       } yield user

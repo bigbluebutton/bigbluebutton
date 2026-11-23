@@ -23,6 +23,10 @@ const AUDIO_REJOIN_SETTLE_TIME = 3000;
 // The running rooms accept no less than one minute left; the server checks the time
 // every few seconds after that.
 const SHORTEST_BREAKOUT_END_TIME = 90000;
+// A user removed from a room rejoins by itself, and the server's refusal replaces the end screen's text
+// about 0.3 s after it appears. The end screen stops taking updates 5 s after it opens, and closes a
+// breakout tab 20 s after it opens: the hold plus the final check must end well before that.
+const REMOVAL_MESSAGE_SETTLE_TIME = 6000;
 
 // a public chat message sent the way the client sends it, and the public messages a participant reads
 const SEND_CHAT_MESSAGE =
@@ -567,6 +571,35 @@ export class Join extends Create {
       e.breakoutNotAssigned,
       'should show the attendee as not assigned to any breakout room in the main room',
       ELEMENT_WAIT_LONGER_TIME,
+    );
+  }
+
+  async removeAttendeeInsideRoom(): Promise<void> {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+    if (!this?.userPage) throw new Error('userPage not initialized');
+
+    const breakoutUserPage = await this.joinRoom();
+    const roomModTab = await this.joinFirstBreakoutRoomAsModerator();
+
+    const attendeeRow = roomModTab.locator(e.userListItem).filter({ hasText: this.userPage.username });
+    const isAttendeeRowVisible = await attendeeRow.isVisible().catch(() => false);
+    if (!isAttendeeRowVisible) await roomModTab.locator(e.usersListSidebarButton).click();
+    await attendeeRow.locator(e.moreOptionsUserItemButton).click();
+    // Every row renders its own copy of the menu and the closed ones stay in the DOM: match the visible item
+    await roomModTab.locator(`${e.removeUser}:visible`).first().click();
+    await roomModTab.locator(e.removeUserConfirmationBtn).click();
+
+    await breakoutUserPage.hasElement(
+      e.meetingEndedModal,
+      'should show the end screen to the removed attendee',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await breakoutUserPage.page.waitForTimeout(REMOVAL_MESSAGE_SETTLE_TIME);
+    await breakoutUserPage.hasText(
+      e.meetingEndedModal,
+      e.removedFromSessionMessage,
+      'should tell the attendee they were removed, not that they violated a permission, once the server has answered their rejoin',
+      2000,
     );
   }
 

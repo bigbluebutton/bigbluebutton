@@ -379,6 +379,18 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await join.unassignUserFromRoom('dragToUnassigned');
     });
 
+    test('Removing an attendee inside a room tells them they were removed', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      linkIssue(26430);
+      const join = new Join(browser, context);
+      await join.initPages(page, testInfo);
+      await join.create();
+      await join.removeAttendeeInsideRoom();
+    });
+
     test('Export breakout room shared notes', async ({ browser, context, page }, testInfo) => {
       const join = new Join(browser, context);
       await join.initModPage(page, { testInfo });
