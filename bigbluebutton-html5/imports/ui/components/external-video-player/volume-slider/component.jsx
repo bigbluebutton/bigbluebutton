@@ -96,6 +96,7 @@ class VolumeSlider extends Component {
         <Styled.VolumeSlider
           type="range"
           aria-label={intl.formatMessage(intlMessages.volumeLabel)}
+          aria-valuetext={intl.formatNumber(muted ? 0 : volume, { style: 'percent' })}
           min={0}
           max={1}
           step={0.02}
@@ -111,6 +112,7 @@ VolumeSlider.propTypes = {
   hideVolume: PropTypes.bool,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
+    formatNumber: PropTypes.func.isRequired,
   }).isRequired,
   muted: PropTypes.bool.isRequired,
   onMuted: PropTypes.func.isRequired,

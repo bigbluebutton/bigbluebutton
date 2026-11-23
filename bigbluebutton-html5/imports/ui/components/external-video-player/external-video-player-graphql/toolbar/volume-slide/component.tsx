@@ -103,6 +103,7 @@ const VolumeSlide = React.forwardRef<HTMLInputElement, VolumeSlideProps>(({
         ref={ref}
         type="range"
         aria-label={intl.formatMessage(intlMessages.volumeLabel)}
+        aria-valuetext={intl.formatNumber(mutedState ? 0 : volumeState, { style: 'percent' })}
         min={0}
         max={1}
         step={0.02}
