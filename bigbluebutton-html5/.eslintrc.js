@@ -56,5 +56,12 @@ module.exports = {
         ],
       },
     },
+    {
+      // Unit tests and their config run on dev dependencies only.
+      files: ['**/*.test.{js,jsx,ts,tsx}', 'test/**', 'vitest.config.ts'],
+      rules: {
+        'import/no-extraneous-dependencies': ['error', { devDependencies: true }],
+      },
+    },
   ],
 };
