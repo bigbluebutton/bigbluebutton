@@ -53,6 +53,7 @@ const UsersListItem: React.FC = () => {
       ariaDescribedBy="usersList"
       dataTest="usersListSidebarButton"
       hasNotification={hasNotification}
+      count={usersCount}
     >
       <Styled.GuestNumberIndicatorWrapper className="bbb-navigation__item-count" $count={usersCount}>
         <Styled.GuestNumberIndicator>

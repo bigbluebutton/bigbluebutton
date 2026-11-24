@@ -26,6 +26,7 @@ const ExternalPinnedApp: React.FC<PinnedAppProps> = (props) => {
       appKey={appKey}
       appInfo={modifiedAppInfo}
       isOpened={isOpened}
+      badgeLabel={badgeContent}
     >
       {badgeContent && (
         <NotificationBadgeStyled.NotificationBadge $anchored data-test={`${appKey}Badge`}>

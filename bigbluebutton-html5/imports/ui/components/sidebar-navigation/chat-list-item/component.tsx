@@ -23,6 +23,14 @@ const intlMessages = defineMessages({
     id: 'app.userList.chatListItem.unreadSingular',
     description: 'plural aria label for new messages',
   },
+  unreadMessages: {
+    id: 'app.sidebarNavigation.button.unreadMessages',
+    description: 'Spoken state of the messages button when there are unread messages',
+  },
+  unreadPrivateMessage: {
+    id: 'app.sidebarNavigation.button.unreadPrivateMessage',
+    description: 'Spoken state of the messages button when there is an unread private message',
+  },
 });
 
 const ChatListItem: React.FC = () => {
@@ -75,6 +83,9 @@ const ChatListItem: React.FC = () => {
       dataTest="messagesSidebarButton"
       hasNotification={hasUnreadMessages}
       hasPrivateNotification={hasUnreadPrivateMessages}
+      notificationLabel={intl.formatMessage(hasUnreadPrivateMessages
+        ? intlMessages.unreadPrivateMessage
+        : intlMessages.unreadMessages)}
       onToggle={handleChatToggle}
     />
   );
