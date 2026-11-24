@@ -14,7 +14,7 @@ import {
   readRoomSettings,
   RoomSettings,
 } from './roomMode';
-import { CLASS_APPLIED, MEETING_APPLIED, readWhiteboardWriteAccess, setMuted } from './roomModeApply';
+import { CLASS_APPLIED, MEETING_APPLIED, readWhiteboardWriteAccess, routeOperation, setMuted } from './roomModeApply';
 import { hasPanel, RoomModePanel, startsRoom } from './roomModePanel';
 import { NO_PRE_FLIGHT_INIT_OPTIONS, NO_ROOM_MODE_PANEL_INIT_OPTIONS, ROOM_MODE_PANEL_INIT_OPTIONS } from './util';
 
@@ -96,6 +96,10 @@ export const openRoomModeTab = async (page: Page) => {
   await page.waitAndClick(e.settingsRoomModeTab);
   await page.hasElement(e.settingsRoomModePanel, 'should display the room modes tab');
 };
+
+// The tab gives up a change ROOM_MODE_APPLY_TIMEOUT (15 s) after the click; the constant
+// scales with the suite's timeout multiplier.
+const CHANGE_GIVEN_UP_TIME = ELEMENT_WAIT_EXTRA_LONG_TIME * 2;
 
 // Picks Meeting in the tab and confirms it from the window's footer.
 export const switchToMeeting = async (page: Page) => {
@@ -258,6 +262,43 @@ export class RoomModeSwitch extends RoomModePanel {
     await this.modPage.wasRemoved(e.settingsRoomModePanel, 'should close the settings');
     await expectRoomModeStable(this.modPage, 'class', 'should keep the class mode');
     expect(await readRoomSettings(this.modPage), 'should keep the class settings').toEqual(CLASS_APPLIED);
+  }
+
+  // A change that never lands gives the focus back to the window once given up, so Esc
+  // reaches the window without a click in it first.
+  async escapeReachesWindowAfterFailedChange(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
+    // Set before the join, as a route only reaches sockets opened after it; the pre-flight's
+    // own room mode request goes through.
+    let dropping = false;
+    const dropped: string[] = [];
+    await routeOperation(page, 'SetRoomMode', ({ id, server, message }) => {
+      if (!dropping) {
+        server.send(message);
+        return;
+      }
+      dropped.push(id);
+    });
+    await this.startsClass(page, options);
+    await openRoomModeTab(this.modPage);
+    await this.modPage.waitAndClick(e.settingsRoomModeMeeting);
+    dropping = true;
+    await this.modPage.waitAndClick(e.settingsRoomModeChangeButton);
+    await expect
+      .poll(() => dropped.length, {
+        message: 'should drop the room mode request',
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      })
+      .toBeGreaterThan(0);
+    await expect(
+      this.modPage.page.locator(e.settingsRoomModeChangeButton),
+      'should give the change up once ROOM_MODE_APPLY_TIMEOUT passes',
+    ).toBeEnabled({ timeout: CHANGE_GIVEN_UP_TIME });
+
+    await this.modPage.page.keyboard.press('Escape');
+    await this.modPage.hasElement(e.unsavedChangesIgnore, 'should reach the window with Esc after the failed change');
+    await this.modPage.waitAndClick(e.unsavedChangesIgnore);
+    await this.modPage.wasRemoved(e.settingsRoomModePanel, 'should close the settings');
+    await expectRoomMode(this.modPage, 'class', 'should keep the class mode');
   }
 
   // A reload after the switch applies nothing again.
