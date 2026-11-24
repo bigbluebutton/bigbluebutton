@@ -49,8 +49,8 @@ export interface RoomModePreset {
 
 const intlMessages = defineMessages({
   guestPolicy: {
-    id: 'app.guest-policy.title',
-    description: 'Guest policy title',
+    id: 'app.preFlight.roomMode.settings.guestPolicy',
+    description: 'Room mode setting: how guests get into the room',
   },
   askModerator: {
     id: 'app.guest-policy.button.askModerator',
