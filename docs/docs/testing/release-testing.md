@@ -733,6 +733,16 @@ Contextual hints driven by in-meeting activity, configured under `public.app.sma
 
     - The tooltip appears again.
 
+### No microphone signal [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-develop/bigbluebutton-tests/playwright/smart-triggers/smartTriggers.spec.ts)
+
+1. User: join audio with a microphone that sends no sound (muted on the device or in the operating system) and unmute.
+
+    - After about 6 seconds a hint says the microphone isn't picking up any sound.
+
+2. User: click "Check microphone".
+
+    - The audio settings open.
+
 ### Speech not transcribed
 
 1. User: enable automatic transcription with a language, join audio with a microphone and unmute.
