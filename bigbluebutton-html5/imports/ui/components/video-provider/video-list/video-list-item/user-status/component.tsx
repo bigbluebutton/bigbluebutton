@@ -1,7 +1,23 @@
 import React from 'react';
+import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
 import { User, VideoItem } from '/imports/ui/components/video-provider/types';
 import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
+
+const intlMessages = defineMessages({
+  microphoneOpen: {
+    id: 'app.userList.menu.microphoneOpen',
+    description: 'Label for when a user microphone is open',
+  },
+  microphoneClosed: {
+    id: 'app.userList.menu.microphoneClosed',
+    description: 'Label for when a user microphone is closed',
+  },
+  listenOnly: {
+    id: 'app.userList.menu.listenOnly',
+    description: 'Label for a listen only user',
+  },
+});
 
 interface UserStatusProps {
   user: Partial<User>;
@@ -15,6 +31,7 @@ interface UserStatusProps {
 
 const UserStatus: React.FC<UserStatusProps> = (props) => {
   const { voiceUser, user, stream } = props;
+  const intl = useIntl();
   const data = { ...user, ...stream };
   const { data: unmuted } = useWhoIsUnmuted(stream.userId);
 
@@ -32,9 +49,24 @@ const UserStatus: React.FC<UserStatusProps> = (props) => {
 
       {voiceUserJoined && (
         <>
-          {(muted && !listenOnly) && <Styled.Muted iconName="unmute_filled" />}
-          {listenOnly && <Styled.Voice iconName="listen" />}
-          {!muted && <Styled.Voice iconName="unmute" />}
+          {(muted && !listenOnly) && (
+            <Styled.Muted
+              iconName="unmute_filled"
+              ariaLabel={intl.formatMessage(intlMessages.microphoneClosed)}
+            />
+          )}
+          {listenOnly && (
+            <Styled.Voice
+              iconName="listen"
+              ariaLabel={intl.formatMessage(intlMessages.listenOnly)}
+            />
+          )}
+          {!muted && (
+            <Styled.Voice
+              iconName="unmute"
+              ariaLabel={intl.formatMessage(intlMessages.microphoneOpen)}
+            />
+          )}
         </>
       )}
     </div>
