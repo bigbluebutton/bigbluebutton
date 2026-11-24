@@ -124,6 +124,18 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       await presentation.startExternalVideo();
     });
 
+    test('Attendee reaches the external video volume controls by keyboard', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      linkIssue(26704);
+      const presentation = new Presentation(browser, context);
+      await presentation.initPages(page, testInfo);
+      await presentation.startExternalVideo();
+      await presentation.externalVideoVolumeByKeyboard();
+    });
+
     test(
       'External video loads correctly after new user joins the meeting',
       { tag: '@nightly' },

@@ -272,6 +272,41 @@ export class Presentation extends MultiUsers {
     await expectExternalVideoPlaying(this.userPage, 'should play the shared video for the attendee');
   }
 
+  // https://github.com/bigbluebutton/bigbluebutton/issues/26704
+  // The attendee's external video toolbar used to appear only on mouse hover, so keyboard users
+  // could not reach the volume controls. Drives it with the keyboard only (no pointer over the player).
+  async externalVideoVolumeByKeyboard() {
+    const { userPage } = this;
+    await userPage.hasElement(e.externalVideoOverlay, 'should display the external video overlay for the attendee');
+    // Park the pointer outside the player: from here on only the keyboard may reveal the toolbar.
+    await userPage.page.mouse.move(0, 0);
+    await expect(
+      userPage.page.locator(e.externalVideoVolumeSlider),
+      'the volume slider should stay hidden while the player is neither hovered nor focused',
+    ).toBeHidden({ timeout: ELEMENT_WAIT_LONGER_TIME });
+
+    await userPage.page.locator(e.externalVideoOverlay).focus();
+    await userPage.press('ArrowDown');
+    const volumeSlider = userPage.page.locator(e.externalVideoVolumeSlider);
+    await expect(volumeSlider, 'ArrowDown on the player should move focus to the volume slider').toBeFocused();
+    await expect(volumeSlider, 'the volume slider should be visible while it has focus').toBeVisible();
+
+    await userPage.press('Shift+Tab');
+    const muteButton = userPage.page.locator(e.externalVideoMuteButton);
+    await expect(muteButton, 'Shift+Tab from the volume slider should focus the mute button').toBeFocused();
+    await expect(muteButton, 'the mute button should be visible while it has focus').toBeVisible();
+    await expect(muteButton, 'the mute button should have its own accessible name').toHaveAttribute(
+      'aria-label',
+      'Mute video',
+    );
+
+    await userPage.press('Enter');
+    await expect(muteButton, 'Enter on the mute button should mute the video').toHaveAttribute(
+      'aria-label',
+      'Unmute video',
+    );
+  }
+
   async checkVideoAfterUserJoins() {
     await this.userPage2.hasElement(
       e.externalVideo,

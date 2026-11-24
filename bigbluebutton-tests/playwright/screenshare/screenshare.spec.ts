@@ -1,5 +1,6 @@
 import { devices } from '@playwright/test';
 
+import { linkIssue } from '../core/helpers';
 import { exposeLiveKitRooms, isLiveKit } from '../core/livekit';
 import { refuseMedia } from '../core/mediaPermissions';
 import { trackPeerConnections } from '../core/rtcStatsProbe';
@@ -100,6 +101,20 @@ test.describe.parallel('Screenshare', { tag: ['@ci', '@media'] }, () => {
     await screenshare.initModPage(page, { testInfo });
     await screenshare.initUserPage(context, { testInfo });
     await screenshare.presentationStaysHiddenAfterSharingWithAnnotations();
+  });
+
+  test('Attendee reaches the screenshare volume controls by keyboard', async ({
+    browser,
+    context,
+    browserName,
+    page,
+  }, testInfo) => {
+    test.skip(browserName === 'firefox', 'Screenshare tests not able in Firefox browser without desktop');
+    linkIssue(26704);
+    const screenshare = new ScreenShare(browser, context);
+    await screenshare.initModPage(page, { testInfo });
+    await screenshare.initUserPage(context, { testInfo });
+    await screenshare.attendeeVolumeByKeyboard();
   });
 
   test('Start screenshare stops external video', async ({ browser, context, page }, testInfo) => {
