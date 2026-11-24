@@ -126,7 +126,7 @@ It includes all you need to be able to run a local BigBlueButton development env
 
 `docker-compose.yml` in the repository root runs BigBlueButton from the published container images (see [Install with Docker Compose](/administration/docker-compose) for the requirements). In a checkout of the repository, you can run it on your own machine and replace the image of the component you work on with your own build.
 
-Start from a checkout and a `.env`:
+Start from a checkout:
 
 ```bash
 git clone https://github.com/bigbluebutton/bigbluebutton.git

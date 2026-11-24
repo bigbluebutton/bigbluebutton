@@ -1,4 +1,5 @@
-# BigBlueButton on one server; see "Running with docker compose" in docker/README.md.
+# BigBlueButton on one server; see "Install with Docker Compose" in the administration
+# documentation (docs/docs/administration/docker-compose.md).
 # Configuration is mounted at the bare-metal paths: files that need values from .env are inline
 # below (configs), the others are in docker/compose/.
 name: bigbluebutton
