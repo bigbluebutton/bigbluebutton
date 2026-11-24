@@ -2,7 +2,7 @@
 case create.breakout-rooms.redis
 target bbb-web
 
-== step 7: redis meeting:breakout:${room1}
+== step 7: redis meeting:breakout:${room1} (document)
 $.key "meeting:breakout:<sha1(?)>-<time>"
 $.ttl -1
 $.type "hash"

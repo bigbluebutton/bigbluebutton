@@ -5,8 +5,10 @@
 # breakoutRoomsRecord, and the request asks for it) gets meeting:info, with
 # isBreakout true and its parent's metadata, and meeting:breakout, which
 # names its sequence, freeJoin, capture settings and parent. A parent that
-# keeps its events lists its rooms in the set meeting:breakout:rooms. A
-# room's captureSlides and captureNotes read false whatever was asked.
+# keeps its events lists its rooms in the set meeting:breakout:rooms. The
+# capture settings read false whatever was asked, a defect that
+# create.breakout-rooms.capture checks: this case leaves them out, and
+# meeting:breakout's recording is documented rather than compared.
 # akka-apps wants at least two rooms.
 id: create.breakout-rooms.redis
 title: A recorded breakout room's redis keys
@@ -56,8 +58,9 @@ steps:
       jsonpath: {$.core.body.breakout.sequence: "2"}
     capture: {room2: $.core.body.breakout.breakoutId}
   - redis: {key: "meeting:breakout:${room1}", within: 5s}
+    golden: document
     expect:
-      hash: {sequence: "1", freeJoin: "true", captureSlides: "false", captureNotes: "false", parentMeetingId: "${intId}"}
+      hash: {sequence: "1", freeJoin: "true", parentMeetingId: "${intId}"}
       ttl: -1
   - redis: {key: "meeting:info:${room1}", within: 5s}
     expect:
