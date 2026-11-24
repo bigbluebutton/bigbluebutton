@@ -316,9 +316,11 @@ jobs:
       # What of bbb-web the suite reached: JaCoCo's reports go in out/coverage
       # with the other results, and the per-package table in the summary. A
       # package below the baseline is a warning; a triage file that doesn't
-      # fit the report fails the step.
+      # fit the report fails the step. Until a baseline is enforced, a failed
+      # measurement doesn't fail the job: the suite's result stands apart.
       - name: Measure bbb-web's coverage
         if: ${{ !cancelled() && steps.suite.outcome != 'skipped' }}
+        continue-on-error: true
         run: |
           make -C env coverage
           cd runner

@@ -75,6 +75,39 @@ func TestSummarize(t *testing.T) {
 	}
 }
 
+// A package whose methods are all ignored keeps its lines; a scope with no
+// method left in it is a problem rather than 100%.
+func TestIgnoredAndEmptyScope(t *testing.T) {
+	rep, _ := load(t)
+	data, err := os.ReadFile("testdata/triage.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	name := filepath.Join(t.TempDir(), "triage.yaml")
+	all := strings.Replace(string(data), "ignore:\n", "ignore:\n  - {classes: \"org.bigbluebutton.api2.**\", methods: name, reason: r}\n", 1)
+	if err := os.WriteFile(name, []byte(all), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	cfg, err := LoadConfig(name)
+	if err != nil {
+		t.Fatal(err)
+	}
+	s, probs := Summarize(rep, cfg)
+	if len(probs) > 0 || s.Ignored != 2 || len(s.Packages) != 3 {
+		t.Fatalf("problems %v, %d ignored, %d packages", probs, s.Ignored, len(s.Packages))
+	}
+	if d := s.Packages[1]; d.Package != "org.bigbluebutton.api2.domain" || d.Methods != (Counter{}) || d.Lines != (Counter{1, 0}) {
+		t.Errorf("api2.domain row %+v", d)
+	}
+	if s.Total.Lines != (Counter{90, 14}) {
+		t.Errorf("total lines %+v", s.Total.Lines)
+	}
+	cfg.Scope, cfg.Methods = []string{"org.bigbluebutton.nope"}, nil
+	if s, probs := Summarize(rep, cfg); len(probs) != 1 || !strings.Contains(probs[0], "no method in scope") || s.Total.Methods.Total() != 0 {
+		t.Errorf("empty scope: problems %v, total %+v", probs, s.Total.Methods)
+	}
+}
+
 func TestTriageProblems(t *testing.T) {
 	rep, cfg := load(t)
 	cfg.Methods = append(cfg.Methods,

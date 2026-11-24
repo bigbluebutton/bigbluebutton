@@ -93,9 +93,13 @@ func cmdCoverage(args []string, stdout, stderr io.Writer) int {
 		}
 	}
 	t := sum.Total
-	fmt.Fprintf(stdout, "coverage: %d of %d methods reached (%.1f%%) in %d package(s); %d unreached: %d triaged, %d untriaged; %d ignored\n",
-		t.Methods.Covered, t.Methods.Total(), t.Methods.Percent(), len(sum.Packages), t.Methods.Missed,
-		t.Methods.Missed-t.Untriaged, t.Untriaged, sum.Ignored)
+	if t.Methods.Total() == 0 {
+		fmt.Fprintf(stdout, "coverage: no methods in scope; %d ignored\n", sum.Ignored)
+	} else {
+		fmt.Fprintf(stdout, "coverage: %d of %d methods reached (%.1f%%) in %d package(s); %d unreached: %d triaged, %d untriaged; %d ignored\n",
+			t.Methods.Covered, t.Methods.Total(), t.Methods.Percent(), len(sum.Packages), t.Methods.Missed,
+			t.Methods.Missed-t.Untriaged, t.Untriaged, sum.Ignored)
+	}
 	if unresolved > 0 {
 		fmt.Fprintf(stdout, "warning: %d Groovy closure(s) keep their class names: give --sources for their source roots\n", unresolved)
 	}

@@ -67,4 +67,16 @@ func TestCoverage(t *testing.T) {
 	if _, err := os.Stat(badMD); err != nil {
 		t.Errorf("bad triage: no summary: %v", err)
 	}
+	// A scope the report has nothing in fails too, rather than claiming 100%.
+	empty := filepath.Join(out, "empty.yaml")
+	if err := os.WriteFile(empty, []byte("scope: [org.bigbluebutton.nope]\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	stdout.Reset()
+	stderr.Reset()
+	if code := run([]string{"coverage", "--report", report, "--triage", empty}, &stdout, &stderr); code != exitFailed ||
+		!strings.Contains(stdout.String(), "no methods in scope") || strings.Contains(stdout.String(), "100.0%") ||
+		!strings.Contains(stderr.String(), "check scope") {
+		t.Errorf("empty scope: exit %d, stdout %q, stderr %q", code, stdout.String(), stderr.String())
+	}
 }

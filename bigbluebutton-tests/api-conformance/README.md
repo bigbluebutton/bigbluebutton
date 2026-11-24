@@ -1304,8 +1304,10 @@ go run ./cmd/bbb-conform coverage --report ../out/coverage/jacoco.xml \
   without the agent. `make reset` and `make coverage-clean` start again.
 - **Class files.** `make coverage` reports on `WEB-INF/classes` (the Groovy
   controllers, services and filters) and the bbb-common-web jar, from the
-  image that ran, with links to the repo's sources. Data recorded by another
-  build of bbb-web fails the report: run `coverage-clean`, then the suite.
+  image that ran, with links to the repo's sources. Run `coverage-clean`
+  after rebuilding bbb-web: JaCoCo refuses another build's data only for a
+  class that has none from this build, and otherwise keeps it without a
+  word, so a report over two builds can count what the old one reached.
 - **Closures and lambdas.** The compilers number some code per class, so
   the numbers change whenever such code is added elsewhere in the class:
   - a Grails action is a Groovy closure (`def create = {...}`), and each
@@ -1352,12 +1354,15 @@ methods:                     # one entry per method in scope the suite doesn't r
   - class: org.bigbluebutton.web.controllers.ApiController
     method: legacy
     outcome: leftover                         # code with no effect
-    ref: "PLAN §3: legacy"                    # case and leftover: where it's covered or listed
+    # ref, for case: the case or ticket to cover it in; for leftover: the
+    # issue, or the list in this repository, that has it
+    ref: "https://github.com/bigbluebutton/bigbluebutton/issues/<n>"
 ```
 
 An entry for a method outside the scope, one an ignore rule already leaves
 out, an overloaded name without `desc`, or a method the report doesn't have
-is an error. An entry for a method the suite now reaches is a warning: the
+is an error, and so is a scope in which the report has no method the ignore
+rules leave in. An entry for a method the suite now reaches is a warning: the
 entry can go. Like everything public here, a note describes behaviour, never
 a weakness (see [Public-repo rule](#public-repo-rule)).
 

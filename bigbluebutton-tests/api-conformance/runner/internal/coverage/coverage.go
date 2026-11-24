@@ -372,7 +372,7 @@ type compiledRule struct {
 // Outcomes a triage entry can have.
 const (
 	OutcomeCase     = "case"     // behaviour the suite misses: Ref names the case or ticket to add it in
-	OutcomeLeftover = "leftover" // code with no effect: Ref names its PLAN §3 entry
+	OutcomeLeftover = "leftover" // code with no effect: Ref names the issue or the list in this repository that has it
 	OutcomeExcluded = "excluded" // left out of the suite: Reason says why
 )
 
@@ -602,6 +602,15 @@ func Summarize(rep *Report, cfg *Config) (*Summary, []string) {
 			}
 		}
 		r.Branches.add(m.Branches)
+	}
+	// A package whose methods are all ignored still has its lines.
+	for pkg, l := range rep.Lines {
+		if rows[pkg] == nil && l.Total() > 0 && cfg.inScope(pkg) {
+			rows[pkg] = &Row{Package: pkg, Lines: l, Triaged: map[string]int{}}
+		}
+	}
+	if len(kept) == 0 {
+		probs = append(probs, "the report has no method in scope that an ignore rule leaves in: check scope")
 	}
 	s.Total = Row{Package: "total", Triaged: map[string]int{}}
 	for _, r := range rows {

@@ -30,6 +30,7 @@ ignore:
     methods: "withCodec|methodMissing|propertyMissing|getTagLibraryLookup|setTagLibraryLookup|getTaglibNamespace"
     reason: members Grails's controller traits add to each controller
 # One entry per method in scope the suite doesn't reach: case (with ref, the
-# case or ticket to cover it in), leftover (with ref, its PLAN §3 entry) or
-# excluded (with reason). Notes describe behaviour, never a weakness.
+# case or ticket to cover it in), leftover (with ref, the issue or the list
+# in this repository that has it) or excluded (with reason). Notes describe
+# behaviour, never a weakness.
 methods: []

@@ -7,4 +7,4 @@ ignore:
 methods:
   - {class: org.bigbluebutton.api.MeetingService, method: endMeeting, outcome: case, ref: end.lifecycle.something}
   - {class: org.bigbluebutton.api.MeetingService, method: log, desc: "(Ljava/lang/String;)V", outcome: excluded, reason: logging only}
-  - {class: org.bigbluebutton.web.controllers.ApiController, method: legacy, outcome: leftover, ref: "PLAN §3: legacy"}
+  - {class: org.bigbluebutton.web.controllers.ApiController, method: legacy, outcome: leftover, ref: "https://example.com/issues/1"}
