@@ -3,6 +3,8 @@
 # overrideClientSettings is empty, and create succeeds. Over
 # maxClientSettingsOverrideJsonUrlPayloadSize (shipped 1024 KiB) is too
 # large. The fetch rules (create.fetch.*) refuse a URL the same way.
+# _after=1 lets bbb-web's check of the URL through and fails the download,
+# a failure only its two requests have (create.fetch.two-requests): compat.
 id: create.client-settings.failed
 title: create leaves out a client settings override it can't fetch (${case})
 endpoint: create
@@ -13,7 +15,8 @@ variants:
   - {id: not-found, vars: {case: 404, file: client-settings/missing.json}}
   - {id: invalid-json, vars: {case: not JSON, file: client-settings/invalid.json}}
   - {id: too-large, vars: {case: over the size limit, file: "generated/big.json?_size=1048577"}}
-  - {id: server-error, vars: {case: an error fetching it, file: "client-settings/override.json?_status=500&_after=1"}}
+  - {id: server-error, vars: {case: an error fetching it, file: "client-settings/override.json?_status=500"}}
+  - {id: download-error, vars: {case: an error downloading it after its check, file: "client-settings/override.json?_status=500&_after=1"}, class: compat}
 steps:
   - call: create
     params: {meetingID: "${uid}", name: Client settings, clientSettingsOverrideJsonUrl: "${sinkUrl}/${uid}/fixtures/${file}"}

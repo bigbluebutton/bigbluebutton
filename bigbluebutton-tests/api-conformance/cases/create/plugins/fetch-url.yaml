@@ -25,10 +25,10 @@ steps:
       jsonpath:
         $.core.body.props.pluginProp.ConformBasic.manifest.url: "${sinkUrl}/${uid}/fixtures/plugins/basic.json"
         $.core.body.props.pluginProp.ConformSecond.manifest.url: "${sinkUrl}/${uid}/fixtures/plugins/second.json"
-  # The list and each manifest twice: checked, then fetched.
+  # The list and each manifest, once each, or twice as bbb-web does.
   - sink: {key: "${uid}", within: 2s}
     golden: off
-    expect: {count: 6}
+    expect: {count: {between: [3, 6]}}
 teardown:
   # Again until bbb-web no longer knows the meeting: an end that reaches
   # akka-apps before the create does is lost.

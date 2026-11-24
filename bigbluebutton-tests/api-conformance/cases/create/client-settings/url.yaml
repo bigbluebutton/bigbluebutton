@@ -21,10 +21,11 @@ steps:
     expect:
       jsonpath:
         $.core.body.props.overrideClientSettings: {regex: '^\{"public":\{"app":\{"clientTitle":"Conform client"\}\}\}\s*$'}
-  # Checked, then fetched.
+  # Fetched once, or checked and then fetched as bbb-web does
+  # (create.fetch.two-requests).
   - sink: {key: "${uid}", within: 2s}
     golden: off
-    expect: {count: 2}
+    expect: {count: {between: [1, 2]}}
 teardown:
   # Again until bbb-web no longer knows the meeting: an end that reaches
   # akka-apps before the create does is lost.

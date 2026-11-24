@@ -1,8 +1,9 @@
 # yaml-language-server: $schema=../../../runner/schema/case.schema.json
 # create's pluginManifests param lists plugin manifests by URL, as JSON.
-# bbb-web checks each URL with a request of its own, then fetches the
-# manifest, and hands it to akka-apps in the meeting's pluginProp, under
-# the manifest's name, with the URL it came from.
+# bbb-web fetches each manifest (checking its URL with a request of its
+# own first, create.fetch.two-requests) and hands it to akka-apps in the
+# meeting's pluginProp, under the manifest's name, with the URL it came
+# from.
 id: create.plugins.param
 title: create fetches the plugin manifests its pluginManifests param lists
 endpoint: create
@@ -26,10 +27,10 @@ steps:
         $.core.body.props.pluginProp.ConformBasic.manifest.content.javascriptEntrypointUrl: ConformBasic.js
         $.core.body.props.pluginProp.ConformSecond.manifest.url: "${sinkUrl}/${uid}/fixtures/plugins/second.json"
         $.core.body.props.pluginProp.ConformSecond.manifest.content.name: ConformSecond
-  # Each URL twice: checked, then fetched.
+  # Each URL once, or twice as bbb-web does.
   - sink: {key: "${uid}", within: 2s}
     golden: off
-    expect: {count: 4}
+    expect: {count: {between: [2, 4]}}
 teardown:
   # Again until bbb-web no longer knows the meeting: an end that reaches
   # akka-apps before the create does is lost.

@@ -493,7 +493,7 @@ to an end callback.
 | `_redirect=URL` | 302, or `_status`, with that Location. `_redirect=self` sends the request's own path and query back, so with `_first=N` it is a chain of N redirects that then ends in the answer. |
 | `_type=T` | Content-Type T. |
 | `_first=N` | The params above apply to the first N requests to the path that it still holds; later ones get a plain answer. `_status=500&_first=1` fails once, then succeeds. Only under a key. |
-| `_after=N` | The params above apply only after the first N requests to the path that it still holds, which get a plain answer; with `_first=M`, to the M requests after those. `_status=500&_after=1` succeeds once, then fails: a fetch whose URL is checked with one request and downloaded with another fails the download only. Only under a key. |
+| `_after=N` | The params above apply only after the first N requests to the path that it still holds, which get a plain answer; with `_first=M`, to the M requests after those. `_status=500&_after=1` succeeds once, then fails: a fetch whose URL is checked with one request and downloaded with another fails the download only. bbb-web fetches that way, so a case that relies on it is `compat` (`create.fetch.two-requests`); other cases allow one request or two for each URL. Only under a key. |
 | `_expand=1` | A fixture file with each `{{origin}}` replaced by the scheme and host the request reached the sink at, such as `https://sink.test:8444`: a fixture that lists other fixtures' URLs, such as a plugin manifest list, then names the sink the way the server reaches it. Not for generated files. |
 | `_size=N` | A generated file's length; only for `fixtures/generated/`. |
 

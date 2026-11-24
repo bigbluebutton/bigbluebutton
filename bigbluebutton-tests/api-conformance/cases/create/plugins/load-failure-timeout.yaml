@@ -4,11 +4,12 @@
 # failure (create.plugins.load-failure). bbb-web runs two clocks on the
 # fetch, one on the connection and one on the whole task, and whichever
 # runs out first gives the reason, so the reason isn't recorded. _after=1
-# lets the URL check through and holds back the fetch.
+# lets the URL check through and holds back the fetch, a delay only
+# bbb-web's two requests have (create.fetch.two-requests): compat.
 id: create.plugins.load-failure-timeout
 title: create records a plugin manifest that doesn't come in time (${case})
 endpoint: create
-class: contract
+class: compat
 tags: [ci]
 requires: [akka, bus, callbacks]
 variants:

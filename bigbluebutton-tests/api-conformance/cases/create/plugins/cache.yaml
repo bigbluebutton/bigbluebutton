@@ -4,10 +4,12 @@
 # without checking or fetching the URL again. A URL with %%MEETING_ID%% is
 # never cached: it is checked and fetched for every meeting. Both URLs
 # here are under the case's sink key (%%MEETING_ID%% is the external ID).
+# The cache shows only in the requests the sink gets, which count bbb-web's
+# two for each fetch (create.fetch.two-requests): compat.
 id: create.plugins.cache
 title: create serves a cached plugin manifest, but not one whose URL has %%MEETING_ID%%
 endpoint: create
-class: contract
+class: compat
 tags: [ci, disruptive]
 profile: plugin-manifest-cache
 requires: [akka, bus, callbacks]
