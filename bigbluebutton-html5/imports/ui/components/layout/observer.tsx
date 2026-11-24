@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { layoutDispatch, layoutSelect, layoutSelectInput } from './context';
 import {
-  ACTIONS, DEVICE_TYPE, LAYOUT_TYPE, PANELS,
+  ACTIONS, LAYOUT_TYPE, PANELS,
 } from './enums';
 import {
   getDeviceType,
@@ -11,8 +11,6 @@ import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { getInitialFontSize } from '/imports/ui/components/settings/service';
 import { Input, Layout } from './layoutTypes';
 import { throttle } from '/imports/utils/throttle';
-import { SETTINGS } from '/imports/ui/services/settings/enums';
-import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import MediaService from '/imports/ui/components/media/service';
@@ -36,15 +34,10 @@ const LayoutObserver: React.FC = () => {
   const checkedUserSettings = useRef(false);
   const layoutContextDispatch = layoutDispatch();
   const deviceType = layoutSelect((i: Layout) => i.deviceType);
-  const cameraDockInput = layoutSelectInput((i: Input) => i.cameraDock);
-  const sidebarContentInput = layoutSelectInput((i: Input) => i.sidebarContent);
-  const presentationInput = layoutSelectInput((i: Input) => i.presentation);
   const sharedNotesInput = layoutSelectInput((i: Input) => i.sharedNotes);
 
   const [layoutIsReady, setLayoutIsReady] = useState(false);
   const [, setEnableResize] = useState(!window.matchMedia(MOBILE_MEDIA).matches);
-  const layoutSettings = useSettings(SETTINGS.LAYOUT) as { selectedLayout: string };
-  const { selectedLayout } = layoutSettings;
   const {
     data: currentMeeting,
     loading: loadingMeeting,
@@ -114,10 +107,6 @@ const LayoutObserver: React.FC = () => {
   const shouldOpenUserListPanel = initialSidebarContentPanel === PANELS.USERLIST && !deviceInfo.isPhone;
 
   const setLocalSettings = useUserChangedLocalSettings();
-
-  const { numCameras } = cameraDockInput;
-  const { isOpen: sidebarContentIsOpen } = sidebarContentInput;
-  const { isOpen: presentationIsOpen } = presentationInput;
 
   const { currentLayoutType } = currentMeeting?.layout || {};
   const meetingLayout = currentLayoutType && LAYOUT_TYPE[currentLayoutType as keyof typeof LAYOUT_TYPE];
@@ -233,35 +222,6 @@ const LayoutObserver: React.FC = () => {
       }
     };
   }, []);
-
-  useEffect(() => {
-    const CHAT_CONFIG = window.meetingClientSettings.public.chat;
-    const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
-
-    if (
-      selectedLayout?.toLowerCase?.()?.includes?.('focus')
-      && !sidebarContentIsOpen
-      && deviceType !== DEVICE_TYPE.MOBILE && deviceType !== DEVICE_TYPE.TABLET_LANDSCAPE
-      && numCameras > 0
-      && presentationIsOpen
-      && !getFromUserSettings('bbb_hide_sidebar_navigation', false)
-    ) {
-      setTimeout(() => {
-        layoutContextDispatch({
-          type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-          value: true,
-        });
-        layoutContextDispatch({
-          type: ACTIONS.SET_ID_CHAT_OPEN,
-          value: PUBLIC_GROUP_CHAT_ID,
-        });
-        layoutContextDispatch({
-          type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-          value: PANELS.CHAT,
-        });
-      }, 0);
-    }
-  }, [selectedLayout]);
 
   useEffect(() => {
     throttledDeviceType();

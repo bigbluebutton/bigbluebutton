@@ -62,8 +62,6 @@ export interface Edges {
 
 const isMobile = (s: ShellInputs) => s.deviceType === DEVICE_TYPE.MOBILE;
 
-const isTablet = (s: ShellInputs) => s.deviceType === DEVICE_TYPE.TABLET;
-
 const SPECIAL_LAYOUTS = [
   LAYOUT_TYPE.CAMERAS_ONLY,
   LAYOUT_TYPE.PRESENTATION_ONLY,
@@ -210,10 +208,9 @@ export const isCameraDockShown = (s: ShellInputs) => {
 /** The engine's isMediaOpen: the media box has a positive width and height. */
 const isMediaOpen = (s: ShellInputs) => mediaBoxCollapse(s) === 'none';
 
-/** Only the unified layout lets the dock be dragged; never on phones and tablets or while locked. */
+/** Only the unified layout lets the dock be dragged; never on phones or while locked. */
 export const isCameraDockDraggable = (s: ShellInputs) => isUnifiedLayout(s)
   && !isMobile(s)
-  && !isTablet(s)
   && !isSideBySideCamerasEnforced(s)
   && isMediaOpen(s);
 

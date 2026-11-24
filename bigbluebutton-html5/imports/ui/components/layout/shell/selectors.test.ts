@@ -109,8 +109,6 @@ describe('layout shell selectors', () => {
 
     it('does not drag on phones, when locked side by side, or with the presentation closed', () => {
       expect(isCameraDockDraggable(at({ deviceType: DEVICE_TYPE.MOBILE }))).toBe(false);
-      // the engine tests the plain tablet type only (layoutEngine.jsx isTablet)
-      expect(isCameraDockDraggable(at({ deviceType: DEVICE_TYPE.TABLET }))).toBe(false);
       expect(isCameraDockDraggable(at({ fullscreenGroup: 'webcams' }))).toBe(false);
       expect(isCameraDockDraggable(at({ isPhoneLandscape: true }))).toBe(false);
       expect(isCameraDockDraggable(at({ presentationIsOpen: false }))).toBe(false);

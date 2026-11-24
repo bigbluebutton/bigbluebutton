@@ -244,7 +244,6 @@ const PresentationContainer = ({
   const mediaBoxCollapse = useMediaBoxCollapse();
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const deviceType = layoutSelect((i) => i.deviceType);
-  const layoutType = layoutSelect((i) => i.layoutType);
 
   const { numCameras } = cameraDock;
   const { element } = fullscreen;
@@ -270,7 +269,6 @@ const PresentationContainer = ({
   const shouldRestoreOnUpdate = userIsPresenter
     && currentPresentationId === prevPresentationId ? false : restoreOnUpdate;
 
-  if (layoutType === 'videoFocus' && mediaBoxCollapse === 'zero') return null;
 
   const multiUserWhiteboardEnabled = currentMeeting?.usersPolicies?.multiUserWhiteboardEnabled
     ?? false;

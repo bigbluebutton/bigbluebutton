@@ -95,10 +95,10 @@ describe('layout reducer: semantic input cases', () => {
     });
   });
 
-  it('SET_LAYOUT_TYPE never short-circuits: it compares with input.layoutType, which does not exist', () => {
+  it('SET_LAYOUT_TYPE ignores the type already set, and stores a new one', () => {
     const state = freshState();
     const next = dispatch(state, ACTIONS.SET_LAYOUT_TYPE, LAYOUT_TYPE.UNIFIED_LAYOUT);
-    expect(next).not.toBe(state);
+    expect(next).toBe(state);
     expect(next.layoutType).toBe(LAYOUT_TYPE.UNIFIED_LAYOUT);
     expect(dispatch(next, ACTIONS.SET_LAYOUT_TYPE, LAYOUT_TYPE.MEDIA_ONLY).layoutType).toBe(LAYOUT_TYPE.MEDIA_ONLY);
   });

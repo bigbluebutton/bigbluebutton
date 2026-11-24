@@ -49,7 +49,6 @@ describe('layout utils', () => {
         setClientWidth(width);
         produced.add(getDeviceType());
       }
-      expect(produced.has(DEVICE_TYPE.TABLET)).toBe(false);
       expect([...produced].sort()).toEqual([
         DEVICE_TYPE.DESKTOP, DEVICE_TYPE.MOBILE, DEVICE_TYPE.TABLET_LANDSCAPE, DEVICE_TYPE.TABLET_PORTRAIT,
       ].sort());

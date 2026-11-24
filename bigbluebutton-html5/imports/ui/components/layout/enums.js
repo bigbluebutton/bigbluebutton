@@ -11,7 +11,6 @@ export const DEVICE_TYPE = {
   MOBILE: 'mobile',
   TABLET_PORTRAIT: 'tablet_portrait',
   TABLET_LANDSCAPE: 'tablet_landscape',
-  TABLET: 'tablet',
   DESKTOP: 'desktop',
 };
 
