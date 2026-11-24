@@ -11,6 +11,10 @@ export class Timer extends MultiUsers {
     await this.modPage.waitAndClick(e.timerStopwatchFeature);
     await this.modPage.waitAndClick(e.stopwatch);
     await this.modPage.hasElement(e.stopwatchCurrent, 'should display the timer counter in the sidebar content');
+    await expect(
+      this.modPage.page.locator(e.stopwatchCurrent),
+      'should expose the stopwatch time to assistive technologies',
+    ).not.toHaveAttribute('aria-hidden');
 
     const timerCurrentLocator = this.modPage.page.locator(e.stopwatchCurrent);
     const timerIndicatorLocator = this.modPage.page.locator(e.timerIndicator);
@@ -75,6 +79,10 @@ export class Timer extends MultiUsers {
     await this.modPage.waitAndClick(e.timerPreset10min);
     await this.checkTimerInputs('00', '10', '00', 'should set the timer inputs to the selected preset');
     await this.modPage.hasText(e.timerIndicator, /10:00/, 'should set the timer indicator to the selected preset');
+    await expect(
+      this.modPage.page.locator(e.timerAdd30s),
+      'should include the visible text in the accessible name',
+    ).toHaveAccessibleName('+00:30 (Add 30 seconds)');
     await this.modPage.waitAndClick(e.timerAdd30s);
     await this.checkTimerInputs('00', '10', '30', 'should add 30 seconds to the timer inputs');
     await this.modPage.hasText(e.timerIndicator, /10:30/, 'should add 30 seconds to the timer indicator');
