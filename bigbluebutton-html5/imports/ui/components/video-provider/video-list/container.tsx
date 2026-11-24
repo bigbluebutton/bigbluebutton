@@ -9,7 +9,7 @@ import VideoList from '/imports/ui/components/video-provider/video-list/componen
 import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
 import { useNumberOfPages, useGridSize } from '/imports/ui/components/video-provider/hooks';
 import { GridItem, VideoItem } from '/imports/ui/components/video-provider/types';
-import { Layout, Output } from '/imports/ui/components/layout/layoutTypes';
+import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { UpdatedDataForUserCameraDomElement } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/user-camera/types';
 import { HookEvents } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
@@ -29,7 +29,7 @@ import useElementSize from '/imports/ui/core/hooks/useElementSize';
 interface VideoListContainerProps {
   streams: VideoItem[];
   currentVideoPageIndex: number;
-  cameraDock: Pick<Output['cameraDock'], 'position'>;
+  cameraDock: { position: string };
   focusedId: string;
   handleVideoFocus: (id: string) => void;
   isGridEnabled: boolean;

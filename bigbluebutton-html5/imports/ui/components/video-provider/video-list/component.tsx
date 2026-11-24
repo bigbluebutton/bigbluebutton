@@ -13,7 +13,6 @@ import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import VideoService from '/imports/ui/components/video-provider/service';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
-import { Output } from '/imports/ui/components/layout/layoutTypes';
 import { GridItem, VideoItem } from '/imports/ui/components/video-provider/types';
 import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
 import { UserCameraHelperAreas } from '../../plugins-engine/extensible-areas/components/user-camera-helper/types';
@@ -88,7 +87,7 @@ interface VideoListProps {
   layoutContextDispatch: (...args: unknown[]) => void;
   numberOfPages: number;
   currentVideoPageIndex: number;
-  cameraDock: Pick<Output['cameraDock'], 'position'>;
+  cameraDock: { position: string };
   focusedId: string;
   handleVideoFocus: (id: string) => void;
   isGridEnabled: boolean;

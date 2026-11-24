@@ -19,7 +19,6 @@ import { CAMERA_BROADCAST_START } from './mutations';
 import VideoProvider from './component';
 import LiveKitCameraBridge from '/imports/ui/components/video-provider/livekit-camera-bridge/component';
 import VideoService from './service';
-import { Output } from '/imports/ui/components/layout/layoutTypes';
 import { VideoItem } from './types';
 import { debounce } from '/imports/utils/debounce';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
@@ -35,7 +34,7 @@ import { VIDEO_TYPES } from './enums';
 
 interface VideoProviderContainerProps {
   focusedId: string;
-  cameraDock: Pick<Output['cameraDock'], 'position'>;
+  cameraDock: { position: string };
   handleVideoFocus:(id: string) => void;
 }
 

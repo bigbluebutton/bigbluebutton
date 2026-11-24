@@ -3,7 +3,7 @@ import { reducer } from './context';
 import {
   ACTIONS, CAMERADOCK_POSITION, LAYOUT_TYPE, PANELS, PRESENTATION_AREA,
 } from './enums';
-import { INITIAL_INPUT_STATE, INITIAL_OUTPUT_STATE } from './initState';
+import { INITIAL_INPUT_STATE } from './initState';
 
 // Characterization of the reducer's semantic (input) cases, the ones the CSS layout keeps.
 // Several cases mutate nested input objects in place, so every test starts from a deep clone.
@@ -29,7 +29,6 @@ interface LayoutState {
   idChatOpen: string;
   fullscreen: { element: string; group: string };
   input: typeof INITIAL_INPUT_STATE;
-  output: typeof INITIAL_OUTPUT_STATE;
 }
 
 const freshState = (): LayoutState => ({
@@ -45,7 +44,6 @@ const freshState = (): LayoutState => ({
   idChatOpen: '',
   fullscreen: { element: '', group: '' },
   input: structuredClone(INITIAL_INPUT_STATE),
-  output: structuredClone(INITIAL_OUTPUT_STATE),
 });
 
 // The reducer is untyped JavaScript: its result is read back as the state shape the tests build.
@@ -120,9 +118,9 @@ describe('layout reducer: semantic input cases', () => {
     expect(dispatch(state, ACTIONS.SET_BROWSER_SIZE, { width: 1366, height: 768 })).toBe(state);
   });
 
-  it('SET_HIDE_NAVBAR_TOP_ROW is semantic state stored under output', () => {
+  it('SET_HIDE_NAVBAR_TOP_ROW is semantic state stored in the input', () => {
     const next = dispatch(freshState(), ACTIONS.SET_HIDE_NAVBAR_TOP_ROW, true);
-    expect(next.output.navBar.hideTopRow).toBe(true);
+    expect(next.input.navBar.hideTopRow).toBe(true);
   });
 
   it('SET_FULLSCREEN_ELEMENT writes element and group', () => {

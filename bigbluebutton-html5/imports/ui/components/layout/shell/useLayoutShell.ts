@@ -3,7 +3,6 @@ import { layoutSelect, layoutSelectInput } from '../context';
 import { Input, Layout } from '../layoutTypes';
 import { getWaitLayout, isPhoneLandscape } from '../utils';
 import { useIsPresentationEnabled } from '/imports/ui/services/features';
-import getFromUserSettings from '/imports/ui/services/users-settings';
 import { useStorageKey, STORAGES } from '/imports/ui/services/storage/hooks';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { shellState, ShellOutput } from './shellState';
@@ -55,8 +54,8 @@ const useLayoutShell = (): ShellOutput & { mediaOnlyAreaRef: (element: HTMLDivEl
   const { data: currentUser } = useCurrentUser((u) => ({ presenter: u.presenter }));
   const isPresenter = !!currentUser?.presenter;
   const storedDockSize = (useStorageKey('webcamSize', STORAGES.SESSION) ?? {}) as StoredDockSize;
-  // bbb_hide_controls hides the nav bar's top row (observer.tsx), from userdata that does not change
-  const hideTopRow = !!getFromUserSettings('bbb_hide_controls', false);
+  // bbb_hide_controls hides the nav bar's top row (observer.tsx)
+  const hideTopRow = layoutSelectInput((i: Input) => !!i.navBar.hideTopRow);
   const layoutPending = !!getWaitLayout() && layoutLoading;
   // mediaOnly fits the content's own size: the screen share's while one is on, else the slide's
   const slideWidth = layoutSelectInput((i: Input) => i.presentation.currentSlide?.size?.width ?? 0);

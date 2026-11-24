@@ -3,7 +3,7 @@ import {
   beforeEach, describe, expect, it, vi,
 } from 'vitest';
 import { render, renderHook } from '@testing-library/react';
-import { INITIAL_INPUT_STATE, INITIAL_OUTPUT_STATE } from '../initState';
+import { INITIAL_INPUT_STATE } from '../initState';
 import { LAYOUT_TYPE, DEVICE_TYPE } from '../enums';
 
 // The layout state is a plain object here: layoutSelect / layoutSelectInput read from it.
@@ -11,7 +11,6 @@ const state = vi.hoisted(() => ({
   current: {} as Record<string, unknown>,
   presenter: false,
   waitLayout: false,
-  hideControls: false,
   storedDock: undefined as undefined | { width: number; height: number },
 }));
 
@@ -24,7 +23,6 @@ vi.mock('../utils', () => ({
   isPhoneLandscape: () => false,
 }));
 vi.mock('/imports/ui/services/features', () => ({ useIsPresentationEnabled: () => true }));
-vi.mock('/imports/ui/services/users-settings', () => ({ default: () => state.hideControls }));
 vi.mock('/imports/ui/services/storage/hooks', () => ({
   useStorageKey: () => state.storedDock,
   STORAGES: { SESSION: 'session' },
@@ -46,7 +44,6 @@ const setLayout = (overrides: { input?: Record<string, unknown>; layout?: Record
     fullscreen: { element: '', group: '' },
     ...overrides.layout,
     input: { ...INITIAL_INPUT_STATE, ...overrides.input },
-    output: INITIAL_OUTPUT_STATE,
   };
 };
 
@@ -54,7 +51,6 @@ describe('useLayoutShell', () => {
   beforeEach(() => {
     state.presenter = false;
     state.waitLayout = false;
-    state.hideControls = false;
     state.storedDock = undefined;
     setLayout();
   });
@@ -70,8 +66,10 @@ describe('useLayoutShell', () => {
 
   it('holds the layout type back while an enforced layout loads, and halves the nav bar on request', () => {
     state.waitLayout = true;
-    state.hideControls = true;
-    setLayout({ layout: { layoutLoading: true } });
+    setLayout({
+      layout: { layoutLoading: true },
+      input: { navBar: { ...INITIAL_INPUT_STATE.navBar, hideTopRow: true } },
+    });
     const { result } = renderHook(() => useLayoutShell());
     expect(result.current.attributes['data-layout']).toBeUndefined();
     expect(result.current.attributes['data-navbar']).toBe('half');

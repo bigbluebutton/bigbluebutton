@@ -23,7 +23,6 @@ import logger from '/imports/startup/client/logger';
 import { notifyStreamStateChange } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
 import BBBVideoStream from '/imports/ui/services/webrtc-base/bbb-video-stream';
 import { GridItem, VideoItem } from '/imports/ui/components/video-provider/types';
-import { Output } from '/imports/ui/components/layout/layoutTypes';
 import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
 import {
   lkIsCameraSource,
@@ -79,7 +78,7 @@ const intlSFUErrors = defineMessages({
 });
 
 interface LiveKitCameraBridgeProps {
-  cameraDock: Pick<Output['cameraDock'], 'position'>;
+  cameraDock: { position: string };
   focusedId: string;
   handleVideoFocus: (id: string) => void;
   isGridEnabled: boolean;

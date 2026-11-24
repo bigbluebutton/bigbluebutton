@@ -11,6 +11,7 @@
   },
   "navBar": {
     "hasNavBar": false,
+    "hideTopRow": false,
     "height": 85
   },
   "actionBar": {
