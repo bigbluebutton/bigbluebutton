@@ -30,6 +30,10 @@ export class Polling extends MultiUsers {
       'Done',
       'should display the anonymous poll as done after each attendee has answered',
     );
+    await expect(
+      this.modPage.page.locator(e.pollLiveResultTextItem),
+      'should expose the vote count of each option as text, even in an anonymous poll',
+    ).toHaveText(['A: 1 vote', 'B: 0 votes', 'C: 0 votes', 'D: 0 votes']);
   }
 
   async quickPoll() {

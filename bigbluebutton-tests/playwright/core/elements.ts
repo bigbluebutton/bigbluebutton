@@ -510,6 +510,7 @@ export const elements = {
   autoOptioningPollBtn: 'input[data-test="autoOptioningPollBtn"]',
   currentPollQuestion: 'span[data-test="currentPollQuestion"]',
   pollStatus: 'div[data-test="pollStatus"]',
+  pollLiveResultTextItem: 'ul[data-test="pollLiveResultText"] li',
   allowMultiple: 'div[data-test="allowMultiple"] input[type="checkbox"]',
   firstPollAnswerDescOption: `${pollAnswerOptionDesc} input:nth-child(1)`,
   secondPollAnswerDescOption: `${pollAnswerOptionDesc}>>nth=1`,
