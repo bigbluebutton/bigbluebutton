@@ -767,6 +767,20 @@ Contextual hints driven by in-meeting activity, configured under `public.app.sma
 
     - The client switches to the new microphone; the hint does not come back for that device.
 
+### Recording with no speech [(Partially automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-develop/bigbluebutton-tests/playwright/smart-triggers/smartTriggers.spec.ts)
+
+1. Moderator: create a meeting with `record=true`, join audio with a microphone that sends no sound, unmute and start the recording without talking.
+
+    - About 30 seconds after the recording starts, a hint says nobody has been heard yet, with "Check audio" and "Pause recording".
+
+2. Moderator: click "Pause recording".
+
+    - The recording is paused.
+
+3. Moderator: resume the recording, talk, then stay silent with the microphone on for 10 minutes.
+
+    - The hint shows again, saying nobody has been heard for 10 minutes.
+
 ### Speech not transcribed
 
 1. User: enable automatic transcription with a language, join audio with a microphone and unmute.
