@@ -4,6 +4,8 @@ import {
   cameraDockState,
   effectiveCameraDockPosition,
   isCameraDockDraggable,
+  isCameraDockShown,
+  isUnifiedLayout,
   isMediaContentOff,
   isMediaBesideDock,
   isMediaFullscreen,
@@ -110,6 +112,31 @@ describe('layout shell selectors', () => {
       expect(isCameraDockDraggable(at({ fullscreenGroup: 'webcams' }))).toBe(false);
       expect(isCameraDockDraggable(at({ isPhoneLandscape: true }))).toBe(false);
       expect(isCameraDockDraggable(at({ presentationIsOpen: false }))).toBe(false);
+    });
+  });
+
+  describe('layout types', () => {
+    it('renders unknown types as unified', () => {
+      expect(isUnifiedLayout(base)).toBe(true);
+      expect(isUnifiedLayout(at({ layoutType: 'videoFocus' }))).toBe(true);
+      expect(isUnifiedLayout(at({ layoutType: LAYOUT_TYPE.MEDIA_ONLY }))).toBe(false);
+    });
+
+    it('shows the dock per layout (the engine cameraDock.display)', () => {
+      expect(isCameraDockShown(base)).toBe(true);
+      expect(isCameraDockShown(at({ numCameras: 0 }))).toBe(false);
+      expect(isCameraDockShown(at({ numCameras: 0, presentationIsOpen: false }))).toBe(true);
+      expect(isCameraDockShown(at({ layoutType: LAYOUT_TYPE.CAMERAS_ONLY, numCameras: 0 }))).toBe(true);
+      expect(isCameraDockShown(at({ layoutType: LAYOUT_TYPE.PRESENTATION_ONLY }))).toBe(false);
+      expect(isCameraDockShown(at({ layoutType: LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY }))).toBe(false);
+      expect(isCameraDockShown(at({ layoutType: LAYOUT_TYPE.MEDIA_ONLY }))).toBe(true);
+      expect(isCameraDockShown(at({ layoutType: LAYOUT_TYPE.MEDIA_ONLY, numCameras: 0 }))).toBe(false);
+    });
+
+    it('drags and resizes the dock in unified only', () => {
+      const cameras = at({ layoutType: LAYOUT_TYPE.CAMERAS_ONLY, dockPosition: CAMERADOCK_POSITION.CONTENT_BOTTOM });
+      expect(isCameraDockDraggable(cameras)).toBe(false);
+      expect(resizableCameraDockEdges(cameras).top).toBe(false);
     });
   });
 

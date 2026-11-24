@@ -24,6 +24,8 @@ export interface ShellState extends ShellInputs {
   /** the width the user dragged the sidebar to, 0 when never resized */
   sidebarContentWidth: number;
   sidebarContentAuxiliaryWidth: number;
+  /** the current user presents: a side dock leaves the presentation toolbar its width */
+  isPresenter: boolean;
   /** the camera grid size the video list computed, for the drag preview */
   cameraGridWidth: number;
   cameraGridHeight: number;
@@ -32,6 +34,8 @@ export interface ShellState extends ShellInputs {
 export interface ShellOutput {
   attributes: Record<string, string>;
   style: Record<string, string>;
+  /** the state they were derived from, for the regions that act on it in JS (shell/context.ts) */
+  state?: ShellState;
 }
 
 const navBarVariant = (s: ShellState) => {
@@ -54,6 +58,7 @@ export const shellState = (s: ShellState): ShellOutput => {
     'data-dock-enforced': isSideBySideCamerasEnforced(s),
     'data-phone-landscape': s.isPhoneLandscape,
     'data-dragging': s.isDragging,
+    'data-presenter': s.isPresenter,
     'data-resizing': s.isResizing,
     'data-fullscreen-media': isMediaFullscreen(s),
     'data-media-beside-dock': isMediaBesideDock(s),
@@ -78,7 +83,7 @@ export const shellState = (s: ShellState): ShellOutput => {
   if (dockSize !== undefined) style['--bbb-camera-dock-size'] = `${dockSize}px`;
   if (s.cameraGridWidth > 0) style['--bbb-camera-grid-width'] = `${s.cameraGridWidth}px`;
   if (s.cameraGridHeight > 0) style['--bbb-camera-grid-height'] = `${s.cameraGridHeight}px`;
-  return { attributes, style };
+  return { attributes, style, state: s };
 };
 
 export default shellState;

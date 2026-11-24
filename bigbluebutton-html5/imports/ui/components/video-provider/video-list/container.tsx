@@ -29,7 +29,7 @@ import useElementSize from '/imports/ui/core/hooks/useElementSize';
 interface VideoListContainerProps {
   streams: VideoItem[];
   currentVideoPageIndex: number;
-  cameraDock: Output['cameraDock'];
+  cameraDock: Pick<Output['cameraDock'], 'position'>;
   focusedId: string;
   handleVideoFocus: (id: string) => void;
   isGridEnabled: boolean;

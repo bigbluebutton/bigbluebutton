@@ -37,6 +37,7 @@ const base: ShellState = {
   storedDockHeight: 0,
   cameraGridWidth: 0,
   cameraGridHeight: 0,
+  isPresenter: false,
 };
 
 const at = (o: Partial<ShellState>) => shellState({ ...base, ...o });
@@ -97,6 +98,7 @@ describe('shellState', () => {
     });
     expect(at({ numCameras: 1, fullscreenGroup: 'webcams' }).attributes['data-dock-state']).toBe('fullscreen');
     expect(at({ fullscreenElement: 'Presentation' }).attributes['data-fullscreen-media']).toBe('');
+    expect(at({ isPresenter: true }).attributes['data-presenter']).toBe('');
     expect(at({ numCameras: 1, isPhoneLandscape: true }).attributes).toMatchObject({
       'data-dock': 'contentRight', 'data-dock-enforced': '', 'data-phone-landscape': '',
     });

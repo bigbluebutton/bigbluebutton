@@ -20,3 +20,27 @@ const useMediaOnlyBridge = (region: MediaRegion): React.CSSProperties | undefine
 };
 
 export default useMediaOnlyBridge;
+
+/**
+ * TEMPORARY, until camerasOnly and mediaOnly are in CSS: the engine's camera dock in those layouts (its
+ * box and the position it reports), undefined in the others.
+ */
+export const useSpecialLayoutDockBridge = (): { style: React.CSSProperties; position?: string } | undefined => {
+  const layoutType = layoutSelect((i: Layout) => i.layoutType);
+  const isRTL = layoutSelect((i: Layout) => i.isRTL);
+  const dock = layoutSelectOutput((i: Output) => i.cameraDock);
+  if (layoutType !== LAYOUT_TYPE.MEDIA_ONLY && layoutType !== LAYOUT_TYPE.CAMERAS_ONLY) return undefined;
+  // the engine placed the dock with a translate(left - right, top) from its static position
+  const x = (dock.left ?? 0) - (dock.right ?? 0);
+  return {
+    position: dock.position,
+    style: {
+      top: dock.top,
+      left: isRTL ? 'auto' : x,
+      right: isRTL ? -x : 'auto',
+      width: dock.width,
+      height: dock.height,
+      zIndex: dock.zIndex,
+    },
+  };
+};

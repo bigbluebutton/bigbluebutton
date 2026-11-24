@@ -57,6 +57,16 @@ const isMobile = (s: ShellInputs) => s.deviceType === DEVICE_TYPE.MOBILE;
 
 const isTablet = (s: ShellInputs) => s.deviceType === DEVICE_TYPE.TABLET;
 
+const SPECIAL_LAYOUTS = [
+  LAYOUT_TYPE.CAMERAS_ONLY,
+  LAYOUT_TYPE.PRESENTATION_ONLY,
+  LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY,
+  LAYOUT_TYPE.MEDIA_ONLY,
+];
+
+/** The unified layout, which also renders every layout type the client does not know. */
+export const isUnifiedLayout = (s: ShellInputs) => !SPECIAL_LAYOUTS.includes(s.layoutType);
+
 const MEDIA_FULLSCREEN_ELEMENTS = ['Presentation', 'Screenshare', 'ExternalVideo', 'GenericContent'];
 
 /** A media region (presentation, screen share, external video, plugin content) is in fullscreen. */
@@ -137,18 +147,38 @@ export const mediaBoxCollapse = (s: ShellInputs): MediaBoxCollapse => {
   return 'none';
 };
 
+/**
+ * The dock shows (the engine's cameraDock.display): in unified with cameras or with the presentation
+ * closed (the camera grid), always in camerasOnly, with cameras in mediaOnly, never in the sidebar-only
+ * layouts.
+ */
+export const isCameraDockShown = (s: ShellInputs) => {
+  switch (s.layoutType) {
+    case LAYOUT_TYPE.CAMERAS_ONLY:
+      return true;
+    case LAYOUT_TYPE.PRESENTATION_ONLY:
+    case LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY:
+      return false;
+    case LAYOUT_TYPE.MEDIA_ONLY:
+      return s.numCameras > 0;
+    default:
+      return s.numCameras > 0 || !s.presentationIsOpen;
+  }
+};
+
 /** The engine's isMediaOpen: the media box has a positive width and height. */
 const isMediaOpen = (s: ShellInputs) => mediaBoxCollapse(s) === 'none';
 
 /** Only the unified layout lets the dock be dragged; never on phones and tablets or while locked. */
-export const isCameraDockDraggable = (s: ShellInputs) => !isMobile(s)
+export const isCameraDockDraggable = (s: ShellInputs) => isUnifiedLayout(s)
+  && !isMobile(s)
   && !isTablet(s)
   && !isSideBySideCamerasEnforced(s)
   && isMediaOpen(s);
 
 /** The dock edges that resize; from the raw position the user chose, mirrored in RTL. */
 export const resizableCameraDockEdges = (s: ShellInputs): Edges => {
-  const can = isMediaOpen(s) && !isSideBySideCamerasEnforced(s);
+  const can = isUnifiedLayout(s) && isMediaOpen(s) && !isSideBySideCamerasEnforced(s);
   const pos = s.dockPosition;
   return {
     top: can && (pos === CAMERADOCK_POSITION.CONTENT_BOTTOM

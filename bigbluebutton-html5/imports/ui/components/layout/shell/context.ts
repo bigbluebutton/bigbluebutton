@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import type { ShellOutput } from './shellState';
+import type { ShellOutput, ShellState } from './shellState';
 import type { MediaBoxCollapse } from './selectors';
 
 /** What #layout carries (layout/shell/useLayoutShell.ts), for the regions that act on it in JS. */
@@ -12,3 +12,6 @@ export const LayoutShellContext = createContext<ShellOutput>({ attributes: {}, s
 export const useMediaBoxCollapse = (): MediaBoxCollapse => (
   useContext(LayoutShellContext).attributes['data-media-box'] ?? 'none'
 ) as MediaBoxCollapse;
+
+/** The layout state the shell derived #layout from; undefined outside the app (unit tests). */
+export const useShellState = (): ShellState | undefined => useContext(LayoutShellContext).state;

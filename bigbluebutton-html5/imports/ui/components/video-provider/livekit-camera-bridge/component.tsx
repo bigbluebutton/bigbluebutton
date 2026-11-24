@@ -79,7 +79,7 @@ const intlSFUErrors = defineMessages({
 });
 
 interface LiveKitCameraBridgeProps {
-  cameraDock: Output['cameraDock'];
+  cameraDock: Pick<Output['cameraDock'], 'position'>;
   focusedId: string;
   handleVideoFocus: (id: string) => void;
   isGridEnabled: boolean;

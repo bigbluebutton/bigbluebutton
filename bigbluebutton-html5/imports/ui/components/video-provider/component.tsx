@@ -91,7 +91,7 @@ interface VideoProviderState {
 }
 
 interface VideoProviderProps {
-  cameraDock: Output['cameraDock'];
+  cameraDock: Pick<Output['cameraDock'], 'position'>;
   focusedId: string;
   handleVideoFocus: (id: string) => void;
   isGridEnabled: boolean;

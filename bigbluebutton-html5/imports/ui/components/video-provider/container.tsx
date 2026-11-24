@@ -35,7 +35,7 @@ import { VIDEO_TYPES } from './enums';
 
 interface VideoProviderContainerProps {
   focusedId: string;
-  cameraDock: Output['cameraDock'];
+  cameraDock: Pick<Output['cameraDock'], 'position'>;
   handleVideoFocus:(id: string) => void;
 }
 

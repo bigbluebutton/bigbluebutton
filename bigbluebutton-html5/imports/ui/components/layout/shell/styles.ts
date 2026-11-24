@@ -124,6 +124,10 @@ const LayoutShellStyles = createGlobalStyle`
     --bbb-sidebar-height: calc(100% - 85px - var(--bbb-banners));
     --bbb-sidebar-top: calc(85px + var(--bbb-banners));
   }
+  /* a dock below the sidebar shortens it, while cameras show next to open media */
+  #layout[data-cameras][data-presentation-open][data-dock="sidebarContentBottom"]:not([data-media-off], [data-mobile]) {
+    --bbb-sidebar-height: calc(100% - var(--bbb-dock-sidebar-h) - var(--bbb-banners));
+  }
   #layout [data-layout-region="sidebar-content"],
   #layout [data-layout-region="sidebar-content-auxiliary"] {
     position: absolute;
@@ -168,19 +172,37 @@ const LayoutShellStyles = createGlobalStyle`
   }
 
   /* camera dock size along its axis (calculatesCameraDockBounds): the user's size or 20% of the media
-     area, at least 120 px and leaving 120 px; min(max()) because the engine inverts when the area is
-     under 240 px. Locked side by side on a phone: 25%, never under 120 px. */
+     area (of the window, below the sidebar), at least 120 px and leaving 120 px; min(max()) because the
+     engine inverts when the area is under 240 px. Locked side by side on a phone: 25%, never under 120 px.
+     While resizing, the live size is first held within the dock's max size, as the resizable box did. */
   #layout {
+    --bbb-dock-src: var(--bbb-camera-dock-size);
+    /* the widest a side dock may be: 80% of the media area, for the presenter the area less 440 px */
+    --bbb-dock-max-w: calc(var(--bbb-media-width) * 0.8);
     --bbb-dock-positioned-h: min(
-      max(var(--bbb-camera-dock-size, calc(var(--bbb-media-height) * 0.2)), 120px),
+      max(var(--bbb-dock-src, calc(var(--bbb-media-height) * 0.2)), 120px),
       calc(var(--bbb-media-height) - 120px)
     );
     --bbb-dock-positioned-w: min(
-      max(var(--bbb-camera-dock-size, calc(var(--bbb-media-width) * 0.2)), 120px),
+      max(var(--bbb-dock-src, calc(var(--bbb-media-width) * 0.2)), 120px),
       calc(var(--bbb-media-width) - 120px)
     );
+    --bbb-dock-sidebar-h: min(max(var(--bbb-dock-src, 20%), 120px), calc(100% - 120px));
     --bbb-dock-h: 0px;
     --bbb-dock-w: 0px;
+  }
+  #layout[data-presenter] { --bbb-dock-max-w: calc(var(--bbb-media-width) - 440px); }
+  #layout[data-dock-enforced] { --bbb-dock-max-w: var(--bbb-dock-w); }
+  #layout[data-resizing][data-dock="contentTop"],
+  #layout[data-resizing][data-dock="contentBottom"] {
+    --bbb-dock-src: min(var(--bbb-camera-dock-size), calc(var(--bbb-media-height) * 0.8));
+  }
+  #layout[data-resizing][data-dock="contentLeft"],
+  #layout[data-resizing][data-dock="contentRight"] {
+    --bbb-dock-src: min(var(--bbb-camera-dock-size), var(--bbb-dock-max-w));
+  }
+  #layout[data-resizing][data-dock="sidebarContentBottom"] {
+    --bbb-dock-src: min(var(--bbb-camera-dock-size), calc(100% - var(--bbb-banners) - 300px));
   }
   #layout[data-dock-state="positioned"][data-dock="contentTop"],
   #layout[data-dock-state="positioned"][data-dock="contentBottom"] {
@@ -299,6 +321,100 @@ const LayoutShellStyles = createGlobalStyle`
     right: 0;
     width: 100%;
     height: 100%;
+  }
+
+  /* the camera dock's box (calculatesCameraDockBounds, drawn by webcam/component.tsx): the --bbb-dock-box-*
+     properties hold the branch; x is the distance from the left edge, or from the right one in RTL */
+  #layout {
+    --bbb-dock-box-top: calc(var(--bbb-navbar-height) + var(--bbb-banners));
+    --bbb-dock-box-x: var(--bbb-media-left);
+    --bbb-dock-box-w: var(--bbb-media-width);
+    --bbb-dock-box-h: var(--bbb-dock-h);
+    --bbb-dock-box-z: 1;
+  }
+  #layout[data-rtl] { --bbb-dock-box-x: var(--bbb-sidebar-space); }
+  #layout[data-dock="contentBottom"] {
+    --bbb-dock-box-top: calc(var(--bbb-navbar-height) + var(--bbb-banners) + var(--bbb-media-height)
+      - var(--bbb-dock-h));
+  }
+  #layout[data-dock="contentLeft"],
+  #layout[data-dock="contentRight"] {
+    --bbb-dock-box-w: var(--bbb-dock-w);
+    /* leaves room for the buttons below a vertical dock */
+    --bbb-dock-box-h: calc(var(--bbb-media-height) - 20px);
+  }
+  #layout[data-dock="contentRight"]:not([data-rtl]) {
+    --bbb-dock-box-x: calc(var(--bbb-media-left) + var(--bbb-media-width) - var(--bbb-dock-w));
+  }
+  #layout[data-dock="contentRight"][data-rtl] {
+    --bbb-dock-box-x: calc(var(--bbb-media-width) - var(--bbb-dock-w) + var(--bbb-sidebar-space));
+  }
+  /* below the sidebar: the engine added the 1% horizontal margin to this vertical position */
+  #layout[data-dock="sidebarContentBottom"] {
+    --bbb-dock-box-top: calc(100% - var(--bbb-dock-sidebar-h) - var(--bbb-banners) - 4% + 1vw);
+    --bbb-dock-box-x: var(--bbb-nav-space);
+    --bbb-dock-box-w: var(--bbb-sidebars-width);
+    --bbb-dock-box-h: var(--bbb-dock-sidebar-h);
+  }
+  #layout[data-dock-state="fill"] {
+    --bbb-dock-box-top: var(--bbb-media-top);
+    --bbb-dock-box-w: var(--bbb-media-width);
+    --bbb-dock-box-h: var(--bbb-media-height);
+    --bbb-dock-box-z: auto;
+  }
+  #layout[data-dock-state="fill"]:not([data-rtl]) { --bbb-dock-box-x: var(--bbb-media-left); }
+  #layout[data-dock-state="fill"][data-rtl] { --bbb-dock-box-x: var(--bbb-sidebar-space); }
+  #layout[data-dock-state="fullscreen"] {
+    --bbb-dock-box-top: 0px;
+    --bbb-dock-box-x: 0px;
+    --bbb-dock-box-w: 100%;
+    --bbb-dock-box-h: 100%;
+    --bbb-dock-box-z: 99;
+  }
+  /* below the sidebar the dock always sat at z-index 0 (webcam/component.tsx), even in fullscreen */
+  #layout[data-dock="sidebarContentBottom"] { --bbb-dock-box-z: 0; }
+  /* while dragged, the dock shrinks to the camera grid, centred on where it was, above everything */
+  #layout[data-dragging] {
+    --bbb-dock-box-z: 99;
+  }
+  #layout[data-dragging]:is([data-dock="contentTop"], [data-dock="contentBottom"],
+    [data-dock="sidebarContentBottom"]) {
+    --bbb-dock-box-x-shift: calc((var(--bbb-dock-box-w) - var(--bbb-camera-grid-width, 0px)) / 2);
+  }
+  #layout [data-layout-region="camera-dock"] {
+    position: absolute;
+    box-sizing: border-box;
+    top: var(--bbb-dock-box-top);
+    left: calc(var(--bbb-dock-box-x) + var(--bbb-dock-box-x-shift, 0px));
+    width: var(--bbb-dock-box-w);
+    height: var(--bbb-dock-box-h);
+    z-index: var(--bbb-dock-box-z);
+  }
+  #layout[data-rtl] [data-layout-region="camera-dock"] {
+    left: auto;
+    right: calc(var(--bbb-dock-box-x) + var(--bbb-dock-box-x-shift, 0px));
+  }
+  #layout[data-dragging] [data-layout-region="camera-dock"] {
+    width: var(--bbb-camera-grid-width, 0px);
+    height: var(--bbb-camera-grid-height, 0px);
+  }
+  #layout[data-dragging]:is([data-dock="contentLeft"], [data-dock="contentRight"])
+    [data-layout-region="camera-dock"] {
+    top: calc(var(--bbb-dock-box-top) + (var(--bbb-dock-box-h) - var(--bbb-camera-grid-height, 0px)) / 2);
+  }
+  #layout [data-layout-region="camera-dock"] > #cameraDock {
+    width: 100%;
+    height: 100%;
+  }
+  /* the dock's max width, measured by the dock to hold the user's size within it (webcam/component.tsx) */
+  #layout [data-layout-region="camera-dock-limit"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--bbb-dock-max-w);
+    height: 0;
+    visibility: hidden;
+    pointer-events: none;
   }
 
   /* live captions (SET_CAPTIONS_OUTPUT): past the sidebars, the phone's floating rail included. In RTL

@@ -88,7 +88,7 @@ interface VideoListProps {
   layoutContextDispatch: (...args: unknown[]) => void;
   numberOfPages: number;
   currentVideoPageIndex: number;
-  cameraDock: Output['cameraDock'];
+  cameraDock: Pick<Output['cameraDock'], 'position'>;
   focusedId: string;
   handleVideoFocus: (id: string) => void;
   isGridEnabled: boolean;

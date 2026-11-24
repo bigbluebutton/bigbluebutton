@@ -5,6 +5,7 @@ import { getWaitLayout, isPhoneLandscape } from '../utils';
 import { useIsPresentationEnabled } from '/imports/ui/services/features';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { useStorageKey, STORAGES } from '/imports/ui/services/storage/hooks';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { shellState, ShellOutput } from './shellState';
 
 interface StoredDockSize {
@@ -49,6 +50,8 @@ const useLayoutShell = (): ShellOutput => {
   const notesPinned = layoutSelectInput((i: Input) => i.sharedNotes.isPinned);
   const phoneLandscape = layoutSelectInput((i: Input) => isPhoneLandscape(i.browser));
   const presentationEnabled = useIsPresentationEnabled();
+  const { data: currentUser } = useCurrentUser((u) => ({ presenter: u.presenter }));
+  const isPresenter = !!currentUser?.presenter;
   const storedDockSize = (useStorageKey('webcamSize', STORAGES.SESSION) ?? {}) as StoredDockSize;
   // bbb_hide_controls hides the nav bar's top row (observer.tsx), from userdata that does not change
   const hideTopRow = !!getFromUserSettings('bbb_hide_controls', false);
@@ -89,6 +92,7 @@ const useLayoutShell = (): ShellOutput => {
     storedDockHeight: storedDockSize.height ?? 0,
     cameraGridWidth,
     cameraGridHeight,
+    isPresenter,
   }), [
     layoutType, layoutPending, deviceType, isRTL, hasBanner, hasNotification, hasNavBar, hideTopRow,
     hasActionBar, sidebarNavigationIsOpen, sidebarContentIsOpen, sidebarContentWidth,
@@ -96,7 +100,7 @@ const useLayoutShell = (): ShellOutput => {
     presentationEnabled, slidesLength, hasScreenShare, hasExternalVideo, genericContentId, notesPinned,
     dockPosition, phoneLandscape, fullscreenElement, fullscreenGroup, isDragging, isResizing,
     dockInputWidth, dockInputHeight, storedDockSize.width, storedDockSize.height, cameraGridWidth,
-    cameraGridHeight,
+    cameraGridHeight, isPresenter,
   ]);
 };
 
