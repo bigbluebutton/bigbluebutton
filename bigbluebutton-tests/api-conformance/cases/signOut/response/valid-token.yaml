@@ -1,0 +1,30 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# signOut ends a session and answers SUCCESS. A defect: with a live
+# session token bbb-web answers 500 (expectations/bbb-web.yaml).
+id: signOut.response.valid-token
+title: signOut answers SUCCESS for a live session token
+endpoint: signOut
+class: defect
+tags: [ci]
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Sign out}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: join
+    client: ann
+    params: {meetingID: "${uid}", fullName: Ann, role: moderator, redirect: "false"}
+    golden: off
+    capture: {annId: /response/user_id, annToken: /response/session_token}
+  - call: signOut
+    client: ann
+    params: {sessionToken: "${annToken}"}
+    expect: {status: 200, returncode: SUCCESS}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

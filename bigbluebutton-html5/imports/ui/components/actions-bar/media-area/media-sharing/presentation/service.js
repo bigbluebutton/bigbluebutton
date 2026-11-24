@@ -9,9 +9,14 @@ import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/ap
 import getSizeWithUnit from '/imports/utils/getSizeWithUnit';
 import { getPresentationUploadToken } from './queries';
 import { requestPresentationUploadTokenMutation } from './mutation';
+import { PRESENTATION_REMOVE } from '/imports/ui/components/presentation/mutations';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
 const TOKEN_TIMEOUT = 5000;
+// After giving up on a token, how often and for how long to look for the presentation its
+// request may still create.
+const LATE_TOKEN_POLL_INTERVAL = 5000;
+const LATE_TOKEN_WATCH_TIME = 120000;
 const POD_ID = 'DEFAULT_PRESENTATION_POD';
 
 // fetch doesn't support progress. So we use xhr which support progress.
@@ -25,7 +30,10 @@ const futch = (url, opts = {}, onProgress) => new Promise((res, rej) => {
 
   xhr.onload = (e) => {
     if (e.target.status !== 200) {
-      return rej(new Error({ code: e.target.status, message: e.target.statusText }));
+      return rej(Object.assign(
+        new Error(e.target.statusText || `HTTP ${e.target.status}`),
+        { code: e.target.status },
+      ));
     }
 
     return res(e.target.responseText);
@@ -37,7 +45,26 @@ const futch = (url, opts = {}, onProgress) => new Promise((res, rej) => {
   xhr.send(opts.body);
 });
 
-const requestPresentationUploadToken = (
+// The presentation exists on the server from the moment its upload token is issued. When the
+// server then refuses the upload request, that presentation would be left waiting for a file,
+// and every presenter would see it as uploading. Remove it instead; the caller tells the
+// presenter the upload failed.
+const removeFailedUpload = (presentationId) => {
+  if (!presentationId) return Promise.resolve(false);
+  return apolloContextHolder.getClient().mutate({
+    mutation: PRESENTATION_REMOVE,
+    variables: { presentationId },
+  }).then(() => true).catch((error) => {
+    logger.warn({
+      logCode: 'presentation_uploader_remove_failed_upload_error',
+      extraInfo: { presentationId, errorMessage: error?.message },
+    }, 'Could not remove the presentation of a failed upload');
+    return false;
+  });
+};
+
+// Resolves with the upload token and the id of the presentation the server created for it.
+const requestPresentationUpload = (
   temporaryPresentationId,
   meetingId,
   filename,
@@ -52,12 +79,19 @@ const requestPresentationUploadToken = (
     },
   });
 
+  let gaveUpAt = null;
+  let answered = false;
   const timeout = setTimeout(() => {
+    gaveUpAt = Date.now();
     reject(Object.assign(new Error('requestPresentationUploadToken timeout'), { code: 408 }));
   }, TOKEN_TIMEOUT);
 
   const getData = (n = 0) => {
-    if (n > 10) return;
+    // A request that was only delayed (the connection dropped for a moment) still reaches the
+    // server after this client gave up on it, and creates a presentation nobody will upload.
+    // Keep looking for it for a while, so it can be removed.
+    if (answered) return;
+    if (gaveUpAt ? Date.now() - gaveUpAt > LATE_TOKEN_WATCH_TIME : n > 10) return;
     let recursiveTimeout = null;
     client.query({
       query: getPresentationUploadToken,
@@ -66,25 +100,40 @@ const requestPresentationUploadToken = (
       },
       fetchPolicy: 'network-only',
     }).then((result) => {
-      if (result.data.pres_presentation_uploadToken.length > 0) {
+      // A poll can still be on its way when the next one starts, so two can see the same row.
+      if (result.data.pres_presentation_uploadToken.length > 0 && !answered) {
+        answered = true;
         clearTimeout(recursiveTimeout);
         clearTimeout(timeout);
-        const { uploadToken } = result.data.pres_presentation_uploadToken[0];
+        const { uploadToken, presentationId } = result.data.pres_presentation_uploadToken[0];
+        if (gaveUpAt) {
+          // The presenter was already told the upload could not start. A refused request
+          // carries its reason, which the uploader toast shows.
+          if (uploadToken) removeFailedUpload(presentationId);
+          return;
+        }
         if (!uploadToken) {
           // The request was refused and the reason was recorded on the presentation, which
           // the uploader toast shows. There is nothing to upload to.
           reject(Object.assign(new Error('requestPresentationUploadToken rejected'), { reported: true }));
           return;
         }
-        resolve(uploadToken);
+        resolve({ uploadToken, presentationId });
       }
-    });
+    }).catch(() => {});
     recursiveTimeout = setTimeout(() => {
       getData(n + 1);
-    }, 1000);
+    }, gaveUpAt ? LATE_TOKEN_POLL_INTERVAL : 1000);
   };
   setTimeout(getData, 100);
 });
+
+const requestPresentationUploadToken = (
+  temporaryPresentationId,
+  meetingId,
+  filename,
+) => requestPresentationUpload(temporaryPresentationId, meetingId, filename)
+  .then(({ uploadToken }) => uploadToken);
 
 const uploadAndConvertPresentation = (
   filename,
@@ -117,8 +166,13 @@ const uploadAndConvertPresentation = (
     body: data,
   };
 
-  return requestPresentationUploadToken(temporaryPresentationId, meetingId, filename)
-    .then((token) => futch(endpoint.replace('upload', `${token}/upload`), opts, onProgress))
+  let serverPresentationId = null;
+
+  return requestPresentationUpload(temporaryPresentationId, meetingId, filename)
+    .then(({ uploadToken, presentationId }) => {
+      serverPresentationId = presentationId;
+      return futch(endpoint.replace('upload', `${uploadToken}/upload`), opts, onProgress);
+    })
     // Trap the error so we can have parallel upload
     .catch((error) => {
       logger.debug({
@@ -127,9 +181,26 @@ const uploadAndConvertPresentation = (
           error,
         },
       }, 'Generic presentation upload exception catcher');
-      onUpload({
-        error: true, done: true, status: error?.code, reported: !!error?.reported,
-      });
+      // Set only once the token arrived and the server answered the upload request with an
+      // error. A request that got no answer may still have delivered the file, so its
+      // presentation is left to the server, which converts it or marks it as failed. The same
+      // goes for a gateway timeout (504): nginx gave up waiting for bbb-web, which has the
+      // request and may still accept the file.
+      // A file refused for its size keeps its presentation: the server recorded that reason on
+      // it, and the uploader toast shows it.
+      const uploadRequestFailed = !!serverPresentationId && !!error?.code
+        && error.code !== 504 && error.code !== 413;
+      // Not waited for: with the connection down it would hold back the presenter's own error.
+      if (uploadRequestFailed) removeFailedUpload(serverPresentationId);
+      if (onUpload) {
+        onUpload({
+          error: true,
+          done: true,
+          status: error?.code,
+          reported: !!error?.reported,
+          uploadRequestFailed,
+        });
+      }
       return Promise.resolve();
     });
 };
@@ -301,8 +372,14 @@ function handleFiledrop(files, files2, that, intl, intlMessages) {
           // No upload token arrived and no reason was recorded for the uploader toast to show,
           // so nothing else would tell the presenter the upload failed. The upload rate limit
           // stops recording reasons past a number of refusals per window, hence "wait a moment".
-          if (upload.error && !upload.reported && upload.status === 408) {
+          if (upload.error && !upload.reported && upload.status === 408
+            && !upload.uploadRequestFailed) {
             notify(intl.formatMessage(intlMessages[408]), 'error');
+          }
+          // The server refused the upload request after the token was issued. Its presentation
+          // was removed, so the uploader toast has nothing to show for it.
+          if (upload.error && upload.uploadRequestFailed) {
+            notify(`${file.name}: ${intl.formatMessage(intlMessages.uploadFailed)}`, 'error');
           }
         },
         onDone: (newId) => {

@@ -1,13 +1,13 @@
 package org.bigbluebutton.core.apps.breakout
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.api.{ EjectUserFromBreakoutInternalMsg, UpdateBreakoutUserAccessInternalMsg }
+import org.bigbluebutton.core.api.UpdateBreakoutUserAccessInternalMsg
 import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers.getRedirectUrls
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.bus.BigBlueButtonEvent
 import org.bigbluebutton.core.db.{ BreakoutRoomUserDAO, NotificationDAO }
 import org.bigbluebutton.core.domain.MeetingState2x
-import org.bigbluebutton.core.models.{ EjectReasonCode, RegisteredUsers, Roles, Users2x }
+import org.bigbluebutton.core.models.{ RegisteredUsers, Users2x }
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
@@ -26,11 +26,6 @@ trait ChangeUserBreakoutReqMsgHdlr extends RightsManagementTrait {
     } else {
       val meetingId = liveMeeting.props.meetingProp.intId
       val userSessions = RegisteredUsers.findAllSessionsWithUserId(msg.body.userId, liveMeeting.registeredUsers)
-
-      val revokeUserIds = userSessions match {
-        case Vector() => Vector(msg.body.userId)
-        case sessions => sessions.filter(_.role != Roles.MODERATOR_ROLE).map(_.id)
-      }
 
       val restoreUserIds = userSessions
         .filter(ru => Users2x.findWithIntId(liveMeeting.users2x, ru.id).nonEmpty)
@@ -51,18 +46,15 @@ trait ChangeUserBreakoutReqMsgHdlr extends RightsManagementTrait {
         for {
           roomFrom <- breakoutModel.rooms.get(msg.body.fromBreakoutId)
         } yield {
-          roomFrom.users.filter(u => u.extId == msg.body.userId + "-" + roomFrom.sequence).foreach(user => {
-            eventBus.publish(BigBlueButtonEvent(roomFrom.id, EjectUserFromBreakoutInternalMsg(meetingId, roomFrom.id, user.extId, msg.header.userId, "User moved to another room", EjectReasonCode.EJECT_USER, false)))
-          })
+          BreakoutHdlrHelpers.ejectUserFromBreakoutRoom(eventBus, meetingId, roomFrom, msg.body.userId, msg.header.userId, "User moved to another room")
         }
 
-        breakoutModel.rooms.values
-          .filter(room => room.id != roomTo.id && !room.freeJoin)
-          .foreach(room => {
-            revokeUserIds.foreach(userId => {
-              eventBus.publish(BigBlueButtonEvent(room.id, UpdateBreakoutUserAccessInternalMsg(meetingId, room.id, userId + "-" + room.sequence, revoked = true)))
-            })
-          })
+        BreakoutHdlrHelpers.revokeUserAccessToBreakoutRooms(
+          liveMeeting,
+          eventBus,
+          breakoutModel.rooms.values.filter(room => room.id != roomTo.id),
+          msg.body.userId
+        )
 
         restoreUserIds.foreach(userId => {
           eventBus.publish(BigBlueButtonEvent(roomTo.id, UpdateBreakoutUserAccessInternalMsg(meetingId, roomTo.id, userId + "-" + roomTo.sequence, revoked = false)))

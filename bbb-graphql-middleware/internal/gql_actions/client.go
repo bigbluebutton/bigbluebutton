@@ -260,7 +260,7 @@ func parseGraphQLMutation(query string, variables map[string]interface{}) (strin
 }
 
 func sendErrorMessage(browserConnection *common.BrowserConnection, messageId string, errorMessage string) {
-	browserConnection.Logger.Errorf(errorMessage)
+	browserConnection.Logger.Error(errorMessage)
 
 	// Error on sending action, return error msg to client
 	browserResponseData := map[string]interface{}{

@@ -1,0 +1,53 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# nginx asks checkAuthorization whether a client may open its
+# bbb-webrtc-sfu connection: it passes the request's URI, with the session
+# token in its query, as X-Original-URI, along with the browser's cookies.
+# For a token that the join's HTTP session holds, bbb-web answers 200
+# "authorized" and names the user and the meeting in headers, which nginx
+# hands on to the SFU. Names are URL-encoded. (The answer's Content-Type is
+# "plain/text", sic; nginx doesn't read it.)
+id: connection.authz.valid
+title: checkAuthorization authorizes a joined user and names ${case}
+endpoint: connection
+class: contract
+tags: [ci]
+requires: [akka]
+variants:
+  - {id: plain, vars: {case: them in headers, fullName: Ann, encoded: Ann}}
+  - {id: encoded-name, vars: {case: a name that needs encoding, fullName: "Zoë Ann+", encoded: "Zo%C3%AB+Ann%2B"}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: "Hook test"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID, createTime: /response/createTime, voiceBridge: /response/voiceBridge}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: join
+    client: ann
+    params: {meetingID: "${uid}", fullName: "${fullName}", role: moderator, redirect: "false"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {annToken: /response/session_token, annId: /response/user_id}
+  - route: connection-authz
+    client: ann
+    headers: {X-Original-URI: "/bbb-webrtc-sfu?sessionToken=${annToken}", User-Agent: "Mozilla/5.0 (X11; Linux x86_64)"}
+    expect:
+      status: 200
+      body: authorized
+      headers:
+        User-Id: "${annId}"
+        Meeting-Id: "${intId}"
+        Voice-Bridge: "${voiceBridge}"
+        User-Name: "${encoded}"
+        Meeting-Name: Hook+test
+        Meeting-Create-Time: "${createTime}"
+        Cache-Control: no-cache
+        Set-Cookie: {absent: true}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

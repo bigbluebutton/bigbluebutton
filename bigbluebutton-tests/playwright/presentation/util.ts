@@ -1,6 +1,7 @@
-import { BrowserContext, expect, Locator } from '@playwright/test';
+import { BrowserContext, expect, Locator, Page as PlaywrightPage, Request } from '@playwright/test';
 import { readFileSync } from 'fs';
 import path from 'path';
+import tls from 'tls';
 
 import {
   ELEMENT_WAIT_EXTRA_LONG_TIME,
@@ -508,4 +509,189 @@ export async function hasTextOnCurrentPresentationToast(
 ) {
   const toastLocator = await getCurrentPresentationToastLocator(testPage);
   await expect(toastLocator, description).toContainText(text, { timeout });
+}
+
+// The request that carries the file of an upload; the upload token is part of its path.
+const UPLOAD_REQUEST = '**/bigbluebutton/presentation/*/upload';
+
+// Stops the page's upload requests on their way out and never answers them: the client is left
+// waiting, so it neither finishes the upload nor learns that it failed. `url` resolves with the
+// address of the first one, for a test to send its own request with that upload token.
+export async function holdUploadRequests(testPage: Page): Promise<{ url: Promise<string> }> {
+  let seen: (url: string) => void = () => {};
+  const url = new Promise<string>((resolve) => {
+    seen = resolve;
+  });
+  await testPage.page.route(UPLOAD_REQUEST, (route) => seen(route.request().url()));
+  return { url };
+}
+
+// Answers the page's upload requests the way the server does when it refuses one.
+export async function refuseUploadRequests(testPage: Page) {
+  await testPage.page.route(UPLOAD_REQUEST, (route) =>
+    route.fulfill({ status: 403, contentType: 'text/plain', body: 'upload token scope mismatch' }),
+  );
+}
+
+// What the page gets for an upload request the server has accepted: nothing, as when the answer
+// is lost on its way back, or the 504 nginx answers with when bbb-web takes too long to answer.
+export type LostUploadAnswer = 'no answer' | 'gateway timeout';
+
+// Delivers the file of the page's upload request to the server and keeps the server's answer from
+// the page. The browser does not hand a file's bytes to a route, so the request's other fields
+// are read and the file is sent again. `pageRequestEnded` resolves once the page's own request
+// has ended: only then has the client learned that its upload went wrong.
+export async function loseUploadAnswers(
+  testPage: Page,
+  file: GeneratedFile,
+  answer: LostUploadAnswer,
+): Promise<{ pageRequestEnded: Promise<unknown> }> {
+  const ofUpload = {
+    predicate: (request: Request) => request.method() === 'POST' && new URL(request.url()).pathname.endsWith('/upload'),
+    timeout: UPLOAD_PDF_WAIT_TIME,
+  };
+  const pageRequestEnded =
+    answer === 'no answer'
+      ? testPage.page.waitForEvent('requestfailed', ofUpload)
+      : testPage.page.waitForEvent('requestfinished', ofUpload);
+  // A test that fails before it gets to wait for this must not leave a rejection nobody handles
+  pageRequestEnded.catch(() => {});
+  await testPage.page.route(UPLOAD_REQUEST, async (route) => {
+    const request = route.request();
+    const fields = Object.fromEntries(
+      [...(request.postData() ?? '').matchAll(/name="([^"]+)"\r\n\r\n([^\r]*)\r\n/g)].map((field) => [
+        field[1],
+        field[2],
+      ]),
+    );
+    const response = await testPage.page.request.post(request.url(), {
+      multipart: { fileUpload: file, ...fields },
+    });
+    expect(response.status(), 'should have the server accept the upload').toBe(200);
+    if (answer === 'no answer') {
+      await route.abort('failed');
+    } else {
+      await route.fulfill({
+        status: 504,
+        contentType: 'text/html',
+        body: '<html><h1>504 Gateway Time-out</h1></html>',
+      });
+    }
+  });
+  return { pageRequestEnded };
+}
+
+export async function stopInterceptingUploadRequests(testPage: Page) {
+  await testPage.page.unroute(UPLOAD_REQUEST);
+}
+
+// Sends the file to uploadUrl without the fields that name its meeting. The server takes the
+// upload token and then refuses the request, which is also how it treats a request whose body
+// was cut short.
+export async function sendUploadWithoutItsMeeting(testPage: Page, uploadUrl: string, file: GeneratedFile) {
+  const response = await testPage.page.request.post(uploadUrl, { multipart: { fileUpload: file } });
+  expect(response.status(), 'should have the server refuse the upload request').toBe(403);
+}
+
+// Starts sending a file to uploadUrl and then goes silent without closing the connection, as an
+// upload over a connection that stalls does. state() says how the connection stands: the server
+// giving up on the request is 'closed by the server'. close() ends it from this side.
+export type StalledUploadState = 'open' | 'closed by the server' | 'failed' | 'closed';
+
+export function sendStalledUpload(
+  uploadUrl: string,
+  file: GeneratedFile,
+): { state: () => StalledUploadState; close: () => void } {
+  const { hostname, port, pathname } = new URL(uploadUrl);
+  const boundary = '----stalledUpload';
+  const head = Buffer.from(
+    `--${boundary}\r\nContent-Disposition: form-data; name="fileUpload"; filename="${file.name}"\r\n` +
+      `Content-Type: ${file.mimeType}\r\n\r\n`,
+  );
+  let state: StalledUploadState = 'open';
+  const end = (how: StalledUploadState) => {
+    if (state === 'open') state = how;
+  };
+  const socket = tls.connect({ host: hostname, port: Number(port) || 443, servername: hostname }, () => {
+    socket.write(
+      `POST ${pathname} HTTP/1.1\r\nHost: ${hostname}\r\n` +
+        `Content-Type: multipart/form-data; boundary=${boundary}\r\n` +
+        // more than is ever sent, so the server keeps waiting for the rest
+        `Content-Length: ${head.length + file.buffer.length + 1024}\r\nConnection: close\r\n\r\n`,
+    );
+    socket.write(head);
+    socket.write(file.buffer.subarray(0, Math.ceil(file.buffer.length / 2)));
+  });
+  socket.resume(); // the answer is not needed, but unread data would keep the connection from closing
+  socket.on('error', () => {
+    end('failed');
+    socket.destroy();
+  });
+  socket.on('close', () => end('closed by the server'));
+  return {
+    state: () => state,
+    close: () => {
+      end('closed');
+      socket.destroy();
+    },
+  };
+}
+
+// Holds the page's request for an upload token on its way to the server, as a connection that
+// drops for a moment does, until release() sends it on. removalRequested() says whether the page
+// has since asked the server to remove a presentation. Call it before the page joins the meeting.
+export type HeldUploadTokenRequest = { release: () => void; removalRequested: () => boolean };
+
+export async function holdUploadTokenRequest(page: PlaywrightPage): Promise<HeldUploadTokenRequest> {
+  let sendHeldRequest: (() => void) | null = null;
+  let released = false;
+  let removalRequested = false;
+  await page.routeWebSocket(/\/graphql/, (ws) => {
+    const server = ws.connectToServer();
+    ws.onMessage((message) => {
+      const text = typeof message === 'string' ? message : '';
+      if (!released && text.includes('presentationRequestUploadToken')) {
+        sendHeldRequest = () => server.send(message);
+        return;
+      }
+      if (text.includes('presentationRemove')) removalRequested = true;
+      server.send(message);
+    });
+  });
+  return {
+    release: () => {
+      released = true;
+      sendHeldRequest?.();
+      sendHeldRequest = null;
+    },
+    removalRequested: () => removalRequested,
+  };
+}
+
+// Opens the presentation manager, lists the presentations in it and closes it again.
+export async function listPresentations(testPage: Page): Promise<string[]> {
+  await testPage.waitAndClick(e.mediaAreaButton);
+  await testPage.waitAndClick(e.managePresentations);
+  await testPage.hasElement(e.presentationFileUpload, 'should display the presentation manager');
+  await waitForPresentationList(testPage);
+  const names = await testPage.page.locator(e.presentationNames).allInnerTexts();
+  await testPage.press('Escape');
+  await testPage.waitForSelectorDetached(e.presentationFileUpload);
+  return names;
+}
+
+// Chooses a file in the presentation manager, which starts its upload, and closes the manager.
+export async function startUpload(testPage: Page, file: GeneratedFile) {
+  await testPage.waitAndClick(e.mediaAreaButton);
+  await testPage.waitAndClick(e.managePresentations);
+  await testPage.hasElement(e.presentationFileUpload, 'should display the presentation manager');
+  await waitForPresentationList(testPage);
+  await testPage.page.setInputFiles(e.presentationFileUpload, file);
+  await testPage.press('Escape');
+  await testPage.waitForSelectorDetached(e.presentationFileUpload);
+}
+
+// The upload toast of a file, whatever state it shows.
+export function uploadToastOf(testPage: Page, fileName: string): Locator {
+  return testPage.page.locator(e.presentationUploadProgressToast).filter({ hasText: fileName });
 }

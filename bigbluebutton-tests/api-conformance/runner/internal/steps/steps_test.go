@@ -5,6 +5,7 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"fmt"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -465,6 +466,109 @@ func TestRoutes(t *testing.T) {
 	}
 	if res := run("steps:\n  - route: presentation-download\n    pathParams: {meetingId: m}\n"); res.Status != report.Error || !strings.Contains(res.Reason, "needs pathParams presId") {
 		t.Errorf("status %s, reason %q", res.Status, res.Reason)
+	}
+}
+
+// A subrequest route is called as nginx calls an auth hook: with the
+// cookies the client holds for baseUrl, keeping none that the answer sets.
+// A route that only moves to another base uses the jar as any request does.
+// The two hosts are names a cookie jar tells apart.
+func TestDirectRouteCookies(t *testing.T) {
+	var public, direct []string // path and Cookie header of each request
+	pub := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		public = append(public, r.URL.Path+" "+strings.Join(r.Header.Values("Cookie"), "; "))
+		if v := r.URL.Query().Get("v"); v != "" {
+			http.SetCookie(w, &http.Cookie{Name: "JSESSIONID", Value: v, Path: "/", Secure: true, HttpOnly: true})
+			http.SetCookie(w, &http.Cookie{Name: "SFU", Value: "s", Path: "/bbb-webrtc-sfu", Secure: true})
+		}
+	}))
+	defer pub.Close()
+	dir := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		direct = append(direct, r.URL.Path+" "+strings.Join(r.Header.Values("Cookie"), "; "))
+		http.SetCookie(w, &http.Cookie{Name: "JSESSIONID", Value: "minted", Path: "/"})
+	}))
+	defer dir.Close()
+	t.Setenv("STEPS_TEST_HOOKS", "http://direct.test")
+	tf := filepath.Join(t.TempDir(), "r.yaml")
+	body := "name: r\nbaseUrl: https://public.test\nsalt: " + salt + "\nroutes:\n" +
+		"  hook: {path: /bigbluebutton/connection/checkAuthorization, baseEnv: STEPS_TEST_HOOKS, subrequest: true}\n" +
+		"  moved: {path: /bigbluebutton/moved, baseEnv: STEPS_TEST_HOOKS}\n" +
+		"  page: {path: /bigbluebutton/page}\n"
+	if err := os.WriteFile(tf, []byte(body), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	tg, err := target.Load(tf)
+	if err != nil {
+		t.Fatal(err)
+	}
+	r, err := NewRunner(tg, "", "test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	tr := pub.Client().Transport.(*http.Transport).Clone()
+	tr.TLSClientConfig.ServerName = "example.com" // in httptest's certificate
+	tr.DialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
+		to, ok := map[string]string{"public.test:443": pub.Listener.Addr().String(), "direct.test:80": dir.Listener.Addr().String()}[addr]
+		if !ok {
+			return nil, fmt.Errorf("no address for %s", addr)
+		}
+		return (&net.Dialer{}).DialContext(ctx, network, to)
+	}
+	r.Transport = tr
+	cases, probs := spec.LoadBytes("case.yaml", []byte(header(`steps:
+  - url: "https://public.test/set?v=ann"
+    client: ann
+  - route: hook
+    client: ann
+  - route: hook
+    client: ann
+    headers: {Cookie: null}
+  - route: hook
+    client: ann
+    headers: {Cookie: ""}
+  - route: hook
+    client: ann
+    headers: {Cookie: "a=1"}
+  - route: hook
+    client: eve
+  - route: page
+    client: ann
+  - route: hook
+    client: ann
+    headers: {X-Original-URI: "/bbb-webrtc-sfu?sessionToken=t"}
+  - route: moved
+    client: ann
+  - route: moved
+    client: ann
+`)), spec.Options{})
+	if len(probs) > 0 {
+		t.Fatal(probs)
+	}
+	res := r.RunCase(context.Background(), cases[0], "uid-1")
+	if res.Status != report.Pass {
+		t.Fatalf("status %s: %s", res.Status, res.Reason)
+	}
+	hook := "/bigbluebutton/connection/checkAuthorization "
+	// The SFU cookie is the browser's for /bbb-webrtc-sfu only, so it goes
+	// along when X-Original-URI names that path.
+	// The moved route's first answer sets a cookie for its own host, which
+	// its second request carries.
+	moved := "/bigbluebutton/moved "
+	want := []string{hook + "JSESSIONID=ann", hook + "JSESSIONID=ann", hook, hook + "a=1", hook, hook + "SFU=s; JSESSIONID=ann", moved, moved + "JSESSIONID=minted"}
+	if strings.Join(direct, "|") != strings.Join(want, "|") {
+		t.Errorf("the hook got %q, want %q", direct, want)
+	}
+	if len(public) != 2 || public[1] != "/bigbluebutton/page JSESSIONID=ann" {
+		t.Errorf("a route on baseUrl should use the jar as before: %q", public)
+	}
+	if h := res.Steps[1].Request.Headers; h["Cookie"] != "JSESSIONID=<forwarded>" {
+		t.Errorf("the report should name the forwarded cookie, not show it: %v", h)
+	}
+	if h := res.Steps[5].Request.Headers; h["Cookie"] != "" {
+		t.Errorf("a fresh client forwards nothing, but the report shows %q", h["Cookie"])
+	}
+	if h := res.Steps[7].Request.Headers; h["Cookie"] != "SFU=<forwarded>; JSESSIONID=<forwarded>" {
+		t.Errorf("the report should name both forwarded cookies: %v", h)
 	}
 }
 
@@ -1074,5 +1178,138 @@ func TestAddSecrets(t *testing.T) {
 	got := red.Redact("salty taptok sinktok turnsecret shown")
 	if want := "[salt] [tap-token] [sink-token] [secret:turn] shown"; got != want {
 		t.Errorf("%q, want %q", got, want)
+	}
+}
+
+// turnCase checks a TURN credential the way the stuns cases do: the
+// password is the HMAC of the username, which holds the expiry.
+const turnCase = `steps:
+  - {call: create, params: {meetingID: "${uid}", name: Turn}}
+  - call: join
+    params: {meetingID: "${uid}", fullName: Ann, redirect: "false"}
+    capture: {tok: /response/session_token, ann: /response/user_id}
+  - call: stuns
+    params: {sessionToken: "${tok}"}
+    expect:
+      jsonpath:
+        $.turnServers[0].username: {regex: "^[0-9]+:${ann}$"}
+        $.turnServers[0].ttl: {between: [1, 604800]}
+    capture: {user: "$.turnServers[0].username", pass: "$.turnServers[0].password", ttl: "$.turnServers[0].ttl"}
+  - check:
+      - {value: "${pass}", expect: '${hmac("sha1", target.turnSecret, user)}'}
+      - {value: '${match(user, "^([0-9]+):")}', expect: {between: ["${add(add(now(), ttl), -60)}", "${add(add(now(), ttl), 60)}"]}}
+`
+
+// runTurn runs turnCase with the given secret and clock.
+func runTurn(t *testing.T, secret string, now func() time.Time) *report.CaseResult {
+	t.Helper()
+	srv := httptest.NewServer(fakebbb.New(salt))
+	defer srv.Close()
+	cases, probs := spec.LoadBytes("case.yaml", []byte("id: stuns.x.y\ntitle: t\nendpoint: stuns\nclass: contract\n"+turnCase), spec.Options{FixturesDir: fixtures})
+	if len(probs) > 0 {
+		t.Fatalf("problems: %v", probs)
+	}
+	tg := &target.Target{Name: "fake", BaseURL: srv.URL, APIPrefix: "/bigbluebutton/api/", Salt: salt, DefaultSign: "sha1",
+		Vars: map[string]target.Var{"turnSecret": {Value: secret, Secret: true}}}
+	r, err := NewRunner(tg, fixtures, "test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	r.Now = now
+	return r.RunCase(context.Background(), cases[0], "uid-1")
+}
+
+func TestCheckStep(t *testing.T) {
+	if res := runTurn(t, fakebbb.TurnSecret, nil); res.Status != report.Pass {
+		t.Fatalf("status %s: %s", res.Status, res.Reason)
+	}
+	// A check step records its comparisons like any step, secrets redacted.
+	res := runTurn(t, "wrong-secret", nil)
+	if res.Status != report.Fail || !strings.Contains(res.Reason, "step 4") {
+		t.Fatalf("a wrong secret: status %s, reason %q; want a FAIL at the check step", res.Status, res.Reason)
+	}
+	last := res.Steps[len(res.Steps)-1]
+	if len(last.Assertions) != 2 || last.Assertions[0].OK || !last.Assertions[1].OK {
+		t.Errorf("assertions %+v; want the HMAC to fail and the expiry to pass", last.Assertions)
+	}
+	if strings.Contains(res.Reason+last.Assertions[0].Expected, "wrong-secret") {
+		t.Errorf("the secret leaked: %q", res.Reason)
+	}
+	// now() reads the runner's clock: an hour on, the expiry is too early.
+	res = runTurn(t, fakebbb.TurnSecret, func() time.Time { return time.Now().Add(time.Hour) })
+	if res.Status != report.Fail || !strings.Contains(res.Reason, "an integer from") {
+		t.Errorf("a clock an hour ahead: status %s, reason %q; want the expiry check to fail", res.Status, res.Reason)
+	}
+}
+
+// A check step reports its comparisons with secrets redacted, on either side.
+func TestCheckStepRedactsSecrets(t *testing.T) {
+	const secret = "check-step-secret"
+	cases, probs := spec.LoadBytes("case.yaml", []byte(`id: stuns.x.y
+title: t
+endpoint: stuns
+class: contract
+steps:
+  - check:
+      - {value: '${target.turnSecret}', expect: something-else}
+      - {value: something-else, expect: '${target.turnSecret}'}
+`), spec.Options{FixturesDir: fixtures})
+	if len(probs) > 0 {
+		t.Fatalf("problems: %v", probs)
+	}
+	tg := &target.Target{Name: "fake", BaseURL: "http://127.0.0.1:1", APIPrefix: "/bigbluebutton/api/", Salt: salt, DefaultSign: "sha1",
+		Vars: map[string]target.Var{"turnSecret": {Value: secret, Secret: true}}}
+	r, err := NewRunner(tg, fixtures, "test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	res := r.RunCase(context.Background(), cases[0], "uid-1")
+	if res.Status != report.Fail || len(res.Steps) != 1 || len(res.Steps[0].Assertions) != 2 {
+		t.Fatalf("status %s (%s), steps %+v; want both comparisons to fail", res.Status, res.Reason, res.Steps)
+	}
+	reported := res.Reason + res.Steps[0].Message
+	for _, a := range res.Steps[0].Assertions {
+		reported += a.What + a.Expected + a.Actual
+	}
+	if strings.Contains(reported, secret) {
+		t.Errorf("the secret leaked: %q", reported)
+	}
+	if strings.Count(reported, "[secret:turnSecret]") < 2 {
+		t.Errorf("the secret isn't named on both sides: %q", reported)
+	}
+}
+
+func TestBetween(t *testing.T) {
+	for _, tt := range []struct {
+		value  string
+		status report.Status
+	}{{"5", report.Pass}, {"1", report.Pass}, {"9", report.Pass}, {"0", report.Fail}, {"10", report.Fail}, {"x", report.Fail}, {"5.0", report.Fail}} {
+		res, _ := runYAML(t, header(`steps:
+  - check: [{value: "`+tt.value+`", expect: {between: [1, "${add(4, 5)}"]}}]
+`))
+		if res.Status != tt.status {
+			t.Errorf("%s between 1 and 9: status %s (%s), want %s", tt.value, res.Status, res.Reason, tt.status)
+		}
+	}
+	// A bound that isn't a number is an error in the case, not a failed check.
+	res, _ := runYAML(t, header(`steps:
+  - check: [{value: "5", expect: {between: [1, '${urlencode("x")}']}}]
+`))
+	if res.Status != report.Error {
+		t.Errorf("a bound that isn't a number: status %s, want ERROR", res.Status)
+	}
+	// Bounds a template put in the wrong order are an error too, as literal
+	// ones are when the case loads; equal bounds are a valid range.
+	res, _ = runYAML(t, header(`steps:
+  - check: [{value: "5", expect: {between: ['${add(9, 0)}', 1]}}]
+`))
+	if res.Status != report.Error || !strings.Contains(res.Reason, "the low bound 9 is above the high bound 1") {
+		t.Errorf("bounds 9 and 1 from a template: status %s (%s), want ERROR", res.Status, res.Reason)
+	}
+	res, _ = runYAML(t, header(`steps:
+  - check: [{value: "5", expect: {between: ['${add(5, 0)}', 5]}}]
+`))
+	if res.Status != report.Pass {
+		t.Errorf("5 between 5 and 5 from a template: status %s (%s), want PASS", res.Status, res.Reason)
 	}
 }

@@ -442,11 +442,13 @@ class Settings extends Component {
           <>
             <BBButton
               variant="secondary"
+              className="bbb-action-button bbb-action-button--secondary"
               label={intl.formatMessage(intlMessages.CancelLabel)}
               onClick={this.performClose}
             />
             <BBButton
               variant="primary"
+              className="bbb-action-button bbb-action-button--primary"
               dataTest="saveSettingsButton"
               label={intl.formatMessage(intlMessages.SaveLabel)}
               onClick={() => {

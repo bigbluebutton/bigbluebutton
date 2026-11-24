@@ -570,6 +570,7 @@ export const createToolbarOptions = (
         },
         icon: 'circle_close',
         dataTest: 'removeUser',
+        className: 'bbb-menu__item--remove-user',
       },
     ],
   };

@@ -4,8 +4,10 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"strconv"
 	"strings"
 	"testing"
+	"time"
 )
 
 func vars(m map[string]string) func(string) (string, bool) {
@@ -63,7 +65,8 @@ func TestParseErrors(t *testing.T) {
 func TestEvalErrors(t *testing.T) {
 	env := &Env{Vars: vars(nil)}
 	for _, in := range []string{"${nope}", `${nope("a")}`, `${repeat("a")}`, `${repeat("a", "x")}`, `${repeat("a", -1)}`, `${checksum("sha1", "c", "q")}`,
-		`${match("abc", "x")}`, `${match("abc", "(")}`, `${match("b", "(a)|b")}`} {
+		`${match("abc", "x")}`, `${match("abc", "(")}`, `${match("b", "(a)|b")}`,
+		`${hmac("md5", "k", "d")}`, `${hmac("sha1", "k")}`, `${now(1)}`, `${add("1", "x")}`, `${add("1.5", "1")}`, `${add(1)}`} {
 		if _, err := Expand(in, env); err == nil {
 			t.Errorf("Expand(%q) succeeded, want an error", in)
 		}
@@ -154,5 +157,56 @@ func TestRedactor(t *testing.T) {
 	var nilR *Redactor
 	if nilR.Redact("abc") != "abc" {
 		t.Error("a nil Redactor should change nothing")
+	}
+}
+
+// The HMAC vectors are the well-known "quick brown fox" ones, and one shaped
+// like a TURN credential (Base64 of HMAC-SHA1 of "<expiry>:<user ID>").
+func TestHmac(t *testing.T) {
+	env := &Env{Vars: vars(map[string]string{"user": "1700086400:w_abcdefghijkl"})}
+	for _, tt := range []struct{ in, want string }{
+		{`${hmac("sha1", "key", "The quick brown fox jumps over the lazy dog")}`, "3nybhbi3iqa8ino29wqQcBydtNk="},
+		{`${hmac("sha256", "key", "The quick brown fox jumps over the lazy dog")}`, "97yD9DBThCSxMpjmqm+xQ+9NWaFJRhdZl0edvC0aPNg="},
+		{`${hmac("sha1", "tier1-turn-secret", user)}`, "33GVkmMl/KX5ZyNREiRpwYU0C1I="},
+	} {
+		if got, err := Expand(tt.in, env); err != nil || got != tt.want {
+			t.Errorf("Expand(%q) = %q, %v; want %q", tt.in, got, err, tt.want)
+		}
+	}
+}
+
+func TestNowAndAdd(t *testing.T) {
+	env := &Env{
+		Vars: vars(map[string]string{"ttl": "86400"}),
+		Now:  func() time.Time { return time.Unix(1700000000, 999e6) },
+	}
+	for _, tt := range []struct{ in, want string }{
+		{"${now()}", "1700000000"},
+		{"${add(now(), ttl)}", "1700086400"},
+		{"${add(add(now(), ttl), -60)}", "1700086340"},
+		{`${add("-5", 3)}`, "-2"},
+	} {
+		if got, err := Expand(tt.in, env); err != nil || got != tt.want {
+			t.Errorf("Expand(%q) = %q, %v; want %q", tt.in, got, err, tt.want)
+		}
+	}
+	// Without a clock, now() reads the real one.
+	got, err := Expand("${now()}", &Env{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	n, err := strconv.ParseInt(got, 10, 64)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if d := time.Now().Unix() - n; d < 0 || d > 5 {
+		t.Errorf("now() = %s, %d s from the real clock", got, d)
+	}
+}
+
+func TestFuncNames(t *testing.T) {
+	want := []string{"add", "base64File", "checksum", "hmac", "match", "now", "repeat", "urlencode"}
+	if got := FuncNames(); !reflect.DeepEqual(got, want) {
+		t.Errorf("FuncNames = %v, want %v", got, want)
 	}
 }

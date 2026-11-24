@@ -1,4 +1,4 @@
-FROM bigbluebutton/bbb-libreoffice:25.8.4.2-20260129-151200
+FROM bigbluebutton/bbb-libreoffice:26.8.3.1-20261120-120000
 
 COPY speaker-notes.py /usr/local/lib/bbb-soffice/speaker-notes.py
 COPY convert-with-speaker-notes.sh /usr/local/bin/bbb-soffice-convert-with-speaker-notes

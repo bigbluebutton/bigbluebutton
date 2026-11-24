@@ -91,7 +91,7 @@ func BBBWebCheckAuthorization(browserConnectionId string, sessionToken string, c
 
 	//Get userId and meetingId from response Header
 	for key, value := range normalizedResponse {
-		log.Debug("%s: %s\n", key, value)
+		log.Debugf("%s: %s", key, value)
 
 		if key == "x-userid" {
 			userId = value

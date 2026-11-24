@@ -15,7 +15,6 @@ files:
 blankText: "No text could be retrieved for the slide"
 statusSource: disk
 served:
-  base: ""
   token: none
 urlDocuments:
   webroot: /var/www/bigbluebutton-default/assets

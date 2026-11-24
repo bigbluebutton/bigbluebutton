@@ -19,7 +19,8 @@ runner/                  the bbb-conform Go module
   schema/case.schema.json  the case format, as JSON Schema
   testdata/cases/          worked examples of every feature
   testdata/smoke/          a quick check of a live server
-cases/<area>/<group>/    the suite's cases, e.g. cases/common/checksum/ or cases/join/guest/
+cases/<area>/<group>/    the suite's cases, e.g. cases/common/checksum/, cases/join/guest/ or
+                           cases/connection/authz/ (the nginx auth hooks)
 fixtures/                files cases refer to or the sink serves (bodies, presentations, plugins)
 golden/<target>/         reviewed recordings of what a server answered
 masks.yaml               extra normalization rules for diff and recordings
@@ -87,7 +88,7 @@ fixtureUrl: https://sink.test:8444/fixtures   # for ${fixtureUrl}
 graphqlUrl: wss://bbb.example.com/graphql  # the default: baseUrl's host at /graphql; keep that host, for the join's cookie
 tapUrl: http://10.0.0.5:8099         # the server's tap, for bus, fs and redis steps
 vars:
-  turnSecret: {env: TURN_SECRET, secret: true}   # ${target.turnSecret}
+  turnSecret: {env: TURN_SECRET, secret: true, capability: turn}   # ${target.turnSecret}
 ```
 
 Blank fields fall back to the variables the Playwright suite uses: `BBB_URL`
@@ -98,6 +99,13 @@ Blank fields fall back to the variables the Playwright suite uses: `BBB_URL`
 come only from `BBB_TAP_TOKEN` and `BBB_SINK_TOKEN`, never a target file;
 like the salt, they are redacted from what the runner writes.
 
+A var's `capability` is a capability the target has while the var has a
+value, so the cases that need the value are skipped, not failed, on a
+server that doesn't give it: `targets/bbb-web.yaml` has the `turn`
+capability, for the stuns cases that check TURN credentials, while
+`TURN_SECRET` holds the TURN servers' shared secret. Listing the capability
+without the var's value is an error.
+
 A target with a tap has the `bus`, `fs` and `redis` capabilities, and one
 with a sink the `callbacks` capability. Listing them without one is an
 error. The runner trusts the sink as it trusts the target (`tls`).
@@ -107,13 +115,26 @@ error. The runner trusts the sink as it trusts the target (`tls`).
 ```yaml
 routes:
   presentation-download: {path: "/bigbluebutton/presentation/download/{meetingId}/{presId}"}
-  connection-authz:      {path: "/bigbluebutton/connection/checkAuthorization", baseEnv: BBB_WEB_DIRECT_URL}
+  connection-authz:      {path: "/bigbluebutton/connection/checkAuthorization", baseEnv: BBB_WEB_DIRECT_URL, subrequest: true}
 ```
 
 - `{name}` is filled from the step's `pathParams`, path-escaped. A missing
   param is an error; params the path doesn't use are ignored.
 - `base` (or the variable `baseEnv` names) replaces `baseUrl`, for routes such
   as the nginx-internal hooks that cases call on bbb-web directly.
+- With `subrequest: true`, a step on the route is sent as nginx sends an
+  `auth_request` subrequest, which carries the browser's cookies:
+  - it carries the cookies its `client` holds under `baseUrl`, such as the
+    JSESSIONID a `join` set. They are the cookies for the path in the
+    step's `X-Original-URI` header, without its query (nginx sets that
+    header to the browser's request), or for the route's own path when
+    the header is missing or isn't a path;
+  - the cookies the answer sets aren't kept, because a subrequest's answer
+    never reaches the browser (the recording still shows them);
+  - a `Cookie` in the step's `headers` replaces the client's cookies, and
+    an empty one sends none. A fresh `client` sends none either.
+- A route with `base` but not `subrequest` keeps and sends cookies as any
+  request does.
 - A case is skipped as `not-routed` if the target doesn't map one of its
   routes, or if the route's `baseEnv` is unset.
 - A route may name a path the server no longer serves, so that a case can
@@ -161,6 +182,10 @@ env/full-install/profile.sh default        # restore the server's own file
   says so), so `--exclude-tags disruptive` leaves the server alone.
 - **Another switcher:** set `BBB_PROFILE_CMD` to a command that takes the
   same arguments. The Tier 1 stack's is `env/tier1/profile.sh` (see below).
+- **Picking a profile:** each overlay's header says what it changes.
+  `alt-defaults` sets `allowRequestsWithoutSession=true`, so under it a
+  session token alone passes every session check: a case about the join's
+  HTTP session doesn't belong there.
 
 To smoke-test a server, point a target at it and run `--cases testdata/smoke`.
 
@@ -207,7 +232,7 @@ go run ./cmd/bbb-conform run --target ../targets/bbb-web.yaml --cases ../cases -
 |---|---|
 | `debs` | Builds the five packages the stack runs (bbb-web, bbb-apps-akka, bbb-graphql-server, bbb-graphql-middleware, bbb-graphql-actions) with their own build scripts, in the image CI builds them in. `PKGS=bbb-web` builds one. About 20 minutes cold. |
 | `up` | Renders the configuration, builds what changed and starts the stack, then waits until every service is healthy (about a minute). `CLAMAV=1` adds a ClamAV daemon. |
-| `env` | Prints the variables the runner reads: `BBB_URL`, `BBB_SECRET`, `BBB_TAP_URL`, `BBB_TAP_TOKEN`, `BBB_SINK_URL`, `BBB_SINK_READ_URL`, `BBB_SINK_HTTP_URL`, `BBB_SINK_TOKEN`, `BBB_FIXTURE_URL`, `BBB_WEB_DIRECT_URL`, `BBB_PROFILE_CMD` and `SSL_CERT_FILE`. The tokens are made once, in `env/.state/tokens.env`. |
+| `env` | Prints the variables the runner reads: `BBB_URL`, `BBB_SECRET`, `BBB_PAGE_TOKEN_SECRET`, `BBB_TAP_URL`, `BBB_TAP_TOKEN`, `BBB_SINK_URL`, `BBB_SINK_READ_URL`, `BBB_SINK_HTTP_URL`, `BBB_SINK_TOKEN`, `BBB_FIXTURE_URL`, `BBB_WEB_DIRECT_URL`, `TURN_SECRET` (read from `env/bbb-web/turn-stun-servers.xml`), `BBB_PROFILE_CMD` and `SSL_CERT_FILE`. The tokens are made once, in `env/.state/tokens.env`. |
 | `profile` | `NAME=reveal-version` switches bbb-web to a profile in `env/bbb-web/profiles/`, `NAME=default` back; without `NAME`, prints the one in force. Cases use it through `BBB_PROFILE_CMD`. |
 | `reset` | Starts again from nothing: no meetings, an empty data directory, the default profile. A profile switch waits until it is done. |
 | `check-copies` | Warns about the package files Tier 1 mirrors by hand that changed since it last followed them (see below). |
@@ -258,14 +283,15 @@ access for the first build.
   - bbb-api isn't part of it yet.
 - **What it mirrors by hand.** Parts of the packages are copied rather
   than run: bbb-web's Depends and the edits its install script makes,
-  the units' command lines, the GraphQL server's database setup,
-  akka-apps' preinst, the data directory bbb-config creates, the
-  LibreOffice converter. `env/tier1/check-copies.sh` (`make check-copies`)
-  warns about each of those sources that changed since Tier 1 last
-  followed it, from the hashes in `env/tier1/copies.sha256`; CI shows the
-  warnings as annotations. Once the stack follows the change, `--update`
-  records the sources as they are. nginx's site is bbb-install's, which
-  isn't in this repository, so nothing checks it.
+  the units' command lines and environment, the GraphQL server's
+  database setup, akka-apps' preinst, the data directory bbb-config
+  creates, the LibreOffice converter. `env/tier1/check-copies.sh`
+  (`make check-copies`) warns about each of those sources that changed
+  since Tier 1 last followed it, from the hashes in
+  `env/tier1/copies.sha256`; CI shows the warnings as annotations. Once
+  the stack follows the change, `--update` records the sources as they
+  are. nginx's site is bbb-install's, which isn't in this repository, so
+  nothing checks it.
 - **Restarts.** Services are restarted when they exit, as the packages'
   units restart theirs; the GraphQL middleware exits when it loses its
   redis subscription. A profile switch restarts bbb-web, and akka-apps too
@@ -287,7 +313,8 @@ access for the first build.
   and, when the job fails, the services' logs are uploaded as
   `api-conformance-bbb-web`, and the matrix is the job's summary;
   `check-copies.sh`'s warnings are annotations on the run. The `slow`
-  cases, about 20 minutes, run every night instead: the
+  cases, about 85 minutes (one waits an hour for a text-track token to
+  expire), run every night instead: the
   `api-conformance-slow` job of `.github/workflows/nightly-tests.yml`
   starts the stack from the packages of the newest Automated tests build of
   v4.0.x-develop, at the commit that build is of, and uploads
@@ -338,7 +365,8 @@ BBB_TAP_TOKEN=$(openssl rand -hex 16) ./bbb-conform tap --listen 10.0.0.5:8099
   To reach it from another host, listen on a private interface with a
   token, or use an SSH tunnel (`ssh -L 8099:127.0.0.1:8099 server`). Never
   expose it on a public interface. It never writes to redis, and writes
-  files only with `--recordings`, and only the fixture recordings.
+  files only with `--recordings`, and only the fixture recordings and
+  their status markers.
   It answers only requests addressed to an IP address, `localhost` or one
   of its `--hosts`; any other host name gets HTTP 421.
 - **What it keeps:**
@@ -378,20 +406,24 @@ use it ERROR at once.
 
 getRecordings and the calls that change recordings need recordings to
 work on. `fixtures/recordings/` (see its README) is a tree laid out like
-`/var/bigbluebutton`, with recordings in every state and caption tracks.
+`/var/bigbluebutton`, with recordings in every state, caption tracks and
+the status markers record-and-playback leaves for a recording
+(`recording/status/<step>/<record ID>[-<format>].done` or `.fail`, for the
+archived, sanity, processed and published steps).
 A tap started with `--recordings fixtures/recordings`:
 - writes every recording in the tree into the data directory when it
   starts, replacing any copy of it there, in whatever state;
 - puts recordings back on `POST /recordings/restore?id=<record ID>&id=...`,
   which `restore` steps send: every copy of each recording goes, in any
-  state and format, with its caption files, anything uploaded for it to
-  the captions inbox and record-and-playback's work directory for such an
-  upload (`recording/caption/inbox/<record ID>`), and the tree's copy goes
-  in. A record ID that isn't in the tree is refused. `?all=1` puts every
-  recording back: the runner asks for that before a run with cases that
-  need the recordings, so each run starts from the tree whatever an
-  earlier one left. A restore of several recordings that fails partway
-  says which one it stopped at and how many it had put back;
+  state and format, with its status markers, its caption files, anything
+  uploaded for it to the captions inbox and record-and-playback's work
+  directory for such an upload (`recording/caption/inbox/<record ID>`),
+  and the tree's copy goes in. A record ID that isn't in the tree is
+  refused. A marker in the tree must belong to one of its recordings.
+  `?all=1` puts every recording back: the runner asks for that before a
+  run with cases that need the recordings, so each run starts from the
+  tree whatever an earlier one left. A restore of several recordings that
+  fails partway says which one it stopped at and how many it had put back;
 - writes as the data directory's owner when it runs as root, so bbb-web
   can move what it wrote.
 
@@ -581,7 +613,7 @@ Values that change from run to run are masked:
 | userID, user_id, internalUserID, existingUserID, and GraphQL's userId and extId | `w_<id>` |
 | attendeePW, moderatorPW, voiceBridge, and the bus's moderatorPass, viewerPass, voiceConf and telVoice | `<random>`, unless the case sent that value |
 | session and auth tokens, checksum, JSESSIONID, and the token in a learning-dashboard file's path | `<token>` |
-| stuns TURN username and password | `<expiry>:…` and `<token>` |
+| stuns TURN username and password | `<expiry>:<user ID>` and `<token>` |
 | a redis key's `ttl`, when it has one | `<set>` (-1, no expiry, and -2, missing, stay) |
 
 After masking:
@@ -611,10 +643,13 @@ the same way.
 `masks`, `unordered`, `scope`, `drop` (removes the lines a path names, only
 those with `value` if it is given) and `headers`. Only a mask can override a
 built-in rule, for the same field; the others only add, so the built-in
-`noMeetings` drop can't be turned off. The suite's `masks.yaml` masks the
-missing-checksum message bbb-web picks at random, and the version
-endpoint's `bbbVersion` and `html5PluginSdkVersion`, which change with each
-release.
+`noMeetings` drop can't be turned off. The first mask for a node takes all
+its values, unless it is a regex mask with `onlyMatching: true`: that one
+takes only the values its regex matches, and leaves the others to the next
+mask, such as a built-in one for the same field. The suite's `masks.yaml`
+masks the missing-checksum message bbb-web picks at random,
+learningDashboard's data, and the version endpoint's `bbbVersion` and
+`html5PluginSdkVersion`, which change with each release.
 
 The `*.yaml` files in `masks.d`, next to `masks.yaml`, add rules the same
 way, in name order and ahead of `masks.yaml`, so their masks win over its.
@@ -764,7 +799,7 @@ after 2s with a warning.
 | `endpoint` | The endpoint the case is about. |
 | `class` | `contract` (documented or relied-on behaviour), `compat` (a bbb-web quirk clients may depend on) or `defect` (asserts the *correct* behaviour that bbb-web gets wrong). |
 | `tags` | Any of `ci`, `slow`, `disruptive`, `full-stack`, `presence`, `conversion`, `serial`, `triage`. `triage` marks behaviour still to be classified as contract, compat or defect: until then each of its steps (outside teardown) must say `golden: document` or `off`, which `validate` checks. |
-| `requires` | Capabilities the target must declare, or the case is skipped: `akka`, `presence`, `recordings-fs`, `callbacks`, `presentation-conversion`, `bus`, `fs`, `redis`, `clamav`, `full-stack`. Step types add their own: `presence` and `graphql` add `presence`; `bus`, `fs` and `redis` add themselves; `sink` adds `callbacks`; `restore` adds `recordings-fs`, which a target also has when its tap has [fixture recordings](#fixture-recordings). |
+| `requires` | Capabilities the target must declare, or the case is skipped: `akka`, `presence`, `recordings-fs`, `callbacks`, `presentation-conversion`, `bus`, `fs`, `redis`, `clamav`, `full-stack`, `turn`. A target var can grant one while it has a value, as `turnSecret` grants `turn`. Step types add their own: `presence` and `graphql` add `presence`; `bus`, `fs` and `redis` add themselves; `sink` adds `callbacks`; `restore` adds `recordings-fs`, which a target also has when its tap has [fixture recordings](#fixture-recordings). |
 | `profile` | A named config overlay the target must run with, e.g. one with short timeouts. |
 | `variants` | See below. |
 | `defs` | Ignored. A place to define YAML anchors. |
@@ -832,6 +867,7 @@ Each step has exactly one step-type key.
 | `redis` | `{key, within}`: a redis key. `expect: {exists, absent, hash, members, ttl}`. | yes |
 | `sink` | `{key, within}`: the requests the target's sink recorded under a key. `expect: {method, path, query, headers, absent, count}`. See [Callbacks and fetches](#callbacks-and-fetches-sink). | yes |
 | `env` | `{action: stop\|start\|restart\|reset, service}`. | not yet |
+| `check` | `[{value, expect}, ...]`: compares values the case already has, typically earlier steps' captures run through template functions, with no request: `value` is a template and `expect` a [matcher](#checking-responses-expect) other than `exists`, `absent` and `count`. For what a server derives from its own answer, such as a TURN credential's HMAC or a URL's checksum. Takes no `capture` or `golden`, and records nothing. | yes |
 | `restore` | `{recordings: [<record ID>, ...]}`: puts [fixture recordings](#fixture-recordings) back as the tree has them, through the tap. Record IDs are written out (a variant var works; a template doesn't). Takes no `expect`, `capture` or `golden`. A case that changes recordings restores them in its first step and in `teardown`. A case with a `restore` step must be tagged `serial` (`validate` checks), so the cases that list recordings never see it half done. | yes |
 
 - A case that uses a step type that isn't implemented yet is skipped as
@@ -1085,7 +1121,7 @@ starting with `_`, which the sink keeps for itself.
 | Key | Meaning |
 |---|---|
 | `call` | An API call name, sent to the target's API prefix. `""` is the version endpoint. |
-| `route`, `pathParams` | A non-API route (presentation, connection, textTrack), mapped per target. |
+| `route`, `pathParams` | A non-API route (presentation, connection, textTrack), mapped per target. A `subrequest` route sends the client's `baseUrl` cookies and keeps none; any other route keeps and sends cookies as an API call does ([routes](#target-files)). |
 | `url` | An absolute URL sent as it is, e.g. a link getJoinUrl returned. |
 | `method` | A HEAD response has no body, so a HEAD step can only check `status`, `headers` and `redirect`, and capture headers. |
 | `params` | Query parameters, in the order written. |
@@ -1172,6 +1208,7 @@ must select exactly one node. Anything else is a map with one key:
 /response/attendees/attendee: {count: 2}
 /response/message: {contains: unknown}
 /response/messageKey: {oneOf: [idNotUnique, duplicateWarning]}
+$.turnServers[0].ttl: {between: [1, 604800]} # an integer, bounds included; bounds may be templates
 ```
 
 ### Capturing values: `capture`
@@ -1210,7 +1247,11 @@ Any string can contain `${...}`.
   - `match(s, regex)`, the first group of regex's first match in s, or the
     whole match when regex has no group; no match, or a first group that
     took no part in it, is an error. For a part of a captured value, e.g.
-    the token in a URL.
+    the token in a URL;
+  - `hmac(alg, key, data)`, the Base64 of an HMAC (alg sha1, sha256, sha384
+    or sha512), as a TURN credential's password;
+  - `now()`, the current Unix time in seconds;
+  - `add(a, b)`, the sum of two integers, e.g. `add(now(), ttl)`.
 
   Arguments are `"strings"`, integers, variables or nested calls.
 - **Escaping:** `$${` is a literal `${`.

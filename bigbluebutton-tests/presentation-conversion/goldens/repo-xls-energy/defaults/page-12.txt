@@ -23,9 +23,9 @@
                                                                                                                                                 Prerequisites: high school physics, chemistry, and biology.
                                                                                                                                                 Technology issues for a secure energy future; role of solid
                                                                                                                                                 state physics in energy technologies. Topics include the
-                  Solid State Physics and the                                                                                                   physics principles behind future technologies related to                       Alternate
+                  Solid State Physics and the                                                                                                   physics principles behind future technologies related to             Alternate
  APPPHYS 219                                                 3     Win                                                             Shen, Z
-                       Energy Challenge                                                                                                         solar energy and solar cells, solid state lighting,                             Years
+                       Energy Challenge                                                                                                         solar energy and solar cells, solid state lighting,                   Years
                                                                                                                                                 superconductivity, solid state fuel cells and batteries,
                                                                                                                                                 electrical energy storage, materials under extreme
                                                                                                                                                 condition,
@@ -62,36 +62,34 @@
                                                                                                                                                 learn from local experts.
                                                                                                                                                 Stanford Introductory Seminar. Preference to freshmen.
                                                                                                                                                 Students do independent investigations of current
-                                                                                                                                                                                                                             Professor
+                                                                                                                                                                                                                     Professor
                                                                                                                                                 environmental problems, analyzing differing views of them
-                   Environmental Problems                                                                                                                                                                                    biography
-    BIO 13N                                                  3      Spr              Seminar   Science   F, Sem         --         Ehrlich, P   and discussing possible solutions. Each student gives two http://www.stanford.edu/group/CCB/Staff/Ehrlich.html
-                        and Solutions                                                                                                                                                                                       provided in
+                   Environmental Problems                                                                                                                                                                           biography
+    BIO 13N                                                  3      Spr              Seminar   Science   F, Sem         --         Ehrlich, P   and discussing possible solutions. Each student gives two
+                        and Solutions                                                                                                                                                                               provided in
                                                                                                                                                 seminar presentations and leads two seminar discussions.
-                                                                                                                                                                                                                             Web Link
+                                                                                                                                                                                                                     Web Link
                                                                                                                                                 Short, documented position papers are written for policy
                                                                                                                                                 makers. GER:DB-NatSci
                                                                                                                                                 Stanford Introductory Seminar. Preference to freshmen.
                                                                                                                                                 Lack of public understanding of the details of most
-                                                                                                                                                environmental problems is cited as a cause of                                      Professor
-                                                                                                                                                environmental deterioration. Good citizenship requires                            website on
-                                                                                                                                                literacy about the elements of the scientific and                               "Environmental
-    BIO 15N         Environmental Literacy                   3     Win               Seminar   Science   F, Sem         --       Schneider, S   decision making processes that accompany most                   http://stephenschneider.stanford.edu/Mediarology/MediarologyFrameset.html
-                                                                                                                                                                                                                                   Literacy"
-                                                                                                                                                environmental issues: what can happen, what are the odds,                         provided in
-                                                                                                                                                how can the credibility of sources of expertise be assessed,                       Web Link
+                                                                                                                                                environmental problems is cited as a cause of                         Professor
+                                                                                                                                                environmental deterioration. Good citizenship requires               website on
+                                                                                                                                                literacy about the elements of the scientific and                  "Environmental
+    BIO 15N         Environmental Literacy                   3     Win               Seminar   Science   F, Sem         --       Schneider, S   decision making processes that accompany most                         Literacy"
+                                                                                                                                                environmental issues: what can happen, what are the odds,            provided in
+                                                                                                                                                how can the credibility of sources of expertise be assessed,          Web Link
                                                                                                                                                 which components of environmental debates deal with
                                                                                                                                                 factual and theoretical issues, and which are political value
                                                                                                                                                 judgments? GER:DB-NatSci
                                                                                                                                                 Principles of electrochemistry and their application to redox
-                                                                                                         Juniors,                               systems, electron transfer, electroanalysis,                                      Department
+                                                                                                         Juniors,                               systems, electron transfer, electroanalysis,                        Department
                                                                                                                       CHEM
-   CHEM 237            Electrochemistry                      3     Win                         Science   Seniors,                 Chidsey, C    electrodeposition, electrocatalysis, batteries, and fuel cells. http://www.stanford.edu/dept/chemistry/academic/under/reqs.html
-                                                                                                                                                                                                                                website in Web
+   CHEM 237            Electrochemistry                      3     Win                         Science   Seniors,                 Chidsey, C    electrodeposition, electrocatalysis, batteries, and fuel cells.    website in Web
                                                                                                                        171
-                                                                                                          Grad                                  Prerequisite: 171 or equivalent.                                                      Link
+                                                                                                          Grad                                  Prerequisite: 171 or equivalent.                                        Link
 
 
 
 
-Last updated: March 17, 2009                                                                                                                                                                                                          Send additions and corrections to leighj@stanford.edu
+Last updated: March 17, 2009                                                                                                                                                                                               Send additions and corrections to leighj@stanford.edu

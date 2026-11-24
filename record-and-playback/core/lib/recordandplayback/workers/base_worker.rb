@@ -36,6 +36,14 @@ module BigBlueButton
     # processed.
     class WorkerNoRecordHalt < WorkerHalt; end
 
+    # Queues a job for klass, with the time it was queued in queued_at
+    # (milliseconds since the epoch). bbb-web's getRecordingProcessingInfo
+    # reads it to tell how long the oldest queued work has waited.
+    def self.enqueue(klass, opts)
+      queued_at = Process.clock_gettime(Process::CLOCK_REALTIME, :millisecond)
+      ::Resque.enqueue(klass, opts.merge(queued_at: queued_at))
+    end
+
     class BaseWorker
       @queue = 'rap:base'
 
@@ -121,17 +129,9 @@ module BigBlueButton
       def disabled_recording_formats
         return @disabled_recording_formats unless @disabled_recording_formats.nil?
 
-        @disabled_recording_formats = []
         events_xml = File.join(@recording_dir, 'raw', @meeting_id, 'events.xml')
-        return @disabled_recording_formats unless File.exist?(events_xml)
-
-        metadata = BigBlueButton::Events.get_meeting_metadata(events_xml)
-        value = metadata['bbb-disable-recording-formats']
-        value = value.nil? ? '' : value.value.to_s
-        @disabled_recording_formats = value.delete('[]')
-                                           .split(',')
-                                           .map { |format| format.strip.downcase }
-                                           .reject(&:empty?)
+        events = File.open(events_xml, 'r') { |io| Nokogiri::XML(io) }
+        @disabled_recording_formats = BigBlueButton::Events.disabled_recording_formats(events)
       rescue StandardError => e
         @logger.warn("Failed to read bbb-disable-recording-formats metadata: #{e.message}")
         @disabled_recording_formats = []
@@ -169,7 +169,7 @@ module BigBlueButton
 
             @logger.info("Enqueueing #{step_name} worker with #{opts.inspect}")
             klass = Object.const_get("BigBlueButton::Resque::#{step_name.capitalize}Worker")
-            ::Resque.enqueue(klass, opts)
+            BigBlueButton::Resque.enqueue(klass, opts)
           end
         end
       end

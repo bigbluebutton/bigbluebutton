@@ -7,7 +7,7 @@
 # The LibreOffice the bbb-libreoffice-docker package converts Office
 # documents with; make -C env passes the tag bbb-libreoffice/docker/Dockerfile
 # names.
-ARG LIBREOFFICE_IMAGE=bigbluebutton/bbb-libreoffice:25.8.4.2-20260129-151200
+ARG LIBREOFFICE_IMAGE=bigbluebutton/bbb-libreoffice:26.8.3.1-20261120-120000
 FROM ${LIBREOFFICE_IMAGE} AS libreoffice
 
 # Ubuntu 24.04, as packaged servers run, with the bigbluebutton user every
@@ -49,8 +49,9 @@ COPY --chmod=755 images/bbb-web/convert.sh /usr/share/bbb-libreoffice-conversion
 RUN missing=$(ldd /opt/libreoffice*/program/soffice.bin /opt/libreoffice*/program/libmergedlo.so | grep 'not found' || true) \
  && if [ -n "$missing" ]; then echo "LibreOffice is missing: $missing" >&2; exit 1; fi
 RUN --mount=type=bind,from=debs,target=/debs unpack 'bbb-web_*.deb' \
- # What after-install.sh does to the packaged properties, but the host and
- # salt, which the stack's /etc/bigbluebutton/bbb-web.properties sets.
+ # What after-install.sh does to the packaged properties, but the host, the
+ # salt and the page-token secret, which the stack's
+ # /etc/bigbluebutton/bbb-web.properties sets.
  && props=/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties \
  && sed -i -e 's/placementsThreshold=8000/placementsThreshold=800/g' \
       -e 's/imageTagThreshold=8000/imageTagThreshold=800/g' \

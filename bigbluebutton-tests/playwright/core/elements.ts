@@ -125,6 +125,7 @@ export const elements = {
   audioHelpRetryMicButton: 'button[data-test="helpRetryMicBtn"]',
   microphonePermissionHelpLabel: 'We need access to your microphone',
   unmuteConsentTitle: 'A moderator is asking you to unmute',
+  unmutedByModeratorToast: 'A moderator unmuted your microphone',
   onDeviceLanguageAvailable: 'div[data-test="onDeviceLanguageAvailable"]',
   onDeviceLanguageDownloadable: 'div[data-test="onDeviceLanguageDownloadable"]',
   onDeviceLanguageDownloading: 'div[data-test="onDeviceLanguageDownloading"]',
@@ -166,6 +167,8 @@ export const elements = {
   openUpdateBreakoutUsersModal: 'li[data-test="openUpdateBreakoutUsersModal"]',
   attendeeNotAssigned: 'div[id="breakoutBox-0"] [data-test="draggableUser"]:first-child',
   moveUser: 'div[id="breakoutBox-1"] [data-test="draggableUser"]:first-child',
+  unassignUserFromRoom1: 'div[id="breakoutBox-1"] button[data-test="unassignUserFromBreakoutRoom"]',
+  breakoutNotAssigned: 'div[data-test="breakoutNotAssigned"]',
   openBreakoutTimeManager: 'li[data-test="openBreakoutTimeManager"]',
   inputSetTimeSelector: 'input[id="inputSetTimeSelector"]',
   sendButtonDurationTime: 'button[data-test="sendButtonDurationTime"]',
@@ -608,6 +611,8 @@ export const elements = {
   presentationPageCountFailedLabel: 'Failed to determine the number of pages.',
   presentationInvalidMimeTypeLabel: 'Invalid format detected (extension=pdf, content type=application/x-msdownload)',
   presentationPageCountExceededLabel: 'Number of pages exceeded maximum of 200',
+  presentationUploadFailedLabel: 'The upload failed. Please try again.',
+  presentationUploadCouldNotStartLabel: 'The upload could not start.',
   screenCapturePermissionErrorLabel: 'Code 1136. Permission to capture the screen needs to be granted.',
   helpLinkToastButton: 'button[data-test="helpLinkToastButton"]',
 
@@ -689,6 +694,7 @@ export const elements = {
   userBannedMessage2: 'div[id="app"] >> div >> div:nth-child(2)',
   meetingEndedModalTitle: 'div[data-test="meetingEndedModal"]',
   unmuteUser: 'div[data-test="unmuteUser"]',
+  muteUser: 'div[data-test="muteUser"]',
   audioStateUnmuted: 'div[data-test="audioStateUnmuted"]',
   // prefix match: the client writes this data-test with a trailing space
   audioStateMuted: 'div[data-test^="audioStateMuted"]',

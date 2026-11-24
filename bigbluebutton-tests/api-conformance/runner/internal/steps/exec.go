@@ -42,7 +42,7 @@ const minAttempt = 250 * time.Millisecond
 
 // Implemented lists the step types this runner can execute.
 var Implemented = map[spec.StepKind]bool{spec.KindCall: true, spec.KindWait: true, spec.KindPresence: true, spec.KindGraphQL: true,
-	spec.KindBus: true, spec.KindFS: true, spec.KindRedis: true, spec.KindSink: true, spec.KindRestore: true}
+	spec.KindBus: true, spec.KindFS: true, spec.KindRedis: true, spec.KindSink: true, spec.KindRestore: true, spec.KindCheck: true}
 
 // Runner runs cases against one target.
 type Runner struct {
@@ -71,6 +71,9 @@ type Runner struct {
 	// PingEvery is how often a presence user's connection pings;
 	// presence.DefaultPingEvery when zero.
 	PingEvery time.Duration
+	// Now is the clock the now() template function reads; time.Now when
+	// nil. Tests fix it.
+	Now func() time.Time
 	// Tap is the target's tap, for bus, fs and redis steps; nil without one.
 	Tap *tap.Client
 	// Sink is the target's sink, for sink steps; nil without one.
@@ -530,6 +533,7 @@ func (r *Runner) RunCase(ctx context.Context, c *spec.Case, uid string) *report.
 		Checksum: func(alg, call, query string) (string, error) {
 			return signer.Checksum(alg, call, query, r.Target.Salt)
 		},
+		Now: r.Now,
 	}
 	start := time.Now()
 	for i, s := range c.Steps {
@@ -627,12 +631,38 @@ func (x *exec) step(ctx context.Context, phase string, i int, s spec.Step) repor
 		x.sink(ctx, phase, i, s, &sr)
 	case spec.KindRestore:
 		x.restore(ctx, s, &sr)
+	case spec.KindCheck:
+		x.check(s, &sr)
 	default:
 		sr.Status, sr.Message = report.Skip, "unimplemented: "+string(s.Kind)
 	}
 	sr.Message = x.redact(sr.Message)
 	sr.DurationMS = time.Since(start).Milliseconds()
 	return sr
+}
+
+// check compares values the case already has, such as earlier captures,
+// without sending anything.
+func (x *exec) check(s spec.Step, sr *report.StepResult) {
+	var results []assert.Result
+	for _, item := range s.Check {
+		v, err := x.expand(item.Value)
+		if err != nil {
+			sr.Status, sr.Message = report.Error, err.Error()
+			return
+		}
+		r, err := assert.Match(item.Value, item.M, []string{v}, x.expand)
+		if err != nil {
+			sr.Status, sr.Message = report.Error, err.Error()
+			return
+		}
+		results = append(results, r)
+	}
+	sr.Assertions = x.redactResults(results)
+	sr.Status = report.Pass
+	if !assert.Passed(results) {
+		sr.Status, sr.Message = report.Fail, assert.FirstFailure(results)
+	}
 }
 
 func (x *exec) call(ctx context.Context, phase string, index int, s spec.Step, sr *report.StepResult) {
@@ -662,7 +692,8 @@ func (x *exec) call(ctx context.Context, phase string, index int, s spec.Step, s
 			if rem := time.Until(deadline); rem < t {
 				t = max(rem, minAttempt)
 			}
-			obs, err := x.session.Do(ctx, p, cs.Client, cs.FollowRedirects, t)
+			obs, forwarded, err := x.session.Do(ctx, p, cs.Client, cs.FollowRedirects, t)
+			reportForwarded(sr, forwarded)
 			lastErr = err
 			if err == nil {
 				o = obs
@@ -708,7 +739,9 @@ func (x *exec) call(ctx context.Context, phase string, index int, s spec.Step, s
 			}
 		}
 	} else {
-		o, err = x.session.Do(ctx, p, cs.Client, cs.FollowRedirects, timeout)
+		var forwarded []string
+		o, forwarded, err = x.session.Do(ctx, p, cs.Client, cs.FollowRedirects, timeout)
+		reportForwarded(sr, forwarded)
 		if err != nil {
 			sr.Status, sr.Message = report.Error, err.Error()
 			return
@@ -781,6 +814,22 @@ const (
 	maxRequestBody  = 4 << 10
 	maxResponseBody = 16 << 10
 )
+
+// reportForwarded names in the step's report the cookies a subrequest
+// forwarded from its client's jar, without their values.
+func reportForwarded(sr *report.StepResult, names []string) {
+	if len(names) == 0 {
+		return
+	}
+	parts := make([]string, len(names))
+	for i, n := range names {
+		parts[i] = n + "=<forwarded>"
+	}
+	if sr.Request.Headers == nil {
+		sr.Request.Headers = map[string]string{}
+	}
+	sr.Request.Headers["Cookie"] = strings.Join(parts, "; ")
+}
 
 func (x *exec) requestInfo(p *client.Prepared) *report.Request {
 	rq := &report.Request{Method: p.Method, URL: x.redact(p.URL), Headers: x.headerMap(p.Header), Chunked: p.Chunked}

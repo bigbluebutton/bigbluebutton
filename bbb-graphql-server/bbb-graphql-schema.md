@@ -576,6 +576,7 @@ Permission: Restricted to Presenter
 - `userCameraCap`
 - `webcamsOnlyForModerator`
 - `multiUserWhiteboardEnabled`
+- `requireUserConsentBeforeUnmuting`
 
 ## Type: chat
 ### Fields:

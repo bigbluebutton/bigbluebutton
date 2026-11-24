@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A track's token is good for an hour after getRecordingTextTracks hands it
+# out. Of the two tokens one call gives, the French track's is authorized
+# straight away, which shows the call's tokens work; the English track's,
+# unused, is refused once the hour has passed. Slow: it waits 61 minutes,
+# so it runs in the nightly job. Serial, like every case that gets tokens
+# from getRecordingTextTracks.
+id: textTrack.authz.expiry
+title: validateAuthToken refuses a track's token an hour after it was handed out
+endpoint: textTrack
+class: contract
+tags: [slow, serial]
+requires: [recordings-fs]
+defs:
+  rid: &rid e633b9434f359d31c1be30832b42a91ac0fb0e92-1700000000000
+steps:
+  - call: getRecordingTextTracks
+    params: {recordID: *rid}
+    golden: off
+    expect:
+      format: json
+      returncode: SUCCESS
+      jsonpath:
+        $.response.tracks[0].href: {regex: '/subtitles_en\.vtt$'}
+        $.response.tracks[1].href: {regex: '/captions_fr-CA\.vtt$'}
+    capture: {en: "$.response.tracks[0].href", fr: "$.response.tracks[1].href"}
+  - route: texttrack-authz
+    headers: {x-textTrack-token: '${match(fr, "/textTrack/([0-9a-f]{40})/")}', x-textTrack-recordId: *rid, x-textTrack-track: captions_fr-CA.vtt}
+    expect: {status: 200, body: authorized}
+  - wait: 61m
+  - route: texttrack-authz
+    headers: {x-textTrack-token: '${match(en, "/textTrack/([0-9a-f]{40})/")}', x-textTrack-recordId: *rid, x-textTrack-track: subtitles_en.vtt}
+    expect: {status: 401, body: unauthorized}

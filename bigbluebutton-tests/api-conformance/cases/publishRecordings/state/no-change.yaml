@@ -1,7 +1,8 @@
 # yaml-language-server: $schema=../../../runner/schema/case.schema.json
 # Publishing a published recording, or unpublishing an unpublished one,
-# changes nothing and still answers SUCCESS. Serial, with the recordings
-# put back before and after.
+# changes nothing and still answers SUCCESS. Nothing is announced on
+# from-bbb-web-redis-channel either. Serial, with the recordings put back
+# before and after.
 id: publishRecordings.state.no-change
 title: publishRecordings ${case} answers SUCCESS and changes nothing
 endpoint: publishRecordings
@@ -9,9 +10,9 @@ class: contract
 tags: [ci, serial, triage]
 variants:
   - id: publish-published
-    vars: {case: on a published recording with publish=true, rid: 4d64ff980226cdc0de5d24362bf27a829e1a8ab2-1700025200000, publish: "true", state: published}
+    vars: {case: on a published recording with publish=true, rid: 4d64ff980226cdc0de5d24362bf27a829e1a8ab2-1700025200000, publish: "true", state: published, msg: PublishedRecordingSysMsg}
   - id: unpublish-unpublished
-    vars: {case: on an unpublished recording with publish=false, rid: db0c52cbb08b78549a52cb6f29e4d8dc236977bd-1700021600000, publish: "false", state: unpublished}
+    vars: {case: on an unpublished recording with publish=false, rid: db0c52cbb08b78549a52cb6f29e4d8dc236977bd-1700021600000, publish: "false", state: unpublished, msg: UnpublishedRecordingSysMsg}
 steps:
   - restore: {recordings: ["${rid}"]}
   - call: publishRecordings
@@ -24,5 +25,8 @@ steps:
     expect:
       returncode: SUCCESS
       xpath: {/response/recordings/recording/state: "${state}"}
+  - bus: {name: "${msg}", meetingId: "${rid}", within: 3s}
+    golden: document
+    expect: {absent: true}
 teardown:
   - restore: {recordings: ["${rid}"]}

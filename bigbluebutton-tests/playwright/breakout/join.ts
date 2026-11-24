@@ -23,6 +23,9 @@ const AUDIO_REJOIN_SETTLE_TIME = 3000;
 // The running rooms accept no less than one minute left; the server checks the time
 // every few seconds after that.
 const SHORTEST_BREAKOUT_END_TIME = 90000;
+// Well above a one-line button's height, well below the 140px the room card's join
+// button grew to when a flex basis meant for the bottom bar's rows applied to it
+const ROOM_CARD_BUTTON_MAX_HEIGHT = 80;
 
 // a public chat message sent the way the client sends it, and the public messages a participant reads
 const SEND_CHAT_MESSAGE =
@@ -84,6 +87,12 @@ export class Join extends Create {
     }
 
     await this.userPage.waitAndClick(e.breakoutRoomSidebarButton);
+    const joinButton = this.userPage.page.locator(e.joinFirstRoom);
+    await expect
+      .poll(async () => (await joinButton.boundingBox())?.height, {
+        message: 'the join room button should keep a normal button height in its room card',
+      })
+      .toBeLessThan(ROOM_CARD_BUTTON_MAX_HEIGHT);
     await this.userPage.waitAndClick(e.joinFirstRoom);
     await this.userPage.hasElement(
       e.alreadyConnected,
@@ -523,6 +532,49 @@ export class Join extends Create {
       e.userNameBreakoutRoom2,
       /Attendee/,
       'should display the user name below the second breakout room name',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+  }
+
+  async unassignUserFromRoom(action: 'removeButton' | 'dragToUnassigned') {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+    if (!this?.userPage) throw new Error('userPage not initialized');
+
+    const breakoutUserPage = await this.joinRoom();
+    await breakoutUserPage.hasElement(
+      e.presentationTitle,
+      'should display the presentation title inside the breakout room',
+    );
+
+    await this.modPage.hasText(
+      e.userNameBreakoutRoom,
+      /Attendee/,
+      'should display the user name below the first breakout room name',
+    );
+
+    if (action === 'removeButton') {
+      await this.modPage.waitAndClick(e.unassignUserFromRoom1);
+    } else {
+      await this.modPage.dragDropSelector(e.moveUser, e.breakoutBox0);
+    }
+
+    await breakoutUserPage.hasElement(
+      e.meetingEndedModal,
+      'should display the meeting ended modal for the breakout page after being unassigned from the room',
+    );
+    await this.modPage.wasRemoved(
+      e.userNameBreakoutRoom,
+      'should remove the user name from the first breakout room after unassigning the user',
+    );
+    await expect(
+      this.modPage.page.locator(e.unassignedUser, { hasText: /^Attendee$/ }),
+      'should list the attendee among the unassigned users after unassigning them',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_TIME });
+
+    await this.userPage.page.bringToFront();
+    await this.userPage.hasElement(
+      e.breakoutNotAssigned,
+      'should show the attendee as not assigned to any breakout room in the main room',
       ELEMENT_WAIT_LONGER_TIME,
     );
   }

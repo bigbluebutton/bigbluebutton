@@ -11,8 +11,9 @@ name: "Nightly tests"
 #   setting-*   the @setting-required:<setting> tests, on a server installed with that bbb-web setting
 # Every job uses one worker and ends with bigbluebutton-tests/server-health-check.sh. The
 # api-conformance-slow job runs the API conformance suite's slow cases (bigbluebutton-tests/
-# api-conformance: callback retries, expiry timing, about 20 minutes), which the per-PR gate leaves
-# out, on the suite's Tier 1 stack built from the same build's packages. The report job
+# api-conformance: callback retries, expiry timing and an hour-long text-track token expiry,
+# about 85 minutes), which the per-PR gate leaves out, on the suite's Tier 1 stack built from
+# the same build's packages. The report job
 # merges the results into one HTML report per group (artifact nightly-test-reports) and lists in its
 # summary the tests that passed only on retry.
 # Screenshot comparisons run as in the per-PR gate: GitHub sets CI=true on its runners, which skips
@@ -252,12 +253,13 @@ jobs:
   # The API conformance suite's slow cases, against bbb-web on the suite's
   # Tier 1 stack, from the packages of the build under test: the cases the
   # per-PR api-conformance job (automated-tests.yml) leaves out because they
-  # take minutes each. Every answer is compared with the committed
-  # recordings; a skipped case fails the run.
+  # take minutes each, one of them an hour (textTrack.authz.expiry). Every
+  # answer is compared with the committed recordings; a skipped case fails
+  # the run.
   api-conformance-slow:
     needs: find-build
     runs-on: ${{ vars.CI_HEAVY_RUNNER || 'ubuntu-24.04' }}
-    timeout-minutes: 60
+    timeout-minutes: 120
     defaults:
       run:
         working-directory: bigbluebutton-tests/api-conformance

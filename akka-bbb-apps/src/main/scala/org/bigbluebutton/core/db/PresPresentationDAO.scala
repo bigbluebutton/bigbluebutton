@@ -309,6 +309,56 @@ object PresPresentationDAO {
     )
   }
 
+  // A presentation whose upload token was issued but whose file never arrived: not converting,
+  // not completed and without an error. A converting presentation has uploadInProgress set,
+  // and a refused request has no token and carries its error.
+  private def isAwaitingUpload(p: PresPresentationDbTableDef) = {
+    p.uploadToken =!= "" &&
+      !p.uploadInProgress &&
+      !p.uploadCompleted &&
+      p.uploadErrorMsgKey.isEmpty
+  }
+
+  // Presentations of this user that are still waiting for their file.
+  def awaitingUploadQuery(meetingId: String, userId: String) = {
+    TableQuery[PresPresentationDbTableDef]
+      .filter(p => p.meetingId === meetingId &&
+        p.uploadUserId === userId &&
+        isAwaitingUpload(p))
+  }
+
+  def awaitingUploadOfPresentationQuery(meetingId: String, presentationId: String) = {
+    TableQuery[PresPresentationDbTableDef]
+      .filter(p => p.meetingId === meetingId &&
+        p.presentationId === presentationId &&
+        isAwaitingUpload(p))
+  }
+
+  // Records why the upload of a presentation failed, if it is still waiting for its file. One
+  // that is converting, done or already failed keeps its state, and one removed in the meantime
+  // is not brought back: the report of a failed upload can arrive after any of those.
+  def updateErrorsOfAwaitingUpload(meetingId: String, presentationId: String, errorMsgKey: String,
+                                   errorDetails: scala.collection.immutable.Map[String, String]) = {
+    DatabaseConnection.enqueue(
+      awaitingUploadOfPresentationQuery(meetingId, presentationId)
+        .map(p => (p.uploadErrorMsgKey, p.uploadErrorDetailsJson))
+        .update(Some(errorMsgKey), Some(errorDetails.toJson))
+    )
+  }
+
+  // Called when the uploader has left the meeting, so nothing will finish or cancel these uploads
+  // and every presenter would otherwise see them as uploading until the meeting ends. The rows
+  // are kept: should a file still arrive, updateConversionStarted clears the error and the
+  // presentation still has its uploader.
+  def updateErrorsOfAwaitingUploadsOfUser(meetingId: String, userId: String, errorMsgKey: String,
+                                          errorDetails: scala.collection.immutable.Map[String, String]) = {
+    DatabaseConnection.enqueue(
+      awaitingUploadQuery(meetingId, userId)
+        .map(p => (p.uploadErrorMsgKey, p.uploadErrorDetailsJson))
+        .update(Some(errorMsgKey), Some(errorDetails.toJson))
+    )
+  }
+
   def delete(meetingId: String, presentationId: String) = {
     DatabaseConnection.enqueue(
       TableQuery[PresPresentationDbTableDef]

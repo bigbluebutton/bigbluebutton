@@ -10,6 +10,7 @@ export interface TriggerProps {
   disabled?: boolean;
   accessKey?: string;
   tooltip?: string;
+  className?: string;
 }
 
 declare const Trigger: React.ComponentType<TriggerProps>;

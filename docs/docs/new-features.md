@@ -359,6 +359,10 @@ It is an **optional** package, not a dependency of the `bigbluebutton` meta-pack
 See [Play recordings made with BigBlueButton 0.81 or 0.9](/administration/customize#play-recordings-made-with-bigbluebutton-081-or-09) for details.
 
 
+#### New API call: getRecordingProcessingInfo
+
+A server can be taken out of service only once every recording on it has finished processing, or the raw data of the rest is lost. The new [getRecordingProcessingInfo](/development/api#get-post-getrecordingprocessinginfo) API call tells whether the server still has recordings queued, running or failed in the recording pipeline, how long the oldest queued work has waited and how long the oldest running step has run, so that a script can drain a server, for example one taken out of a Scalelite pool, without a shell on it.
+
 #### New administration tool: bbbctl
 
 The `bbb-config` package now ships [bbbctl](https://github.com/defnull/bbbctl) (v0.5.1), a community-maintained command-line tool by [@defnull](https://github.com/defnull) for interacting with a BigBlueButton server from the shell. Installed as `/usr/bin/bbbctl`, it talks to the server's own API and lets administrators list, inspect, and end meetings and work with recordings without crafting signed API calls by hand. Thank you for developing it, defnull!
@@ -437,6 +441,7 @@ The deprecated REST endpoint `/api/rest/clientSettings` has been removed. Client
 - `maxPresentationsPerRequest` added in BBB 4.0.1 (default `10`). Maximum number of documents processed per `create`/`insertDocument` call; see [Limit the number of presentations per API request](/administration/customize#limit-the-number-of-presentations-per-api-request).
 - `insertDocumentMaxRequests` and `insertDocumentRateWindowSec` added in BBB 4.0.1 (default `30` per `60` seconds; `0` = disabled). Per-meeting rate limit on `insertDocument` calls; see [Limit `insertDocument` API calls](/administration/customize#limit-insertdocument-api-calls).
 - `presentationConversionMaxRequests` and `presentationConversionRateWindowSec` added in BBB 4.0.1 (default `20` per `60` seconds; `0` = disabled). Per-meeting cap on presentations entering the conversion pipeline from participant and API uploads; breakout-room captures are exempt. See [Rate limit presentation uploads](/administration/customize#rate-limit-presentation-uploads).
+- `presentationUploadStartTimeout` added in BBB 4.0.4 (default `300` seconds; `0` = disabled). Time a client has to start sending a presentation once it was given the upload token. An upload that has not started by then is shown to its uploader as failed at the next check (bbb-web checks every 15 seconds), instead of as uploading until the meeting ends ([#26518](https://github.com/bigbluebutton/bigbluebutton/issues/26518)). An upload that has started is not limited by this. See [Change how long a presentation upload may take to start](/administration/customize#change-how-long-a-presentation-upload-may-take-to-start).
 - `filterTagThreshold` added (default `1`; `0` = disabled). Slides whose generated SVG contains `N` or more `<filter>` tags (which `pdftocairo` emits for soft masks) are rendered with both `pdftocairo` and `pdftoppm`, and are rasterized only when the two renders noticeably differ. This fixes slides that showed up blank or with missing images ([#23953](https://github.com/bigbluebutton/bigbluebutton/issues/23953)); see [Verify slides with soft masks](/administration/customize#verify-slides-with-soft-masks).
 
 ### bbb-apps-akka settings changes

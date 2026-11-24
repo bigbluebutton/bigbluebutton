@@ -3,6 +3,7 @@ package akka_apps
 import (
 	"bbb-graphql-middleware/config"
 	"encoding/json"
+	"errors"
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
@@ -72,7 +73,7 @@ func AkkaAppsGetSessionVariablesFrom(browserConnectionId string, sessionToken st
 	}
 	if response != "authorized" {
 		logger.Errorf("not authorized: Response: %s, Message: %s, MessageId: %s", response, message, messageId)
-		return nil, fmt.Errorf(message), messageId
+		return nil, errors.New(message), messageId
 	}
 
 	// Normalize the response header keys.

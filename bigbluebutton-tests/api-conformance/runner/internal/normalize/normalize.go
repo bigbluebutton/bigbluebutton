@@ -116,7 +116,7 @@ func headerLines(h http.Header, ctx *Context, r *Rules) []string {
 			vals = cookies
 		} else {
 			for i, v := range vals {
-				if m := r.maskFor(n, ""); m != nil {
+				if m := r.maskFor(n, "", v); m != nil {
 					v = m.apply(v, ctx)
 				}
 				vals[i] = ctx.substitute(v)
@@ -136,7 +136,7 @@ func (c *Context) cookie(v string, r *Rules) string {
 	nameValue := strings.TrimSpace(parts[0])
 	name, value, _ := strings.Cut(nameValue, "=")
 	if value != "" {
-		if m := r.maskFor(name, ""); m != nil {
+		if m := r.maskFor(name, "", value); m != nil {
 			value = c.substitute(m.apply(value, c))
 		} else {
 			value = "<token>"
@@ -369,7 +369,7 @@ func drop(root *node, r *Rules) {
 func (c *Context) mask(root *node, r *Rules) {
 	walk(root, func(n *node) {
 		for i, a := range n.attrs {
-			if m := r.maskFor(a.name, n.path+"/@"+a.name); m != nil {
+			if m := r.maskFor(a.name, n.path+"/@"+a.name, a.value); m != nil {
 				n.attrs[i].value = m.apply(a.value, c)
 			} else if isURL(a.value) {
 				n.attrs[i].value = c.url(a.value, r)
@@ -378,7 +378,7 @@ func (c *Context) mask(root *node, r *Rules) {
 		if !n.isText {
 			return
 		}
-		if m := r.maskFor(n.name, n.path); m != nil {
+		if m := r.maskFor(n.name, n.path, n.text); m != nil {
 			// A masked JSON number, such as a timestamp, prints as text.
 			if v := m.apply(n.text, c); v != n.text {
 				n.text, n.raw = v, false
@@ -409,7 +409,7 @@ func (c *Context) url(raw string, r *Rules) string {
 	var parts []string
 	for _, k := range keys {
 		for _, v := range q[k] {
-			if m := r.maskFor(k, ""); m != nil {
+			if m := r.maskFor(k, "", v); m != nil {
 				v = m.apply(v, c)
 			}
 			parts = append(parts, k+"="+c.substitute(v))

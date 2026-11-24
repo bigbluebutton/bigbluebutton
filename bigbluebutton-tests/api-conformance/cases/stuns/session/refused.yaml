@@ -1,0 +1,94 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# stuns needs a live session token and the HTTP session the join made (its
+# JSESSIONID cookie). Whatever is wrong, it answers the same FAILED body at
+# the top level, with the server's default logout URL. Each step below
+# changes one thing from the first; after the meeting ends, its sessions
+# are gone.
+id: stuns.session.refused
+title: stuns refuses a token it doesn't know, or without the join's cookie
+endpoint: stuns
+class: contract
+tags: [ci]
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Stuns refused}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: join
+    client: ann
+    params: {meetingID: "${uid}", fullName: Ann, role: moderator, redirect: "false"}
+    golden: off
+    capture: {annId: /response/user_id, annToken: /response/session_token}
+  - call: join
+    client: bob
+    params: {meetingID: "${uid}", fullName: Bob, role: viewer, redirect: "false"}
+    golden: off
+    expect: {returncode: SUCCESS}
+  # The servers are the target's own: recorded, not compared.
+  - call: stuns
+    client: ann
+    params: {sessionToken: "${annToken}"}
+    golden: document
+    expect:
+      format: json
+      jsonpath: {$.stunServers: {exists: true}}
+  - call: stuns
+    client: ann
+    expect:
+      format: json
+      returncode: FAILED
+      message: Could not find conference.
+      jsonpath: {$.logoutURL: {exists: true}}
+  - call: stuns
+    client: ann
+    params: {sessionToken: ""}
+    expect:
+      format: json
+      returncode: FAILED
+      message: Could not find conference.
+      jsonpath: {$.logoutURL: {exists: true}}
+  - call: stuns
+    client: ann
+    params: {sessionToken: "${uid}"}
+    expect:
+      format: json
+      returncode: FAILED
+      message: Could not find conference.
+      jsonpath: {$.logoutURL: {exists: true}}
+  - call: stuns
+    client: nobody
+    params: {sessionToken: "${annToken}"}
+    expect:
+      format: json
+      returncode: FAILED
+      message: Could not find conference.
+      jsonpath: {$.logoutURL: {exists: true}}
+  - call: stuns
+    client: bob
+    params: {sessionToken: "${annToken}"}
+    expect:
+      format: json
+      returncode: FAILED
+      message: Could not find conference.
+      jsonpath: {$.logoutURL: {exists: true}}
+  - call: end
+    params: {meetingID: "${uid}"}
+    golden: off
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}
+  - call: stuns
+    client: ann
+    params: {sessionToken: "${annToken}"}
+    eventually: {within: 5s, every: 100ms, until: {returncode: FAILED}}
+    expect:
+      format: json
+      returncode: FAILED
+      message: Could not find conference.
+      jsonpath: {$.logoutURL: {exists: true}}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

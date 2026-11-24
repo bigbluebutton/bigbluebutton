@@ -46,6 +46,7 @@ import org.bigbluebutton.core.db.{
   MeetingDAO,
   MeetingVoiceDAO,
   NotificationDAO,
+  PresPresentationDAO,
   TimerDAO,
   UserDAO,
   UserStateDAO
@@ -573,6 +574,7 @@ class MeetingActor(
       case m: UpdateBreakoutRoomsTimeReqMsg        => state = handleUpdateBreakoutRoomsTimeMsg(m, state)
       case m: SendMessageToAllBreakoutRoomsReqMsg  => state = handleSendMessageToAllBreakoutRoomsMsg(m, state)
       case m: ChangeUserBreakoutReqMsg             => state = handleChangeUserBreakoutReqMsg(m, state)
+      case m: UnassignUserFromBreakoutReqMsg       => state = handleUnassignUserFromBreakoutReqMsg(m, state)
       case m: BreakoutRoomCallModeratorReqMsg =>
         updateUserLastActivity(m.header.userId)
         state = handleBreakoutRoomCallModeratorMsg(m, state)
@@ -1223,6 +1225,13 @@ class MeetingActor(
           // request ongoing poll to end
           Polls.handleStopPollReqMsg(state, u.intId, liveMeeting)
         }
+
+        // The uploads this user had not finished sending have nobody left to end them. Not done
+        // when the user's connection closes: a client that reconnects goes on sending its file.
+        PresPresentationDAO.updateErrorsOfAwaitingUploadsOfUser(
+          u.meetingId, u.intId, "PRESENTATION_UPLOAD_FAILED",
+          Map("PRESENTATION_UPLOAD_FAILED" -> "Uploader left the meeting")
+        )
 
         UserStateDAO.updateExpired(u.meetingId, u.intId, expired = true)
         UsersApp.removeUserLiveKitMemberships(liveMeeting, liveMeeting.props.meetingProp.intId, u.intId, outGW)
