@@ -68,6 +68,21 @@ const MediaArea = (props: MediaAreaProps) => {
     setMenuOpen(!menuOpen);
   }, [menuOpen]);
 
+  const handleCloseMenu = useCallback(() => {
+    const focusedOnClose = document.activeElement;
+    setMenuOpen(false);
+
+    setTimeout(() => {
+      const { activeElement } = document;
+      const focusUnclaimed = !activeElement || activeElement === document.body
+        || activeElement === focusedOnClose
+        || document.getElementById('mediaAreaDropUp')?.contains(activeElement);
+      if (focusUnclaimed) {
+        document.querySelector<HTMLElement>('[data-test="mediaAreaButton"]')?.focus();
+      }
+    }, 0);
+  }, []);
+
   if (!isConnected) {
     return null;
   }
@@ -92,7 +107,7 @@ const MediaArea = (props: MediaAreaProps) => {
         isMobile={isMobile}
         isRTL={isRTL}
         open={menuOpen}
-        onClose={() => setMenuOpen(false)}
+        onClose={handleCloseMenu}
         intl={intl}
         amIPresenter={amIPresenter}
         amIModerator={amIModerator}

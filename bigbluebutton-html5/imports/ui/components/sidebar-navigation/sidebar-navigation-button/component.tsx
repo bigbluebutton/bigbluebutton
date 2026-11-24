@@ -110,6 +110,7 @@ const SidebarNavigationButton: React.FC<SidebarNavigationButtonProps> = ({
         role="button"
         tabIndex={isDisabled ? -1 : 0}
         data-test={dataTest}
+        data-sidebar-panel={panel}
         onClick={handleClick}
         onKeyDown={handleKeyDown}
         $hasNotification={hasNotification}

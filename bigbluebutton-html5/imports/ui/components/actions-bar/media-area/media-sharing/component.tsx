@@ -202,6 +202,8 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
   };
 
   useEffect(() => {
+    if (!open) return undefined;
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === KEYS.ESCAPE) {
         handleClose();
