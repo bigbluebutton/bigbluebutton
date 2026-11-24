@@ -441,6 +441,14 @@ export const elements = {
   userJoinPushAlerts: 'input[data-test="userJoinPopupAlerts"]',
   userLeavePushAlerts: 'input[data-test="userLeavePopupAlerts"]',
   toastContainer: 'div[data-test="toastContainer"]',
+
+  // Smart triggers
+  mutedAlert: 'div[data-test="mutedAlert"]',
+  smartTriggerChangeMic: 'button[data-test="smartTrigger-noMicSignal-changeMic"]',
+  smartTriggerLowerHand: 'button[data-test="smartTrigger-handStillRaised-lowerHand"]',
+  smartTriggerCheckAudio: 'button[data-test="smartTrigger-recordingWithNoSpeech-checkAudio"]',
+  smartTriggerPauseRecording: 'button[data-test="smartTrigger-recordingWithNoSpeech-pauseRecording"]',
+  smartTriggerMinimizePresentation: 'button[data-test="smartTrigger-idlePresentation-minimize"]',
   presentationStatusInfo: 'span[data-test="presentationStatusInfo"]',
   processingPresentationItem: 'span[data-test="processingPresentationItem"]',
   uploadDoneIcon: 'i[data-test="uploadDoneIcon"]',
