@@ -22,7 +22,8 @@ case class PresentationPageConvertedVO(
     height:           Double              = 1080D,
     pageToken:        String              = "",
     speakerNotes:     String              = "",
-    speakerNotesJson: String              = ""
+    speakerNotesJson: String              = "",
+    slideTitle:       String              = ""
 )
 
 case class PresentationPageVO(

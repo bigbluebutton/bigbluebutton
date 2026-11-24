@@ -100,6 +100,26 @@ const assertStructuredNotes = (value: Record<string, unknown> | null, plainText:
   }
 };
 
+// Titles of the visible slides in the .pptx and .odp fixtures; the .ppt fixture has no title placeholders.
+const deckTitles = [
+  'Team Project Kickoff Session',
+  'Today\u2019s Agenda',
+  'Large message slides with three callouts. Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+  'Four points grid layout',
+  'One column layout with checklist',
+  'Intro with four topics',
+  'Timeline with three text only milestones',
+  'Topic description and three large stat cards layout',
+  'Gantt chart over time',
+  'Calendar grid with milestones',
+  'Team Project Kickoff Session',
+];
+
+const uploadedPresentationTitles = async (
+  page: import('@playwright/test').Page,
+  firstNote: string,
+): Promise<string[]> => (await uploadedPresentationRows(page, firstNote)).map((row) => row.slideTitle);
+
 const structuredFirstNote = async (
   page: import('@playwright/test').Page,
   firstNote: string,
@@ -137,6 +157,7 @@ test.describe('Speaker notes privacy', { tag: '@ci' }, () => {
         })
         .toEqual(expectedNotes);
       assertStructuredNotes(await structuredFirstNote(participant.page, pptxFirstNote), pptxFirstNote, false);
+      expect(await uploadedPresentationTitles(participant.page, pptxFirstNote)).toEqual(deckTitles);
     }
 
     await expect(getSpeakerNotesRows(viewer.page)).resolves.toEqual([]);
@@ -176,6 +197,9 @@ test.describe('Speaker notes privacy', { tag: '@ci' }, () => {
       } else {
         assertStructuredText(structured, firstNote);
       }
+      expect(await uploadedPresentationTitles(presenter.page, firstNote)).toEqual(
+        format === 'ODP' ? deckTitles : deckTitles.map(() => ''),
+      );
       // Slides without notes have no structured notes
       const rows = await uploadedPresentationRows(presenter.page, firstNote);
       expect(rows.slice(1).every((row) => row.speakerNotesJson === null)).toBeTruthy();

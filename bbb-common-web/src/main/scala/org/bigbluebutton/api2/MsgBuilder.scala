@@ -133,6 +133,7 @@ object MsgBuilder {
     val speakerNotesJson = SpeakerNotesJsonReader.readValidJson(
       Paths.get(presParentPath, "speakernotes", s"slide-$page.json")
     ).getOrElse("")
+    val slideTitle = readPageTextFile(presParentPath + "/speakernotes/slide-" + page.toString + ".title.txt")
 
     PresentationPageConvertedVO(
       id = s"$presId/$page",
@@ -141,6 +142,7 @@ object MsgBuilder {
       content = content,
       speakerNotes = speakerNotes,
       speakerNotesJson = speakerNotesJson,
+      slideTitle = slideTitle,
       current = page == 1,
       width = width,
       height = height,

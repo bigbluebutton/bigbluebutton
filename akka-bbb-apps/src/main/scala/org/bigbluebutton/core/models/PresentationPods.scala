@@ -36,7 +36,8 @@ case class PresentationPage(
     fitToWidth:         Boolean             = false,
     pageToken:          String              = "",
     speakerNotes:       String              = "",
-    speakerNotesJson:   String              = ""
+    speakerNotesJson:   String              = "",
+    slideTitle:         String              = ""
 )
 
 object PresentationInPod {

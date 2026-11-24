@@ -13,6 +13,10 @@
 # with their formatting (version 1: paragraphs with list level and marker, runs
 # with emphasis and direct colors). A slide whose formatting cannot be read, or
 # whose JSON would pass MAX_NOTE_CHARS, keeps only its plain text.
+#
+# It also writes slide-N.title.txt with the text of the slide's title placeholder,
+# whitespace collapsed to single spaces; empty when the slide has no title. A title
+# that cannot be read is left empty and does not affect the notes.
 import json
 import os
 import shutil
@@ -25,6 +29,8 @@ from com.sun.star.beans import PropertyValue
 MAX_NOTE_CHARS = 1024 * 1024
 CONNECT_TIMEOUT_SECONDS = 30
 NOTES_SHAPE = "com.sun.star.presentation.NotesShape"
+TITLE_SHAPE = "com.sun.star.presentation.TitleTextShape"
+MAX_TITLE_CHARS = 1024
 STRUCTURED_NOTES_VERSION = 1
 MAX_LIST_LEVELS = 10
 DEFAULT_BULLET = "\u2022"
@@ -90,6 +96,17 @@ def notes_shapes(slide):
         if shape.ShapeType == NOTES_SHAPE:
             shapes.append(shape)
     return shapes
+
+
+def slide_title(slide):
+    try:
+        for index in range(slide.Count):
+            shape = slide.getByIndex(index)
+            if shape.ShapeType == TITLE_SHAPE:
+                return " ".join(shape.getString().split())[:MAX_TITLE_CHARS]
+    except Exception as exception:
+        print("Could not read slide title: %s" % type(exception).__name__, file=sys.stderr)
+    return ""
 
 
 def notes_text(slide):
@@ -252,6 +269,8 @@ def write_notes(document, notes_dir):
                 notes_file.write(text)
             if text:
                 write_structured_notes(slide, path + ".json")
+            with open(path + ".title.txt", "w", encoding="utf-8") as title_file:
+                title_file.write(slide_title(slide))
     except Exception as exception:
         shutil.rmtree(notes_dir, ignore_errors=True)
         print("Could not save speaker notes: %s" % type(exception).__name__, file=sys.stderr)

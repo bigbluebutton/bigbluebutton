@@ -1410,7 +1410,9 @@ Speaker notes require the default local LibreOffice conversion (`/usr/share/bbb-
 
 Next to each non-empty `slide-N.txt`, the same run saves `slide-N.json` with the formatting of the notes: paragraphs with their list level and bullet or number marker, and text runs with bold, italic, underline, strikethrough, superscript, subscript, direct text color and highlight. A slide whose formatting cannot be read keeps only its plain text.
 
-The notes are available through the GraphQL `pres_page_speakerNotes` fields `speakerNotes` (plain text) and `speakerNotesJson` (the formatted notes, or null when missing, invalid or larger than 1 MiB) to the current presenter and moderators in the meeting.
+The same run also saves `slide-N.title.txt` with the text of the slide's title placeholder (whitespace collapsed to single spaces). It is empty when the slide has no title placeholder, as in many `.ppt` files.
+
+The notes are available through the GraphQL `pres_page_speakerNotes` fields `speakerNotes` (plain text), `speakerNotesJson` (the formatted notes, or null when missing, invalid or larger than 1 MiB) and `slideTitle` (the slide title, or an empty string) to the current presenter and moderators in the meeting.
 
 To disable extraction, add the following override to `/etc/bigbluebutton/bbb-web.properties`:
 

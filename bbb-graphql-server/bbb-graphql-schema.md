@@ -348,6 +348,7 @@ Permission: Restricted to presenters and moderators
 - `presentationId`
 - `speakerNotes`
 - `speakerNotesJson`
+- `slideTitle`
 
 ## Type: pres_page_curr
 ### Fields:
