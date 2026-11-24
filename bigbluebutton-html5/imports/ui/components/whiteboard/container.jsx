@@ -522,14 +522,9 @@ const WhiteboardContainer = (props) => {
 
   const Settings = getSettingsSingletonInstance();
   const { isRTL } = Settings.application;
-  const width = layoutSelect((i) => i?.output?.presentation?.width);
-  const height = layoutSelect((i) => i?.output?.presentation?.height);
   const layoutType = layoutSelect((i) => i?.layoutType);
   const layoutChanged = usePrevious(layoutType) !== layoutType;
 
-  const sidebarNavigationWidth = layoutSelect(
-    (i) => i?.output?.sidebarNavigation?.width,
-  );
   const { maxStickyNoteLength, maxNumberOfAnnotations, lockToolbarTools, pointerDiameter } = WHITEBOARD_CONFIG;
   const fontFamily = WHITEBOARD_CONFIG.styles.text.family;
   const {
@@ -571,8 +566,6 @@ const WhiteboardContainer = (props) => {
           isModerator,
           currentUser,
           isRTL,
-          width,
-          height,
           maxStickyNoteLength,
           maxNumberOfAnnotations,
           lockToolbarTools,
@@ -584,7 +577,6 @@ const WhiteboardContainer = (props) => {
           fontStyle,
           sizeStyle,
           handleToggleFullScreen,
-          sidebarNavigationWidth,
           layoutContextDispatch,
           initDefaultPages,
           persistShapeWrapper,
