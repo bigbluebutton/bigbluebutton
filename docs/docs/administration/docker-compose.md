@@ -82,7 +82,23 @@ Backup: `./data` and `.env`. PostgreSQL (a volume) holds only the state of runni
       file: ./my-livekit.yaml
   ```
 
-  A file is used as it is; `${…}` from `.env` is only filled in under `content:`.
+  A file is used as it is; `${…}` from `.env` is only filled in under `content:`. After changing an inline file, run `docker compose up -d --force-recreate <service>`: a plain `up -d` does not recreate a service when only the content of its config changed.
+- Recording formats: as on a package install, recordings are processed as `presentation` only. The recording image also has `video`, `notes`, `screenshare` and `podcast`. To enable them, add the `steps` to `recording.yml` (in `docker-compose.yml`, or in your own file as above), e.g. for notes and podcast:
+
+  ```yaml
+  steps:
+    archive: 'sanity'
+    sanity: 'captions'
+    captions:
+      - 'process:presentation'
+      - 'process:notes'
+      - 'process:podcast'
+    'process:presentation': 'publish:presentation'
+    'process:notes': 'publish:notes'
+    'process:podcast': 'publish:podcast'
+  ```
+
+  Then `docker compose up -d --force-recreate recording-workers recording-starter recording-caption-inbox recording-cleanup`. New recordings get the extra formats; `getRecordings` lists them and nginx serves them.
 - nginx uses the image's location files and upstreams, which use the default service names. The compose file mounts only its site (port 80 and haproxy's 8081) and `playback.nginx`, because `playback` runs only with the `recording` profile.
 - More Hasura instances: `docker compose up -d --scale graphql-server=2`, then `docker compose exec nginx nginx -s reload`. nginx balances them as on bare metal and looks up the instances only when it starts or reloads, so reload it again after scaling down.
 - Logs: `docker compose logs <service>`; the logs per recording are in the `recording-logs` volume. The compose file sets the `local` logging driver, which rotates the logs; it overrides the host's Docker default (`daemon.json`). Remove it from `x-bbb` to use that default.
