@@ -16,6 +16,11 @@ fi
 #fi
 
 
+# The speaker notes scripts are mounted into the container, so only root may change them
+chown -R root:root /usr/share/bbb-libreoffice/speaker-notes
+chmod 0755 /usr/share/bbb-libreoffice/speaker-notes
+chmod 0644 /usr/share/bbb-libreoffice/speaker-notes/*
+
 chmod +x /usr/share/bbb-libreoffice-conversion/convert-cool.sh
 chmod +x /usr/share/bbb-libreoffice-conversion/convert-local.sh
 chmod +x /usr/share/bbb-libreoffice-conversion/convert-remote.sh
@@ -27,7 +32,7 @@ fi
 
 cat > /etc/sudoers.d/zzz-bbb-docker-libreoffice <<HERE
 bigbluebutton ALL=(ALL) NOPASSWD: /usr/bin/docker run --rm --memory=1g --memory-swap=1g --network none --env=HOME=/tmp/ -w /tmp/ --user=[0-9][0-9][0-9][0-9][0-9] -v /tmp/bbb-soffice-bigbluebutton/tmp.[0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z]/\:/data/ -v /usr/share/fonts/\:/usr/share/fonts/\:ro -v /usr/share/fontconfig/\:/usr/share/fontconfig/\:ro -v /etc/fonts/\:/etc/fonts/\:ro -v /var/cache/fontconfig/\:/var/cache/fontconfig/\:ro --rm bbb-soffice sh -c timeout [0-9][0-9][0-9]s /usr/bin/soffice -env\:UserInstallation=file\:///tmp/ --convert-to pdf --outdir /data /data/file
-bigbluebutton ALL=(ALL) NOPASSWD: /usr/bin/docker run --rm --memory=1g --memory-swap=1g --network none --env=HOME=/tmp/ -w /tmp/ --user=[0-9][0-9][0-9][0-9][0-9] -v /tmp/bbb-soffice-bigbluebutton/tmp.[0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z]/\:/data/ -v /usr/share/fonts/\:/usr/share/fonts/\:ro -v /usr/share/fontconfig/\:/usr/share/fontconfig/\:ro -v /etc/fonts/\:/etc/fonts/\:ro -v /var/cache/fontconfig/\:/var/cache/fontconfig/\:ro --rm bbb-soffice sh -c timeout [0-9][0-9][0-9]s /usr/local/bin/bbb-soffice-convert-with-speaker-notes [0-9][0-9][0-9]
+bigbluebutton ALL=(ALL) NOPASSWD: /usr/bin/docker run --rm --memory=1g --memory-swap=1g --network none --env=HOME=/tmp/ -w /tmp/ --user=[0-9][0-9][0-9][0-9][0-9] -v /tmp/bbb-soffice-bigbluebutton/tmp.[0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z]/\:/data/ -v /usr/share/fonts/\:/usr/share/fonts/\:ro -v /usr/share/fontconfig/\:/usr/share/fontconfig/\:ro -v /etc/fonts/\:/etc/fonts/\:ro -v /var/cache/fontconfig/\:/var/cache/fontconfig/\:ro -v /usr/share/bbb-libreoffice/speaker-notes/\:/opt/bbb-speaker-notes/\:ro --rm bbb-soffice sh -c timeout [0-9][0-9][0-9]s /bin/sh /opt/bbb-speaker-notes/convert-with-speaker-notes.sh [0-9][0-9][0-9]
 HERE
 
 #for i in `seq 1 4` ; do

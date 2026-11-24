@@ -14,7 +14,9 @@ SECONDS=0
 # Param 4: Timeout (secs) (optional)
 # Param 5: Speaker notes output directory (optional, PDF output only). When set,
 #          the same LibreOffice run that creates the PDF also saves the notes
-#          of every visible slide as <dir>/slide-N.txt. That run stops early
+#          of every visible slide as <dir>/slide-N.txt. The scripts for that run
+#          are mounted read-only from /usr/share/bbb-libreoffice/speaker-notes/,
+#          so the image needs nothing besides LibreOffice. That run stops early
 #          enough to leave time for copying the PDF: notes that take too long
 #          are dropped, and the PDF is still delivered
 
@@ -66,7 +68,7 @@ then
 	if (( notesTimeoutSecs >= 10 ))
 	then
 		#A failure here falls back to the plain conversion below
-		sudo /usr/bin/docker run --rm --memory=1g --memory-swap=1g --network none --env="HOME=/tmp/" -w /tmp/ --user=$(printf %05d `id -u`) -v "$tempDir/":/data/ -v /usr/share/fonts/:/usr/share/fonts/:ro -v /usr/share/fontconfig/:/usr/share/fontconfig/:ro -v /etc/fonts/:/etc/fonts/:ro -v /var/cache/fontconfig/:/var/cache/fontconfig/:ro --rm bbb-soffice sh -c "timeout $(printf %03d $notesTimeoutSecs)s /usr/local/bin/bbb-soffice-convert-with-speaker-notes $(printf %03d $notesDeadlineSecs)" || true
+		sudo /usr/bin/docker run --rm --memory=1g --memory-swap=1g --network none --env="HOME=/tmp/" -w /tmp/ --user=$(printf %05d `id -u`) -v "$tempDir/":/data/ -v /usr/share/fonts/:/usr/share/fonts/:ro -v /usr/share/fontconfig/:/usr/share/fontconfig/:ro -v /etc/fonts/:/etc/fonts/:ro -v /var/cache/fontconfig/:/var/cache/fontconfig/:ro -v /usr/share/bbb-libreoffice/speaker-notes/:/opt/bbb-speaker-notes/:ro --rm bbb-soffice sh -c "timeout $(printf %03d $notesTimeoutSecs)s /bin/sh /opt/bbb-speaker-notes/convert-with-speaker-notes.sh $(printf %03d $notesDeadlineSecs)" || true
 		notesRun=1
 		plainTimeoutSecs=$(( timeoutSecs - SECONDS - 5 ))
 	fi

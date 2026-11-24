@@ -31,6 +31,13 @@ else
 	echo "Docker image already exists";
 fi
 
+# Mounted read-only into the LibreOffice container by convert-local.sh to save speaker notes;
+# always installed, so an upgrade replaces them
+echo "Installing speaker notes scripts"
+install -d -m 0755 /usr/share/bbb-libreoffice/speaker-notes
+install -m 0644 speaker-notes/speaker-notes.py speaker-notes/convert-with-speaker-notes.sh /usr/share/bbb-libreoffice/speaker-notes/
+chown -R root:root /usr/share/bbb-libreoffice/speaker-notes
+
 FOLDER_CHECK=`[ -d /usr/share/bbb-libreoffice-conversion/ ] && echo 1 || echo 0`
 if [ "$FOLDER_CHECK" = "0" ]; then
 	echo "Install folder doesn't exists, installing"
