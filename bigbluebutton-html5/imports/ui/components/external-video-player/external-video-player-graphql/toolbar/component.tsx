@@ -25,6 +25,18 @@ const intlMessages = defineMessages({
   subtitlesOff: {
     id: 'app.externalVideo.subtitlesOff',
   },
+  muteLabel: {
+    id: 'app.externalVideo.muteLabel',
+    description: 'Label of the button that mutes the shared external video',
+  },
+  unmuteLabel: {
+    id: 'app.externalVideo.unmuteLabel',
+    description: 'Label of the button that unmutes the shared external video',
+  },
+  volumeLabel: {
+    id: 'app.externalVideo.volumeLabel',
+    description: 'Label of the shared external video volume slider',
+  },
 });
 
 interface ExternalVideoPlayerToolbarProps {
@@ -86,6 +98,9 @@ const ExternalVideoPlayerToolbar: React.FC<ExternalVideoPlayerToolbarProps> = ({
                 muted={muted || mutedByEchoTest}
                 onMuted={handleOnMuted}
                 onVolumeChanged={handleVolumeChanged}
+                muteLabel={intl.formatMessage(intlMessages.muteLabel)}
+                unmuteLabel={intl.formatMessage(intlMessages.unmuteLabel)}
+                volumeLabel={intl.formatMessage(intlMessages.volumeLabel)}
                 ref={volumeSliderRef}
               />
               <Styled.ButtonsWrapper>

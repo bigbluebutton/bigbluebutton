@@ -1,5 +1,5 @@
 import React from 'react';
-import { injectIntl } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { debounce } from '/imports/utils/debounce';
 import { throttle } from '/imports/utils/throttle';
@@ -34,6 +34,21 @@ import { colorBackground } from '/imports/ui/stylesheets/styled-components/palet
 const MOBILE_HOVER_TIMEOUT = 5000;
 const MOBILE_HOVER_INTERVAL = 2000;
 const SCREEN_SIZE_DISPATCH_INTERVAL = 500;
+
+const volumeIntlMessages = defineMessages({
+  muteLabel: {
+    id: 'app.screenshare.muteLabel',
+    description: 'Label of the button that mutes the screen share audio',
+  },
+  unmuteLabel: {
+    id: 'app.screenshare.unmuteLabel',
+    description: 'Label of the button that unmutes the screen share audio',
+  },
+  volumeLabel: {
+    id: 'app.screenshare.volumeLabel',
+    description: 'Label of the screen share volume slider',
+  },
+});
 
 const renderPluginItems = (pluginItems, bottom, right) => {
   if (pluginItems !== undefined) {
@@ -421,7 +436,7 @@ class ScreenshareComponent extends React.Component {
   }
 
   renderVolumeSlider() {
-    const { isBot } = this.props;
+    const { isBot, intl } = this.props;
     const { showHoverToolBar } = this.state;
 
     if (isBot) return null;
@@ -444,6 +459,11 @@ class ScreenshareComponent extends React.Component {
           muted={getVolume() === 0}
           onVolumeChanged={this.handleOnVolumeChanged}
           onMuted={this.handleOnMuted}
+          muteLabel={intl.formatMessage(volumeIntlMessages.muteLabel)}
+          unmuteLabel={intl.formatMessage(volumeIntlMessages.unmuteLabel)}
+          volumeLabel={intl.formatMessage(volumeIntlMessages.volumeLabel)}
+          muteButtonDataTest="screenshareMuteButton"
+          volumeSliderDataTest="screenshareVolumeSlider"
         />
       </Styled.HoverToolbar>
     ),

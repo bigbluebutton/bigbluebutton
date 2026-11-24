@@ -7,6 +7,9 @@ interface VolumeSlideProps {
   volume: number;
   muted: boolean;
   hideVolume: boolean;
+  muteLabel: string;
+  unmuteLabel: string;
+  volumeLabel: string;
 }
 
 const VolumeSlide = React.forwardRef<HTMLInputElement, VolumeSlideProps>(({
@@ -15,6 +18,9 @@ const VolumeSlide = React.forwardRef<HTMLInputElement, VolumeSlideProps>(({
   volume,
   muted,
   hideVolume,
+  muteLabel,
+  unmuteLabel,
+  volumeLabel,
 }, ref) => {
   const [volumeState, setVolume] = React.useState(volume);
   const [mutedState, setMuted] = React.useState(muted);
@@ -66,24 +72,30 @@ const VolumeSlide = React.forwardRef<HTMLInputElement, VolumeSlideProps>(({
 
   return (
     <Styled.Slider>
-      <Styled.Volume onClick={() => {
-        if (!muted) {
-          volumeBeforeMute.current = (volumeState || volume);
-        }
-        setMuted(!muted);
-        onMuted(!muted);
-        if (muted) {
-          onVolumeChanged(volumeBeforeMute.current || 1);
-        }
-      }}
+      <Styled.Volume
+        type="button"
+        aria-label={muted ? unmuteLabel : muteLabel}
+        data-test="externalVideoMuteButton"
+        onClick={() => {
+          if (!muted) {
+            volumeBeforeMute.current = (volumeState || volume);
+          }
+          setMuted(!muted);
+          onMuted(!muted);
+          if (muted) {
+            onVolumeChanged(volumeBeforeMute.current || 1);
+          }
+        }}
       >
         <i
-          tabIndex={-1}
+          aria-hidden="true"
           className={`icon-bbb-${getVolumeIcon()}`}
         />
       </Styled.Volume>
       <Styled.VolumeSlider
         ref={ref}
+        aria-label={volumeLabel}
+        data-test="externalVideoVolumeSlider"
         type="range"
         min={0}
         max={1}

@@ -20,10 +20,15 @@ const Slider = styled.div`
   z-index: 5;
 `;
 
-const Volume = styled.span`
+const Volume = styled.button`
   margin-right: 0.5em;
   cursor: pointer;
   z-index: 0;
+  border: none;
+  background: none;
+  padding: 0;
+  color: inherit;
+  font: inherit;
 `;
 
 const VolumeSlider = styled.input`
