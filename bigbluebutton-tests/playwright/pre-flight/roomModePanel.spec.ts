@@ -71,6 +71,16 @@ test.describe.parallel('Room mode panel: edge cases', { tag: '@nightly' }, () =>
     await panel.noPanelForBot(page, { testInfo });
   });
 
+  test('No panel for a moderator who joins with it turned off', async ({ browser, context, page }, testInfo) => {
+    const panel = new RoomModePanel(browser, context);
+    await panel.noPanelWhenJoinTurnsItOff(page, { testInfo });
+  });
+
+  test('No panel in a room created with it turned off', async ({ browser, context, page }, testInfo) => {
+    const panel = new RoomModePanel(browser, context);
+    await panel.noPanelWhenCreatedOff(page, { testInfo });
+  });
+
   test('Keeps the desktop layout for a viewer on a tablet', async ({ browser, context, page }, testInfo) => {
     const panel = new RoomModePanel(browser, context);
     await panel.initModPage(page, { testInfo });

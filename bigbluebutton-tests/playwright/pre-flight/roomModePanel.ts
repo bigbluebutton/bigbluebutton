@@ -17,6 +17,8 @@ import {
   NO_LISTEN_ONLY_JOIN_PARAMETER,
   NO_ROOM_MODE_PANEL_INIT_OPTIONS,
   PHONE_VIEWPORT,
+  PRE_FLIGHT_INIT_OPTIONS,
+  PRE_FLIGHT_ONLY_SETTINGS_OVERRIDE,
   refuseDevices,
   ROOM_MODE_PANEL_INIT_OPTIONS,
   ROOM_MODE_PANEL_SETTINGS_OVERRIDE,
@@ -71,6 +73,19 @@ const createBreakoutRooms = async (page: Page) => {
   await page.waitAndClick(e.breakoutRoomSidebarButton);
   await page.hasElement(e.roomOptions1, 'should create the breakout rooms', ELEMENT_WAIT_LONGER_TIME);
 };
+
+// The page pins only the pre-flight, so no client-side value masks the one the room
+// gets on create. This override replaces the APOLLO_CLIENT_SETTINGS_OVERRIDE that
+// initModPage sends, so it carries enableApolloDevTools for the probe.
+const roomModesOnCreate = (enabled: boolean): InitExtraPageOptionsProps => ({
+  ...PRE_FLIGHT_INIT_OPTIONS,
+  clientSettingsOverrides: PRE_FLIGHT_ONLY_SETTINGS_OVERRIDE,
+  createClientSettingsOverride: {
+    public: { app: { enableApolloDevTools: true, preFlight: { roomModes: { enabled } } } },
+  },
+});
+
+const ROOM_MODES_OFF_JOIN_PARAMETER = 'userdata-bbb_pre_flight_room_modes=false';
 
 export const startsRoom = async (page: Page) => {
   await page.waitAndClick(e.preFlightJoinButton);
@@ -361,6 +376,52 @@ export class RoomModePanel extends RoomMode {
   async noPanelWhenDisabled(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
     await this.initModPageWithPanel(page, { ...NO_ROOM_MODE_PANEL_INIT_OPTIONS, ...options });
     await hasNoPanel(this.modPage, 'should not display the room mode panel with its setting off');
+  }
+
+  // userdata-bbb_pre_flight_room_modes=false turns the panel off for the one moderator
+  // who joins with it, in a room that has it on.
+  async noPanelWhenJoinTurnsItOff(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
+    await test.step('A moderator who joins without it gets the panel (positive control)', async () => {
+      await this.initModPageWithPanel(page, { ...roomModesOnCreate(true), ...options });
+      await hasPanel(this.modPage);
+    });
+
+    await test.step('A moderator who joins with it off does not', async () => {
+      await this.initModPage2(this.context, {
+        ...PRE_FLIGHT_INIT_OPTIONS,
+        clientSettingsOverrides: PRE_FLIGHT_ONLY_SETTINGS_OVERRIDE,
+        joinParameter: ROOM_MODES_OFF_JOIN_PARAMETER,
+      });
+      await this.modPage2.hasElement(
+        e.preFlight,
+        'should display the pre-flight screen to the moderator who turned the panel off',
+        ELEMENT_WAIT_EXTRA_LONG_TIME,
+      );
+      expect(
+        await readRoomModePanelSetting(this.modPage2.page),
+        'should leave the room mode panel setting on for the room',
+      ).toBe(true);
+      await hasNoPanel(this.modPage2, 'should not display the room mode panel to a moderator who joins with it off');
+    });
+  }
+
+  // public.app.preFlight.roomModes.enabled=false in the create's clientSettingsOverride
+  // keeps the panel out of the room. Off is also the stock default, so on a stock
+  // server only the on step proves the create's value reaches the client.
+  async noPanelWhenCreatedOff(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
+    await test.step('A room created with it on shows the panel (positive control)', async () => {
+      await this.initModPageWithPanel(page, { ...roomModesOnCreate(true), ...options });
+      await hasPanel(this.modPage);
+    });
+
+    await test.step('A room created with it off does not', async () => {
+      await this.initModPageWithPanel(await this.newPageForNextRoom(), { ...roomModesOnCreate(false), ...options });
+      expect(
+        await readRoomModePanelSetting(this.modPage.page),
+        'should carry the room mode panel setting off from the create',
+      ).toBe(false);
+      await hasNoPanel(this.modPage, 'should not display the room mode panel in a room created with it off');
+    });
   }
 
   // The pick lives in the pre-flight's state, so the permission screen taking the

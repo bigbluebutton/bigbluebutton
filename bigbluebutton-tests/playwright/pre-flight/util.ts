@@ -24,6 +24,10 @@ export const ROOM_MODE_PANEL_SETTINGS_OVERRIDE = preFlightSettings(true, true);
 
 export const ROOM_MODE_PANEL_DISABLED_SETTINGS_OVERRIDE = preFlightSettings(true, false);
 
+// Pins the pre-flight on and leaves the panel to the server: the switch cases set
+// it on create or on join.
+export const PRE_FLIGHT_ONLY_SETTINGS_OVERRIDE = preFlightSettings(true);
+
 // None of init()'s post-join steps (layout wait, audio modal) exist yet: they are
 // asserted by the page object once the join is confirmed.
 export const PRE_FLIGHT_INIT_OPTIONS: InitOptionsProps = {
