@@ -132,26 +132,25 @@ Start from a checkout and a `.env`:
 git clone https://github.com/bigbluebutton/bigbluebutton.git
 cd bigbluebutton
 git checkout v4.1.x-develop
-cp .env.sample .env
 ```
 
-In `.env`, set `BBB_DOMAIN=bbb.localhost` (browsers resolve `*.localhost` to the loopback address), `BBB_PUBLIC_IP=127.0.0.1`, an empty `ACME_EMAIL`, and each secret to the output of `openssl rand -hex 32`.
-
-Use a certificate from a local CA such as [mkcert](https://github.com/FiloSottile/mkcert):
+Run the local Docker Compose setup script:
 
 ```bash
-mkcert -install
-mkdir -p data/certs && cp "$(mkcert -CAROOT)/rootCA.pem" data/certs/
-mkcert -cert-file data/certs/fullchain.pem -key-file data/certs/privkey.pem bbb.localhost
+./docker/compose/setup-dev.sh
 ```
 
-bbb-web loads the default slides from `https://bbb.localhost`, so it must trust the CA (otherwise meetings start without them): create a Java truststore with it once.
+Its purpose is to define a basic `.env` file. It also sets up a local CA (`data/certs/rootCA.pem`) and a certificate signed by it, creates a Java truststore with the CA for `bbb-web`, and enables the truststore in `docker-compose.override.yml`.
+
+Add `data/certs/rootCA.pem` to the trusted certificates of your browser or operating system, then run `docker compose up -d` and open `https://bbb.localhost`. Re-run the script only when setting up the environment again; it preserves existing secret values in `.env` and does not replace an existing `docker-compose.override.yml`, though it enables the truststore settings in it if they are still commented out.
+
+You can now bring up your local BigBlueButton environment:
 
 ```bash
-docker compose run --rm --no-deps --user 0 -v ./data/certs:/certs --entrypoint sh web -c 'cp "$JAVA_HOME/lib/security/cacerts" /certs/cacerts && keytool -importcert -noprompt -alias local-ca -file /certs/rootCA.pem -keystore /certs/cacerts -storepass changeit'
+docker compose up -d
 ```
 
-Copy `docker-compose.override.sample.yml` to `docker-compose.override.yml`, which compose reads automatically, and uncomment `services:` and the `environment` and `volumes` of `web`, which use the truststore. Then run `docker compose up -d` and open `https://bbb.localhost`.
+and pointing your browser to `https://bbb.localhost` (browsers resolve `*.localhost` to the loopback address).
 
 To run your own build of a component, build its image and uncomment its service in `docker-compose.override.yml`, e.g. for bbb-web:
 
