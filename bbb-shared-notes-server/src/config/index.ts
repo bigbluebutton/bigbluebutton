@@ -36,8 +36,13 @@ function loadConfig(): AppSettings {
     config = deepMerge(config, override);
   }
 
-  // SERVER_HOST, if set, wins over the default and the override file
-  if (process.env.SERVER_HOST) config.expressServer.host = process.env.SERVER_HOST;
+  // These variables, if set, win over the default and the override file
+  const env = process.env;
+  if (env.SERVER_HOST) config.expressServer.host = env.SERVER_HOST;
+  if (env.BBB_WEB_HOST) config.bbbWeb.host = env.BBB_WEB_HOST;
+  if (env.REDIS_HOST) config.redis.host = env.REDIS_HOST;
+  if (env.POSTGRES_HOST) config.postgres.host = env.POSTGRES_HOST;
+  if (env.POSTGRES_PASSWORD) config.postgres.password = env.POSTGRES_PASSWORD;
 
   return config;
 }
