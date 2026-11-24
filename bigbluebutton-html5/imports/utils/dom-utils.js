@@ -27,8 +27,17 @@ export const convertRemToPixels = (rem) => {
     return rem * parseFloat(getComputedStyle(document.documentElement).fontSize);
 }
 
+// The per-request CSP nonce nginx injects into this document (see the csp-nonce
+// meta tag in client/main.html). Scripts created dynamically (e.g. third-party
+// plugin entrypoints) must carry it to be admitted by the policy's script-src.
+export const getCspNonce = () => {
+  const meta = document.querySelector('meta[name="csp-nonce"]');
+  return meta ? meta.content : '';
+};
+
 export default {
   registerTitleView,
   unregisterTitleView,
   convertRemToPixels,
+  getCspNonce,
 };

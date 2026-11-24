@@ -1,3 +1,6 @@
 # include bbb-html5.nginx.dev;
 include /usr/share/bigbluebutton/nginx/bbb-html5.nginx.static;
+# the client's HTML document gets a per-request CSP nonce (see bbb-html5.nginx.csp);
+# with the dev server above, leave it out: the webpack dev page needs eval/HMR
+include /usr/share/bigbluebutton/nginx/bbb-html5.nginx.csp;
 

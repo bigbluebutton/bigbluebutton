@@ -1,0 +1,9 @@
+# The built client, served by this container's own nginx.
+#
+# Deliberately plain, without a Content-Security-Policy: in the docker deployment
+# the edge nginx (docker/nginx/bbb-html5.nginx) sends the policy and injects the
+# nonce into the document. A policy here would add a second CSP header with a
+# different per-request nonce; browsers enforce the intersection of all CSP
+# headers, which would block every script. The bare-metal packages ship the same
+# files plus bbb-html5.nginx.csp (build/packages-template/bbb-html5/).
+include /usr/share/bigbluebutton/nginx/bbb-html5.nginx.static;

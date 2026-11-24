@@ -24,8 +24,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
        text nodes out from under React, desyncing the virtual DOM and crashing the
        client (insertBefore NotFoundError) on the next render. Use in-app i18n. -->
   <meta name="google" content="notranslate">
-  <script>document.documentElement.setAttribute('translate', 'no');</script>
-  <script>
+  <!-- BBB_CSP_NONCE is a per-request CSP nonce placeholder: the deployment's nginx
+       (build/packages-template/bbb-html5/bbb-html5.nginx.csp, docker/nginx/bbb-html5.nginx)
+       replaces it with the nonce of the Content-Security-Policy it sends, via sub_filter.
+       Every inline script below carries it in its nonce attribute (required for the
+       browser to execute it), and the csp-nonce meta tag below exposes it to the page's
+       own code, which applies it to scripts created dynamically (bundle, plugins). If
+       the placeholder is not replaced, no CSP is sent and the nonce values are inert. -->
+  <meta name="csp-nonce" content="BBB_CSP_NONCE">
+  <script nonce="BBB_CSP_NONCE">document.documentElement.setAttribute('translate', 'no');</script>
+  <script nonce="BBB_CSP_NONCE">
     // Applies the persisted theme before the first paint. Two key spellings on purpose:
     // the session adapter prefixes 'BBB_' and the local one 'BBB', so a deployment with
     // userSettingsStorage: local writes 'BBBchanged_settings_application'. The prefix
@@ -194,7 +202,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
     }
   </style>
-  <script>
+  <script nonce="BBB_CSP_NONCE">
     document.addEventListener('gesturestart', function (e) {
       e.preventDefault();
     });
@@ -245,7 +253,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </svg>
   <main>
     <div id="app" role="document">
-      <script>
+      <script nonce="BBB_CSP_NONCE">
         (function () {
           var ua = navigator.userAgent;
           var isSafari = /^((?!chrome|android).)*safari/i.test(ua);
@@ -320,6 +328,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             var isProduction = '<%= isProduction %>' === 'true';
             var script = document.createElement('script');
 
+            // The CSP nonce injected by nginx (csp-nonce meta tag, see the top of this
+            // file); the bundle script it creates is only admitted with the same nonce.
+            var cspNonceMeta = document.querySelector('meta[name="csp-nonce"]');
+            var cspNonce = cspNonceMeta ? cspNonceMeta.content : '';
+
             if (isProduction && isSafari && safariVersion && safariVersion < 16 && safariVersion >= MIN_VERSIONS.safari) {
               document.documentElement.classList.add('legacy');
               script.src = 'bundle.' + bundleHash + '.safari.js';
@@ -330,6 +343,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
               script.src = 'bundle.js?v=' + bundleHash;
             }
 
+            if (cspNonce) script.nonce = cspNonce;
             document.head.appendChild(script);
           } else {
             var msgKey;

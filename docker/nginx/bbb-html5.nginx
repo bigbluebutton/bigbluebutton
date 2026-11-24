@@ -1,3 +1,32 @@
+# The client's HTML document (served by the html5-client container). nginx sends a
+# per-request Content-Security-Policy: the nonce is this request's $request_id
+# (random per request, and never exposed to the client), and sub_filter writes it
+# into the document's BBB_CSP_NONCE placeholders (the inline script tags, see
+# bigbluebutton-html5/client/main.html). Scripts the page creates dynamically (the
+# bundle, plugin entrypoints) read the nonce back from the document's csp-nonce
+# meta tag.
+#
+# The document is fetched uncompressed so sub_filter can rewrite it; gzip still
+# compresses it on the fly for the client. Only the document gets the policy and
+# the headers; everything else goes to the plain prefix location below. (The
+# html5-client container itself must stay CSP-free, or a second policy with a
+# different nonce would reach the browser: see bigbluebutton-html5/docker/
+# bbb-html5.nginx. The bare-metal equivalent of this location is
+# build/packages-template/bbb-html5/bbb-html5.nginx.csp, whose policy notes apply
+# here as well.)
+location ~ ^/html5client(/|/index\.html)?$ {
+    proxy_pass http://html5-client:8080;
+    proxy_set_header Accept-Encoding "";
+
+    sub_filter_types text/html;
+    sub_filter_once off;
+    sub_filter 'BBB_CSP_NONCE' $request_id;
+
+    add_header Content-Security-Policy "default-src 'self'; script-src 'nonce-$request_id' 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' ws: wss:; media-src 'self' blob:; worker-src 'self' blob:; frame-src 'self' http: https:; object-src 'none'; base-uri 'self'; form-action 'self'";
+    # The document is unique per request (nonce inlined), so it must not be cached.
+    add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0";
+}
+
 location /html5client {
     proxy_pass http://html5-client:8080;
 }
