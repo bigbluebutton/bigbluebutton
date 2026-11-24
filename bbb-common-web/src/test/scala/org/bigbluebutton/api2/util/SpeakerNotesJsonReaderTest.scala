@@ -12,16 +12,23 @@ class SpeakerNotesJsonReaderTest extends AnyFlatSpec {
     path
   }
 
-  it should "accept exactly the character cap and reject one character more" in {
+  it should "accept exactly the byte cap and reject one byte more" in {
     assert(SpeakerNotesJsonReader.readUtf8Capped(file("x" * 8), 8).contains("x" * 8))
     assert(SpeakerNotesJsonReader.readUtf8Capped(file("x" * 9), 8).isEmpty)
   }
 
-  it should "count decoded UTF-16 characters instead of UTF-8 bytes" in {
+  it should "count UTF-8 bytes instead of characters" in {
     val value = "é€😀"
-    assert(value.length == 4)
-    assert(SpeakerNotesJsonReader.readUtf8Capped(file(value), 4).contains(value))
-    assert(SpeakerNotesJsonReader.readUtf8Capped(file(value + "x"), 4).isEmpty)
+    assert(value.getBytes("UTF-8").length == 9)
+    assert(SpeakerNotesJsonReader.readUtf8Capped(file(value), 9).contains(value))
+    // 4 characters, but 9 bytes: over a cap of 8
+    assert(SpeakerNotesJsonReader.readUtf8Capped(file(value), 8).isEmpty)
+  }
+
+  it should "reject bytes that are not valid UTF-8" in {
+    val path = Files.createTempFile("speaker-notes-json", ".json")
+    Files.write(path, Array[Byte](0x7b, 0xff.toByte, 0x7d))
+    assert(SpeakerNotesJsonReader.readUtf8Capped(path, 20).isEmpty)
   }
 
   it should "reject missing, malformed, and oversized JSON" in {

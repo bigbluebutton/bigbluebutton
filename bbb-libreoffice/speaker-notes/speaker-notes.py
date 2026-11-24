@@ -19,7 +19,7 @@
 # with their formatting (version 1: paragraphs with list level and marker, runs
 # with emphasis and direct colors). A slide whose formatting cannot be read, that
 # uses a list numbering the JSON cannot reproduce, or whose JSON would pass
-# MAX_NOTE_CHARS, keeps only its plain text.
+# MAX_NOTE_JSON_BYTES in UTF-8, keeps only its plain text.
 #
 # It also writes slide-N.title.txt with the text of the slide's title placeholder,
 # whitespace collapsed to single spaces; empty when the slide has no title. A title
@@ -36,6 +36,8 @@ from com.sun.star.beans import PropertyValue
 STARTED_AT = time.monotonic()
 
 MAX_NOTE_CHARS = 1024 * 1024
+# bbb-web reads the JSON with the same limit (SpeakerNotesJsonReader.DefaultCap)
+MAX_NOTE_JSON_BYTES = 1024 * 1024
 CONNECT_TIMEOUT_SECONDS = 30
 NOTES_SHAPE = "com.sun.star.presentation.NotesShape"
 TITLE_SHAPE = "com.sun.star.presentation.TitleTextShape"
@@ -292,7 +294,7 @@ def structured_notes(slide, deadline):
 def write_structured_notes(slide, path, deadline):
     try:
         value = json.dumps(structured_notes(slide, deadline), ensure_ascii=False, separators=(",", ":"))
-        if len(value) > MAX_NOTE_CHARS:
+        if len(value.encode("utf-8")) > MAX_NOTE_JSON_BYTES:
             return
         with open(path, "w", encoding="utf-8") as notes_file:
             notes_file.write(value)
