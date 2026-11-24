@@ -17,7 +17,9 @@ jobs:
   dispatch:
     if: github.repository == 'bigbluebutton/bigbluebutton'
     name: Nightly tests on ${{ matrix.branch }}
-    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-24.04' }}
+    # It only calls the API while it waits, so it stays off the CI_LIGHT_RUNNER pool that the
+    # nightly's own light jobs need: a small pool could otherwise deadlock.
+    runs-on: ubuntu-24.04
     timeout-minutes: 330
     strategy:
       fail-fast: false
