@@ -63,9 +63,6 @@ jobs:
       matrix:
         target: ${{ fromJSON(needs.targets.outputs.targets) }}
         platform: ${{ fromJSON(github.event_name == 'pull_request' && '["amd64"]' || '["amd64", "arm64"]') }}
-        exclude:
-          - target: record-and-playback  # amd64 only, see docker-bake.hcl
-            platform: arm64
     steps:
       - uses: actions/checkout@v5
 
