@@ -1,6 +1,6 @@
 # Development: as html5.yml, but the webpack dev server runs in a container, for when Node 24 is
 # not installed on your machine. Add it in .env instead of html5.yml:
-#   COMPOSE_FILE=docker-compose.yml:docker/compose/dev/html5-container.yml
+#   COMPOSE_FILE=docker-compose.yml:docker/compose/dev/html5-container.yml:docker-compose.override.yml
 # The html5-client image keeps running (nginx depends on it) but no longer gets requests.
 services:
   html5-dev:
