@@ -303,7 +303,7 @@ services:
     <<: *bbb
     image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-export-annotations:${BBB_IMAGE_TAG}
     environment:
-      BBB_WEB_API: http://web:8090
+      BBB_WEB_URL: http://web:8090
       REDIS_HOST: redis
     volumes:
       - ./data/bigbluebutton:/var/bigbluebutton:z

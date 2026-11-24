@@ -44,7 +44,7 @@ commit and the dated version, `org.opencontainers.image.title` its name.
 | bbb-graphql-actions | `bbb-graphql-actions/` | 8093 | environment only |
 | bbb-graphql-middleware | `bbb-graphql-middleware/` | 8378 | `/etc/bigbluebutton/bbb-graphql-middleware.yml` |
 | bbb-graphql-server | `bbb-graphql-server/` | 8085 | environment (`HASURA_GRAPHQL_*`) |
-| bbb-export-annotations | `bbb-export-annotations/` | none | environment (`REDIS_*`, `BBB_WEB_API`, `BBB_EXPORT_ANNOTATIONS_*`), `/etc/bigbluebutton/bbb-export-annotations/production.json` |
+| bbb-export-annotations | `bbb-export-annotations/` | none | environment (`REDIS_*`, `BBB_WEB_URL`, `BBB_EXPORT_ANNOTATIONS_*`), `/etc/bigbluebutton/bbb-export-annotations/production.json` |
 | bbb-shared-notes-server | `bbb-shared-notes-server/` | 8787 | `/etc/bigbluebutton/bbb-shared-notes-server.yml` |
 | bbb-record-and-playback | `record-and-playback/` | none | `/etc/bigbluebutton/recording/recording.yml`, `presentation.yml`, `/etc/bigbluebutton/bbb-web.properties` |
 | bbb-nginx | `docker/nginx/` | 8080, 8185 | `/etc/nginx/sites-available/`, `/usr/share/bigbluebutton/nginx/` |
@@ -128,9 +128,10 @@ Only these are read; everything else is set in the mounted configuration.
   secret: `HASURA_GRAPHQL_ADMIN_SECRET` is required, and Hasura refuses to start without it
   because the image sets the auth hook.
 - **bbb-export-annotations**: the variables in `config/custom-environment-variables.json`:
-  `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`, `BBB_WEB_API` (bbb-web's URL, e.g.
-  `http://web:8090`) and `BBB_EXPORT_ANNOTATIONS_*` for the log level, the shared paths and the
-  rasterize timeout. Environment variables take precedence over a mounted
+  `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`, `BBB_WEB_URL` (bbb-web's base URL, e.g.
+  `http://web:8090`; bbb-apps-akka's `BBB_WEB_API` is the API URL) and
+  `BBB_EXPORT_ANNOTATIONS_*` for the log level, the shared paths and the rasterize timeout.
+  Environment variables take precedence over a mounted
   `/etc/bigbluebutton/bbb-export-annotations/production.json`.
 - **bbb-record-and-playback**: resque's `QUEUE` and `COUNT` (preset as in the systemd unit).
 - **bbb-webrtc-sfu**, **bbb-webhooks**: the variables in the component's
