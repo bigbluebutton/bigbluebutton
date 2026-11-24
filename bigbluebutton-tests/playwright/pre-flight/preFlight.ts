@@ -236,9 +236,8 @@ export class PreFlight extends MultiUsers {
     );
     const htmlFontSize = () => this.userPage.page.evaluate(() => document.documentElement.style.fontSize);
     // v4.0 applies the dark mode with DarkReader, which injects <style class="darkreader"> while it is on.
-    const isDarkThemeOn = () => this.userPage.page.evaluate(
-      () => document.querySelectorAll('style.darkreader').length > 0,
-    );
+    const isDarkThemeOn = () =>
+      this.userPage.page.evaluate(() => document.querySelectorAll('style.darkreader').length > 0);
 
     await this.initUserPageWithPreFlight();
     const initialFontSize = await htmlFontSize();
@@ -265,7 +264,10 @@ export class PreFlight extends MultiUsers {
     const pickedFontSize = await htmlFontSize();
     expect(pickedFontSize, 'should apply the font size picked in the pre-flight').not.toBe(initialFontSize);
     await expect
-      .poll(isDarkThemeOn, { message: 'should apply the dark theme picked in the pre-flight', timeout: ELEMENT_WAIT_TIME })
+      .poll(isDarkThemeOn, {
+        message: 'should apply the dark theme picked in the pre-flight',
+        timeout: ELEMENT_WAIT_TIME,
+      })
       .toBe(true);
     expect(
       await this.userPage.page.evaluate(() => document.documentElement.lang),
