@@ -288,6 +288,8 @@ func (s *Server) prepare(r *http.Request, rest string, recorded bool) (answering
 		}
 		if m.expand {
 			if err := f.expand(origin(r)); err != nil {
+				// answer closes the files it sends; this one goes no further.
+				f.close()
 				return answering{}, http.StatusInternalServerError, err
 			}
 		}

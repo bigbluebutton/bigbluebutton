@@ -56,7 +56,7 @@ Each case ends as one of:
   unreachable or a template didn't expand;
 - **SKIP**, with the reason: a capability the target lacks, a URL the case
   uses that the target doesn't set (`not-configured: sinkUrl`,
-  `sinkHttpUrl` or `fixtureUrl`), something the runner can't do yet, or an interrupt before
+  `sinkHttpUrl`, `sinkLocalUrl` or `fixtureUrl`), something the runner can't do yet, or an interrupt before
   the case started.
 
 The exit status is 0 when nothing failed or errored, 1 when something did
@@ -84,6 +84,7 @@ defaultSign: sha256
 sinkUrl: https://sink.test:8444      # the sink as the server reaches it, for ${sinkUrl}
 sinkReadUrl: https://localhost:8444  # where the runner reads it, when that differs; both scheme and host only
 sinkHttpUrl: http://sink.test:8445     # the sink's plain-HTTP listener, for ${sinkHttpUrl}; scheme and host only
+sinkLocalUrl: https://127.0.0.1:8444  # the sink at a local IP address the server reaches it by, for ${sinkLocalUrl}; scheme and host only
 fixtureUrl: https://sink.test:8444/fixtures   # for ${fixtureUrl}
 graphqlUrl: wss://bbb.example.com/graphql  # the default: baseUrl's host at /graphql; keep that host, for the join's cookie
 tapUrl: http://10.0.0.5:8099         # the server's tap, for bus, fs and redis steps
@@ -94,7 +95,7 @@ vars:
 Blank fields fall back to the variables the Playwright suite uses: `BBB_URL`
 (e.g. `https://bbb-ci.test/bigbluebutton/`) and `BBB_SECRET`; to
 `BBB_TAP_URL` for `tapUrl`; and to `BBB_SINK_URL`, `BBB_SINK_READ_URL`,
-`BBB_SINK_HTTP_URL` and `BBB_FIXTURE_URL` for the sink's. `targets/bbb-web.yaml` and
+`BBB_SINK_HTTP_URL`, `BBB_SINK_LOCAL_URL` and `BBB_FIXTURE_URL` for the sink's. `targets/bbb-web.yaml` and
 `targets/bbb-api.yaml` are set up that way. The tap's and the sink's tokens
 come only from `BBB_TAP_TOKEN` and `BBB_SINK_TOKEN`, never a target file;
 like the salt, they are redacted from what the runner writes.
@@ -105,6 +106,12 @@ server that doesn't give it: `targets/bbb-web.yaml` has the `turn`
 capability, for the stuns cases that check TURN credentials, while
 `TURN_SECRET` holds the TURN servers' shared secret. Listing the capability
 without the var's value is an error.
+
+`sinkLocalUrl` is for the cases that check the server won't fetch from a
+local address its settings don't list (`fetchUrlAllowedLocalHosts`). Set
+it only where the server does reach the sink at that address, as on
+Tier 1, where the services share one network: elsewhere a fetch that
+can't connect would pass those cases too, so without it they are skipped.
 
 A target with a tap has the `bus`, `fs` and `redis` capabilities, and one
 with a sink the `callbacks` capability. Listing them without one is an
@@ -238,7 +245,7 @@ go run ./cmd/bbb-conform run --target ../targets/bbb-web.yaml --cases ../cases -
 |---|---|
 | `debs` | Builds the five packages the stack runs (bbb-web, bbb-apps-akka, bbb-graphql-server, bbb-graphql-middleware, bbb-graphql-actions) with their own build scripts, in the image CI builds them in. `PKGS=bbb-web` builds one. About 20 minutes cold. |
 | `up` | Renders the configuration, builds what changed and starts the stack, then waits until every service is healthy (about a minute). `CLAMAV=1` adds a ClamAV daemon. |
-| `env` | Prints the variables the runner reads: `BBB_URL`, `BBB_SECRET`, `BBB_PAGE_TOKEN_SECRET`, `BBB_TAP_URL`, `BBB_TAP_TOKEN`, `BBB_SINK_URL`, `BBB_SINK_READ_URL`, `BBB_SINK_HTTP_URL`, `BBB_SINK_TOKEN`, `BBB_FIXTURE_URL`, `BBB_WEB_DIRECT_URL`, `TURN_SECRET` (read from `env/bbb-web/turn-stun-servers.xml`), `BBB_PROFILE_CMD` and `SSL_CERT_FILE`. The tokens are made once, in `env/.state/tokens.env`. |
+| `env` | Prints the variables the runner reads: `BBB_URL`, `BBB_SECRET`, `BBB_PAGE_TOKEN_SECRET`, `BBB_TAP_URL`, `BBB_TAP_TOKEN`, `BBB_SINK_URL`, `BBB_SINK_READ_URL`, `BBB_SINK_HTTP_URL`, `BBB_SINK_LOCAL_URL`, `BBB_SINK_TOKEN`, `BBB_FIXTURE_URL`, `BBB_WEB_DIRECT_URL`, `TURN_SECRET` (read from `env/bbb-web/turn-stun-servers.xml`), `BBB_PROFILE_CMD` and `SSL_CERT_FILE`. The tokens are made once, in `env/.state/tokens.env`. |
 | `profile` | `NAME=reveal-version` switches bbb-web to a profile in `env/bbb-web/profiles/`, `NAME=default` back; without `NAME`, prints the one in force. Cases use it through `BBB_PROFILE_CMD`. |
 | `reset` | Starts again from nothing: no meetings, an empty data directory, the default profile. A profile switch waits until it is done. |
 | `check-copies` | Warns about the package files Tier 1 mirrors by hand that changed since it last followed them (see below). |
@@ -269,7 +276,9 @@ access for the first build.
     a name the stack's hosts file gives it and nginx's certificate names.
     The sink serves `fixtures/` (`BBB_FIXTURE_URL`), and plain HTTP on
     `http://sink.test:8445` (`BBB_SINK_HTTP_URL`), which only the stack
-    reaches.
+    reaches. The stack's services share one network, so bbb-web also
+    reaches it at `https://127.0.0.1:8444` (`BBB_SINK_LOCAL_URL`), a local
+    address it isn't allowed to fetch from.
 - **Its configuration** is a packaged server's, with what bbb-install sets:
   the host and a test salt (`env/tier1/tier1.env`, published on purpose),
   and a TURN server (`env/bbb-web/turn-stun-servers.xml`). Timeouts are the
@@ -1074,7 +1083,7 @@ These steps check what a call did outside its answer, through the target's
 
 A `sink` step checks what the server sent to the target's
 [sink](#the-sink-sink): a callback, or a fetch of a fixture. The case gives
-the server a URL under `${sinkUrl}` (or `${sinkHttpUrl}`) whose first path segment is a key,
+the server a URL under `${sinkUrl}` (or `${sinkHttpUrl}`, `${sinkLocalUrl}`) whose first path segment is a key,
 normally made from `${uid}`, and the step looks at the requests under that
 key. A key is one path segment: no `/`, and neither `fixtures` nor a name
 starting with `_`, which the sink keeps for itself.
@@ -1249,7 +1258,7 @@ Any string can contain `${...}`.
 - **Variables:**
   - `${uid}`: unique per case per run, valid as a meetingID;
   - `${salt}`: redacted from reports;
-  - `${baseUrl}`, `${sinkUrl}`, `${sinkHttpUrl}`, `${fixtureUrl}`;
+  - `${baseUrl}`, `${sinkUrl}`, `${sinkHttpUrl}`, `${sinkLocalUrl}`, `${fixtureUrl}`;
   - `${target.<name>}`: from the target file's `vars`, where an entry marked
     `secret` is redacted;
   - captures from earlier steps and variant vars.

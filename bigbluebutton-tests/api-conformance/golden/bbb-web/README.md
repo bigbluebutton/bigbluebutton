@@ -84,7 +84,9 @@ there compares like with like.
   the side-effect cases (`create/` redis, breakout-rooms, dashboard,
   plugins, client-settings, shared-notes and fetch; `end/` markers and
   dashboard) were recorded from a fresh stack (`make reset`) running
-  packages built from v4.0.x-develop of that day (aca03d0651).
+  packages built from v4.0.x-develop of that day (aca03d0651). On
+  2026-11-24 `end.markers.none` was recorded again, from the same
+  packages, for its new step; its answer didn't change.
 
 ## Reviewing
 

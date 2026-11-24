@@ -3,8 +3,11 @@
 # fetching it: %%MEETING_ID%% (the meeting's external ID),
 # %%BBB_VERSION%% and %%BBB_MAIN_VERSION%% (the release, and its major and
 # minor), %%HTML5_PLUGIN_SDK_VERSION%% and %%HTML5_PLUGIN_SDK_MAIN_VERSION%%
-# (the plugin SDK version, and its major one, or 0.x). The sink sees them
-# filled in, and the URL in pluginProp is the filled-in one.
+# (the plugin SDK version, and its major one, or 0.<minor> before 1.0).
+# The sink sees them filled in, and the URL in pluginProp is the filled-in
+# one. The SDK version is the one MeetingCreatedEvtMsg carries, and each
+# main version starts its own full version, so a swap of the two fails.
+# The release itself isn't known here (allowRevealOfBBBVersion is off).
 id: create.plugins.url-placeholders
 title: create fills in the placeholders of a plugin manifest URL
 endpoint: create
@@ -27,12 +30,25 @@ steps:
         conformBbbVersion: {regex: '^[0-9]+\.[0-9]+\.[0-9]+'}
         conformBbbMainVersion: {regex: '^[0-9]+\.[0-9]+$'}
         conformSdkVersion: {regex: '^[0-9]+\.[0-9]+\.[0-9]+'}
-        conformSdkMainVersion: {regex: '^([0-9]+|0\.x)$'}
+        conformSdkMainVersion: {regex: '^([1-9][0-9]*|0\.[0-9]+)$'}
+    capture:
+      bbbVersion: $.query.conformBbbVersion
+      bbbMainVersion: $.query.conformBbbMainVersion
+      sdkVersion: $.query.conformSdkVersion
+      sdkMainVersion: $.query.conformSdkMainVersion
   - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
     select: [$.core.body.props.pluginProp]
     expect:
       jsonpath:
         $.core.body.props.pluginProp.ConformBasic.manifest.url: {regex: '^\Q${sinkUrl}/${uid}/fixtures/plugins/basic.json?conformBbbVersion=\E[0-9]'}
+    capture: {serverSdkVersion: $.core.body.props.systemProps.html5PluginSdkVersion}
+  - check:
+      - value: "${sdkVersion}"
+        expect: "${serverSdkVersion}"
+      - value: "${bbbVersion}"
+        expect: {regex: '^\Q${bbbMainVersion}\E\.'}
+      - value: "${sdkVersion}"
+        expect: {regex: '^\Q${sdkMainVersion}\E\.'}
 teardown:
   # Again until bbb-web no longer knows the meeting: an end that reaches
   # akka-apps before the create does is lost.

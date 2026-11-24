@@ -2,7 +2,9 @@
 # bbb-web fetches from a local address (loopback, private, link-local)
 # only when the URL's host is in fetchUrlAllowedLocalHosts. Tier 1 lists
 # sink.test, the sink's name (create.client-settings.url fetches from it),
-# so the sink at 127.0.0.1 and its own port is refused.
+# so the sink at its local address (sinkLocalUrl, 127.0.0.1 on Tier 1) is
+# refused. A target without sinkLocalUrl skips the case: a fetch that
+# can't connect would pass it.
 id: create.fetch.local-host
 title: create refuses to fetch from a local address by a name it doesn't list
 endpoint: create
@@ -11,7 +13,7 @@ tags: [ci]
 requires: [akka, bus, callbacks]
 steps:
   - call: create
-    params: {meetingID: "${uid}", name: Fetch rules, clientSettingsOverrideJsonUrl: 'https://127.0.0.1:${match(sinkUrl, ":([0-9]+)$")}/${uid}/fixtures/client-settings/override.json'}
+    params: {meetingID: "${uid}", name: Fetch rules, clientSettingsOverrideJsonUrl: '${sinkLocalUrl}/${uid}/fixtures/client-settings/override.json'}
     golden: off
     expect: {returncode: SUCCESS}
     capture: {intId: /response/internalMeetingID}

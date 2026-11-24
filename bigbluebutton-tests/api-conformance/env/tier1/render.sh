@@ -82,6 +82,7 @@ export BBB_TAP_TOKEN=$BBB_TAP_TOKEN
 export BBB_SINK_URL=https://sink.test:8444
 export BBB_SINK_READ_URL=https://localhost:8444
 export BBB_SINK_HTTP_URL=http://sink.test:8445
+export BBB_SINK_LOCAL_URL=https://127.0.0.1:8444
 export BBB_SINK_TOKEN=$BBB_SINK_TOKEN
 export BBB_FIXTURE_URL=https://sink.test:8444/fixtures
 export TURN_SECRET=$turn_secret

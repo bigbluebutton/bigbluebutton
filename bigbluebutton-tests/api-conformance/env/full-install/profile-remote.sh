@@ -23,6 +23,11 @@ fi
 
 sum() { sha256sum "$1" | cut -d' ' -f1; }
 
+# A switch that stops before install leaves no staged copy behind: it can
+# hold the salt. The overlays are profile.sh's, whose trap this replaces.
+trap 'rm -f "$F.bbb-conform-next" "$A.bbb-conform-next" "$OVERLAY" "$AKKA_OVERLAY"' EXIT
+trap 'exit 1' HUP INT TERM
+
 if [ "$NAME" = status ]; then
 	if [ -f "$F.bbb-conform-state" ]; then sed -n 1p "$F.bbb-conform-state"; else echo default; fi
 	exit 0
@@ -50,26 +55,33 @@ stage() {
 	if [ ! -f "$state" ]; then
 		cp -p "$f" "$orig"
 	fi
-	cat "$orig" >"$f.bbb-conform-next"
+	# Readable by root alone until install gives it the file's own mode
+	# (a leftover would keep its own).
+	rm -f "$f.bbb-conform-next"
+	(umask 077 && cat "$orig" >"$f.bbb-conform-next")
 	if [ "$NAME" != default ] && { [ "$f" = "$F" ] || [ -s "$extra" ]; }; then
 		printf '\n%s %s\n' "$mark" "$NAME" >>"$f.bbb-conform-next"
 		cat "$extra" >>"$f.bbb-conform-next"
 	fi
 }
 
-# install FILE: puts FILE.bbb-conform-next in place, with FILE's owner and
-# mode, and records it at once, so a switch that fails later is retried
-# rather than taken for the server's own file. Returns 1 when FILE already
-# held it; exits if it can't be written.
+# install FILE MARKER: puts FILE.bbb-conform-next in place, with FILE's
+# owner and mode, and records it at once, so a switch that fails later is
+# retried rather than taken for the server's own file. MARKER, the restart
+# FILE's service then owes, is created first: a switch that stops between
+# the two still restarts the service on the next run, which finds FILE as
+# it wants it. A FILE that already held it is only recorded. Exits if FILE
+# can't be written.
 install() {
-	f=$1
+	f=$1 marker=$2
 	next=$f.bbb-conform-next
 	if cmp -s "$next" "$f"; then
 		rm -f "$next"
 		record "$f"
-		return 1
+		return 0
 	fi
-	if ! { chown --reference="$f.bbb-conform-orig" "$next" &&
+	if ! { : >"$marker" &&
+		chown --reference="$f.bbb-conform-orig" "$next" &&
 		chmod --reference="$f.bbb-conform-orig" "$next" &&
 		mv "$next" "$f"; }; then
 		echo "couldn't write $f" >&2
@@ -89,9 +101,9 @@ record() {
 	fi
 }
 
-# akka-apps reads this one of bbb-web's settings at startup too.
+# strict FILE: the one of bbb-web's settings akka-apps reads at startup too.
 strict() {
-	grep -E '^clientSettingsOverrideStrictValidation=' "$F" 2>/dev/null | tail -n 1 || true
+	grep -E '^clientSettingsOverrideStrictValidation=' "$1" 2>/dev/null | tail -n 1 || true
 }
 
 [ -f "$F" ] || : >"$F"
@@ -106,14 +118,13 @@ elif [ -s "$AKKA_OVERLAY" ]; then
 	exit 1
 fi
 
-before=$(strict)
-if install "$F" || ! systemctl is-active -q bbb-web; then
-	: >"$WEB_PENDING"
+# Each restart marker is made before the file it is for changes.
+[ "$(strict "$F.bbb-conform-next")" = "$(strict "$F")" ] || : >"$PENDING"
+install "$F" "$WEB_PENDING"
+systemctl is-active -q bbb-web || : >"$WEB_PENDING"
+if $akka; then
+	install "$A" "$PENDING"
 fi
-if $akka && install "$A"; then
-	: >"$PENDING"
-fi
-[ "$(strict)" = "$before" ] || : >"$PENDING"
 
 # Values are read at startup only. akka-apps goes first, so bbb-web's
 # keepalive finds it.

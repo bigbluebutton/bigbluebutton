@@ -29,9 +29,13 @@ steps:
     expect: {returncode: SUCCESS}
   # A minute and a half: past a one-minute delay's cleanup.
   - wait: 90s
+  # Its contents, so only a file that is there now counts: one that
+  # appeared during the case and was removed since would pass exists.
   - fs: {path: "learning-dashboard/${intId}/*/learning_dashboard_data.json"}
     golden: off
-    expect: {exists: true}
+    expect:
+      jsonpath:
+        $.contents.intId: "${intId}"
 teardown:
   - call: end
     params: {meetingID: "${uid}"}

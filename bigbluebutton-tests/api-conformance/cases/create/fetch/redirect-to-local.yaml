@@ -1,8 +1,9 @@
 # yaml-language-server: $schema=../../../runner/schema/case.schema.json
 # A redirect to a local address whose name fetchUrlAllowedLocalHosts
-# doesn't list is refused: here the sink again, at 127.0.0.1 and the
-# sink's port, which Tier 1 reaches but doesn't list (it lists sink.test).
-# The sink sees the first request only.
+# doesn't list is refused: here the sink again, at its local address
+# (sinkLocalUrl, 127.0.0.1 on Tier 1), which the server reaches but
+# doesn't list (Tier 1 lists sink.test). The sink sees the first request
+# only. A target without sinkLocalUrl skips the case.
 id: create.fetch.redirect-to-local
 title: create refuses a redirect to a local address by a name it doesn't list
 endpoint: create
@@ -11,7 +12,7 @@ tags: [ci]
 requires: [akka, bus, callbacks]
 steps:
   - call: create
-    params: {meetingID: "${uid}", name: Fetch rules, clientSettingsOverrideJsonUrl: '${sinkUrl}/${uid}/moved?_redirect=https://127.0.0.1:${match(sinkUrl, ":([0-9]+)$")}/${uid}/fixtures/client-settings/override.json'}
+    params: {meetingID: "${uid}", name: Fetch rules, clientSettingsOverrideJsonUrl: '${sinkUrl}/${uid}/moved?_redirect=${sinkLocalUrl}/${uid}/fixtures/client-settings/override.json'}
     golden: off
     expect: {returncode: SUCCESS}
     capture: {intId: /response/internalMeetingID}

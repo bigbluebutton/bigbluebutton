@@ -1,8 +1,9 @@
 # yaml-language-server: $schema=../../../runner/schema/case.schema.json
 # A meeting that is neither recorded nor keeps its events leaves no
-# marker when it ends: record-and-playback has nothing to do. The bus step
-# waits until bbb-web has handled the end; the markers, when there are
-# any, are written as it does.
+# marker when it ends: record-and-playback has nothing to do. bbb-web
+# writes the markers, when there are any, as it handles the end, and
+# forgets the meeting last: the check starts once getMeetingInfo no longer
+# finds it.
 id: end.markers.none
 title: An ended meeting that isn't recorded and keeps no events leaves no marker
 endpoint: end
@@ -24,6 +25,10 @@ steps:
     golden: off
   - bus: {name: MeetingEndedEvtMsg, meetingId: "${intId}", within: 10s}
     golden: off
+  - call: getMeetingInfo
+    params: {meetingID: "${uid}"}
+    golden: off
+    eventually: {within: 10s, every: 100ms, until: {messageKey: notFound}}
   - fs: {path: "recording/status/*/${intId}.done", within: 3s}
     expect: {absent: true}
 teardown:

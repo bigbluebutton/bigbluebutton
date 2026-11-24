@@ -1,10 +1,12 @@
 # yaml-language-server: $schema=../../../runner/schema/case.schema.json
 # A plugin manifest URL, or a pluginManifestsFetchUrl, at a local address
 # whose name fetchUrlAllowedLocalHosts doesn't list is refused: no entry in
-# pluginProp, and create succeeds. Here both point at the sink, at
-# 127.0.0.1 and its port, which Tier 1 reaches but doesn't list (it lists
-# sink.test). The fetch rules are covered in full on
-# clientSettingsOverrideJsonUrl (create.fetch.*).
+# pluginProp, and create succeeds. Here both point at the sink at its
+# local address (sinkLocalUrl, 127.0.0.1 on Tier 1), which the server
+# reaches but doesn't list (Tier 1 lists sink.test). A target without
+# sinkLocalUrl skips the case: a fetch that can't connect would pass it.
+# The fetch rules are covered in full on clientSettingsOverrideJsonUrl
+# (create.fetch.*).
 id: create.plugins.dropped-local
 title: create drops plugin manifests at a local address it may not fetch from
 endpoint: create
@@ -16,8 +18,8 @@ steps:
     params:
       meetingID: "${uid}"
       name: Plugins
-      pluginManifests: '[{"url":"https://127.0.0.1:${match(sinkUrl, ":([0-9]+)$")}/${uid}/fixtures/plugins/basic.json"}]'
-      pluginManifestsFetchUrl: 'https://127.0.0.1:${match(sinkUrl, ":([0-9]+)$")}/${uid}/fixtures/plugins/list.json?_expand=1'
+      pluginManifests: '[{"url":"${sinkLocalUrl}/${uid}/fixtures/plugins/basic.json"}]'
+      pluginManifestsFetchUrl: '${sinkLocalUrl}/${uid}/fixtures/plugins/list.json?_expand=1'
     golden: off
     expect: {returncode: SUCCESS}
     capture: {intId: /response/internalMeetingID}

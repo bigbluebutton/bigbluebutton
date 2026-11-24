@@ -9,6 +9,8 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"runtime"
+	"runtime/debug"
 	"strings"
 	"testing"
 	"time"
@@ -321,6 +323,36 @@ func TestDelay(t *testing.T) {
 	r, err := w.client.Received(ctx(t), Query{Key: "slow", Wait: 2 * time.Second})
 	if err != nil || len(r.Requests) != 1 {
 		t.Errorf("the abandoned request: %+v %v", r, err)
+	}
+}
+
+// A fixture too large to expand is refused, and closed: each such request
+// would otherwise leave a file open.
+func TestExpandTooLargeClosesFixture(t *testing.T) {
+	if runtime.GOOS != "linux" {
+		t.Skip("counts open files in /proc/self/fd")
+	}
+	// No collection: it would close the leaked files behind the test's back.
+	defer debug.SetGCPercent(debug.SetGCPercent(-1))
+	w := startWorld(t)
+	write(t, filepath.Join(w.dir, "big.json"), strings.Repeat("x", maxExpand+1))
+	openFiles := func() int {
+		entries, err := os.ReadDir("/proc/self/fd")
+		if err != nil {
+			t.Fatal(err)
+		}
+		return len(entries)
+	}
+	w.send(t, "GET", "/k/fixtures/plugins/manifest.json", "") // the connection, open from here on
+	before := openFiles()
+	for range 20 {
+		resp, body := w.send(t, "GET", "/k/fixtures/big.json?_expand=1", "")
+		if resp.StatusCode != http.StatusInternalServerError || !strings.Contains(body, "_expand reads fixtures of up to") {
+			t.Fatalf("%d %s", resp.StatusCode, body)
+		}
+	}
+	if after := openFiles(); after-before >= 10 {
+		t.Errorf("%d files open after 20 refused expansions, %d before", after, before)
 	}
 }
 
