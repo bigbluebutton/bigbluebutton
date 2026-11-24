@@ -17,8 +17,9 @@
 #
 # Next to each non-empty slide-N.txt it also writes slide-N.json, the same notes
 # with their formatting (version 1: paragraphs with list level and marker, runs
-# with emphasis and direct colors). A slide whose formatting cannot be read, or
-# whose JSON would pass MAX_NOTE_CHARS, keeps only its plain text.
+# with emphasis and direct colors). A slide whose formatting cannot be read, that
+# uses a list numbering the JSON cannot reproduce, or whose JSON would pass
+# MAX_NOTE_CHARS, keeps only its plain text.
 #
 # It also writes slide-N.title.txt with the text of the slide's title placeholder,
 # whitespace collapsed to single spaces; empty when the slide has no title. A title
@@ -42,16 +43,22 @@ MAX_TITLE_CHARS = 1024
 STRUCTURED_NOTES_VERSION = 1
 MAX_LIST_LEVELS = 10
 DEFAULT_BULLET = "\u2022"
-# com.sun.star.style.NumberingType values
-NUMBERING_UPPER_LETTERS = (0, 9)
-NUMBERING_LOWER_LETTERS = (1, 10)
+# com.sun.star.style.NumberingType values. A, B, ... Z, AA, AB for 0 and 1;
+# A, B, ... Z, AA, BB for 9 and 10, as LibreOffice numbers them
+NUMBERING_UPPER_LETTERS = 0
+NUMBERING_LOWER_LETTERS = 1
 NUMBERING_UPPER_ROMAN = 2
 NUMBERING_LOWER_ROMAN = 3
 NUMBERING_ARABIC = 4
 NUMBERING_NONE = 5
 NUMBERING_CHAR_SPECIAL = 6
-NUMBERED_TYPES = NUMBERING_UPPER_LETTERS + NUMBERING_LOWER_LETTERS + (
-    NUMBERING_UPPER_ROMAN, NUMBERING_LOWER_ROMAN, NUMBERING_ARABIC)
+NUMBERING_BITMAP = 8
+NUMBERING_UPPER_LETTERS_REPEATED = 9
+NUMBERING_LOWER_LETTERS_REPEATED = 10
+NUMBERED_TYPES = (NUMBERING_UPPER_LETTERS, NUMBERING_LOWER_LETTERS, NUMBERING_UPPER_ROMAN,
+                  NUMBERING_LOWER_ROMAN, NUMBERING_ARABIC, NUMBERING_UPPER_LETTERS_REPEATED,
+                  NUMBERING_LOWER_LETTERS_REPEATED)
+BULLET_TYPES = (NUMBERING_CHAR_SPECIAL, NUMBERING_BITMAP)
 FONT_WEIGHT_NORMAL = 100.0
 # com.sun.star.awt.FontUnderline values that mean "no underline": NONE=0, DONTKNOW=4
 NO_UNDERLINE_VALUES = (0, 4)
@@ -69,6 +76,11 @@ PDF_FILTERS = (
 
 
 class NotesDeadlineReached(Exception):
+    pass
+
+
+class UnsupportedNumbering(Exception):
+    # A list numbered in a way the structured notes cannot reproduce; that slide keeps only its plain text
     pass
 
 
@@ -178,6 +190,11 @@ def letters(value):
     return result
 
 
+def repeated_letters(value):
+    current = max(1, value)
+    return chr(ord("A") + (current - 1) % 26) * ((current - 1) // 26 + 1)
+
+
 def roman(value):
     result = ""
     remaining = max(1, value)
@@ -189,10 +206,14 @@ def roman(value):
 
 
 def format_number(value, numbering_type):
-    if numbering_type in NUMBERING_UPPER_LETTERS:
+    if numbering_type == NUMBERING_UPPER_LETTERS:
         return letters(value)
-    if numbering_type in NUMBERING_LOWER_LETTERS:
+    if numbering_type == NUMBERING_LOWER_LETTERS:
         return letters(value).lower()
+    if numbering_type == NUMBERING_UPPER_LETTERS_REPEATED:
+        return repeated_letters(value)
+    if numbering_type == NUMBERING_LOWER_LETTERS_REPEATED:
+        return repeated_letters(value).lower()
     if numbering_type == NUMBERING_UPPER_ROMAN:
         return roman(value)
     if numbering_type == NUMBERING_LOWER_ROMAN:
@@ -217,16 +238,21 @@ def reset_deeper_counters(counters, level):
         counters[index] = -1
 
 
-def list_value(rule, level, counters):
+def list_value(rule, level, counters, restart_value=None):
     reset_deeper_counters(counters, level)
     if rule is None:
         return None
     numbering_type = rule.get("NumberingType")
     if numbering_type in NUMBERED_TYPES:
         start = max(1, rule.get("StartWith") or 1)
-        counters[level] = start if counters[level] < start else counters[level] + 1
+        if restart_value is not None:
+            counters[level] = restart_value if restart_value > 0 else start
+        else:
+            counters[level] = start if counters[level] < start else counters[level] + 1
         marker = (rule.get("Prefix") or "") + format_number(counters[level], numbering_type) + (rule.get("Suffix") or "")
         return {"type": "number", "marker": marker}
+    if numbering_type not in BULLET_TYPES:
+        raise UnsupportedNumbering()
     bullet = rule.get("BulletChar") if numbering_type == NUMBERING_CHAR_SPECIAL else ""
     return {"type": "bullet", "marker": bullet or DEFAULT_BULLET}
 
@@ -243,7 +269,13 @@ def paragraph_value(paragraph, counters):
         run = run_value(portions.nextElement())
         if run["text"]:
             runs.append(run)
-    return {"level": level, "list": list_value(rule, level, counters), "runs": runs}
+    if rule is not None and not property_or(paragraph, "NumberingIsNumber", True):
+        # A list paragraph with its label turned off: no marker, and the counter does not move
+        return {"level": level, "list": None, "runs": runs}
+    restart_value = None
+    if rule is not None and property_or(paragraph, "ParaIsNumberingRestart", False):
+        restart_value = property_or(paragraph, "NumberingStartValue", -1)
+    return {"level": level, "list": list_value(rule, level, counters, restart_value), "runs": runs}
 
 
 def structured_notes(slide, deadline):
