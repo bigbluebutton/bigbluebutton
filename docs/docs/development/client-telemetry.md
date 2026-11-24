@@ -197,7 +197,7 @@ latency histograms per `operationName`:
 | Metric | Labels | Meaning |
 |---|---|---|
 | `gql_mutation_duration_milliseconds` | `action` | Time for `bbb-graphql-actions` to accept a mutation, successful ones only |
-| `gql_subscription_first_data_milliseconds` | `type`, `operationName` | Time from a new query or subscription reaching the middleware (rate-limiter wait included) to its first result from Hasura, successful ones only. Operation names past the first 500 become `other` |
+| `gql_subscription_first_data_milliseconds` | `type`, `operationName` | Time from a new query or subscription reaching the middleware (rate-limiter wait included) to its first result from Hasura, successful ones only. Streaming subscriptions (`<table>_stream`) are left out: they answer only when a new row arrives. Operation names past the first 500 become `other` |
 
 These sit next to the existing counters (`gql_subscription_total`, `gql_mutation_total`,
 `gql_received_data_*`) and `bbb_application_reach_latency_milliseconds`.

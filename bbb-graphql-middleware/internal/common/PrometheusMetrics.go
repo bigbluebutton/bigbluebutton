@@ -118,7 +118,7 @@ var (
 	GqlSubscriptionFirstData = prometheus.NewHistogramVec(
 		prometheus.HistogramOpts{
 			Name:    "gql_subscription_first_data_milliseconds",
-			Help:    "Time from a new query or subscription reaching the middleware to its first result from Hasura, successful results only",
+			Help:    "Time from a new query or subscription reaching the middleware to its first result from Hasura, successful results only; streaming subscriptions are not counted",
 			Buckets: []float64{10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000},
 		},
 		[]string{"type", "operationName"},

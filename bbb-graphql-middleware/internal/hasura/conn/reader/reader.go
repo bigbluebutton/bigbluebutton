@@ -193,7 +193,9 @@ func observeFirstData(hc *common.HasuraConnection, queryId string, subscription 
 	}
 	hc.BrowserConn.ActiveSubscriptionsMutex.Unlock()
 
-	if subscription.SubscribedAt.IsZero() {
+	// Streaming subscriptions (<table>_stream) answer only when a new row arrives, so their first
+	// result measures how long nothing happened, not how slow Hasura was. The client skips them too.
+	if subscription.SubscribedAt.IsZero() || subscription.Type == common.Streaming {
 		return
 	}
 	common.GqlSubscriptionFirstData.
