@@ -60,6 +60,9 @@ TEMPLATE="$(cat assets/zzz-bbb-docker-libreoffice)"
 echo "${TEMPLATE//@BBB_LIBREOFFICE_IMAGE@/$IMAGE_SUDOERS}" > /etc/sudoers.d/zzz-bbb-docker-libreoffice
 chmod 0440 /etc/sudoers.d/zzz-bbb-docker-libreoffice
 chown root:root /etc/sudoers.d/zzz-bbb-docker-libreoffice
+install -d /var/lib/bbb-libreoffice
+printf '%s\n' "$IMAGE" > /var/lib/bbb-libreoffice/docker-image
+chmod 0644 /var/lib/bbb-libreoffice/docker-image
 
 aptInstalledList=$(apt list --installed 2>&1)
 fontInstalled=0

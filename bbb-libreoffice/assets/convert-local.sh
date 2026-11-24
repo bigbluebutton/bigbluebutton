@@ -20,9 +20,10 @@ elif (( $# == 1 )); then
 fi;
 
 
-# Image that runs soffice. The sudoers rule is rendered from the same file, so the
+# Image that runs soffice, named by the postinst when it set up the sudoers rule for it, so the
 # docker run line below must use it verbatim. docker run pulls it when it is missing.
-image="$(cat /usr/share/bbb-libreoffice/docker-image)"
+# Until the postinst has run once, the rule is the earlier package's, for the bbb-soffice alias.
+image="$(cat /var/lib/bbb-libreoffice/docker-image 2>/dev/null || echo bbb-soffice)"
 
 #Create tmp dir for conversion
 mkdir -p "/tmp/bbb-soffice-$(whoami)/"

@@ -4,3 +4,7 @@
 if [ $1 == 0 ]; then
   rm -rf /etc/sudoers.d/zzz-bbb-docker-libreoffice
 fi
+
+if [ "$1" = purge ]; then
+  rm -rf /var/lib/bbb-libreoffice
+fi

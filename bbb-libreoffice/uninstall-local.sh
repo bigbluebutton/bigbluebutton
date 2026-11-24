@@ -15,6 +15,7 @@ if [ -f /usr/share/bbb-libreoffice/docker-image ]; then
 	fi
 	rm -rf /usr/share/bbb-libreoffice/
 fi
+rm -rf /var/lib/bbb-libreoffice/
 
 # alias built by versions up to 4.0
 if docker image inspect bbb-soffice &> /dev/null; then

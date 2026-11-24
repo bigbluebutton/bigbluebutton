@@ -7,8 +7,14 @@ if ! which docker > /dev/null; then
 	exit 0
 fi
 
-# Image that runs soffice; convert-local.sh reads the same file at every conversion
+# Image that runs soffice
 IMAGE="$(cat /usr/share/bbb-libreoffice/docker-image)"
+
+# convert-local.sh runs the image named here. dpkg has just put the sudoers rule for $IMAGE in place, so name it first
+install -d -m 0755 /var/lib/bbb-libreoffice
+printf '%s\n' "$IMAGE" > /var/lib/bbb-libreoffice/docker-image.new
+chmod 0644 /var/lib/bbb-libreoffice/docker-image.new
+mv /var/lib/bbb-libreoffice/docker-image.new /var/lib/bbb-libreoffice/docker-image
 
 # docker run pulls a missing image by itself; pull it now so the first conversion does not have to
 if ! docker image inspect "$IMAGE" > /dev/null 2>&1; then
@@ -43,6 +49,14 @@ chown root:root /etc/sudoers.d/zzz-bbb-docker-libreoffice
 if command -v visudo > /dev/null; then
 	visudo -cqf /etc/sudoers.d/zzz-bbb-docker-libreoffice
 fi
+
+# Earlier tags of the image are no longer run; one still in use by a conversion is left for the next upgrade
+IMAGE_ID="$(docker image inspect -f '{{.Id}}' "$IMAGE")"
+docker image ls --no-trunc --format '{{.ID}} {{.Repository}}:{{.Tag}}' "${IMAGE%:*}" | while read -r id ref; do
+	if [ "$id" != "$IMAGE_ID" ] && [ "${ref##*:}" != "<none>" ]; then
+		docker image rm "$ref" > /dev/null || true
+	fi
+done
 
 #for i in `seq 1 4` ; do
 #
