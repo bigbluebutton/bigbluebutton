@@ -1,13 +1,19 @@
 # Converts a presentation to PDF and saves the speaker notes of every visible
 # slide, in a single LibreOffice run.
 #
-# Usage: python speaker-notes.py <uno pipe name> <input file>
+# Usage: python speaker-notes.py <uno pipe name> <input file> [notes deadline in seconds]
 #
 # Writes <input file>.pdf, then <dir of input file>/speakernotes/slide-N.txt
 # (UTF-8), where N is the page number of the visible slide in the PDF. Hidden
 # slides are neither exported nor counted. A failure while reading notes
 # removes the notes directory but keeps the PDF; the exit code is non-zero only
 # when the PDF could not be written.
+#
+# The PDF is written under a temporary name and renamed when complete, so a
+# killed run never leaves a truncated PDF behind. Reading the notes stops at the
+# deadline, counted from the start of this script: the notes are then dropped and
+# the script still exits 0, so the caller keeps the PDF within its own time limit.
+# The notes directory gets a .complete marker last, once every slide was saved.
 #
 # Next to each non-empty slide-N.txt it also writes slide-N.json, the same notes
 # with their formatting (version 1: paragraphs with list level and marker, runs
@@ -25,6 +31,8 @@ import time
 
 import uno
 from com.sun.star.beans import PropertyValue
+
+STARTED_AT = time.monotonic()
 
 MAX_NOTE_CHARS = 1024 * 1024
 CONNECT_TIMEOUT_SECONDS = 30
@@ -49,6 +57,7 @@ FONT_WEIGHT_NORMAL = 100.0
 NO_UNDERLINE_VALUES = (0, 4)
 # com.sun.star.awt.FontStrikeout values that mean "no strikeout": NONE=0, DONTKNOW=3
 NO_STRIKEOUT_VALUES = (0, 3)
+COMPLETE_MARKER = ".complete"
 ROMAN_NUMERALS = ((1000, "M"), (900, "CM"), (500, "D"), (400, "CD"), (100, "C"), (90, "XC"),
                   (50, "L"), (40, "XL"), (10, "X"), (9, "IX"), (5, "V"), (4, "IV"), (1, "I"))
 PDF_FILTERS = (
@@ -57,6 +66,15 @@ PDF_FILTERS = (
     ("com.sun.star.text.TextDocument", "writer_pdf_Export"),
     ("com.sun.star.sheet.SpreadsheetDocument", "calc_pdf_Export"),
 )
+
+
+class NotesDeadlineReached(Exception):
+    pass
+
+
+def check_deadline(deadline):
+    if deadline is not None and time.monotonic() > deadline:
+        raise NotesDeadlineReached()
 
 
 def property_value(name, value):
@@ -228,30 +246,33 @@ def paragraph_value(paragraph, counters):
     return {"level": level, "list": list_value(rule, level, counters), "runs": runs}
 
 
-def structured_notes(slide):
+def structured_notes(slide, deadline):
     paragraphs = []
     for shape in notes_shapes(slide):
         counters = [-1] * MAX_LIST_LEVELS
         enumeration = shape.Text.createEnumeration()
         while enumeration.hasMoreElements():
+            check_deadline(deadline)
             paragraphs.append(paragraph_value(enumeration.nextElement(), counters))
     return {"version": STRUCTURED_NOTES_VERSION, "paragraphs": paragraphs}
 
 
-def write_structured_notes(slide, path):
+def write_structured_notes(slide, path, deadline):
     try:
-        value = json.dumps(structured_notes(slide), ensure_ascii=False, separators=(",", ":"))
+        value = json.dumps(structured_notes(slide, deadline), ensure_ascii=False, separators=(",", ":"))
         if len(value) > MAX_NOTE_CHARS:
             return
         with open(path, "w", encoding="utf-8") as notes_file:
             notes_file.write(value)
+    except NotesDeadlineReached:
+        raise
     except Exception as exception:
         if os.path.exists(path):
             os.remove(path)
         print("Could not save formatted speaker notes: %s" % type(exception).__name__, file=sys.stderr)
 
 
-def write_notes(document, notes_dir):
+def write_notes(document, notes_dir, deadline):
     if not document.supportsService("com.sun.star.presentation.PresentationDocument"):
         return
     try:
@@ -259,6 +280,7 @@ def write_notes(document, notes_dir):
         page_number = 0
         slides = document.DrawPages
         for index in range(slides.Count):
+            check_deadline(deadline)
             slide = slides.getByIndex(index)
             if not slide.Visible:
                 continue
@@ -268,15 +290,20 @@ def write_notes(document, notes_dir):
             with open(path + ".txt", "w", encoding="utf-8") as notes_file:
                 notes_file.write(text)
             if text:
-                write_structured_notes(slide, path + ".json")
+                write_structured_notes(slide, path + ".json", deadline)
             with open(path + ".title.txt", "w", encoding="utf-8") as title_file:
                 title_file.write(slide_title(slide))
+        open(os.path.join(notes_dir, COMPLETE_MARKER), "w").close()
+    except NotesDeadlineReached:
+        shutil.rmtree(notes_dir, ignore_errors=True)
+        print("Speaker notes dropped: the notes deadline was reached", file=sys.stderr)
     except Exception as exception:
         shutil.rmtree(notes_dir, ignore_errors=True)
         print("Could not save speaker notes: %s" % type(exception).__name__, file=sys.stderr)
 
 
-def main(pipe_name, input_path):
+def main(pipe_name, input_path, deadline_seconds=None):
+    deadline = None if deadline_seconds is None else STARTED_AT + deadline_seconds
     context = connect(pipe_name)
     desktop = context.ServiceManager.createInstanceWithContext("com.sun.star.frame.Desktop", context)
     try:
@@ -286,10 +313,12 @@ def main(pipe_name, input_path):
         if document is None:
             raise ValueError("Document could not be loaded")
         try:
+            partial_pdf = input_path + ".pdf.part"
             document.storeToURL(
-                uno.systemPathToFileUrl(input_path + ".pdf"),
+                uno.systemPathToFileUrl(partial_pdf),
                 (property_value("FilterName", pdf_filter_for(document)),))
-            write_notes(document, os.path.join(os.path.dirname(input_path), "speakernotes"))
+            os.replace(partial_pdf, input_path + ".pdf")
+            write_notes(document, os.path.join(os.path.dirname(input_path), "speakernotes"), deadline)
         finally:
             document.close(True)
     finally:
@@ -301,4 +330,4 @@ def main(pipe_name, input_path):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2])
+    main(sys.argv[1], sys.argv[2], int(sys.argv[3]) if len(sys.argv) > 3 else None)

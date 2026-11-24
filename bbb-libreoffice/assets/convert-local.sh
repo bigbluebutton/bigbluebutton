@@ -2,6 +2,8 @@
 set -e
 set -u
 PATH="/bin/:/usr/bin/"
+# Seconds since the script started; bbb-web kills it when the timeout (param 4) runs out
+SECONDS=0
 
 # Conversion of office files to Pdf using local docker bbb-soffice
 
@@ -12,7 +14,9 @@ PATH="/bin/:/usr/bin/"
 # Param 4: Timeout (secs) (optional)
 # Param 5: Speaker notes output directory (optional, PDF output only). When set,
 #          the same LibreOffice run that creates the PDF also saves the notes
-#          of every visible slide as <dir>/slide-N.txt
+#          of every visible slide as <dir>/slide-N.txt. That run stops early
+#          enough to leave time for copying the PDF: notes that take too long
+#          are dropped, and the PDF is still delivered
 
 if (( $# == 0 )); then
 	echo "Missing parameter 1 (Input office file path)";
@@ -50,20 +54,40 @@ fi
 speakerNotesDest="${5:-}"
 
 cp "${source}" "$tempDir/file"
+plainTimeoutSecs=$timeoutSecs
+notesRun=0
 if [ -n "$speakerNotesDest" ] && [ "$convertTo" == "pdf" ]
 then
-	#A failure here falls back to the plain conversion below
-	sudo /usr/bin/docker run --rm --memory=1g --memory-swap=1g --network none --env="HOME=/tmp/" -w /tmp/ --user=$(printf %05d `id -u`) -v "$tempDir/":/data/ -v /usr/share/fonts/:/usr/share/fonts/:ro -v /usr/share/fontconfig/:/usr/share/fontconfig/:ro -v /etc/fonts/:/etc/fonts/:ro -v /var/cache/fontconfig/:/var/cache/fontconfig/:ro --rm bbb-soffice sh -c "timeout $(printf %03d $timeoutSecs)s /usr/local/bin/bbb-soffice-convert-with-speaker-notes" || true
+	#Leave a quarter of the time (at least 10s) for the copy or the plain conversion below,
+	#and stop reading notes at half of it
+	reserveSecs=$(( timeoutSecs / 4 > 10 ? timeoutSecs / 4 : 10 ))
+	notesTimeoutSecs=$(( timeoutSecs - reserveSecs ))
+	notesDeadlineSecs=$(( timeoutSecs / 2 ))
+	if (( notesTimeoutSecs >= 10 ))
+	then
+		#A failure here falls back to the plain conversion below
+		sudo /usr/bin/docker run --rm --memory=1g --memory-swap=1g --network none --env="HOME=/tmp/" -w /tmp/ --user=$(printf %05d `id -u`) -v "$tempDir/":/data/ -v /usr/share/fonts/:/usr/share/fonts/:ro -v /usr/share/fontconfig/:/usr/share/fontconfig/:ro -v /etc/fonts/:/etc/fonts/:ro -v /var/cache/fontconfig/:/var/cache/fontconfig/:ro --rm bbb-soffice sh -c "timeout $(printf %03d $notesTimeoutSecs)s /usr/local/bin/bbb-soffice-convert-with-speaker-notes $(printf %03d $notesDeadlineSecs)" || true
+		notesRun=1
+		plainTimeoutSecs=$(( timeoutSecs - SECONDS - 5 ))
+	fi
 fi
+#The PDF of the notes run is used whenever it was written, even if reading the notes failed
 if [ ! -f "$tempDir/file.$convertTo" ]
 then
 	rm -rf "$tempDir/speakernotes"
-	sudo /usr/bin/docker run --rm --memory=1g --memory-swap=1g --network none --env="HOME=/tmp/" -w /tmp/ --user=$(printf %05d `id -u`) -v "$tempDir/":/data/ -v /usr/share/fonts/:/usr/share/fonts/:ro -v /usr/share/fontconfig/:/usr/share/fontconfig/:ro -v /etc/fonts/:/etc/fonts/:ro -v /var/cache/fontconfig/:/var/cache/fontconfig/:ro --rm bbb-soffice sh -c "timeout $(printf %03d $timeoutSecs)s /usr/bin/soffice -env:UserInstallation=file:///tmp/ $convertToParam --outdir /data /data/file"
+	if (( notesRun == 1 && plainTimeoutSecs < 10 ))
+	then
+		echo "Not enough time left for the plain conversion"
+		exit 1
+	fi
+	sudo /usr/bin/docker run --rm --memory=1g --memory-swap=1g --network none --env="HOME=/tmp/" -w /tmp/ --user=$(printf %05d `id -u`) -v "$tempDir/":/data/ -v /usr/share/fonts/:/usr/share/fonts/:ro -v /usr/share/fontconfig/:/usr/share/fontconfig/:ro -v /etc/fonts/:/etc/fonts/:ro -v /var/cache/fontconfig/:/var/cache/fontconfig/:ro --rm bbb-soffice sh -c "timeout $(printf %03d $plainTimeoutSecs)s /usr/bin/soffice -env:UserInstallation=file:///tmp/ $convertToParam --outdir /data /data/file"
 fi
 cp "$tempDir/file.$convertTo" "${dest}"
-if [ -n "$speakerNotesDest" ] && [ -d "$tempDir/speakernotes" ]
+#Notes are copied only when every slide was saved; a failure here keeps the PDF
+if [ -n "$speakerNotesDest" ] && [ -f "$tempDir/speakernotes/.complete" ]
 then
+	rm -f "$tempDir/speakernotes/.complete"
 	rm -rf "$speakerNotesDest"
-	mkdir -p "$speakerNotesDest"
-	cp -r "$tempDir/speakernotes/." "$speakerNotesDest/" || rm -rf "$speakerNotesDest"
+	mkdir -p "$speakerNotesDest" && cp -r "$tempDir/speakernotes/." "$speakerNotesDest/" || rm -rf "$speakerNotesDest"
 fi
+exit 0
