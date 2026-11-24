@@ -6,8 +6,9 @@ import {
   equalDouble,
   getPropagatedCameraDock,
   hasCameraDockChanged,
+  PushedCameraDock,
 } from './service';
-import { Input, Output } from '../layoutTypes';
+import { Input } from '../layoutTypes';
 
 // Characterization of today's push-layout wire values: the rate is a share of the WINDOW,
 // rounded to 2 decimals and clamped to [0, 1]. Old and new clients in one meeting must agree on it.
@@ -17,9 +18,9 @@ const setWindowSize = (width: number, height: number) => {
   Object.defineProperty(window, 'innerHeight', { configurable: true, value: height });
 };
 
-const dockOutput = (overrides: Partial<Output['cameraDock']>) => ({
+const dock = (overrides: Partial<PushedCameraDock>): PushedCameraDock => ({
   position: 'contentTop', width: 0, height: 0, ...overrides,
-}) as Output['cameraDock'];
+});
 
 const dockInput = (overrides: Partial<Input['cameraDock']>) => ({
   isResizing: false, ...overrides,
@@ -56,7 +57,7 @@ describe('push-layout service', () => {
     it.each(['contentTop', 'contentBottom', 'sidebarContentBottom'])(
       'uses the dock height over window.innerHeight for %s',
       (position) => {
-        expect(calculatePresentationVideoRate(dockOutput({ position, width: 982, height: 124 })))
+        expect(calculatePresentationVideoRate(dock({ position, width: 982, height: 124 })))
           .toBe(0.16); // 124 / 768 = 0.1614...
       },
     );
@@ -64,28 +65,28 @@ describe('push-layout service', () => {
     it.each(['contentLeft', 'contentRight'])(
       'uses the dock width over window.innerWidth for %s',
       (position) => {
-        expect(calculatePresentationVideoRate(dockOutput({ position, width: 196, height: 599 })))
+        expect(calculatePresentationVideoRate(dock({ position, width: 196, height: 599 })))
           .toBe(0.14); // 196 / 1366 = 0.1434...
       },
     );
 
     it('rounds to two decimals', () => {
-      expect(calculatePresentationVideoRate(dockOutput({ height: 495 }))).toBe(0.64); // 0.6445
-      expect(calculatePresentationVideoRate(dockOutput({ height: 384 }))).toBe(0.5);
+      expect(calculatePresentationVideoRate(dock({ height: 495 }))).toBe(0.64); // 0.6445
+      expect(calculatePresentationVideoRate(dock({ height: 384 }))).toBe(0.5);
     });
 
     it('clamps to [0, 1]', () => {
-      expect(calculatePresentationVideoRate(dockOutput({ height: 2000 }))).toBe(1);
-      expect(calculatePresentationVideoRate(dockOutput({ height: -10 }))).toBe(0);
+      expect(calculatePresentationVideoRate(dock({ height: 2000 }))).toBe(1);
+      expect(calculatePresentationVideoRate(dock({ height: -10 }))).toBe(0);
     });
 
     it('answers 0 for a non-finite rate', () => {
       setWindowSize(0, 0);
-      expect(calculatePresentationVideoRate(dockOutput({ height: 0 }))).toBe(0); // 0 / 0 = NaN
+      expect(calculatePresentationVideoRate(dock({ height: 0 }))).toBe(0); // 0 / 0 = NaN
     });
 
     it('treats an unknown or empty position as vertical (height based)', () => {
-      expect(calculatePresentationVideoRate(dockOutput({ position: '', width: 683, height: 384 }))).toBe(0.5);
+      expect(calculatePresentationVideoRate(dock({ position: '', width: 683, height: 384 }))).toBe(0.5);
     });
   });
 
@@ -95,7 +96,7 @@ describe('push-layout service', () => {
     it('sends the local dock while propagation is not suppressed', () => {
       expect(getPropagatedCameraDock({
         isSuppressed: false,
-        cameraDockOutput: dockOutput({ position: 'contentRight', width: 273, height: 599 }),
+        cameraDock: dock({ position: 'contentRight', width: 273, height: 599 }),
         cameraDockInput: dockInput({ isResizing: true }),
         meetingCameraDock,
       })).toEqual({ isResizing: true, cameraPosition: 'contentRight', presentationVideoRate: 0.2 });
@@ -104,7 +105,7 @@ describe('push-layout service', () => {
     it('falls back to contentTop when the local dock has no position', () => {
       expect(getPropagatedCameraDock({
         isSuppressed: false,
-        cameraDockOutput: dockOutput({ position: '', height: 154 }),
+        cameraDock: dock({ position: '', height: 154 }),
         cameraDockInput: dockInput({}),
         meetingCameraDock,
       }).cameraPosition).toBe('contentTop');
@@ -113,7 +114,7 @@ describe('push-layout service', () => {
     it('re-sends the meeting values, never resizing, while suppressed (phone landscape)', () => {
       expect(getPropagatedCameraDock({
         isSuppressed: true,
-        cameraDockOutput: dockOutput({ position: 'contentRight', width: 190, height: 221 }),
+        cameraDock: dock({ position: 'contentRight', width: 190, height: 221 }),
         cameraDockInput: dockInput({ isResizing: true }),
         meetingCameraDock,
       })).toEqual({ isResizing: false, cameraPosition: 'contentLeft', presentationVideoRate: 0.3 });
@@ -122,7 +123,7 @@ describe('push-layout service', () => {
     it('sends an empty position while suppressed when the meeting has none', () => {
       expect(getPropagatedCameraDock({
         isSuppressed: true,
-        cameraDockOutput: dockOutput({}),
+        cameraDock: dock({}),
         cameraDockInput: dockInput({}),
         meetingCameraDock: { videoRate: 0 },
       }).cameraPosition).toBe('');

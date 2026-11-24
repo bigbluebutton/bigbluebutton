@@ -1,6 +1,13 @@
 import {
-  CameraDockPropagationState, Input, MeetingCameraDock, Output,
+  CameraDockPropagationState, Input, MeetingCameraDock,
 } from '../layoutTypes';
+
+/** The dock as pushed to the meeting: where it is drawn and its rendered size (measuredRegions). */
+export interface PushedCameraDock {
+  position?: string;
+  width: number;
+  height: number;
+}
 
 const equalDouble = (n1: number, n2: number) => {
   const precision = 0.01;
@@ -8,12 +15,12 @@ const equalDouble = (n1: number, n2: number) => {
   return Math.abs(n1 - n2) <= precision;
 };
 
-const calculatePresentationVideoRate = (cameraDockOutput: Output['cameraDock']) => {
+const calculatePresentationVideoRate = (cameraDock: PushedCameraDock) => {
   const {
     position,
     height,
     width,
-  } = cameraDockOutput;
+  } = cameraDock;
   const horizontalPosition = position === 'contentLeft' || position === 'contentRight';
   let presentationVideoRate;
   if (horizontalPosition) {
@@ -28,12 +35,12 @@ const calculatePresentationVideoRate = (cameraDockOutput: Output['cameraDock']) 
 // No position fallback while suppressed: a changed position notifies everyone.
 const getPropagatedCameraDock = ({
   isSuppressed,
-  cameraDockOutput,
+  cameraDock,
   cameraDockInput,
   meetingCameraDock,
 }: {
   isSuppressed: boolean;
-  cameraDockOutput: Output['cameraDock'];
+  cameraDock: PushedCameraDock;
   cameraDockInput: Input['cameraDock'];
   meetingCameraDock: MeetingCameraDock;
 }) => (isSuppressed
@@ -44,8 +51,8 @@ const getPropagatedCameraDock = ({
   }
   : {
     isResizing: cameraDockInput.isResizing,
-    cameraPosition: cameraDockOutput.position || 'contentTop',
-    presentationVideoRate: calculatePresentationVideoRate(cameraDockOutput),
+    cameraPosition: cameraDock.position || 'contentTop',
+    presentationVideoRate: calculatePresentationVideoRate(cameraDock),
   });
 
 const hasCameraDockChanged = (

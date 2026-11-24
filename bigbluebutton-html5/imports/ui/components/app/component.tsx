@@ -142,15 +142,15 @@ const App: React.FC<AppProps> = ({
         <PluginsEngineManager pluginConfig={pluginConfig} />
         <FloatingWindowContainer />
         <Notifications />
-        <PushLayoutEngine
-          shouldShowScreenshare={shouldShowScreenshare}
-          shouldShowExternalVideo={shouldShowExternalVideo}
-        />
-        <LayoutEngine />
-        <LayoutObserver />
-        <GlobalStyles />
-        <LayoutShellStyles />
         <LayoutShellContext.Provider value={shell}>
+          <PushLayoutEngine
+            shouldShowScreenshare={shouldShowScreenshare}
+            shouldShowExternalVideo={shouldShowExternalVideo}
+          />
+          <LayoutEngine />
+          <LayoutObserver />
+          <GlobalStyles />
+          <LayoutShellStyles />
           <Styled.Layout
             id="layout"
             // the data attributes are data (layout/shell/shellState.ts), their set varies with the state

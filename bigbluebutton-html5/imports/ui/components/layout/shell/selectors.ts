@@ -92,6 +92,22 @@ export const effectiveCameraDockPosition = (s: ShellInputs) => (isSideBySideCame
   ? CAMERADOCK_POSITION.CONTENT_RIGHT
   : s.dockPosition);
 
+/**
+ * The position the dock reports (the engine's cameraDock.position): the drawn one in unified, none in
+ * camerasOnly, below the sidebar in the sidebar-only layouts (where the dock never shows).
+ */
+export const cameraDockPosition = (s: ShellInputs): string | undefined => {
+  switch (s.layoutType) {
+    case LAYOUT_TYPE.CAMERAS_ONLY:
+      return undefined;
+    case LAYOUT_TYPE.PRESENTATION_ONLY:
+    case LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY:
+      return CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM;
+    default:
+      return effectiveCameraDockPosition(s);
+  }
+};
+
 /** The engine's branch order in calculatesCameraDockBounds: hidden, then fill, then webcams fullscreen. */
 export const cameraDockState = (s: ShellInputs): CameraDockState => {
   if (s.numCameras === 0 && hasPresentationSlides(s) && s.presentationIsOpen) return 'hidden';

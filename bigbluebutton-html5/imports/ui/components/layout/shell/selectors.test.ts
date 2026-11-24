@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  cameraDockPosition,
   cameraDockSizeVariable,
   cameraDockState,
   effectiveCameraDockPosition,
@@ -131,6 +132,15 @@ describe('layout shell selectors', () => {
       expect(isCameraDockShown(at({ layoutType: LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY }))).toBe(false);
       expect(isCameraDockShown(at({ layoutType: LAYOUT_TYPE.MEDIA_ONLY }))).toBe(true);
       expect(isCameraDockShown(at({ layoutType: LAYOUT_TYPE.MEDIA_ONLY, numCameras: 0 }))).toBe(false);
+    });
+
+    it('reports the dock position per layout', () => {
+      expect(cameraDockPosition(at({ isPhoneLandscape: true }))).toBe(CAMERADOCK_POSITION.CONTENT_RIGHT);
+      expect(cameraDockPosition(at({ layoutType: LAYOUT_TYPE.CAMERAS_ONLY }))).toBeUndefined();
+      expect(cameraDockPosition(at({ layoutType: LAYOUT_TYPE.PRESENTATION_ONLY })))
+        .toBe(CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM);
+      expect(cameraDockPosition(at({ layoutType: LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY })))
+        .toBe(CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM);
     });
 
     it('drags and resizes the dock in unified only', () => {
