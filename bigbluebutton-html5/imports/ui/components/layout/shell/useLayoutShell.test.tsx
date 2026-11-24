@@ -61,7 +61,7 @@ describe('useLayoutShell', () => {
 
   it('describes the layout state as #layout attributes', () => {
     const { result } = renderHook(() => useLayoutShell());
-    expect(result.current.attributes['data-shell-layout']).toBe(LAYOUT_TYPE.UNIFIED_LAYOUT);
+    expect(result.current.attributes['data-layout']).toBe(LAYOUT_TYPE.UNIFIED_LAYOUT);
     expect(result.current.attributes['data-device']).toBe(DEVICE_TYPE.DESKTOP);
     expect(result.current.attributes['data-navbar']).toBe('full');
     expect(result.current.state?.layoutType).toBe(LAYOUT_TYPE.UNIFIED_LAYOUT);
@@ -73,7 +73,7 @@ describe('useLayoutShell', () => {
     state.hideControls = true;
     setLayout({ layout: { layoutLoading: true } });
     const { result } = renderHook(() => useLayoutShell());
-    expect(result.current.attributes['data-shell-layout']).toBeUndefined();
+    expect(result.current.attributes['data-layout']).toBeUndefined();
     expect(result.current.attributes['data-navbar']).toBe('half');
   });
 

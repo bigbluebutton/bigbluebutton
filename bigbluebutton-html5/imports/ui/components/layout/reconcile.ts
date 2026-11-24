@@ -153,7 +153,7 @@ const overridesFor = (prev: Input, ctx: ReconcileContext): AnyRecord => {
 /**
  * The layout input once a layout is set up: when it is first rendered (a switch included) and when the
  * device type changes. Each layout keeps or resets parts of the previous input (the managers' init()
- * in layout-manager/, characterized in __fixtures__/reconcile); on the first load the rest comes from
+ * in the former layout managers, characterized in __fixtures__/reconcile); on the first load the rest comes from
  * the initial input.
  */
 export const reconcileLayoutInput = (prev: Input, ctx: ReconcileContext): Input => defaultsDeep(

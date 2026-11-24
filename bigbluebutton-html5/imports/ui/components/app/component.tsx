@@ -21,7 +21,7 @@ import ExternalVideoPlayerContainer from '../external-video-player/external-vide
 import GenericContentMainAreaContainer from '../generic-content/generic-main-content/container';
 import EmojiRainContainer from '../emoji-rain/container';
 import Styled from './styles';
-import LayoutEngine from '../layout/layout-manager/layoutEngine';
+import LayoutLifecycle from '../layout/LayoutLifecycle';
 import useLayoutShell from '../layout/shell/useLayoutShell';
 import LayoutShellStyles from '../layout/shell/styles';
 import { LayoutShellContext } from '../layout/shell/context';
@@ -147,7 +147,7 @@ const App: React.FC<AppProps> = ({
             shouldShowScreenshare={shouldShowScreenshare}
             shouldShowExternalVideo={shouldShowExternalVideo}
           />
-          <LayoutEngine />
+          <LayoutLifecycle />
           <LayoutObserver />
           <GlobalStyles />
           <LayoutShellStyles />
@@ -162,7 +162,7 @@ const App: React.FC<AppProps> = ({
               ...shell.style,
             }}
           >
-            {shell.attributes['data-shell-layout'] === LAYOUT_TYPE.MEDIA_ONLY && (
+            {shell.attributes['data-layout'] === LAYOUT_TYPE.MEDIA_ONLY && (
               // the mediaOnly area, measured for the content fit (layout/shell/mediaOnlyFit.ts)
               <div data-layout-region="media-only-area" ref={shell.mediaOnlyAreaRef} />
             )}
@@ -231,11 +231,11 @@ const App: React.FC<AppProps> = ({
       <PluginsEngineManager pluginConfig={pluginConfig} />
       {/* The plugins engine consumes voice state in this layout too. */}
       <LiveKitVoiceActivityAdapter />
-      <LayoutEngine />
-      <LayoutObserver />
-      <GlobalStyles />
-      <LayoutShellStyles />
       <LayoutShellContext.Provider value={shell}>
+        <LayoutLifecycle />
+        <LayoutObserver />
+        <GlobalStyles />
+        <LayoutShellStyles />
         <Styled.Layout
           id="layout"
           // the data attributes are data (layout/shell/shellState.ts), their set varies with the state

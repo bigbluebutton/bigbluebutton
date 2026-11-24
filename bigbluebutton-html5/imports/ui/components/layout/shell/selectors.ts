@@ -74,6 +74,11 @@ const SPECIAL_LAYOUTS = [
 /** The unified layout, which also renders every layout type the client does not know. */
 export const isUnifiedLayout = (s: ShellInputs) => !SPECIAL_LAYOUTS.includes(s.layoutType);
 
+/** The layout a type renders as (the value of #layout[data-layout]): unknown types render as unified. */
+export const renderedLayoutType = (layoutType: string) => (SPECIAL_LAYOUTS.includes(layoutType)
+  ? layoutType
+  : LAYOUT_TYPE.UNIFIED_LAYOUT);
+
 const MEDIA_FULLSCREEN_ELEMENTS = ['Presentation', 'Screenshare', 'ExternalVideo', 'GenericContent'];
 
 /** A media region (presentation, screen share, external video, plugin content) is in fullscreen. */

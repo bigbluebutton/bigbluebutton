@@ -4,7 +4,8 @@ import { createGlobalStyle } from 'styled-components';
  * The CSS layout. Every region is an absolutely positioned child of #layout whose containing block is
  * <body> (position: fixed, the size of the viewport), so a percentage in a horizontal property is a share
  * of the window width and one in a vertical property a share of the window height. The rules transcribe
- * the box formulas of the layout engine (layout-manager/*.jsx) one to one; each constant names its source.
+ * the box formulas of the former JS layout engine (layoutEngine.jsx and the layout managers of
+ * v4.0) one to one; each constant names its source.
  * #layout carries the semantic state as data attributes and the sizes the user chose as custom properties
  * (layout/shell/shellState.ts).
  */
@@ -74,7 +75,7 @@ const LayoutShellStyles = createGlobalStyle`
     --bbb-work-width: calc(100% - var(--bbb-sidebars-width));
   }
 
-  /* nav bar (unifiedLayout SET_NAVBAR_OUTPUT): pinned to the physical left in RTL, not mirrored */
+  /* nav bar (unifiedLayout, the nav bar box): pinned to the physical left in RTL, not mirrored */
   #layout [data-layout-region="navbar"] {
     position: absolute;
     top: var(--bbb-banners);
@@ -83,7 +84,7 @@ const LayoutShellStyles = createGlobalStyle`
     height: var(--bbb-navbar-height);
   }
 
-  /* actions bar (SET_ACTIONBAR_OUTPUT) */
+  /* actions bar (unifiedLayout, the actions bar box) */
   #layout [data-layout-region="actionbar"] {
     position: absolute;
     top: calc(100% - var(--bbb-actionbar-height));
@@ -277,13 +278,13 @@ const LayoutShellStyles = createGlobalStyle`
   }
 
   /* presentationOnly: the media area, not the working box, and no dock to make room for */
-  #layout[data-shell-layout="presentationOnly"] {
+  #layout[data-layout="presentationOnly"] {
     --bbb-mb-top: var(--bbb-media-top);
     --bbb-mb-width: var(--bbb-media-width);
     --bbb-mb-height: var(--bbb-media-height);
     --bbb-hcd: 0px;
   }
-  #layout[data-shell-layout="presentationOnly"][data-rtl] {
+  #layout[data-layout="presentationOnly"][data-rtl] {
     --bbb-mb-right: var(--bbb-sidebar-space);
   }
 
@@ -318,7 +319,7 @@ const LayoutShellStyles = createGlobalStyle`
     display: none;
   }
   /* presentationOnly: the presentation covers the whole window, whatever else is on */
-  #layout[data-shell-layout="presentationOnly"] [data-layout-region="presentation"] {
+  #layout[data-layout="presentationOnly"] [data-layout-region="presentation"] {
     top: 0;
     left: 0;
     right: 0;
@@ -470,7 +471,7 @@ const LayoutShellStyles = createGlobalStyle`
     right: var(--bbb-nav-space);
   }
 
-  /* live captions (SET_CAPTIONS_OUTPUT): past the sidebars, the phone's floating rail included. In RTL
+  /* live captions (unifiedLayout, the captions box): past the sidebars, the phone's floating rail included. In RTL
      the engine left 'left' unset, so the stylesheet's 20% still applies next to 'right'. */
   #layout [data-layout-region="captions"] {
     position: absolute;
@@ -487,24 +488,25 @@ const LayoutShellStyles = createGlobalStyle`
     --bbb-dock-box-h: 0px;
   }
 
-  /* ---- special layouts (layout-manager/*.jsx). They close the sidebars on every pass but
+  /* ---- special layouts (the former camerasOnly, presentationOnly, participantsAndChatOnly and
+     mediaOnly managers). They close the sidebars on every pass but
      participantsAndChatOnly, so the sidebar terms are 0 in their steady state. ---- */
 
   /* camerasOnly: the media area has no 1% gap; with the presentation open and media on (a transient,
      the layout closes the presentation) the dock leaves the banners' height again at its bottom */
-  #layout[data-shell-layout="camerasOnly"]:not([data-mobile]) {
+  #layout[data-layout="camerasOnly"]:not([data-mobile]) {
     --bbb-media-width: calc(100% - var(--bbb-sidebar-space));
   }
-  #layout[data-shell-layout="camerasOnly"][data-dock-state="positioned"] {
+  #layout[data-layout="camerasOnly"][data-dock-state="positioned"] {
     --bbb-dock-box-h: calc(var(--bbb-media-height) - var(--bbb-banners));
   }
-  #layout[data-shell-layout="camerasOnly"][data-dock-state="positioned"][data-mobile] {
+  #layout[data-layout="camerasOnly"][data-dock-state="positioned"][data-mobile] {
     --bbb-dock-box-h: calc(var(--bbb-media-height) * 0.7 - var(--bbb-banners));
   }
 
   /* participantsAndChatOnly: full-width bars, and the sidebars below the nav bar (without the banners'
      offset) down to the actions bar, the content filling the rest of the width */
-  #layout[data-shell-layout="participantsAndChatOnly"] {
+  #layout[data-layout="participantsAndChatOnly"] {
     --bbb-media-width: 100%;
     --bbb-media-left: 0px;
     --bbb-content-width: calc(100% - var(--bbb-nav-space));
@@ -512,22 +514,22 @@ const LayoutShellStyles = createGlobalStyle`
     --bbb-sidebar-height: calc(100% - var(--bbb-banners) - var(--bbb-navbar-height)
       - var(--bbb-actionbar-height));
   }
-  #layout[data-shell-layout="participantsAndChatOnly"][data-mobile] { --bbb-content-width: 100%; }
-  #layout[data-shell-layout="participantsAndChatOnly"] [data-layout-region="sidebar-navigation"] {
+  #layout[data-layout="participantsAndChatOnly"][data-mobile] { --bbb-content-width: 100%; }
+  #layout[data-layout="participantsAndChatOnly"] [data-layout-region="sidebar-navigation"] {
     top: var(--bbb-navbar-height);
   }
-  #layout[data-shell-layout="participantsAndChatOnly"]
+  #layout[data-layout="participantsAndChatOnly"]
     [data-layout-region="sidebar-navigation"]:not([data-collapsed]) {
     height: var(--bbb-sidebar-height);
   }
-  #layout[data-shell-layout="participantsAndChatOnly"] [data-layout-region="sidebar-content"] {
+  #layout[data-layout="participantsAndChatOnly"] [data-layout-region="sidebar-content"] {
     max-width: none;
     min-height: 0;
   }
-  #layout[data-shell-layout="participantsAndChatOnly"] [data-layout-region="captions"] {
+  #layout[data-layout="participantsAndChatOnly"] [data-layout-region="captions"] {
     left: calc(100% + 10px);
   }
-  #layout[data-shell-layout="participantsAndChatOnly"][data-rtl] [data-layout-region="captions"] {
+  #layout[data-layout="participantsAndChatOnly"][data-rtl] [data-layout-region="captions"] {
     left: 20%;
     right: calc(100% + 10px);
   }
@@ -537,7 +539,7 @@ const LayoutShellStyles = createGlobalStyle`
      80% of the width with the cameras on its left; otherwise at the bottom, up to 80% of the height, with
      the cameras on top (20% when there is no content size). Those widths come from the area's height and
      the other way round, so they use the measured area (--bbb-media-only-width / -height, in px). */
-  #layout[data-shell-layout="mediaOnly"] {
+  #layout[data-layout="mediaOnly"] {
     --bbb-media-width: calc(100% - 20px);
     --bbb-media-left: 10px;
     --bbb-media-height: calc(100% - var(--bbb-navbar-height) - var(--bbb-actionbar-height)
@@ -550,19 +552,19 @@ const LayoutShellStyles = createGlobalStyle`
     --bbb-mo-width: var(--bbb-media-width);
     --bbb-mo-height: var(--bbb-media-height);
   }
-  #layout[data-shell-layout="mediaOnly"][data-rtl] { --bbb-media-left: 0px; }
-  #layout[data-shell-layout="mediaOnly"][data-cameras][data-media-only-fit="none"] {
+  #layout[data-layout="mediaOnly"][data-rtl] { --bbb-media-left: 0px; }
+  #layout[data-layout="mediaOnly"][data-cameras][data-media-only-fit="none"] {
     --bbb-mo-height: calc(var(--bbb-media-height) * 0.8);
     --bbb-mo-top: calc(var(--bbb-media-top) + var(--bbb-media-height) * 0.2);
   }
-  #layout[data-shell-layout="mediaOnly"][data-cameras][data-media-only-fit="width"] {
+  #layout[data-layout="mediaOnly"][data-cameras][data-media-only-fit="width"] {
     --bbb-mo-height: min(
       var(--bbb-media-only-height) * 0.8,
       var(--bbb-media-only-width) / var(--bbb-media-only-ratio, 1)
     );
     --bbb-mo-top: calc(var(--bbb-media-top) + var(--bbb-media-height) - var(--bbb-mo-height));
   }
-  #layout[data-shell-layout="mediaOnly"][data-cameras][data-media-only-fit="height"] {
+  #layout[data-layout="mediaOnly"][data-cameras][data-media-only-fit="height"] {
     --bbb-mo-width: min(
       var(--bbb-media-only-height) * var(--bbb-media-only-ratio, 1),
       var(--bbb-media-only-width) * 0.8
@@ -572,27 +574,27 @@ const LayoutShellStyles = createGlobalStyle`
     --bbb-mo-dock-width: calc(var(--bbb-media-width) - max(var(--bbb-mo-width), 430px) - 10px);
     --bbb-hcd: calc(var(--bbb-mo-dock-width) + 20px);
   }
-  #layout[data-shell-layout="mediaOnly"]:not([data-fullscreen-media]) {
+  #layout[data-layout="mediaOnly"]:not([data-fullscreen-media]) {
     --bbb-mb-top: var(--bbb-mo-top);
     --bbb-mb-left: var(--bbb-mo-left);
     --bbb-mb-width: var(--bbb-mo-width);
     --bbb-mb-height: var(--bbb-mo-height);
   }
-  #layout[data-shell-layout="mediaOnly"][data-rtl]:not([data-fullscreen-media]) {
+  #layout[data-layout="mediaOnly"][data-rtl]:not([data-fullscreen-media]) {
     --bbb-mb-left: auto;
     --bbb-mb-right: var(--bbb-hcd);
   }
-  #layout[data-shell-layout="mediaOnly"][data-fullscreen-media][data-rtl] { --bbb-mb-right: 0px; }
+  #layout[data-layout="mediaOnly"][data-fullscreen-media][data-rtl] { --bbb-mb-right: 0px; }
   /* the dock: the engine moved it 10 px from its static position, past the right edge in RTL */
-  #layout[data-shell-layout="mediaOnly"][data-dock-state="positioned"] {
+  #layout[data-layout="mediaOnly"][data-dock-state="positioned"] {
     --bbb-dock-box-top: var(--bbb-media-top);
     --bbb-dock-box-x: 10px;
     --bbb-dock-box-w: var(--bbb-media-width);
     --bbb-dock-box-h: calc(var(--bbb-media-height) - var(--bbb-mo-height) - 10px);
     --bbb-dock-box-z: 1;
   }
-  #layout[data-shell-layout="mediaOnly"][data-dock-state="positioned"][data-rtl] { --bbb-dock-box-x: -10px; }
-  #layout[data-shell-layout="mediaOnly"][data-dock-state="positioned"][data-dock="contentLeft"] {
+  #layout[data-layout="mediaOnly"][data-dock-state="positioned"][data-rtl] { --bbb-dock-box-x: -10px; }
+  #layout[data-layout="mediaOnly"][data-dock-state="positioned"][data-dock="contentLeft"] {
     --bbb-dock-box-w: var(--bbb-mo-dock-width);
     --bbb-dock-box-h: var(--bbb-media-height);
   }

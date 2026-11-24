@@ -47,7 +47,7 @@ const at = (o: Partial<ShellState>) => shellState({ ...base, ...o });
 describe('shellState', () => {
   it('describes the default desktop unified layout', () => {
     expect(at({}).attributes).toEqual({
-      'data-shell-layout': 'unified',
+      'data-layout': 'unified',
       'data-device': 'desktop',
       'data-navbar': 'full',
       'data-actionbar': 'shown',
@@ -64,7 +64,7 @@ describe('shellState', () => {
   });
 
   it('holds the layout type back while an enforced layout is loading (waitLayout)', () => {
-    expect(at({ layoutPending: true }).attributes['data-shell-layout']).toBeUndefined();
+    expect(at({ layoutPending: true }).attributes['data-layout']).toBeUndefined();
   });
 
   it('flags phones, RTL, banners and the bar variants', () => {

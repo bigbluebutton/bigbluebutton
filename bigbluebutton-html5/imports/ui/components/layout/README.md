@@ -3,10 +3,14 @@
 The page is laid out by CSS. JavaScript decides the *semantic* state of the layout (which layout, which
 sidebars are open, where the cameras sit, what the user resized) and writes it on `#layout` as data
 attributes and custom properties; the stylesheet in `shell/styles.ts` turns that state into the boxes of
-the regions. Nothing outside `layout-manager/` and `context.jsx` reads geometry from the layout state.
+the regions. No JavaScript computes a box from the window.
 
-The layout managers in `layout-manager/` still run and still keep the layout state (input, sidebar
-widths, the stored camera dock size). Their output is no longer read by any component.
+The layout state (`context.jsx`) holds only semantic input. `LayoutLifecycle.tsx` keeps the jobs of
+the former layout engine that are not geometry: it reconciles the input when a layout is first rendered
+or the device type changes (`reconcile.ts`, a pure function characterized against the old layout
+managers in `__fixtures__/reconcile`), marks the layout ready (`layoutReady`, `hasLayoutEngineLoadedOnce`),
+keeps the sidebars closed in camerasOnly and presentationOnly, waits while an enforced layout loads
+(`waitLayout`), and stores the camera dock size when a resize stops (`webcamSize`).
 
 ## How it fits together
 
@@ -62,8 +66,7 @@ uses `1vw`.
 
 | Attribute | Values | Source |
 |---|---|---|
-| `data-shell-layout` | `unified`, `camerasOnly`, `presentationOnly`, `participantsAndChatOnly`, `mediaOnly` (unknown types render as unified) | `layoutType`; absent while an enforced layout loads (`waitLayout`) |
-| `data-layout` | same | still written by the layout engine; kept for the contract with plugins and tests |
+| `data-layout` | `unified`, `camerasOnly`, `presentationOnly`, `participantsAndChatOnly`, `mediaOnly` (unknown types render as unified) | `layoutType`; absent while an enforced layout loads (`waitLayout`). Tests and plugins read it. |
 | `data-cam-position` | a dock position | still written after a drop only, as before |
 | `data-device` | `mobile`, `tablet_portrait`, `tablet_landscape`, `tablet`, `desktop` | `deviceType` |
 | `data-navbar` | `full`, `half`, `hidden` | `hasNavBar`, `bbb_hide_controls` |

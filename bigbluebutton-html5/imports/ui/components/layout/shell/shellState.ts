@@ -8,6 +8,7 @@ import {
   isMediaFullscreen,
   isSideBySideCamerasEnforced,
   mediaBoxCollapse,
+  renderedLayoutType,
   ShellInputs,
 } from './selectors';
 
@@ -66,7 +67,8 @@ export const shellState = (s: ShellState): ShellOutput => {
     'data-media-beside-dock': isMediaBesideDock(s),
   };
   const attributes: Record<string, string> = {};
-  if (!s.layoutPending) attributes['data-shell-layout'] = s.layoutType;
+  // the contract tests and plugins read; absent while an enforced layout loads (waitLayout)
+  if (!s.layoutPending) attributes['data-layout'] = renderedLayoutType(s.layoutType);
   attributes['data-device'] = s.deviceType;
   attributes['data-navbar'] = navBarVariant(s);
   attributes['data-actionbar'] = s.hasActionBar ? 'shown' : 'hidden';
