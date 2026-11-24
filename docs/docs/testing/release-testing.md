@@ -715,7 +715,7 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
 
 ## Smart triggers
 
-Contextual hints driven by in-meeting activity, configured under `public.app.smartTriggers` (every rule is on by default). A hint only suggests an action: nothing happens until the user clicks it, and clicking the hint dismisses it.
+Contextual hints and alerts driven by in-meeting activity, configured under `public.app.smartTriggers` (every rule is on by default). Most rules show a hint that only suggests an action: nothing happens until the user clicks it, and clicking the hint dismisses it. Presenter away is the exception: it plays notification sounds on its own, and users can turn that off in Settings > Notifications.
 
 ### Muted alert [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-develop/bigbluebutton-tests/playwright/smart-triggers/smartTriggers.spec.ts)
 
@@ -780,6 +780,18 @@ Contextual hints driven by in-meeting activity, configured under `public.app.sma
 3. Moderator: resume the recording, talk, then stay silent with the microphone on for 10 minutes.
 
     - The hint shows again, saying nobody has been heard for 10 minutes.
+
+### Presenter away
+
+1. Presenter: open another browser tab, leaving the meeting tab in the background.
+
+2. Viewer: raise the hand, then send a public chat message.
+
+    - The presenter hears each alert's sound, even with the raise hand and chat sound alerts turned off in the notification settings.
+
+3. Presenter: in Settings > Notifications, turn off "Turn on sound alerts while presenting from another tab" and repeat step 2.
+
+    - No extra sound plays.
 
 ### Speech not transcribed
 
