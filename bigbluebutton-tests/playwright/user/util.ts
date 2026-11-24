@@ -144,7 +144,8 @@ export function awayIndicatorLocator(testPage: Page, userName: string): Locator 
 export async function userListRowNames(testPage: Page): Promise<string[]> {
   return testPage.page
     .locator(`${e.userListItem}, ${e.currentUser}`)
-    .evaluateAll((rows) => rows.map((row) => row.getAttribute('aria-label') ?? ''));
+    .locator('.bbb-user-list-item__name')
+    .allTextContents();
 }
 
 // The title of the raised hands section, which carries the number of hands listed.

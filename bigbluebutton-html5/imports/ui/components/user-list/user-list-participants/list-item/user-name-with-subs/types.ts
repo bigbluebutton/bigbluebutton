@@ -4,6 +4,7 @@ import { LockSettings } from '/imports/ui/Types/meeting';
 import { UserListItemAdditionalInformationInterface } from 'bigbluebutton-html-plugin-sdk';
 
 export interface UserNameWithSubsProps {
+  id: string;
   intl: IntlShape;
   subjectUser: User;
   lockSettings: LockSettings;

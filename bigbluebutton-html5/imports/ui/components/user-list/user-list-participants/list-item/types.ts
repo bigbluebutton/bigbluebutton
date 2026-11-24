@@ -16,6 +16,7 @@ export interface GetWritersData {
 }
 
 export interface UserListItemProps {
+  style?: React.CSSProperties;
   currentUserIsModerator: boolean;
   currentUserIsPresenter: boolean;
   currentUserLocked: boolean;

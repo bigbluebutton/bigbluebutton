@@ -79,23 +79,23 @@ const UsersListParticipantsPage: React.FC<UsersListParticipantsPage> = ({
       {
         users.map((user, idx) => {
           return (
-            <Styled.UserListItem key={user.userId} style={{ direction: isRTL }}>
-              <ListItem
-                index={offset + idx}
-                currentUserIsPresenter={currentUser?.presenter ?? false}
-                currentUserIsModerator={currentUser?.isModerator ?? false}
-                currentUserLocked={currentUser?.locked ?? false}
-                user={user}
-                lockSettings={meeting.lockSettings}
-                usersPolicies={meeting.usersPolicies}
-                pageId={pageId}
-                userListDropdownItems={userListDropdownItems}
-                open={user.userId === openUserAction}
-                setOpenUserAction={setOpenUserAction}
-                isBreakout={isBreakout}
-                type="participant"
-              />
-            </Styled.UserListItem>
+            <ListItem
+              key={user.userId}
+              style={{ direction: isRTL }}
+              index={offset + idx}
+              currentUserIsPresenter={currentUser?.presenter ?? false}
+              currentUserIsModerator={currentUser?.isModerator ?? false}
+              currentUserLocked={currentUser?.locked ?? false}
+              user={user}
+              lockSettings={meeting.lockSettings}
+              usersPolicies={meeting.usersPolicies}
+              pageId={pageId}
+              userListDropdownItems={userListDropdownItems}
+              open={user.userId === openUserAction}
+              setOpenUserAction={setOpenUserAction}
+              isBreakout={isBreakout}
+              type="participant"
+            />
           );
         })
       }

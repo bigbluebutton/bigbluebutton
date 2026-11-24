@@ -10,6 +10,14 @@ import { UserNameWithSubsProps } from './types';
 import { uniqueId } from '/imports/utils/string-utils';
 
 const intlMessages = defineMessages({
+  away: {
+    id: 'app.actionsBar.reactions.away',
+    description: 'Text for identifying an away user',
+  },
+  phone: {
+    id: 'app.userList.phone',
+    description: 'Text for identifying a dial-in user',
+  },
   bot: {
     id: 'app.userList.bot',
     description: 'Text for identifying bot user',
@@ -67,6 +75,7 @@ const getIconComponent = (icon: PluginIconType): React.ReactNode => {
 };
 
 const UserNameWithSubs: React.FC<UserNameWithSubsProps> = ({
+  id,
   intl,
   subjectUser,
   lockSettings,
@@ -169,7 +178,7 @@ const UserNameWithSubs: React.FC<UserNameWithSubsProps> = ({
   const subsWithSeparators = addSeparator(subs);
 
   return (
-    <Styled.UserNameContainer>
+    <Styled.UserNameContainer id={id}>
       <Styled.UserName className="bbb-user-list-item__name">
         <TooltipContainer title={subjectUser.name}>
           {isMe(subjectUser.userId) ? (
@@ -186,6 +195,13 @@ const UserNameWithSubs: React.FC<UserNameWithSubsProps> = ({
       <Styled.UserNameSub className="bbb-user-list-item__subs" data-test="userNameSubs">
         {subsWithSeparators.length ? subsWithSeparators : null}
       </Styled.UserNameSub>
+      <Styled.VisuallyHidden>
+        {subjectUser.away && <span>{` ${intl.formatMessage(intlMessages.away)}`}</span>}
+        {subjectUser.isDialIn && <span>{` ${intl.formatMessage(intlMessages.phone)}`}</span>}
+        {subjectUser.reactionEmoji && subjectUser.reactionEmoji !== 'none' && (
+          <span>{` ${subjectUser.reactionEmoji}`}</span>
+        )}
+      </Styled.VisuallyHidden>
     </Styled.UserNameContainer>
   );
 };

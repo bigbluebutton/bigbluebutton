@@ -64,6 +64,11 @@ export class PrivateChatListPreview extends MultiUsers {
     );
 
     const chatItem = this.userPage.page.locator(e.privateChatItem).first();
+    const privateChatList = this.userPage.page.getByRole('list', { name: 'Private Chat' });
+    await expect(privateChatList, 'should expose private chats as a named list').toBeVisible();
+    await expect(privateChatList.getByRole('listitem'), 'should expose each private chat as a list item').toHaveCount(
+      1,
+    );
 
     // The preview text must be present essentially immediately, well before the delayed
     // per-item frame would arrive. On the pre-fix client this window elapses with no preview.

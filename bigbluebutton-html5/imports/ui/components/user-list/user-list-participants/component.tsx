@@ -134,7 +134,6 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
       <Styled.UserListColumn
         onKeyDown={rove}
         tabIndex={0}
-        role="list"
       >
         <Styled.VirtualizedList as="ul">
           {renderedPaginatedUsers}

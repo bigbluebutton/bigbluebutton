@@ -28,6 +28,7 @@ const intlMessages = defineMessages({
 
 const RaisedHandsContainer: React.FC<{ searchQuery?: string }> = ({ searchQuery }) => {
   const intl = useIntl();
+  const titleId = React.useId();
   const [setRaiseHand] = useMutation(SET_RAISE_HAND);
 
   const { data: usersData, error: usersError } = useDeduplicatedSubscription<{
@@ -97,7 +98,7 @@ const RaisedHandsContainer: React.FC<{ searchQuery?: string }> = ({ searchQuery 
     <>
       <Styled.RaisedHandsContainer className="bbb-raised-hands">
         <Styled.TitleContainer>
-          <Styled.RaisedHandsTitle className="bbb-raised-hands__title">
+          <Styled.RaisedHandsTitle id={titleId} className="bbb-raised-hands__title">
             {intl.formatMessage(intlMessages.raisedHandsTitle, { count: filteredRaisedHands.length })}
           </Styled.RaisedHandsTitle>
           {canLowerAll && filteredRaisedHands.length > 1 && (
@@ -113,6 +114,7 @@ const RaisedHandsContainer: React.FC<{ searchQuery?: string }> = ({ searchQuery 
         </Styled.TitleContainer>
 
         <RaisedHandsList
+          titleId={titleId}
           raisedHands={filteredRaisedHands}
           currentUser={currentUser as User}
           meeting={{

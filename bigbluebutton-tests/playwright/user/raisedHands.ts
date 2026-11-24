@@ -12,6 +12,10 @@ export class RaisedHands extends MultiUsers {
     await this.raiseHand(this.userPage2, [this.userPage2.username]);
     await this.raiseHand(this.userPage, [this.userPage2.username, this.userPage.username]);
     await expect(raisedHandsTitle(this.modPage), 'should count both raised hands').toHaveText('Raised Hands (2)');
+    await expect(
+      this.modPage.page.getByRole('list', { name: 'Raised Hands (2)' }),
+      'should expose the raised hands as a named list',
+    ).toBeVisible();
   }
 
   async reRankedWhenFirstHandIsLowered() {

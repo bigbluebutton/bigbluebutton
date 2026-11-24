@@ -643,14 +643,14 @@ export const elements = {
   // User
   moderatorAvatar: 'div[data-test="moderatorAvatar"]',
   viewerAvatar: 'div[data-test="viewerAvatar"]',
-  userListItem: 'div[data-test="userListItem"]',
+  userListItem: '[data-test="userListItem"]',
   usersListSidebarButton: 'div[data-test="usersListSidebarButton"]',
   audioCaptionsSidebarButton: 'div[data-test="audioCaptionsSidebarButton"]',
   audioCaptionsPanel: '[data-test="audioCaptionsTitle"]',
   transcriptionToggle: 'input[data-test="transcriptionToggle"]',
   transcriptionPanelLanguageSelect: 'div[id="speechSelect"]',
   toggleSidebarNavigation: 'button[data-test="toggleSidebarNavigation"], button[data-test="hasUnreadMessages"]',
-  currentUser: 'div[data-test="userListItemCurrent"]',
+  currentUser: '[data-test="userListItemCurrent"]',
   raisedHandsListItem: 'div[data-test="raisedHandsListItem"]',
   raisedHandRank: 'div[data-test="raisedHandRank"]',
   // the avatar shows a clock while the user is away (an icon when reactions are disabled)

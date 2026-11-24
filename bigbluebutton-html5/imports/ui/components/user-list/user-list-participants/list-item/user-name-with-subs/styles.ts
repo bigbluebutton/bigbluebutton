@@ -4,6 +4,7 @@ import { smPaddingX } from '/imports/ui/stylesheets/styled-components/general';
 import { textFontWeight, titlesFontWeight } from '/imports/ui/stylesheets/styled-components/typography';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import { PluginButtonIcon } from '/imports/ui/components/plugins/plugin-icon/styles';
+import VisuallyHidden from '/imports/ui/components/common/visually-hidden/styles';
 
 const UserNameContainer = styled.div`
   display: flex;
@@ -87,4 +88,5 @@ export default {
   UserAdditionalInformationIcon,
   SvgContentUserListIcon,
   SvgContentUserListIconMargin,
+  VisuallyHidden: VisuallyHidden.VisuallyHidden,
 };
