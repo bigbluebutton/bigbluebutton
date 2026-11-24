@@ -7,12 +7,13 @@ import Styled from '../styles';
 import { ResponseInfo, UserInfo } from '../queries';
 import logger from '/imports/startup/client/logger';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
-import { layoutSelect, layoutSelectOutput } from '../../layout/context';
+import { layoutSelect } from '../../layout/context';
+import { useRegionSize } from '../../layout/measuredRegions';
 import useCurrentPoll from '../useCurrentPoll';
 import CustomizedAxisTick from './CustomizedAxisTick';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 import Tooltip from '../../common/tooltip/component';
-import { Layout, Output } from '../../layout/layoutTypes';
+import { Layout } from '../../layout/layoutTypes';
 
 const intlMessages = defineMessages({
   usersTitle: {
@@ -97,7 +98,7 @@ const LiveResult: React.FC<LiveResultProps> = ({
   type,
 }) => {
   const intl = useIntl();
-  const sidebarContent: Output['sidebarContent'] = layoutSelectOutput((i: Output) => i.sidebarContent);
+  const sidebarContentWidth = useRegionSize('sidebarContent')?.width ?? 0;
   const fontSize: Layout['fontSize'] = layoutSelect((i: Layout) => i.fontSize);
 
   const translatedResponses = responses.map((response) => {
@@ -136,7 +137,7 @@ const LiveResult: React.FC<LiveResultProps> = ({
             layout="vertical"
           >
             <XAxis type="number" allowDecimals={false} />
-            <YAxis width={type === 'R-' ? (sidebarContent.width / 3) : 70} fontSize={fontSize} type="category" dataKey="optionDesc" tick={<CustomizedAxisTick />} />
+            <YAxis width={type === 'R-' ? (sidebarContentWidth / 3) : 70} fontSize={fontSize} type="category" dataKey="optionDesc" tick={<CustomizedAxisTick />} />
             <Bar dataKey="optionResponsesCount" fill="#0C57A7" />
           </BarChart>
         </ResponsiveContainer>

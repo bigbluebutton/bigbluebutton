@@ -7,7 +7,10 @@ import { CLEAR_ALL_REACTION } from '/imports/ui/core/graphql/mutations/userMutat
 import Styled from './styles';
 import LockViewersContainer from '../../lock-viewers/container';
 import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
-import { layoutSelectOutput } from '/imports/ui/components/layout/context';
+import { layoutSelect } from '/imports/ui/components/layout/context';
+import { useRegionSize } from '/imports/ui/components/layout/measuredRegions';
+import isSidebarAtMinWidth from './isAtMinWidth';
+import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { useIsReactionsEnabled } from '/imports/ui/services/features';
 import { notify } from '/imports/ui/services/notification';
@@ -53,12 +56,9 @@ const CrowdActionButtons: React.FC = () => {
   const [clearAllReaction, { loading: isClearingReactions }] = useMutation(CLEAR_ALL_REACTION);
   const isReactionsEnabled = useIsReactionsEnabled();
   const lockViewersModal = useModalRegistration({ id: 'lockViewersModal', priority: 'low' });
-  const sidebarContent = layoutSelectOutput((i: { sidebarContent:
-    { width: number; minWidth: number; }; }) => i.sidebarContent);
-  const isAtMinWidth = Boolean(
-    sidebarContent?.width && sidebarContent?.minWidth
-    && sidebarContent.width <= sidebarContent.minWidth + 1,
-  );
+  const sidebarWidth = useRegionSize('sidebarContent')?.width ?? 0;
+  const deviceType = layoutSelect((i: Layout) => i.deviceType);
+  const isAtMinWidth = isSidebarAtMinWidth(sidebarWidth, deviceType);
   const { isMobile } = deviceInfo;
   // On mobile, keep the footer buttons side by side instead of stacked.
   const isMinWidthLayout = isAtMinWidth && !isMobile;

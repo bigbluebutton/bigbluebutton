@@ -15,6 +15,7 @@ import AppsGallery from '../apps-gallery/container';
 import GenericContentSidekickContainer from '/imports/ui/components/generic-content/generic-sidekick-content/container';
 import browserInfo from '/imports/utils/browserInfo';
 import { layoutSelect } from '/imports/ui/components/layout/context';
+import { useMeasureRegion } from '/imports/ui/components/layout/measuredRegions';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { SidebarContentProps } from './types';
 import {
@@ -25,6 +26,8 @@ import AudioCaptionsPanel from '../audio-captions/panel/component';
 import NotesRenderMode from '/imports/ui/components/notes/constants';
 
 const SidebarContent = (props: SidebarContentProps) => {
+  // the sidebar's rendered box, for the panels that size content from it (poll charts, crowd buttons)
+  const measureSidebarContent = useMeasureRegion<HTMLDivElement>('sidebarContent');
   const {
     top,
     left = undefined,
@@ -102,6 +105,7 @@ const SidebarContent = (props: SidebarContentProps) => {
 
   return (
     <Styled.SidebarContentBackdrop
+      ref={measureSidebarContent}
       // Generic sidekick panels carry their id in the panel name; the class keeps only the type
       className={`bbb-sidebar-content bbb-sidebar-content--${
         sidebarContentPanel.includes(PANELS.GENERIC_CONTENT_SIDEKICK)

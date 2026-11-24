@@ -17,8 +17,9 @@ import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
 import CustomizedAxisTick from '/imports/ui/components/poll/components/CustomizedAxisTick';
-import { layoutSelectOutput, layoutSelect } from '/imports/ui/components/layout/context';
-import { Layout, Output } from '/imports/ui/components/layout/layoutTypes';
+import { layoutSelect } from '/imports/ui/components/layout/context';
+import { useRegionSize } from '/imports/ui/components/layout/measuredRegions';
+import { Layout } from '/imports/ui/components/layout/layoutTypes';
 
 interface ChatPollContentProps {
   metadata: string;
@@ -113,7 +114,7 @@ const ChatPollContent = forwardRef<ChatPollContentHandle, ChatPollContentProps>(
 ) => {
   const intl = useIntl();
   const chartRef = useRef<HTMLDivElement>(null);
-  const sidebarContent: Output['sidebarContent'] = layoutSelectOutput((i: Output) => i.sidebarContent);
+  const sidebarContentWidth = useRegionSize('sidebarContent')?.width ?? 0;
   const fontSize: Layout['fontSize'] = layoutSelect((i: Layout) => i.fontSize);
 
   const pollData = JSON.parse(metadata) as unknown;
@@ -208,7 +209,7 @@ const ChatPollContent = forwardRef<ChatPollContentHandle, ChatPollContentProps>(
                 allowDecimals={false}
               />
               <YAxis
-                width={sidebarContent.width / 3}
+                width={sidebarContentWidth / 3}
                 fontSize={fontSize}
                 type="category"
                 dataKey="pollAnswerWithNumVotes"
