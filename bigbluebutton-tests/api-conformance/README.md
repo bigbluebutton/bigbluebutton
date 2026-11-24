@@ -1287,8 +1287,9 @@ adds no unit tests for this; it is the coverage of these black-box cases.
 
 ```sh
 make -C env up COVERAGE=1     # bbb-web with the agent
+cd runner
 go run ./cmd/bbb-conform run --target ../targets/bbb-web.yaml --cases ../cases ...
-make -C env coverage          # out/coverage/: jacoco.xml, jacoco.csv, html/index.html
+make -C ../env coverage       # ../out/coverage/: jacoco.xml, jacoco.csv, html/index.html
 w=../../../bigbluebutton-web
 go run ./cmd/bbb-conform coverage --report ../out/coverage/jacoco.xml \
     --triage ../coverage/triage.yaml --md ../out/coverage/summary.md \
@@ -1325,14 +1326,20 @@ go run ./cmd/bbb-conform coverage --report ../out/coverage/jacoco.xml \
   baseline. With `--baseline`, a package whose share of reached methods is
   more than `--drop-tolerance` percentage points (0.5) below it is a warning;
   `--fail-on-drop` makes it fail. A triage file that doesn't fit the report
-  fails (exit 1).
+  fails (exit 1), and then `--write-baseline` writes nothing.
+- **Methods, branches and lines.** The triage file and the baseline
+  comparison work on methods. Methods and branches leave out the methods an
+  ignore rule names (a branch belongs to one method). Lines are JaCoCo's
+  count per package, as its HTML report shows it: a line two methods share
+  (a lambda's, a Scala case class's) counts once, and it can't be split
+  between them, so generated code's lines are in it.
 
 **`coverage/triage.yaml`:**
 
 ```yaml
 scope:                       # the packages measured; each takes in its subpackages
   - org.bigbluebutton.web
-ignore:                      # methods compilers generate, left out of the numbers
+ignore:                      # methods compilers generate, left out of the method numbers
   - classes: "org.bigbluebutton.api2.**"      # * within a name segment, ** across
     methods: "copy|copy\\$default\\$\\d+"     # a regular expression for the whole name
     reason: Scala case-class members

@@ -71,14 +71,22 @@ func cmdCoverage(args []string, stdout, stderr io.Writer) int {
 		}
 		drops = coverage.Compare(b, sum, cfg, *tolerance)
 	}
-	for _, out := range []struct {
+	type output struct {
 		name  string
 		write func(io.Writer) error
-	}{
+	}
+	outs := []output{
 		{*mdFile, func(w io.Writer) error { return coverage.WriteMarkdown(w, sum, drops, *baselineFile != "") }},
 		{*untriagedFile, func(w io.Writer) error { return coverage.WriteUntriaged(w, sum) }},
-		{*writeBaseline, func(w io.Writer) error { return coverage.WriteBaseline(w, sum.Baseline(cfg.Scope)) }},
-	} {
+	}
+	// A triage file that doesn't fit the report fails the run, so the run
+	// leaves the baseline as it was; the summaries still help find why.
+	if len(probs) == 0 {
+		outs = append(outs, output{*writeBaseline, func(w io.Writer) error { return coverage.WriteBaseline(w, sum.Baseline(cfg.Scope)) }})
+	} else if *writeBaseline != "" {
+		fmt.Fprintf(stderr, "bbb-conform: %s not written: the triage file doesn't fit the report\n", *writeBaseline)
+	}
+	for _, out := range outs {
 		if err := writeReport(out.name, nil, out.write); err != nil {
 			fmt.Fprintf(stderr, "bbb-conform: %v\n", err)
 			return exitUsage

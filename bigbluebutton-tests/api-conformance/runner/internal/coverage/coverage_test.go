@@ -2,6 +2,7 @@ package coverage
 
 import (
 	"bytes"
+	"errors"
 	"flag"
 	"os"
 	"path/filepath"
@@ -36,8 +37,12 @@ func TestParseXML(t *testing.T) {
 	}
 	m := rep.Methods[0]
 	if m.Class != "org.bigbluebutton.api.MeetingService" || m.Package != "org.bigbluebutton.api" || m.Name != "createMeeting" ||
-		!m.Reached || m.Lines != (Counter{9, 1}) || m.Branches != (Counter{3, 1}) || m.Line != 550 {
+		!m.Reached || m.Branches != (Counter{3, 1}) || m.Line != 550 {
 		t.Errorf("first method %+v", m)
+	}
+	// The package's own line counter; its source file's isn't added again.
+	if l := rep.Lines["org.bigbluebutton.api"]; l != (Counter{9, 5}) {
+		t.Errorf("api package lines %+v", l)
 	}
 	if rep.Methods[1].Reached {
 		t.Error("endMeeting has METHOD covered 0, so it isn't reached")
@@ -62,7 +67,10 @@ func TestSummarize(t *testing.T) {
 	if got := s.Untriaged; len(got) != 1 || got[0].ID(true) != "org.bigbluebutton.api.MeetingService#log(Ljava/lang/String;I)V" {
 		t.Errorf("untriaged %+v", got)
 	}
-	if s.Total.Methods != (Counter{3, 4}) || s.Total.Lines != (Counter{90, 15}) || s.Total.Branches != (Counter{43, 8}) {
+	// Lines are the packages' counters: the two log overloads share a
+	// line, which counts once (their own counters add up to 2). Branches
+	// are the kept methods'.
+	if s.Total.Methods != (Counter{3, 4}) || s.Total.Lines != (Counter{90, 14}) || s.Total.Branches != (Counter{43, 8}) {
 		t.Errorf("total %+v", s.Total)
 	}
 }
@@ -192,6 +200,33 @@ func TestMarkdown(t *testing.T) {
 	}
 }
 
+// failAfter accepts n bytes, then fails every write.
+type failAfter struct{ n int }
+
+func (f *failAfter) Write(p []byte) (int, error) {
+	if len(p) > f.n {
+		n := f.n
+		f.n = 0
+		return n, errors.New("disk full")
+	}
+	f.n -= len(p)
+	return len(p), nil
+}
+
+func TestWriteErrors(t *testing.T) {
+	rep, cfg := load(t)
+	s, _ := Summarize(rep, cfg)
+	// A failure at the first write and one part-way through both surface.
+	for _, n := range []int{0, 100} {
+		if err := WriteMarkdown(&failAfter{n}, s, nil, false); err == nil {
+			t.Errorf("WriteMarkdown after %d bytes: no error", n)
+		}
+	}
+	if err := WriteUntriaged(&failAfter{0}, s); err == nil {
+		t.Error("WriteUntriaged: no error")
+	}
+}
+
 func TestResolveClosures(t *testing.T) {
 	f, err := os.Open("testdata/closures.xml")
 	if err != nil {
@@ -223,6 +258,11 @@ func TestResolveClosures(t *testing.T) {
 		"org.bigbluebutton.web.controllers.DemoController#mappings{}{1}",
 		// A closure in a method carries the method's name.
 		"org.bigbluebutton.web.controllers.DemoController#helper{}{1}",
+		// After an empty class, a class whose first member is typed: a
+		// closure field is placed at the class body's indent, not at a
+		// local declaration's.
+		"org.bigbluebutton.web.controllers.TypedController#helper{}{1}",
+		"org.bigbluebutton.web.controllers.TypedController#create{}{1}",
 		"org.bigbluebutton.web.controllers.Lost$_closure1#doCall()Ljava/lang/Object;",
 		// A tab-indented file with CRLF line ends.
 		"org.bigbluebutton.web.services.DemoService#deleteDirectory{}{1}",

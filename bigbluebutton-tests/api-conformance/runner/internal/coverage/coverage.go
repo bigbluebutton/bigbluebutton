@@ -44,14 +44,15 @@ func (c Counter) Percent() float64 {
 
 // Method is one method JaCoCo reported.
 type Method struct {
-	Class    string // the class's name with dots: org.bigbluebutton.api.MeetingService, inner classes with $
-	Package  string // org.bigbluebutton.api
-	Name     string
-	Desc     string // the JVM descriptor, (Ljava/lang/String;)Z
-	Line     int    // the first line, 0 if unknown
-	Source   string // the source file's path from its package root, e.g. org/bigbluebutton/web/controllers/ApiController.groovy
-	Reached  bool
-	Lines    Counter
+	Class   string // the class's name with dots: org.bigbluebutton.api.MeetingService, inner classes with $
+	Package string // org.bigbluebutton.api
+	Name    string
+	Desc    string // the JVM descriptor, (Ljava/lang/String;)Z
+	Line    int    // the first line, 0 if unknown
+	Source  string // the source file's path from its package root, e.g. org/bigbluebutton/web/controllers/ApiController.groovy
+	Reached bool
+	// Branches are the method's own: a branch belongs to one method, so
+	// they add up. Its line counter doesn't: see Report.Lines.
 	Branches Counter
 }
 
@@ -64,10 +65,16 @@ func (m Method) ID(withDesc bool) string {
 	return m.Class + "#" + m.Name
 }
 
-// Report is the methods of one JaCoCo report.
+// Report is the methods of one JaCoCo report, and its line counters per
+// package.
 type Report struct {
 	Name    string
 	Methods []Method
+	// Lines holds JaCoCo's line counter for each package, by name with
+	// dots. A source line two methods share (a lambda's, a Scala case
+	// class's) counts once there; the methods' own line counters would
+	// count it twice.
+	Lines map[string]Counter
 }
 
 type xmlCounter struct {
@@ -90,8 +97,9 @@ type xmlClass struct {
 }
 
 type xmlPackage struct {
-	Name    string     `xml:"name,attr"`
-	Classes []xmlClass `xml:"class"`
+	Name     string       `xml:"name,attr"`
+	Classes  []xmlClass   `xml:"class"`
+	Counters []xmlCounter `xml:"counter"`
 }
 
 type xmlGroup struct {
@@ -114,11 +122,19 @@ func ParseXML(r io.Reader) (*Report, error) {
 	if err := dec.Decode(&x); err != nil {
 		return nil, fmt.Errorf("JaCoCo XML report: %w", err)
 	}
-	rep := &Report{Name: x.Name}
+	rep := &Report{Name: x.Name, Lines: map[string]Counter{}}
 	var walk func(groups []xmlGroup, pkgs []xmlPackage)
 	walk = func(groups []xmlGroup, pkgs []xmlPackage) {
 		for _, p := range pkgs {
 			pkg := strings.ReplaceAll(p.Name, "/", ".")
+			// Groups could split a package; their counters add up.
+			lines := rep.Lines[pkg]
+			for _, ctr := range p.Counters {
+				if ctr.Type == "LINE" {
+					lines.add(Counter{ctr.Covered, ctr.Missed})
+				}
+			}
+			rep.Lines[pkg] = lines
 			for _, c := range p.Classes {
 				class := strings.ReplaceAll(c.Name, "/", ".")
 				src := ""
@@ -131,8 +147,6 @@ func ParseXML(r io.Reader) (*Report, error) {
 						switch ctr.Type {
 						case "METHOD":
 							mm.Reached = ctr.Covered > 0
-						case "LINE":
-							mm.Lines = Counter{ctr.Covered, ctr.Missed}
 						case "BRANCH":
 							mm.Branches = Counter{ctr.Covered, ctr.Missed}
 						}
@@ -155,9 +169,39 @@ func ParseXML(r io.Reader) (*Report, error) {
 // nesting.
 var closureClass = regexp.MustCompile(`^(.*?)\$_(?:(\w+?)_)?closure\d+(?:\$_closure\d+)*$`)
 
-// memberIndent finds a Groovy class body's indent: that of its first
-// member declaration (bbb-web's sources use two spaces or a tab).
-var memberIndent = regexp.MustCompile(`^([ \t]+)(?:def|private|protected|public|static)\b`)
+// classDecl matches the line that declares a Groovy class (or interface,
+// trait, enum).
+var classDecl = regexp.MustCompile(`^\s*(?:@\w+(?:\([^)]*\))?\s+)*(?:(?:public|protected|private|abstract|final|static)\s+)*(?:class|interface|trait|enum)\s+\w`)
+
+// bodyIndent finds a Groovy class body's indent (bbb-web's sources use two
+// spaces or a tab): that of the first line of code after a class's opening
+// brace. That line is at member level whatever it declares, so a typed
+// method (String helper() {) is as good as a def, and a declaration inside
+// a member never sets it. An empty class (class Empty {}) has no such line,
+// so the next class sets it. It is "" when no class does.
+func bodyIndent(lines []string) string {
+	for i := range lines {
+		if !classDecl.MatchString(lines[i]) {
+			continue
+		}
+		j := i
+		for j < len(lines) && !strings.Contains(lines[j], "{") {
+			j++
+		}
+		for j++; j < len(lines); j++ {
+			code := strings.TrimSpace(lines[j])
+			if code != "" && !strings.HasPrefix(code, "//") && !strings.HasPrefix(code, "/*") && !strings.HasPrefix(code, "*") {
+				break
+			}
+		}
+		if j < len(lines) {
+			if indent := lines[j][:len(lines[j])-len(strings.TrimLeft(lines[j], " \t"))]; indent != "" {
+				return indent
+			}
+		}
+	}
+	return ""
+}
 
 // memberDecl matches the start of a Groovy class's member at the class
 // body's indent: a closure field (def create = {) or a method (private def
@@ -209,11 +253,8 @@ func ResolveClosures(rep *Report, roots []string) int {
 				break
 			}
 		}
-		for _, l := range src.lines {
-			if mi := memberIndent.FindStringSubmatch(l); mi != nil {
-				src.decl = memberDecl(mi[1])
-				break
-			}
+		if indent := bodyIndent(src.lines); indent != "" {
+			src.decl = memberDecl(indent)
 		}
 		files[name] = src
 		return src
@@ -473,9 +514,11 @@ type Summary struct {
 	Stale     []string // entries for methods the suite now reaches
 }
 
-// Summarize keeps the methods in scope and not ignored, sums them up per
-// package, and matches the triage entries with the unreached ones. It
-// returns the problems with the entries: one that names no method in
+// Summarize keeps the methods in scope and not ignored, counts them and
+// their branches per package, and matches the triage entries with the
+// unreached ones. A package's lines are JaCoCo's count for it: all its
+// code, generated methods too, with a line two methods share counted once.
+// It returns the problems with the entries: one that names no method in
 // scope, an overloaded name without desc, an entry for an ignored method,
 // and an entry given twice.
 func Summarize(rep *Report, cfg *Config) (*Summary, []string) {
@@ -544,7 +587,7 @@ func Summarize(rep *Report, cfg *Config) (*Summary, []string) {
 	for _, m := range kept {
 		r := rows[m.Package]
 		if r == nil {
-			r = &Row{Package: m.Package, Triaged: map[string]int{}}
+			r = &Row{Package: m.Package, Lines: rep.Lines[m.Package], Triaged: map[string]int{}}
 			rows[m.Package] = r
 		}
 		if m.Reached {
@@ -558,7 +601,6 @@ func Summarize(rep *Report, cfg *Config) (*Summary, []string) {
 				s.Untriaged = append(s.Untriaged, m)
 			}
 		}
-		r.Lines.add(m.Lines)
 		r.Branches.add(m.Branches)
 	}
 	s.Total = Row{Package: "total", Triaged: map[string]int{}}
@@ -693,47 +735,62 @@ func (b *Baseline) Mismatch(cfg *Config) string {
 	return ""
 }
 
+// errWriter keeps the first error of a series of writes, and skips the
+// writes after it.
+type errWriter struct {
+	w   io.Writer
+	err error
+}
+
+func (e *errWriter) printf(format string, args ...any) {
+	if e.err == nil {
+		_, e.err = fmt.Fprintf(e.w, format, args...)
+	}
+}
+
 // WriteMarkdown writes the summary for a job summary: one row per package,
 // then the drops and stale entries, if any.
-func WriteMarkdown(w io.Writer, s *Summary, drops []Drop, baseline bool) error {
-	fmt.Fprintf(w, "# bbb-web coverage\n\n")
-	fmt.Fprintf(w, "The suite reached %s of the methods in scope, %s of their lines and %s of their branches.\n\n",
-		pct(s.Total.Methods), pct(s.Total.Lines), pct(s.Total.Branches))
-	fmt.Fprintf(w, "- Methods not reached: %d (triaged: %d; untriaged: %d)\n- Generated methods ignored: %d\n\n",
+func WriteMarkdown(out io.Writer, s *Summary, drops []Drop, baseline bool) error {
+	w := &errWriter{w: out}
+	w.printf("# bbb-web coverage\n\n")
+	w.printf("The suite reached %s of the methods in scope and %s of their branches, and %s of the lines in their packages (JaCoCo's count, generated code included).\n\n",
+		pct(s.Total.Methods), pct(s.Total.Branches), pct(s.Total.Lines))
+	w.printf("- Methods not reached: %d (triaged: %d; untriaged: %d)\n- Generated methods ignored: %d\n\n",
 		s.Total.Methods.Missed, s.Total.Methods.Missed-s.Total.Untriaged, s.Total.Untriaged, s.Ignored)
-	fmt.Fprintf(w, "| Package | Methods | Lines | Branches | Untriaged |\n|---|---|---|---|---|\n")
+	w.printf("| Package | Methods | Lines | Branches | Untriaged |\n|---|---|---|---|---|\n")
 	for _, r := range append(append([]Row{}, s.Packages...), s.Total) {
 		name := "`" + r.Package + "`"
 		if r.Package == "total" {
 			name = "**Total**"
 		}
-		fmt.Fprintf(w, "| %s | %s | %s | %s | %d |\n", name, frac(r.Methods), frac(r.Lines), frac(r.Branches), r.Untriaged)
+		w.printf("| %s | %s | %s | %s | %d |\n", name, frac(r.Methods), frac(r.Lines), frac(r.Branches), r.Untriaged)
 	}
 	switch {
 	case len(drops) > 0:
-		fmt.Fprintf(w, "\n## Below the baseline\n\n| Package | Baseline | Now |\n|---|---|---|\n")
+		w.printf("\n## Below the baseline\n\n| Package | Baseline | Now |\n|---|---|---|\n")
 		for _, d := range drops {
-			fmt.Fprintf(w, "| `%s` | %s | %s |\n", d.Package, frac(d.Was), frac(d.Now))
+			w.printf("| `%s` | %s | %s |\n", d.Package, frac(d.Was), frac(d.Now))
 		}
 	case baseline:
-		fmt.Fprintf(w, "\nNo package is below the baseline.\n")
+		w.printf("\nNo package is below the baseline.\n")
 	}
 	if len(s.Stale) > 0 {
-		fmt.Fprintf(w, "\n## Triage entries for methods the suite now reaches\n\n")
+		w.printf("\n## Triage entries for methods the suite now reaches\n\n")
 		for _, id := range s.Stale {
-			fmt.Fprintf(w, "- `%s`\n", id)
+			w.printf("- `%s`\n", id)
 		}
 	}
-	return nil
+	return w.err
 }
 
 // WriteUntriaged lists the unreached methods with no triage entry, one per
 // line: class, name, descriptor and first line.
-func WriteUntriaged(w io.Writer, s *Summary) error {
+func WriteUntriaged(out io.Writer, s *Summary) error {
+	w := &errWriter{w: out}
 	for _, m := range s.Untriaged {
-		fmt.Fprintf(w, "%s#%s%s line %d\n", m.Class, m.Name, m.Desc, m.Line)
+		w.printf("%s#%s%s line %d\n", m.Class, m.Name, m.Desc, m.Line)
 	}
-	return nil
+	return w.err
 }
 
 func pct(c Counter) string { return fmt.Sprintf("%.1f%%", c.Percent()) }

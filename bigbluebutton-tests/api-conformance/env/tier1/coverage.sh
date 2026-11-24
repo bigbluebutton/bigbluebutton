@@ -15,8 +15,15 @@ repo=$(cd "$env_dir/../../.." && pwd)
 compose="docker compose --progress quiet -f $env_dir/compose.yaml"
 data=/var/bigbluebutton/coverage/bbb-web.exec
 
+# running SERVICE: whether it runs. A query that fails stops the script:
+# taken for "not running", clean would skip the stop that keeps the old
+# data from being written back.
 running() {
-	[ -n "$($compose ps -q --status running "$1")" ]
+	ids=$($compose ps -q --status running "$1") || {
+		echo "couldn't ask docker compose whether $1 is running" >&2
+		exit 1
+	}
+	[ -n "$ids" ]
 }
 
 # oneoff USER ARGS...: runs sh with ARGS in a one-off container from
@@ -54,8 +61,10 @@ report)
 	mkdir -p "$out"
 	out=$(cd "$out" && pwd)
 	# A stop is graceful: the agent writes what it has as the JVM exits.
-	$compose stop bbb-web >/dev/null
+	# The trap comes first, so an interrupt during or right after the stop
+	# still starts bbb-web again (start leaves a running one as it is).
 	trap start_web EXIT
+	$compose stop bbb-web >/dev/null
 	log=$(mktemp)
 	# The class files that ran, and the sources the HTML report links to.
 	# The bbb-common-web jar's version changes with every build.
@@ -101,8 +110,8 @@ report)
 clean)
 	if running bbb-web; then
 		# So the agent doesn't write the old data back when bbb-web stops.
-		$compose stop bbb-web >/dev/null
 		trap start_web EXIT
+		$compose stop bbb-web >/dev/null
 	fi
 	oneoff 0 bbb-web -c "rm -f $data"
 	echo "coverage data cleared"

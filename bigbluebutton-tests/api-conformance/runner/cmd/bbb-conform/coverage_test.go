@@ -45,13 +45,26 @@ func TestCoverage(t *testing.T) {
 			}
 		})
 	}
-	// A triage entry the report doesn't have fails the run.
+	// A triage entry the report doesn't have fails the run, which leaves
+	// the baseline as it was and still writes the summary.
 	bad := filepath.Join(out, "bad.yaml")
 	if err := os.WriteFile(bad, []byte("scope: [org.bigbluebutton.api]\nmethods:\n  - {class: org.bigbluebutton.api.Nope, method: x, outcome: excluded, reason: r}\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
+	kept := filepath.Join(out, "kept-baseline.json")
+	if err := os.WriteFile(kept, []byte("{}\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	badMD := filepath.Join(out, "bad.md")
 	var stdout, stderr bytes.Buffer
-	if code := run([]string{"coverage", "--report", report, "--triage", bad}, &stdout, &stderr); code != exitFailed || !strings.Contains(stderr.String(), "no such method") {
+	if code := run([]string{"coverage", "--report", report, "--triage", bad, "--write-baseline", kept, "--md", badMD}, &stdout, &stderr); code != exitFailed ||
+		!strings.Contains(stderr.String(), "no such method") || !strings.Contains(stderr.String(), "not written") {
 		t.Errorf("bad triage: exit %d, stderr %q", code, stderr.String())
+	}
+	if data, err := os.ReadFile(kept); err != nil || string(data) != "{}\n" {
+		t.Errorf("bad triage: the baseline is now %q (%v), want it unchanged", data, err)
+	}
+	if _, err := os.Stat(badMD); err != nil {
+		t.Errorf("bad triage: no summary: %v", err)
 	}
 }
