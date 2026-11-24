@@ -20,8 +20,6 @@ import ExternalVideoView from './external-video/component';
 import CameraAsContentView from './camera-as-content/component';
 import { MediaButtonPluginItem } from '../types';
 import { EXTERNAL_VIDEO_STOP } from '/imports/ui/components/external-video-player/mutations';
-import { layoutSelectOutput } from '/imports/ui/components/layout/context';
-import { Output } from '/imports/ui/components/layout/layoutTypes';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import InMemoryStorage from '/imports/ui/services/storage/in-memory';
 
@@ -164,7 +162,6 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
   isLockedUser = false,
 }) => {
   const animations = getSettingsSingletonInstance().application?.animations ?? true;
-  const actionsBarStyle = layoutSelectOutput((i: Output) => i.actionBar);
   const { screenIsShared: isScreenGloballyBroadcasting } = useIsScreenGloballyBroadcasting();
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
   const [currentView, setCurrentView] = useState<'main' | 'presentation' | 'externalVideo' | 'cameraAsContent'>('main');
@@ -465,7 +462,6 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
         onClick={(e) => e.stopPropagation()}
         isMobile={isMobile}
         isRTL={isRTL}
-        actionsBarHeight={actionsBarStyle.height}
         id="mediaAreaDropUp"
         className="bbb-media-sharing"
       >

@@ -4,7 +4,7 @@ import { useReactiveVar } from '@apollo/client';
 import Auth from '/imports/ui/services/auth';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import NavBar from './component';
-import { layoutDispatch, layoutSelectOutput } from '../layout/context';
+import { layoutDispatch, layoutSelectInput } from '../layout/context';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '../../core/hooks/useMeeting';
@@ -22,7 +22,9 @@ const NavBarContainer = (props) => {
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
   const intl = useIntl();
 
-  const navBar = layoutSelectOutput((i) => i.navBar);
+  const hasNavBar = layoutSelectInput((i) => i.navBar.hasNavBar);
+  // the top row is hidden by bbb_hide_controls (layout/observer.tsx)
+  const hideTopRow = getFromUserSettings('bbb_hide_controls', false);
   const layoutContextDispatch = layoutDispatch();
 
   const { data: currentUserData } = useCurrentUser((user) => ({
@@ -54,7 +56,7 @@ const NavBarContainer = (props) => {
     meetingTitle = meeting.name;
   }
 
-  if (hideNavBar || navBar.display === false) return null;
+  if (hideNavBar || hasNavBar === false) return null;
 
   let pluginNavBarItems = [];
   if (pluginsExtensibleAreasAggregatedState.navBarItems) {
@@ -75,11 +77,10 @@ const NavBarContainer = (props) => {
         isDirectLeaveButtonEnabled: IS_DIRECT_LEAVE_BUTTON_ENABLED,
         // TODO: Remove/Replace
         isConnected: connected,
-        hideTopRow: navBar.hideTopRow,
+        hideTopRow,
         showSessionDetailsOnJoin: SHOW_SESSION_DETAILS_ON_JOIN,
         ...props,
       }}
-      style={{ ...navBar }}
     />
   );
 };

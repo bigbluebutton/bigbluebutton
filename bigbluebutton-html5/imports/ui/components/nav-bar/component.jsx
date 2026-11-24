@@ -252,7 +252,6 @@ class NavBar extends Component {
       intl,
       presentationTitle,
       amIModerator,
-      style,
       main,
       currentUserId,
       isDirectLeaveButtonEnabled,
@@ -268,21 +267,9 @@ class NavBar extends Component {
       <Styled.Navbar
         className="bbb-navbar"
         id="Navbar"
-        style={
-          main === 'new'
-            ? {
-              position: 'absolute',
-              top: style.top,
-              left: style.left,
-              height: style.height,
-              width: style.width,
-            }
-            : {
-              position: 'relative',
-              height: style.height,
-              width: '100%',
-            }
-        }
+        // its box comes from the CSS layout (layout/shell/styles.ts)
+        data-layout-region={main === 'new' ? 'navbar' : undefined}
+        style={main === 'new' ? undefined : { position: 'relative', width: '100%' }}
       >
         {!hideTopRow && (
           <Styled.Top>
