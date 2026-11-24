@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"hash/crc32"
+	"reflect"
 	"strings"
 	"sync"
 	"time"
@@ -124,7 +125,9 @@ func handleMessageReceivedFromHasura(hc *common.HasuraConnection, message []byte
 
 			// Inject pg + gql-middleware time to traceLog
 			if subscription.OperationName == "ConnStatusWithTraceLog" {
-				_, _, messageData := getHasuraMessage(message, subscription, hc.BrowserConn.MeetingId, hc.BrowserConn.Logger)
+				// handleSubscriptionMessage decoded this message, or replaced it with a patch encoded
+				// from common.HasuraMessage, so this read does not fail.
+				_, _, messageData, _ := getHasuraMessage(message, subscription, hc.BrowserConn.MeetingId, hc.BrowserConn.Logger)
 				if _, existsConnectionStatusKey := messageData.Payload.Data["user_connectionStatus"]; existsConnectionStatusKey {
 					type ConnectionStatusMessage struct {
 						MeetingId          string `json:"meetingId"`
@@ -179,7 +182,12 @@ func handleMessageReceivedFromHasura(hc *common.HasuraConnection, message []byte
 }
 
 func handleSubscriptionMessage(hc *common.HasuraConnection, message *[]byte, subscription common.GraphQlSubscription, queryId string) bool {
-	dataChecksum, messageDataKey, messageData := getHasuraMessage(*message, subscription, hc.BrowserConn.MeetingId, hc.BrowserConn.Logger)
+	dataChecksum, messageDataKey, messageData, decoded := getHasuraMessage(*message, subscription, hc.BrowserConn.MeetingId, hc.BrowserConn.Logger)
+	if !decoded {
+		// Not a result this middleware can track. Dropping it leaves the subscription's last data
+		// as it was, so the next result is still compared and patched against data the browser has.
+		return false
+	}
 
 	// Check whether ReceivedData is different from the LastReceivedData
 	// Otherwise stop forwarding this message
@@ -212,7 +220,8 @@ func combineUint32ToUint64(a, b uint32) uint64 {
 
 func handleStreamingMessage(hc *common.HasuraConnection, message []byte, subscription common.GraphQlSubscription, queryId string) {
 	lastCursor := common.GetLastStreamCursorValueFromReceivedMessage(message, subscription.StreamCursorField, hc.BrowserConn.MeetingId)
-	if lastCursor != nil && subscription.StreamCursorCurrValue != lastCursor {
+	// Either value may be a list or an object decoded from JSON, which != cannot compare.
+	if lastCursor != nil && !reflect.DeepEqual(subscription.StreamCursorCurrValue, lastCursor) {
 		subscription.StreamCursorCurrValue = lastCursor
 
 		hc.BrowserConn.ActiveSubscriptionsMutex.Lock()
@@ -244,7 +253,9 @@ func handleConnectionAckMessage(hc *common.HasuraConnection, message []byte) {
 	go retransmiter.RetransmitSubscriptionStartMessages(hc)
 }
 
-func getHasuraMessage(message []byte, subscription common.GraphQlSubscription, meetingId string, logger *logrus.Entry) (uint32, string, common.HasuraMessage) {
+// getHasuraMessage decodes a "next" message from Hasura, through a per-meeting cache. The last
+// result is false when the message does not decode into common.HasuraMessage; the caller drops it.
+func getHasuraMessage(message []byte, subscription common.GraphQlSubscription, meetingId string, logger *logrus.Entry) (uint32, string, common.HasuraMessage, bool) {
 	dataChecksum := crc32.ChecksumIEEE(message)
 
 	common.GlobalCacheLocks.Lock(uint64(dataChecksum))
@@ -252,12 +263,15 @@ func getHasuraMessage(message []byte, subscription common.GraphQlSubscription, m
 
 	dataKey, hasuraMessage, dataMapExists := common.GetHasuraMessageCache(meetingId, dataChecksum)
 	if dataMapExists {
-		return dataChecksum, dataKey, hasuraMessage
+		return dataChecksum, dataKey, hasuraMessage, true
 	}
 
-	err := json.Unmarshal(message, &hasuraMessage)
-	if err != nil {
-		logger.Fatalf("Error unmarshalling JSON: %v", err)
+	// One message must not end the process, and with it every browser connection of the server:
+	// log it and let the caller drop it.
+	if err := json.Unmarshal(message, &hasuraMessage); err != nil {
+		logger.Errorf("Dropping a message from Hasura that does not decode as a result: %v", err)
+
+		return dataChecksum, "", common.HasuraMessage{}, false
 	}
 
 	for key := range hasuraMessage.Payload.Data {
@@ -294,7 +308,7 @@ func getHasuraMessage(message []byte, subscription common.GraphQlSubscription, m
 		}
 	}
 
-	return dataChecksum, dataKey, hasuraMessage
+	return dataChecksum, dataKey, hasuraMessage, true
 }
 
 func includePromotheusMetrics(traceLog string, meetingId string, logger *logrus.Entry) {
