@@ -179,7 +179,7 @@ const TimerPanelComponent: React.FC<TimerPanelProps> = ({
             <Styled.MaterialSwitch
               checked={(songTrack !== 'noTrack') && !stopwatch}
               onChange={handleMusicSwitchChange}
-              disabled={running || stopwatch}
+              disabled={stopwatch}
             />
           )}
           label={intl.formatMessage(intlMessages.songs)}
@@ -198,7 +198,7 @@ const TimerPanelComponent: React.FC<TimerPanelProps> = ({
                       value={track}
                       checked={songTrack === track}
                       onChange={(event) => setTrack(event.target.value)}
-                      disabled={running || stopwatch}
+                      disabled={stopwatch}
                     />
                     {intl.formatMessage(intlMessages[track as keyof typeof intlMessages])}
                   </label>
@@ -209,7 +209,7 @@ const TimerPanelComponent: React.FC<TimerPanelProps> = ({
         )}
       </Styled.TimerSongsWrapper>
     );
-  }, [songTrack, stopwatch, running, handleMusicSwitchChange, intl]);
+  }, [songTrack, stopwatch, handleMusicSwitchChange, intl]);
 
   const deactivateButton = (
     <Styled.ActionButton

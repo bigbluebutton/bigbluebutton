@@ -7,7 +7,7 @@ import { MobileDevices } from './mobileDevices';
 import { MultiUsers } from './multiusers';
 import { PresenterRequest } from './presenterRequest';
 import { RaisedHands } from './raisedHands';
-import { Timer } from './timer';
+import { Timer, TIMER_MUSIC_CLIENT_SETTINGS_OVERRIDE } from './timer';
 import { UserListSearch } from './userListSearch';
 import {
   AUDIO_ONLY_TILE_SETTINGS_OVERRIDE,
@@ -119,6 +119,13 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       const timer = new Timer(browser, context);
       await timer.initPages(page, testInfo);
       await timer.timerCountdownForAttendeeTest();
+    });
+
+    test('Timer music can be muted by each participant', async ({ browser, context, page }, testInfo) => {
+      const timer = new Timer(browser, context);
+      await timer.initModPage(page, { testInfo, createClientSettingsOverride: TIMER_MUSIC_CLIENT_SETTINGS_OVERRIDE });
+      await timer.initUserPage(context, { testInfo });
+      await timer.timerMusicMuteTest();
     });
 
     test('Closes timer panel on demotion', async ({ browser, context, page }, testInfo) => {

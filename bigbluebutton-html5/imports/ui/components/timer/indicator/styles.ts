@@ -128,6 +128,32 @@ const TimerTime = styled.span`
   ${time}
 `;
 
+const MusicMuteButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: ${timerPaddingXL};
+  margin-right: ${borderRadius};
+  padding: 0;
+  cursor: pointer;
+  color: white;
+  font-size: ${fontSizeBase};
+  border-radius: 50%;
+  ${timerRunning}
+
+  &:focus-visible {
+    outline: 2px solid white;
+    outline-offset: -4px;
+  }
+
+  @media ${phoneLandscape} {
+    width: 1rem;
+    height: 1rem;
+    font-size: ${fontSizeXS};
+  }
+`;
+
 export default {
   TimerWrapper,
   Timer,
@@ -135,4 +161,5 @@ export default {
   TimerContent,
   TimerIcon,
   TimerTime,
+  MusicMuteButton,
 };

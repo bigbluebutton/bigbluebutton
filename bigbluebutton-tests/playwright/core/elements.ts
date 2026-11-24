@@ -384,6 +384,8 @@ export const elements = {
   nextTimerPreset: 'button[data-test="nextPreset"]',
   prevTimerPreset: 'button[data-test="prevPreset"]',
   timerHeader: 'header[data-test="timerHeader"]',
+  timerMusicSwitch: 'label:has-text("Music") input[type="checkbox"]',
+  timerMusicMuteButton: 'button[data-test="timerMusicMuteButton"]',
 
   // Notes
   sharedNotesSidebarButton: 'div[data-test="sharedNotesSidebarButton"]',
