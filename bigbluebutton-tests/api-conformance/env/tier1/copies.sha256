@@ -8,4 +8,4 @@ f798c28d196dfbad2f3019659cfb027431df7f0719a7a339dd7a0469ef1fffb3  build/packages
 23dbd0e1371cf2d187c554d63b0b821bbdf3face1c93a4feaef6af6a92999788  build/packages-template/bbb-graphql-actions/bbb-graphql-actions.service
 b3022061fab741415dc9c3b6bfd5f345c9ed8677abb46c28e425aaf221a4f6c2  akka-bbb-apps/src/debian/DEBIAN/preinst
 113321564b20b0e807f37b6510ad2f8e1b26755498cba9faf254ac3fea6871ce  akka-bbb-apps/src/templates/systemloader/systemd/start-template
-a6cd6c28dfcf6146e4718afa4df3ad29f75c9592694d4b65291a34ce53efacfc  bbb-libreoffice/assets/convert-local.sh
+8d1cdb1cde30992c9c453b72312f5547ea1dd19933a6cf5514f0d5ddee90f27e  bbb-libreoffice/assets/convert-local.sh
