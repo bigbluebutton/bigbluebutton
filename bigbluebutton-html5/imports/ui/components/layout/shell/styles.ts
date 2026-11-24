@@ -113,7 +113,7 @@ const LayoutShellStyles = createGlobalStyle`
     z-index: 12;
   }
   #layout[data-mobile][data-rtl] [data-layout-region="sidebar-navigation"] { left: auto; right: 5px; }
-  #layout[data-mobile] [data-layout-region="sidebar-navigation"][data-collapsed] { height: 0; }
+  #layout [data-layout-region="sidebar-navigation"][data-collapsed] { height: 0; }
 
   /* sidebar content and auxiliary (calculatesSidebarContentBounds, calculatesSidebarContentHeight) */
   #layout {

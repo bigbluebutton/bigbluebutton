@@ -21,12 +21,6 @@ import Styled from './styles';
 
 interface SidebarNavigationProps {
   isMobile: boolean,
-  top: number,
-  left?: number,
-  right?: number,
-  zIndex: number,
-  height: number,
-  width: number,
   sidebarNavigationInput: SidebarNavigationInput,
   hasUnreadMessages: boolean,
   hasUnreadNotes: boolean,
@@ -55,12 +49,6 @@ const CSS_ANIMATION_DURATION_MS = 200;
 
 const SidebarNavigation = ({
   isMobile,
-  top,
-  left = undefined,
-  right = undefined,
-  zIndex,
-  height,
-  width,
   sidebarNavigationInput,
   hasUnreadMessages,
   hasUnreadNotes,
@@ -179,14 +167,9 @@ const SidebarNavigation = ({
       className={cx('bbb-navigation', { 'bbb-navigation--collapsed': !isExpanded })}
       isMobile={isMobile}
       isExpanded={isExpanded}
-      style={{
-        top,
-        left,
-        right,
-        zIndex,
-        height: isExpanded ? height : '0',
-        width,
-      }}
+      // its box comes from the CSS layout (layout/shell/styles.ts); collapsed, it has no height
+      data-layout-region="sidebar-navigation"
+      data-collapsed={isExpanded ? undefined : ''}
       animations={animations}
     >
       <Styled.NavigationSidebar

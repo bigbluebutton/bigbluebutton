@@ -3,12 +3,11 @@ import {
   layoutDispatch,
   layoutSelect,
   layoutSelectInput,
-  layoutSelectOutput,
 } from '/imports/ui/components/layout/context';
 import { useIntl } from 'react-intl';
 import SidebarNavigation from './component';
 import { User } from '/imports/ui/Types/user';
-import { Input, Layout, Output } from '/imports/ui/components/layout/layoutTypes';
+import { Input, Layout } from '/imports/ui/components/layout/layoutTypes';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useTimer from '/imports/ui/core/hooks/useTimer';
 import { TIMER_ICON, TIMER_LABEL, TIMER_APP_KEY } from '/imports/ui/components/timer/constants';
@@ -34,20 +33,11 @@ const SidebarNavigationContainer = () => {
   } = useTimer();
   const intl = useIntl();
   const sidebarNavigationInput = layoutSelectInput((i: Input) => i.sidebarNavigation);
-  const sidebarNavigation = layoutSelectOutput((i: Output) => i.sidebarNavigation);
   const deviceType = layoutSelect((i: Layout) => i.deviceType);
   const isMobile = deviceType === DEVICE_TYPE.MOBILE;
   const layoutContextDispatch = layoutDispatch();
   const isPollingEnabled = useIsPollingEnabled();
   const isTimerFeatureEnabled = useIsTimerFeatureEnabled();
-  const {
-    top,
-    left,
-    right,
-    zIndex,
-    width,
-    height,
-  } = sidebarNavigation;
   const {
     registeredApps,
   } = sidebarNavigationInput;
@@ -130,17 +120,11 @@ const SidebarNavigationContainer = () => {
     }
   }, [intl]);
 
-  if (sidebarNavigation.display === false || !width || !height) return null;
+  if (!sidebarNavigationInput.isOpen) return null;
 
   return (
     <SidebarNavigation
       isMobile={isMobile}
-      top={top}
-      left={left}
-      right={right}
-      zIndex={zIndex}
-      width={width}
-      height={height}
       sidebarNavigationInput={sidebarNavigationInput}
       hasUnreadMessages={hasUnreadMessages}
       hasUnreadNotes={hasUnreadNotes}
