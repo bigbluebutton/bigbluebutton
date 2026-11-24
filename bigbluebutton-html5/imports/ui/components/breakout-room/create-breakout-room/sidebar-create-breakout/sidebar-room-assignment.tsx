@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import MenuItem from '@mui/material/MenuItem';
 import Styled from './styles';
@@ -24,6 +24,14 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.currentSlideLabel',
     description: 'Current slide label for presentation selector',
   },
+  renameRoom: {
+    id: 'app.createBreakoutRoom.renameRoom',
+    description: 'Accessible label for the room name edit button',
+  },
+  roomNameLabel: {
+    id: 'app.createBreakoutRoom.roomNameLabel',
+    description: 'Accessible label for the room name input',
+  },
 });
 
 const isMe = (intId: string) => intId === Auth.userID;
@@ -44,6 +52,17 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
   const intl = useIntl();
   const roomPadNum = (n: number) => n.toString().padStart(2, '0');
   const [editingRoom, setEditingRoom] = useState<number | null>(null);
+  const roomNameRefs = useRef<Record<number, HTMLButtonElement | null>>({});
+  const restoreRoomNameFocus = useRef(false);
+  const editedRoomNumber = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (editingRoom === null && restoreRoomNameFocus.current) {
+      restoreRoomNameFocus.current = false;
+      if (editedRoomNumber.current !== null) roomNameRefs.current[editedRoomNumber.current]?.focus();
+      editedRoomNumber.current = null;
+    }
+  }, [editingRoom]);
 
   const changeRoomPresentation = (roomNum: number) => (ev: { target: { value: unknown } }) => {
     setRoomPresentations((prev) => ({
@@ -118,13 +137,21 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
               <Styled.RoomCardHeader>
                 {editingRoom === roomNum ? (
                   <Styled.RoomNameInput
+                    aria-label={intl.formatMessage(intlMessages.roomNameLabel)}
+                    data-room-number={roomNum}
                     value={roomName}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       changeRoomName(roomNum, e.target.value);
                     }}
                     onBlur={() => setEditingRoom(null)}
                     onKeyDown={(e: React.KeyboardEvent) => {
-                      if (e.key === 'Enter' || e.key === 'Escape') setEditingRoom(null);
+                      if (e.key === 'Enter' || e.key === 'Escape') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        editedRoomNumber.current = roomNum;
+                        restoreRoomNameFocus.current = true;
+                        setEditingRoom(null);
+                      }
                     }}
                     autoFocus
                     onClick={(e) => e.stopPropagation()}
@@ -132,8 +159,10 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
                   />
                 ) : (
                   <Styled.RoomCardName
+                    type="button"
+                    ref={(element) => { roomNameRefs.current[roomNum] = element; }}
                     onClick={() => setEditingRoom(roomNum)}
-                    style={{ cursor: 'pointer' }}
+                    aria-label={intl.formatMessage(intlMessages.renameRoom, { roomName })}
                     data-test={`${roomName}`}
                   >
                     {roomName}
@@ -193,6 +222,7 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
                       <Styled.UserRemoveBtn
                         type="button"
                         aria-label={intl.formatMessage(intlMessages.unassignUser)}
+                        data-test="unassignUserFromBreakoutRoom"
                         onClick={(e) => {
                           e.stopPropagation();
                           moveUser(user.userId, roomNum, 0);

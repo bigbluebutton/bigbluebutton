@@ -240,6 +240,9 @@ export const UsersList = styled.div`
 `;
 
 export const UserItem = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 0.3rem 0.25rem;
   font-size: ${fontSizeBase};
   color: ${colorText};
@@ -295,7 +298,12 @@ export const RoomCardLeft = styled.div`
   overflow: hidden;
 `;
 
-export const RoomCardName = styled.span`
+export const RoomCardName = styled.button`
+  background: none;
+  border: 0;
+  padding: 0;
+  text-align: left;
+  font-family: inherit;
   font-size: ${fontSizeBase};
   font-weight: 700;
   color: ${colorText};
@@ -390,12 +398,27 @@ export const UserRemoveBtn = styled.button`
   align-items: center;
   transition: opacity 0.1s, color 0.1s;
 
-  ${RoomCardUserItem}:hover & {
+  ${UserItem}:hover &, ${UserItem}:focus-within &,
+  ${RoomCardUserItem}:hover &, ${RoomCardUserItem}:focus-within & {
     opacity: 1;
   }
 
   &:hover {
     color: ${colorDanger};
+  }
+
+  &:focus-visible { opacity: 1; }
+`;
+
+export const MoveUserBtn = styled(UserRemoveBtn)`
+  color: ${colorPrimary};
+
+  &::before {
+    content: '↪';
+  }
+
+  &:hover {
+    color: ${colorPrimary};
   }
 `;
 
@@ -496,6 +519,7 @@ export default {
   RoomCardUserList,
   RoomCardUserItem,
   UserRemoveBtn,
+  MoveUserBtn,
   BottomBar,
   BottomBarButton,
   MegaphoneChatArea,

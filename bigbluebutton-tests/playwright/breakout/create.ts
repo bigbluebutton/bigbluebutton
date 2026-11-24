@@ -248,7 +248,7 @@ export class Create extends MultiUsers {
 
     // Remove specific assignment
     await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
-    await this.modPage.waitAndClick(`${e.breakoutBox1} button`);
+    await this.modPage.waitAndClick(e.unassignUserFromRoom1);
     await this.modPage.hasText(
       e.breakoutBox0,
       /Attendee/,

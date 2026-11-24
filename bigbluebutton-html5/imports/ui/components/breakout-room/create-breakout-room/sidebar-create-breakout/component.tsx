@@ -37,6 +37,10 @@ const CURRENT_SLIDE_PREFIX = 'current-';
 const SERVER_DEFAULT_CAPTURE_FILENAME = '%%CONFNAME%%';
 
 const intlMessages = defineMessages({
+  numberOfRooms: {
+    id: 'app.createBreakoutRoom.numberOfRooms',
+    description: 'Number of breakout rooms label',
+  },
   breakoutTitle: {
     id: 'app.createBreakoutRoom.title',
     description: 'breakout title',
@@ -632,7 +636,12 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
       <Styled.Separator />
 
       <Styled.ControlsRow>
-        <Styled.RoomCountControl className="bbb-breakout-room-count">
+        <Styled.RoomCountControl
+          className="bbb-breakout-room-count"
+          role="group"
+          aria-labelledby="breakoutRoomCountLabel"
+        >
+          <span id="breakoutRoomCountLabel">{intl.formatMessage(intlMessages.numberOfRooms)}</span>
           <TooltipContainer title={intl.formatMessage(intlMessages.decreaseRooms)}>
             <Styled.RoomCountArrow
               onClick={decreaseRooms}

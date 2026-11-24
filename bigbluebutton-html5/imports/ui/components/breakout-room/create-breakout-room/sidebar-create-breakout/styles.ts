@@ -207,14 +207,22 @@ export const ControlsRow = styled.div`
 
 export const RoomCountControl = styled.div`
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.2rem 0.5rem;
   background: ${colorGrayUserListToolbar};
   border-radius: 2rem;
-  height: 2.75rem;
-  padding: 0 1rem;
+  min-height: 3.5rem;
+  padding: 0.35rem 1rem;
   flex: 1;
+
+  & > span:first-child {
+    flex-basis: 100%;
+    text-align: center;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
 `;
 
 export const RoomCountArrow = styled.button`
@@ -472,7 +480,13 @@ export const RoomCardHeader = styled.div`
   min-width: 0;
 `;
 
-export const RoomCardName = styled.span`
+export const RoomCardName = styled.button`
+  background: none;
+  border: 0;
+  padding: 0;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
   font-size: ${fontSizeBase};
   font-weight: 500;
   color: ${colorText};

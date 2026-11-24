@@ -24,7 +24,7 @@ import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedS
 import { PANELS } from '/imports/ui/components/layout/enums';
 import PanelHeader from '/imports/ui/components/common/panel-header/component';
 import { setBreakoutWindowRef } from '../service';
-import { useStopMediaOnMainRoom } from '/imports/ui/components/breakout-room/hooks';
+import { useRoverNavigation, useStopMediaOnMainRoom } from '/imports/ui/components/breakout-room/hooks';
 import { notify } from '/imports/ui/services/notification';
 import logger from '/imports/startup/client/logger';
 import { useUserLiveKitMemberships } from '/imports/ui/components/livekit/memberships-manager/hooks';
@@ -106,6 +106,26 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.roomOptions',
     description: 'Room options button label',
   },
+  renameRoom: {
+    id: 'app.createBreakoutRoom.renameRoom',
+    description: 'Accessible label for the room name edit button',
+  },
+  roomNameLabel: {
+    id: 'app.createBreakoutRoom.roomNameLabel',
+    description: 'Accessible label for the room name input',
+  },
+  moveUserMenu: {
+    id: 'app.createBreakoutRoom.moveUserMenu',
+    description: 'Accessible label for the move participant menu',
+  },
+  moveToRoom: {
+    id: 'app.createBreakoutRoom.moveToRoom',
+    description: 'Move participant to breakout room menu item',
+  },
+  moveToMainRoom: {
+    id: 'app.createBreakoutRoom.moveToMainRoom',
+    description: 'Move participant to main room menu item',
+  },
 });
 
 interface RunningBreakoutRoomProps {
@@ -127,6 +147,10 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
   const [megaphoneMessage, setMegaphoneMessage] = useState('');
 
   const [editingRoomId, setEditingRoomId] = useState<string | null>(null);
+  const [openMoveMenu, setOpenMoveMenu] = useState<string | null>(null);
+  const roomNameRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const focusRoomNameId = useRef<string | null>(null);
+  const moveFocusTarget = useRef('breakoutBox-0');
 
   const [localRoomNames, setLocalRoomNames] = useState<Record<string, string>>({});
   const [requestingJoinForRoomId, setRequestingJoinForRoomId] = useState<string | null>(null);
@@ -271,10 +295,16 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
     }
   }, [megaphoneMessage, sendMessageToAll]);
 
-  const dragStart = (ev: React.DragEvent<HTMLDivElement>, visUserId: string, fromRoomId: string, userName: string) => {
+  const dragStart = (
+    ev: React.DragEvent<HTMLDivElement>,
+    visUserId: string,
+    fromRoomId: string,
+    userName: string,
+  ) => {
     ev.dataTransfer.setData('text', JSON.stringify({ userId: visUserId, fromRoomId, userName }));
     const ghost = document.createElement('div');
     ghost.textContent = userName;
+    // eslint-disable-next-line max-len
     ghost.style.cssText = 'position:absolute;top:-9999px;padding:4px 8px;background:#fff;border:1px solid #ccc;border-radius:4px;font-size:0.85rem;white-space:nowrap;';
     document.body.appendChild(ghost);
     ev.dataTransfer.setDragImage(ghost, 0, 0);
@@ -295,6 +325,42 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
     });
   }, [breakoutRoomUnassignUser]);
 
+  const roomDisplayName = useCallback((room: BreakoutRoomType) => (
+    room.isDefaultName
+      ? intl.formatMessage(intlMessages.breakoutRoom, { roomNumber: room.sequence })
+      : room.shortName
+  ), [intl]);
+
+  const moveUserBetweenRooms = useCallback((
+    movedUserId: string,
+    fromRoomMeetingId: string,
+    toRoomMeetingId: string,
+    userName: string,
+  ) => {
+    if (fromRoomMeetingId === toRoomMeetingId) return;
+    if (toRoomMeetingId === meetingId) {
+      handleUnassignUser(movedUserId, fromRoomMeetingId);
+      return;
+    }
+    breakoutRoomMoveUser({
+      variables: {
+        userId: movedUserId,
+        fromBreakoutRoomMeetingId: fromRoomMeetingId,
+        toBreakoutRoomMeetingId: toRoomMeetingId,
+      },
+    }).then(() => {
+      const targetRoom = breakouts.find((b) => b.breakoutRoomMeetingId === toRoomMeetingId);
+      const targetRoomName = targetRoom ? roomDisplayName(targetRoom) : '';
+      notify(intl.formatMessage(intlMessages.inviteSentToast, {
+        userName: userName || movedUserId,
+        roomName: targetRoomName,
+      }), 'success', 'user');
+    }).catch((err: unknown) => logger.error(
+      { logCode: 'breakout_move_user_failed', extraInfo: { error: err } },
+      'Failed to move user between breakout rooms',
+    ));
+  }, [breakoutRoomMoveUser, handleUnassignUser, breakouts, intl, meetingId, roomDisplayName]);
+
   const handleDrop = useCallback((toRoomId: string) => (ev: React.DragEvent) => {
     ev.preventDefault();
     ev.currentTarget.classList.remove('drag-over');
@@ -310,42 +376,41 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
     } catch {
       return;
     }
-    if (fromRoomMeetingId === toRoomId) return;
+    moveUserBetweenRooms(droppedUserId, fromRoomMeetingId, toRoomId, userName);
+  }, [moveUserBetweenRooms]);
 
-    if (toRoomId === meetingId) {
-      handleUnassignUser(droppedUserId, fromRoomMeetingId);
-      return;
+  const rover = useRoverNavigation('draggableUser', () => {}, breakouts.length, undefined, false);
+  const openMenuFromRow = (event: React.KeyboardEvent, rowId: string) => {
+    if (event.target !== event.currentTarget) return;
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      event.stopPropagation();
+      setOpenMoveMenu(rowId);
+    } else if (event.key === ' ') {
+      event.preventDefault();
+      event.stopPropagation();
     }
-
-    breakoutRoomMoveUser({
-      variables: {
-        userId: droppedUserId,
-        fromBreakoutRoomMeetingId: fromRoomMeetingId,
-        toBreakoutRoomMeetingId: toRoomId,
-      },
-    }).then(() => {
-      const targetRoom = breakouts.find((b) => b.breakoutRoomMeetingId === toRoomId);
-      let targetRoomName = '';
-      if (targetRoom) {
-        targetRoomName = targetRoom.isDefaultName
-          ? intl.formatMessage(intlMessages.breakoutRoom, { roomNumber: targetRoom.sequence })
-          : targetRoom.shortName;
-      }
-      notify(
-        intl.formatMessage(intlMessages.inviteSentToast, {
-          userName: userName || droppedUserId,
-          roomName: targetRoomName,
-        }),
-        'success',
-        'user',
-      );
-    }).catch((err: unknown) => {
-      logger.error(
-        { logCode: 'breakout_move_user_failed', extraInfo: { error: err } },
-        'Failed to move user between breakout rooms',
-      );
+  };
+  const openMenuFromRowKeyUp = (event: React.KeyboardEvent, rowId: string) => {
+    if (event.key === ' ' && event.target === event.currentTarget) {
+      event.preventDefault();
+      event.stopPropagation();
+      setOpenMoveMenu(rowId);
+    }
+  };
+  const closeMoveMenu = (rowId: string) => {
+    setOpenMoveMenu(null);
+    requestAnimationFrame(() => {
+      (document.getElementById(rowId) || document.getElementById(moveFocusTarget.current))?.focus();
     });
-  }, [breakoutRoomMoveUser, handleUnassignUser, breakouts, intl, meetingId]);
+  };
+
+  useEffect(() => {
+    if (!editingRoomId && focusRoomNameId.current) {
+      roomNameRefs.current[focusRoomNameId.current]?.focus();
+      focusRoomNameId.current = null;
+    }
+  }, [editingRoomId]);
 
   const SCROLL_ZONE = 60;
   const SCROLL_SPEED = 8;
@@ -399,6 +464,8 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
           }}
           onDrop={handleDrop(meetingId)}
           id="breakoutBox-0"
+          tabIndex={0}
+          onKeyDown={rover}
         >
           <Styled.UsersSectionHeader>
             <span>{intl.formatMessage(intlMessages.unassignedUsers)}</span>
@@ -410,14 +477,54 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
               .map((user: { userId: string; name: string }) => (
                 <Styled.UserItem
                   key={user.userId}
+                  id={`running-${user.userId}-main`}
                   data-test="draggableUser"
                   draggable
+                  tabIndex={-1}
+                  onKeyDown={(e) => openMenuFromRow(e, `running-${user.userId}-main`)}
+                  onKeyUp={(e) => openMenuFromRowKeyUp(e, `running-${user.userId}-main`)}
                   onDragStart={(ev) => dragStart(ev, user.userId, meetingId, user.name)}
                 >
-                  {user.name}
-                  {user.userId === userId
-                    ? ` (${intl.formatMessage(intlMessages.you)})`
-                    : ''}
+                  <span>
+                    {user.name}
+                    {user.userId === userId ? ` (${intl.formatMessage(intlMessages.you)})` : ''}
+                  </span>
+                  <BBBMenu
+                    open={openMoveMenu === `running-${user.userId}-main`}
+                    onCloseCallback={() => closeMoveMenu(`running-${user.userId}-main`)}
+                    trigger={(
+                      <Styled.MoveUserBtn
+                        type="button"
+                        tabIndex={-1}
+                        aria-label={intl.formatMessage(
+                          intlMessages.moveUserMenu,
+                          { userName: user.name },
+                        )}
+                        aria-haspopup="menu"
+                        aria-expanded={openMoveMenu === `running-${user.userId}-main`}
+                        data-test="moveUserMenuButton"
+                        onClick={() => setOpenMoveMenu(`running-${user.userId}-main`)}
+                      />
+                    )}
+                    actions={breakouts.map((room) => ({
+                      key: room.breakoutRoomMeetingId,
+                      label: intl.formatMessage(
+                        intlMessages.moveToRoom,
+                        { roomName: roomDisplayName(room) },
+                      ),
+                      dataTest: `moveUserToRoom${room.sequence}`,
+                      onClick: () => {
+                        moveFocusTarget.current = `breakoutBox-${room.sequence}`;
+                        moveUserBetweenRooms(
+                          user.userId,
+                          meetingId,
+                          room.breakoutRoomMeetingId,
+                          user.name,
+                        );
+                      },
+                    }))}
+                    opts={{ autoFocus: true, transitionDuration: 0 }}
+                  />
                 </Styled.UserItem>
               ))}
           </Styled.UsersList>
@@ -427,9 +534,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
           {breakouts.map((breakout) => {
             const roomParticipants = breakout.participants.filter((p) => !p.isAudioOnly);
             const totalRoomUsers = roomParticipants.length;
-            const roomName = breakout.isDefaultName
-              ? intl.formatMessage(intlMessages.breakoutRoom, { roomNumber: breakout.sequence })
-              : breakout.shortName;
+            const roomName = roomDisplayName(breakout);
 
             const displayName = localRoomNames[breakout.breakoutRoomMeetingId] ?? roomName;
             const isEditing = editingRoomId === breakout.breakoutRoomMeetingId;
@@ -439,6 +544,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
               <Styled.RoomCard
                 id={`breakoutBox-${breakout.sequence}`}
                 key={breakout.breakoutRoomMeetingId}
+                // eslint-disable-next-line max-len
                 data-test={breakout.isUserCurrentlyInRoom ? 'alreadyConnected' : undefined}
                 onDrop={handleDrop(breakout.breakoutRoomMeetingId)}
                 onDragOver={(ev) => {
@@ -452,11 +558,14 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                 onDragLeave={(ev) => {
                   ev.currentTarget.classList.remove('drag-over');
                 }}
+                tabIndex={0}
+                onKeyDown={rover}
               >
                 <Styled.RoomCardHeader>
                   <Styled.RoomCardLeft>
                     {isEditing ? (
                       <Styled.RoomNameInput
+                        aria-label={intl.formatMessage(intlMessages.roomNameLabel)}
                         value={displayName}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                           setLocalRoomNames((prev) => ({
@@ -466,7 +575,12 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                         }}
                         onBlur={() => setEditingRoomId(null)}
                         onKeyDown={(e: React.KeyboardEvent) => {
-                          if (e.key === 'Enter' || e.key === 'Escape') setEditingRoomId(null);
+                          if (e.key === 'Enter' || e.key === 'Escape') {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            focusRoomNameId.current = breakout.breakoutRoomMeetingId;
+                            setEditingRoomId(null);
+                          }
                         }}
                         // eslint-disable-next-line jsx-a11y/no-autofocus
                         autoFocus
@@ -474,8 +588,11 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                       />
                     ) : (
                       <Styled.RoomCardName
+                        type="button"
+                        ref={(element) => { roomNameRefs.current[breakout.breakoutRoomMeetingId] = element; }}
                         title={displayName}
                         onClick={() => setEditingRoomId(breakout.breakoutRoomMeetingId)}
+                        aria-label={intl.formatMessage(intlMessages.renameRoom, { roomName: displayName })}
                         data-test={`${roomName}`}
                       >
                         {displayName}
@@ -544,6 +661,15 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                           id={`running-${participant.userId}-${breakout.breakoutRoomMeetingId}`}
                           data-test="draggableUser"
                           draggable
+                          tabIndex={-1}
+                          onKeyDown={(e) => openMenuFromRow(
+                            e,
+                            `running-${participant.userId}-${breakout.breakoutRoomMeetingId}`,
+                          )}
+                          onKeyUp={(e) => openMenuFromRowKeyUp(
+                            e,
+                            `running-${participant.userId}-${breakout.breakoutRoomMeetingId}`,
+                          )}
                           onDragStart={(ev) => dragStart(
                             ev,
                             participant.userId,
@@ -557,6 +683,70 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                               ? ` (${intl.formatMessage(intlMessages.you)})`
                               : ''}
                           </span>
+                          <BBBMenu
+                            open={openMoveMenu === (
+                              `running-${participant.userId}-${breakout.breakoutRoomMeetingId}`
+                            )}
+                            onCloseCallback={() => closeMoveMenu(
+                              `running-${participant.userId}-${breakout.breakoutRoomMeetingId}`,
+                            )}
+                            trigger={(
+                              <Styled.MoveUserBtn
+                                type="button"
+                                tabIndex={-1}
+                                aria-label={intl.formatMessage(
+                                  intlMessages.moveUserMenu,
+                                  { userName: participant.user.name },
+                                )}
+                                aria-haspopup="menu"
+                                aria-expanded={openMoveMenu === (
+                                  `running-${participant.userId}-${breakout.breakoutRoomMeetingId}`
+                                )}
+                                data-test="moveUserMenuButton"
+                                onClick={() => setOpenMoveMenu(
+                                  `running-${participant.userId}-${breakout.breakoutRoomMeetingId}`,
+                                )}
+                              />
+                            )}
+                            actions={[
+                              ...breakouts
+                                .filter((room) => (
+                                  room.breakoutRoomMeetingId !== breakout.breakoutRoomMeetingId
+                                ))
+                                .map((room) => ({
+                                  key: room.breakoutRoomMeetingId,
+                                  label: intl.formatMessage(
+                                    intlMessages.moveToRoom,
+                                    { roomName: roomDisplayName(room) },
+                                  ),
+                                  dataTest: `moveUserToRoom${room.sequence}`,
+                                  onClick: () => {
+                                    moveFocusTarget.current = `breakoutBox-${room.sequence}`;
+                                    moveUserBetweenRooms(
+                                      participant.userId,
+                                      breakout.breakoutRoomMeetingId,
+                                      room.breakoutRoomMeetingId,
+                                      participant.user.name,
+                                    );
+                                  },
+                                })),
+                              {
+                                key: 'main',
+                                label: intl.formatMessage(intlMessages.moveToMainRoom),
+                                dataTest: 'moveUserToMainRoom',
+                                onClick: () => {
+                                  moveFocusTarget.current = 'breakoutBox-0';
+                                  moveUserBetweenRooms(
+                                    participant.userId,
+                                    breakout.breakoutRoomMeetingId,
+                                    meetingId,
+                                    participant.user.name,
+                                  );
+                                },
+                              },
+                            ]}
+                            opts={{ autoFocus: true, transitionDuration: 0 }}
+                          />
                           <Styled.UserRemoveBtn
                             type="button"
                             aria-label={intl.formatMessage(intlMessages.unassignUser)}
