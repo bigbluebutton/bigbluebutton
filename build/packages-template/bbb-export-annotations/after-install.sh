@@ -4,6 +4,16 @@ case "$1" in
   configure|upgrade|1|2)
 
   fc-cache -f
+
+  # Before 4.1 the override was /etc/bigbluebutton/bbb-export-annotations.json
+  OLD_OVERRIDE=/etc/bigbluebutton/bbb-export-annotations.json
+  NEW_OVERRIDE=/etc/bigbluebutton/bbb-export-annotations/production.json
+  if [ -f $OLD_OVERRIDE ] && [ ! -e $NEW_OVERRIDE ]; then
+    mkdir -p $(dirname $NEW_OVERRIDE)
+    mv $OLD_OVERRIDE $NEW_OVERRIDE
+    echo "Moved $OLD_OVERRIDE to $NEW_OVERRIDE"
+  fi
+
   if [ ! -f /.dockerenv ]; then
     systemctl enable bbb-export-annotations.service
     systemctl daemon-reload

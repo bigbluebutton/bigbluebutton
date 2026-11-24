@@ -135,7 +135,7 @@ export function isBlankSlide(svgPath, blankSvgPath) {
  * @param {number} options.height Height in pixels to render at.
  * @param {string} [options.pdftocairo='pdftocairo'] Path to the pdftocairo
  *   executable. Defaults to resolving it on PATH, as bbb-web does, so a
- *   deployment whose settings.json predates this setting still works.
+ *   deployment whose default.json predates this setting still works.
  * @param {number} [options.timeout=60000] Milliseconds before the conversion
  *   is killed. A stalled poppler would otherwise hold the worker open and
  *   never let the caller reach its fallback.

@@ -488,7 +488,7 @@ followed by
 npm start
 ```
 
-to begin exporting presentations with annotations. If you run into permission issues, change `presAnnDropboxDir` in `config/settings.json` to a folder in your home directory
+to begin exporting presentations with annotations. If you run into permission issues, change `presAnnDropboxDir` in `config/default.json` to a folder in your home directory
 and make sure your user account has access to the presentation directory (see "Developing BBB-Web").
 
 Use `journalctl -u bbb-export-annotations -e` to see recent logs.

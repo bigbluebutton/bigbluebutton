@@ -36,7 +36,7 @@ Many of the configuration files have local overrides so the administrator can sp
 | /usr/share/livekit-server/livekit.yaml                                  | /etc/bigbluebutton/livekit.yaml                  | Merged when `livekit-server` starts; holds the API keys                          |
 | /usr/share/livekit-server/livekit-sip.yaml                              | /etc/bigbluebutton/livekit-sip.yaml              | Merged when `livekit-sip` starts                                                 |
 | /usr/share/bbb-shared-notes-server/config/default.yml                   | /etc/bigbluebutton/bbb-shared-notes-server.yml   |                                                  |
-| /usr/local/bigbluebutton/bbb-export-annotations/config/settings.json    | /etc/bigbluebutton/bbb-export-annotations.json   | JSON; arrays are merged by replacement           |
+| /usr/local/bigbluebutton/bbb-export-annotations/config/default.json    | /etc/bigbluebutton/bbb-export-annotations/production.json (was /etc/bigbluebutton/bbb-export-annotations.json before 4.1) | JSON; arrays are merged by replacement           |
 | /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml                 | /etc/bigbluebutton/recording/recording.yml       | Top-level keys in the override replace the shipped values as a whole (for example the complete `steps` map) |
 | /usr/local/bigbluebutton/core/scripts/presentation.yml                  | /etc/bigbluebutton/recording/presentation.yml    | Top-level keys in the override replace the shipped values as a whole                |
 | /usr/local/bigbluebutton/core/scripts/video.yml                         | /etc/bigbluebutton/recording/video.yml           | Presets are merged by name: a preset in the override replaces the shipped preset of the same name as a whole |
@@ -45,6 +45,8 @@ Many of the configuration files have local overrides so the administrator can sp
 | /usr/local/bigbluebutton/bbb-webhooks/config/default.yml                |                                                  | No override file; regenerated on every install and upgrade of `bbb-webhooks`        |
 | /usr/share/bigbluebutton/nginx/*.nginx                                  | /etc/bigbluebutton/nginx/*.nginx                 | See [nginx](#nginx) below                                                          |
 | /etc/cron.daily/bigbluebutton                                           | /etc/default/bigbluebutton-cron-config    | Only variables allowed in the override
+
+An override must be readable by the user the service runs as, normally `bigbluebutton`. For the services that keep their override in a directory of its own (`bbb-webrtc-sfu`, `bbb-transcription-controller`, `bbb-export-annotations`), the directory must be listable by that user as well (mode `0755`). If it is not, the override is skipped without a message and the service runs on its defaults.
 
 <br /><br />
 
@@ -92,7 +94,7 @@ Redis has no password by default. To require one, set `requirepass` in `/etc/red
 | bbb-shared-notes-server    | /etc/bigbluebutton/bbb-shared-notes-server.yml               | `redis.password`                        |
 | bbb-webrtc-sfu             | /etc/bigbluebutton/bbb-webrtc-sfu/production.yml             | `redisPassword`                         |
 | Recording processing       | /etc/bigbluebutton/recording/recording.yml                   | `redis_password`                        |
-| bbb-export-annotations     | /etc/bigbluebutton/bbb-export-annotations.json               | `redis.password`                        |
+| bbb-export-annotations     | /etc/bigbluebutton/bbb-export-annotations/production.json    | `redis.password`                        |
 | bbb-webrtc-recorder        | /etc/bbb-webrtc-recorder/bbb-webrtc-recorder.yml             | `pubsub.adapters.redis.password`        |
 | bbb-transcription-controller | /etc/bigbluebutton/bbb-transcription-controller/production.yml | `redis.password`                      |
 | livekit-server             | /etc/bigbluebutton/livekit.yaml                              | `redis.password`                        |

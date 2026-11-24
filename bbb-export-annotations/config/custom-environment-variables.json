@@ -1,0 +1,27 @@
+{
+  "log": {
+    "level": "BBB_EXPORT_ANNOTATIONS_LOG_LEVEL"
+  },
+  "shared": {
+    "presAnnDropboxDir": "BBB_EXPORT_ANNOTATIONS_SHARED_PRES_ANN_DROPBOX_DIR",
+    "cairosvg": "BBB_EXPORT_ANNOTATIONS_SHARED_CAIROSVG",
+    "ghostscript": "BBB_EXPORT_ANNOTATIONS_SHARED_GHOSTSCRIPT",
+    "pdftocairo": "BBB_EXPORT_ANNOTATIONS_SHARED_PDFTOCAIRO",
+    "blankSvg": "BBB_EXPORT_ANNOTATIONS_SHARED_BLANK_SVG"
+  },
+  "process": {
+    "rasterizeTimeoutSeconds": {
+      "__name": "BBB_EXPORT_ANNOTATIONS_PROCESS_RASTERIZE_TIMEOUT_SECONDS",
+      "__format": "number"
+    }
+  },
+  "bbbWebAPI": "BBB_WEB_API",
+  "redis": {
+    "host": "REDIS_HOST",
+    "port": {
+      "__name": "REDIS_PORT",
+      "__format": "number"
+    },
+    "password": "REDIS_PASSWORD"
+  }
+}
