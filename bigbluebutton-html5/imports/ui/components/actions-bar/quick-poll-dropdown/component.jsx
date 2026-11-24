@@ -190,7 +190,8 @@ const QuickPollDropdown = (props) => {
   // (?!\d) only after a numeric label's ".": dates like "13.11.25" in a
   // slide footer are not taken as an option labelled 13, while "1)2" and
   // letter labels such as "A)2" still start an option.
-  const pollRegex = /(?:^|\s{2,})(?:(?:[1-9]|1[0-9])(?:\.(?!\d)|\))|[A-Sa-s][.)])\s*.*/gm;
+  const pollLabel = /(?:(?:[1-9]|1[0-9])(?:\.(?!\d)|\))|[A-Sa-s][.)])/.source;
+  const pollRegex = new RegExp(`(?:^|\\s{2,})${pollLabel}\\s*.*?(?=\\s{2,}${pollLabel}|$)`, 'gm');
   let optionsPoll = safeMatch(pollRegex, content, []);
 
   const optionsWithLabels = [];
