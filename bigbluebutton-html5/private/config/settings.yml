@@ -165,11 +165,20 @@ public:
         # The URL to the terms of service for the transcription service
         # Specify the URL for each locale you want:
         # en-US: 'https://xxx/SubtitleTerms'
-    mutedAlert:
+    # Contextual hints driven by in-meeting activity. Hints never act on their own:
+    # each one only suggests an action the user can take.
+    smartTriggers:
       enabled: true
-      interval: 200
-      threshold: -50
-      duration: 4000
+      # Shows a tooltip above the mute button when the user talks while muted.
+      # Clicking it turns the alert off until the user unmutes.
+      talkingWhileMuted:
+        enabled: true
+        # How often (ms) the audio energy is checked.
+        interval: 200
+        # Audio energy threshold (dB) to detect speech.
+        speechThresholdDb: -50
+        # How long (ms) the alert stays after the user stops speaking.
+        hideAfterMs: 4000
     appsGallery:
       maxPinnedApps: 3
     # Show the remaining time banner when the meeting has fewer than this many minutes left.

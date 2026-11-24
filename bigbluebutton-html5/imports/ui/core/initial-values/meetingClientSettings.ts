@@ -92,11 +92,14 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           locale: 'disabled',
         },
       },
-      mutedAlert: {
+      smartTriggers: {
         enabled: true,
-        interval: 200,
-        threshold: -50,
-        duration: 4000,
+        talkingWhileMuted: {
+          enabled: true,
+          interval: 200,
+          speechThresholdDb: -50,
+          hideAfterMs: 4000,
+        },
       },
       appsGallery: {
         maxPinnedApps: 3,
