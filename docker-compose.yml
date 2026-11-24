@@ -135,6 +135,8 @@ services:
   redis:
     <<: *bbb
     image: docker.io/library/redis:7.4.11-alpine@sha256:57e4255cc971b1c8d6f8a6ca283ac01bc3ecdd914273ef6bfaede87aaecd6541
+    volumes:
+      - redis:/data
     healthcheck:
       test:
         - CMD
@@ -394,6 +396,7 @@ networks:
 volumes:
   recording-logs:
   postgres:
+  redis:
   acme-challenge:
   haproxy-run:
   # the conversion socket; a tmpfs owned by the notes image's user, bigbluebutton (998)

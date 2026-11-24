@@ -132,7 +132,7 @@ A front end such as [Greenlight](/greenlight/v3/install) needs the API URL and t
 
 ### init fails with "password authentication failed for user postgres"
 
-`.env` was written again after the first start: the postgres volume keeps the `POSTGRES_PASSWORD` it was created with. Run `docker compose down -v` and start again.
+`.env` was written again after the first start: the postgres volume keeps the `POSTGRES_PASSWORD` it was created with. Remove the postgres volume and start again: `docker compose down && docker volume rm bigbluebutton_postgres && docker compose up -d`.
 
 ### Meetings start without the default slides
 
