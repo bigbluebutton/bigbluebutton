@@ -19,6 +19,7 @@ COPY bigbluebutton-web/loadbalancer.nginx \
      build/packages-template/bbb-shared-notes-server/bbb-shared-notes-server.nginx \
      build/packages-template/bbb-webrtc-sfu/webrtc-sfu.nginx \
      record-and-playback/notes/scripts/notes-playback.nginx \
+     record-and-playback/podcast/scripts/podcast.nginx \
      record-and-playback/presentation/scripts/presentation.nginx \
      record-and-playback/screenshare/scripts/recording-screenshare.nginx \
      record-and-playback/video/scripts/playback-video.nginx \

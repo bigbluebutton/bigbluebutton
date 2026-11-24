@@ -1,5 +1,6 @@
-# Recording processing: bbb-record-core with the presentation, video, notes and screenshare formats,
-# as the packages install them (build/packages-template/bbb-record-core, bbb-playback-<format>).
+# Recording processing: bbb-record-core with the presentation, video, notes, screenshare and
+# podcast formats, as the packages install them (build/packages-template/bbb-record-core,
+# bbb-playback-<format>).
 # The default command runs the resque workers; the same image runs
 #   /usr/local/bigbluebutton/core/scripts/rap-starter.rb
 #   /usr/local/bigbluebutton/core/scripts/rap-caption-inbox.rb
@@ -66,7 +67,8 @@ COPY --from=build /usr/local/bigbluebutton/core /usr/local/bigbluebutton/core
 COPY core/Rakefile /usr/local/bigbluebutton/core/
 COPY core/lib /usr/local/bigbluebutton/core/lib
 COPY core/scripts /usr/local/bigbluebutton/core/scripts
-COPY presentation/scripts video/scripts notes/scripts screenshare/scripts /usr/local/bigbluebutton/core/scripts/
+COPY presentation/scripts video/scripts notes/scripts screenshare/scripts podcast/scripts \
+     /usr/local/bigbluebutton/core/scripts/
 COPY video/playback /usr/local/bigbluebutton/core/playback
 COPY screenshare/playback /usr/local/bigbluebutton/core/playback/screenshare
 COPY --from=bigbluebutton-config bigbluebutton-release /etc/bigbluebutton/
@@ -80,7 +82,7 @@ RUN mkdir -p /var/bigbluebutton/basic_stats /var/bigbluebutton/captions/inbox /v
         /var/bigbluebutton/recording/status/ended /var/bigbluebutton/recording/status/recorded \
         /var/bigbluebutton/recording/status/archived /var/bigbluebutton/recording/status/processed \
         /var/bigbluebutton/recording/status/sanity /var/bigbluebutton/recording/status/published \
-    && for f in presentation video notes screenshare; do \
+    && for f in presentation video notes screenshare podcast; do \
         mkdir -p "/var/bigbluebutton/published/$f" "/var/bigbluebutton/recording/publish/$f" "/var/log/bigbluebutton/$f"; \
     done \
     && chown -R bigbluebutton:bigbluebutton /var/bigbluebutton /var/log/bigbluebutton
