@@ -174,6 +174,7 @@ export interface SmartTriggers {
   handStillRaised: CooldownSmartTrigger
   newMicrophone: SmartTrigger
   recordingWithNoSpeech: RecordingWithNoSpeechSmartTrigger
+  presenterAway: CooldownSmartTrigger
   speechNotTranscribed: SpeechNotTranscribedSmartTrigger
 }
 
@@ -234,6 +235,7 @@ export interface Application {
   raiseHandPushAlerts: boolean
   guestWaitingAudioAlerts: boolean
   guestWaitingPushAlerts: boolean
+  presenterAwaySound: boolean
   wakeLock: boolean
   paginationEnabled: boolean
   whiteboardToolbarAutoHide: boolean

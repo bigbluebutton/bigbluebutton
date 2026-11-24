@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import Styled from '/imports/ui/components/settings/submenus/styles';
+import { jumboPaddingY } from '/imports/ui/stylesheets/styled-components/general';
 
 const Title = styled(Styled.Title)``;
 
@@ -16,6 +17,13 @@ const FormElement = styled(Styled.FormElement)``;
 const FormElementRight = styled(Styled.FormElementRight)``;
 
 const Label = styled(Styled.Label)``;
+
+const PresenterAwaySection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${jumboPaddingY};
+  margin-top: ${jumboPaddingY};
+`;
 
 const ColHeading = styled(Styled.Col)`
   display: block;
@@ -35,4 +43,5 @@ export default {
   FormElementRight,
   Label,
   ColHeading,
+  PresenterAwaySection,
 };

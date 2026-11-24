@@ -109,6 +109,10 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           startCheckSeconds: 30,
           maxSilenceMinutes: 10,
         },
+        presenterAway: {
+          enabled: true,
+          cooldownMs: 2000,
+        },
         speechNotTranscribed: {
           enabled: true,
           speechThresholdDb: -50,
@@ -166,6 +170,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           raiseHandPushAlerts: true,
           guestWaitingAudioAlerts: true,
           guestWaitingPushAlerts: true,
+          presenterAwaySound: true,
           wakeLock: true,
           paginationEnabled: true,
           whiteboardToolbarAutoHide: false,
