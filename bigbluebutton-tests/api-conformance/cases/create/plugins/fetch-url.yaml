@@ -28,7 +28,13 @@ steps:
   # The list and each manifest, once each, or twice as bbb-web does.
   - sink: {key: "${uid}", within: 2s}
     golden: off
-    expect: {count: {between: [3, 6]}}
+    expect: {path: "/${uid}/fixtures/plugins/list.json", count: {between: [1, 2]}}
+  - sink: {key: "${uid}", within: 0s}
+    golden: off
+    expect: {path: "/${uid}/fixtures/plugins/basic.json", count: {between: [1, 2]}}
+  - sink: {key: "${uid}", within: 0s}
+    golden: off
+    expect: {path: "/${uid}/fixtures/plugins/second.json", count: {between: [1, 2]}}
 teardown:
   # Again until bbb-web no longer knows the meeting: an end that reaches
   # akka-apps before the create does is lost.

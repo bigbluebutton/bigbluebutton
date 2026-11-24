@@ -25,7 +25,7 @@ sum() { sha256sum "$1" | cut -d' ' -f1; }
 
 # A switch that stops before install leaves no staged copy behind: it can
 # hold the salt. The overlays are profile.sh's, whose trap this replaces.
-trap 'rm -f "$F.bbb-conform-next" "$A.bbb-conform-next" "$OVERLAY" "$AKKA_OVERLAY"' EXIT
+trap 'rm -f "$F.bbb-conform-next" "$A.bbb-conform-next" "$F.bbb-conform-state.next" "$A.bbb-conform-state.next" "$OVERLAY" "$AKKA_OVERLAY"' EXIT
 trap 'exit 1' HUP INT TERM
 
 if [ "$NAME" = status ]; then
@@ -82,7 +82,7 @@ install() {
 		return 0
 	fi
 	if ! { : >"$marker" &&
-		printf '%s\n%s\n%s\n' "$NAME" "$(sum "$next")" "$(sum "$f")" >"$f.bbb-conform-state" &&
+		set_state "$f" "$NAME" "$(sum "$next")" "$(sum "$f")" &&
 		chown --reference="$f.bbb-conform-orig" "$next" &&
 		chmod --reference="$f.bbb-conform-orig" "$next" &&
 		mv "$next" "$f"; }; then
@@ -99,13 +99,26 @@ record() {
 	if cmp -s "$f" "$f.bbb-conform-orig"; then
 		rm -f "$f.bbb-conform-state" "$f.bbb-conform-orig"
 	else
-		printf '%s\n%s\n' "$NAME" "$(sum "$f")" >"$f.bbb-conform-state"
+		set_state "$f" "$NAME" "$(sum "$f")"
 	fi
 }
 
-# strict FILE: the one of bbb-web's settings akka-apps reads at startup too.
+# set_state FILE LINE...: replaces FILE's state with LINEs as a whole, so a
+# switch that stops while writing it leaves the old state or the new one.
+set_state() {
+	s=$1.bbb-conform-state
+	shift
+	printf '%s\n' "$@" >"$s.next" && mv "$s.next" "$s"
+}
+
+# strict FILE: the one of bbb-web's settings akka-apps reads at startup too,
+# as it reads it with java.util.Properties: the key's last value, with
+# spaces or a colon around the separator allowed, true when it says true in
+# any case once trimmed.
 strict() {
-	grep -E '^clientSettingsOverrideStrictValidation=' "$1" 2>/dev/null | tail -n 1 || true
+	v=$(sed -n 's/^[[:space:]]*clientSettingsOverrideStrictValidation[[:space:]]*[=:[:space:]][[:space:]]*//p' "$1" 2>/dev/null |
+		tail -n 1 | sed 's/[[:space:]]*$//' | tr '[:upper:]' '[:lower:]')
+	if [ "$v" = true ]; then echo true; else echo false; fi
 }
 
 [ -f "$F" ] || : >"$F"
