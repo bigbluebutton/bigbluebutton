@@ -1,0 +1,149 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# Ended breakout rooms stay listed under their parent's breakoutRooms:
+# bbb-web never removes a room from the list, though it forgets the room
+# itself (notFound), and a second round of rooms is added to the list.
+# Record-only until triage decides whether this is the contract: the
+# listings are recorded, not checked.
+id: getMeetingInfo.breakout-rooms.ended-listed
+title: Ended breakout rooms stay in their parent's list
+endpoint: getMeetingInfo
+class: compat
+tags: [ci, presence, triage]
+requires: [akka, presence, bus]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Breakout parent}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - presence:
+      action: join
+      as: ann
+      args: {meetingID: "${uid}", fullName: Ann, role: MODERATOR}
+    golden: off
+  # Two rooms, as the client asks for them: akka-apps wants at least two.
+  - graphql:
+      as: ann
+      query: >-
+        mutation CreateBreakouts($record: Boolean!, $notes: Boolean!, $slides: Boolean!, $duration: Int!,
+        $invite: Boolean!, $lock: Boolean!, $rooms: [BreakoutRoom]!) {
+        breakoutRoomCreate(record: $record, captureNotes: $notes, captureSlides: $slides, durationInSeconds: $duration,
+        sendInviteToModerators: $invite, inheritLockSettings: $lock, rooms: $rooms) }
+      variables:
+        record: false
+        notes: false
+        slides: false
+        duration: 600
+        invite: false
+        lock: false
+        rooms:
+          - name: Room 1
+            shortName: Room 1
+            sequence: 1
+            isDefaultName: true
+            freeJoin: false
+            users: []
+            captureNotesFilename: ""
+            captureSlidesFilename: ""
+            allPages: true
+            presId: ""
+          - name: Room 2
+            shortName: Room 2
+            sequence: 2
+            isDefaultName: true
+            freeJoin: false
+            users: []
+            captureNotesFilename: ""
+            captureSlidesFilename: ""
+            allPages: true
+            presId: ""
+    golden: off
+  - bus: {name: BreakoutRoomStartedEvtMsg, meetingId: "${intId}", within: 15s}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.breakout.sequence: "1"}
+    capture: {r1int: $.core.body.breakout.breakoutId}
+  - bus: {name: BreakoutRoomStartedEvtMsg, meetingId: "${intId}", within: 15s}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.breakout.sequence: "2"}
+    capture: {r2int: $.core.body.breakout.breakoutId}
+  # Each room's meetingID, as bbb-web gave it.
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${r1int}", within: 5s}
+    golden: off
+    capture: {r1ext: $.core.body.props.meetingProp.extId}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${r2int}", within: 5s}
+    golden: off
+    capture: {r2ext: $.core.body.props.meetingProp.extId}
+  - graphql:
+      as: ann
+      query: "mutation EndBreakouts { breakoutRoomEndAll }"
+    golden: off
+  - bus: {name: MeetingEndedEvtMsg, meetingId: "${r1int}", within: 15s}
+    golden: off
+  - bus: {name: MeetingEndedEvtMsg, meetingId: "${r2int}", within: 15s}
+    golden: off
+  - call: getMeetingInfo
+    params: {meetingID: "${r1ext}"}
+    golden: document
+    eventually: {within: 5s, every: 100ms, until: {messageKey: notFound}}
+    expect: {returncode: FAILED, messageKey: notFound}
+  - call: getMeetingInfo
+    params: {meetingID: "${uid}"}
+    golden: document
+    expect: {returncode: SUCCESS}
+  # A second round, once the first has ended.
+  - graphql:
+      as: ann
+      query: >-
+        mutation CreateBreakouts($record: Boolean!, $notes: Boolean!, $slides: Boolean!, $duration: Int!,
+        $invite: Boolean!, $lock: Boolean!, $rooms: [BreakoutRoom]!) {
+        breakoutRoomCreate(record: $record, captureNotes: $notes, captureSlides: $slides, durationInSeconds: $duration,
+        sendInviteToModerators: $invite, inheritLockSettings: $lock, rooms: $rooms) }
+      variables:
+        record: false
+        notes: false
+        slides: false
+        duration: 600
+        invite: false
+        lock: false
+        rooms:
+          - name: Room 1
+            shortName: Room 1
+            sequence: 1
+            isDefaultName: true
+            freeJoin: false
+            users: []
+            captureNotesFilename: ""
+            captureSlidesFilename: ""
+            allPages: true
+            presId: ""
+          - name: Room 2
+            shortName: Room 2
+            sequence: 2
+            isDefaultName: true
+            freeJoin: false
+            users: []
+            captureNotesFilename: ""
+            captureSlidesFilename: ""
+            allPages: true
+            presId: ""
+    golden: off
+  # Both rounds' rooms, counted since the case began.
+  - bus: {name: BreakoutRoomStartedEvtMsg, meetingId: "${intId}", within: 10s}
+    golden: off
+    expect: {count: 4}
+  - call: getMeetingInfo
+    params: {meetingID: "${uid}"}
+    golden: document
+    expect: {returncode: SUCCESS}
+teardown:
+  # Ending the parent ends its rooms. Again until bbb-web no longer knows
+  # the meeting: an end that reaches akka-apps before the create does is
+  # lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}
