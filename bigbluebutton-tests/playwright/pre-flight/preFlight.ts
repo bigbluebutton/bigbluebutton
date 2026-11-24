@@ -1,4 +1,4 @@
-import { expect, Page as PlaywrightPage, WebSocketRoute } from '@playwright/test';
+import { expect, Page as PlaywrightPage, TestInfo, WebSocketRoute } from '@playwright/test';
 
 import {
   ELEMENT_WAIT_EXTRA_LONG_TIME,
@@ -7,6 +7,8 @@ import {
   VIDEO_LOADING_WAIT_TIME,
 } from '../core/constants';
 import { elements as e } from '../core/elements';
+import { createMeeting } from '../core/helpers';
+import { withMediaBridgeCreateParam } from '../core/livekit';
 import { InitOptionsProps, Page } from '../core/page';
 import { getLocaleValues } from '../options/util';
 import { InitExtraPageOptionsProps, MultiUsers } from '../user/multiusers';
@@ -31,6 +33,8 @@ const JOIN_RETRY_TIMEOUT = 20000 + ELEMENT_WAIT_LONGER_TIME;
 
 export const USER_JOIN_OPERATION = '"operationName":"UserJoin"';
 
+const KEEP_EMPTY_ROOM_CREATE_PARAMETER = 'meetingExpireWhenLastUserLeftInMinutes=10';
+
 // 1012 (service restart): graphql-ws reconnects on it, where most 1xxx codes,
 // 1011 included, are fatal to it and end the retries.
 const DROPPED_SOCKET = { code: 1012, reason: 'Connection dropped by the test' };
@@ -46,6 +50,16 @@ export class PreFlight extends MultiUsers {
 
   private heldUserJoins = 0;
 
+  private apiMeeting?: { meetingId: string; testInfo: TestInfo | null };
+
+  private get attendeeMeetingId(): string {
+    return this.apiMeeting?.meetingId ?? this.modPage.meetingId;
+  }
+
+  private get attendeeTestInfo(): TestInfo | null {
+    return this.apiMeeting ? this.apiMeeting.testInfo : this.modPage.testInfo;
+  }
+
   // The attendee is the one held by the pre-flight; the moderator goes through
   // the regular flow and observes the server side of the join.
   async initModPage(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
@@ -56,6 +70,20 @@ export class PreFlight extends MultiUsers {
     });
   }
 
+  // For the cases that only watch the attendee: the meeting is created as Page.init
+  // creates it, and no moderator joins. Without a moderator, the room empties when an
+  // attendee leaves, and it ends a minute later. The longer expiry keeps it open for
+  // the case's next attendee.
+  async createMeetingWithoutModerator({
+    testInfo = null,
+    createParameter = PRE_FLIGHT_CREATE_PARAMETER,
+  }: { testInfo?: TestInfo | null; createParameter?: string } = {}) {
+    const meetingId = await createMeeting(
+      withMediaBridgeCreateParam(`${createParameter}&${KEEP_EMPTY_ROOM_CREATE_PARAMETER}`),
+    );
+    this.apiMeeting = { meetingId, testInfo };
+  }
+
   // prepare runs on the attendee's page before it loads, so a fault injected
   // there is in place for the first getUserMedia and the first socket.
   async initUserPageWithPreFlight(
@@ -64,10 +92,10 @@ export class PreFlight extends MultiUsers {
   ) {
     const page = await this.context.newPage();
     if (prepare) await prepare(page);
-    this.userPage = new Page(this.browser, page, this.modPage.testInfo);
+    this.userPage = new Page(this.browser, page, this.attendeeTestInfo);
     await this.userPage.init(false, {
       fullName: 'Attendee',
-      meetingId: this.modPage.meetingId,
+      meetingId: this.attendeeMeetingId,
       ...PRE_FLIGHT_INIT_OPTIONS,
       ...options,
     });
@@ -601,8 +629,7 @@ export class PreFlight extends MultiUsers {
   }
 
   // Every graphql socket of the attendee goes through here: forwarded as is
-  // until the test drops the connection or holds the join. The moderator's
-  // page is not routed.
+  // until the test drops the connection or holds the join.
   async routeGraphql(page: PlaywrightPage) {
     await page.routeWebSocket('**/graphql**', (client) => {
       if (this.graphqlDown) {
@@ -709,7 +736,12 @@ export class PreFlight extends MultiUsers {
 
   // With the setting off the client keeps the previous flow.
   async disabledByDefault() {
-    await this.initUserPage(this.context, NO_PRE_FLIGHT_INIT_OPTIONS);
+    this.userPage = new Page(this.browser, await this.context.newPage(), this.attendeeTestInfo);
+    await this.userPage.init(false, {
+      fullName: 'Attendee',
+      meetingId: this.attendeeMeetingId,
+      ...NO_PRE_FLIGHT_INIT_OPTIONS,
+    });
     expect(
       await this.userPage.checkElement(e.preFlight),
       'should not display the pre-flight screen when the setting is off',

@@ -23,6 +23,12 @@ export function getMediaBridgeCreateParam(): string | undefined {
   return isLegacy ? LEGACY_CREATE_PARAMS : undefined;
 }
 
+// A test's create parameters, with the configured media bridge's appended.
+export function withMediaBridgeCreateParam(createParameter?: string): string | undefined {
+  const bridgeParam = getMediaBridgeCreateParam();
+  return createParameter && bridgeParam ? `${createParameter}&${bridgeParam}` : (createParameter ?? bridgeParam);
+}
+
 // Where the local microphone is published, per LiveKit room. Requires the room
 // registry to be exposed, which only happens when a test opts in before load:
 //   await page.addInitScript(() => { window.BBB_EXPOSE_LIVEKIT_ROOM = true; });

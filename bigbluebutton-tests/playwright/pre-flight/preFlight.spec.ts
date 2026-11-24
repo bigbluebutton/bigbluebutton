@@ -9,9 +9,9 @@ test.describe.parallel('Pre-flight', { tag: '@ci' }, () => {
     await preFlight.joinsOnlyAfterConfirmation();
   });
 
-  test('Joins the audio as set in the pre-flight', async ({ browser, context, page }, testInfo) => {
+  test('Joins the audio as set in the pre-flight', async ({ browser, context }, testInfo) => {
     const preFlight = new PreFlight(browser, context);
-    await preFlight.initModPage(page, { testInfo });
+    await preFlight.createMeetingWithoutModerator({ testInfo });
     await test.step('Joins audio without the audio modal', async () => {
       await preFlight.joinsAudioWithoutModal();
     });
@@ -33,15 +33,15 @@ test.describe.parallel('Pre-flight', { tag: '@ci' }, () => {
     });
   });
 
-  test('Picks devices in the setup panel', async ({ browser, context, page }, testInfo) => {
+  test('Picks devices in the setup panel', async ({ browser, context }, testInfo) => {
     const preFlight = new PreFlight(browser, context);
-    await preFlight.initModPage(page, { testInfo });
+    await preFlight.createMeetingWithoutModerator({ testInfo });
     await preFlight.picksDevicesInTheSetupPanel();
   });
 
-  test('Changes settings before joining', async ({ browser, context, page }, testInfo) => {
+  test('Changes settings before joining', async ({ browser, context }, testInfo) => {
     const preFlight = new PreFlight(browser, context);
-    await preFlight.initModPage(page, { testInfo });
+    await preFlight.createMeetingWithoutModerator({ testInfo });
     await preFlight.changesSettingsBeforeJoining();
   });
 
@@ -63,9 +63,9 @@ test.describe.parallel('Pre-flight', { tag: '@ci' }, () => {
     });
   });
 
-  test('Retries a denied camera or goes on without it', async ({ browser, context, page }, testInfo) => {
+  test('Retries a denied camera or goes on without it', async ({ browser, context }, testInfo) => {
     const preFlight = new PreFlight(browser, context);
-    await preFlight.initModPage(page, { testInfo });
+    await preFlight.createMeetingWithoutModerator({ testInfo });
     await test.step('Retries a denied camera', async () => {
       await preFlight.retriesDeniedCamera();
     });
@@ -75,30 +75,24 @@ test.describe.parallel('Pre-flight', { tag: '@ci' }, () => {
     });
   });
 
-  test('Listen only past denied devices', async ({ browser, context, page }, testInfo) => {
+  test('Listen only past denied devices', async ({ browser, context }, testInfo) => {
     const preFlight = new PreFlight(browser, context);
-    // The moderator only hosts: their own audio on the legacy bridge is not
-    // what this covers.
-    await preFlight.initModPage(page, {
-      testInfo,
-      createParameter: LISTEN_ONLY_CREATE_PARAMETER,
-      shouldCloseAudioModal: false,
-    });
+    await preFlight.createMeetingWithoutModerator({ testInfo, createParameter: LISTEN_ONLY_CREATE_PARAMETER });
     await preFlight.listenOnlyPastDeniedDevices();
   });
 
-  test('Disabled by default', async ({ browser, context, page }, testInfo) => {
+  test('Disabled by default', async ({ browser, context }, testInfo) => {
     const preFlight = new PreFlight(browser, context);
-    await preFlight.initModPage(page, { testInfo });
+    await preFlight.createMeetingWithoutModerator({ testInfo });
     await preFlight.disabledByDefault();
   });
 });
 
 // Fault injection, races and edge cases: out of the per-PR gates, run by `npm run test-nightly`.
 test.describe.parallel('Pre-flight: faults and denials', { tag: '@nightly' }, () => {
-  test('Recovers a dropped connection, or reloads on retry', async ({ browser, context, page }, testInfo) => {
+  test('Recovers a dropped connection, or reloads on retry', async ({ browser, context }, testInfo) => {
     const preFlight = new PreFlight(browser, context);
-    await preFlight.initModPage(page, { testInfo });
+    await preFlight.createMeetingWithoutModerator({ testInfo });
     await test.step('Recovers a dropped connection on its own', async () => {
       await preFlight.recoversConnectionOnItsOwn();
     });
@@ -108,9 +102,9 @@ test.describe.parallel('Pre-flight: faults and denials', { tag: '@nightly' }, ()
     });
   });
 
-  test('Recommits the setup on a stalled join retry', async ({ browser, context, page }, testInfo) => {
+  test('Recommits the setup on a stalled join retry', async ({ browser, context }, testInfo) => {
     const preFlight = new PreFlight(browser, context);
-    await preFlight.initModPage(page, { testInfo });
+    await preFlight.createMeetingWithoutModerator({ testInfo });
     await preFlight.recommitsSetupOnStalledJoinRetry();
   });
 
