@@ -33,6 +33,8 @@ group = "org.bigbluebutton.web"
 ext['tomcat.version'] = '11.0.27'
 // TODO: remove once grailsVersion manages logback >= 1.6.5 (8.0.0 manages 1.6.3).
 ext['logback.version'] = '1.6.5'
+// TODO: remove once grailsVersion manages commons-codec >= 1.23.0 (8.0.0 manages 1.22.1).
+ext['commons-codec.version'] = '1.23.0'
 
 apply plugin: "eclipse"
 apply plugin: "idea"
@@ -137,7 +139,7 @@ dependencies {
 
   implementation "org.freemarker:freemarker:2.3.35"
   implementation "com.google.code.gson:gson:2.11.0"
-  implementation "org.json:json:20241224"
+  implementation "org.json:json:20260814"
   implementation "com.zaxxer:nuprocess:2.0.6"
   implementation "net.java.dev.jna:jna:5.14.0"
 
