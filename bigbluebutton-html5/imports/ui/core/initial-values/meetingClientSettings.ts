@@ -104,6 +104,11 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         newMicrophone: {
           enabled: true,
         },
+        recordingWithNoSpeech: {
+          enabled: true,
+          startCheckSeconds: 30,
+          maxSilenceMinutes: 10,
+        },
         speechNotTranscribed: {
           enabled: true,
           speechThresholdDb: -50,

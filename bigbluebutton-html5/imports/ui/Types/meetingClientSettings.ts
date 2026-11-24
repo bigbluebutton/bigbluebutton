@@ -155,6 +155,11 @@ export interface NoMicSignalSmartTrigger extends CooldownSmartTrigger {
   signalFloorDb: number
 }
 
+export interface RecordingWithNoSpeechSmartTrigger extends SmartTrigger {
+  startCheckSeconds: number
+  maxSilenceMinutes: number
+}
+
 export interface SpeechNotTranscribedSmartTrigger extends SmartTrigger {
   speechThresholdDb: number
   afterSpeakingSeconds: number
@@ -168,6 +173,7 @@ export interface SmartTriggers {
   noMicSignal: NoMicSignalSmartTrigger
   handStillRaised: CooldownSmartTrigger
   newMicrophone: SmartTrigger
+  recordingWithNoSpeech: RecordingWithNoSpeechSmartTrigger
   speechNotTranscribed: SpeechNotTranscribedSmartTrigger
 }
 

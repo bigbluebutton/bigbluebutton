@@ -135,3 +135,15 @@ export const findAddedInputDevices = (
     && !known.has(device.deviceId)
   ));
 };
+
+// startedAt is the server time of the latest start or resume. Returns null once
+// the check is due in the past: a client that joins or reloads later in the
+// recording has not watched its first seconds.
+export const getRecordingStartCheckDelayMs = (
+  startedAt: string | Date,
+  startCheckSeconds: number,
+  serverNow: number,
+): number | null => {
+  const delayMs = new Date(startedAt).getTime() + startCheckSeconds * 1000 - serverNow;
+  return delayMs >= 0 ? delayMs : null;
+};

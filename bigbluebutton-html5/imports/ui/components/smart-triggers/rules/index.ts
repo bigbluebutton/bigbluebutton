@@ -3,6 +3,7 @@ import useTalkingWhileMutedRule from './useTalkingWhileMutedRule';
 import useNoMicSignalRule from './useNoMicSignalRule';
 import useHandStillRaisedRule from './useHandStillRaisedRule';
 import useNewMicrophoneRule from './useNewMicrophoneRule';
+import useRecordingWithNoSpeechRule from './useRecordingWithNoSpeechRule';
 import useSpeechNotTranscribedRule from './useSpeechNotTranscribedRule';
 
 const RULES: RuleDefinition[] = [
@@ -10,6 +11,7 @@ const RULES: RuleDefinition[] = [
   { id: 'noMicSignal', presentation: 'toast', useRule: useNoMicSignalRule },
   { id: 'handStillRaised', presentation: 'toast', useRule: useHandStillRaisedRule },
   { id: 'newMicrophone', presentation: 'toast', useRule: useNewMicrophoneRule },
+  { id: 'recordingWithNoSpeech', presentation: 'toast', useRule: useRecordingWithNoSpeechRule },
   { id: 'speechNotTranscribed', presentation: 'toast', useRule: useSpeechNotTranscribedRule },
 ];
 

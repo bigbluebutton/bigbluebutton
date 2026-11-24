@@ -3,6 +3,7 @@ export type RuleId =
   | 'noMicSignal'
   | 'handStillRaised'
   | 'newMicrophone'
+  | 'recordingWithNoSpeech'
   | 'speechNotTranscribed';
 
 export type CooldownPolicy =
@@ -65,6 +66,13 @@ export interface HandStillRaisedSignals {
   raised: boolean;
   muted: boolean;
   talking: boolean;
+}
+
+// at makes each new detection a new value, so a hint still on screen is
+// fired again.
+export interface RecordingSilence {
+  kind: 'start' | 'silence';
+  at: number;
 }
 
 export interface RuleDefinition {

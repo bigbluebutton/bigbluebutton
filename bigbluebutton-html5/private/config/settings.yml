@@ -179,6 +179,16 @@ public:
       # Offers to switch to a microphone connected while the user is in audio.
       newMicrophone:
         enabled: true
+      # Moderators only: suggests checking the audio or pausing the recording when a
+      # microphone is on but nobody is heard while the meeting is recorded.
+      recordingWithNoSpeech:
+        enabled: true
+        # Seconds after the recording starts or resumes to check that someone
+        # has been heard.
+        startCheckSeconds: 30
+        # Longest silence (minutes) tolerated later in the recording before the
+        # hint shows again.
+        maxSilenceMinutes: 10
       # Shows a hint when browser transcription is on and the user keeps talking
       # but nothing gets transcribed: the browser may be using another microphone,
       # or the background is too noisy. It shows again only after a transcription.
