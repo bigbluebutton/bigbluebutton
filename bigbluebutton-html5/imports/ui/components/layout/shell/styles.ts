@@ -125,8 +125,8 @@ const LayoutShellStyles = createGlobalStyle`
     --bbb-sidebar-top: calc(85px + var(--bbb-banners));
   }
   /* a dock below the sidebar shortens it, while cameras show next to open media */
-  #layout[data-cameras][data-presentation-open][data-dock="sidebarContentBottom"]:not([data-media-off],
-    [data-mobile], [data-dock-state="hidden"]) {
+  #layout[data-cameras][data-presentation-open][data-dock="sidebarContentBottom"]:not([data-media-off]):not(
+    [data-mobile]):not([data-dock-state="hidden"]) {
     --bbb-sidebar-height: calc(100% - var(--bbb-dock-sidebar-h) - var(--bbb-banners));
   }
   #layout [data-layout-region="sidebar-content"],
@@ -378,8 +378,9 @@ const LayoutShellStyles = createGlobalStyle`
   #layout[data-dragging] {
     --bbb-dock-box-z: 99;
   }
-  #layout[data-dragging]:is([data-dock="contentTop"], [data-dock="contentBottom"],
-    [data-dock="sidebarContentBottom"]) {
+  #layout[data-dragging][data-dock="contentTop"],
+  #layout[data-dragging][data-dock="contentBottom"],
+  #layout[data-dragging][data-dock="sidebarContentBottom"] {
     --bbb-dock-box-x-shift: calc((var(--bbb-dock-box-w) - var(--bbb-camera-grid-width, 0px)) / 2);
   }
   #layout [data-layout-region="camera-dock"] {
@@ -399,8 +400,8 @@ const LayoutShellStyles = createGlobalStyle`
     width: var(--bbb-camera-grid-width, 0px);
     height: var(--bbb-camera-grid-height, 0px);
   }
-  #layout[data-dragging]:is([data-dock="contentLeft"], [data-dock="contentRight"])
-    [data-layout-region="camera-dock"] {
+  #layout[data-dragging][data-dock="contentLeft"] [data-layout-region="camera-dock"],
+  #layout[data-dragging][data-dock="contentRight"] [data-layout-region="camera-dock"] {
     top: calc(var(--bbb-dock-box-top) + (var(--bbb-dock-box-h) - var(--bbb-camera-grid-height, 0px)) / 2);
   }
   #layout [data-layout-region="camera-dock"] > #cameraDock {
@@ -441,7 +442,8 @@ const LayoutShellStyles = createGlobalStyle`
   #layout [data-layout-region^="drop-zone"][data-zone="contentBottom"] {
     top: calc(100% - var(--bbb-actionbar-height) - 100px);
   }
-  #layout [data-layout-region^="drop-zone"]:is([data-zone="contentLeft"], [data-zone="contentRight"]) {
+  #layout [data-layout-region^="drop-zone"][data-zone="contentLeft"],
+  #layout [data-layout-region^="drop-zone"][data-zone="contentRight"] {
     top: 185px;
     width: 100px;
     height: calc(var(--bbb-dz-height) - 200px);

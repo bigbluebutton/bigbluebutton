@@ -152,8 +152,7 @@ position to itself.
 | custom properties | 49 | 31 | 9.1 |
 | `calc()` (incl. a length divided by a number) | 26 | 16 | 7 |
 | `min()` / `max()` | 79 | 75 | 11.1 |
-| `:is()` | 88 | 78 | 14 |
-| `:not()` with a selector list | 88 | 84 | 9 |
+| `:not()` with a single argument | 1 | 1 | 3.1 |
 | `vw` / `vh` | 26 | 19 | 6.1 |
 | ResizeObserver | 64 | 69 | 13.1 |
 | Pointer Events, `setPointerCapture` | 55 | 59 | 13 |
