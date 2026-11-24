@@ -30,17 +30,17 @@ server:
   subscriptions_denied_list:
   websocket_idle_timeout_seconds: 60
 redis:
-  host: 127.0.0.1
+  host: 127.0.0.1 # or REDIS_HOST from the environment
   port: 6379
   password: ""
 hasura:
-  url: ws://127.0.0.1:8185/v1/graphql
+  url: ws://127.0.0.1:8185/v1/graphql # or HASURA_URL from the environment
 graphql-actions:
-  url: http://127.0.0.1:8093
+  url: http://127.0.0.1:8093 # or HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL from the environment
 auth_hook:
-  url: http://127.0.0.1:8090/bigbluebutton/connection/checkGraphqlAuthorization
+  url: http://127.0.0.1:8090/bigbluebutton/connection/checkGraphqlAuthorization # or AUTH_HOOK_URL from the environment
 session_vars_hook:
-  url: http://127.0.0.1:8901/userInfo
+  url: http://127.0.0.1:8901/userInfo # or SESSION_VARS_HOOK_URL from the environment
 prometheus_advanced_metrics_enabled: false
 log_level: INFO
 # If set, all received queries will be dumped to the specified path, e.g /tmp/queries-dump
