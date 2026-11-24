@@ -36,6 +36,10 @@ export const PRE_FLIGHT_INIT_OPTIONS: InitOptionsProps = {
 // would decide whether "joins unmuted" and "joins muted" hold.
 export const PRE_FLIGHT_CREATE_PARAMETER = 'muteOnStart=false';
 
+// The guest lobby cases: the policy comes with the room, already on the server
+// when the guest joins.
+export const GUEST_LOBBY_CREATE_PARAMETER = `${PRE_FLIGHT_CREATE_PARAMETER}&guestPolicy=ASK_MODERATOR`;
+
 export const NO_PRE_FLIGHT_INIT_OPTIONS: InitOptionsProps = {
   clientSettingsOverrides: PRE_FLIGHT_DISABLED_SETTINGS_OVERRIDE,
 };

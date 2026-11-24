@@ -12,7 +12,7 @@ import { withMediaBridgeCreateParam } from '../core/livekit';
 import { InitOptionsProps, Page } from '../core/page';
 import { getLocaleValues } from '../options/util';
 import { InitExtraPageOptionsProps, MultiUsers } from '../user/multiusers';
-import { openLockViewers, setGuestPolicyOption } from '../user/util';
+import { openLockViewers } from '../user/util';
 import {
   DeviceKind,
   NO_LISTEN_ONLY_JOIN_PARAMETER,
@@ -317,20 +317,16 @@ export class PreFlight extends MultiUsers {
     expect(await htmlTheme(), 'should keep the dark theme picked in the pre-flight after joining').toBe('dark');
   }
 
+  // Expects a room created with GUEST_LOBBY_CREATE_PARAMETER. The modal is read once,
+  // so a failure names the policy the room holds.
   async holdAttendeeInGuestLobby() {
-    await setGuestPolicyOption(this.modPage, e.askModerator);
-    // The policy has to reach the server before the guest joins, or they walk
-    // in. The modal seeds its selector once, on open, so it is reopened until
-    // the new policy shows.
-    await expect(async () => {
-      await openLockViewers(this.modPage);
-      await this.modPage.waitAndClick(e.guestPolicyTab);
-      const policy = await this.modPage.page.locator(e.guestPolicySelector).first().textContent();
-      await this.modPage.waitAndClick(e.closeModal);
-      expect(policy).toMatch(/Ask moderator/);
-    }, 'should have the ask-moderator guest policy applied before the guest joins').toPass({
-      timeout: ELEMENT_WAIT_LONGER_TIME,
-    });
+    await openLockViewers(this.modPage);
+    await this.modPage.waitAndClick(e.guestPolicyTab);
+    await expect(
+      this.modPage.page.locator(e.guestPolicySelector).first(),
+      'should have the ask-moderator guest policy applied before the guest joins',
+    ).toHaveText(/Ask moderator/);
+    await this.modPage.waitAndClick(e.closeModal);
     await this.initUserPageWithPreFlight();
 
     await this.userPage.hasText(
@@ -354,8 +350,8 @@ export class PreFlight extends MultiUsers {
     ).toBeFalsy();
 
     // The attendee joins without guest=true, so they queue as authenticated.
-    // setGuestPolicyOption already left the user list open, and the queue's
-    // action buttons only render once its section is expanded.
+    // openLockViewers already left the user list open, and the queue's action
+    // buttons only render once its section is expanded.
     await this.modPage.waitAndClick(e.authenticatedWaitingUsers);
     await this.modPage.waitAndClick(e.allowAllAuthenticatedWaiting);
     await this.userPage.hasElement(

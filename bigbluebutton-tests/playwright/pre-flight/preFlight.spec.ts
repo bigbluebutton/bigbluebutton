@@ -1,6 +1,6 @@
 import { test } from '../core/setup/fixtures';
 import { PreFlight } from './preFlight';
-import { LISTEN_ONLY_CREATE_PARAMETER } from './util';
+import { GUEST_LOBBY_CREATE_PARAMETER, LISTEN_ONLY_CREATE_PARAMETER } from './util';
 
 test.describe.parallel('Pre-flight', { tag: '@ci' }, () => {
   test('Joins only after confirmation', async ({ browser, context, page }, testInfo) => {
@@ -47,7 +47,7 @@ test.describe.parallel('Pre-flight', { tag: '@ci' }, () => {
 
   test('Guest lobby within the pre-flight', async ({ browser, context, page }, testInfo) => {
     const preFlight = new PreFlight(browser, context);
-    await preFlight.initModPage(page, { testInfo });
+    await preFlight.initModPage(page, { testInfo, createParameter: GUEST_LOBBY_CREATE_PARAMETER });
     await preFlight.guestLobbyWithinPreFlight();
   });
 
@@ -110,13 +110,13 @@ test.describe.parallel('Pre-flight: faults and denials', { tag: '@nightly' }, ()
 
   test('Guest denial within the pre-flight', async ({ browser, context, page }, testInfo) => {
     const preFlight = new PreFlight(browser, context);
-    await preFlight.initModPage(page, { testInfo });
+    await preFlight.initModPage(page, { testInfo, createParameter: GUEST_LOBBY_CREATE_PARAMETER });
     await preFlight.guestDenialWithinPreFlight();
   });
 
   test('Guest denial leave button', async ({ browser, context, page }, testInfo) => {
     const preFlight = new PreFlight(browser, context);
-    await preFlight.initModPage(page, { testInfo });
+    await preFlight.initModPage(page, { testInfo, createParameter: GUEST_LOBBY_CREATE_PARAMETER });
     await preFlight.guestDenialLeaveButton();
   });
 });
