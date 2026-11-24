@@ -849,6 +849,13 @@ check_configuration() {
         echo
     fi
 
+    if [ -f /etc/bigbluebutton/bbb-export-annotations.json ]; then
+        echo
+        echo "# Warning: /etc/bigbluebutton/bbb-export-annotations.json is no longer read by bbb-export-annotations."
+        echo "#   Move it to /etc/bigbluebutton/bbb-export-annotations/production.json"
+        echo
+    fi
+
 }
 
 print_docs_link() {
