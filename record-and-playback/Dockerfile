@@ -6,24 +6,25 @@
 #   /etc/cron.daily/bigbluebutton   (the daily cleanup of bbb-config; schedule it from outside)
 FROM ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852 AS build
 
+ARG MKCLEAN_VERSION=0.9.0
+
 # Versions come from the pinned base image's Ubuntu release.
 # hadolint ignore=DL3008
 RUN apt-get update \
     && apt-get install -y --no-install-recommends build-essential bzip2 ca-certificates curl \
-        libsystemd-dev ruby ruby-bundler ruby-dev unzip zlib1g-dev \
+        libsystemd-dev ruby ruby-bundler ruby-dev unzip zlib1g-dev cmake \
     && rm -rf /var/lib/apt/lists/*
 
 # As build/packages-template/bbb-mkclean/build.sh
 WORKDIR /build/mkclean
 COPY --from=bbb-mkclean mkclean.sha256sum .
-RUN curl -fsSL -o mkclean-0.8.10.tar.bz2 https://sourceforge.net/projects/matroska/files/mkclean/mkclean-0.8.10.tar.bz2/download \
+RUN curl -fsSL -o mkclean-${MKCLEAN_VERSION}.tar.bz2 https://sourceforge.net/projects/matroska/files/mkclean/mkclean-0.9.0.tar.bz2/download \
     && sha256sum -c mkclean.sha256sum \
-    && tar --no-same-owner -xjf mkclean-0.8.10.tar.bz2  # rootless builds reject the tarball's UID
-WORKDIR /build/mkclean/mkclean-0.8.10
-RUN make -C corec/tools/coremake \
-    && corec/tools/coremake/coremake "$(corec/tools/coremake/system_output.sh)" \
+    && tar --no-same-owner -xjf mkclean-${MKCLEAN_VERSION}.tar.bz2  # rootless builds reject the tarball's UID
+WORKDIR /build/mkclean/mkclean-${MKCLEAN_VERSION}
+RUN cmake . \
     && make \
-    && install -m 0755 release/*/mkclean /usr/local/bin/mkclean
+    && install -m 0755 mkclean/mkclean /usr/local/bin/mkclean
 
 # bbb-presentation-video and its python3-perfect-freehand dependency, downloaded by the script the
 # package build runs (build/get_external_dependencies.sh), so the image installs the package's release

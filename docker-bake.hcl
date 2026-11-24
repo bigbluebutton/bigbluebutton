@@ -123,10 +123,8 @@ target "shared-notes-server" {
   context  = "./bbb-shared-notes-server"
 }
 
-# amd64 only: mkclean has no 64-bit ARM build target, and its package is amd64 only too
 target "record-and-playback" {
   inherits  = ["_image"]
-  platforms = ["linux/amd64"]
   tags      = tags("record-and-playback")
   context   = "./record-and-playback"
   contexts  = {
