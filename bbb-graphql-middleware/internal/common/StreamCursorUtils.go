@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"hash/crc32"
+	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
@@ -102,8 +103,12 @@ func PatchQuerySettingLastCursorValue(subscription GraphQlSubscription) []byte {
 
 	if subscription.StreamCursorVariableName != "" {
 		/**** This stream has its cursor value set through variables ****/
-		if browserMessage.Payload.Variables[subscription.StreamCursorVariableName] == subscription.StreamCursorCurrValue {
+		// Either value may be a list or an object decoded from JSON, which == cannot compare.
+		if reflect.DeepEqual(browserMessage.Payload.Variables[subscription.StreamCursorVariableName], subscription.StreamCursorCurrValue) {
 			return subscription.Message
+		}
+		if browserMessage.Payload.Variables == nil {
+			browserMessage.Payload.Variables = make(map[string]interface{})
 		}
 		browserMessage.Payload.Variables[subscription.StreamCursorVariableName] = subscription.StreamCursorCurrValue
 	} else {

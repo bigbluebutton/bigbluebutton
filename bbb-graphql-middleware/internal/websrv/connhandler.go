@@ -157,7 +157,13 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	// Check authorization and obtain user session variables from bbb-web
-	if errorOnInitConnection, errorMessageId := connectionInitHandler(&thisConnection); errorOnInitConnection != nil {
+	if errorOnInitConnection, errorMessageId := connectionInitHandler(&thisConnection); errors.Is(errorOnInitConnection, errConnectionInitTimeout) {
+		common.WsConnectionRejectedCounter.With(prometheus.Labels{"reason": errorOnInitConnection.Error()}).Inc()
+		// 4408 is the graphql-transport-ws code for this case. Clients retry it, unlike a refusal.
+		connectionLogger.Infof("closing browser connection, reason: %v", errorOnInitConnection)
+		browserWsConn.Close(websocket.StatusCode(4408), "Connection initialisation timeout")
+		browserConnectionContextCancel()
+	} else if errorOnInitConnection != nil {
 		common.WsConnectionRejectedCounter.With(prometheus.Labels{"reason": errorOnInitConnection.Error()}).Inc()
 		disconnectWithError(
 			browserWsConn,
@@ -440,10 +446,25 @@ func refreshSessionVariablesUntilSettled(browserConnection *common.BrowserConnec
 	}
 }
 
+// How long a client has to send connection_init. Until then the connection is neither
+// authenticated nor counted in the connection limits.
+var connectionInitTimeout = 30 * time.Second
+
+var errConnectionInitTimeout = errors.New("connection_init not received in time")
+
 func connectionInitHandler(browserConnection *common.BrowserConnection) (error, string) {
+	deadline := time.NewTimer(connectionInitTimeout)
+	defer deadline.Stop()
+
 	// Intercept the fromBrowserMessage channel to get the sessionToken
 	for {
-		fromBrowserMessage, ok := browserConnection.FromBrowserToHasuraChannel.Receive()
+		var fromBrowserMessage []byte
+		var ok bool
+		select {
+		case fromBrowserMessage, ok = <-browserConnection.FromBrowserToHasuraChannel.ReceiveChannel():
+		case <-deadline.C:
+			return errConnectionInitTimeout, ""
+		}
 		if !ok {
 			// Received all messages. Channel is closed
 			return fmt.Errorf("error on receiving init connection"), "param_missing"
@@ -455,8 +476,10 @@ func connectionInitHandler(browserConnection *common.BrowserConnection) (error, 
 				continue
 			}
 
-			payloadAsMap := fromBrowserMessageAsMap["payload"].(map[string]interface{})
-			headersAsMap := payloadAsMap["headers"].(map[string]interface{})
+			// Either may be absent or of another type. A nil map reads as empty, so the header
+			// checks below refuse the connection.
+			payloadAsMap, _ := fromBrowserMessageAsMap["payload"].(map[string]interface{})
+			headersAsMap, _ := payloadAsMap["headers"].(map[string]interface{})
 			sessionToken, existsSessionToken := headersAsMap["X-Session-Token"].(string)
 			if !existsSessionToken {
 				return fmt.Errorf("X-Session-Token header missing on init connection"), "param_missing"
@@ -621,10 +644,16 @@ func InvalidateIdleBrowserConnectionsRoutine() {
 
 			if browserIdleSince > time.Duration(websocketIdleTimeoutSeconds)*time.Second {
 				browserConnection.Logger.Info("Closing browser connection, reason: idle timeout")
-				errCloseWs := browserConnection.Websocket.Close(websocket.StatusNormalClosure, "idle timeout")
-				if errCloseWs != nil {
-					browserConnection.Logger.Warnf("Error on close websocket: %v", errCloseWs)
-				}
+				// Close waits for the peer to answer, up to its own timeout, so a silent peer must
+				// not hold up the others.
+				go func(browserConnection *common.BrowserConnection) {
+					errCloseWs := browserConnection.Websocket.Close(websocket.StatusNormalClosure, "idle timeout")
+					if errCloseWs != nil {
+						browserConnection.Logger.Warnf("Error on close websocket: %v", errCloseWs)
+					}
+					// Also ends what waits on the connection, such as a send to a paused channel.
+					browserConnection.ContextCancelFunc()
+				}(browserConnection)
 			}
 		}
 	}
