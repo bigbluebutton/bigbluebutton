@@ -38,12 +38,13 @@ fi
 # force, then, for a profile, "MARK NAME" and EXTRA's settings. A profile's
 # mark goes into bbb-web.properties even when it has no settings, and into
 # bbb-apps-akka.conf only with settings. FILE.bbb-conform-state holds the
-# profile's name and the sha256 of what was written: a file edited since is
-# refused rather than overwritten.
+# profile's name and the sha256 of what was written, then, while install
+# puts it in place, the sha256 of what it replaces: a file that is neither
+# was edited since, and is refused rather than overwritten.
 stage() {
 	f=$1 mark=$2 extra=$3
 	state=$f.bbb-conform-state orig=$f.bbb-conform-orig
-	if [ -f "$state" ] && [ "$(sum "$f")" != "$(sed -n 2p "$state")" ]; then
+	if [ -f "$state" ] && ! sed -n 2,3p "$state" | grep -qxF "$(sum "$f")"; then
 		if grep -q "^$mark " "$f"; then
 			echo "$f was edited after a profile was applied. Restore it from $orig, or edit it, then remove $state" >&2
 			exit 1
@@ -66,12 +67,12 @@ stage() {
 }
 
 # install FILE MARKER: puts FILE.bbb-conform-next in place, with FILE's
-# owner and mode, and records it at once, so a switch that fails later is
-# retried rather than taken for the server's own file. MARKER, the restart
-# FILE's service then owes, is created first: a switch that stops between
-# the two still restarts the service on the next run, which finds FILE as
-# it wants it. A FILE that already held it is only recorded. Exits if FILE
-# can't be written.
+# owner and mode, so a switch that fails later is retried rather than taken
+# for the server's own file. MARKER, the restart FILE's service then owes,
+# and the state, naming both the new FILE and the one it replaces, are
+# written first: a switch that stops before the mv or after it finds FILE
+# as recorded on the next run, and still restarts the service. A FILE that
+# already held it is only recorded. Exits if FILE can't be written.
 install() {
 	f=$1 marker=$2
 	next=$f.bbb-conform-next
@@ -81,6 +82,7 @@ install() {
 		return 0
 	fi
 	if ! { : >"$marker" &&
+		printf '%s\n%s\n%s\n' "$NAME" "$(sum "$next")" "$(sum "$f")" >"$f.bbb-conform-state" &&
 		chown --reference="$f.bbb-conform-orig" "$next" &&
 		chmod --reference="$f.bbb-conform-orig" "$next" &&
 		mv "$next" "$f"; }; then
@@ -90,8 +92,8 @@ install() {
 	record "$f"
 }
 
-# record FILE: notes what was written, or forgets the profile when FILE is
-# the server's own again.
+# record FILE: notes what was written, now that it is in place, or forgets
+# the profile when FILE is the server's own again.
 record() {
 	f=$1
 	if cmp -s "$f" "$f.bbb-conform-orig"; then
