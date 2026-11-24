@@ -60,7 +60,8 @@ export function audioOnlyTilesLocator(testPage: Page): Locator {
 }
 
 // a row of the participants list, by the whole user name
-export const userListRowOf = (userName: string) => `${e.userListItem}[aria-label="${userName}"]`;
+export const userListRowOf = (userName: string) =>
+  `${e.userListItem}:has(.bbb-user-list-item__name :text-is("${userName}"))`;
 // the private chat option of that row
 export const privateChatOptionOf = (userName: string) => `${userListRowOf(userName)} ${e.startPrivateChat}`;
 
@@ -145,7 +146,8 @@ export async function userListRowNames(testPage: Page): Promise<string[]> {
   return testPage.page
     .locator(`${e.userListItem}, ${e.currentUser}`)
     .locator('.bbb-user-list-item__name')
-    .allTextContents();
+    .allTextContents()
+    .then((names) => names.map((name) => name.replace(/\u00a0\(You\)$/, '')));
 }
 
 // The title of the raised hands section, which carries the number of hands listed.

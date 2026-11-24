@@ -3,6 +3,7 @@ import { expect } from '@playwright/test';
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { MultiUsers } from '../user/multiusers';
+import { userListRowOf } from '../user/util';
 import { dragAcrossWhiteboard, openClearAnnotations } from './util';
 
 export class MultiUserWhiteboard extends MultiUsers {
@@ -113,7 +114,7 @@ export class MultiUserWhiteboard extends MultiUsers {
   async toggleWhiteboardAccess(userName: string) {
     const isUserListOpen = await this.modPage.checkElement(e.userListPanel);
     if (!isUserListOpen) await this.modPage.waitAndClick(e.usersListSidebarButton);
-    await this.modPage.waitAndClick(`${e.userListItem}[aria-label="${userName}"] ${e.changeWhiteboardAccess}`);
+    await this.modPage.waitAndClick(`${userListRowOf(userName)} ${e.changeWhiteboardAccess}`);
   }
 
   // every page in the meeting must show the same number of shapes
