@@ -604,6 +604,8 @@
     "app.smartTriggers.presenterAway.raisedHand": "{name} raised their hand",
     "app.smartTriggers.presenterAway.publicChat": "New public chat message from {name}",
     "app.smartTriggers.presenterAway.unmuteRequest": "A moderator asked you to unmute",
+    "app.smartTriggers.idlePresentation.message": "Looks like you're not using the presentation. How about minimizing it to give the cameras more room?",
+    "app.smartTriggers.idlePresentation.action.minimize": "Minimize presentation",
     "app.unmute.modal.title": "A moderator is asking you to unmute",
     "app.unmute.modal.subtitle": "Please unmute your microphone",
     "app.unmute.modal.confirm.label": "Unmute",

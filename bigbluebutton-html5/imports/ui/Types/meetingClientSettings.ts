@@ -155,6 +155,10 @@ export interface NoMicSignalSmartTrigger extends CooldownSmartTrigger {
   signalFloorDb: number
 }
 
+export interface IdleSmartTrigger extends CooldownSmartTrigger {
+  afterMinutes: number
+}
+
 export interface RecordingWithNoSpeechSmartTrigger extends SmartTrigger {
   startCheckSeconds: number
   maxSilenceMinutes: number
@@ -175,6 +179,7 @@ export interface SmartTriggers {
   newMicrophone: SmartTrigger
   recordingWithNoSpeech: RecordingWithNoSpeechSmartTrigger
   presenterAway: CooldownSmartTrigger
+  idlePresentation: IdleSmartTrigger
   speechNotTranscribed: SpeechNotTranscribedSmartTrigger
 }
 

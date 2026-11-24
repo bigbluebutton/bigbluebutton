@@ -198,6 +198,13 @@ public:
       presenterAway:
         enabled: true
         cooldownMs: 2000
+      # Presenter only: suggests minimizing the presentation when it is open and
+      # had no slide change or annotation for `afterMinutes` (with the layout
+      # propagated, this minimizes it for everyone).
+      idlePresentation:
+        enabled: true
+        afterMinutes: 10
+        cooldownMs: 1800000
       # Shows a hint when browser transcription is on and the user keeps talking
       # but nothing gets transcribed: the browser may be using another microphone,
       # or the background is too noisy. It shows again only after a transcription.

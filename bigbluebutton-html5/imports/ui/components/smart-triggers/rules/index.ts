@@ -5,6 +5,7 @@ import useHandStillRaisedRule from './useHandStillRaisedRule';
 import useNewMicrophoneRule from './useNewMicrophoneRule';
 import useRecordingWithNoSpeechRule from './useRecordingWithNoSpeechRule';
 import usePresenterAwayRule from './usePresenterAwayRule';
+import useIdlePresentationRule from './useIdlePresentationRule';
 import useSpeechNotTranscribedRule from './useSpeechNotTranscribedRule';
 
 const RULES: RuleDefinition[] = [
@@ -14,6 +15,7 @@ const RULES: RuleDefinition[] = [
   { id: 'newMicrophone', presentation: 'toast', useRule: useNewMicrophoneRule },
   { id: 'recordingWithNoSpeech', presentation: 'toast', useRule: useRecordingWithNoSpeechRule },
   { id: 'presenterAway', presentation: 'announcement', useRule: usePresenterAwayRule },
+  { id: 'idlePresentation', presentation: 'toast', useRule: useIdlePresentationRule },
   { id: 'speechNotTranscribed', presentation: 'toast', useRule: useSpeechNotTranscribedRule },
 ];
 

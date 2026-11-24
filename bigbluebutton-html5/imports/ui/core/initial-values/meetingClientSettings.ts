@@ -113,6 +113,11 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           enabled: true,
           cooldownMs: 2000,
         },
+        idlePresentation: {
+          enabled: true,
+          afterMinutes: 10,
+          cooldownMs: 1800000,
+        },
         speechNotTranscribed: {
           enabled: true,
           speechThresholdDb: -50,
