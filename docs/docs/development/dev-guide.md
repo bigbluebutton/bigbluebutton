@@ -140,7 +140,7 @@ Run the local Docker Compose setup script:
 ./docker/compose/setup-dev.sh
 ```
 
-It fills the empty settings of `.env` (the domain, `BBB_PUBLIC_IP=127.0.0.1` and new secrets) and keeps values already set. It creates a local CA in `data/dev-ca`, limited to the domain by a name constraint, and a certificate for the domain in `data/certs`. It creates a Java truststore with the CA for `bbb-web`, and a `docker-compose.override.yml` that uses it. An existing `docker-compose.override.yml` is left unchanged; the script then prints the two settings to add. Another domain: `./docker/compose/setup-dev.sh <domain>`.
+It fills the empty settings of `.env` (the domain, `BBB_PUBLIC_IP=127.0.0.1` and new secrets) and keeps values already set. It creates a local CA in `data/dev-ca`, limited to the domain by a name constraint, and a certificate for the domain in `data/certs`. It creates a Java truststore with the CA for `bbb-web`, and a `docker-compose.override.yml` that uses it. An existing `docker-compose.override.yml` is left unchanged; the script then prints the two settings to add. Without an argument the script uses `BBB_DOMAIN` from `.env` (`bbb.localhost` when it is empty). Another domain: `./docker/compose/setup-dev.sh <domain>` on the first run; later, change `BBB_DOMAIN` in `.env` and remove `data/dev-ca` first.
 
 Add `data/dev-ca/rootCA.pem` to the trusted certificates of your browser or operating system. Running the script again keeps the CA, so you trust it only once.
 
