@@ -258,7 +258,7 @@ const QuickPollDropdown = (props) => {
     if (isLastInteger === isCurrentInteger) {
       if (isLastInteger) {
         // Number
-        if (parseInt(currentToken, 10) > parseInt(lastToken, 10)) {
+        if (parseInt(currentToken, 10) === parseInt(lastToken, 10) + 1) {
           options.push(currentValue);
           lastElementWithLabels.push(optionsWithLabels.shift());
         } else {
@@ -269,7 +269,8 @@ const QuickPollDropdown = (props) => {
         }
       } else {
         // Alphabet
-        if (currentToken.toLowerCase().charCodeAt(0) > lastToken.toLowerCase().charCodeAt(0)) {
+        if (currentToken.toLowerCase().charCodeAt(0)
+          === lastToken.toLowerCase().charCodeAt(0) + 1) {
           options.push(currentValue);
           lastElementWithLabels.push(optionsWithLabels.shift());
         } else {
