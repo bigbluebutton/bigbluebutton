@@ -46,6 +46,8 @@ Many of the configuration files have local overrides so the administrator can sp
 | /usr/share/bigbluebutton/nginx/*.nginx                                  | /etc/bigbluebutton/nginx/*.nginx                 | See [nginx](#nginx) below                                                          |
 | /etc/cron.daily/bigbluebutton                                           | /etc/default/bigbluebutton-cron-config    | Only variables allowed in the override
 
+An override must be readable by the user the service runs as, normally `bigbluebutton`. For the services that keep their override in a directory of its own (`bbb-webrtc-sfu`, `bbb-transcription-controller`, `bbb-export-annotations`), the directory must be listable by that user as well (mode `0755`). If it is not, the override is skipped without a message and the service runs on its defaults.
+
 <br /><br />
 
 For `bbb-web.properties`, the settings are name/value pair. For example, the following `bbb-web.properties` overrides the settings for `bigbluebutton.web.serverURL` and `securitySalt` (shared secret).
@@ -98,8 +100,6 @@ Redis has no password by default. To require one, set `requirepass` in `/etc/red
 | livekit-server             | /etc/bigbluebutton/livekit.yaml                              | `redis.password`                        |
 | livekit-sip                | /etc/bigbluebutton/livekit-sip.yaml                          | `redis.password`                        |
 | bbb-webhooks (if installed) | /usr/local/bigbluebutton/bbb-webhooks/config/default.yml    | `redis.password` (regenerated on package upgrades) |
-
-The `/etc/bigbluebutton/bbb-export-annotations/` directory must be readable by the `bigbluebutton` user (mode `0755`), or its override is skipped without a message. The file itself must be readable by that user too.
 
 ## HTML5 Client
 
