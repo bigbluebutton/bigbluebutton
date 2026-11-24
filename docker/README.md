@@ -64,7 +64,7 @@ deployments use their official images.
   their packages' paths: `/usr/share/bigbluebutton/html5-client`,
   `/var/bigbluebutton/learning-dashboard` and `/var/bigbluebutton/playback/presentation/2.3`. They
   are not run; nginx mounts them read-only at the same paths (compose `type: image` volumes,
-  Kubernetes `image` volumes).
+  Kubernetes `image` volumes, on by default from Kubernetes 1.35, with `subPath` from 1.33).
 - Logs go to stdout (record-and-playback: per-recording logs to `/var/log/bigbluebutton`).
   Services listen on all interfaces, on the bare-metal ports.
 - Configuration is mounted at the bare-metal path. bbb-apps-akka reads the variables below in

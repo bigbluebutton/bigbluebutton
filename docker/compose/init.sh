@@ -1,11 +1,13 @@
 #!/bin/sh
 set -eu
 # The data directories that the packages create (bbb-web, bbb-config, bbb-record-core,
-# bbb-playback-*, bbb-webrtc-recorder), owned by bigbluebutton. Only these directories are
-# chowned, not what is in them.
+# bbb-playback-*, bbb-learning-dashboard, bbb-playback, bbb-webrtc-recorder), owned by
+# bigbluebutton. Only these directories are chowned, not what is in them. nginx mounts the
+# dashboard and the player on two of them.
 cd /var/bigbluebutton
 set -- . diagnostics basic_stats captions captions/inbox deleted events unpublished published \
-  recording recording/raw recording/process recording/publish recording/status
+  recording recording/raw recording/process recording/publish recording/status \
+  learning-dashboard playback/presentation/2.3
 for s in ended recorded archived processed sanity published; do set -- "$@" "recording/status/$s"; done
 for f in presentation video notes screenshare; do
   set -- "$@" "published/$f" "recording/publish/$f" "/var/log/bigbluebutton/$f"

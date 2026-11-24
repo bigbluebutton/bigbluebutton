@@ -87,19 +87,44 @@ services:
       - "80:8080"
     volumes:
       - ./docker/compose/nginx/bigbluebutton:/etc/nginx/sites-available/bigbluebutton:ro
-      - ./docker/compose/nginx/playback.nginx:/usr/share/bigbluebutton/nginx/playback.nginx:ro
       - acme-challenge:/var/www/bigbluebutton-default/assets/.well-known/acme-challenge:ro
       - ./data/bigbluebutton:/var/bigbluebutton:ro,z
-    # nginx resolves the names of these upstreams when it starts
+      # the learning-dashboard reports of bbb-web, as the dashboard's files cover their directory
+      - ./data/bigbluebutton/learning-dashboard:/srv/learning-dashboard:ro,z
+      # the HTML5 client, the learning dashboard and the player, from their images at the
+      # packages' paths
+      - type: image
+        source: ${BBB_HTML5_CLIENT_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-html5-client:${BBB_IMAGE_TAG}}
+        target: /usr/share/bigbluebutton/html5-client
+        image:
+          subpath: usr/share/bigbluebutton/html5-client
+      - type: image
+        source: ${BBB_LEARNING_DASHBOARD_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-learning-dashboard:${BBB_IMAGE_TAG}}
+        target: /var/bigbluebutton/learning-dashboard
+        image:
+          subpath: var/bigbluebutton/learning-dashboard
+      - type: image
+        source: ${BBB_PLAYBACK_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-playback:${BBB_IMAGE_TAG}}
+        target: /var/bigbluebutton/playback/presentation/2.3
+        image:
+          subpath: var/bigbluebutton/playback/presentation/2.3
     depends_on:
-      - web
-      - graphql-middleware
-      - graphql-server
-      - livekit
-      - webrtc-sfu
-      - shared-notes-server
-      - html5-client
-      - learning-dashboard
+      # init creates the directories in ./data/bigbluebutton that the images are mounted on
+      init:
+        condition: service_completed_successfully
+      # nginx resolves the names of these upstreams when it starts
+      web:
+        condition: service_started
+      graphql-middleware:
+        condition: service_started
+      graphql-server:
+        condition: service_started
+      livekit:
+        condition: service_started
+      webrtc-sfu:
+        condition: service_started
+      shared-notes-server:
+        condition: service_started
 
   coturn:
     <<: *bbb
@@ -309,16 +334,8 @@ services:
       # 127.0.0.1:8021 every 5 s
       MEDIA_SERVER_ADAPTERS: '[{"path":"kurento/kurento.js","name":"Kurento"},{"path":"mediasoup/mediasoup-adapter.js","name":"mediasoup"}]'
 
-  html5-client:
-    <<: *bbb
-    image: ${BBB_HTML5_CLIENT_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-html5-client:${BBB_IMAGE_TAG}}
-
-  learning-dashboard:
-    <<: *bbb
-    image: ${BBB_LEARNING_DASHBOARD_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-learning-dashboard:${BBB_IMAGE_TAG}}
-
-  # Profile "recording": the recorder, the processing as the systemd units of bbb-record-core
-  # run it, and the player
+  # Profile "recording": the recorder and the processing as the systemd units of bbb-record-core
+  # run it (nginx serves the player)
   webrtc-recorder:
     <<: *bbb
     profiles:
@@ -354,12 +371,6 @@ services:
       - -c
       - "while :; do /etc/cron.daily/bigbluebutton; sleep 1d; done"
     init: true
-
-  playback:
-    <<: *bbb
-    profiles:
-      - recording
-    image: ${BBB_PLAYBACK_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-playback:${BBB_IMAGE_TAG}}
 
   # Profile "webhooks"
   webhooks:

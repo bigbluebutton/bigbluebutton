@@ -16,7 +16,7 @@ Not covered yet: office document conversion (bbb-web expects `/usr/share/bbb-lib
 
 ## Requirements
 
-- one Linux server with Docker Engine 28 or later and the compose plugin 2.35 or later (`init` mounts the database schemas from the images as image volumes);
+- one Linux server with Docker Engine 28 or later and the compose plugin 2.35 or later, 5.1 or later recommended (image volumes: `nginx` mounts the HTML5 client, the learning dashboard and the player from their images, `init` the database schemas);
 - a DNS name for it and a public IPv4 address;
 - open ports: 80/tcp and 443/tcp (web, Let's Encrypt, TURN over TLS), 3478/tcp and 3478/udp (TURN), 7882/udp (LiveKit media);
 - LiveKit wants larger UDP buffers than most hosts have (it warns `UDP receive buffer is too small` at start): set `net.core.rmem_max` and `net.core.wmem_max` on the host, e.g. to 5000000 (the value LiveKit suggests in that warning) in `/etc/sysctl.d/`;
@@ -33,7 +33,7 @@ cd bigbluebutton && docker compose up -d
 
 The images come from the registry (`docker compose pull`, or the first `up`); no local build is needed. `BBB_IMAGE_TAG` is a branch tag such as `v4.1.x-develop`, or `v4.1.x-develop-<commit>` to pin a set of images built together.
 
-`COMPOSE_PROFILES` in `.env` selects the optional parts: `recording` (on by default, as in a bare-metal install: the recorder, the processing and the player) and `webhooks`. Without `recording`, meetings are not recorded, even when they are created with `record=true`.
+`COMPOSE_PROFILES` in `.env` selects the optional parts: `recording` (on by default, as in a bare-metal install: the recorder and the processing; nginx always has the player) and `webhooks`. Without `recording`, meetings are not recorded, even when they are created with `record=true`.
 
 ### What happens on the first start
 
@@ -47,8 +47,11 @@ Set `BBB_IMAGE_TAG` (or keep a branch tag), then
 
 ```bash
 docker compose pull
+docker compose config | grep -A1 'type: image' | sed -n 's/ *source: //p' | sort -u | xargs -n1 docker pull
 docker compose up -d --force-recreate
 ```
+
+`docker compose pull` pulls only the images that services run, not the ones mounted as image volumes (the HTML5 client, the learning dashboard and the player in `nginx`); the second line pulls those. With the same tag, a plain `docker compose up -d` does not recreate `nginx` for a newer mounted image before Docker Compose 5.1, so `--force-recreate` is needed for nginx to serve it. Docker Compose 5.1 or later is recommended, as it recreates `nginx` itself. The extra pull is needed until Compose pulls the images of image volumes too ([docker/compose#13809](https://github.com/docker/compose/issues/13809), fix in [docker/compose#13811](https://github.com/docker/compose/pull/13811)).
 
 Every service restarts, as in a package upgrade. When a schema changed, its database is recreated, so meetings that are running end.
 
@@ -71,7 +74,7 @@ BBB_SHARED_NOTES_SERVER_IMAGE=localhost/bbb-shared-notes-server:dev
 BBB_HTML5_CLIENT_IMAGE=ghcr.io/bigbluebutton/bigbluebutton/bbb-html5-client@sha256:<digest>
 ```
 
-then `docker compose up -d`. A variable applies wherever its image is used: in every service that runs it, and where it is mounted into another service (`init` reads the database schemas from the `bbb-graphql-server` and `bbb-shared-notes-server` images).
+then `docker compose up -d`. A variable applies wherever its image is used: in every service that runs it, and where it is mounted into another service (`init` reads the database schemas from the `bbb-graphql-server` and `bbb-shared-notes-server` images, `nginx` serves the HTML5 client, the learning dashboard and the player from theirs). After building a new image under the same name, run `docker compose up -d --force-recreate nginx` for a mounted one: before Docker Compose 5.1, `up -d` does not notice that the image behind the name changed.
 
 | Services | Variable |
 | --- | --- |
@@ -84,14 +87,14 @@ then `docker compose up -d`. A variable applies wherever its image is used: in e
 | `shared-notes-server`, `shared-notes-conversion`, schema mount in `init` | `BBB_SHARED_NOTES_SERVER_IMAGE` |
 | `export-annotations` | `BBB_EXPORT_ANNOTATIONS_IMAGE` |
 | `webrtc-sfu` | `BBB_WEBRTC_SFU_IMAGE` |
-| `html5-client` | `BBB_HTML5_CLIENT_IMAGE` |
-| `learning-dashboard` | `BBB_LEARNING_DASHBOARD_IMAGE` |
+| mount in `nginx` (HTML5 client) | `BBB_HTML5_CLIENT_IMAGE` |
+| mount in `nginx` (learning dashboard) | `BBB_LEARNING_DASHBOARD_IMAGE` |
 | `webrtc-recorder` | `BBB_WEBRTC_RECORDER_IMAGE` |
 | `recording-workers`, `recording-starter`, `recording-caption-inbox`, `recording-cleanup` | `BBB_RECORD_AND_PLAYBACK_IMAGE` |
-| `playback` | `BBB_PLAYBACK_IMAGE` |
+| mount in `nginx` (player) | `BBB_PLAYBACK_IMAGE` |
 | `webhooks` | `BBB_WEBHOOKS_IMAGE` |
 
-`docker compose pull` tries to pull a local image too and reports an error for it. To skip it, set `pull_policy: never` for that service in a `docker-compose.override.yml` (see `docker-compose.override.sample.yml`), or run `docker compose pull --ignore-pull-failures`.
+`docker compose pull` tries to pull a local image too and reports an error for it. To skip it, set `pull_policy: never` for that service in a `docker-compose.override.yml` (see `docker-compose.override.sample.yml`), or run `docker compose pull --ignore-pull-failures`. The mounted images need nothing: `docker compose pull` leaves them out.
 
 ## Data and backup
 
@@ -134,7 +137,7 @@ Backup: `./data` and `.env`. PostgreSQL (a volume) holds only the state of runni
   ```
 
   Then `docker compose up -d --force-recreate recording-workers recording-starter recording-caption-inbox recording-cleanup`. New recordings get the extra formats; `getRecordings` lists them and nginx serves them.
-- nginx uses the image's location files and upstreams, which use the default service names. The compose file mounts only its site (port 80 and haproxy's 8081) and `playback.nginx`, because `playback` runs only with the `recording` profile.
+- nginx uses the image's location files and upstreams, which use the default service names. The compose file mounts only its site (port 80 and haproxy's 8081). The HTML5 client, the learning dashboard and the player are mounted from their images at the package paths, read-only; nginx reads the learning-dashboard reports, which bbb-web writes to `/var/bigbluebutton/learning-dashboard`, from `/srv/learning-dashboard`.
 - More Hasura instances: `docker compose up -d --scale graphql-server=2`, then `docker compose exec nginx nginx -s reload`. nginx balances them as on bare metal and looks up the instances only when it starts or reloads, so reload it again after scaling down.
 - Logs: `docker compose logs <service>`; the logs per recording are in the `recording-logs` volume. The compose file sets the `local` logging driver, which rotates the logs; it overrides the host's Docker default (`daemon.json`). Remove it from `x-bbb` to use that default.
 

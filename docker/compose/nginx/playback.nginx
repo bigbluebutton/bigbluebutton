@@ -1,5 +1,0 @@
-# playback runs only with the recording profile, so its name is resolved per request.
-location /playback/presentation/2.3 {
-    set $playback http://playback:8080;
-    proxy_pass $playback;
-}

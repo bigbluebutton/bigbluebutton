@@ -8,6 +8,12 @@
 # The bake target is the image name without "bbb-". The image in .env is enough to run it;
 # pull_policy: never below lets `docker compose pull` skip the local image.
 #
+# html5-client, learning-dashboard and playback are not services: nginx mounts their images. Set
+# BBB_HTML5_CLIENT_IMAGE, BBB_LEARNING_DASHBOARD_IMAGE or BBB_PLAYBACK_IMAGE in .env and run
+# `docker compose up -d --force-recreate nginx`; nothing is needed here. `docker compose pull` does
+# not pull these images, so a local one is never looked up in a registry; if it is missing, `up`
+# tries to pull it and fails.
+#
 # For the HTML5 client from the webpack dev server instead of an image, uncomment the HTML5 block
 # at the end (see "Develop with Docker Compose" in the development guide).
 
@@ -24,12 +30,6 @@
   #     JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/local/cacerts
   #   volumes:
   #     - ./data/certs/cacerts:/etc/ssl/local/cacerts:ro
-
-  # html5-client:
-  #   pull_policy: never
-
-  # learning-dashboard:
-  #   pull_policy: never
 
   # graphql-server:
   #   pull_policy: never
@@ -61,9 +61,6 @@
   # recording-caption-inbox: *recording
   # recording-cleanup: *recording
 
-  # playback:
-  #   pull_policy: never
-
   # webhooks:
   #   pull_policy: never
 
@@ -71,8 +68,8 @@
   #   pull_policy: never # only with a local nginx image
   #
   #   # HTML5 block: nginx serves /html5client/ from the webpack dev server and the locales from
-  #   # the source tree. The html5-client image keeps running (nginx depends on it) but gets no
-  #   # requests.
+  #   # the source tree. The client's image stays mounted, with the locales of the source tree
+  #   # over its own.
   #   configs:
   #     - source: bbb-html5.nginx
   #       target: /usr/share/bigbluebutton/nginx/bbb-html5.nginx
