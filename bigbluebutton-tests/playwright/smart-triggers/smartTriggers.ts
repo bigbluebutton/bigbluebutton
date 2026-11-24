@@ -90,6 +90,17 @@ export class SmartTriggers extends MultiUsers {
     await this.modPage.hasElement(e.audioSettingsModal, 'should open the audio settings from the hint');
   }
 
+  async idlePresentationMinimizes() {
+    await this.modPage.hasElement(e.whiteboard, 'should display the presentation', ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.hasElement(
+      e.smartTriggerMinimizePresentation,
+      'should suggest minimizing the idle presentation',
+      IDLE_CHECK_TIMEOUT,
+    );
+    await this.modPage.waitAndClick(e.smartTriggerMinimizePresentation);
+    await this.modPage.hasElement(e.restorePresentation, 'should minimize the presentation from the hint');
+  }
+
   async recordingWithNoSpeechPauses() {
     // joinMicrophone() would wait for the talking indicator, which a silent
     // microphone never shows

@@ -1,7 +1,7 @@
 import { test } from '../core/setup/fixtures';
 import { constants as c } from '../parameters/constants';
 import { SmartTriggers } from './smartTriggers';
-import { silenceMicrophone, smartTriggersOverride } from './util';
+import { SHORT_IDLE_MINUTES, silenceMicrophone, smartTriggersOverride } from './util';
 
 test.describe.parallel('Smart triggers', { tag: '@ci' }, () => {
   test.describe.parallel('Microphone', { tag: '@media' }, () => {
@@ -51,5 +51,15 @@ test.describe.parallel('Smart triggers', { tag: '@ci' }, () => {
       });
       await smartTriggers.recordingWithNoSpeechPauses();
     });
+  });
+
+  // https://docs.bigbluebutton.org/4.0/testing/release-testing/#idle-presentation-automated
+  test('Idle presentation hint minimizes the presentation', async ({ browser, context, page }, testInfo) => {
+    const smartTriggers = new SmartTriggers(browser, context);
+    await smartTriggers.initModPage(page, {
+      clientSettingsOverrides: smartTriggersOverride('idlePresentation', { afterMinutes: SHORT_IDLE_MINUTES }),
+      testInfo,
+    });
+    await smartTriggers.idlePresentationMinimizes();
   });
 });

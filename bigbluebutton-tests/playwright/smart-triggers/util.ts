@@ -6,7 +6,8 @@ type RuleName =
   | 'handStillRaised'
   | 'newMicrophone'
   | 'recordingWithNoSpeech'
-  | 'presenterAway';
+  | 'presenterAway'
+  | 'idlePresentation';
 
 // Every rule off, so each test turns on only the rule it covers and no other
 // hint can appear in its way. The full block is sent because servers whose
@@ -19,6 +20,7 @@ const ALL_RULES_OFF = {
   newMicrophone: { enabled: false },
   recordingWithNoSpeech: { enabled: false, startCheckSeconds: 30, maxSilenceMinutes: 10 },
   presenterAway: { enabled: false, cooldownMs: 2000 },
+  idlePresentation: { enabled: false, afterMinutes: 10, cooldownMs: 1800000 },
   speechNotTranscribed: {
     enabled: false,
     speechThresholdDb: -50,
@@ -42,7 +44,9 @@ export const smartTriggersOverride = (
   },
 });
 
-// Hints driven by a timer show up within this long of the shortened threshold.
+// Rules that wait minutes in production check every 30 s; 3 s of idleness is
+// reached on the first check.
+export const SHORT_IDLE_MINUTES = 0.05;
 export const IDLE_CHECK_TIMEOUT = 45000;
 
 // The fake microphone plays speech. Swapping its track for silence gives a

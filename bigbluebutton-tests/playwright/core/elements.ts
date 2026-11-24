@@ -448,6 +448,7 @@ export const elements = {
   smartTriggerLowerHand: 'button[data-test="smartTrigger-handStillRaised-lowerHand"]',
   smartTriggerCheckAudio: 'button[data-test="smartTrigger-recordingWithNoSpeech-checkAudio"]',
   smartTriggerPauseRecording: 'button[data-test="smartTrigger-recordingWithNoSpeech-pauseRecording"]',
+  smartTriggerMinimizePresentation: 'button[data-test="smartTrigger-idlePresentation-minimize"]',
   presentationStatusInfo: 'span[data-test="presentationStatusInfo"]',
   processingPresentationItem: 'span[data-test="processingPresentationItem"]',
   uploadDoneIcon: 'i[data-test="uploadDoneIcon"]',
