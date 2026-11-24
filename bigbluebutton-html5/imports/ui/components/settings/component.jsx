@@ -335,8 +335,15 @@ class Settings extends Component {
     try {
       await this.roomModeApply();
     } catch {
-      // The tab told the moderator; the window stays open to try again.
-      this.setState({ roomModeApplying: false });
+      // The tab told the moderator; the window stays open to try again. The
+      // focus sat on the change button, disabled meanwhile, so it fell out of
+      // the window and Esc no longer reaches it: give it back.
+      this.setState({ roomModeApplying: false }, () => {
+        const changeButton = document.querySelector('[data-test="settingsRoomModeChangeButton"]');
+        const dialog = changeButton?.closest('[role="dialog"]');
+        if (!dialog || dialog.contains(document.activeElement)) return;
+        (changeButton.disabled ? dialog : changeButton).focus();
+      });
       return;
     }
     // Settings changed in other tabs go with the change, as Save would take
