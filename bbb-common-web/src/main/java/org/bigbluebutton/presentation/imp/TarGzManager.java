@@ -15,8 +15,12 @@ import java.util.zip.GZIPInputStream;
 
 public class TarGzManager {
     private static final List<String> allowedDirs = Collections.unmodifiableList(
-            Arrays.asList("thumbnails", "textfiles", "svgs", "pngs", "speakernotes")
+            Arrays.asList("thumbnails", "textfiles", "svgs", "pngs")
     );
+    // Speaker notes are saved by the office conversion, which always runs before the cache is checked, and
+    // only when extraction is on for that upload. The cache never carries them, so an entry cached with notes
+    // cannot bring them back where extraction is off, nor replace the notes of the current conversion.
+    private static final String SPEAKER_NOTES_DIR = OfficeToPdfConversionService.SPEAKER_NOTES_DIRECTORY;
 
     public static File compress(String sourceDirectory, String outputFileName, Integer numOfPages) throws IOException {
         File tempTarGzFile = File.createTempFile(outputFileName, ".tar.gz");
@@ -53,7 +57,11 @@ public class TarGzManager {
 
             TarArchiveEntry tarEntry;
             while ((tarEntry = tarInputStream.getNextTarEntry()) != null) {
-                File outputFile = new File(destinationPath, tarEntry.getName());
+                String entryName = tarEntry.getName();
+                if (entryName.equals(SPEAKER_NOTES_DIR) || entryName.startsWith(SPEAKER_NOTES_DIR + "/")) {
+                    continue;
+                }
+                File outputFile = new File(destinationPath, entryName);
 
                 if (tarEntry.isDirectory()) {
                     if (!outputFile.exists() && !outputFile.mkdirs()) {

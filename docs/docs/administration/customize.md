@@ -1412,7 +1412,7 @@ Next to each non-empty `slide-N.txt`, the same run saves `slide-N.json` with the
 
 The same run also saves `slide-N.title.txt` with the text of the slide's title placeholder (whitespace collapsed to single spaces). It is empty when the slide has no title placeholder, as in many `.ppt` files.
 
-The notes are available through the GraphQL `pres_page_speakerNotes` fields `speakerNotes` (plain text), `speakerNotesJson` (the formatted notes, or null when missing, invalid or larger than 1 MiB in UTF-8) and `slideTitle` (the slide title, or an empty string) to the current presenter and moderators in the meeting.
+The notes are available through the GraphQL `pres_page_speakerNotes` fields `speakerNotes` (plain text), `speakerNotesJson` (the formatted notes, or null when missing, invalid or larger than 1 MiB in UTF-8) and `slideTitle` (the slide title, or an empty string) to the current presenter and moderators in the meeting. Speaker notes are not stored in the presentation conversion cache (`presentationConversionCacheEnabled`): each conversion saves them again, so they always follow the current `extractPresentationSpeakerNotes` setting.
 
 To disable extraction, add the following override to `/etc/bigbluebutton/bbb-web.properties`:
 
