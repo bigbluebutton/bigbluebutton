@@ -6,6 +6,9 @@ set -eu
 set -a
 # As the unit: loopback, unless the package's config binds elsewhere.
 HASURA_GRAPHQL_SERVER_HOST=127.0.0.1
+# As the unit: the default for databases.yaml, unless the package's
+# config sets another.
+HASURA_GRAPHQL_BBB_DATABASE_URL=postgres://bbb_hasura:bbb_hasura@127.0.0.1:5432/bbb_graphql
 . /etc/default/bbb-graphql-server
 set +a
 # The port the unit's name gives, and the admin secret config.yaml (the

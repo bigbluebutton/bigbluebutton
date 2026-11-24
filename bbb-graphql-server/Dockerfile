@@ -14,9 +14,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends libpq5 libkrb5-
 COPY --from=hasura /usr/bin/graphql-engine /usr/bin/hasura-cli /bin/docker-entrypoint.sh /usr/bin/
 COPY bbb_schema.sql /usr/share/bbb-graphql-server/
 COPY metadata /usr/share/bbb-graphql-server/metadata
-# Read the BigBlueButton database URL from env like the default database
-RUN sed -i 's|database_url: postgres://bbb_hasura.*|database_url: { from_env: HASURA_GRAPHQL_BBB_DATABASE_URL }|' \
-    /usr/share/bbb-graphql-server/metadata/databases/databases.yaml
 
 # Defaults of build/packages-template/bbb-graphql-server/hasura-config.env and the systemd unit
 ENV HGE_BINARY=graphql-engine \

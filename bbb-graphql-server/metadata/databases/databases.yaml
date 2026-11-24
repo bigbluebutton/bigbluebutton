@@ -16,7 +16,8 @@
   kind: postgres
   configuration:
     connection_info:
-      database_url: postgres://bbb_hasura:bbb_hasura@127.0.0.1:5432/bbb_graphql
+      database_url:
+        from_env: HASURA_GRAPHQL_BBB_DATABASE_URL
       isolation_level: read-committed
       pool_settings:
         connection_lifetime: 300

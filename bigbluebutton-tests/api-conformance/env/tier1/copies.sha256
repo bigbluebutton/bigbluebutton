@@ -3,7 +3,7 @@ b1312e0f4b6c89afdab45750255889ac4854f01a073bd62ba76a15508f6f0906  build/packages
 f798c28d196dfbad2f3019659cfb027431df7f0719a7a339dd7a0469ef1fffb3  build/packages-template/bbb-web/bbb-web.service
 2fbb19194450530f8126578ee6a0fcec9018c966a0397d624c5194d485214cdb  build/packages-template/bbb-config/after-install.sh
 8d78ad3f918418647c399e7f2ff0cf9c1113e4ef058075e0a14bb3f040bd2ff5  build/packages-template/bbb-graphql-server/after-install.sh
-219b92a203ab712306b703c8670f0f2547a6b5d98cfde1c1285a9adf41c48586  build/packages-template/bbb-graphql-server/bbb-graphql-server@.service
+d9ae3fbade60362007f9cbde07409371cf7406f4e67261841668c0e7f65437f5  build/packages-template/bbb-graphql-server/bbb-graphql-server@.service
 111a007efee5d41875973036c35029841f4b644c31eebca8ffc786ba285ff378  build/packages-template/bbb-graphql-middleware/bbb-graphql-middleware.service
 23dbd0e1371cf2d187c554d63b0b821bbdf3face1c93a4feaef6af6a92999788  build/packages-template/bbb-graphql-actions/bbb-graphql-actions.service
 d35373e9824165aa6b32fb7b0b3c893e3306792ff31454ceb7eb28c2b6c3b58c  akka-bbb-apps/src/debian/DEBIAN/preinst
