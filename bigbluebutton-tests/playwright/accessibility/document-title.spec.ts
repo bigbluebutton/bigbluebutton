@@ -2,6 +2,7 @@ import { expect } from '@playwright/test';
 
 import { openPrivateChat } from '../chat/util';
 import { elements as e } from '../core/elements';
+import { endMeetings } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { openSettings } from '../options/util';
 import { MultiUsers } from '../user/multiusers';
@@ -86,6 +87,44 @@ test.describe.parallel('Accessible routing', { tag: '@ci' }, () => {
     await modPage.waitAndClick(e.breakoutRoomSidebarButton);
     await expect(modPage.page, 'breakout room creation should be reflected in the document title').toHaveTitle(
       / - Breakout Rooms$/,
+    );
+  });
+});
+
+// WCAG 2.2 SC 2.4.2 (Page Titled): the screen that replaces the meeting names why it did, instead of
+// keeping the title of the view the user was on.
+test.describe.parallel('Session ended title', { tag: '@ci' }, () => {
+  test('names the ended session in the document title', async ({ browser, context, page, request }, testInfo) => {
+    const session = new MultiUsers(browser, context);
+    await session.initModPage(page, { testInfo });
+    const { modPage } = session;
+
+    await endMeetings(request, [modPage.meetingId]);
+    await modPage.hasText(e.meetingEndedModal, e.meetingEndedBySystemMessage, 'should show the meeting ended screen');
+    await expect(modPage.page, 'the title should say the session ended').toHaveTitle(
+      new RegExp(` - ${e.meetingEndedBySystemMessage}$`),
+    );
+  });
+
+  test('names the removal in the document title', async ({ browser, context, page }, testInfo) => {
+    const session = new MultiUsers(browser, context);
+    await session.initPages(page, testInfo);
+    const { modPage, userPage } = session;
+
+    await modPage.waitAndClick(e.usersListSidebarButton);
+    const attendeeRow = modPage.page.locator(e.userListItem).filter({ hasText: userPage.username });
+    await attendeeRow.locator(e.moreOptionsUserItemButton).click();
+    // every row renders its own copy of the menu and the closed ones stay in the DOM
+    await modPage.page.locator(`${e.removeUser}:visible`).first().click();
+    await modPage.waitAndClick(e.removeUserConfirmationBtn);
+
+    await userPage.hasText(
+      e.meetingEndedModal,
+      e.removedFromSessionMessage,
+      'should tell the attendee they were removed',
+    );
+    await expect(userPage.page, 'the title should say the attendee was removed').toHaveTitle(
+      new RegExp(` - ${e.removedFromSessionMessage}$`),
     );
   });
 });
