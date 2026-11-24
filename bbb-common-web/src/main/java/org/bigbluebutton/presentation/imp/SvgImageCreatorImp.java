@@ -30,7 +30,7 @@ import com.zaxxer.nuprocess.NuProcessBuilder;
 
 public class SvgImageCreatorImp implements SvgImageCreator {
     // These values should be kept in sync across all BBB components.
-    // See the values under "process" in bbb-export-annotations/config/settings.json
+    // See the values under "process" in bbb-export-annotations/config/default.json
     private static final int MAX_SVG_WIDTH = 1440;
     private static final int MAX_SVG_HEIGHT = 1080;
 

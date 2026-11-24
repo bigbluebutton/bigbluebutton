@@ -88,7 +88,7 @@ object PresPageDAO {
           viewBoxHeight = 1,
 
           // These values should be kept in sync across all BBB components.
-          // See the values under "process" in bbb-export-annotations/config/settings.json
+          // See the values under "process" in bbb-export-annotations/config/default.json
           maxImageWidth = 1440,
           maxImageHeight = 1080,
 
