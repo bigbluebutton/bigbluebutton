@@ -743,6 +743,18 @@ Contextual hints driven by in-meeting activity, configured under `public.app.sma
 
     - The audio settings open.
 
+### Hand still raised [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-develop/bigbluebutton-tests/playwright/smart-triggers/smartTriggers.spec.ts)
+
+1. User: join audio muted and raise the hand.
+
+2. User: unmute, talk and mute again.
+
+    - A hint asks whether the user is done speaking.
+
+3. User: click "Lower hand".
+
+    - The hand is lowered.
+
 ### Speech not transcribed
 
 1. User: enable automatic transcription with a language, join audio with a microphone and unmute.
