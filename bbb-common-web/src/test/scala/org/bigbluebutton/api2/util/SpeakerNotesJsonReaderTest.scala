@@ -37,12 +37,12 @@ class SpeakerNotesJsonReaderTest extends AnyFlatSpec {
     Files.writeString(notes.resolve("slide-1.txt"), "plain fallback")
     Files.writeString(notes.resolve("slide-1.json"), "x" * (SpeakerNotesJsonReader.DefaultCap + 1))
 
-    val oversized = MsgBuilder.generatePresentationPage("presentation", "/presentation", root.toString, 1)
+    val oversized = MsgBuilder.generatePresentationPage("conference", "room", "presentation", "/presentation", root.toString, 1)
     assert(oversized.speakerNotes == "plain fallback")
     assert(oversized.speakerNotesJson.isEmpty)
 
     Files.writeString(notes.resolve("slide-1.json"), "{")
-    val malformed = MsgBuilder.generatePresentationPage("presentation", "/presentation", root.toString, 1)
+    val malformed = MsgBuilder.generatePresentationPage("conference", "room", "presentation", "/presentation", root.toString, 1)
     assert(malformed.speakerNotes == "plain fallback")
     assert(malformed.speakerNotesJson.isEmpty)
   }

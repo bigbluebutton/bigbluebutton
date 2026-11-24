@@ -12,7 +12,7 @@ class SlideTitleTest extends AnyFlatSpec {
     Files.writeString(notes.resolve("slide-1.txt"), "Notes")
     Files.writeString(notes.resolve("slide-1.title.txt"), "Today’s Agenda")
 
-    val page = MsgBuilder.generatePresentationPage("presentation", "/presentation", root.toString, 1)
+    val page = MsgBuilder.generatePresentationPage("conference", "room", "presentation", "/presentation", root.toString, 1)
     assert(page.slideTitle == "Today’s Agenda")
   }
 
@@ -20,7 +20,7 @@ class SlideTitleTest extends AnyFlatSpec {
     val root = Files.createTempDirectory("slide-title-missing")
     Files.createDirectories(root.resolve("speakernotes"))
 
-    val page = MsgBuilder.generatePresentationPage("presentation", "/presentation", root.toString, 1)
+    val page = MsgBuilder.generatePresentationPage("conference", "room", "presentation", "/presentation", root.toString, 1)
     assert(page.slideTitle == "")
   }
 }
