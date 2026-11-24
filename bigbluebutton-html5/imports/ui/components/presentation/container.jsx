@@ -35,6 +35,7 @@ import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import usePresentationFitToWidth from '/imports/ui/components/presentation/hooks/usePresentationFitToWidth';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
+import useElementSize from '/imports/ui/core/hooks/useElementSize';
 
 const fetchedpresentation = {};
 const FORCE_RESTORE_PRESENTATION_ON_NEW_EVENTS = 'bbb_force_restore_presentation_on_new_events';
@@ -238,6 +239,7 @@ const PresentationContainer = ({
   }
 
   const cameraDock = layoutSelectInput((i) => i.cameraDock);
+  const [presentationRef, presentationSize] = useElementSize();
   const isRTL = layoutSelect((i) => i.isRTL);
   const presentation = layoutSelectOutput((i) => i.presentation);
   const fullscreen = layoutSelect((i) => i.fullscreen);
@@ -259,10 +261,11 @@ const PresentationContainer = ({
   }));
   const userIsPresenter = currentUser?.presenter;
 
-  const presentationAreaSize = {
-    presentationAreaWidth: presentation?.width,
-    presentationAreaHeight: presentation?.height,
-  };
+  // the area the slide fits in is the presentation's own measured box
+  const presentationAreaSize = presentationSize ? {
+    presentationAreaWidth: presentationSize.width,
+    presentationAreaHeight: presentationSize.height,
+  } : undefined;
 
   const shouldRestoreOnUpdate = userIsPresenter
     && currentPresentationId === prevPresentationId ? false : restoreOnUpdate;
@@ -309,6 +312,7 @@ const PresentationContainer = ({
           setPresentationIsOpen: MediaService.setPresentationIsOpen,
           isDefaultPresentation: currentPresentationPage?.isDefaultPresentation,
           presentationAreaSize,
+          presentationRef,
           currentUser,
           currentPresentationPage,
           layoutType: selectedLayout || '',

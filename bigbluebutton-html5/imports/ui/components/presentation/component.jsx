@@ -99,6 +99,7 @@ class Presentation extends PureComponent {
 
     this.onResize = () => setTimeout(this.handleResize.bind(this), 0);
     this.setPresentationRef = this.setPresentationRef.bind(this);
+    this.attachPresentationContainer = this.attachPresentationContainer.bind(this);
     this.setTldrawIsMounting = this.setTldrawIsMounting.bind(this);
     Session.setItem('componentPresentationWillUnmount', false);
   }
@@ -224,7 +225,9 @@ class Presentation extends PureComponent {
     const {
       numCameras: prevNumCameras,
       presentationBounds: prevPresentationBounds,
+      presentationAreaSize: prevPresentationAreaSize,
     } = prevProps;
+    const { presentationAreaSize } = this.props;
 
     if (numCameras !== prevNumCameras) {
       this.onResize();
@@ -249,7 +252,12 @@ class Presentation extends PureComponent {
       );
     }
 
+    const areaChanged = presentationAreaSize?.presentationAreaWidth
+        !== prevPresentationAreaSize?.presentationAreaWidth
+      || presentationAreaSize?.presentationAreaHeight
+        !== prevPresentationAreaSize?.presentationAreaHeight;
     if (presentationBounds !== prevPresentationBounds
+      || areaChanged
       || (!presentationWidth && !presentationHeight)) {
       this.onResize();
     }
@@ -423,25 +431,19 @@ class Presentation extends PureComponent {
     return this.svggroup;
   }
 
+  // The space for the slide: the presentation's measured box less the toolbar (none until measured)
   getPresentationSizesAvailable() {
-    const {
-      presentationBounds,
-      presentationAreaSize: newPresentationAreaSize,
-    } = this.props;
+    const { presentationAreaSize } = this.props;
     const presentationSizes = {
       presentationWidth: 0,
       presentationHeight: 0,
     };
 
-    if (newPresentationAreaSize) {
-      presentationSizes.presentationWidth = newPresentationAreaSize.presentationAreaWidth;
-      presentationSizes.presentationHeight = newPresentationAreaSize.presentationAreaHeight
+    if (presentationAreaSize) {
+      presentationSizes.presentationWidth = presentationAreaSize.presentationAreaWidth;
+      presentationSizes.presentationHeight = presentationAreaSize.presentationAreaHeight
         - (getToolbarHeight() || 0);
-      return presentationSizes;
     }
-
-    presentationSizes.presentationWidth = presentationBounds.width;
-    presentationSizes.presentationHeight = presentationBounds.height;
     return presentationSizes;
   }
 
@@ -458,6 +460,13 @@ class Presentation extends PureComponent {
         presentationWidth: presentationSizes.presentationWidth,
       });
     }
+  }
+
+  // The container element: the presentation measures its own box from it.
+  attachPresentationContainer(ref) {
+    const { presentationRef } = this.props;
+    this.refPresentationContainer = ref;
+    if (presentationRef) presentationRef(ref);
   }
 
   zoomChanger(zoom) {
@@ -670,6 +679,7 @@ class Presentation extends PureComponent {
       initialPageAnnotations,
       refetchInitialPageAnnotations,
       restoreOnUpdate,
+      presentationAreaSize,
     } = this.props;
 
     const {
@@ -725,7 +735,9 @@ class Presentation extends PureComponent {
       || presentationBounds.height === 0;
     if (!presentationIsOpen || presentationIsHidden) return null;
 
-    const toolbarWidth = Math.min(svgWidth || presentationBounds.width, presentationBounds.width);
+    const areaWidth = presentationAreaSize?.presentationAreaWidth ?? 0;
+    const areaHeight = presentationAreaSize?.presentationAreaHeight ?? 0;
+    const toolbarWidth = Math.min(svgWidth || areaWidth, areaWidth);
 
     return (
       <>
@@ -733,9 +745,7 @@ class Presentation extends PureComponent {
           className="bbb-presentation"
           role="region"
           data-test="presentationContainer"
-          ref={(ref) => {
-            this.refPresentationContainer = ref;
-          }}
+          ref={this.attachPresentationContainer}
           isRTL={isRTL}
           style={{
             top: presentationBounds.top,
@@ -750,105 +760,108 @@ class Presentation extends PureComponent {
           }}
         >
           <h2 className="sr-only">{intl.formatMessage(intlMessages.presentationHeader)}</h2>
-          <Styled.Presentation
-            className="bbb-presentation__content"
-            ref={(ref) => {
-              this.refPresentation = ref;
-            }}
-          >
-            <Styled.SvgContainer
-              style={{
-                height: svgHeight + toolbarHeight,
+          {/* the content waits for the measured box, which arrives before the first paint */}
+          {presentationAreaSize && (
+            <Styled.Presentation
+              className="bbb-presentation__content"
+              ref={(ref) => {
+                this.refPresentation = ref;
               }}
             >
-              <div
+              <Styled.SvgContainer
                 style={{
-                  position: 'absolute',
-                  width: svgDimensions.width < 0 ? 0 : svgDimensions.width,
-                  height: svgDimensions.height < 0 ? 0 : svgDimensions.height,
-                  textAlign: 'center',
-                  display: !presentationIsOpen ? 'none' : 'block',
-                  zIndex: 1,
+                  height: svgHeight + toolbarHeight,
                 }}
-                id="presentationInnerWrapper"
               >
-                {this.renderPresentationDownload()}
-                <Styled.VisuallyHidden id="currentSlideText">
-                  {slideContent}
-                </Styled.VisuallyHidden>
-                {((userIsPresenter || hasWBAccess) && (!tldrawIsMounting && presentationWidth > 0 && currentSlide)) && (
-                <Styled.ExtraTools {...{ isToolbarVisible }}>
-                  <TooltipContainer title={intl?.messages['app.shortcut-help.undo']}>
-                    <Styled.Button
-                      aria-label={intl?.messages['app.shortcut-help.undo']}
-                      onClick={() => tldrawAPI?.undo()}
-                      className="tlui-undo"
-                    >
-                      <Styled.IconWithMask mask={`${window.meetingClientSettings.public.app.basename}/svgs/tldraw/undo.svg`} />
-                    </Styled.Button>
-                  </TooltipContainer>
-                  <TooltipContainer title={intl?.messages['app.shortcut-help.redo']}>
-                    <Styled.Button
-                      aria-label={intl?.messages['app.shortcut-help.redo']}
-                      onClick={() => tldrawAPI?.redo()}
-                      className="tlui-redo"
-                    >
-                      <Styled.IconWithMask mask={`${window.meetingClientSettings.public.app.basename}/svgs/tldraw/redo.svg`} />
-                    </Styled.Button>
-                  </TooltipContainer>
-                </Styled.ExtraTools>
-                )}
-                {!tldrawIsMounting
-                  && presentationWidth > 0
-                  && currentSlide
-                  && this.renderPresentationMenu()}
-                <LocatedErrorBoundary Fallback={FallbackView} logMetadata={APP_CRASH_METADATA}>
-                  <WhiteboardContainer
-                    whiteboardId={currentSlide?.id}
-                    slidePosition={slidePosition}
-                    getSvgRef={this.getSvgRef}
-                    tldrawAPI={tldrawAPI}
-                    setTldrawAPI={this.setTldrawAPI}
-                    svgUri={currentSlide?.svgUri}
-                    intl={intl}
-                    presentationWidth={svgWidth}
-                    presentationHeight={svgHeight}
-                    presentationAreaHeight={presentationBounds.height - toolbarHeight}
-                    presentationAreaWidth={presentationBounds.width}
-                    isPanning={isPanning}
-                    zoomChanger={this.zoomChanger}
-                    fitToWidth={fitToWidth}
-                    zoomValue={zoom}
-                    setTldrawIsMounting={this.setTldrawIsMounting}
-                    setIsToolbarVisible={this.setIsToolbarVisible}
-                    isFullscreen={isFullscreen}
-                    fullscreenAction={ACTIONS.SET_FULLSCREEN_ELEMENT}
-                    fullscreenElementId={fullscreenElementId}
-                    layoutContextDispatch={layoutContextDispatch}
-                    fullscreenRef={this.refPresentationContainer}
-                    presentationId={currentPresentationId}
-                    darkTheme={darkTheme}
-                    isToolbarVisible={isToolbarVisible}
-                    isViewersAnnotationsLocked={isViewersAnnotationsLocked}
-                    annotationStreamData={annotationStreamData}
-                    initialPageAnnotations={initialPageAnnotations}
-                    refetchInitialPageAnnotations={refetchInitialPageAnnotations}
-                    restoreOnUpdate={restoreOnUpdate}
-                  />
-                </LocatedErrorBoundary>
-                {isFullscreen && <PollingContainer />}
-              </div>
-              {!tldrawIsMounting && presentationWidth > 0 && (
-                <Styled.PresentationToolbar
-                  ref={(ref) => {
-                    this.refPresentationToolbar = ref;
+                <div
+                  style={{
+                    position: 'absolute',
+                    width: svgDimensions.width < 0 ? 0 : svgDimensions.width,
+                    height: svgDimensions.height < 0 ? 0 : svgDimensions.height,
+                    textAlign: 'center',
+                    display: !presentationIsOpen ? 'none' : 'block',
+                    zIndex: 1,
                   }}
+                  id="presentationInnerWrapper"
                 >
-                  {this.renderPresentationToolbar(toolbarWidth)}
-                </Styled.PresentationToolbar>
-              )}
-            </Styled.SvgContainer>
-          </Styled.Presentation>
+                  {this.renderPresentationDownload()}
+                  <Styled.VisuallyHidden id="currentSlideText">
+                    {slideContent}
+                  </Styled.VisuallyHidden>
+                  {((userIsPresenter || hasWBAccess) && (!tldrawIsMounting && presentationWidth > 0 && currentSlide)) && (
+                  <Styled.ExtraTools {...{ isToolbarVisible }}>
+                    <TooltipContainer title={intl?.messages['app.shortcut-help.undo']}>
+                      <Styled.Button
+                        aria-label={intl?.messages['app.shortcut-help.undo']}
+                        onClick={() => tldrawAPI?.undo()}
+                        className="tlui-undo"
+                      >
+                        <Styled.IconWithMask mask={`${window.meetingClientSettings.public.app.basename}/svgs/tldraw/undo.svg`} />
+                      </Styled.Button>
+                    </TooltipContainer>
+                    <TooltipContainer title={intl?.messages['app.shortcut-help.redo']}>
+                      <Styled.Button
+                        aria-label={intl?.messages['app.shortcut-help.redo']}
+                        onClick={() => tldrawAPI?.redo()}
+                        className="tlui-redo"
+                      >
+                        <Styled.IconWithMask mask={`${window.meetingClientSettings.public.app.basename}/svgs/tldraw/redo.svg`} />
+                      </Styled.Button>
+                    </TooltipContainer>
+                  </Styled.ExtraTools>
+                  )}
+                  {!tldrawIsMounting
+                    && presentationWidth > 0
+                    && currentSlide
+                    && this.renderPresentationMenu()}
+                  <LocatedErrorBoundary Fallback={FallbackView} logMetadata={APP_CRASH_METADATA}>
+                    <WhiteboardContainer
+                      whiteboardId={currentSlide?.id}
+                      slidePosition={slidePosition}
+                      getSvgRef={this.getSvgRef}
+                      tldrawAPI={tldrawAPI}
+                      setTldrawAPI={this.setTldrawAPI}
+                      svgUri={currentSlide?.svgUri}
+                      intl={intl}
+                      presentationWidth={svgWidth}
+                      presentationHeight={svgHeight}
+                      presentationAreaHeight={areaHeight - toolbarHeight}
+                      presentationAreaWidth={areaWidth}
+                      isPanning={isPanning}
+                      zoomChanger={this.zoomChanger}
+                      fitToWidth={fitToWidth}
+                      zoomValue={zoom}
+                      setTldrawIsMounting={this.setTldrawIsMounting}
+                      setIsToolbarVisible={this.setIsToolbarVisible}
+                      isFullscreen={isFullscreen}
+                      fullscreenAction={ACTIONS.SET_FULLSCREEN_ELEMENT}
+                      fullscreenElementId={fullscreenElementId}
+                      layoutContextDispatch={layoutContextDispatch}
+                      fullscreenRef={this.refPresentationContainer}
+                      presentationId={currentPresentationId}
+                      darkTheme={darkTheme}
+                      isToolbarVisible={isToolbarVisible}
+                      isViewersAnnotationsLocked={isViewersAnnotationsLocked}
+                      annotationStreamData={annotationStreamData}
+                      initialPageAnnotations={initialPageAnnotations}
+                      refetchInitialPageAnnotations={refetchInitialPageAnnotations}
+                      restoreOnUpdate={restoreOnUpdate}
+                    />
+                  </LocatedErrorBoundary>
+                  {isFullscreen && <PollingContainer />}
+                </div>
+                {!tldrawIsMounting && presentationWidth > 0 && (
+                  <Styled.PresentationToolbar
+                    ref={(ref) => {
+                      this.refPresentationToolbar = ref;
+                    }}
+                  >
+                    {this.renderPresentationToolbar(toolbarWidth)}
+                  </Styled.PresentationToolbar>
+                )}
+              </Styled.SvgContainer>
+            </Styled.Presentation>
+          )}
         </Styled.PresentationContainer>
       </>
     );
@@ -905,6 +918,8 @@ Presentation.propTypes = {
     presentationAreaWidth: PropTypes.number.isRequired,
     presentationAreaHeight: PropTypes.number.isRequired,
   }),
+  // receives the container element, whose measured box is the presentation area
+  presentationRef: PropTypes.func,
   setMultiUserWhiteboardEnabled: PropTypes.func.isRequired,
   setMultiUserWhiteboardDisabled: PropTypes.func.isRequired,
   multiUserSize: PropTypes.number.isRequired,
@@ -917,6 +932,7 @@ Presentation.defaultProps = {
   currentSlide: undefined,
   slidePosition: undefined,
   presentationAreaSize: undefined,
+  presentationRef: undefined,
   presentationBounds: undefined,
   downloadPresentationUri: undefined,
   userIsPresenter: false,
