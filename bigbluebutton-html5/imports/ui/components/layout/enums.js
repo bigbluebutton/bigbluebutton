@@ -83,7 +83,6 @@ export const ACTIONS = {
   SET_HAS_ACTIONBAR: 'setHasActionBar',
 
   SET_SIDEBAR_NAVIGATION_IS_OPEN: 'setSidebarNavigationIsOpen',
-  SET_SIDEBAR_NAVIGATION_SIZE: 'setSidebarNavigationSize',
   REGISTER_SIDEBAR_APP: 'registerSidebarApp',
   UNREGISTER_SIDEBAR_APP: 'unregisterSidebarApp',
   SET_SIDEBAR_NAVIGATION_PIN_APP: 'setSidebarNavigationPinApp',
@@ -91,12 +90,9 @@ export const ACTIONS = {
 
   SET_SIDEBAR_CONTENT_IS_OPEN: 'setSidebarContentIsOpen',
   SET_SIDEBAR_CONTENT_SIZE: 'setSidebarContentSize',
-  SET_SIDEBAR_CONTENT_PANEL_TYPE: 'setSidebarContentPanelType',
-  SET_SIDEBAR_CONTENT_IS_RESIZABLE: 'setSidebarContentIsResizable',
 
   SET_SIDEBAR_CONTENT_AUXILIARY_IS_OPEN: 'setSidebarContentAuxiliaryIsOpen',
   SET_SIDEBAR_CONTENT_AUXILIARY_SIZE: 'setSidebarContentAuxiliarySize',
-  SET_SIDEBAR_CONTENT_AUXILIARY_IS_RESIZABLE: 'setSidebarContentAuxiliaryIsResizable',
 
 
   SET_NUM_CAMERAS: 'setNumCameras',
@@ -105,16 +101,12 @@ export const ACTIONS = {
   SET_CAMERA_DOCK_POSITION: 'setCameraDockPosition',
   SET_CAMERA_DOCK_SIZE: 'setCameraDockSize',
   SET_CAMERA_DOCK_OPTIMAL_GRID_SIZE: 'setCameraDockOptimalGridSize',
-  SET_CAMERA_DOCK_IS_RESIZABLE: 'setCameraDockIsResizable',
 
 
   SET_PRESENTATION_IS_OPEN: 'setPresentationIsOpen',
   SET_PRESENTATION_CONTENT_UPDATED: 'setPresentationContentUpdated',
   SET_PRESENTATION_CURRENT_SLIDE_SIZE: 'setPresentationCurrentSlideSize',
-  SET_PRESENTATION_NUM_CURRENT_SLIDE: 'setPresentationNumCurrentSlide',
   SET_PRESENTATION_SLIDES_LENGTH: 'setPresentationSlidesLength',
-  SET_PRESENTATION_SIZE: 'setPresentationSize',
-  SET_PRESENTATION_IS_RESIZABLE: 'setPresentationIsResizable',
 
   SET_FULLSCREEN_ELEMENT: 'setFullscreenElement',
 
@@ -122,7 +114,6 @@ export const ACTIONS = {
   SET_SCREEN_SHARE_SIZE: 'setScreenShareSize',
 
   SET_HAS_EXTERNAL_VIDEO: 'setHasExternalVideo',
-  SET_EXTERNAL_VIDEO_SIZE: 'setExternalVideoSize',
 
   SET_HAS_GENERIC_CONTENT: 'setHasGenericContent',
 

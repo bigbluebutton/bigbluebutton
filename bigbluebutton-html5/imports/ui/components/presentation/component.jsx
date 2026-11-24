@@ -169,10 +169,6 @@ class Presentation extends PureComponent {
 
     if (currentSlide) {
       layoutContextDispatch({
-        type: ACTIONS.SET_PRESENTATION_NUM_CURRENT_SLIDE,
-        value: currentSlide.num,
-      });
-      layoutContextDispatch({
         type: ACTIONS.SET_PRESENTATION_CURRENT_SLIDE_SIZE,
         value: {
           width: slidePosition.width,
@@ -308,10 +304,6 @@ class Presentation extends PureComponent {
           width: currWidth,
           height: currHeight,
         },
-      });
-      layoutContextDispatch({
-        type: ACTIONS.SET_PRESENTATION_NUM_CURRENT_SLIDE,
-        value: currentSlide.num,
       });
     }
 

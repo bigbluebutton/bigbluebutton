@@ -43,7 +43,7 @@ export const PREV_INPUT = {
     ...INITIAL_INPUT_STATE.presentation,
     isOpen: false,
     slidesLength: 3,
-    currentSlide: { num: 2, size: { width: 1600, height: 900 } },
+    currentSlide: { size: { width: 1600, height: 900 } },
   },
   externalVideo: { ...INITIAL_INPUT_STATE.externalVideo, hasExternalVideo: true },
   genericMainContent: { ...INITIAL_INPUT_STATE.genericMainContent, genericContentId: 'plugin-content' },

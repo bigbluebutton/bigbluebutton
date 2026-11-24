@@ -90,7 +90,6 @@ export const INITIAL_INPUT_STATE = {
     isOpen: true,
     slidesLength: 0,
     currentSlide: {
-      num: 0,
       size: {
         width: 0,
         height: 0,

@@ -83,7 +83,6 @@ interface Size {
 }
 
 interface CurrentSlide {
-    num: number;
     size: Size;
 }
 

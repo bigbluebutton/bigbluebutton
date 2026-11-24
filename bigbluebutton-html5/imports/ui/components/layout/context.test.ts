@@ -226,11 +226,9 @@ describe('layout reducer: semantic input cases', () => {
       expect(pile[pile.length - 1].value.open).toBe(false);
     });
 
-    it('SET_PRESENTATION_CURRENT_SLIDE_SIZE and SET_PRESENTATION_NUM_CURRENT_SLIDE write the slide', () => {
-      let next = dispatch(freshState(), ACTIONS.SET_PRESENTATION_CURRENT_SLIDE_SIZE, { width: 1600, height: 900 });
+    it('SET_PRESENTATION_CURRENT_SLIDE_SIZE writes the slide size', () => {
+      const next = dispatch(freshState(), ACTIONS.SET_PRESENTATION_CURRENT_SLIDE_SIZE, { width: 1600, height: 900 });
       expect(next.input.presentation.currentSlide.size).toEqual({ width: 1600, height: 900 });
-      next = dispatch(next, ACTIONS.SET_PRESENTATION_NUM_CURRENT_SLIDE, 3);
-      expect(next.input.presentation.currentSlide.num).toBe(3);
     });
 
     it('SET_PRESENTATION_CONTENT_UPDATED always stamps contentUpdatedAt', () => {

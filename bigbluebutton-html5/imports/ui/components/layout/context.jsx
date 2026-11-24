@@ -309,25 +309,6 @@ const reducer = (state, action) => {
         },
       };
     }
-    case ACTIONS.SET_SIDEBAR_NAVIGATION_SIZE: {
-      const { width, browserWidth } = action.value;
-      const { sidebarNavigation } = state.input;
-      if (sidebarNavigation.width === width
-        && sidebarNavigation.browserWidth === browserWidth) {
-        return state;
-      }
-      return {
-        ...state,
-        input: {
-          ...state.input,
-          sidebarNavigation: {
-            ...sidebarNavigation,
-            width,
-            browserWidth,
-          },
-        },
-      };
-    }
     case ACTIONS.REGISTER_SIDEBAR_APP: {
       const {
         id,
@@ -862,25 +843,6 @@ const reducer = (state, action) => {
         },
       };
     }
-    case ACTIONS.SET_PRESENTATION_NUM_CURRENT_SLIDE: {
-      const { presentation } = state.input;
-      if (presentation.currentSlide.num === action.value) {
-        return state;
-      }
-      return {
-        ...state,
-        input: {
-          ...state.input,
-          presentation: {
-            ...presentation,
-            currentSlide: {
-              ...presentation.currentSlide,
-              num: action.value,
-            },
-          },
-        },
-      };
-    }
     case ACTIONS.SET_PRESENTATION_CURRENT_SLIDE_SIZE: {
       const { width, height } = action.value;
       const { presentation } = state.input;
@@ -902,31 +864,6 @@ const reducer = (state, action) => {
                 height,
               },
             },
-          },
-        },
-      };
-    }
-    case ACTIONS.SET_PRESENTATION_SIZE: {
-      const {
-        width, height, browserWidth, browserHeight,
-      } = action.value;
-      const { presentation } = state.input;
-      if (presentation.width === width
-        && presentation.height === height
-        && presentation.browserWidth === browserWidth
-        && presentation.browserHeight === browserHeight) {
-        return state;
-      }
-      return {
-        ...state,
-        input: {
-          ...state.input,
-          presentation: {
-            ...presentation,
-            width,
-            height,
-            browserWidth,
-            browserHeight,
           },
         },
       };
@@ -1000,31 +937,6 @@ const reducer = (state, action) => {
           externalVideo: {
             ...externalVideo,
             hasExternalVideo: action.value,
-          },
-        },
-      };
-    }
-    case ACTIONS.SET_EXTERNAL_VIDEO_SIZE: {
-      const {
-        width, height, browserWidth, browserHeight,
-      } = action.value;
-      const { externalVideo } = state.input;
-      if (externalVideo.width === width
-        && externalVideo.height === height
-        && externalVideo.browserWidth === browserWidth
-        && externalVideo.browserHeight === browserHeight) {
-        return state;
-      }
-      return {
-        ...state,
-        input: {
-          ...state.input,
-          externalVideo: {
-            ...externalVideo,
-            width,
-            height,
-            browserWidth,
-            browserHeight,
           },
         },
       };
