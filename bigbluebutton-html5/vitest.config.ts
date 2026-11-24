@@ -38,6 +38,8 @@ export default defineConfig({
         'imports/ui/components/webcam/component.tsx',
         'imports/ui/components/plugins-engine/ui-commands/{nav-bar,actions-bar,sidekick-area}/**',
         'imports/ui/components/plugins-engine/ui-data-hooks/layout/**',
+        'imports/ui/core/hooks/useElementSize.ts',
+        'imports/ui/components/user-list/crowd-action-buttons/isAtMinWidth.ts',
       ],
       reportsDirectory: './coverage',
     },
