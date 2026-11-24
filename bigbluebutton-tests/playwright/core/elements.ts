@@ -111,9 +111,11 @@ export const elements = {
   connectingToEchoTest: 'span[data-test="connectingToEchoTest"]',
   hasVolumeEchoTest: 'meter[data-test="hasVolume"]',
   hasNoVolumeEchoTest: 'meter[data-test="hasNoVolume"]',
-  // the end-to-end echo test (when the local echo test is off); its "No" button has no data-test
+  // the end-to-end echo test (when the local echo test is off)
   echoYesButton: 'button[data-test="echoYesBtn"]',
-  echoNoButton: 'button[aria-label="Echo is inaudible"]',
+  echoNoButton: 'button[data-test="echoNoBtn"]',
+  echoYesButtonLabel: 'Yes, echo is audible',
+  echoNoButtonLabel: 'No, echo is inaudible',
   isTalking: 'button[data-test="isTalking"]',
   wasTalking: 'button[data-test="wasTalking"]',
   talkingIndicator: 'div[data-test="talkingIndicator"]',
@@ -497,6 +499,7 @@ export const elements = {
   pollAnswerOptionBtn: 'button[data-test="pollAnswerOption"]',
   receivedAnswer: 'td[data-test="receivedAnswer"]',
   quickPoll: 'button[data-test="quickPollBtn"]',
+  quickPollLabel: 'Quick Poll',
   pollQuestionArea: 'textarea[data-test="pollQuestionArea"]',
   userResponseBtn: 'button[data-test="userResponseBtn"]',
   pollAnswerOptionInput: 'input[data-test="pollAnswerOption"]',
@@ -706,10 +709,14 @@ export const elements = {
   // direct crowd-action button in the participants panel (replaced the
   // 3.0 gear dropdown's "mute all except presenter" item)
   muteAllUsers: 'button[data-test="muteAllUsers"]',
+  muteAllUsersLabel: 'Mute all users except presenter',
+  muteAllUsersDescription: 'Mutes all users in the session except the presenter',
   clearAllReactions: 'button[data-test="clearAllReactions"]',
 
   // Lock Viewers
   lockViewersButton: 'button[data-test="lockViewersButton"]',
+  lockViewersButtonLabel: 'Permissions and Policies',
+  lockViewersButtonDescription: 'Restrict participants from using specific features.',
   unlockUserButton: 'li[data-test="unlockUserButton"]',
   togglePublicChat: 'li[data-test="togglePublicChat"]',
   applyLockSettings: 'button[data-test="applyLockSettings"]',
