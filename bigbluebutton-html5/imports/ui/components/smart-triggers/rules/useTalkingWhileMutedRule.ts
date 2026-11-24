@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import useSmartTrigger from '../hooks/useSmartTrigger';
 import useLocalAudioState from '../hooks/useLocalAudioState';
-import useMicActivity from '../hooks/useMicActivity';
+import useMicActivity from '/imports/ui/hooks/useMicActivity';
 import { getSmartTriggersSettings } from '../service';
 import { CooldownPolicy } from '../types';
 
@@ -17,14 +17,14 @@ const COOLDOWN: CooldownPolicy = { kind: 'untilReset' };
 
 const useTalkingWhileMutedRule = () => {
   const intl = useIntl();
-  const { interval, speechThresholdDb, hideAfterMs } = getSmartTriggersSettings().talkingWhileMuted;
+  const { speechThresholdDb, hideAfterMs } = getSmartTriggersSettings().talkingWhileMuted;
   const {
     inputStream, isMuted, isListenOnly, isConnected,
   } = useLocalAudioState();
   const { fire, clear, reset } = useSmartTrigger('talkingWhileMuted', COOLDOWN);
 
   const watching = isConnected && !isListenOnly && isMuted && !!inputStream;
-  const { isSpeaking } = useMicActivity(inputStream, { interval, threshold: speechThresholdDb, enabled: watching });
+  const { isSpeaking } = useMicActivity(inputStream, { threshold: speechThresholdDb, enabled: watching });
 
   useEffect(() => {
     if (!isMuted || !isConnected) reset();
