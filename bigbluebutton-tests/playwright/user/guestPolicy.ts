@@ -388,7 +388,7 @@ export class GuestPolicy extends MultiUsers {
     );
   }
 
-  // Guard for D-1: Always deny applies only to later arrivals and leaves the existing queue actionable.
+  // Guard: Always deny applies only to later arrivals and leaves the existing queue actionable.
   async alwaysDenyKeepsWaitingUsers(): Promise<void> {
     await this.initTwoWaitingQueues();
     await this.modPage.hasElement(e.lockViewersButton, 'should finish opening the users panel');
