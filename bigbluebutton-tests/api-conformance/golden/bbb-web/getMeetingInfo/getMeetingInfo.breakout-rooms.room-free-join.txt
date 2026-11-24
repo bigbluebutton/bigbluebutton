@@ -17,7 +17,7 @@ body xml
 /response/attendeePW "<random>"
 /response/moderatorPW "<random>"
 /response/running "false"
-/response/duration "10"
+/response/duration "11"
 /response/hasUserJoined "false"
 /response/recording "false"
 /response/hasBeenForciblyEnded "false"

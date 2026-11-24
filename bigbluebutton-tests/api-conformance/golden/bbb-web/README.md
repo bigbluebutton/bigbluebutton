@@ -86,6 +86,9 @@ there compares like with like.
   and `end/` breakout-rooms) were recorded from a stack running packages
   built from v4.0.x-develop of that day (aca03d0651; the three commits
   since, to the HTML5 client and bbb-libreoffice, change none of them).
+  On 2026-11-24 `getMeetingInfo.breakout-rooms.room` was recorded again,
+  from the same packages, for its rooms' new 601-second duration; only
+  the duration changed.
 
 ## Reviewing
 

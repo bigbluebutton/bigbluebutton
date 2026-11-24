@@ -2,7 +2,8 @@
 # A breakout room, asked for by its meetingID, says it is one: isBreakout
 # true, its parent's internal meeting ID as parentMeetingID, and the
 # sequence and freeJoin it was started with. Its name is the room's, and its
-# duration is the rooms' durationInSeconds in minutes, rounded up.
+# duration is the rooms' durationInSeconds in minutes, rounded up: 601
+# seconds, which truncating would make 10, are 11 minutes.
 id: getMeetingInfo.breakout-rooms.room
 title: getMeetingInfo describes a breakout room (freeJoin ${free})
 endpoint: getMeetingInfo
@@ -37,7 +38,7 @@ steps:
         record: false
         notes: false
         slides: false
-        duration: 600
+        duration: 601
         invite: false
         lock: false
         rooms:
@@ -91,7 +92,7 @@ steps:
         /response/parentMeetingID: "${intId}"
         /response/sequence: "1"
         /response/freeJoin: "${free}"
-        /response/duration: "10"
+        /response/duration: "11"
         /response/breakoutRooms: {absent: true}
 teardown:
   # Ending the parent ends its rooms. Again until bbb-web no longer knows
