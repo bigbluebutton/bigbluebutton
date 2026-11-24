@@ -422,7 +422,7 @@ Document conversion runs the image straight from this reference, so Docker pulls
 sudo docker pull "$(cat /usr/share/bbb-libreoffice/docker-image)"
 ```
 
-A server without access to Docker Hub cannot pull the image back, and Office documents fail to convert until it is loaded again. Keep `bbb-libreoffice.tar` from the steps above and run `sudo docker load -i bbb-libreoffice.tar` after a prune.
+A server without access to Docker Hub cannot pull the image back, and Office documents fail to convert until it is loaded again. Keep `bbb-libreoffice.tar` from the steps above and run `sudo docker load -i bbb-libreoffice.tar` after a prune. An upgrade that changes the image in `/usr/share/bbb-libreoffice/docker-image` needs the new image, loaded with the steps above; keep that `bbb-libreoffice.tar` in place of the old one. `docker load` prints the image it loaded, which should match that file.
 
 ## Feedback and reporting bugs
 
