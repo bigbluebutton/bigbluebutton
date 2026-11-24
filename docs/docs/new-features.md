@@ -25,6 +25,10 @@ BigBlueButton 4.1 lets a moderator **ask a participant to turn on their webcam**
 
 - `allowModsToRequestCameraShare` added (default `false`). When `true`, moderators may ask a participant to share their webcam; the participant accepts or declines.
 
+### Override file location changes
+
+- The override file for bbb-export-annotations was moved from `/etc/bigbluebutton/bbb-export-annotations.json` to `/etc/bigbluebutton/bbb-export-annotations/production.json`
+
 ## Development
 
 For information on developing in BigBlueButton, see [setting up a development environment for 4.1](/development/guide).

@@ -36,7 +36,7 @@ Many of the configuration files have local overrides so the administrator can sp
 | /usr/share/livekit-server/livekit.yaml                                  | /etc/bigbluebutton/livekit.yaml                  | Merged when `livekit-server` starts; holds the API keys                          |
 | /usr/share/livekit-server/livekit-sip.yaml                              | /etc/bigbluebutton/livekit-sip.yaml              | Merged when `livekit-sip` starts                                                 |
 | /usr/share/bbb-shared-notes-server/config/default.yml                   | /etc/bigbluebutton/bbb-shared-notes-server.yml   |                                                  |
-| /usr/local/bigbluebutton/bbb-export-annotations/config/settings.json    | /etc/bigbluebutton/bbb-export-annotations.json   | JSON; arrays are merged by replacement           |
+| /usr/local/bigbluebutton/bbb-export-annotations/config/default.json    | /etc/bigbluebutton/bbb-export-annotations/production.json (was /etc/bigbluebutton/bbb-export-annotations.json before 4.1) | JSON; arrays are merged by replacement           |
 | /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml                 | /etc/bigbluebutton/recording/recording.yml       | Top-level keys in the override replace the shipped values as a whole (for example the complete `steps` map) |
 | /usr/local/bigbluebutton/core/scripts/presentation.yml                  | /etc/bigbluebutton/recording/presentation.yml    | Top-level keys in the override replace the shipped values as a whole                |
 | /usr/local/bigbluebutton/core/scripts/video.yml                         | /etc/bigbluebutton/recording/video.yml           | Presets are merged by name: a preset in the override replaces the shipped preset of the same name as a whole |
@@ -92,12 +92,14 @@ Redis has no password by default. To require one, set `requirepass` in `/etc/red
 | bbb-shared-notes-server    | /etc/bigbluebutton/bbb-shared-notes-server.yml               | `redis.password`                        |
 | bbb-webrtc-sfu             | /etc/bigbluebutton/bbb-webrtc-sfu/production.yml             | `redisPassword`                         |
 | Recording processing       | /etc/bigbluebutton/recording/recording.yml                   | `redis_password`                        |
-| bbb-export-annotations     | /etc/bigbluebutton/bbb-export-annotations.json               | `redis.password`                        |
+| bbb-export-annotations     | /etc/bigbluebutton/bbb-export-annotations/production.json    | `redis.password`                        |
 | bbb-webrtc-recorder        | /etc/bbb-webrtc-recorder/bbb-webrtc-recorder.yml             | `pubsub.adapters.redis.password`        |
 | bbb-transcription-controller | /etc/bigbluebutton/bbb-transcription-controller/production.yml | `redis.password`                      |
 | livekit-server             | /etc/bigbluebutton/livekit.yaml                              | `redis.password`                        |
 | livekit-sip                | /etc/bigbluebutton/livekit-sip.yaml                          | `redis.password`                        |
 | bbb-webhooks (if installed) | /usr/local/bigbluebutton/bbb-webhooks/config/default.yml    | `redis.password` (regenerated on package upgrades) |
+
+The `/etc/bigbluebutton/bbb-export-annotations/` directory must be readable by the `bigbluebutton` user (mode `0755`), or its override is skipped without a message. The file itself must be readable by that user too.
 
 ## HTML5 Client
 
