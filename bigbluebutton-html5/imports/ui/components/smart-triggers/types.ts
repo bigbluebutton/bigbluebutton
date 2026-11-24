@@ -1,5 +1,6 @@
 export type RuleId =
-  | 'talkingWhileMuted';
+  | 'talkingWhileMuted'
+  | 'speechNotTranscribed';
 
 export type CooldownPolicy =
   | { kind: 'time'; ms: number }
