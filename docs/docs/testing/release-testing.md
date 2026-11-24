@@ -755,6 +755,18 @@ Contextual hints driven by in-meeting activity, configured under `public.app.sma
 
     - The hand is lowered.
 
+### New microphone
+
+1. User: join audio with the microphone.
+
+2. User: connect a headset or USB microphone.
+
+    - A hint names the new microphone and offers "Use this microphone".
+
+3. User: click "Use this microphone".
+
+    - The client switches to the new microphone; the hint does not come back for that device.
+
 ### Speech not transcribed
 
 1. User: enable automatic transcription with a language, join audio with a microphone and unmute.
