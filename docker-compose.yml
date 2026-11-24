@@ -276,14 +276,24 @@ services:
       - node
       - bbb-shared-notes-conversion.js
     init: true
-    # the unit's isolation: no network, read-only system, a private /tmp
+    # the unit's isolation: no network, read-only system, a private /tmp, no capabilities
+    # (CapabilityBoundingSet=), NoNewPrivileges
     network_mode: none
     read_only: true
     tmpfs:
       - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     # the unit allows MemoryMax=640M per conversion; this is for the whole container, with up to
     # 8 conversions at once
     mem_limit: 1g
+    # no swap on top (MemorySwapMax=0)
+    memswap_limit: 1g
+    # TasksMax=32 per conversion, times 8, plus each conversion's timeout process and the
+    # listener's tasks (8 when idle), with some room: 320. A conversion uses about 8 tasks.
+    pids_limit: 320
     volumes:
       - shared-notes-conversion:/run
 

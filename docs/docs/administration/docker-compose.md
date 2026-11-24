@@ -108,7 +108,7 @@ Backup: `./data` and `.env`. PostgreSQL (a volume) holds only the state of runni
 - Media: LiveKit receives all media on one port, 7882/udp, instead of the range 16384-32768 a package install opens.
 - TURN: coturn relays only to LiveKit, inside the compose network, so its relay ports are not opened on the host.
 - There is no FreeSWITCH, so there is no dial-in.
-- The PDF export of the shared notes runs in the `shared-notes-conversion` service instead of the systemd units `bbb-shared-notes-conversion.socket` and `bbb-shared-notes-conversion@.service`: the same wkhtmltopdf command and 30 s limit, in a container without network that shares the socket with `shared-notes-server`.
+- The PDF export of the shared notes runs in the `shared-notes-conversion` service instead of the systemd units `bbb-shared-notes-conversion.socket` and `bbb-shared-notes-conversion@.service`: the same wkhtmltopdf command and 30 s limit, in a container without network that shares the socket with `shared-notes-server`. In the container all conversions run as one user and share one `/tmp`; the unit gives each conversion a user and a `/tmp` of its own.
 - The domain, the IP address and the secrets are set in `.env` instead of with `bbb-conf --setip` and `bbb-conf --setsecret`. There is no `bbb-conf` and no `apply-config.sh`.
 
 ## Common bbb-conf tasks
