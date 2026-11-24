@@ -102,7 +102,7 @@ Backup: `./data`, `.env` and `docker-compose.override.yml`. PostgreSQL (a volume
 
   Then `docker compose up -d --force-recreate recording-workers recording-starter recording-caption-inbox recording-cleanup`. New recordings get the extra formats; `getRecordings` lists them and nginx serves them.
 - nginx uses the image's location files and upstreams, which use the default service names. The compose file mounts only its site (port 80 and haproxy's 8081) and `playback.nginx`, because `playback` runs only with the `recording` profile.
-- More Hasura instances: `docker compose up -d --scale graphql-server=2`, then `docker compose exec nginx nginx -s reload`. nginx balances them as on bare metal and looks up the instances only when it starts or reloads, so reload it again after scaling down.
+- More Hasura instances: `docker compose up -d --scale graphql-server=2`. nginx balances them as on bare metal and looks up the instances every 30 s, so it follows scaling up and down within about 30 s, without a reload.
 - Logs: `docker compose logs <service>`; the logs per recording are in the `recording-logs` volume. The compose file sets the `local` logging driver, which rotates the logs; it overrides the host's Docker default (`daemon.json`). Remove it from `x-bbb` to use that default.
 
 ## Differences from a package install
