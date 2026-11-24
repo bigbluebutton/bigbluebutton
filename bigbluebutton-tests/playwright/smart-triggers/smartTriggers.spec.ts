@@ -14,5 +14,17 @@ test.describe.parallel('Smart triggers', { tag: '@ci' }, () => {
       });
       await smartTriggers.mutedAlertStaysOffUntilUnmute();
     });
+
+    // https://docs.bigbluebutton.org/4.0/testing/release-testing/#no-microphone-signal-automated
+    // A 0 dB threshold turns the fake microphone's speech into silence.
+    test('No microphone signal hint opens the audio settings', async ({ browser, context, page }, testInfo) => {
+      const smartTriggers = new SmartTriggers(browser, context);
+      await smartTriggers.initModPage(page, {
+        clientSettingsOverrides: smartTriggersOverride('noMicSignal', { afterSeconds: 3, signalFloorDb: 0 }),
+        shouldCloseAudioModal: false,
+        testInfo,
+      });
+      await smartTriggers.noMicSignalOpensAudioSettings();
+    });
   });
 });

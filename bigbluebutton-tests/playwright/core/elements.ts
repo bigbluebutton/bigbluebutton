@@ -444,6 +444,7 @@ export const elements = {
 
   // Smart triggers
   mutedAlert: 'div[data-test="mutedAlert"]',
+  smartTriggerChangeMic: 'button[data-test="smartTrigger-noMicSignal-changeMic"]',
   presentationStatusInfo: 'span[data-test="presentationStatusInfo"]',
   processingPresentationItem: 'span[data-test="processingPresentationItem"]',
   uploadDoneIcon: 'i[data-test="uploadDoneIcon"]',

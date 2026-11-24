@@ -56,4 +56,15 @@ export class SmartTriggers extends MultiUsers {
       ELEMENT_WAIT_LONGER_TIME,
     );
   }
+
+  async noMicSignalOpensAudioSettings() {
+    await this.modPage.joinMicrophone();
+    await this.modPage.hasElement(
+      e.smartTriggerChangeMic,
+      'should warn that the microphone sends no signal',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await this.modPage.waitAndClick(e.smartTriggerChangeMic);
+    await this.modPage.hasElement(e.audioSettingsModal, 'should open the audio settings from the hint');
+  }
 }
