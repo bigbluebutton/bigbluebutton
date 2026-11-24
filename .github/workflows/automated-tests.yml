@@ -125,11 +125,28 @@ jobs:
           path: artifacts/
           key: ${{ runner.os }}-${{ matrix.package }}-${{ env.BIGBLUEBUTTON_RELEASE }}-commits-${{ env.CACHE_KEY_FILES }}-urls-${{ env.CACHE_KEY_URLS }}
       - if: ${{ steps.cache-action.outputs.cache-hit != 'true' }}
+        name: Handle build-tool dependency cache
+        uses: actions/cache@v5
+        with:
+          path: cache/
+          key: ${{ runner.os }}-deps-${{ matrix.package }}-${{ hashFiles('**/build.sbt', '**/project/build.properties', '**/project/Dependencies.scala', '**/project/plugins.sbt', '**/build.gradle', '**/gradle.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-deps-${{ matrix.package }}-
+      - if: ${{ steps.cache-action.outputs.cache-hit != 'true' }}
         name: Generate artifacts
         shell: bash
         run: |
           ./build/get_external_dependencies.sh
           echo "${{ matrix.build-list || matrix.package }}" | xargs -n 1 ./build/setup.sh
+      - if: ${{ steps.cache-action.outputs.cache-hit != 'true' }}
+        name: Make build-tool dependency cache readable for the cache action
+        shell: bash
+        run: |
+          # The build containers run as root; without this the post-job cache
+          # save cannot read what they wrote.
+          if [ -d cache ]; then
+            sudo chown -R "$(id -u):$(id -g)" cache
+          fi
       - name: Include external dependency .debs in artifacts
         shell: bash
         run: |

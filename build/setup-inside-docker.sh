@@ -20,9 +20,11 @@ source package-names.inc.sh
 # source is in the parent directory of the 'build' dir
 SOURCE=$(dirname $PWD)
 
-# use persistent cache dirs
-for dir in .gradle .grails .ivy2 .m2; do
-    mkdir -p "${SOURCE}/cache/${dir}"
+# use persistent cache dirs (.sbt and .cache/coursier hold sbt's launcher,
+# compiler bridge and dependency jars; sbt 1.x resolves through coursier,
+# not ~/.ivy2)
+for dir in .gradle .grails .ivy2 .m2 .sbt .cache/coursier; do
+    mkdir -p "${SOURCE}/cache/${dir}" "$(dirname "/root/${dir}")"
     ln -s "${SOURCE}/cache/${dir}" "/root/${dir}"
 done
 
