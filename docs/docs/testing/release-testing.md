@@ -793,6 +793,16 @@ Contextual hints and alerts driven by in-meeting activity, configured under `pub
 
     - No extra sound plays.
 
+### Idle presentation [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-develop/bigbluebutton-tests/playwright/smart-triggers/smartTriggers.spec.ts)
+
+1. Presenter: leave the presentation on screen without changing the slide or annotating for 10 minutes.
+
+    - A hint suggests minimizing the presentation to give the cameras more room.
+
+2. Presenter: click "Minimize presentation".
+
+    - The presentation is minimized.
+
 ### Speech not transcribed
 
 1. User: enable automatic transcription with a language, join audio with a microphone and unmute.
