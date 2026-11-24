@@ -10,7 +10,7 @@ keywords:
 - install
 ---
 
-BigBlueButton 4.1 can run on one server with Docker Compose, as an alternative to the package install with `bbb-install.sh`. `docker-compose.yml` in the repository root runs the BigBlueButton images built in this repository, official images for Redis, PostgreSQL, LiveKit, coturn, haproxy and certbot, and the configuration in `docker/compose/`, mounted at the bare-metal paths. Files that need values from `.env` are inline in `docker-compose.yml` (`configs:`). The images themselves are described in [docker/README.md](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-release/docker/README.md).
+BigBlueButton 4.1 can run on one server with Docker Compose, as an alternative to the package install with `bbb-install.sh`. `docker-compose.yml` in the repository root runs the BigBlueButton images built in this repository, official images for Redis, PostgreSQL, LiveKit, coturn, haproxy and certbot, and the configuration in `docker/compose/`, mounted at the bare-metal paths. Files that need values from `.env` are inline in `docker-compose.yml` (`configs:`). The images themselves are described in [docker/README.md](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/docker/README.md).
 
 Not covered yet: office document conversion (bbb-web expects `/usr/share/bbb-libreoffice-conversion/convert.sh`, which no image provides yet), FreeSWITCH and dial-in, more than one server, Kubernetes, and running behind an existing reverse proxy or TLS terminator.
 
@@ -72,8 +72,8 @@ Backup: `./data` and `.env`. PostgreSQL (a volume) holds only the state of runni
 ## Configuration
 
 - `.env` holds the values per server.
-- bbb-web and bbb-apps-akka get their settings from environment variables in `docker-compose.yml` (see [Environment variables](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-release/docker/README.md#environment-variables)); bbb-web takes any key of `bigbluebutton.properties` this way.
-- Other bare-metal settings go in the inline files (`livekit.yaml`, `recording.yml`, `bbb-shared-notes-server.yml`) or in `docker/compose/`. Or mount further files at their bare-metal paths (see [Images](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-release/docker/README.md#images)), e.g. `/etc/bigbluebutton/bbb-apps-akka.conf`.
+- bbb-web and bbb-apps-akka get their settings from environment variables in `docker-compose.yml` (see [Environment variables](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/docker/README.md#environment-variables)); bbb-web takes any key of `bigbluebutton.properties` this way.
+- Other bare-metal settings go in the inline files (`livekit.yaml`, `recording.yml`, `bbb-shared-notes-server.yml`) or in `docker/compose/`. Or mount further files at their bare-metal paths (see [Images](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/docker/README.md#images)), e.g. `/etc/bigbluebutton/bbb-apps-akka.conf`.
 - To use your own version of an inline file without editing `docker-compose.yml`, replace it in a `docker-compose.override.yml` next to it (compose reads that file automatically). `!override` is needed: without it compose merges both definitions and rejects `content` and `file` together.
 
   ```yaml
