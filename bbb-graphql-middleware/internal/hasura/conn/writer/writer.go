@@ -91,8 +91,10 @@ RangeLoop:
 					queryId := browserMessage.ID
 
 					// Rate limiter from config max_connection_queries_per_minute
-					ctxRateLimiter, _ := context.WithTimeout(hc.Context, 30*time.Second)
-					if err := hc.BrowserConn.FromBrowserToHasuraRateLimiter.Wait(ctxRateLimiter); err != nil {
+					ctxRateLimiter, cancelRateLimiter := context.WithTimeout(hc.Context, 30*time.Second)
+					errRateLimiter := hc.BrowserConn.FromBrowserToHasuraRateLimiter.Wait(ctxRateLimiter)
+					cancelRateLimiter()
+					if errRateLimiter != nil {
 						sendErrorMessage(
 							browserConnection,
 							queryId,
@@ -112,17 +114,6 @@ RangeLoop:
 
 					query := browserMessage.Payload.Query
 
-					if config.GetConfig().Server.MaxQueryDepth > 0 {
-						queryDepth, _ := calculateQueryDepth(query)
-						if queryDepth > config.GetConfig().Server.MaxQueryDepth {
-							sendErrorMessage(
-								browserConnection,
-								queryId,
-								fmt.Sprintf("Query %s is not valid with depth %d and the max allowed is %d", browserMessage.Payload.OperationName, queryDepth, config.GetConfig().Server.MaxQueryDepth))
-							continue
-						}
-					}
-
 					if config.GetConfig().Server.MaxQueryLength > 0 {
 						queryLength := len(query)
 						if queryLength > config.GetConfig().Server.MaxQueryLength {
@@ -134,9 +125,48 @@ RangeLoop:
 						}
 					}
 
+					// Before anything parses the query, and whatever max_query_depth is.
+					if tokens := countNestingTokens(query); tokens > maxNestingTokens {
+						sendErrorMessage(browserConnection, queryId, nestingLimitMessage(browserMessage.Payload.OperationName, tokens))
+						continue
+					}
+
+					if config.GetConfig().Server.MaxQueryDepth > 0 {
+						if refusal := queryDepthRefusal(query, browserMessage.Payload.OperationName, config.GetConfig().Server.MaxQueryDepth); refusal != "" {
+							sendErrorMessage(browserConnection, queryId, refusal)
+							continue
+						}
+					}
+
+					if len(browserMessage.Payload.Variables) > 0 {
+						variablesLength, variablesErr := validateOperationVariablesLength(
+							query,
+							browserMessage.Payload.OperationName,
+							browserMessage.Payload.Variables,
+							config.GetConfig().Server.MaxQueryVariablesLength,
+						)
+						if variablesErr != nil {
+							sendErrorMessage(
+								browserConnection,
+								queryId,
+								fmt.Sprintf(
+									"Query %s is not valid with variables length %d and the max allowed is %d",
+									browserMessage.Payload.OperationName,
+									variablesLength,
+									config.GetConfig().Server.MaxQueryVariablesLength,
+								),
+							)
+							continue
+						}
+					}
+
 					if query != "" {
 						if strings.HasPrefix(query, "subscription") {
-							if config.GetConfig().Server.MaxConnectionConcurrentSubscriptions > 0 {
+							browserConnection.ActiveSubscriptionsMutex.RLock()
+							existingSubscriptionData, queryIdExists := browserConnection.ActiveSubscriptions[queryId]
+							browserConnection.ActiveSubscriptionsMutex.RUnlock()
+
+							if !queryIdExists && config.GetConfig().Server.MaxConnectionConcurrentSubscriptions > 0 {
 								browserConnection.ActiveSubscriptionsMutex.RLock()
 								totalOfActiveSubscriptions := len(browserConnection.ActiveSubscriptions)
 								browserConnection.ActiveSubscriptionsMutex.RUnlock()
@@ -191,9 +221,6 @@ RangeLoop:
 
 							messageType = common.Subscription
 
-							browserConnection.ActiveSubscriptionsMutex.RLock()
-							existingSubscriptionData, queryIdExists := browserConnection.ActiveSubscriptions[queryId]
-							browserConnection.ActiveSubscriptionsMutex.RUnlock()
 							if queryIdExists {
 								lastReceivedDataChecksum = existingSubscriptionData.LastReceivedDataChecksum
 								lastReceivedData = existingSubscriptionData.LastReceivedData
@@ -324,6 +351,48 @@ RangeLoop:
 	}
 }
 
+func validateQueryVariablesLength(variables map[string]interface{}, maxLength int) (int, error) {
+	encoded, err := json.Marshal(variables)
+	if err != nil {
+		return 0, fmt.Errorf("failed to encode variables: %w", err)
+	}
+
+	length := len(encoded)
+	if maxLength > 0 && length > maxLength {
+		return length, fmt.Errorf("variables length %d exceeds maximum %d", length, maxLength)
+	}
+
+	return length, nil
+}
+
+func validateOperationVariablesLength(query string, operationName string, variables map[string]interface{}, maxLength int) (int, error) {
+	if selectedOperationIsMutation(query, operationName) {
+		return 0, nil
+	}
+
+	return validateQueryVariablesLength(variables, maxLength)
+}
+
+func selectedOperationIsMutation(query string, operationName string) bool {
+	astDoc, err := parseQuery(query)
+	if err != nil {
+		return false
+	}
+
+	operations := make([]*ast.OperationDefinition, 0)
+	for _, definition := range astDoc.Definitions {
+		operation, ok := definition.(*ast.OperationDefinition)
+		if !ok {
+			continue
+		}
+		if operationName == "" || operation.Name != nil && operation.Name.Value == operationName {
+			operations = append(operations, operation)
+		}
+	}
+
+	return len(operations) == 1 && operations[0].Operation == ast.OperationTypeMutation
+}
+
 func saveContentToFile(subDir string, filename string, contentInBytes []byte) error {
 	fileDir := fmt.Sprintf("%s/%s", dumpQueriesDir, subDir)
 	filePath := fmt.Sprintf("%s/%s.txt", fileDir, filename)
@@ -352,14 +421,57 @@ func saveContentToFile(subDir string, filename string, contentInBytes []byte) er
 	return nil
 }
 
+// maxNestingTokens bounds how many '{' and '[' a query may contain before it is parsed. The GraphQL
+// parser recurses with no limit of its own, and each level of its recursion (selection set, object
+// value, list value, list type) consumes one of these tokens, so their count bounds the recursion
+// for any input. 5000 matches the default max_query_length, so it refuses nothing that limit
+// accepts; at about 940 bytes per level for the costliest construct (list values), 5000 levels
+// take about 4.5 MiB of stack, against the 1 GiB default limit.
+const maxNestingTokens = 5000
+
+// errTooManyNestingTokens is the error of parseQuery for a query past maxNestingTokens.
+var errTooManyNestingTokens = errors.New("too many braces and brackets")
+
+func nestingLimitMessage(operationName string, tokens int) string {
+	return fmt.Sprintf("Query %s is not valid with %d braces and brackets and the max allowed is %d", operationName, tokens, maxNestingTokens)
+}
+
+// parseQuery parses a query, refusing without parsing one past maxNestingTokens. Every parse of a
+// client query goes through it.
+func parseQuery(query string) (*ast.Document, error) {
+	if tokens := countNestingTokens(query); tokens > maxNestingTokens {
+		return nil, fmt.Errorf("%w: %d, the max allowed is %d", errTooManyNestingTokens, tokens, maxNestingTokens)
+	}
+
+	return parser.Parse(parser.ParseParams{
+		Source: source.NewSource(&source.Source{
+			Body: []byte(query),
+			Name: "GraphQL query",
+		}),
+	})
+}
+
+// queryDepthRefusal returns the message refusing a query on its depth, or "" to let it through. A
+// query past the nesting bound is refused with the bound's message, so the refusal does not depend
+// on that check running first in the loop. A query that does not parse keeps depth 0 and goes on,
+// as before.
+func queryDepthRefusal(query string, operationName string, maxDepth int) string {
+	queryDepth, err := calculateQueryDepth(query)
+	if errors.Is(err, errTooManyNestingTokens) {
+		return nestingLimitMessage(operationName, countNestingTokens(query))
+	}
+	if queryDepth > maxDepth {
+		return fmt.Sprintf("Query %s is not valid with depth %d and the max allowed is %d", operationName, queryDepth, maxDepth)
+	}
+
+	return ""
+}
+
 func calculateQueryDepth(query string) (int, error) {
-	src := source.NewSource(&source.Source{
-		Body: []byte(query),
-		Name: "GraphQL query",
-	})
-	astDoc, err := parser.Parse(parser.ParseParams{
-		Source: src,
-	})
+	astDoc, err := parseQuery(query)
+	if errors.Is(err, errTooManyNestingTokens) {
+		return 0, err
+	}
 	if err != nil {
 		return 0, fmt.Errorf("failed to parse query: %v", err)
 	}
@@ -405,7 +517,7 @@ func traverseSelectionSet(selectionSet *ast.SelectionSet, currentDepth int) int 
 }
 
 func sendErrorMessage(browserConnection *common.BrowserConnection, messageId string, errorMessage string) {
-	browserConnection.Logger.Errorf(errorMessage)
+	browserConnection.Logger.Error(errorMessage)
 
 	// Error on sending action, return error msg to client
 	browserResponseData := map[string]interface{}{
@@ -444,4 +556,10 @@ func removeValueFromSlice(mapWithSlices map[string][]string, key string, value s
 	}
 
 	return removed, mapWithSlices
+}
+
+// countNestingTokens counts every '{' and '[' in the text, including those inside strings and
+// comments, so it is never below the number of such tokens the lexer produces.
+func countNestingTokens(query string) int {
+	return strings.Count(query, "{") + strings.Count(query, "[")
 }

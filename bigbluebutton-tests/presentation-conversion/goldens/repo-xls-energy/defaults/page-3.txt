@@ -6,9 +6,9 @@
                                                                                                                                                       States Green Building Council's professional accreditation
                                                                                                                                                       exam. Basic metrics for project certification via USGBC's
                                                                                                                                                       LEED rating system will be discussed, as well as
-                                                                                                                                                      comparisons to other systems. Sustainability at Stanford                  Field trip,
-  CEE 248G-01      Measuring Sustainabiltiy                    1    Spr 09                                                           Jiffy Vermylen   will also be addressed. It is recommended that students     Coursework   some group
-                                                                                                                                                      have familiarity with basic design and construction                         work
+                                                                                                                                                      comparisons to other systems. Sustainability at Stanford                        Field trip,
+  CEE 248G-01      Measuring Sustainabiltiy                    1    Spr 09                                                           Jiffy Vermylen   will also be addressed. It is recommended that students           Coursework   some group
+                                                                                                                                                      have familiarity with basic design and construction                               work
                                                                                                                                                       terminology. Application deadline: March 20th, 2009 @
                                                                                                                                                       8:00am. The course is currently offered only spring 09. The
                                                                                                                                                       LEED accreditation process is changing soon, and students
@@ -22,11 +22,12 @@
                                                                                                                                                       hydrologic and carbon cycles, topographic mapping, and
                                                                       Aut                                    Juniors,                                 surface deformation. Physical concepts in remote sensing.
                     The Earth from Space:                                      DB-
-                                                                    (Altern              Lecture/    Enginee Seniors,                                 EM waves and geophysical information. Sensors studied: http://www.stanford.edu/class/ee140
-     EE 140         Introduction to Remote      GEOPHYS 140    3            EngrAppSc                                        --        Zebker, H.
-                                                                      ate                  Lab         ring    Grad                                   optical, near and thermal IR, active and passive
+                                                                    (Altern              Lecture/    Enginee Seniors,                                 EM waves and geophysical information. Sensors studied:
+     EE 140         Introduction to Remote      GEOPHYS 140    3            EngrAppSc                                        --        Zebker, H.                                                           http://www.sta
+                                                                      ate                  Lab         ring    Grad                                   optical, near and thermal IR, active and passive nford.edu/class
                            Sensing                                              i
-                                                                    years)                                   students                                 microwaves. The class is about 15-20 studnets in size and
+                                                                    years)                                   students                                 microwaves. The class is about 15-20 studnets in size /ee140
+                                                                                                                                                                                                                 and
                                                                                                                                                       there is a team project instead of a final, and weekly
                                                                                                                                                       homework. There is a laboratory component as well.
                                                                                                                                                       Science, economics, and politics of international
@@ -54,7 +55,7 @@
                                                                                                                                                       economy regulation, global climate change, research and
                                                                                                                       IPER 241                        development policy, and environmental benefit assessment.
                   Energy and Environmental                                               Lecture
-   MS&E 243                                                    3      Spr      --                    Policy Graduates or ECON          Sweeney, J      Class meets three times a week with about 45 people in        None
+   MS&E 243                                                    3      Spr      --                    Policy Graduates or ECON          Sweeney, J      Class meets three times a week with about 45 people in            None
                        Policy Analysis                                                    (45)
                                                                                                                        50, 51.                        each class. A group project comprises 40% of your grade.
                                                                                                                                                       The project iis centered around choosing your own policy to
@@ -90,4 +91,4 @@
 
 
 
-Last updated: March 17, 2009                                                                                                                                                                                                          Send additions and corrections to leighj@stanford.edu
+Last updated: March 17, 2009                                                                                                                                                                                                                Send additions and corrections to leighj@stanford.edu

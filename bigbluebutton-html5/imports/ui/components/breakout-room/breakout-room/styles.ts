@@ -26,6 +26,7 @@ import {
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 import Button from '/imports/ui/components/common/button/component';
 import TextareaAutosize from 'react-autosize-textarea';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import {
   Separator as BaseSeparator,
   PanelContent as BasePanelContent,
@@ -34,6 +35,21 @@ import {
 const Separator = styled(BaseSeparator)``;
 
 const PanelContent = styled(BasePanelContent)``;
+
+// A bottom bar's button, used with labelOverflow="ellipsis". The pair drops to one per
+// line before the buttons get narrow enough to truncate. Only for rows: in a column the
+// 10rem basis becomes a height.
+const BottomBarButton = styled(BBButton)`
+  flex: 1 1 10rem;
+`;
+
+// A room card's button, used with labelOverflow="wrap". A card can be as narrow as
+// 7.5rem, so a word that doesn't fit is hyphenated where the browser can. The button
+// fills its card's spare height, so the buttons of one row of cards match.
+const CardButton = styled(BBButton)`
+  flex-grow: 1;
+  hyphens: auto;
+`;
 
 const BreakoutActions = styled.div`
   display: flex;
@@ -363,6 +379,8 @@ const NotAssignedHelpText = styled.p`
 export default {
   Separator,
   PanelContent,
+  BottomBarButton,
+  CardButton,
   BreakoutActions,
   AlreadyConnected,
   JoinButton,

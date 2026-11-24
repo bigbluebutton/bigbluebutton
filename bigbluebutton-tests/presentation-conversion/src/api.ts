@@ -122,7 +122,3 @@ export function documentXml(doc: { name: string; base64?: string; url?: string; 
 export function modulesXml(docs: string[]): string {
   return `<modules><module name="presentation">${docs.join('')}</module></modules>`;
 }
-
-export function pageToken(secret: string, presId: string, page: number): string {
-  return crypto.createHmac('sha256', secret).update(`${presId}|${page}`).digest('hex');
-}

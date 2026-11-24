@@ -46,7 +46,7 @@ const useLoadedUserList = (
   variables: { offset: number, limit: number, searchQuery?: string },
   fn: (c: Partial<User>) => Partial<User>,
 ) => {
-  const where = makeUserSearchWhere(variables.searchQuery);
+  const where = makeUserSearchWhere(variables.searchQuery ?? '');
 
   const useLoadedUserListSubscription = useCreateUseSubscription<User>(
     USER_LIST_SUBSCRIPTION,

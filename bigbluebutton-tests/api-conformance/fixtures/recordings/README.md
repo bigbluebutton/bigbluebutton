@@ -27,8 +27,11 @@ getRecordings finds a recording by its meeting's ID.
 
 The last four are changed by the cases that use them: each such case
 restores them before and after it runs, and is tagged `serial`. No other
-case may change a recording. A case that adds a recording here changes
-what getRecordings with no filter lists (`getRecordings.all.*`).
+case may change a recording. putRecordingTextTrack leaves its uploads in
+the data directory's `captions/inbox`, named after the record ID, where
+nothing on Tier 1 picks them up; restoring a recording removes them. A
+case that adds a recording here changes what getRecordings with no filter
+lists (`getRecordings.all.*`).
 
 `recording/status/` holds record-and-playback's status markers for the
 fixture recordings: `<record ID>[-<format>].done` or `.fail`, in

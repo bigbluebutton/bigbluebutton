@@ -227,8 +227,10 @@ export class RecordedPlayback extends Recording {
     await this.modPage.page.waitForTimeout(PROCESSING_RECORDING_SECONDS * 1000);
     await this.endRecordedMeeting();
 
+    // bbb-web answers apiCall's errors in JSON (axios asks for JSON first), so the unknown
+    // meeting's returncode is the string 'FAILED', not the one-element array of an XML answer
     await expect
-      .poll(async () => (await getMeetingInfo(meetingId)).data.response.returncode[0], {
+      .poll(async () => (await getMeetingInfo(meetingId)).data.response.returncode, {
         message: 'bbb-web should forget the ended meeting',
         timeout: ELEMENT_WAIT_LONGER_TIME,
       })

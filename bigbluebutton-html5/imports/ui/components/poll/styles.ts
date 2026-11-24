@@ -1,5 +1,5 @@
 import styled, { css, keyframes } from 'styled-components';
-import ButtonWrappers from '/imports/ui/components/common/button-wrapper/styles';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react/Button';
 import { BBBHint } from '@bigbluebutton/bbb-ui-components-react/Hint';
 import { BBBTextInput } from '@bigbluebutton/bbb-ui-components-react/TextInput';
 import PollTextArea from './components/PollTextArea';
@@ -80,9 +80,8 @@ const pollButtonText = css`
   letter-spacing: 0;
 `;
 
-// The metrics every full-width poll button shares. BBButton drops `className`, so each
-// call site wraps it in a styled element and reaches the button through `& > button`;
-// this keeps the box itself defined once.
+// The metrics every full-width poll button shares, defined once for the live-result
+// actions and the response-type picker.
 const pollButtonBox = css`
   justify-content: center;
   min-height: ${pollInputHeight};
@@ -131,21 +130,18 @@ const PollOptionInput = styled(BBBTextInput)<PollOptionInputProps>`
     `}
   }
 `;
-const DeletePollOptionButton = styled.div`
-  display: flex;
+// Square, and as tall as the option input next to it.
+const DeletePollOptionButton = styled(BBButton)`
   flex: none;
+  width: ${pollInputHeight};
+  height: ${pollInputHeight};
   margin-left: ${lgPadding};
+  border-radius: ${lgBorderRadius};
+  font-size: ${fontSizeBase};
 
   [dir="rtl"] & {
     margin-right: ${lgPadding};
     margin-left: 0;
-  }
-
-  & > button {
-    width: ${pollInputHeight};
-    min-height: ${pollInputHeight};
-    border-radius: ${lgBorderRadius};
-    font-size: ${fontSizeBase};
   }
 `;
 
@@ -276,17 +272,9 @@ const PollCheckbox = styled.div`
   margin-bottom: ${$2xlPadding};
 `;
 
-const AddItemButton = styled.div`
-  display: flex;
-  justify-content: center;
-  width: 100%;
-
-  & > button {
-    gap: ${lgPadding};
-    white-space: pre-wrap;
-    text-decoration: underline;
-    ${pollButtonText}
-  }
+const AddItemButton = styled(BBButton)`
+  align-self: center;
+  ${pollButtonText}
 `;
 
 const Row = styled.div`
@@ -514,16 +502,19 @@ const LiveResultActionsRow = styled.div`
   display: flex;
   gap: ${lgPadding};
   width: 100%;
-
-  & > button {
-    flex: 1 1 0;
-    overflow-wrap: break-word;
-    ${pollButtonBox}
-  }
 `;
 
-const StartPollButtonWrapper = styled(ButtonWrappers.FullWidthButtonWrapper)`
-  width: 100%;
+const LiveResultActionButton = styled(BBButton)`
+  flex: 1 1 0;
+  overflow-wrap: break-word;
+  ${pollButtonBox}
+`;
+
+// Start sits in its own element because that element carries the tooltip that
+// explains a disabled Start: a disabled BBButton ignores pointer events
+// (bigbluebutton/bbb-ui-components-react#125).
+const StartPollButtonWrapper = styled.div`
+  display: flex;
 `;
 
 const THeading = styled.th`
@@ -710,6 +701,7 @@ export default {
   StartPollButtonWrapper,
   PollFooter,
   LiveResultActionsRow,
+  LiveResultActionButton,
   NoSlidePanelContainer,
   DragAndDropPollContainer,
   Warning,

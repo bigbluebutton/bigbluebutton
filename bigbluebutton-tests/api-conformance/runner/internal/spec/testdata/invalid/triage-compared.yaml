@@ -14,3 +14,5 @@ steps:
     golden: document
   - call: isMeetingRunning
     ignoreResult: true
+  # A check step records nothing, so it needs no golden.
+  - check: [{value: "1", expect: "1"}]

@@ -540,6 +540,16 @@ The screen sharing stops, a sound effect of disconnection is heard and the prese
     - The user should be notified about the removal and the prompt to confirm the joining of the new breakout room should appear
     - In case this user is already in a breakout, it should logout from that room and see the breakout invitation of the new one
 
+### Unassigning a user from a breakout room [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-develop/bigbluebutton-tests/playwright/breakout/breakout.spec.ts)
+
+1. Create a breakout room with a viewer assigned to it and have the viewer join the room. Open the "Breakout Rooms" panel in the main room.
+
+2. Click the "✕" button next to the viewer's name in the room card (or drag the viewer to the unassigned users list).
+
+    - The viewer should be removed from the breakout room and return to the main room, with no notification
+    - The viewer should be listed among the unassigned users in the moderator's panel
+    - Without "Allow users to choose rooms", the viewer's panel should show that they are not assigned to any room; with it, the viewer can join any room again
+
 ### Exporting the breakout room's shared notes to the main room [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-develop/bigbluebutton-tests/playwright/breakout/breakout.spec.ts)
 
 1. Create a breakout room with enabling "Save shared notes" (under "More Options").

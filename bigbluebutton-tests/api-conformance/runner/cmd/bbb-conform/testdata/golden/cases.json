@@ -3,8 +3,8 @@
   "started": "2026-01-01T00:00:00Z",
   "duration_ms": 0,
   "counts": {
-    "total": 25,
-    "passed": 24,
+    "total": 26,
+    "passed": 25,
     "failed": 0,
     "errors": 0,
     "skipped": 1
@@ -2638,6 +2638,171 @@
               "Content-Type": "text/xml;charset=utf-8"
             },
             "body": "<response><returncode>FAILED</returncode><messageKey>notFound</messageKey><message>We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?</message></response>"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stuns.response.turn-credentials",
+      "title": "stuns hands out a TURN credential made with the server's secret",
+      "endpoint": "stuns",
+      "class": "contract",
+      "area": "stuns",
+      "file": "../../testdata/cases/stuns/turn-credentials.yaml",
+      "line": 6,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 13,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/create?meetingID=uid-023&name=Turn&checksum=d36c127d68e7e6ff89958541f0e04c04c9b640d67e9a0dae0304d9487c496343",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "326",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetingID>uid-023</meetingID><internalMeetingID>a460e492c7580ece4df958fce1887b670f7bac65-1760000000014</internalMeetingID><attendeePW>ap000020</attendeePW><moderatorPW>mp000020</moderatorPW><createTime>1760000000014</createTime><messageKey></messageKey><message></message></response>"
+          }
+        },
+        {
+          "index": 1,
+          "kind": "call",
+          "line": 15,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/join?meetingID=uid-023&fullName=Ann&redirect=false&checksum=36b7eb3f10ec1c88c2981b22a324118b91684c362bf3c24cb2aee560aeb0e293",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "365",
+              "Content-Type": "text/xml;charset=utf-8",
+              "Set-Cookie": "JSESSIONID=js000021; Path=/; HttpOnly; Secure"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><messageKey/><message/><meeting_id>a460e492c7580ece4df958fce1887b670f7bac65-1760000000014</meeting_id><user_id>w_000000000021</user_id><auth_token>at000021</auth_token><session_token>st000021</session_token><guestStatus>ALLOW</guestStatus><url>https://fake.test/html5client/join?sessionToken=st000021</url></response>"
+          },
+          "captured": {
+            "annId": "w_000000000021",
+            "annToken": "st000021"
+          }
+        },
+        {
+          "index": 2,
+          "kind": "call",
+          "line": 19,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/stuns?sessionToken=st000021",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "json",
+            "headers": {
+              "Content-Length": "206",
+              "Content-Type": "application/json"
+            },
+            "body": "{\"remoteIceCandidates\":[],\"stunServers\":[{\"url\":\"stun:turn.test\"}],\"turnServers\":[{\"password\":\"<hmac>\",\"ttl\":86400,\"url\":\"turn:turn.test:3478\",\"username\":\"<expiry>:w_000000000021\"}]}"
+          },
+          "assertions": [
+            {
+              "what": "format",
+              "expected": "json",
+              "actual": "json",
+              "ok": true
+            },
+            {
+              "what": "jsonpath $.turnServers[0].username",
+              "expected": "matching /^[0-9]+:w_000000000021$/",
+              "actual": "\"<expiry>:w_000000000021\"",
+              "ok": true
+            },
+            {
+              "what": "jsonpath $.turnServers[0].ttl",
+              "expected": "an integer from 1 to 604800",
+              "actual": "\"86400\"",
+              "ok": true
+            }
+          ],
+          "captured": {
+            "password": "<hmac>",
+            "ttl": "86400",
+            "user": "<expiry>:w_000000000021"
+          }
+        },
+        {
+          "index": 3,
+          "kind": "check",
+          "line": 28,
+          "status": "PASS",
+          "duration_ms": 0,
+          "assertions": [
+            {
+              "what": "${password}",
+              "expected": "\"<hmac>\"",
+              "actual": "\"<hmac>\"",
+              "ok": true
+            },
+            {
+              "what": "${match(user, \"^([0-9]+):\")}",
+              "expected": "an integer from <now+ttl-60> to <now+ttl+60>",
+              "actual": "\"<expiry>\"",
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "teardown": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 34,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-023&checksum=b57ffe2c0c9da58a6ae84a367602175765b27028b7efeafffb352b08e2ea98ab",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "275",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><messageKey>sentEndMeetingRequest</messageKey><message>A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended.</message></response>"
           }
         }
       ]

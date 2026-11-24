@@ -249,6 +249,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[SendMessageToAllBreakoutRoomsReqMsg](envelope, jsonNode)
       case ChangeUserBreakoutReqMsg.NAME =>
         routeGenericMsg[ChangeUserBreakoutReqMsg](envelope, jsonNode)
+      case UnassignUserFromBreakoutReqMsg.NAME =>
+        routeGenericMsg[UnassignUserFromBreakoutReqMsg](envelope, jsonNode)
       case BreakoutRoomCallModeratorReqMsg.NAME =>
         routeGenericMsg[BreakoutRoomCallModeratorReqMsg](envelope, jsonNode)
 

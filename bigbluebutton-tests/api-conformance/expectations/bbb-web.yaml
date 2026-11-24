@@ -7,3 +7,17 @@ expected:
     reason: "without a checksum, bbb-web says either that it is missing or that it doesn't match, at random"
   - id: getRecordings.pagination.formats
     reason: "with limit, bbb-web keeps one format of each recording: it drops duplicate record IDs before merging formats"
+  - id: signOut.response.valid-token
+    reason: "with a live session token, bbb-web answers 500: signOut reads a result the session removal no longer returns"
+  - id: signOut.session.control-character
+    reason: "bbb-web answers 500 when the session token has a control character"
+  - id: stuns.session.control-character
+    reason: "bbb-web answers 500 when the session token has a control character: it validates the token without them, then looks it up as sent"
+  - id: sendChatMessage.response.message
+    reason: "bbb-web's success answer has an empty message: send-chat-message.ftlx reads names the controller doesn't set"
+  - id: sendChatMessage.params.raw-message
+    reason: "bbb-web checks the message trimmed and without control characters, but posts it as sent"
+  - id: sendChatMessage.params.raw-user-name
+    reason: "bbb-web checks userName trimmed, but posts it as sent, and defaults only an empty one to System"
+  - id: create.breakouts.sequence
+    reason: "bbb-web answers 500: it parses a breakout room's sequence as an integer without checking it"

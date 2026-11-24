@@ -9,6 +9,7 @@ import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStat
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
+import useShortcutTooltip from '/imports/ui/core/hooks/useShortcutTooltip';
 
 const LeaveMeetingButtonContainer = (props) => {
   const {
@@ -29,6 +30,7 @@ const LeaveMeetingButtonContainer = (props) => {
   const isDropdownOpen = useStorageKey('dropdownOpen');
 
   const openLeaveMenu = useShortcut('openLeaveMenu');
+  const withShortcut = useShortcutTooltip();
 
   const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
   const amIModerator = currentUser?.isModerator;
@@ -44,6 +46,7 @@ const LeaveMeetingButtonContainer = (props) => {
         connected,
         isBreakoutRoom,
         openLeaveMenu,
+        withShortcut,
         ...props,
       }
     }

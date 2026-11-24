@@ -1,0 +1,20 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case signOut.session.control-character
+target bbb-web
+
+== step 3: call signOut (document)
+status 500
+header Content-Type application/json;charset=utf-8
+body json
+$.error "Internal Server Error"
+$.path "/bigbluebutton/api/signOut"
+$.status 500
+$.timestamp "<time>"
+
+== step 4: call getJoinUrl (document)
+status 200
+header Cache-Control no-cache
+header Content-Type application/json;charset=utf-8
+body json
+$.response.message "Meeting not found"
+$.response.returncode "FAILED"

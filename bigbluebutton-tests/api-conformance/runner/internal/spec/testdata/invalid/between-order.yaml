@@ -1,0 +1,8 @@
+# want: 8: between: the low bound 10 is above the high bound 1
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+steps:
+  - check:
+      - {value: "5", expect: {between: [10, 1]}}
