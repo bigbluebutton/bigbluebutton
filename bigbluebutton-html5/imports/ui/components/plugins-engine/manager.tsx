@@ -1,6 +1,8 @@
 import React, {
   useCallback, useEffect, useRef, useState,
 } from 'react';
+import * as ReactDOM from 'react-dom';
+import * as ReactDOMClient from 'react-dom/client';
 import logger from '/imports/startup/client/logger';
 import {
   BbbPluginSdk,
@@ -75,7 +77,12 @@ const PluginsEngineManager = (props: PluginsEngineManagerProps) => {
     pluginConfig,
   ]);
 
+  // Plugins built with these packages as webpack externals use the client's
+  // copies instead of bundling their own.
   window.React = React;
+  window.ReactDOM = ReactDOM;
+  window.ReactDOMClient = ReactDOMClient;
+  window.BbbPluginSdk = PluginSdk;
 
   const handlePluginLoadSettled = useCallback((uuid: string, loaded: boolean) => {
     const progress = loadingProgressRef.current;

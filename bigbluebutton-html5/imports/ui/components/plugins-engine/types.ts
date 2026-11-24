@@ -1,4 +1,6 @@
 import * as React from 'react';
+import * as ReactDOMClient from 'react-dom/client';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 
 import { Console, External } from '/imports/ui/Types/meetingClientSettings';
 
@@ -43,4 +45,12 @@ export interface PluginsLoadingProgress {
     pendingPluginNamesByUuid: Map<string, string>;
     loadedPluginNames: string[];
     failedPluginNames: string[];
+}
+
+// React and ReactDOM are already declared as globals by their type packages.
+declare global {
+  interface Window {
+    ReactDOMClient: typeof ReactDOMClient;
+    BbbPluginSdk: typeof PluginSdk;
+  }
 }
