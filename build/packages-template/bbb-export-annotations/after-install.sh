@@ -11,7 +11,6 @@ case "$1" in
   if [ -f $OLD_OVERRIDE ] && [ ! -e $NEW_OVERRIDE ]; then
     mkdir -p $(dirname $NEW_OVERRIDE)
     mv $OLD_OVERRIDE $NEW_OVERRIDE
-    chown bigbluebutton:bigbluebutton $NEW_OVERRIDE
     echo "Moved $OLD_OVERRIDE to $NEW_OVERRIDE"
   fi
 
