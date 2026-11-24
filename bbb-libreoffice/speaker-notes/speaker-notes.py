@@ -250,7 +250,8 @@ def list_value(rule, level, counters, restart_value=None):
         if restart_value is not None:
             counters[level] = restart_value if restart_value > 0 else start
         else:
-            counters[level] = start if counters[level] < start else counters[level] + 1
+            # -1 marks a level not numbered yet; a counter below StartWith after a restart still continues
+            counters[level] = start if counters[level] < 0 else counters[level] + 1
         marker = (rule.get("Prefix") or "") + format_number(counters[level], numbering_type) + (rule.get("Suffix") or "")
         return {"type": "number", "marker": marker}
     if numbering_type not in BULLET_TYPES:
