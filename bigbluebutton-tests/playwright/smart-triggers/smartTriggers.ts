@@ -57,6 +57,27 @@ export class SmartTriggers extends MultiUsers {
     );
   }
 
+  async handStillRaisedLowersHand() {
+    await this.modPage.joinMicrophone({ shouldUnmute: false });
+    await this.modPage.waitAndClick(e.raiseHandBtn);
+    await this.modPage.hasElement(e.lowerHandBtn, 'should display the lower hand button after raising the hand');
+
+    await this.modPage.waitAndClick(e.unmuteMicButton);
+    await this.modPage.hasElement(e.muteMicButton, 'should display the mute button after unmuting');
+    await this.modPage.checkUserTalkingIndicator();
+    await this.modPage.waitAndClick(e.muteMicButton);
+    await this.modPage.hasElement(e.unmuteMicButton, 'should display the unmute button after muting');
+
+    await this.modPage.hasElement(
+      e.smartTriggerLowerHand,
+      'should suggest lowering the hand after speaking',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await this.modPage.waitAndClick(e.smartTriggerLowerHand);
+    await this.modPage.hasElement(e.raiseHandBtn, 'should lower the hand from the hint');
+    await this.modPage.wasRemoved(e.smartTriggerLowerHand, 'should remove the hint once the hand is lowered');
+  }
+
   async noMicSignalOpensAudioSettings() {
     await this.modPage.joinMicrophone();
     await this.modPage.hasElement(
