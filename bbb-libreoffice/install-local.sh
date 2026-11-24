@@ -38,12 +38,18 @@ install -Dm644 assets/zzz-bbb-docker-libreoffice /usr/share/bbb-libreoffice/zzz-
 
 # Always installed, so a conversion script from an earlier checkout is replaced on upgrade: the one
 # shipped until 4.0 ran the bbb-soffice alias, which this version no longer creates.
-# convert.sh is a symlink, as the package makes it; a converter chosen by pointing it elsewhere is kept
+# convert-cool.sh is a sample edited for the Collabora host, so an existing one is kept.
+# convert.sh is a symlink, as the package makes it; a converter chosen by pointing it elsewhere is kept,
+# and a regular file is replaced only when it is that earlier local converter
 echo "Installing conversion scripts"
 install -Dm755 assets/convert-local.sh /usr/share/bbb-libreoffice-conversion/convert-local.sh
-install -Dm755 assets/convert-cool.sh /usr/share/bbb-libreoffice-conversion/convert-cool.sh
+[ -e /usr/share/bbb-libreoffice-conversion/convert-cool.sh ] || install -Dm755 assets/convert-cool.sh /usr/share/bbb-libreoffice-conversion/convert-cool.sh
 if [ ! -L /usr/share/bbb-libreoffice-conversion/convert.sh ]; then
-	ln -sf /usr/share/bbb-libreoffice-conversion/convert-local.sh /usr/share/bbb-libreoffice-conversion/convert.sh
+	if [ ! -e /usr/share/bbb-libreoffice-conversion/convert.sh ] || grep -q -- '--rm bbb-soffice sh -c' /usr/share/bbb-libreoffice-conversion/convert.sh; then
+		ln -sf /usr/share/bbb-libreoffice-conversion/convert-local.sh /usr/share/bbb-libreoffice-conversion/convert.sh
+	else
+		echo "Keeping /usr/share/bbb-libreoffice-conversion/convert.sh, which is not the local converter"
+	fi
 fi
 chown -R root /usr/share/bbb-libreoffice-conversion/
 
