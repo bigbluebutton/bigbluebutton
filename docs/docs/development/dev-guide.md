@@ -140,19 +140,19 @@ Run the local Docker Compose setup script:
 ./docker/compose/setup-dev.sh
 ```
 
-Its purpose is to define a basic `.env` file. It also sets up a local CA (`data/certs/rootCA.pem`) and a certificate signed by it, creates a Java truststore with the CA for `bbb-web`, and enables the truststore in `docker-compose.override.yml`.
+It fills the empty settings of `.env` (the domain, `BBB_PUBLIC_IP=127.0.0.1` and new secrets) and keeps values already set. It creates a local CA in `data/dev-ca`, limited to the domain by a name constraint, and a certificate for the domain in `data/certs`. It creates a Java truststore with the CA for `bbb-web`, and a `docker-compose.override.yml` that uses it. An existing `docker-compose.override.yml` is left unchanged; the script then prints the two settings to add. Another domain: `./docker/compose/setup-dev.sh <domain>`.
 
-Add `data/certs/rootCA.pem` to the trusted certificates of your browser or operating system, then run `docker compose up -d` and open `https://bbb.localhost`. Re-run the script only when setting up the environment again; it preserves existing secret values in `.env` and does not replace an existing `docker-compose.override.yml`, though it enables the truststore settings in it if they are still commented out.
+Add `data/dev-ca/rootCA.pem` to the trusted certificates of your browser or operating system. Running the script again keeps the CA, so you trust it only once.
 
-You can now bring up your local BigBlueButton environment:
+Then start it:
 
 ```bash
 docker compose up -d
 ```
 
-and pointing your browser to `https://bbb.localhost` (browsers resolve `*.localhost` to the loopback address).
+and open `https://bbb.localhost` (browsers resolve `*.localhost` to the loopback address).
 
-To run your own build of a component, build its image and uncomment its service in `docker-compose.override.yml`, e.g. for bbb-web:
+To run your own build of a component, build its image and add its service to `docker-compose.override.yml` (`docker-compose.override.sample.yml` has a block for each), e.g. for bbb-web:
 
 ```bash
 BBB_IMAGE_REGISTRY=localhost BBB_IMAGE_TAG=dev docker buildx bake -f docker-bake.hcl --load --set '*.platform=linux/amd64' web
