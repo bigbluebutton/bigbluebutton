@@ -1,6 +1,12 @@
 import { type ClientSettingsOverrides } from '../core/page';
 
-type RuleName = 'talkingWhileMuted' | 'noMicSignal' | 'handStillRaised' | 'newMicrophone' | 'recordingWithNoSpeech';
+type RuleName =
+  | 'talkingWhileMuted'
+  | 'noMicSignal'
+  | 'handStillRaised'
+  | 'newMicrophone'
+  | 'recordingWithNoSpeech'
+  | 'presenterAway';
 
 // Every rule off, so each test turns on only the rule it covers and no other
 // hint can appear in its way. The full block is sent because servers whose
@@ -12,6 +18,7 @@ const ALL_RULES_OFF = {
   handStillRaised: { enabled: false, cooldownMs: 120000 },
   newMicrophone: { enabled: false },
   recordingWithNoSpeech: { enabled: false, startCheckSeconds: 30, maxSilenceMinutes: 10 },
+  presenterAway: { enabled: false, cooldownMs: 2000 },
   speechNotTranscribed: {
     enabled: false,
     speechThresholdDb: -50,
