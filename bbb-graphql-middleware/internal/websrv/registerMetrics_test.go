@@ -97,7 +97,7 @@ func TestTheClosedLabelSetsExistFromTheStart(t *testing.T) {
 		"gql_hasura_reconnection_total": {"other_request", "hasura_read_error", "hasura_write_error", "invalid_browser_message", "dial_error", "other",
 			"role_changed", "lock_user_changed", "assigned_presenter", "assigned_presenter_automatically", "user_joined"},
 		"ws_connection_rejected": {"param_missing", "too_many_connections", "check_authorization_error", "meeting_not_found", "user_not_found",
-			"connections_limit_exceeded", "closed_before_init", "other"},
+			"connections_limit_exceeded", "closed_before_init", "init_timeout", "other"},
 	}
 	for name, values := range want {
 		for _, value := range values {

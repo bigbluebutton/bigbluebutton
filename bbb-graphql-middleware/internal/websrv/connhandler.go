@@ -591,7 +591,7 @@ func RegisterConnectionMetrics() {
 			Help: "Highest number of active subscriptions held by a single Websocket connection",
 		}, maxActiveSubscriptions))
 		// The reasons are a closed set: their series exist from the start, at zero.
-		for _, reason := range append(slices.Clone(rejectionReasons), rejectionClosedBeforeInit, rejectionOther) {
+		for _, reason := range append(slices.Clone(rejectionReasons), rejectionClosedBeforeInit, rejectionInitTimeout, rejectionOther) {
 			common.WsConnectionRejectedCounter.WithLabelValues(reason)
 		}
 	})
@@ -661,6 +661,10 @@ var errClosedBeforeInit = errors.New("error on receiving init connection")
 // its connection_init: it is answered with param_missing, but nothing was missing from it.
 const rejectionClosedBeforeInit = "closed_before_init"
 
+// rejectionInitTimeout is the reason label of a connection closed because its browser sent no
+// connection_init within connectionInitTimeout.
+const rejectionInitTimeout = "init_timeout"
+
 // rejectionOther is the reason label of a rejection with an errorMessageId outside rejectionReasons.
 const rejectionOther = "other"
 
@@ -688,6 +692,10 @@ func rejectionReason(errorMessageId string) string {
 func recordConnectionInit(errorOnInitConnection error, errorMessageId string) {
 	if errors.Is(errorOnInitConnection, errClosedBeforeInit) {
 		common.WsConnectionRejectedCounter.With(prometheus.Labels{"reason": rejectionClosedBeforeInit}).Inc()
+		return
+	}
+	if errors.Is(errorOnInitConnection, errConnectionInitTimeout) {
+		common.WsConnectionRejectedCounter.With(prometheus.Labels{"reason": rejectionInitTimeout}).Inc()
 		return
 	}
 	if errorOnInitConnection != nil {

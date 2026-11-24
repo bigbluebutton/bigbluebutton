@@ -45,7 +45,7 @@ var (
 	WsConnectionRejectedCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "ws_connection_rejected",
-			Help: "Total number of Websocket connections rejected",
+			Help: "Total number of Websocket connections rejected, by reason: the error message id of the refusal, closed_before_init, init_timeout or other",
 		},
 		[]string{"reason"},
 	)
