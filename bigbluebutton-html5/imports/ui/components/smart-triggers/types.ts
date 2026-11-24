@@ -1,5 +1,6 @@
 export type RuleId =
   | 'talkingWhileMuted'
+  | 'noMicSignal'
   | 'speechNotTranscribed';
 
 export type CooldownPolicy =

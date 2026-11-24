@@ -1,4 +1,5 @@
 import smartTriggersState from './store';
+import { audioSettingsRequest } from './signals';
 import {
   CooldownPolicy,
   Hint,
@@ -76,4 +77,8 @@ export const resetRule = (ruleId: RuleId) => {
   if (getRuleState(smartTriggersState(), ruleId).blocked === 'untilReset') {
     setRuleState(ruleId, { blocked: null });
   }
+};
+
+export const requestAudioSettings = () => {
+  audioSettingsRequest(Date.now());
 };

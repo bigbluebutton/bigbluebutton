@@ -91,6 +91,12 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           speechThresholdDb: -50,
           hideAfterMs: 4000,
         },
+        noMicSignal: {
+          enabled: true,
+          afterSeconds: 6,
+          signalFloorDb: -95,
+          cooldownMs: 300000,
+        },
         speechNotTranscribed: {
           enabled: true,
           speechThresholdDb: -50,

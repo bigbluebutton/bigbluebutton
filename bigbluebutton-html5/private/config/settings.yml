@@ -149,7 +149,9 @@ public:
         # Specify the URL for each locale you want:
         # en-US: 'https://xxx/SubtitleTerms'
     # Contextual hints driven by in-meeting activity. Hints never act on their own:
-    # each one only suggests an action the user can take.
+    # each one only suggests an action the user can take. Each rule's cooldownMs
+    # keeps that same hint from showing again for that long (ms) after it shows
+    # or is dismissed.
     smartTriggers:
       enabled: true
       # Shows a tooltip above the mute button when the user talks while muted.
@@ -160,6 +162,15 @@ public:
         speechThresholdDb: -50
         # How long (ms) the alert stays after the user stops speaking.
         hideAfterMs: 4000
+      # Suggests changing the microphone when the user is unmuted but the
+      # microphone has sent no signal for `afterSeconds`.
+      noMicSignal:
+        enabled: true
+        # How long (s) without any signal before the hint shows.
+        afterSeconds: 6
+        # Audio energy (dB) below which the input counts as no signal.
+        signalFloorDb: -95
+        cooldownMs: 300000
       # Shows a hint when browser transcription is on and the user keeps talking
       # but nothing gets transcribed: the browser may be using another microphone,
       # or the background is too noisy. It shows again only after a transcription.

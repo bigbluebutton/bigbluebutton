@@ -141,9 +141,18 @@ export interface SmartTrigger {
   enabled: boolean
 }
 
+export interface CooldownSmartTrigger extends SmartTrigger {
+  cooldownMs: number
+}
+
 export interface TalkingWhileMutedSmartTrigger extends SmartTrigger {
   speechThresholdDb: number
   hideAfterMs: number
+}
+
+export interface NoMicSignalSmartTrigger extends CooldownSmartTrigger {
+  afterSeconds: number
+  signalFloorDb: number
 }
 
 export interface SpeechNotTranscribedSmartTrigger extends SmartTrigger {
@@ -156,6 +165,7 @@ export interface SpeechNotTranscribedSmartTrigger extends SmartTrigger {
 export interface SmartTriggers {
   enabled: boolean
   talkingWhileMuted: TalkingWhileMutedSmartTrigger
+  noMicSignal: NoMicSignalSmartTrigger
   speechNotTranscribed: SpeechNotTranscribedSmartTrigger
 }
 
