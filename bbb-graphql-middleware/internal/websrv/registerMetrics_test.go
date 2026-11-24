@@ -25,6 +25,7 @@ func TestMetricsRegisterOnce(t *testing.T) {
 		"GqlSubscribeCounter":                    common.GqlSubscribeCounter,
 		"GqlSubscriptionRetransmittedCounter":    common.GqlSubscriptionRetransmittedCounter,
 		"GqlSubscriptionLimitRejectedCounter":    common.GqlSubscriptionLimitRejectedCounter,
+		"GqlQueryRejectedCounter":                common.GqlQueryRejectedCounter,
 		"GqlSubscriptionRemovedCounter":          common.GqlSubscriptionRemovedCounter,
 		"WsConnectionSubscriptionsPeak":          common.WsConnectionSubscriptionsPeak,
 		"GqlSubscriptionFirstDataDuration":       common.GqlSubscriptionFirstDataDuration,
@@ -98,6 +99,8 @@ func TestTheClosedLabelSetsExistFromTheStart(t *testing.T) {
 			"role_changed", "lock_user_changed", "assigned_presenter", "assigned_presenter_automatically", "user_joined"},
 		"ws_connection_rejected": {"param_missing", "too_many_connections", "check_authorization_error", "meeting_not_found", "user_not_found",
 			"connections_limit_exceeded", "closed_before_init", "init_timeout", "other"},
+		"gql_query_rejected_total": {"max_query_length", "max_query_nesting", "max_query_depth", "max_query_variables_length",
+			"subscriptions_allowed_list", "subscriptions_denied_list", "max_mutation_length"},
 	}
 	for name, values := range want {
 		for _, value := range values {

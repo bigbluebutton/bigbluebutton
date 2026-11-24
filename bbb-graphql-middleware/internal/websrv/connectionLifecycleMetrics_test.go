@@ -2,7 +2,6 @@ package websrv
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -13,7 +12,6 @@ import (
 	"bbb-graphql-middleware/internal/metricstest"
 
 	"github.com/coder/websocket"
-	"github.com/prometheus/client_golang/prometheus"
 )
 
 func rejectedConnections(reason string) float64 {
@@ -85,7 +83,10 @@ func TestConnectionInitTimeoutMetrics(t *testing.T) {
 	saved := connectionInitTimeout
 	connectionInitTimeout = 100 * time.Millisecond
 	t.Cleanup(func() { connectionInitTimeout = saved })
-	before := gatherSeries(t)
+	before, err := metricstest.Series()
+	if err != nil {
+		t.Fatalf("gather: %v", err)
+	}
 	if _, ok := before[`ws_connection_rejected{reason="init_timeout"}`]; !ok {
 		t.Fatal(`ws_connection_rejected{reason="init_timeout"} is not exported before the timeout`)
 	}
@@ -117,21 +118,14 @@ func TestConnectionInitTimeoutMetrics(t *testing.T) {
 	// the Hasura and gql-actions clients it starts see the cancelled context and end at once.
 	time.Sleep(300 * time.Millisecond)
 
-	after := gatherSeries(t)
+	after, err := metricstest.Series()
+	if err != nil {
+		t.Fatalf("gather: %v", err)
+	}
 	want := map[string]float64{
 		`ws_connection_rejected{reason="init_timeout"}`: 1,
 	}
-	changed := map[string]float64{}
-	for key, value := range after {
-		if delta := value - before[key]; delta != 0 {
-			changed[key] = delta
-		}
-	}
-	for key := range before {
-		if _, ok := after[key]; !ok {
-			changed[key] = -before[key]
-		}
-	}
+	changed := metricstest.Changed(before, after)
 	for key, delta := range changed {
 		if want[key] != delta {
 			t.Errorf("%s moved by %v during a connection that only timed out", key, delta)
@@ -145,41 +139,4 @@ func TestConnectionInitTimeoutMetrics(t *testing.T) {
 	if got := rejectedConnections("other"); got != before[`ws_connection_rejected{reason="other"}`] {
 		t.Errorf("counted as other: %v", got)
 	}
-}
-
-// gatherSeries reads every series of the default registry except the Go runtime and process ones:
-// a counter or gauge by its value, a histogram by its count and its sum.
-func gatherSeries(t *testing.T) map[string]float64 {
-	t.Helper()
-	families, err := prometheus.DefaultGatherer.Gather()
-	if err != nil {
-		t.Fatalf("gather: %v", err)
-	}
-	series := map[string]float64{}
-	for _, family := range families {
-		name := family.GetName()
-		if strings.HasPrefix(name, "go_") || strings.HasPrefix(name, "process_") || strings.HasPrefix(name, "promhttp_") {
-			continue
-		}
-		for _, metric := range family.GetMetric() {
-			labels := make([]string, 0, len(metric.GetLabel()))
-			for _, label := range metric.GetLabel() {
-				labels = append(labels, fmt.Sprintf("%s=%q", label.GetName(), label.GetValue()))
-			}
-			key := name
-			if len(labels) > 0 {
-				key += "{" + strings.Join(labels, ",") + "}"
-			}
-			switch {
-			case metric.GetCounter() != nil:
-				series[key] = metric.GetCounter().GetValue()
-			case metric.GetGauge() != nil:
-				series[key] = metric.GetGauge().GetValue()
-			case metric.GetHistogram() != nil:
-				series[key+" count"] = float64(metric.GetHistogram().GetSampleCount())
-				series[key+" sum"] = metric.GetHistogram().GetSampleSum()
-			}
-		}
-	}
-	return series
 }

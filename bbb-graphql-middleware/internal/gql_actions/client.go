@@ -53,6 +53,7 @@ RangeLoop:
 					if config.GetConfig().Server.MaxMutationLength > 0 {
 						mutationLength := len(browserMessage.Payload.Query)
 						if mutationLength > config.GetConfig().Server.MaxMutationLength {
+							common.RecordQueryRejection(common.QueryRejectedMaxMutationLength)
 							sendErrorMessage(
 								browserConnection,
 								browserMessage.ID,

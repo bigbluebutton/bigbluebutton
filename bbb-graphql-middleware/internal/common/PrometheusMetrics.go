@@ -17,6 +17,35 @@ func AdvancedMetricsEnabled() bool {
 	return config.GetConfig().PrometheusAdvancedMetricsEnabled
 }
 
+// Values of the reason label of gql_query_rejected_total: the configuration key of the limit or
+// list that refused the operation, or max_query_nesting for the fixed bound on braces and brackets.
+const (
+	QueryRejectedMaxQueryLength          = "max_query_length"
+	QueryRejectedMaxQueryNesting         = "max_query_nesting"
+	QueryRejectedMaxQueryDepth           = "max_query_depth"
+	QueryRejectedMaxQueryVariablesLength = "max_query_variables_length"
+	QueryRejectedSubscriptionsAllowed    = "subscriptions_allowed_list"
+	QueryRejectedSubscriptionsDenied     = "subscriptions_denied_list"
+	QueryRejectedMaxMutationLength       = "max_mutation_length"
+)
+
+// QueryRejectionReasons are the values of the reason label of gql_query_rejected_total.
+var QueryRejectionReasons = []string{
+	QueryRejectedMaxQueryLength,
+	QueryRejectedMaxQueryNesting,
+	QueryRejectedMaxQueryDepth,
+	QueryRejectedMaxQueryVariablesLength,
+	QueryRejectedSubscriptionsAllowed,
+	QueryRejectedSubscriptionsDenied,
+	QueryRejectedMaxMutationLength,
+}
+
+// RecordQueryRejection counts an operation refused by an input check, by the check. The refused
+// operation is not stored or forwarded, so it is counted in no start counter.
+func RecordQueryRejection(reason string) {
+	GqlQueryRejectedCounter.WithLabelValues(reason).Inc()
+}
+
 // Values of the result label of the hook request counters.
 const (
 	HookRequestOk           = "ok"
@@ -62,6 +91,13 @@ var (
 			Help: "Total number of Graphql subscriptions queued to be resent to Hasura after a reconnection",
 		},
 		[]string{"type", "operationName"},
+	)
+	GqlQueryRejectedCounter = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "gql_query_rejected_total",
+			Help: "Total number of operations refused by a configured limit or list, or by the fixed nesting bound, before they reach Hasura or bbb-graphql-actions, by reason: max_query_length, max_query_nesting, max_query_depth, max_query_variables_length, subscriptions_allowed_list, subscriptions_denied_list or max_mutation_length. A refused operation is counted in neither gql_subscription_total nor gql_mutation_total",
+		},
+		[]string{"reason"},
 	)
 	GqlSubscriptionLimitRejectedCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
@@ -226,6 +262,7 @@ func registerMetrics() {
 	prometheus.MustRegister(GqlSubscribeCounter)
 	prometheus.MustRegister(GqlSubscriptionRetransmittedCounter)
 	prometheus.MustRegister(GqlSubscriptionLimitRejectedCounter)
+	prometheus.MustRegister(GqlQueryRejectedCounter)
 	prometheus.MustRegister(GqlSubscriptionRemovedCounter)
 	prometheus.MustRegister(WsConnectionSubscriptionsPeak)
 	prometheus.MustRegister(GqlSubscriptionFirstDataDuration)
@@ -262,5 +299,8 @@ func createClosedLabelSeries() {
 	}
 	for _, reason := range reconnectionReasons() {
 		GqlHasuraReconnectionCounter.WithLabelValues(reason)
+	}
+	for _, reason := range QueryRejectionReasons {
+		GqlQueryRejectedCounter.WithLabelValues(reason)
 	}
 }

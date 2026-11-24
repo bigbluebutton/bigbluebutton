@@ -121,6 +121,7 @@ RangeLoop:
 					if config.GetConfig().Server.MaxQueryLength > 0 {
 						queryLength := len(query)
 						if queryLength > config.GetConfig().Server.MaxQueryLength {
+							common.RecordQueryRejection(common.QueryRejectedMaxQueryLength)
 							sendErrorMessage(
 								browserConnection,
 								queryId,
@@ -131,12 +132,15 @@ RangeLoop:
 
 					// Before anything parses the query, and whatever max_query_depth is.
 					if tokens := countNestingTokens(query); tokens > maxNestingTokens {
+						common.RecordQueryRejection(common.QueryRejectedMaxQueryNesting)
 						sendErrorMessage(browserConnection, queryId, nestingLimitMessage(browserMessage.Payload.OperationName, tokens))
 						continue
 					}
 
 					if config.GetConfig().Server.MaxQueryDepth > 0 {
 						if refusal := queryDepthRefusal(query, browserMessage.Payload.OperationName, config.GetConfig().Server.MaxQueryDepth); refusal != "" {
+							// The nesting bound is checked above, so this refusal is on the depth.
+							common.RecordQueryRejection(common.QueryRejectedMaxQueryDepth)
 							sendErrorMessage(browserConnection, queryId, refusal)
 							continue
 						}
@@ -150,6 +154,7 @@ RangeLoop:
 							config.GetConfig().Server.MaxQueryVariablesLength,
 						)
 						if variablesErr != nil {
+							common.RecordQueryRejection(common.QueryRejectedMaxQueryVariablesLength)
 							sendErrorMessage(
 								browserConnection,
 								queryId,
@@ -209,6 +214,7 @@ RangeLoop:
 
 								if !subscriptionAllowed {
 									hc.BrowserConn.Logger.Infof("Subscription %s not allowed!", browserMessage.Payload.OperationName)
+									common.RecordQueryRejection(common.QueryRejectedSubscriptionsAllowed)
 									continue
 								}
 							}
@@ -219,6 +225,7 @@ RangeLoop:
 
 								if !subscriptionAllowed {
 									hc.BrowserConn.Logger.Infof("Subscription %s not allowed!", browserMessage.Payload.OperationName)
+									common.RecordQueryRejection(common.QueryRejectedSubscriptionsDenied)
 									continue
 								}
 							}
