@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { Select as SelectMui, type SelectProps } from '@mui/material';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import {
   colorWhite,
   colorGrayLighter,
@@ -40,13 +41,11 @@ const Title = styled.h2`
   color: ${colorGrayDark};
 `;
 
-// BBButton's circle layout is hardcoded to 3rem, much larger than this
-// dialog's original close glyph. Shrink it back to the previous footprint.
-const CloseButtonWrapper = styled.div`
-  button {
-    width: 1.75rem !important;
-    height: 1.75rem !important;
-  }
+// Smaller than BBButton's smallest circle (2rem), to keep the footprint of this
+// dialog's original close glyph.
+const CloseButton = styled(BBButton)`
+  width: 1.75rem;
+  height: 1.75rem;
 `;
 
 const Body = styled.div`
@@ -99,7 +98,7 @@ export default {
   Dialog,
   Header,
   Title,
-  CloseButtonWrapper,
+  CloseButton,
   Body,
   BodyText,
   Footer,

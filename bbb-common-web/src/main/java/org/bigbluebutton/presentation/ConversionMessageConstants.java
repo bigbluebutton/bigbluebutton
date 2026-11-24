@@ -42,6 +42,7 @@ public class ConversionMessageConstants {
     public static final String FILE_VIRUS_KEY = "FILE_VIRUS";
     public static final String SCAN_FAILED_KEY = "SCAN_FAILED";
     public static final String CONVERSION_RATE_LIMIT_EXCEEDED_KEY = "CONVERSION_RATE_LIMIT_EXCEEDED";
+    public static final String PRESENTATION_UPLOAD_FAILED_KEY = "PRESENTATION_UPLOAD_FAILED";
 
     private ConversionMessageConstants() {
         throw new IllegalStateException("ConversionMessageConstants is a utility class. Instantiation is forbidden.");

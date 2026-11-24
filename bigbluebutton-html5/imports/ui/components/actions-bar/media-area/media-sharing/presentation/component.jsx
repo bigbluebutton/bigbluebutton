@@ -112,6 +112,10 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.upload.scanFailed',
     description: 'error that the file could not be uploaded because scanning failed',
   },
+  uploadFailed: {
+    id: 'app.presentationUploder.upload.failed',
+    description: 'error when the upload request failed after it was authorized',
+  },
   genericError: {
     id: 'app.presentationUploder.genericError',
     description: 'generic error while uploading/converting',

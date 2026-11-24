@@ -303,6 +303,8 @@ The BigBlueButton server processes recordings as meetings finish: `bbb-rap-start
 
 `bbb-conf --restart` also starts the worker, so a restart during the day resumes processing until the next stop.
 
+Meetings are still archived as they end while `bbb-rap-resque-worker` is stopped, because archiving runs in `bbb-rap-archive-worker`. Data that is only kept for a short time after a meeting ends, such as the Learning Dashboard data, is therefore not lost.
+
 #### Allow all recordings to be returned
 
 The `bbb-web` property `allowFetchAllRecordings` determines whether every recording on the server can be returned in a single response from a `getRecordings` call. By default this property is set to `true`. On a server with a large number of recordings an attempt to return every recording in a single response can cause a large amount of load on the server and therefore it is advised that this property be switched to `false` in `/etc/bigbluebutton/bbb-web.properties`. When this is done any request to `getRecordings` that does not specify any recording or meeting IDs as well as no pagination parameters will return no recordings to prevent all recordings from being returned.
@@ -315,6 +317,8 @@ The `bbb-web` property `allowFetchAllRecordings` determines whether every record
 > If the `defaultKeepEvents` or `meetingKeepEvents` setting in bbb-web is enabled, you must not increase the number of BigBlueButton recording workers. Doing so could result in data loss, as meeting events will not be correctly archived.
 >
 > For more information, see [BigBlueButton issue #12503](https://github.com/bigbluebutton/bigbluebutton/issues/12503).
+
+Recordings are handled by two services. `bbb-rap-archive-worker` archives each meeting as soon as it ends. `bbb-rap-resque-worker` processes and publishes the recordings, and keeps meeting events when `defaultKeepEvents` or `meetingKeepEvents` is enabled. The steps below increase the workers in `bbb-rap-resque-worker`. Do not increase them in `bbb-rap-archive-worker`: two archives of the same meeting must not run at the same time.
 
 Run `systemctl edit bbb-rap-resque-worker.service`, and insert the following into the editor, replacing the number with the desired number of recordings to process concurrently.
 
@@ -338,9 +342,9 @@ If you run `systemctl status bbb-rap-resque-worker.service` now, you will see th
    CGroup: /system.slice/bbb-rap-resque-worker.service
       ├─23630 /bin/sh -c /usr/bin/rake -f ../Rakefile resque:workers >> /var/log/bigbluebutton/bbb-rap-worker.log
       ├─23631 /usr/bin/ruby /usr/bin/rake -f ../Rakefile resque:workers
-      ├─23650 resque-2.0.0: Waiting for rap:archive,rap:publish,rap:process,rap:sanity,rap:captions
-      ├─23651 resque-2.0.0: Waiting for rap:archive,rap:publish,rap:process,rap:sanity,rap:captions
-      └─23652 resque-2.0.0: Waiting for rap:archive,rap:publish,rap:process,rap:sanity,rap:captions
+      ├─23650 resque-2.0.0: Waiting for rap:publish,rap:process,rap:sanity,rap:captions,rap:events
+      ├─23651 resque-2.0.0: Waiting for rap:publish,rap:process,rap:sanity,rap:captions,rap:events
+      └─23652 resque-2.0.0: Waiting for rap:publish,rap:process,rap:sanity,rap:captions,rap:events
 ```
 
 #### Install additional recording processing formats
@@ -1244,6 +1248,26 @@ To show presenters the limits on the upload panel, also set `public.presentation
 
 Restart BigBlueButton with `sudo bbb-conf --restart`. You should now be able to upload larger presentations within the new limit.
 
+#### Change how long a presentation upload may take to start
+
+When a presenter chooses a file, the client asks for an upload token and then sends the file. `bbb-web` keeps a token for at least **5 minutes** (300 seconds). Every 15 seconds it checks its tokens and drops each one that has reached that age without an upload request having arrived for it. It logs `No upload arrived in time for a presentation upload token`, and the presenter is then shown "The upload failed. Please try again." instead of an upload that never finishes. An upload that starts after the 5 minutes but before the next check is still accepted.
+
+Only the start of the upload is timed. Once the upload request has reached `bbb-web`, the file may take as long as it needs, so a large file on a slow connection is not affected. Slides and shared notes captured from an ended breakout room are not affected either.
+
+The time runs from the moment the token is issued until the upload request reaches `bbb-web`, so it includes whatever holds the request back on its way there. BigBlueButton's nginx passes an upload request on as it arrives. A proxy on the presenter's network may not: one that takes in the whole file before passing it on delays the request by the time the file takes to upload. On a server reached over HTTP/1.1, a browser sends six requests at a time, so when a presenter chooses more files than that together, the others wait until the first ones are done. The default of 5 minutes leaves room for both.
+
+A proxy in front of BigBlueButton that buffers request bodies delays every upload in the same way: it passes the request on only once the whole file is in, so an upload that takes longer than the timeout would fail. On such a setup, raise the value above the longest upload you expect, or set it to `0`.
+
+To change the value, add an overwrite rule in `/etc/bigbluebutton/bbb-web.properties`:
+
+```properties
+# Seconds a presentation upload token is kept while no upload has arrived for it (default 300).
+# 0 = disabled.
+presentationUploadStartTimeout=300
+```
+
+Set the value to `0` to turn the timeout off; an upload that never starts then stays on "Uploading" until its uploader leaves the meeting or the meeting ends. Restart BigBlueButton with `sudo bbb-conf --restart` for the change to take effect.
+
 #### Limit the number of presentations per API request
 
 By default, BigBlueButton processes at most **10** presentations per `create` or `insertDocument` API call. If a single request references more presentations than this limit, BigBlueButton processes `maxPresentationsPerRequest` of them and ignores the rest, logging a warning for each request that exceeds the limit. The presentation that will be shown first is always kept, and the remaining slots go to the other presentations in the order they appear in the request. All presentation URLs are checked before the limit is applied, so a malformed URL fails the request with the `messageKey` `invalidPresentationUrl` even when its presentation would have been ignored. The API response still has the `returncode` `SUCCESS`, and adds the `messageKey` `documentsDropped`, with a `message` saying how many presentations were accepted.
@@ -2015,6 +2039,7 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 | `waitingGuestUsersTimeout` | Timeout (millis) to remove guest users that stopped fetching for their status | Integer | 30000 (30s) |
 | `defaultHttpSessionTimeout` | Timeout (seconds) to invalidate inactive HTTP sessions | Integer | 14400 (4h) |
 | `sessionsCleanupDelayInMinutes` | Minutes to wait before removing user sessions after a meeting has ended; during this delay the "Meeting has ended" screen is still reachable | Integer (0=keep indefinitely) | 60 |
+| `presentationUploadStartTimeout` | Seconds a presentation upload token is kept while no upload request has arrived for it; `bbb-web` drops it at its next check after that, and the upload is shown to its uploader as failed (see [Change how long a presentation upload may take to start](#change-how-long-a-presentation-upload-may-take-to-start)) | Integer (0=disable) | 300 |
 | `webcamsOnlyForModerator` | Allow webcams streaming reception only to and from moderators | true/false | false _`overwritable`_ |
 | `meetingCameraCap` | Per meeting camera share limit | Integer (0=disable) | 0 _`overwritable`_ |
 | `userCameraCap` | Per user camera share limit | Integer (0=disable) | 3 _`overwritable`_ |
