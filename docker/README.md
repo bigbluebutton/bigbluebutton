@@ -71,8 +71,11 @@ deployments use their official images.
 - `/var/bigbluebutton` is shared between bbb-web, record-and-playback and nginx (presentations,
   recordings, captions, learning-dashboard reports). `/var/lib/bbb-webrtc-recorder` (recorder and
   record-and-playback) holds the recorded media; `/var/log/bigbluebutton` the recording logs.
-- bbb-web converts office documents by calling `/usr/share/bbb-libreoffice-conversion/convert.sh`
-  (`presOfficeConversionExec`); the deployment provides that script.
+- bbb-web converts office documents by calling the script in `presOfficeConversionExec`
+  (default `/usr/share/bbb-libreoffice-conversion/convert.sh`, which the image does not have). The
+  image has the sample client for Collabora Online at
+  `/usr/share/bbb-libreoffice-conversion/convert-cool.sh`, which sends the document to the server
+  at `COOL_URL`; `docker-compose.yml` selects it with `PRESOFFICECONVERSIONEXEC`.
 - Shared-notes' PDF export sends the HTML to `/run/bbb-shared-notes-conversion.sock`
   (`commandExecution.conversionSocket`), which systemd units serve in a package install. The image
   has a listener for it, `node bbb-shared-notes-conversion.js`; a deployment runs it as a second
