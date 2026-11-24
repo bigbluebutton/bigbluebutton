@@ -155,13 +155,7 @@ begin
   # analytics_callback_url = metadata.key?("analytics-callback-url") ? metadata["analytics-callback-url"].value : nil
   unless analytics_callback_url.nil?
     BigBlueButton.logger.info("Processing events for analytics...")
-    filepathOverride = "/etc/bigbluebutton/bbb-web.properties"
-    hasOverride = File.file?(filepathOverride)
-
-    bbb_props = BigBlueButton.read_java_props("/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties")
-    bbb_props.merge!(BigBlueButton.read_java_props(filepathOverride)) if hasOverride
-
-    secret = bbb_props[:securitySalt]
+    secret = BigBlueButton.shared_secret
     external_meeting_id = metadata.attributes['meetingId']&.content
 
     # Parse the events.xml.

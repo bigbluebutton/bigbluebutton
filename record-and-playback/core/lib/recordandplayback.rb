@@ -282,7 +282,16 @@ module BigBlueButton
       recOverrideProps = BigBlueButton.load_yaml(filepathRecOverride, fallback: {})
       @props = @props.merge(recOverrideProps)
     end
+    # Environment variables win over both files
+    @props['redis_host'] = ENV['REDIS_HOST'] if env_set?('REDIS_HOST')
+    @props['redis_port'] = Integer(ENV['REDIS_PORT']) if env_set?('REDIS_PORT')
+    @props['playback_host'] = ENV['PLAYBACK_HOST'] if env_set?('PLAYBACK_HOST')
+    @props['bn_notes_endpoint'] = ENV['BN_NOTES_ENDPOINT'] if env_set?('BN_NOTES_ENDPOINT')
     @props
+  end
+
+  def self.env_set?(name)
+    !ENV.fetch(name, '').empty?
   end
 
   # Reads a Java .properties file into a Hash with symbol keys.
@@ -300,6 +309,26 @@ module BigBlueButton
     end
 
     JavaProperties::Parser.parse(text)
+  end
+
+  # bbb-web's defaults, then the admin's overrides, as bbb-web reads them.
+  BBB_WEB_PROPERTIES = [
+    '/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties',
+    '/etc/bigbluebutton/bbb-web.properties',
+  ].freeze
+
+  def self.read_bbb_web_props(paths = BBB_WEB_PROPERTIES)
+    props = {}
+    paths.each { |path| props.merge!(BigBlueButton.read_java_props(path)) if File.file?(path) }
+    props
+  end
+
+  # The API's shared secret, which signs the callbacks. SHARED_SECRET wins over
+  # bbb-web's properties.
+  def self.shared_secret
+    return ENV['SHARED_SECRET'] if env_set?('SHARED_SECRET')
+
+    BigBlueButton.read_bbb_web_props[:securitySalt]
   end
 
   def self.create_redis_publisher
