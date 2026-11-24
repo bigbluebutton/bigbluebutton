@@ -5,6 +5,7 @@ import { ErrorScreen } from '/imports/ui/components/error-screen/component';
 import { RETRY_DESCRIPTION } from '/imports/ui/components/error-screen/loader-error';
 import Session from '/imports/ui/services/storage/in-memory';
 import useCurrentLocale from '/imports/ui/core/local-states/useCurrentLocale';
+import { applyDocumentLanguage } from '/imports/utils/document-language';
 import logger from './logger';
 
 // Backoff between locale fetch retries: 1s, 2s, then 5s repeated, each with equal
@@ -283,6 +284,9 @@ const IntlLoader: React.FC<IntlLoaderProps> = ({
             const replacedLocale = normalizedLocale.replace('_', '-');
             setNormalizedLocale(replacedLocale);
             setCurrentLocale(replacedLocale);
+            // The lobby, the join errors and the loading screen render before IntlAdapter mounts,
+            // so the page language is set here, as soon as the locale is known.
+            applyDocumentLanguage(replacedLocale);
             setMessages(mergedLocale);
             setFetching(false);
           }).catch((error) => {

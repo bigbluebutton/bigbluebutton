@@ -10,6 +10,7 @@ import IntlLoaderContainer from '/imports/startup/client/intlLoader';
 import CustomUsersSettings from '/imports/ui/components/join-handler/custom-users-settings/component';
 import MeetingClient from '/client/meetingClient';
 import CustomStyles from '/imports/ui/components/custom-styles/component';
+import { applyDocumentLanguage } from '/imports/utils/document-language';
 import 'react-toastify/dist/ReactToastify.css';
 
 const STARTUP_CRASH_METADATA = { logCode: 'app_startup_crash', logMessage: 'Possible startup crash' };
@@ -64,6 +65,10 @@ const Main: React.FC = () => {
     </SettingsLoader>
   );
 };
+
+// Provisional: until a locale file resolves, the browser language is the best guess for the
+// loading screens. The error screens and IntlLoader replace it with the language actually shown.
+applyDocumentLanguage((navigator.languages && navigator.languages[0]) || navigator.language || 'en');
 
 const container = document.getElementById('app');
 const root = createRoot(container!);

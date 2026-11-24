@@ -5,6 +5,7 @@ import Session from '/imports/ui/services/storage/in-memory';
 import Styled from './styles';
 import intlHolder from '../../core/singletons/intlHolder';
 import fetchStandaloneLocale from './standalone-locale';
+import { applyDocumentLanguage } from '/imports/utils/document-language';
 
 const intlMessages = defineMessages({
   503: {
@@ -168,12 +169,21 @@ const ErrorScreen = ({
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), LOCALE_FETCH_TIMEOUT);
+    let unmounted = false;
 
     fetchStandaloneLocale(controller.signal)
-      .then(setStandaloneMessages)
+      .then(({ locale, messages }) => {
+        // Once this screen is gone, the page language belongs to whatever replaced it. (A timeout
+        // is different: it still resolves here, as English, which is what the screen then shows.)
+        if (unmounted) return;
+        // No IntlLoader above this screen (or it failed), so nothing else sets the page language.
+        applyDocumentLanguage(locale);
+        setStandaloneMessages(messages);
+      })
       .finally(() => clearTimeout(timeout));
 
     return () => {
+      unmounted = true;
       clearTimeout(timeout);
       controller.abort();
     };
@@ -212,14 +222,16 @@ const ErrorScreen = ({
     <Styled.Background role="alert">
       {ready && (
         <>
-          <Styled.Message data-test="errorScreenMessage">
+          {/* dir="auto": a string missing from the catalog falls back to English, which must not
+              take the page's right-to-left direction (it would move its punctuation). */}
+          <Styled.Message data-test="errorScreenMessage" dir="auto">
             {message}
           </Styled.Message>
           {
             !description
             || message === description
             || (
-              <Styled.SessionMessage data-test="errorScreenDescription">
+              <Styled.SessionMessage data-test="errorScreenDescription" dir="auto">
                 {description}
               </Styled.SessionMessage>
             )
