@@ -39,8 +39,8 @@ commit and the dated version, `org.opencontainers.image.title` its name.
 |---|---|---|---|
 | bbb-apps-akka | `akka-bbb-apps/` | 8901 | `/etc/bigbluebutton/bbb-apps-akka.conf`, `bbb-html5.yml` |
 | bbb-web | `bigbluebutton-web/` | 8090 | `/etc/bigbluebutton/bbb-web.properties`, `turn-stun-servers.xml` |
-| bbb-html5-client | `bigbluebutton-html5/` | 8080 | none (client settings come from bbb-apps-akka) |
-| bbb-learning-dashboard | `bbb-learning-dashboard/` | 8080 | none |
+| bbb-html5-client | `bigbluebutton-html5/` | files only | none (client settings come from bbb-apps-akka) |
+| bbb-learning-dashboard | `bbb-learning-dashboard/` | files only | none |
 | bbb-graphql-actions | `bbb-graphql-actions/` | 8093 | environment only |
 | bbb-graphql-middleware | `bbb-graphql-middleware/` | 8378 | `/etc/bigbluebutton/bbb-graphql-middleware.yml` |
 | bbb-graphql-server | `bbb-graphql-server/` | 8085 | environment (`HASURA_GRAPHQL_*`) |
@@ -51,24 +51,30 @@ commit and the dated version, `org.opencontainers.image.title` its name.
 | bbb-webrtc-sfu | `docker/bbb-webrtc-sfu/` | 3008 | `/etc/bigbluebutton/bbb-webrtc-sfu/production.yml` |
 | bbb-webrtc-recorder | `docker/bbb-webrtc-recorder/` | none | `/etc/bigbluebutton/bbb-webrtc-recorder.yml` (replaces the default) |
 | bbb-webhooks | `docker/bbb-webhooks/` | 3005 | `/etc/bigbluebutton/bbb-webhooks/production.yml` |
-| bbb-playback | `docker/bbb-playback/` | 8080 | none |
+| bbb-playback | `docker/bbb-playback/` | files only | none |
 
 Third-party services (Redis, PostgreSQL, LiveKit, TURN, document conversion) are not built here;
 deployments use their official images.
 
 ## Image contract
 
-- Processes run as `bigbluebutton` (UID/GID 998, as in the packages). The nginx-based images
-  (html5-client, learning-dashboard, playback, nginx) run as the base image's `nginx` (UID 101).
+- Processes run as `bigbluebutton` (UID/GID 998, as in the packages). nginx runs as the base
+  image's `nginx` (UID 101).
+- bbb-html5-client, bbb-learning-dashboard and bbb-playback hold only files (`FROM scratch`), at
+  their packages' paths: `/usr/share/bigbluebutton/html5-client`,
+  `/var/bigbluebutton/learning-dashboard` and `/var/bigbluebutton/playback/presentation/2.3`. They
+  are not run; nginx mounts them read-only at the same paths (compose `type: image` volumes,
+  Kubernetes `image` volumes).
 - Logs go to stdout (record-and-playback: per-recording logs to `/var/log/bigbluebutton`).
   Services listen on all interfaces, on the bare-metal ports.
 - Configuration is mounted at the bare-metal path. bbb-apps-akka reads the variables below in
   upstream's `application.conf`, which a mounted `bbb-apps-akka.conf` includes; keys set in that
   file win. bbb-web's environment variables override its mounted files.
-- The entrypoint is the process, started as in its systemd unit (nginx images: the base image's).
+- The entrypoint is the process, started as in its systemd unit (nginx: the base image's).
   graphql-server uses Hasura's entrypoint, which applies the metadata before the engine starts.
 - `/var/bigbluebutton` is shared between bbb-web, record-and-playback and nginx (presentations,
-  recordings, captions, learning-dashboard reports). `/var/lib/bbb-webrtc-recorder` (recorder and
+  recordings, captions, learning-dashboard reports; nginx reads the reports at
+  `/srv/learning-dashboard`). `/var/lib/bbb-webrtc-recorder` (recorder and
   record-and-playback) holds the recorded media; `/var/log/bigbluebutton` the recording logs.
 - bbb-web converts office documents by calling `/usr/share/bbb-libreoffice-conversion/convert.sh`
   (`presOfficeConversionExec`); the deployment provides that script.
@@ -85,12 +91,12 @@ deployments use their official images.
 
 ### Edge nginx
 
-`bbb-nginx` is the server's nginx with the site and location files of the packages. It proxies the
-static apps by their default service names on port 8080: `html5-client`, `learning-dashboard` and
-`playback`. nginx resolves these names when it starts, so a deployment either runs those images
-under these service names or mounts its own fragments at `/usr/share/bigbluebutton/nginx/`.
-Content from volumes (slides, recordings, captions, learning-dashboard reports) it serves itself
-from `/var/bigbluebutton`. The backends are the upstreams in `/etc/nginx/conf.d/bbb-upstreams.conf`,
+`bbb-nginx` is the server's nginx with the site and location files of the packages. It serves
+the HTML5 client, the learning dashboard and the player from the paths above, where a deployment
+mounts those images. Content from volumes (slides, recordings, captions) it serves from
+`/var/bigbluebutton`; the learning-dashboard reports, which bbb-web writes to
+`/var/bigbluebutton/learning-dashboard`, from `/srv/learning-dashboard`, because the dashboard's
+image covers that directory. The backends are the upstreams in `/etc/nginx/conf.d/bbb-upstreams.conf`,
 by their default service names: `web`, `graphql-middleware`, `livekit`, `webrtc-sfu` and
 `shared-notes-server`; Hasura is `graphql-server` in `sites-available/hasura-loadbalancer.conf`.
 A deployment uses these names or mounts its own two files. nginx resolves the backends when it

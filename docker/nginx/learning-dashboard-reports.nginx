@@ -1,0 +1,6 @@
+# The reports bbb-web writes to /var/bigbluebutton/learning-dashboard/<meeting>/<token>/. On a
+# package install they sit next to the dashboard's files; here the dashboard's image covers that
+# directory, so the reports are mounted at /srv/learning-dashboard.
+location ~ ^/learning-analytics-dashboard/([^/]+)/([^/]+)/learning_dashboard_data\.json$ {
+    alias /srv/learning-dashboard/$1/$2/learning_dashboard_data.json;
+}

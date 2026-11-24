@@ -9,10 +9,9 @@ RUN --mount=type=bind,from=placeholders,source=bbb-playback.placeholder.sh,targe
 WORKDIR /app/bbb-playback
 RUN npm ci && npm run build && node -p "require('./package.json').version" > build/bbb-playback-version
 
-FROM nginxinc/nginx-unprivileged:1.30.6-alpine@sha256:f5116ed4606f3eb015dd4a8e28cb9b351476dc0ad4bc6e9f93b19cec130cdf03
+# Only the files, at the path of the bbb-playback package (build/packages-template/bbb-playback/build.sh).
+# The nginx image serves them with the package's location file; compose mounts this image there
+# as an image volume.
+FROM scratch
 
 COPY --from=build /app/bbb-playback/build /var/bigbluebutton/playback/presentation/2.3
-COPY --from=build /app/bbb-playback/playback.nginx /usr/share/bigbluebutton/nginx/
-COPY default.conf /etc/nginx/conf.d/default.conf
-
-HEALTHCHECK CMD ["wget", "-q", "--spider", "http://127.0.0.1:8080/playback/presentation/2.3/"]

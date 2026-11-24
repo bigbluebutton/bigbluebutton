@@ -79,7 +79,6 @@ target "html5-client" {
   inherits = ["_image"]
   tags     = tags("html5-client")
   context  = "./bigbluebutton-html5"
-  contexts = { client-build = "./build/packages-template/bbb-html5" }
   args     = { CLIENT_BUILD = CLIENT_BUILD }
 }
 

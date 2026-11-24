@@ -11,11 +11,16 @@ COPY build/packages-template/bbb-graphql-middleware/bbb-graphql-client-settings-
      docker/nginx/bbb-upstreams.conf /etc/nginx/conf.d/
 COPY build/packages-template/bbb-config/include_default.nginx /usr/share/bigbluebutton/
 COPY bigbluebutton-web/bbb-web.nginx /usr/share/bigbluebutton/nginx/web
-COPY bigbluebutton-web/loadbalancer.nginx \
+COPY bbb-learning-dashboard/learning-dashboard.nginx \
+     bigbluebutton-web/loadbalancer.nginx \
      bigbluebutton-web/nginx-confs/presentation-slides.nginx \
      build/packages-template/bbb-config/plugins-assets-cors.nginx \
      build/packages-template/bbb-graphql-middleware/graphql.nginx \
+     build/packages-template/bbb-html5/bbb-html5.nginx \
+     build/packages-template/bbb-html5/bbb-html5.nginx.dev \
+     build/packages-template/bbb-html5/bbb-html5.nginx.static \
      build/packages-template/bbb-livekit/livekit.nginx \
+     build/packages-template/bbb-playback/playback.nginx \
      build/packages-template/bbb-shared-notes-server/bbb-shared-notes-server.nginx \
      build/packages-template/bbb-webrtc-sfu/webrtc-sfu.nginx \
      record-and-playback/notes/scripts/notes-playback.nginx \
@@ -24,10 +29,10 @@ COPY bigbluebutton-web/loadbalancer.nginx \
      record-and-playback/screenshare/scripts/recording-screenshare.nginx \
      record-and-playback/video/scripts/playback-video.nginx \
      /usr/share/bigbluebutton/nginx/
-# These three proxy to the static-app images (html5, dashboard, player) by their default service
-# names, as bbb-upstreams.conf does for the backends.
-COPY docker/nginx/bbb-html5.nginx docker/nginx/learning-dashboard.nginx docker/nginx/playback.nginx \
-     /usr/share/bigbluebutton/nginx/
+# The files of the HTML5 client, the learning dashboard and the player come from their images, mounted
+# at the packages' paths. The dashboard reports bbb-web writes are mounted elsewhere, since the
+# dashboard's image covers its directory.
+COPY docker/nginx/learning-dashboard-reports.nginx /usr/share/bigbluebutton/nginx/
 # webhooks is optional: this location resolves its name per request instead of in an upstream
 COPY docker/nginx/webhooks.nginx /usr/share/bigbluebutton/nginx/
 # The base image's entrypoint renders the resolver for webhooks into /tmp at start (read-only root).
