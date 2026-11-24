@@ -7,6 +7,7 @@ import React, {
   useState,
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import { BBBSearch } from '@bigbluebutton/bbb-ui-components-react';
 import { AppsGalleryProps, APPS_GALLERY_VIEW_MODE, AppsGalleryViewModeType } from './types';
 import { PANELS } from '/imports/ui/components/layout/enums';
 import { InjectedAppGalleryItem } from '/imports/ui/components/layout/layoutTypes';
@@ -204,11 +205,10 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
       <Styled.Separator />
 
       <Styled.SearchWrapper>
-        <Icon iconName="search" />
-        <Styled.SearchInput
-          type="text"
+        <BBBSearch
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={setSearchQuery}
+          onClear={() => setSearchQuery('')}
           placeholder={intl.formatMessage(intlMessages.searchPlaceholder)}
           aria-label={intl.formatMessage(intlMessages.searchPlaceholder)}
         />

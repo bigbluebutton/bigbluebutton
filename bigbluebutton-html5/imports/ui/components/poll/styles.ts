@@ -22,8 +22,6 @@ import {
   smPadding,
   contentSidebarPadding,
   contentSidebarBottomScrollPadding,
-  borderRadiusRounded,
-  mdPaddingY,
   lgBorderRadius,
   borderSizeSmall,
   lgPadding,
@@ -36,7 +34,6 @@ import {
   colorGrayIcons,
   colorGrayUserListToolbar,
   colorGrayLighter,
-  colorGrayLight,
   colorDanger,
   noticeWarningText,
   colorHeading,
@@ -44,8 +41,6 @@ import {
   colorGrayDark,
   colorWhite,
   pollStatsBorderColor,
-  colorOffWhite,
-  colorGray,
   darkCyanLime,
   colorInfoBoxQuizBg,
   colorInfoBoxQuizBorder,
@@ -67,6 +62,11 @@ import {
   textFontWeight,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
+import {
+  SegmentedButtonWrapper,
+  SegmentedButtonContainer,
+  SegmentedButton,
+} from '/imports/ui/components/common/segmented-control/styles';
 
 // Design spec for the text inside every poll button. The library's button hardcodes
 // font-weight 600 and line-height normal, so both are restated wherever one is styled.
@@ -178,7 +178,7 @@ const PollQuestionArea = styled(PollTextArea)<PollQuestionAreaProps>`
     margin: 0;
     color: ${colorText};
     -webkit-appearance: none;
-    padding: ${$2xlPadding} ${jumboPaddingY};
+    padding: ${$2xlPadding};
     border-radius: ${lgBorderRadius};
     font-size: ${fontSizeBase};
     line-height: ${lineHeightComputed};
@@ -261,7 +261,7 @@ const ResponseTypeButton = styled.div<{ $selected: boolean }>`
 
     & > button,
     & > button span {
-      color: ${colorGrayIcons} !important;
+      color: ${colorText} !important;
     }
   `)}
 `;
@@ -557,56 +557,6 @@ const ContentWrapper = styled(ScrollboxVertical)`
 const CorrectAnswerCheckbox = styled.input`
   width: 1.5rem;
   height: 1.5rem;
-`;
-
-const SegmentedButtonWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: ${mdPaddingX};
-`;
-
-const SegmentedButtonContainer = styled.div`
-  display: flex;
-  padding: 0.15rem;
-  background-color: ${colorOffWhite};
-  border: ${borderSizeSmall} solid ${colorGrayLight};
-  border-radius: ${borderRadiusRounded};
-`;
-
-interface TabSelectorButtonProps {
-  active?: boolean;
-}
-
-const SegmentedButton = styled.button<TabSelectorButtonProps>`
-  border: 0;
-  background-color: transparent;
-  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-  color: ${colorGray};
-  font-weight: 500;
-  font-size: ${fontSizeBase};
-  line-height: ${lineHeightComputed};
-  padding: ${mdPaddingY} ${mdPaddingX};
-  min-height: 2.5rem;
-  border-radius: .5rem;
-  cursor: pointer;
-
-  ${({ active }) => (active ? `
-    color: ${colorWhite};
-    background-color: ${colorPrimary};
-
-    &:hover {
-      background-color: ${colorBlueDark};
-    }
-  ` : `
-    &:hover {
-      color: ${colorGrayDark};
-    }
-  `)}
-
-
 `;
 
 const ShowCorrectAnswerLabel = styled.label`

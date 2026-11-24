@@ -283,9 +283,10 @@ const MarkerWrapper = styled.div`
   user-select: none;
 `;
 
+// Tall enough for the value's line, so it sits above the slider instead of over it.
 const MarkerDynamicWrapper = styled.div`
   position: relative;
-  height: 1rem;
+  height: 1.5rem;
   user-select: none;
 `;
 
