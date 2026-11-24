@@ -1,5 +1,6 @@
 import { expect, Page as PlaywrightPage, test, ViewportSize } from '@playwright/test';
 
+import { breakoutRoomCreateVariables, sendBreakoutRoomCreate } from '../api/breakout';
 import { Create } from '../breakout/create';
 import {
   ELEMENT_WAIT_EXTRA_LONG_TIME,
@@ -14,7 +15,6 @@ import { USER_JOIN_OPERATION } from './preFlight';
 import { ensureProbe, expectRoomMode, expectRoomModeRefusedInBreakout, RoomMode } from './roomMode';
 import {
   NO_LISTEN_ONLY_JOIN_PARAMETER,
-  NO_PRE_FLIGHT_INIT_OPTIONS,
   NO_ROOM_MODE_PANEL_INIT_OPTIONS,
   PHONE_VIEWPORT,
   refuseDevices,
@@ -61,6 +61,15 @@ const expectSelected = async (page: Page, selected: RoomModeCard | null) => {
       card === selected ? 'should mark the picked room mode as selected' : 'should leave the other modes unselected',
     ).toHaveAttribute('aria-checked', card === selected ? 'true' : 'false');
   }
+};
+
+// The case checks only the breakout room, so it creates the rooms with nobody
+// assigned and without the create panel. The call answers true before akka reads
+// the rooms, so they are awaited in the moderator's breakout panel.
+const createBreakoutRooms = async (page: Page) => {
+  await sendBreakoutRoomCreate(page, breakoutRoomCreateVariables(2));
+  await page.waitAndClick(e.breakoutRoomSidebarButton);
+  await page.hasElement(e.roomOptions1, 'should create the breakout rooms', ELEMENT_WAIT_LONGER_TIME);
 };
 
 export const startsRoom = async (page: Page) => {
@@ -389,8 +398,7 @@ export class RoomModePanel extends RoomMode {
   }
 
   // Breakouts carry no pre-flight at all. The overrides go on the whole context,
-  // the only way they reach the tab the client opens for the room; the attendee
-  // gets a context of its own, without them.
+  // the only way they reach the tab the client opens for the room.
   async noPanelNorModeInBreakout(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
     let breakoutTab: PlaywrightPage | undefined;
     await test.step('No panel in a breakout room', async () => {
@@ -404,12 +412,10 @@ export class RoomModePanel extends RoomMode {
       ).toBe(true);
       await startsRoom(this.modPage);
 
-      await this.initUserPage(await this.browser.newContext(), NO_PRE_FLIGHT_INIT_OPTIONS);
-
+      await createBreakoutRooms(this.modPage);
       const breakout = new Create(this.browser, this.context);
       breakout.modPage = this.modPage;
-      breakout.userPage = this.userPage;
-      breakoutTab = await breakout.joinAssignedBreakoutAsModerator();
+      breakoutTab = await breakout.joinFirstBreakoutRoomAsModerator();
 
       expect(
         await readRoomModePanelSetting(breakoutTab),
