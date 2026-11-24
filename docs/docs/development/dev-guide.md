@@ -152,20 +152,20 @@ docker compose up -d
 
 and open `https://bbb.localhost` (browsers resolve `*.localhost` to the loopback address).
 
-To run your own build of a component, build its image and add its service to `docker-compose.override.yml` (`docker-compose.override.sample.yml` has a block for each), e.g. for bbb-web:
+To run your own build of a component, build its image, set it in `.env` and add its service to `docker-compose.override.yml` (`docker-compose.override.sample.yml` has a block for each), e.g. for bbb-web:
 
 ```bash
 BBB_IMAGE_REGISTRY=localhost BBB_IMAGE_TAG=dev docker buildx bake -f docker-bake.hcl --load --set '*.platform=linux/amd64' web
+echo BBB_WEB_IMAGE=localhost/bbb-web:dev >> .env
 ```
 
 ```yaml
 services:
   web:
-    image: localhost/bbb-web:dev
     pull_policy: never
 ```
 
-Then `docker compose up -d web`.
+`pull_policy: never` lets `docker compose pull` skip the local image. Then `docker compose up -d web`. The variable names of all images are in "Run another version of one component" on the Docker Compose page.
 
 For the HTML5 client, run the webpack dev server on your machine (Node 24), as `bigbluebutton-html5/run-dev.sh` does: a changed source file is recompiled and reloaded in the browser without a restart.
 
