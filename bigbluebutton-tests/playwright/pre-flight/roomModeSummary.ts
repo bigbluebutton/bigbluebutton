@@ -112,6 +112,11 @@ export class RoomModeSummary extends RoomModePanel {
       AS_CREATED.guestPolicy,
       "should start the class waiting room from the room's guest policy",
     );
+    // A label whose message is missing from the locale shows its id instead.
+    await expect(
+      this.modPage.page.locator(e.preFlightRoomModeSummary),
+      'should label every setting with text, not a message id',
+    ).not.toContainText(/app\.[\w-]+\./);
 
     await this.modPage.waitAndClick(e.preFlightRoomModeMeeting);
     await expectEditables(this.modPage, MEETING_PRESET, 'should start from the meeting preset');
