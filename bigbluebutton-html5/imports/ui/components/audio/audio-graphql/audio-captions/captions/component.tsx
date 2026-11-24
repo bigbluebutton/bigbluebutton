@@ -52,12 +52,14 @@ const intlMessages = defineMessages(messages);
 const DEFAULT_LOCALE_APPLIED_KEY = 'audioCaptionsDefaultLocaleApplied';
 
 interface AudioCaptionsContainerProps {
+  id?: string;
   showTitleLabel?: boolean;
   // In the audio modal, where confirming downloads the on-device language pack
   inAudioModal?: boolean;
 }
 
 interface AudioCaptionsSelectProps {
+  id?: string;
   isTranscriptionEnabled: boolean;
   speechLocale: string;
   speechVoices: string[];
@@ -65,6 +67,7 @@ interface AudioCaptionsSelectProps {
 }
 
 const AudioCaptionsSelect: React.FC<AudioCaptionsSelectProps> = ({
+  id = 'speechSelect',
   isTranscriptionEnabled,
   speechLocale,
   speechVoices,
@@ -107,7 +110,7 @@ const AudioCaptionsSelect: React.FC<AudioCaptionsSelectProps> = ({
 
   const renderSelect = () => (
     <Styled.Select
-      id="speechSelect"
+      id={id}
       onChange={onChange}
       value={speechLocale}
     >
@@ -144,7 +147,7 @@ const AudioCaptionsSelect: React.FC<AudioCaptionsSelectProps> = ({
 
   return showTitleLabel ? (
     <Styled.CaptionsSelector>
-      <label htmlFor="speechSelect" style={{ padding: '0 .5rem' }}>
+      <label htmlFor={id} style={{ padding: '0 .5rem' }}>
         {intl.formatMessage(intlMessages.title)}
       </label>
       {renderSelect()}
@@ -155,6 +158,7 @@ const AudioCaptionsSelect: React.FC<AudioCaptionsSelectProps> = ({
 };
 
 const AudioCaptionsSelectContainer: React.FC<AudioCaptionsContainerProps> = ({
+  id = 'speechSelect',
   showTitleLabel = true,
   inAudioModal = false,
 }) => {
@@ -202,6 +206,7 @@ const AudioCaptionsSelectContainer: React.FC<AudioCaptionsContainerProps> = ({
   return (
     <>
       <AudioCaptionsSelect
+        id={id}
         isTranscriptionEnabled={isEnabled}
         speechLocale={currentUser.speechLocale ?? ''}
         speechVoices={voices || voicesList}

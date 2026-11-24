@@ -591,7 +591,11 @@ class AudioSettings extends React.Component {
       <Styled.FormElement>
         <Styled.LabelSmall htmlFor="audioSettingsCaptionsSelector">
           {intl.formatMessage(intlMessages.captionsSelectorLabel)}
-          <AudioCaptionsSelectContainer showTitleLabel={false} inAudioModal />
+          <AudioCaptionsSelectContainer
+            id="audioSettingsCaptionsSelector"
+            showTitleLabel={false}
+            inAudioModal
+          />
         </Styled.LabelSmall>
       </Styled.FormElement>
     );
@@ -634,7 +638,7 @@ class AudioSettings extends React.Component {
         </Styled.FormElement>
         <Styled.LabelSmallFullWidth htmlFor="audioStreamVolume">
           {intl.formatMessage(intlMessages.streamVolumeLabel)}
-          <AudioStreamVolume stream={stream} />
+          <AudioStreamVolume id="audioStreamVolume" stream={stream} />
         </Styled.LabelSmallFullWidth>
         <Styled.FormElement>
           <Styled.LabelSmall htmlFor="outputDeviceSelector">
