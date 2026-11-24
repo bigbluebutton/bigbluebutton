@@ -43,9 +43,11 @@ The images come from the registry (`docker compose pull`, or the first `up`); no
 
 ## Upgrade
 
-Set `BBB_IMAGE_TAG` (or keep a branch tag), then
+The compose files go with the images: a newer image can need a change in `docker-compose.yml` or `docker/compose/`, so upgrade them together. Take the files from the commit the image tag was built from (the last part of a pinned tag, `v4.1.x-develop-<commit>` or `v4.1.x-develop-<date>-<commit>`; for a tag without a commit, such as `v4.1.x-develop`, that branch or tag itself) by running `install.sh` again with `BBB_BRANCH` set to it, in the directory that contains `bigbluebutton`. It downloads the files again and keeps `.env` and `docker-compose.override.yml`. Then set `BBB_IMAGE_TAG` in `.env` to the tag, and pull and recreate:
 
 ```bash
+curl -fsSL https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/<commit>/docker/compose/install.sh | BBB_BRANCH=<commit> sh -s -- <domain> [email]
+cd bigbluebutton
 docker compose pull
 docker compose up -d --force-recreate
 ```
@@ -67,14 +69,14 @@ Data, in `./data` next to `docker-compose.yml`:
 - `letsencrypt`: `/etc/letsencrypt` (certificate and ACME account);
 - `certs`: your own certificate, if you use one.
 
-Backup: `./data` and `.env`. PostgreSQL (a volume) holds only the state of running meetings, and `init` recreates its databases, so it is not part of a backup. `docker compose down -v` removes it and the other volumes, but not `./data`.
+Backup: `./data`, `.env` and `docker-compose.override.yml`. PostgreSQL (a volume) holds only the state of running meetings, and `init` recreates its databases, so it is not part of a backup. Redis (the `redis` volume) holds the events of recorded meetings until they are archived and the queue of recordings to process; `docker compose down` keeps it. `docker compose down -v` removes it and the other volumes, but not `./data`.
 
 ## Configuration
 
 - `.env` holds the values per server.
+- Local changes go in `docker-compose.override.yml` next to `docker-compose.yml` (compose reads it automatically), not in `docker-compose.yml` or `docker/compose/`: `install.sh` replaces those on an upgrade and never touches the override.
 - bbb-web and bbb-apps-akka get their settings from environment variables in `docker-compose.yml` (see [Environment variables](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/docker/README.md#environment-variables)); bbb-web takes any key of `bigbluebutton.properties` this way.
-- Other bare-metal settings go in the inline files (`livekit.yaml`, `recording.yml`, `bbb-shared-notes-server.yml`) or in `docker/compose/`. Or mount further files at their bare-metal paths (see [Images](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/docker/README.md#images)), e.g. `/etc/bigbluebutton/bbb-apps-akka.conf`.
-- To use your own version of an inline file without editing `docker-compose.yml`, replace it in a `docker-compose.override.yml` next to it (compose reads that file automatically). `!override` is needed: without it compose merges both definitions and rejects `content` and `file` together.
+- Other bare-metal settings are in the inline files (`livekit.yaml`, `recording.yml`, `bbb-shared-notes-server.yml`) and in `docker/compose/`. To change one, use your own version in `docker-compose.override.yml`: mount your file at the same path as a file of `docker/compose/` (further files can be mounted there at their bare-metal paths, see [Images](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/docker/README.md#images), e.g. `/etc/bigbluebutton/bbb-apps-akka.conf`), or replace an inline file, which needs `!override` (without it compose merges both definitions and rejects `content` and `file` together):
 
   ```yaml
   configs:
@@ -83,7 +85,7 @@ Backup: `./data` and `.env`. PostgreSQL (a volume) holds only the state of runni
   ```
 
   A file is used as it is; `${…}` from `.env` is only filled in under `content:`. After changing an inline file, run `docker compose up -d --force-recreate <service>`: a plain `up -d` does not recreate a service when only the content of its config changed.
-- Recording formats: as on a package install, recordings are processed as `presentation` only. The recording image also has `video`, `notes`, `screenshare` and `podcast`. To enable them, add the `steps` to `recording.yml` (in `docker-compose.yml`, or in your own file as above), e.g. for notes and podcast:
+- Recording formats: as on a package install, recordings are processed as `presentation` only. The recording image also has `video`, `notes`, `screenshare` and `podcast`. To enable them, add the `steps` to your own `recording.yml` (as above, starting from the one in `docker-compose.yml`), e.g. for notes and podcast:
 
   ```yaml
   steps:
