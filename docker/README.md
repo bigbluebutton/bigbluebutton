@@ -2,17 +2,18 @@
 
 Container images of the BigBlueButton components, one per package. Each image installs what
 its package (`build/packages-template/<package>/`) installs, at the same paths, and ships the
-package's default configuration. Running them together (compose, Kubernetes, TLS, setup) is
-deployment work and not part of this repository.
+package's default configuration. `docker-compose.yml` in the repository root runs them on one
+server (see "Running with docker compose"); other deployments (Kubernetes, clusters) are not part
+of this repository.
 
 ## Building
 
 `docker-bake.hcl` in the repository root has one target per image:
 
 ```sh
-docker buildx bake --load --set '*.platform=linux/amd64'   # all images, into the local image store
-docker buildx bake web --load --set '*.platform=linux/amd64'
-BBB_IMAGE_REGISTRY=registry.example.com/bbb BBB_IMAGE_TAG=dev docker buildx bake --push
+docker buildx bake -f docker-bake.hcl --load --set '*.platform=linux/amd64'   # all images, into the local image store
+docker buildx bake -f docker-bake.hcl web --load --set '*.platform=linux/amd64'
+BBB_IMAGE_REGISTRY=registry.example.com/bbb BBB_IMAGE_TAG=dev docker buildx bake -f docker-bake.hcl --push
 ```
 
 Images are named `${BBB_IMAGE_REGISTRY}/bbb-<target>:${BBB_IMAGE_TAG}` (defaults
@@ -71,9 +72,10 @@ deployments use their official images.
   record-and-playback) holds the recorded media; `/var/log/bigbluebutton` the recording logs.
 - bbb-web converts office documents by calling `/usr/share/bbb-libreoffice-conversion/convert.sh`
   (`presOfficeConversionExec`); the deployment provides that script.
-- Shared-notes' PDF export calls a runner script (`commandExecution.runnerScript`). The default is
-  upstream's systemd wrapper, which needs systemd, so a deployment configures the runner in its
-  mounted `/etc/bigbluebutton/bbb-shared-notes-server.yml`.
+- Shared-notes' PDF export sends the HTML to `/run/bbb-shared-notes-conversion.sock`
+  (`commandExecution.conversionSocket`), which systemd units serve in a package install. The image
+  has a listener for it, `node bbb-shared-notes-conversion.js`; a deployment runs it as a second
+  container of the image, with the socket's directory shared between both.
 - bbb-graphql-middleware opens 8378 only once its Redis subscription is confirmed and exits when
   it loses it, so a deployment restarts it (restart policy).
 - record-and-playback runs the resque workers by default. The same image runs
@@ -140,3 +142,13 @@ Only these are read; everything else is set in the mounted configuration.
   image sets `0.0.0.0`); an override file cannot change it, as the environment wins.
 - **bbb-html5-client**, **bbb-learning-dashboard**, **bbb-playback**: none.
 - **bbb-nginx**: the base image's `NGINX_ENTRYPOINT_LOCAL_RESOLVERS`, which the image sets.
+
+## Running with docker compose
+
+`docker-compose.yml` runs these images on one server. Installing, configuring and upgrading it
+is described in [Install with Docker Compose](../docs/docs/administration/docker-compose.md), a
+page of the administration documentation.
+
+To run it on your own machine and replace an image with your own build (and the HTML5 client
+with the webpack dev server), see "Develop with Docker Compose" in the
+[development guide](../docs/docs/development/dev-guide.md).

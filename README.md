@@ -15,6 +15,8 @@ We designed BigBlueButton for online learning, it can be used for many other app
 
 The latest version is BigBlueButton 4.0.  You can install BigBlueButton it on Ubuntu 24.04 using [bbb-install.sh](https://github.com/bigbluebutton/bbb-install) within 30 minutes (or your money back 😉).
 
+BigBlueButton 4.1 (in development) can also run on one server with Docker Compose: see [Install with Docker Compose](docs/docs/administration/docker-compose.md).
+
 For full technical documentation of BigBlueButton -- including architecture, features, API, and GreenLight (the default front-end) -- see [https://docs.bigbluebutton.org/](https://docs.bigbluebutton.org/).
 
 BigBlueButton and the BigBlueButton Logo are trademarks of [BigBlueButton Inc](https://bigbluebutton.org).

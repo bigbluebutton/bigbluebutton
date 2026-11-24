@@ -21,6 +21,8 @@ COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/assets ./assets
 COPY package.json package-lock.json blocknote_schema.sql ./
 COPY config/default.yml ./config/
+# PDF conversion for containers, in place of the bbb-shared-notes-conversion systemd units
+COPY docker/bbb-shared-notes-conversion.js ./
 
 # Listen on all interfaces; deployments mount /etc/bigbluebutton/bbb-shared-notes-server.yml
 ENV NODE_ENV=production SERVER_HOST=0.0.0.0

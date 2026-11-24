@@ -122,6 +122,67 @@ We recommend you subscribe to the [bigbluebutton-dev](https://groups.google.com/
 Consider using a Docker setup for a development environment - [https://github.com/bigbluebutton/docker-dev](https://github.com/bigbluebutton/docker-dev)
 It includes all you need to be able to run a local BigBlueButton development environment
 
+#### Alternative - Develop with Docker Compose
+
+`docker-compose.yml` in the repository root runs BigBlueButton from the published container images (see [Install with Docker Compose](/administration/docker-compose) for the requirements). In a checkout of the repository, you can run it on your own machine and replace the image of the component you work on with your own build.
+
+Start from a checkout and a `.env`:
+
+```bash
+git clone https://github.com/bigbluebutton/bigbluebutton.git
+cd bigbluebutton
+git checkout v4.1.x-develop
+```
+
+Run the local Docker Compose setup script:
+
+```bash
+./docker/compose/setup-dev.sh
+```
+
+It fills the empty settings of `.env` (the domain, `BBB_PUBLIC_IP=127.0.0.1` and new secrets) and keeps values already set. It creates a local CA in `data/dev-ca`, limited to the domain by a name constraint, and a certificate for the domain in `data/certs`. It creates a Java truststore with the CA for `bbb-web`, and a `docker-compose.override.yml` that uses it. An existing `docker-compose.override.yml` is left unchanged; the script then prints the two settings to add. Another domain: `./docker/compose/setup-dev.sh <domain>`.
+
+Add `data/dev-ca/rootCA.pem` to the trusted certificates of your browser or operating system. Running the script again keeps the CA, so you trust it only once.
+
+Then start it:
+
+```bash
+docker compose up -d
+```
+
+and open `https://bbb.localhost` (browsers resolve `*.localhost` to the loopback address).
+
+To run your own build of a component, build its image and add its service to `docker-compose.override.yml` (`docker-compose.override.sample.yml` has a block for each), e.g. for bbb-web:
+
+```bash
+BBB_IMAGE_REGISTRY=localhost BBB_IMAGE_TAG=dev docker buildx bake -f docker-bake.hcl --load --set '*.platform=linux/amd64' web
+```
+
+```yaml
+services:
+  web:
+    image: localhost/bbb-web:dev
+    pull_policy: never
+```
+
+Then `docker compose up -d web`.
+
+For the HTML5 client, run the webpack dev server on your machine (Node 24), as `bigbluebutton-html5/run-dev.sh` does: a changed source file is recompiled and reloaded in the browser without a restart.
+
+```bash
+cd bigbluebutton-html5 && npm ci && npm start
+```
+
+`docker/compose/dev/html5.yml` makes nginx proxy `/html5client/` to port 3000 of your machine. Add it in `.env`:
+
+```bash
+COMPOSE_FILE=docker-compose.yml:docker/compose/dev/html5.yml:docker-compose.override.yml
+```
+
+With `COMPOSE_FILE` set, compose reads `docker-compose.override.yml` only when it is listed (and then it must exist). The dev server listens on all interfaces, so it is reachable from your network. If a firewall denies incoming connections, allow port 3000 from the compose network (172.30.82.0/24), e.g. `ufw allow from 172.30.82.0/24 to any port 3000 proto tcp`.
+
+Without Node on your machine, use `docker/compose/dev/html5-container.yml` instead: it runs the dev server in a container. The first start runs `npm ci` into a volume and compiles (about two minutes; until then `/html5client` answers 502).
+
 #### Alternative - add a development environment to a [locally running] working BigBlueButton server
 
 First, you need to install the core development tools.
