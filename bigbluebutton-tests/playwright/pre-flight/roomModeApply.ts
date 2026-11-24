@@ -99,7 +99,7 @@ interface RoutedOperation {
 
 // Every graphql socket of the page goes through here: a message of `operationName` is
 // handed to `intercept` instead of the server, the rest is forwarded as is.
-const routeOperation = async (
+export const routeOperation = async (
   page: PlaywrightPage,
   operationName: string,
   intercept: (operation: RoutedOperation) => void,
