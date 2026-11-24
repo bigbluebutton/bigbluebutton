@@ -10,7 +10,7 @@ base {
     archivesName = 'bbb-pres-check'
 }
 
-task resolveDeps(type: Copy) {
+task resolveDeps(type: Sync) {
     into('lib')
     from configurations.runtimeClasspath
     doLast { println '[bbb:task] Resolved dependencies for pres-checker application' }
