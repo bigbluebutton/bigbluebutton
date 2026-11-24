@@ -74,8 +74,13 @@ class LocalesDropdown extends PureComponent {
           });
 
           return (
-            <MenuItem key={localeItem.locale} value={localeItem.locale} lang={localeItem.locale}>
-              {localeItem.name}{localizedName && localizedName !== '-' && ` - ${localizedName}`}
+            <MenuItem key={localeItem.locale} value={localeItem.locale}>
+              {/* One inline box: as separate flex items, the space before " - " would collapse */}
+              <span>
+                {/* Only the native name is in the target language */}
+                <span lang={localeItem.locale}>{localeItem.name}</span>
+                {localizedName && localizedName !== '-' && ` - ${localizedName}`}
+              </span>
             </MenuItem>
           );
         })}
