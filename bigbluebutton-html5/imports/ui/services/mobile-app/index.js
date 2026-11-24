@@ -125,7 +125,7 @@ import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
             }
             logger.info(`BBB-MOBILE - createOffer called`, {options});
 
-            const stunTurn = await fetchStunTurnServers(Auth._authToken);
+            const stunTurn = await fetchStunTurnServers(Auth.sessionToken);
 
             return await new Promise( (resolve, reject) => {
                 callNativeMethod('createScreenShareOffer', [stunTurn]).then ( sdp => {
