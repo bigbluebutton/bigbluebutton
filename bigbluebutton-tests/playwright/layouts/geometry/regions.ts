@@ -130,6 +130,9 @@ export async function waitForStableGeometry(page: PlaywrightPage, timeout = 20_0
   if (!settled) throw new Error(`layout geometry did not settle within ${timeout} ms`);
 }
 
+// the documented #layout attributes custom CSS and the e2e suite may select (dataset keys)
+const CONTRACT_ATTRIBUTES = ['layout', 'camPosition'];
+
 export interface DiffEntry {
   region: string;
   expected: Box | null | undefined;
@@ -176,8 +179,8 @@ export function diffGeometry(
     }
     want.forEach((box, i) => compare(`${region}[${box.id ?? i}]`, box, got[i]));
   });
-  // #layout's semantic attributes (data-layout, data-cam-position) are part of the contract too
-  Object.keys({ ...expected.attributes, ...actual.attributes }).forEach((name) => {
+  // #layout's contract attributes (data-layout, data-cam-position); attributes a build adds are not compared
+  CONTRACT_ATTRIBUTES.forEach((name) => {
     if (expected.attributes[name] !== actual.attributes[name]) {
       diffs.push({
         region: `#layout[data-${name}]`,
