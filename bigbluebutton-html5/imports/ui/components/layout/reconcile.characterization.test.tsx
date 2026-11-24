@@ -71,7 +71,7 @@ describe('layout managers init() (characterization, recorded as fixtures)', () =
     }
     const update = fake.updaters[fake.updaters.length - 1];
     expect(update).toBeTypeOf('function');
-    const merged = update(inputFor(c)) as Record<string, unknown>;
+    const merged = update(inputFor(c)) as object;
     view.unmount();
     await expect(serialize(merged)).toMatchFileSnapshot(fixturePath(c));
   });

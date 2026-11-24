@@ -1,10 +1,11 @@
 import { INITIAL_INPUT_STATE } from './initState';
+import type { Input } from './layoutTypes';
 import {
   CAMERADOCK_POSITION, DEVICE_TYPE, LAYOUT_TYPE, PANELS,
 } from './enums';
 
-// The cases the layout managers' init() merges were characterized with (reconcile.characterization
-// .test.tsx, against the old managers) and that reconcileLayoutInput must reproduce (reconcile.test.ts).
+// The cases the layout managers' init() merges were characterized with (reconcile.characterization.test.tsx,
+// against the old managers) and that reconcileLayoutInput must reproduce (reconcile.test.ts).
 // Each result is a fixture in __fixtures__/reconcile/<name>.json.
 
 /** an input that differs from the initial one wherever a merge could keep or drop a value */
@@ -213,9 +214,9 @@ export const CASES: ReconcileCase[] = [
   },
 ];
 
-export const inputFor = (c: ReconcileCase) => ({ ...PREV_INPUT, ...c.prev });
+export const inputFor = (c: ReconcileCase) => ({ ...PREV_INPUT, ...c.prev }) as unknown as Input;
 
 export const fixturePath = (c: ReconcileCase) => `./__fixtures__/reconcile/${c.name}.json`;
 
 /** a stable text for a merged input: the browser size depends on the test window */
-export const serialize = (input: Record<string, unknown>) => `${JSON.stringify({ ...input, browser: '<window>' }, null, 2)}\n`;
+export const serialize = (input: object) => `${JSON.stringify({ ...input, browser: '<window>' }, null, 2)}\n`;
