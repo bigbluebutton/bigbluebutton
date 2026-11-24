@@ -120,3 +120,18 @@ export const nextHandStillRaisedStage = (
   }
   return current;
 };
+
+const PSEUDO_DEVICE_IDS = ['', 'default', 'communications'];
+
+export const findAddedInputDevices = (
+  previous: MediaDeviceInfo[] | null,
+  current: MediaDeviceInfo[],
+): MediaDeviceInfo[] => {
+  if (!previous) return [];
+  const known = new Set(previous.map((device) => device.deviceId));
+  return current.filter((device) => (
+    device.kind === 'audioinput'
+    && !PSEUDO_DEVICE_IDS.includes(device.deviceId)
+    && !known.has(device.deviceId)
+  ));
+};

@@ -101,6 +101,9 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           enabled: true,
           cooldownMs: 120000,
         },
+        newMicrophone: {
+          enabled: true,
+        },
         speechNotTranscribed: {
           enabled: true,
           speechThresholdDb: -50,

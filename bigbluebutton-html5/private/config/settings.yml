@@ -176,6 +176,9 @@ public:
       handStillRaised:
         enabled: true
         cooldownMs: 120000
+      # Offers to switch to a microphone connected while the user is in audio.
+      newMicrophone:
+        enabled: true
       # Shows a hint when browser transcription is on and the user keeps talking
       # but nothing gets transcribed: the browser may be using another microphone,
       # or the background is too noisy. It shows again only after a transcription.

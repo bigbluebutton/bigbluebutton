@@ -2,6 +2,7 @@ export type RuleId =
   | 'talkingWhileMuted'
   | 'noMicSignal'
   | 'handStillRaised'
+  | 'newMicrophone'
   | 'speechNotTranscribed';
 
 export type CooldownPolicy =
@@ -54,6 +55,7 @@ export interface LocalAudioState {
   isListenOnly: boolean;
   isEchoTest: boolean;
   isTalking: boolean;
+  inputDeviceId: string | null;
   isConnected: boolean;
 }
 
