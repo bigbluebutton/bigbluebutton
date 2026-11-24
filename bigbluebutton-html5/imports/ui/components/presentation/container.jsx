@@ -16,9 +16,10 @@ import {
 import {
   layoutSelect,
   layoutSelectInput,
-  layoutSelectOutput,
   layoutDispatch,
 } from '../layout/context';
+import { useMediaBoxCollapse } from '../layout/shell/context';
+import useMediaOnlyBridge from '../layout/shell/mediaOnlyBridge';
 import { DEVICE_TYPE } from '/imports/ui/components/layout/enums';
 import MediaService from '../media/service';
 import {
@@ -241,7 +242,8 @@ const PresentationContainer = ({
   const cameraDock = layoutSelectInput((i) => i.cameraDock);
   const [presentationRef, presentationSize] = useElementSize();
   const isRTL = layoutSelect((i) => i.isRTL);
-  const presentation = layoutSelectOutput((i) => i.presentation);
+  const mediaBoxCollapse = useMediaBoxCollapse();
+  const mediaOnlyBox = useMediaOnlyBridge('presentation');
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const deviceType = layoutSelect((i) => i.deviceType);
   const layoutType = layoutSelect((i) => i.layoutType);
@@ -270,7 +272,7 @@ const PresentationContainer = ({
   const shouldRestoreOnUpdate = userIsPresenter
     && currentPresentationId === prevPresentationId ? false : restoreOnUpdate;
 
-  if (layoutType === 'videoFocus' && presentation?.width === 0) return null;
+  if (layoutType === 'videoFocus' && mediaBoxCollapse === 'zero') return null;
 
   const multiUserWhiteboardEnabled = currentMeeting?.usersPolicies?.multiUserWhiteboardEnabled
     ?? false;
@@ -287,7 +289,8 @@ const PresentationContainer = ({
           darkTheme,
           userIsPresenter,
           isRTL,
-          presentationBounds: presentation,
+          mediaBoxCollapse,
+          mediaOnlyBox,
           fullscreenContext,
           fullscreenElementId,
           isTabledLandscape: deviceType === DEVICE_TYPE.TABLET_LANDSCAPE,

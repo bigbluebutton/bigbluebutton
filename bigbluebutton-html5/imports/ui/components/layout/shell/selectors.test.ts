@@ -5,16 +5,20 @@ import {
   effectiveCameraDockPosition,
   isCameraDockDraggable,
   isMediaContentOff,
+  isMediaBesideDock,
+  isMediaFullscreen,
   isSideBySideCamerasEnforced,
+  mediaBoxCollapse,
   resizableCameraDockEdges,
   ShellInputs,
 } from './selectors';
-import { CAMERADOCK_POSITION, DEVICE_TYPE } from '../enums';
+import { CAMERADOCK_POSITION, DEVICE_TYPE, LAYOUT_TYPE } from '../enums';
 
 // The semantic decisions the layout engine made on each pass, as pure functions. Each case mirrors a
 // branch of unifiedLayout.jsx / layoutEngine.jsx on v4.0.x-develop.
 
 const base: ShellInputs = {
+  layoutType: LAYOUT_TYPE.UNIFIED_LAYOUT,
   deviceType: DEVICE_TYPE.DESKTOP,
   isRTL: false,
   numCameras: 1,
@@ -34,6 +38,9 @@ const base: ShellInputs = {
   storedDockWidth: 0,
   storedDockHeight: 0,
   sidebarContentIsOpen: true,
+  sidebarContentAuxiliaryIsOpen: false,
+  fullscreenElement: '',
+  isDragging: false,
 };
 
 const at = (overrides: Partial<ShellInputs>): ShellInputs => ({ ...base, ...overrides });
@@ -98,8 +105,69 @@ describe('layout shell selectors', () => {
 
     it('does not drag on phones, when locked side by side, or with the presentation closed', () => {
       expect(isCameraDockDraggable(at({ deviceType: DEVICE_TYPE.MOBILE }))).toBe(false);
+      // the engine tests the plain tablet type only (layoutEngine.jsx isTablet)
+      expect(isCameraDockDraggable(at({ deviceType: DEVICE_TYPE.TABLET }))).toBe(false);
+      expect(isCameraDockDraggable(at({ fullscreenGroup: 'webcams' }))).toBe(false);
       expect(isCameraDockDraggable(at({ isPhoneLandscape: true }))).toBe(false);
       expect(isCameraDockDraggable(at({ presentationIsOpen: false }))).toBe(false);
+    });
+  });
+
+  describe('mediaBoxCollapse (calculatesMediaBounds reduced to whether it has an area)', () => {
+    it('has a box in unified with the presentation open, and in fullscreen', () => {
+      expect(mediaBoxCollapse(base)).toBe('none');
+      expect(mediaBoxCollapse(at({ layoutType: 'someTypo' }))).toBe('none');
+      expect(mediaBoxCollapse(at({ fullscreenElement: 'Screenshare', fullscreenGroup: 'webcams' }))).toBe('none');
+    });
+
+    it('is empty with the presentation closed or a sidebar open on a phone', () => {
+      expect(mediaBoxCollapse(at({ presentationIsOpen: false }))).toBe('zero');
+      expect(mediaBoxCollapse(at({ deviceType: DEVICE_TYPE.MOBILE }))).toBe('zero');
+      expect(mediaBoxCollapse(at({
+        deviceType: DEVICE_TYPE.MOBILE, sidebarContentIsOpen: false,
+      }))).toBe('none');
+      expect(mediaBoxCollapse(at({
+        deviceType: DEVICE_TYPE.MOBILE, sidebarContentIsOpen: false, sidebarContentAuxiliaryIsOpen: true,
+      }))).toBe('zero');
+    });
+
+    it('is squeezed out by a dock that fills the window or the area', () => {
+      const webcams = { fullscreenGroup: 'webcams' };
+      expect(mediaBoxCollapse(at(webcams))).toBe('negative');
+      expect(mediaBoxCollapse(at({ ...webcams, dockPosition: CAMERADOCK_POSITION.CONTENT_BOTTOM }))).toBe('negative');
+      expect(mediaBoxCollapse(at({ ...webcams, dockPosition: CAMERADOCK_POSITION.CONTENT_LEFT }))).toBe('zero');
+      expect(mediaBoxCollapse(at({ ...webcams, dockPosition: CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM }))).toBe('none');
+      expect(mediaBoxCollapse(at({ ...webcams, isDragging: true }))).toBe('none');
+      expect(mediaBoxCollapse(at({
+        ...webcams, numCameras: 0, slidesLength: 0, hasScreenShare: true,
+      }))).toBe('none');
+      const noMedia = { slidesLength: 0 };
+      expect(mediaBoxCollapse(at({ ...noMedia, dockPosition: CAMERADOCK_POSITION.CONTENT_RIGHT }))).toBe('zero');
+      expect(mediaBoxCollapse(at(noMedia))).toBe('negative');
+    });
+
+    it('follows each special layout', () => {
+      expect(mediaBoxCollapse(at({ layoutType: LAYOUT_TYPE.CAMERAS_ONLY }))).toBe('zero');
+      expect(mediaBoxCollapse(at({ layoutType: LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY }))).toBe('zero');
+      expect(mediaBoxCollapse(at({ layoutType: LAYOUT_TYPE.PRESENTATION_ONLY }))).toBe('none');
+      expect(mediaBoxCollapse(at({
+        layoutType: LAYOUT_TYPE.PRESENTATION_ONLY, presentationIsOpen: false,
+      }))).toBe('zero');
+      expect(mediaBoxCollapse(at({ layoutType: LAYOUT_TYPE.MEDIA_ONLY }))).toBe('none');
+      expect(mediaBoxCollapse(at({ layoutType: LAYOUT_TYPE.MEDIA_ONLY, slidesLength: 0 }))).toBe('zero');
+    });
+
+    it('makes room for the dock with cameras, unless dragging, in fullscreen or presentationOnly', () => {
+      expect(isMediaBesideDock(base)).toBe(true);
+      expect(isMediaBesideDock(at({ numCameras: 0 }))).toBe(false);
+      expect(isMediaBesideDock(at({ isDragging: true }))).toBe(false);
+      expect(isMediaBesideDock(at({ fullscreenElement: 'Presentation' }))).toBe(false);
+      expect(isMediaBesideDock(at({ layoutType: LAYOUT_TYPE.PRESENTATION_ONLY }))).toBe(false);
+    });
+
+    it('knows the media regions that go fullscreen', () => {
+      expect(isMediaFullscreen(at({ fullscreenElement: 'GenericContent' }))).toBe(true);
+      expect(isMediaFullscreen(at({ fullscreenElement: 'webcams' }))).toBe(false);
     });
   });
 

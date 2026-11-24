@@ -24,6 +24,7 @@ import Styled from './styles';
 import LayoutEngine from '../layout/layout-manager/layoutEngine';
 import useLayoutShell from '../layout/shell/useLayoutShell';
 import LayoutShellStyles from '../layout/shell/styles';
+import { LayoutShellContext } from '../layout/shell/context';
 import NavBarContainer from '../nav-bar/container';
 import ConnectionStatusContainer from '../connection-status/component';
 import SidebarNavigationContainer from '../sidebar-navigation/container';
@@ -149,67 +150,71 @@ const App: React.FC<AppProps> = ({
         <LayoutObserver />
         <GlobalStyles />
         <LayoutShellStyles />
-        <Styled.Layout
-          id="layout"
-          {...shell.attributes}
-          style={{
-            width: '100%',
-            height: '100%',
-            ...shell.style,
-          }}
-        >
-          <ActivityCheckContainer />
-          <DocumentTitleManager />
-          <ConnectionStatusContainer />
-          <RequestUnmuteContainer />
-          <RequestCameraContainer />
-          <ScreenReaderAlertContainer />
-          <BannerBarContainer />
-          <NotificationsBarContainer />
-          <SidebarNavigationContainer />
-          <SidebarContentContainer isSharedNotesPinned={isSharedNotesPinned} />
-          <SidebarContentAuxiliaryContainer />
-          <NavBarContainer main="new" />
-          <WebcamContainer />
-          {!isNonMediaLayout && <ExternalVideoPlayerContainer />}
-          <GenericContentMainAreaContainer
-            genericMainContentId={genericMainContentId}
-          />
-          {shouldShowPresentation ? (
-            <PresentationContainer
-              darkTheme={darkTheme}
-              presentationIsOpen={presentationIsOpen}
+        <LayoutShellContext.Provider value={shell}>
+          <Styled.Layout
+            id="layout"
+            // the data attributes are data (layout/shell/shellState.ts), their set varies with the state
+            // eslint-disable-next-line react/jsx-props-no-spreading
+            {...shell.attributes}
+            style={{
+              width: '100%',
+              height: '100%',
+              ...shell.style,
+            }}
+          >
+            <ActivityCheckContainer />
+            <DocumentTitleManager />
+            <ConnectionStatusContainer />
+            <RequestUnmuteContainer />
+            <RequestCameraContainer />
+            <ScreenReaderAlertContainer />
+            <BannerBarContainer />
+            <NotificationsBarContainer />
+            <SidebarNavigationContainer />
+            <SidebarContentContainer isSharedNotesPinned={isSharedNotesPinned} />
+            <SidebarContentAuxiliaryContainer />
+            <NavBarContainer main="new" />
+            <WebcamContainer />
+            {!isNonMediaLayout && <ExternalVideoPlayerContainer />}
+            <GenericContentMainAreaContainer
+              genericMainContentId={genericMainContentId}
             />
-          ) : null}
-          {!isNonMediaLayout && (
+            {shouldShowPresentation ? (
+              <PresentationContainer
+                darkTheme={darkTheme}
+                presentationIsOpen={presentationIsOpen}
+              />
+            ) : null}
+            {!isNonMediaLayout && (
             <ScreenshareContainer shouldShowScreenshare={shouldShowScreenshare} />
-          )}
-          {isSharedNotesPinned ? (
-            <NotesContainer
-              renderMode={NotesRenderMode.PINNED}
-            />
-          ) : null}
-          <AudioCaptionsSpeechContainer />
-          <AudioCaptionsLiveContainer />
-          {!hideNotificationToasts && isNotificationEnabled && (
+            )}
+            {isSharedNotesPinned ? (
+              <NotesContainer
+                renderMode={NotesRenderMode.PINNED}
+              />
+            ) : null}
+            <AudioCaptionsSpeechContainer />
+            <AudioCaptionsLiveContainer />
+            {!hideNotificationToasts && isNotificationEnabled && (
             <PresentationUploaderToastContainer intl={intl} />
-          )}
-          <BreakoutJoinConfirmationContainerGraphQL />
-          <LiveKitMembershipsManager />
-          <AudioContainer currentUserHasVoice={currentUserHasVoice} />
-          {!hideNotificationToasts && isNotificationEnabled && (
+            )}
+            <BreakoutJoinConfirmationContainerGraphQL />
+            <LiveKitMembershipsManager />
+            <AudioContainer currentUserHasVoice={currentUserHasVoice} />
+            {!hideNotificationToasts && isNotificationEnabled && (
             <ToastContainer rtl />
-          )}
-          <ChatAlertContainerGraphql />
-          {isRaiseHandEnabled && <RaiseHandNotifier />}
-          <ManyWebcamsNotifier />
-          <PollingContainer />
-          <WakeLockContainer />
-          {renderActionsBar()}
-          <EmojiRainContainer />
-          <VoiceActivityAdapter />
-          <LiveKitVoiceActivityAdapter />
-        </Styled.Layout>
+            )}
+            <ChatAlertContainerGraphql />
+            {isRaiseHandEnabled && <RaiseHandNotifier />}
+            <ManyWebcamsNotifier />
+            <PollingContainer />
+            <WakeLockContainer />
+            {renderActionsBar()}
+            <EmojiRainContainer />
+            <VoiceActivityAdapter />
+            <LiveKitVoiceActivityAdapter />
+          </Styled.Layout>
+        </LayoutShellContext.Provider>
         <RequestPresenterContainer />
       </>
     );
@@ -226,22 +231,26 @@ const App: React.FC<AppProps> = ({
       <LayoutObserver />
       <GlobalStyles />
       <LayoutShellStyles />
-      <Styled.Layout
-        id="layout"
-        {...shell.attributes}
-        style={{
-          width: '100%',
-          height: '100%',
-          ...shell.style,
-        }}
-      >
-        <ConnectionStatusContainer />
-        <ScreenReaderAlertContainer />
-        <PresentationContainer
-          darkTheme={darkTheme}
-          presentationIsOpen={presentationIsOpen}
-        />
-      </Styled.Layout>
+      <LayoutShellContext.Provider value={shell}>
+        <Styled.Layout
+          id="layout"
+          // the data attributes are data (layout/shell/shellState.ts), their set varies with the state
+          // eslint-disable-next-line react/jsx-props-no-spreading
+          {...shell.attributes}
+          style={{
+            width: '100%',
+            height: '100%',
+            ...shell.style,
+          }}
+        >
+          <ConnectionStatusContainer />
+          <ScreenReaderAlertContainer />
+          <PresentationContainer
+            darkTheme={darkTheme}
+            presentationIsOpen={presentationIsOpen}
+          />
+        </Styled.Layout>
+      </LayoutShellContext.Provider>
     </>
   );
 };

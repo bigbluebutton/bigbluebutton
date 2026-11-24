@@ -204,7 +204,6 @@ class Presentation extends PureComponent {
       restoreOnUpdate,
       layoutContextDispatch,
       userIsPresenter,
-      presentationBounds,
       numCameras,
       intl,
       totalPages,
@@ -224,7 +223,6 @@ class Presentation extends PureComponent {
     } = this.state;
     const {
       numCameras: prevNumCameras,
-      presentationBounds: prevPresentationBounds,
       presentationAreaSize: prevPresentationAreaSize,
     } = prevProps;
     const { presentationAreaSize } = this.props;
@@ -256,8 +254,7 @@ class Presentation extends PureComponent {
         !== prevPresentationAreaSize?.presentationAreaWidth
       || presentationAreaSize?.presentationAreaHeight
         !== prevPresentationAreaSize?.presentationAreaHeight;
-    if (presentationBounds !== prevPresentationBounds
-      || areaChanged
+    if (areaChanged
       || (!presentationWidth && !presentationHeight)) {
       this.onResize();
     }
@@ -665,7 +662,6 @@ class Presentation extends PureComponent {
       currentSlide,
       slidePosition,
       isRTL = false,
-      presentationBounds,
       fullscreenContext,
       currentPresentationId,
       intl,
@@ -680,6 +676,8 @@ class Presentation extends PureComponent {
       refetchInitialPageAnnotations,
       restoreOnUpdate,
       presentationAreaSize,
+      mediaBoxCollapse,
+      mediaOnlyBox,
     } = this.props;
 
     const {
@@ -724,16 +722,15 @@ class Presentation extends PureComponent {
     ${intl.formatMessage(intlMessages.slideContentEnd)}`
       : intl.formatMessage(intlMessages.noSlideContent);
 
-    const presentationZIndex = fullscreenContext ? presentationBounds.zIndex : undefined;
+    // the engine raised the media box to 99 in fullscreen; it applied only to the fullscreen element
+    const presentationZIndex = fullscreenContext ? 99 : undefined;
 
     const APP_CRASH_METADATA = {
       logCode: 'whiteboard_crash',
       logMessage: 'Possible whiteboard crash',
     };
-    const presentationIsHidden = !presentationBounds
-      || presentationBounds.width === 0
-      || presentationBounds.height === 0;
-    if (!presentationIsOpen || presentationIsHidden) return null;
+    // the presentation unmounts while the media box has no area, as it did with a zero width or height
+    if (!presentationIsOpen || mediaBoxCollapse === 'zero') return null;
 
     const areaWidth = presentationAreaSize?.presentationAreaWidth ?? 0;
     const areaHeight = presentationAreaSize?.presentationAreaHeight ?? 0;
@@ -745,15 +742,11 @@ class Presentation extends PureComponent {
           className="bbb-presentation"
           role="region"
           data-test="presentationContainer"
+          data-layout-region="presentation"
           ref={this.attachPresentationContainer}
           isRTL={isRTL}
           style={{
-            top: presentationBounds.top,
-            left: presentationBounds.left,
-            right: presentationBounds.right,
-            width: presentationBounds.width,
-            height: presentationBounds.height,
-            display: !presentationIsOpen ? 'none' : 'flex',
+            ...mediaOnlyBox,
             overflow: 'hidden',
             zIndex: presentationZIndex,
             background: null,
@@ -900,14 +893,9 @@ Presentation.propTypes = {
   presentationIsOpen: PropTypes.bool,
   totalPages: PropTypes.number.isRequired,
   isRTL: PropTypes.bool,
-  presentationBounds: PropTypes.shape({
-    top: PropTypes.number,
-    left: PropTypes.number,
-    right: PropTypes.number,
-    width: PropTypes.number,
-    height: PropTypes.number,
-    zIndex: PropTypes.number,
-  }),
+  mediaBoxCollapse: PropTypes.oneOf(['none', 'zero', 'negative']),
+  // TEMPORARY: the engine's box in the mediaOnly layout
+  mediaOnlyBox: PropTypes.shape({}),
   restoreOnUpdate: PropTypes.bool.isRequired,
   numCameras: PropTypes.number.isRequired,
   intl: PropTypes.shape({
@@ -933,7 +921,8 @@ Presentation.defaultProps = {
   slidePosition: undefined,
   presentationAreaSize: undefined,
   presentationRef: undefined,
-  presentationBounds: undefined,
+  mediaBoxCollapse: 'none',
+  mediaOnlyBox: undefined,
   downloadPresentationUri: undefined,
   userIsPresenter: false,
   presentationIsDownloadable: false,

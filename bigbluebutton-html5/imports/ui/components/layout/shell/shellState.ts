@@ -4,13 +4,15 @@ import {
   cameraDockState,
   effectiveCameraDockPosition,
   isMediaContentOff,
+  isMediaBesideDock,
+  isMediaFullscreen,
   isSideBySideCamerasEnforced,
+  mediaBoxCollapse,
   ShellInputs,
 } from './selectors';
 
 /** Everything the CSS layout needs from the layout state: semantic flags and the sizes the user chose. */
 export interface ShellState extends ShellInputs {
-  layoutType: string;
   /** an enforced layout is still loading (waitLayout): the layout type is not known yet */
   layoutPending: boolean;
   hasBanner: boolean;
@@ -21,10 +23,7 @@ export interface ShellState extends ShellInputs {
   sidebarNavigationIsOpen: boolean;
   /** the width the user dragged the sidebar to, 0 when never resized */
   sidebarContentWidth: number;
-  sidebarContentAuxiliaryIsOpen: boolean;
   sidebarContentAuxiliaryWidth: number;
-  fullscreenElement: string;
-  isDragging: boolean;
   /** the camera grid size the video list computed, for the drag preview */
   cameraGridWidth: number;
   cameraGridHeight: number;
@@ -34,8 +33,6 @@ export interface ShellOutput {
   attributes: Record<string, string>;
   style: Record<string, string>;
 }
-
-const MEDIA_FULLSCREEN_ELEMENTS = ['Presentation', 'Screenshare', 'ExternalVideo', 'GenericContent'];
 
 const navBarVariant = (s: ShellState) => {
   if (!s.hasNavBar) return 'hidden';
@@ -58,7 +55,8 @@ export const shellState = (s: ShellState): ShellOutput => {
     'data-phone-landscape': s.isPhoneLandscape,
     'data-dragging': s.isDragging,
     'data-resizing': s.isResizing,
-    'data-fullscreen-media': MEDIA_FULLSCREEN_ELEMENTS.includes(s.fullscreenElement),
+    'data-fullscreen-media': isMediaFullscreen(s),
+    'data-media-beside-dock': isMediaBesideDock(s),
   };
   const attributes: Record<string, string> = {};
   if (!s.layoutPending) attributes['data-shell-layout'] = s.layoutType;
@@ -71,6 +69,7 @@ export const shellState = (s: ShellState): ShellOutput => {
   });
   attributes['data-dock'] = effectiveCameraDockPosition(s);
   attributes['data-dock-state'] = cameraDockState(s);
+  attributes['data-media-box'] = mediaBoxCollapse(s);
 
   const style: Record<string, string> = {};
   if (s.sidebarContentWidth > 0) style['--bbb-sidebar-content-size'] = `${s.sidebarContentWidth}px`;

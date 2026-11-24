@@ -15,19 +15,16 @@ import {
 import {
   layoutSelectInput,
   layoutDispatch,
-  layoutSelectOutput,
 } from '/imports/ui/components/layout/context';
+import { useMediaBoxCollapse } from '/imports/ui/components/layout/shell/context';
+import useMediaOnlyBridge from '/imports/ui/components/layout/shell/mediaOnlyBridge';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import Styled from './styles';
 import { PIN_NOTES } from './mutations';
 import useEjectPresentationAreaContent from '/imports/ui/core/hooks/useEjectPresentationAreaContent';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
-import {
-  SharedNotes,
-  Output,
-  Input,
-} from '/imports/ui/components/layout/layoutTypes';
+import { Input } from '/imports/ui/components/layout/layoutTypes';
 import { NotesRenderMode, sidebarContentToIgnoreDelay } from './constants';
 import { NotesRenderModeType } from './types';
 import { NOTES_UNMOUNT_DELAY } from './service';
@@ -55,7 +52,10 @@ interface NotesGraphqlProps {
   isOnMediaArea: boolean;
   isVisible: boolean;
   padId: string;
-  sharedNotesOutput: SharedNotes;
+  /** pinned, and the media box has no area (the engine gave the notes a zero width or height) */
+  isMediaBoxEmpty: boolean;
+  /** TEMPORARY: the engine's box in the mediaOnly layout */
+  mediaOnlyBox?: React.CSSProperties;
   amIPresenter: boolean;
   ignoreDelayforUnmount: boolean;
   handlePinSharedNotes: (pinned: boolean) => void;
@@ -67,7 +67,8 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
     isOnMediaArea,
     isVisible,
     padId,
-    sharedNotesOutput,
+    isMediaBoxEmpty,
+    mediaOnlyBox,
     amIPresenter,
     ignoreDelayforUnmount,
     handlePinSharedNotes,
@@ -77,7 +78,7 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const intl = useIntl();
 
-  const isHidden = (isOnMediaArea && (sharedNotesOutput.width === 0 || sharedNotesOutput.height === 0))
+  const isHidden = (isOnMediaArea && isMediaBoxEmpty)
     || (!isVisible && !ignoreDelayforUnmount);
 
   // Shared between the kebab menu (opens the modal) and the BlockNote editor
@@ -126,28 +127,14 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
     />
   );
 
-  const {
-    height,
-    width,
-    top,
-    left,
-    right,
-    zIndex,
-  } = sharedNotesOutput;
-
-  const cssProps = {
-    height,
-    width,
-    top,
-    left,
-    right,
-    zIndex,
-  };
+  // the engine never dispatched a z-index for the notes: the initial 1
+  const cssProps = { ...mediaOnlyBox, zIndex: 1 };
 
   return (shouldRenderNotes || shouldShowSharedNotesOnPresentationArea) && (
     <SharedNotesImportContext.Provider value={importContextValue}>
       <Styled.PanelContent
         data-test="notes"
+        data-layout-region={isOnMediaArea ? 'pinned-notes' : undefined}
         isOnMediaArea={isOnMediaArea}
         isHidden={isHidden}
         style={isOnMediaArea ? cssProps : {}}
@@ -187,7 +174,8 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
     componentsFlags: meeting.componentsFlags,
   }));
 
-  const sharedNotesOutput = layoutSelectOutput((i: Output) => i.sharedNotes);
+  const mediaBoxCollapse = useMediaBoxCollapse();
+  const mediaOnlyBox = useMediaOnlyBridge('sharedNotes');
   const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
   const NOTES_CONFIG = window.meetingClientSettings.public.notes;
   const { data: padIdData } = useQuery<GetPadIdQueryResponse>(
@@ -231,7 +219,8 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
       padId={padId}
       ignoreDelayforUnmount={sidebarContentToIgnoreDelay.includes(sidebarContent.sidebarContentPanel)
         || (isOnMediaArea && !!isGridLayout)}
-      sharedNotesOutput={sharedNotesOutput}
+      isMediaBoxEmpty={mediaBoxCollapse === 'zero'}
+      mediaOnlyBox={mediaOnlyBox}
       amIPresenter={amIPresenter}
       handlePinSharedNotes={handlePinSharedNotes}
       shouldShowSharedNotesOnPresentationArea={shouldShowSharedNotesOnPresentationArea}

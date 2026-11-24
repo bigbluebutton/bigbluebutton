@@ -55,6 +55,7 @@ describe('shellState', () => {
       'data-has-slides': '',
       'data-dock': 'contentTop',
       'data-dock-state': 'hidden',
+      'data-media-box': 'none',
     });
     expect(at({}).style).toEqual({});
   });

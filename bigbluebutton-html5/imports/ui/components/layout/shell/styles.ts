@@ -166,6 +166,152 @@ const LayoutShellStyles = createGlobalStyle`
     height: 100%;
     z-index: 11;
   }
+
+  /* camera dock size along its axis (calculatesCameraDockBounds): the user's size or 20% of the media
+     area, at least 120 px and leaving 120 px; min(max()) because the engine inverts when the area is
+     under 240 px. Locked side by side on a phone: 25%, never under 120 px. */
+  #layout {
+    --bbb-dock-positioned-h: min(
+      max(var(--bbb-camera-dock-size, calc(var(--bbb-media-height) * 0.2)), 120px),
+      calc(var(--bbb-media-height) - 120px)
+    );
+    --bbb-dock-positioned-w: min(
+      max(var(--bbb-camera-dock-size, calc(var(--bbb-media-width) * 0.2)), 120px),
+      calc(var(--bbb-media-width) - 120px)
+    );
+    --bbb-dock-h: 0px;
+    --bbb-dock-w: 0px;
+  }
+  #layout[data-dock-state="positioned"][data-dock="contentTop"],
+  #layout[data-dock-state="positioned"][data-dock="contentBottom"] {
+    --bbb-dock-h: var(--bbb-dock-positioned-h);
+  }
+  #layout[data-dock-state="positioned"][data-dock="contentLeft"],
+  #layout[data-dock-state="positioned"][data-dock="contentRight"] {
+    --bbb-dock-w: var(--bbb-dock-positioned-w);
+  }
+  #layout[data-dock-state="positioned"][data-dock-enforced] {
+    --bbb-dock-w: min(
+      max(calc(var(--bbb-media-width) * 0.25), 120px),
+      max(calc(var(--bbb-media-width) - 120px), 120px)
+    );
+  }
+  #layout[data-dock-state="fill"] {
+    --bbb-dock-h: var(--bbb-media-height);
+    --bbb-dock-w: var(--bbb-media-width);
+  }
+  #layout[data-dock-state="fullscreen"] {
+    --bbb-dock-h: 100%;
+    --bbb-dock-w: 100%;
+  }
+
+  /* the media box shared by the presentation, screen share, external video, plugin content and pinned
+     notes (unifiedLayout calculatesMediaBounds). Without cameras, or while the dock is dragged, it is the
+     working box; the --bbb-mb-* properties hold the branch, the regions read them. */
+  #layout {
+    --bbb-mb-top: calc(var(--bbb-navbar-height) + var(--bbb-banners));
+    --bbb-mb-left: var(--bbb-sidebar-space);
+    --bbb-mb-right: auto;
+    --bbb-mb-width: var(--bbb-work-width);
+    --bbb-mb-height: var(--bbb-work-height);
+    /* RTL only: the media shifts by the side dock's room (horizontalCameraDiff), whatever the branch */
+    --bbb-hcd: 0px;
+  }
+  #layout[data-dock="contentLeft"] { --bbb-hcd: calc(var(--bbb-dock-w) + 20px); }
+  #layout[data-dock="contentRight"] { --bbb-hcd: 20px; }
+  #layout[data-rtl] {
+    --bbb-mb-left: auto;
+    --bbb-mb-right: calc(var(--bbb-sidebar-space) + var(--bbb-hcd));
+  }
+
+  /* beside the dock (cameras on, no dock being dragged, no media in fullscreen): 10 px from a top or
+     bottom dock (the bottom one pulls the media 10 px up into the nav bar), 20 px from a side dock */
+  #layout[data-media-beside-dock][data-dock="contentTop"],
+  #layout[data-media-beside-dock][data-dock="contentBottom"] {
+    --bbb-mb-height: max(0px, calc(var(--bbb-work-height) - var(--bbb-dock-h) - 10px));
+  }
+  #layout[data-media-beside-dock][data-dock="contentTop"] {
+    --bbb-mb-top: calc(var(--bbb-navbar-height) + var(--bbb-dock-h) + 10px + var(--bbb-banners));
+  }
+  #layout[data-media-beside-dock][data-dock="contentBottom"] {
+    --bbb-mb-top: calc(var(--bbb-navbar-height) - 10px + var(--bbb-banners));
+  }
+  /* a negative height is dropped by the browser and the region keeps the height it had beside the dock */
+  #layout[data-media-beside-dock][data-media-box="negative"] {
+    --bbb-mb-height: max(0px, calc(var(--bbb-work-height) - var(--bbb-dock-positioned-h) - 10px));
+  }
+  #layout[data-media-beside-dock][data-dock="contentLeft"],
+  #layout[data-media-beside-dock][data-dock="contentRight"] {
+    --bbb-mb-width: max(0px, calc(var(--bbb-work-width) - var(--bbb-dock-w) - 20px));
+  }
+  #layout[data-media-beside-dock][data-dock="contentLeft"]:not([data-rtl]) {
+    --bbb-mb-left: calc(var(--bbb-sidebar-space) + var(--bbb-work-width) - var(--bbb-mb-width));
+  }
+  #layout[data-media-beside-dock][data-dock="contentRight"][data-rtl] {
+    --bbb-mb-right: calc(var(--bbb-sidebar-space) - 20px + var(--bbb-hcd));
+  }
+
+  /* presentationOnly: the media area, not the working box, and no dock to make room for */
+  #layout[data-shell-layout="presentationOnly"] {
+    --bbb-mb-top: var(--bbb-media-top);
+    --bbb-mb-width: var(--bbb-media-width);
+    --bbb-mb-height: var(--bbb-media-height);
+    --bbb-hcd: 0px;
+  }
+  #layout[data-shell-layout="presentationOnly"][data-rtl] {
+    --bbb-mb-right: var(--bbb-sidebar-space);
+  }
+
+  /* a media region in fullscreen takes the window (in RTL still shifted by a side dock's room) */
+  #layout[data-fullscreen-media] {
+    --bbb-mb-top: 0px;
+    --bbb-mb-left: 0px;
+    --bbb-mb-width: 100%;
+    --bbb-mb-height: 100%;
+  }
+  #layout[data-fullscreen-media][data-rtl] {
+    --bbb-mb-left: auto;
+    --bbb-mb-right: var(--bbb-hcd);
+  }
+
+  #layout [data-layout-region="presentation"],
+  #layout [data-layout-region="screenshare"],
+  #layout [data-layout-region="external-video"],
+  #layout [data-layout-region="generic-content"],
+  #layout [data-layout-region="pinned-notes"] {
+    position: absolute;
+    top: var(--bbb-mb-top);
+    left: var(--bbb-mb-left);
+    right: var(--bbb-mb-right);
+    width: var(--bbb-mb-width);
+    height: var(--bbb-mb-height);
+  }
+  #layout[data-media-box="zero"] [data-layout-region="screenshare"],
+  #layout[data-media-box="zero"] [data-layout-region="external-video"],
+  #layout[data-media-box="zero"] [data-layout-region="generic-content"],
+  #layout[data-media-box="zero"] [data-layout-region="pinned-notes"] {
+    display: none;
+  }
+  /* presentationOnly: the presentation covers the whole window, whatever else is on */
+  #layout[data-shell-layout="presentationOnly"] [data-layout-region="presentation"] {
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* live captions (SET_CAPTIONS_OUTPUT): past the sidebars, the phone's floating rail included. In RTL
+     the engine left 'left' unset, so the stylesheet's 20% still applies next to 'right'. */
+  #layout [data-layout-region="captions"] {
+    position: absolute;
+    left: calc(var(--bbb-sidebars-width) + var(--bbb-nav-width) + 10px);
+    max-width: calc(var(--bbb-media-width) - 20px);
+  }
+  #layout[data-rtl] [data-layout-region="captions"] {
+    left: 20%;
+    right: calc(var(--bbb-sidebars-width) + var(--bbb-nav-width) + 10px);
+  }
 `;
 
 export default LayoutShellStyles;
