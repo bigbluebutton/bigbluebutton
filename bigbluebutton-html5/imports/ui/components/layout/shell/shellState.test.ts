@@ -30,6 +30,7 @@ const base: ShellState = {
   fullscreenElement: '',
   fullscreenGroup: '',
   isDragging: false,
+  mediaOnlyFit: 'none',
   isResizing: false,
   dockInputWidth: 0,
   dockInputHeight: 0,
@@ -38,6 +39,7 @@ const base: ShellState = {
   cameraGridWidth: 0,
   cameraGridHeight: 0,
   isPresenter: false,
+  mediaOnlyContentRatio: 0,
 };
 
 const at = (o: Partial<ShellState>) => shellState({ ...base, ...o });

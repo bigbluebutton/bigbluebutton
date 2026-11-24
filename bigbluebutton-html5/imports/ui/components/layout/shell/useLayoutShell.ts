@@ -7,6 +7,8 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import { useStorageKey, STORAGES } from '/imports/ui/services/storage/hooks';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { shellState, ShellOutput } from './shellState';
+import { useMediaOnlyFit } from './mediaOnlyFit';
+import { DEVICE_TYPE, LAYOUT_TYPE } from '../enums';
 
 interface StoredDockSize {
   width?: number;
@@ -17,7 +19,7 @@ interface StoredDockSize {
  * The data attributes and custom properties for #layout, from the layout state. Each field is selected on
  * its own, so #layout re-renders only on a semantic change, never on a window resize.
  */
-const useLayoutShell = (): ShellOutput => {
+const useLayoutShell = (): ShellOutput & { mediaOnlyAreaRef: (element: HTMLDivElement | null) => void } => {
   const layoutType = layoutSelect((i: Layout) => i.layoutType);
   // not in the Layout type: set by SET_LAYOUT_LOADING while the user's enforced layout loads
   const layoutLoading = layoutSelect((i: Layout & { layoutLoading?: boolean }) => !!i.layoutLoading);
@@ -56,8 +58,22 @@ const useLayoutShell = (): ShellOutput => {
   // bbb_hide_controls hides the nav bar's top row (observer.tsx), from userdata that does not change
   const hideTopRow = !!getFromUserSettings('bbb_hide_controls', false);
   const layoutPending = !!getWaitLayout() && layoutLoading;
+  // mediaOnly fits the content's own size: the screen share's while one is on, else the slide's
+  const slideWidth = layoutSelectInput((i: Input) => i.presentation.currentSlide?.size?.width ?? 0);
+  const slideHeight = layoutSelectInput((i: Input) => i.presentation.currentSlide?.size?.height ?? 0);
+  const screenShareWidth = layoutSelectInput((i: Input) => i.screenShare.width ?? 0);
+  const screenShareHeight = layoutSelectInput((i: Input) => i.screenShare.height ?? 0);
+  const contentWidth = hasScreenShare ? screenShareWidth : slideWidth;
+  const contentHeight = hasScreenShare ? screenShareHeight : slideHeight;
+  const { fit: mediaOnlyFit, areaRef: mediaOnlyAreaRef } = useMediaOnlyFit({
+    contentWidth,
+    contentHeight,
+    isMobile: deviceType === DEVICE_TYPE.MOBILE,
+    hasExternalVideoOrPluginContent: hasExternalVideo || !!genericContentId,
+  });
+  const isMediaOnly = layoutType === LAYOUT_TYPE.MEDIA_ONLY;
 
-  return useMemo(() => shellState({
+  const output = useMemo(() => shellState({
     layoutType,
     layoutPending,
     deviceType,
@@ -93,6 +109,9 @@ const useLayoutShell = (): ShellOutput => {
     cameraGridWidth,
     cameraGridHeight,
     isPresenter,
+    mediaOnlyFit: isMediaOnly ? mediaOnlyFit : 'none',
+    mediaOnlyContentRatio: isMediaOnly && contentWidth > 0 && contentHeight > 0
+      ? contentWidth / contentHeight : 0,
   }), [
     layoutType, layoutPending, deviceType, isRTL, hasBanner, hasNotification, hasNavBar, hideTopRow,
     hasActionBar, sidebarNavigationIsOpen, sidebarContentIsOpen, sidebarContentWidth,
@@ -100,8 +119,10 @@ const useLayoutShell = (): ShellOutput => {
     presentationEnabled, slidesLength, hasScreenShare, hasExternalVideo, genericContentId, notesPinned,
     dockPosition, phoneLandscape, fullscreenElement, fullscreenGroup, isDragging, isResizing,
     dockInputWidth, dockInputHeight, storedDockSize.width, storedDockSize.height, cameraGridWidth,
-    cameraGridHeight, isPresenter,
+    cameraGridHeight, isPresenter, isMediaOnly, mediaOnlyFit, contentWidth, contentHeight,
   ]);
+
+  return useMemo(() => ({ ...output, mediaOnlyAreaRef }), [output, mediaOnlyAreaRef]);
 };
 
 export default useLayoutShell;

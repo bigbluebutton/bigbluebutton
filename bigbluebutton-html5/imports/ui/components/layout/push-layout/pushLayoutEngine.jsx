@@ -33,7 +33,6 @@ import {
 } from '../context';
 import { useShellState } from '../shell/context';
 import { cameraDockPosition as reportedCameraDockPosition } from '../shell/selectors';
-import { useSpecialLayoutDockBridge } from '../shell/mediaOnlyBridge';
 import { calculatePresentationVideoRate, equalDouble, hasCameraDockChanged } from './service';
 import { useMeetingLayoutUpdater, usePushLayoutUpdater, useLayoutUpdater } from './hooks';
 import { useRegionSize } from '../measuredRegions';
@@ -384,7 +383,6 @@ const PushLayoutEngine = (props) => {
 
 const PushLayoutEngineContainer = (props) => {
   const shell = useShellState();
-  const specialLayoutDock = useSpecialLayoutDockBridge();
   const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
   const browserInput = layoutSelectInput((i) => i.browser);
   const presentationInput = layoutSelectInput((i) => i.presentation);
@@ -397,9 +395,7 @@ const PushLayoutEngineContainer = (props) => {
   } = layoutSettings;
 
   // where the dock is drawn (the layout state, as the CSS layout reads it)
-  const cameraDockPosition = specialLayoutDock
-    ? specialLayoutDock.position
-    : shell && reportedCameraDockPosition(shell);
+  const cameraDockPosition = shell && reportedCameraDockPosition(shell);
   const { focusedId: focusedCamera } = cameraDockInput;
   // The dock's rendered box (0 x 0 while it is not rendered), at its committed size during a drag
   const measuredCameraDock = useRegionSize('cameraDock');

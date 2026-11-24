@@ -13,13 +13,12 @@ import { LAYOUT_TYPE, ACTIONS, CAMERADOCK_POSITION } from '/imports/ui/component
 import ResizeHandle, { ResizeEdge } from '/imports/ui/components/layout/shell/ResizeHandle';
 import { useShellState } from '/imports/ui/components/layout/shell/context';
 import {
+  cameraDockPosition,
   Edges,
-  effectiveCameraDockPosition,
   isCameraDockDraggable,
   isCameraDockShown,
   resizableCameraDockEdges,
 } from '/imports/ui/components/layout/shell/selectors';
-import { useSpecialLayoutDockBridge } from '/imports/ui/components/layout/shell/mediaOnlyBridge';
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
   CurrentPresentationPageSubscriptionResponse,
@@ -69,8 +68,6 @@ interface WebcamComponentProps {
   position: string;
   isDraggable: boolean;
   resizableEdge: Edges;
-  /** TEMPORARY: the engine's box in camerasOnly and mediaOnly */
-  bridgeStyle?: React.CSSProperties;
   swapLayout: boolean;
   focusedId: string;
   layoutContextDispatch: (...args: unknown[]) => void;
@@ -88,7 +85,6 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
   position,
   isDraggable,
   resizableEdge,
-  bridgeStyle,
   swapLayout,
   focusedId,
   layoutContextDispatch,
@@ -178,7 +174,7 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
   // A side dock wider than it may be (80% of the media area, for the presenter the area less the
   // presentation toolbar) is held to that width, and the stored size with it, as the user's size.
   useEffect(() => {
-    if (!isCameraLeftOrRight || isResizing || isDragging || bridgeStyle) return undefined;
+    if (!isCameraLeftOrRight || isResizing || isDragging) return undefined;
     const holdWithinLimit = () => {
       const limit = limitRef.current?.getBoundingClientRect().width ?? 0;
       const { width, height } = dockSize();
@@ -193,7 +189,7 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
     if (limitRef.current) observer.observe(limitRef.current);
     if (dockRef.current) observer.observe(dockRef.current);
     return () => observer.disconnect();
-  }, [position, isPresenter, presentationIsOpen, isResizing, isDragging, !!bridgeStyle]);
+  }, [position, isPresenter, presentationIsOpen, isResizing, isDragging]);
 
   const handleVideoFocus = useCallback((id: string) => {
     layoutContextDispatch({
@@ -326,7 +322,7 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
         >
           <div
             data-layout-region="camera-dock"
-            style={{ ...bridgeStyle, padding }}
+            style={{ padding }}
           >
             <Styled.Draggable
               ref={attachDock}
@@ -379,7 +375,6 @@ const WebcamContainer: React.FC = () => {
   const cameraDockInput = layoutSelectInput((i: Input) => i.cameraDock);
   const presentationInput = layoutSelectInput((i: Input) => i.presentation);
   const shell = useShellState();
-  const bridge = useSpecialLayoutDockBridge();
   const layoutContextDispatch = layoutDispatch();
   const { data: presentationPageData } = useDeduplicatedSubscription<
     CurrentPresentationPageSubscriptionResponse>(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
@@ -438,7 +433,7 @@ const WebcamContainer: React.FC = () => {
   const audioModalIsOpen = useStorageKey('audioModalIsOpen');
 
   if (!shell) return null;
-  const position = bridge ? bridge.position ?? '' : effectiveCameraDockPosition(shell);
+  const position = cameraDockPosition(shell) ?? '';
 
   return isCameraDockShown(shell) && !audioModalIsOpen && (usersVideo.length > 0 || isGridEnabled)
     ? (
@@ -447,7 +442,6 @@ const WebcamContainer: React.FC = () => {
           position,
           isDraggable: isCameraDockDraggable(shell),
           resizableEdge: resizableCameraDockEdges(shell),
-          bridgeStyle: bridge?.style,
           swapLayout,
           usersVideo,
           focusedId,

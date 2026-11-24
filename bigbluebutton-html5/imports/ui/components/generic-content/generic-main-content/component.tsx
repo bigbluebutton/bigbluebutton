@@ -7,7 +7,6 @@ const GenericMainContent: React.FC<GenericContentMainAreaProps> = ({
   isResizing,
   isLocalChange,
   isMinimized,
-  mediaOnlyBox,
   renderFunctionComponents,
   genericContentId,
 }) => {
@@ -19,7 +18,6 @@ const GenericMainContent: React.FC<GenericContentMainAreaProps> = ({
   return (
     <Styled.Container
       data-layout-region="generic-content"
-      style={mediaOnlyBox}
       preventInteraction={isResizing && isLocalChange}
       data-test={`container-${dataTest}`}
       isMinimized={isMinimized}

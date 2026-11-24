@@ -584,7 +584,6 @@ class ScreenshareComponent extends React.Component {
       fullscreenContext,
       shouldShowScreenshare,
       mediaBoxCollapse,
-      mediaOnlyBox,
     } = this.props;
 
     // Conditions to render the connecting animation
@@ -603,7 +602,6 @@ class ScreenshareComponent extends React.Component {
         data-layout-region="screenshare"
         style={
           {
-            ...mediaOnlyBox,
             display,
             // the media box is raised to 99 in fullscreen, applied only by the fullscreen element
             zIndex: fullscreenContext ? 99 : undefined,
@@ -665,6 +663,4 @@ ScreenshareComponent.propTypes = {
   streamId: PropTypes.string.isRequired,
   isBot: PropTypes.bool.isRequired,
   mediaBoxCollapse: PropTypes.oneOf(['none', 'zero', 'negative']).isRequired,
-  // TEMPORARY: the engine's box in the mediaOnly layout
-  mediaOnlyBox: PropTypes.shape({}),
 };

@@ -677,7 +677,6 @@ class Presentation extends PureComponent {
       restoreOnUpdate,
       presentationAreaSize,
       mediaBoxCollapse,
-      mediaOnlyBox,
     } = this.props;
 
     const {
@@ -722,14 +721,14 @@ class Presentation extends PureComponent {
     ${intl.formatMessage(intlMessages.slideContentEnd)}`
       : intl.formatMessage(intlMessages.noSlideContent);
 
-    // the engine raised the media box to 99 in fullscreen; it applied only to the fullscreen element
+    // the media box is raised to 99 in fullscreen, applied only by the fullscreen element
     const presentationZIndex = fullscreenContext ? 99 : undefined;
 
     const APP_CRASH_METADATA = {
       logCode: 'whiteboard_crash',
       logMessage: 'Possible whiteboard crash',
     };
-    // the presentation unmounts while the media box has no area, as it did with a zero width or height
+    // unmounts while the media box has no area, as it did with a zero width or height
     if (!presentationIsOpen || mediaBoxCollapse === 'zero') return null;
 
     const areaWidth = presentationAreaSize?.presentationAreaWidth ?? 0;
@@ -746,7 +745,6 @@ class Presentation extends PureComponent {
           ref={this.attachPresentationContainer}
           isRTL={isRTL}
           style={{
-            ...mediaOnlyBox,
             overflow: 'hidden',
             zIndex: presentationZIndex,
             background: null,
@@ -894,8 +892,6 @@ Presentation.propTypes = {
   totalPages: PropTypes.number.isRequired,
   isRTL: PropTypes.bool,
   mediaBoxCollapse: PropTypes.oneOf(['none', 'zero', 'negative']),
-  // TEMPORARY: the engine's box in the mediaOnly layout
-  mediaOnlyBox: PropTypes.shape({}),
   restoreOnUpdate: PropTypes.bool.isRequired,
   numCameras: PropTypes.number.isRequired,
   intl: PropTypes.shape({
@@ -922,7 +918,6 @@ Presentation.defaultProps = {
   presentationAreaSize: undefined,
   presentationRef: undefined,
   mediaBoxCollapse: 'none',
-  mediaOnlyBox: undefined,
   downloadPresentationUri: undefined,
   userIsPresenter: false,
   presentationIsDownloadable: false,

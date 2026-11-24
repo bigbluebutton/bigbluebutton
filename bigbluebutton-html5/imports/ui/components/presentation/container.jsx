@@ -19,7 +19,6 @@ import {
   layoutDispatch,
 } from '../layout/context';
 import { useMediaBoxCollapse } from '../layout/shell/context';
-import useMediaOnlyBridge from '../layout/shell/mediaOnlyBridge';
 import { DEVICE_TYPE } from '/imports/ui/components/layout/enums';
 import MediaService from '../media/service';
 import {
@@ -243,7 +242,6 @@ const PresentationContainer = ({
   const [presentationRef, presentationSize] = useElementSize();
   const isRTL = layoutSelect((i) => i.isRTL);
   const mediaBoxCollapse = useMediaBoxCollapse();
-  const mediaOnlyBox = useMediaOnlyBridge('presentation');
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const deviceType = layoutSelect((i) => i.deviceType);
   const layoutType = layoutSelect((i) => i.layoutType);
@@ -290,7 +288,6 @@ const PresentationContainer = ({
           userIsPresenter,
           isRTL,
           mediaBoxCollapse,
-          mediaOnlyBox,
           fullscreenContext,
           fullscreenElementId,
           isTabledLandscape: deviceType === DEVICE_TYPE.TABLET_LANDSCAPE,

@@ -125,7 +125,8 @@ const LayoutShellStyles = createGlobalStyle`
     --bbb-sidebar-top: calc(85px + var(--bbb-banners));
   }
   /* a dock below the sidebar shortens it, while cameras show next to open media */
-  #layout[data-cameras][data-presentation-open][data-dock="sidebarContentBottom"]:not([data-media-off], [data-mobile]) {
+  #layout[data-cameras][data-presentation-open][data-dock="sidebarContentBottom"]:not([data-media-off],
+    [data-mobile], [data-dock-state="hidden"]) {
     --bbb-sidebar-height: calc(100% - var(--bbb-dock-sidebar-h) - var(--bbb-banners));
   }
   #layout [data-layout-region="sidebar-content"],
@@ -475,6 +476,129 @@ const LayoutShellStyles = createGlobalStyle`
   #layout[data-rtl] [data-layout-region="captions"] {
     left: 20%;
     right: calc(var(--bbb-sidebars-width) + var(--bbb-nav-width) + 10px);
+  }
+  /* a dock with no box: no cameras outside unified (layoutEngine baseCameraDockBounds) */
+  #layout[data-dock-state="hidden"] {
+    --bbb-dock-box-w: 0px;
+    --bbb-dock-box-h: 0px;
+  }
+
+  /* ---- special layouts (layout-manager/*.jsx). They close the sidebars on every pass but
+     participantsAndChatOnly, so the sidebar terms are 0 in their steady state. ---- */
+
+  /* camerasOnly: the media area has no 1% gap; with the presentation open and media on (a transient,
+     the layout closes the presentation) the dock leaves the banners' height again at its bottom */
+  #layout[data-shell-layout="camerasOnly"]:not([data-mobile]) {
+    --bbb-media-width: calc(100% - var(--bbb-sidebar-space));
+  }
+  #layout[data-shell-layout="camerasOnly"][data-dock-state="positioned"] {
+    --bbb-dock-box-h: calc(var(--bbb-media-height) - var(--bbb-banners));
+  }
+  #layout[data-shell-layout="camerasOnly"][data-dock-state="positioned"][data-mobile] {
+    --bbb-dock-box-h: calc(var(--bbb-media-height) * 0.7 - var(--bbb-banners));
+  }
+
+  /* participantsAndChatOnly: full-width bars, and the sidebars below the nav bar (without the banners'
+     offset) down to the actions bar, the content filling the rest of the width */
+  #layout[data-shell-layout="participantsAndChatOnly"] {
+    --bbb-media-width: 100%;
+    --bbb-media-left: 0px;
+    --bbb-content-width: calc(100% - var(--bbb-nav-space));
+    --bbb-sidebar-top: var(--bbb-navbar-height);
+    --bbb-sidebar-height: calc(100% - var(--bbb-banners) - var(--bbb-navbar-height)
+      - var(--bbb-actionbar-height));
+  }
+  #layout[data-shell-layout="participantsAndChatOnly"][data-mobile] { --bbb-content-width: 100%; }
+  #layout[data-shell-layout="participantsAndChatOnly"]
+    [data-layout-region="sidebar-navigation"]:not([data-collapsed]) {
+    top: var(--bbb-navbar-height);
+    height: var(--bbb-sidebar-height);
+  }
+  #layout[data-shell-layout="participantsAndChatOnly"] [data-layout-region="sidebar-content"] {
+    max-width: none;
+    min-height: 0;
+  }
+  #layout[data-shell-layout="participantsAndChatOnly"] [data-layout-region="captions"] {
+    left: calc(100% + 10px);
+  }
+  #layout[data-shell-layout="participantsAndChatOnly"][data-rtl] [data-layout-region="captions"] {
+    left: 20%;
+    right: calc(100% + 10px);
+  }
+
+  /* mediaOnly: a 10 px margin around the media area, bars included (flush left in RTL). With cameras,
+     the content keeps its own aspect ratio: limited by the area's height, it sits on the right at up to
+     80% of the width with the cameras on its left; otherwise at the bottom, up to 80% of the height, with
+     the cameras on top (20% when there is no content size). Those widths come from the area's height and
+     the other way round, so they use the measured area (--bbb-media-only-width / -height, in px). */
+  #layout[data-shell-layout="mediaOnly"] {
+    --bbb-media-width: calc(100% - 20px);
+    --bbb-media-left: 10px;
+    --bbb-media-height: calc(100% - var(--bbb-navbar-height) - var(--bbb-actionbar-height)
+      - var(--bbb-banners) - 20px);
+    --bbb-media-top: calc(var(--bbb-navbar-height) + var(--bbb-banners) + 10px);
+    --bbb-dock-max-w: calc(var(--bbb-media-width) * 0.8);
+    --bbb-hcd: 0px;
+    --bbb-mo-top: var(--bbb-media-top);
+    --bbb-mo-left: 10px;
+    --bbb-mo-width: var(--bbb-media-width);
+    --bbb-mo-height: var(--bbb-media-height);
+  }
+  #layout[data-shell-layout="mediaOnly"][data-rtl] { --bbb-media-left: 0px; }
+  #layout[data-shell-layout="mediaOnly"][data-cameras][data-media-only-fit="none"] {
+    --bbb-mo-height: calc(var(--bbb-media-height) * 0.8);
+    --bbb-mo-top: calc(var(--bbb-media-top) + var(--bbb-media-height) * 0.2);
+  }
+  #layout[data-shell-layout="mediaOnly"][data-cameras][data-media-only-fit="width"] {
+    --bbb-mo-height: min(
+      var(--bbb-media-only-height) * 0.8,
+      var(--bbb-media-only-width) / var(--bbb-media-only-ratio, 1)
+    );
+    --bbb-mo-top: calc(var(--bbb-media-top) + var(--bbb-media-height) - var(--bbb-mo-height));
+  }
+  #layout[data-shell-layout="mediaOnly"][data-cameras][data-media-only-fit="height"] {
+    --bbb-mo-width: min(
+      var(--bbb-media-only-height) * var(--bbb-media-only-ratio, 1),
+      var(--bbb-media-only-width) * 0.8
+    );
+    --bbb-mo-left: calc(10px + var(--bbb-media-width) - var(--bbb-mo-width));
+    /* the cameras take the rest, as if the content were at least 430 px wide */
+    --bbb-mo-dock-width: calc(var(--bbb-media-width) - max(var(--bbb-mo-width), 430px) - 10px);
+    --bbb-hcd: calc(var(--bbb-mo-dock-width) + 20px);
+  }
+  #layout[data-shell-layout="mediaOnly"]:not([data-fullscreen-media]) {
+    --bbb-mb-top: var(--bbb-mo-top);
+    --bbb-mb-left: var(--bbb-mo-left);
+    --bbb-mb-width: var(--bbb-mo-width);
+    --bbb-mb-height: var(--bbb-mo-height);
+  }
+  #layout[data-shell-layout="mediaOnly"][data-rtl]:not([data-fullscreen-media]) {
+    --bbb-mb-left: auto;
+    --bbb-mb-right: var(--bbb-hcd);
+  }
+  #layout[data-shell-layout="mediaOnly"][data-fullscreen-media][data-rtl] { --bbb-mb-right: 0px; }
+  /* the dock: the engine moved it 10 px from its static position, past the right edge in RTL */
+  #layout[data-shell-layout="mediaOnly"][data-dock-state="positioned"] {
+    --bbb-dock-box-top: var(--bbb-media-top);
+    --bbb-dock-box-x: 10px;
+    --bbb-dock-box-w: var(--bbb-media-width);
+    --bbb-dock-box-h: calc(var(--bbb-media-height) - var(--bbb-mo-height) - 10px);
+    --bbb-dock-box-z: 1;
+  }
+  #layout[data-shell-layout="mediaOnly"][data-dock-state="positioned"][data-rtl] { --bbb-dock-box-x: -10px; }
+  #layout[data-shell-layout="mediaOnly"][data-dock-state="positioned"][data-dock="contentLeft"] {
+    --bbb-dock-box-w: var(--bbb-mo-dock-width);
+    --bbb-dock-box-h: var(--bbb-media-height);
+  }
+  /* the measured area: where the content may go */
+  #layout [data-layout-region="media-only-area"] {
+    position: absolute;
+    top: var(--bbb-media-top);
+    left: 10px;
+    width: var(--bbb-media-width);
+    height: var(--bbb-media-height);
+    visibility: hidden;
+    pointer-events: none;
   }
 `;
 

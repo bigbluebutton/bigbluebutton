@@ -44,6 +44,7 @@ const base: ShellInputs = {
   sidebarContentAuxiliaryIsOpen: false,
   fullscreenElement: '',
   isDragging: false,
+  mediaOnlyFit: 'none',
 };
 
 const at = (overrides: Partial<ShellInputs>): ShellInputs => ({ ...base, ...overrides });
@@ -141,6 +142,22 @@ describe('layout shell selectors', () => {
         .toBe(CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM);
       expect(cameraDockPosition(at({ layoutType: LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY })))
         .toBe(CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM);
+    });
+
+    it('reports the mediaOnly dock beside or above the content, and none without a positioned dock', () => {
+      const mediaOnly = { layoutType: LAYOUT_TYPE.MEDIA_ONLY };
+      expect(cameraDockPosition(at({ ...mediaOnly, mediaOnlyFit: 'height' }))).toBe(CAMERADOCK_POSITION.CONTENT_LEFT);
+      expect(cameraDockPosition(at({ ...mediaOnly, mediaOnlyFit: 'width' }))).toBe(CAMERADOCK_POSITION.CONTENT_TOP);
+      expect(cameraDockPosition(at({ ...mediaOnly, presentationIsOpen: false }))).toBeUndefined();
+      expect(cameraDockPosition(at({ ...mediaOnly, numCameras: 0 }))).toBeUndefined();
+    });
+
+    it('gives no dock box to layouts without cameras or without a dock', () => {
+      expect(cameraDockState(at({ layoutType: LAYOUT_TYPE.CAMERAS_ONLY, numCameras: 0, presentationIsOpen: false })))
+        .toBe('hidden');
+      expect(cameraDockState(at({ layoutType: LAYOUT_TYPE.CAMERAS_ONLY, presentationIsOpen: false }))).toBe('fill');
+      expect(cameraDockState(at({ layoutType: LAYOUT_TYPE.PRESENTATION_ONLY }))).toBe('hidden');
+      expect(cameraDockState(at({ layoutType: LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY }))).toBe('hidden');
     });
 
     it('drags and resizes the dock in unified only', () => {

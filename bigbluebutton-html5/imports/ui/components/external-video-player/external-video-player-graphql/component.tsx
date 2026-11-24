@@ -30,7 +30,6 @@ import {
   Layout,
 } from '../../layout/layoutTypes';
 import { useMediaBoxCollapse } from '../../layout/shell/context';
-import useMediaOnlyBridge from '../../layout/shell/mediaOnlyBridge';
 import { uniqueId } from '/imports/utils/string-utils';
 import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
 import ExternalVideoPlayerToolbar from './toolbar/component';
@@ -130,8 +129,6 @@ interface ExternalVideoPlayerProps {
   fullscreenContext: boolean;
   /** the media box has no area: the player hides, as it did with a zero width and height */
   isMinimized: boolean;
-  /** TEMPORARY: the engine's box in the mediaOnly layout */
-  mediaOnlyBox?: React.CSSProperties;
   playing: boolean;
   playerPlaybackRate: number;
   playerKey: string;
@@ -160,7 +157,6 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   isResizing,
   isLocalChange,
   isMinimized,
-  mediaOnlyBox,
   fullscreenContext,
   videoUrl,
   isPresenter,
@@ -935,7 +931,6 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     <Styled.Container
       data-layout-region="external-video"
       style={{
-        ...mediaOnlyBox,
         // the engine never dispatched a z-index for the external video: the initial 1
         zIndex: 1,
       }}
@@ -1154,7 +1149,6 @@ const ExternalVideoPlayerContainer: React.FC = () => {
 
   const fullscreenElementId = 'ExternalVideo';
   const mediaBoxCollapse = useMediaBoxCollapse();
-  const mediaOnlyBox = useMediaOnlyBridge('externalVideo');
   const hasExternalVideoOnLayout: boolean = layoutSelectInput((i: Input) => i.externalVideo?.hasExternalVideo);
   const cameraDock = layoutSelectInput((i: Input) => i.cameraDock);
   const { isResizing, isLocalChange } = cameraDock;
@@ -1191,7 +1185,6 @@ const ExternalVideoPlayerContainer: React.FC = () => {
       isLocalChange={isLocalChange}
       fullscreenContext={fullscreenContext}
       isMinimized={mediaBoxCollapse === 'zero'}
-      mediaOnlyBox={mediaOnlyBox}
       getServerCurrentTime={getServerCurrentTime}
       playerKey={key}
       setPlayerKey={setKey}

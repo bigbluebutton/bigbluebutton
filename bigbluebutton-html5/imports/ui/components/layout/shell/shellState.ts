@@ -1,8 +1,8 @@
-import { DEVICE_TYPE } from '../enums';
+import { DEVICE_TYPE, LAYOUT_TYPE } from '../enums';
 import {
+  cameraDockPosition,
   cameraDockSizeVariable,
   cameraDockState,
-  effectiveCameraDockPosition,
   isMediaContentOff,
   isMediaBesideDock,
   isMediaFullscreen,
@@ -26,6 +26,8 @@ export interface ShellState extends ShellInputs {
   sidebarContentAuxiliaryWidth: number;
   /** the current user presents: a side dock leaves the presentation toolbar its width */
   isPresenter: boolean;
+  /** mediaOnly: the content's aspect ratio (width / height), 0 without a content size */
+  mediaOnlyContentRatio: number;
   /** the camera grid size the video list computed, for the drag preview */
   cameraGridWidth: number;
   cameraGridHeight: number;
@@ -72,9 +74,10 @@ export const shellState = (s: ShellState): ShellOutput => {
   Object.entries(flags).forEach(([name, on]) => {
     if (on) attributes[name] = '';
   });
-  attributes['data-dock'] = effectiveCameraDockPosition(s);
+  attributes['data-dock'] = cameraDockPosition(s) ?? '';
   attributes['data-dock-state'] = cameraDockState(s);
   attributes['data-media-box'] = mediaBoxCollapse(s);
+  if (s.layoutType === LAYOUT_TYPE.MEDIA_ONLY) attributes['data-media-only-fit'] = s.mediaOnlyFit;
 
   const style: Record<string, string> = {};
   if (s.sidebarContentWidth > 0) style['--bbb-sidebar-content-size'] = `${s.sidebarContentWidth}px`;
@@ -83,6 +86,7 @@ export const shellState = (s: ShellState): ShellOutput => {
   if (dockSize !== undefined) style['--bbb-camera-dock-size'] = `${dockSize}px`;
   if (s.cameraGridWidth > 0) style['--bbb-camera-grid-width'] = `${s.cameraGridWidth}px`;
   if (s.cameraGridHeight > 0) style['--bbb-camera-grid-height'] = `${s.cameraGridHeight}px`;
+  if (s.mediaOnlyContentRatio > 0) style['--bbb-media-only-ratio'] = String(s.mediaOnlyContentRatio);
   return { attributes, style, state: s };
 };
 

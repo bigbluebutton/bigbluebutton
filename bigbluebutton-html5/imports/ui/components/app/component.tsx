@@ -162,6 +162,10 @@ const App: React.FC<AppProps> = ({
               ...shell.style,
             }}
           >
+            {shell.attributes['data-shell-layout'] === LAYOUT_TYPE.MEDIA_ONLY && (
+              // the mediaOnly area, measured for the content fit (layout/shell/mediaOnlyFit.ts)
+              <div data-layout-region="media-only-area" ref={shell.mediaOnlyAreaRef} />
+            )}
             <ActivityCheckContainer />
             <DocumentTitleManager />
             <ConnectionStatusContainer />

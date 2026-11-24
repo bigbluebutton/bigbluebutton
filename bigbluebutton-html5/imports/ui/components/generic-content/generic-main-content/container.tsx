@@ -10,7 +10,6 @@ import {
   Input,
 } from '/imports/ui/components/layout/layoutTypes';
 import { useMediaBoxCollapse } from '/imports/ui/components/layout/shell/context';
-import useMediaOnlyBridge from '/imports/ui/components/layout/shell/mediaOnlyBridge';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { GenericContentType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/generic-content-item/enums';
 import GenericMainContent from './component';
@@ -86,7 +85,6 @@ const GenericContentMainAreaContainer: React.FC<GenericContentMainAreaContainerP
   }, [mainAreaIdsKey]);
 
   const mediaBoxCollapse = useMediaBoxCollapse();
-  const mediaOnlyBox = useMediaOnlyBridge('genericMainContent');
 
   const cameraDock = layoutSelectInput((i: Input) => i.cameraDock);
   const { isResizing, isLocalChange } = cameraDock;
@@ -101,7 +99,6 @@ const GenericContentMainAreaContainer: React.FC<GenericContentMainAreaContainerP
       isResizing={isResizing}
       isLocalChange={isLocalChange}
       isMinimized={mediaBoxCollapse === 'zero'}
-      mediaOnlyBox={mediaOnlyBox}
     />
   );
 };

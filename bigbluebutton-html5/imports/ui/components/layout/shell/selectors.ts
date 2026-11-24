@@ -35,7 +35,14 @@ export interface ShellInputs {
   fullscreenElement: string;
   /** the camera dock is being dragged */
   isDragging: boolean;
+  /**
+   * mediaOnly with cameras: how the content fits its area (useMediaOnlyFit): limited by the area's
+   * height (cameras on its left), by its width (cameras on top), or no content size ('none').
+   */
+  mediaOnlyFit: MediaOnlyFit;
 }
+
+export type MediaOnlyFit = 'height' | 'width' | 'none';
 
 export type CameraDockState = 'hidden' | 'fill' | 'fullscreen' | 'positioned';
 
@@ -93,6 +100,21 @@ export const effectiveCameraDockPosition = (s: ShellInputs) => (isSideBySideCame
   : s.dockPosition);
 
 /**
+ * The engine's branch order in calculatesCameraDockBounds: hidden (no cameras, or a layout without a
+ * dock), webcams fullscreen, filling the media area (presentation closed or no media), else positioned.
+ */
+export const cameraDockState = (s: ShellInputs): CameraDockState => {
+  if (s.layoutType === LAYOUT_TYPE.PRESENTATION_ONLY
+    || s.layoutType === LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY) return 'hidden';
+  // the other layouts give no cameras an empty dock (layoutEngine baseCameraDockBounds)
+  if (s.numCameras === 0 && !isUnifiedLayout(s)) return 'hidden';
+  if (s.numCameras === 0 && hasPresentationSlides(s) && s.presentationIsOpen) return 'hidden';
+  if (s.fullscreenGroup === 'webcams') return 'fullscreen';
+  if (!s.presentationIsOpen || isMediaContentOff(s)) return 'fill';
+  return 'positioned';
+};
+
+/**
  * The position the dock reports (the engine's cameraDock.position): the drawn one in unified, none in
  * camerasOnly, below the sidebar in the sidebar-only layouts (where the dock never shows).
  */
@@ -103,27 +125,25 @@ export const cameraDockPosition = (s: ShellInputs): string | undefined => {
     case LAYOUT_TYPE.PRESENTATION_ONLY:
     case LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY:
       return CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM;
+    case LAYOUT_TYPE.MEDIA_ONLY:
+      // the dock sits beside a content limited by the area's height, above any other
+      if (cameraDockState(s) !== 'positioned') return undefined;
+      return s.mediaOnlyFit === 'height' ? CAMERADOCK_POSITION.CONTENT_LEFT : CAMERADOCK_POSITION.CONTENT_TOP;
     default:
       return effectiveCameraDockPosition(s);
   }
 };
 
-/** The engine's branch order in calculatesCameraDockBounds: hidden, then fill, then webcams fullscreen. */
-export const cameraDockState = (s: ShellInputs): CameraDockState => {
-  if (s.numCameras === 0 && hasPresentationSlides(s) && s.presentationIsOpen) return 'hidden';
-  if (s.fullscreenGroup === 'webcams') return 'fullscreen';
-  if (!s.presentationIsOpen || isMediaContentOff(s)) return 'fill';
-  return 'positioned';
-};
-
 /**
  * The media box makes room for the dock (calculatesMediaBounds' camera branch): cameras on, no dock being
- * dragged, no media in fullscreen. presentationOnly lays its media out without the dock.
+ * dragged, no media in fullscreen. presentationOnly lays its media out without the dock, and mediaOnly
+ * around the content's own size.
  */
 export const isMediaBesideDock = (s: ShellInputs) => s.numCameras > 0
   && !s.isDragging
   && !isMediaFullscreen(s)
-  && s.layoutType !== LAYOUT_TYPE.PRESENTATION_ONLY;
+  && s.layoutType !== LAYOUT_TYPE.PRESENTATION_ONLY
+  && s.layoutType !== LAYOUT_TYPE.MEDIA_ONLY;
 
 const isSideDock = (position: string) => position === CAMERADOCK_POSITION.CONTENT_LEFT
   || position === CAMERADOCK_POSITION.CONTENT_RIGHT;

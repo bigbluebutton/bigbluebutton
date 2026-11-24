@@ -1,4 +1,3 @@
-import type React from 'react';
 import * as ReactDOM from 'react-dom/client';
 import { GenericContentMainArea } from 'bigbluebutton-html-plugin-sdk';
 
@@ -12,8 +11,6 @@ export interface GenericContentMainAreaProps {
     genericContentId: string;
     /** the media box has no area: the content hides, as it did with a zero width and height */
     isMinimized: boolean;
-    /** TEMPORARY: the engine's box in the mediaOnly layout */
-    mediaOnlyBox?: React.CSSProperties;
     renderFunctionComponents: GenericContentMainArea[];
 }
 

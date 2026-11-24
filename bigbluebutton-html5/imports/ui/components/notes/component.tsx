@@ -17,7 +17,6 @@ import {
   layoutDispatch,
 } from '/imports/ui/components/layout/context';
 import { useMediaBoxCollapse } from '/imports/ui/components/layout/shell/context';
-import useMediaOnlyBridge from '/imports/ui/components/layout/shell/mediaOnlyBridge';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import Styled from './styles';
@@ -54,8 +53,6 @@ interface NotesGraphqlProps {
   padId: string;
   /** pinned, and the media box has no area (the engine gave the notes a zero width or height) */
   isMediaBoxEmpty: boolean;
-  /** TEMPORARY: the engine's box in the mediaOnly layout */
-  mediaOnlyBox?: React.CSSProperties;
   amIPresenter: boolean;
   ignoreDelayforUnmount: boolean;
   handlePinSharedNotes: (pinned: boolean) => void;
@@ -68,7 +65,6 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
     isVisible,
     padId,
     isMediaBoxEmpty,
-    mediaOnlyBox,
     amIPresenter,
     ignoreDelayforUnmount,
     handlePinSharedNotes,
@@ -128,7 +124,7 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
   );
 
   // the engine never dispatched a z-index for the notes: the initial 1
-  const cssProps = { ...mediaOnlyBox, zIndex: 1 };
+  const cssProps = { zIndex: 1 };
 
   return (shouldRenderNotes || shouldShowSharedNotesOnPresentationArea) && (
     <SharedNotesImportContext.Provider value={importContextValue}>
@@ -175,7 +171,6 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
   }));
 
   const mediaBoxCollapse = useMediaBoxCollapse();
-  const mediaOnlyBox = useMediaOnlyBridge('sharedNotes');
   const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
   const NOTES_CONFIG = window.meetingClientSettings.public.notes;
   const { data: padIdData } = useQuery<GetPadIdQueryResponse>(
@@ -220,7 +215,6 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
       ignoreDelayforUnmount={sidebarContentToIgnoreDelay.includes(sidebarContent.sidebarContentPanel)
         || (isOnMediaArea && !!isGridLayout)}
       isMediaBoxEmpty={mediaBoxCollapse === 'zero'}
-      mediaOnlyBox={mediaOnlyBox}
       amIPresenter={amIPresenter}
       handlePinSharedNotes={handlePinSharedNotes}
       shouldShowSharedNotesOnPresentationArea={shouldShowSharedNotesOnPresentationArea}
