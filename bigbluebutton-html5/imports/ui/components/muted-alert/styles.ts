@@ -8,7 +8,11 @@ import {
 import { colorWhite, colorTipBg } from '/imports/ui/stylesheets/styled-components/palette';
 import { smallOnly, mediumOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
-const MuteWarning = styled.div`
+interface MuteWarningProps {
+  $mobile: boolean;
+}
+
+const MuteWarning = styled.div<MuteWarningProps>`
   position: absolute !important;
   color: ${colorWhite};
   background-color: ${colorTipBg};
