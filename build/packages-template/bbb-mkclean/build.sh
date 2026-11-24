@@ -26,14 +26,12 @@ fi
 
 cd mkclean-$VERSION
 
-make -C corec/tools/coremake
-corec/tools/coremake/coremake $(corec/tools/coremake/system_output.sh)
-
+cmake .
 make
 cd ..
 
 mkdir -p staging/usr/bin
-cp mkclean-0.9.0/release/gcc_linux_x64/mkclean staging/usr/bin
+cp mkclean-$VERSION/mkclean/mkclean staging/usr/bin
 
 ##
 
