@@ -222,8 +222,11 @@ const PushLayoutEngine = (props) => {
       );
     };
 
+    // A change that arrived while still presenter was skipped: catch up on losing the role.
+    const lostPresenter = !isPresenter && prevProps.isPresenter === true;
     const replicatePresentationState = () => {
-      if (meetingPresentationIsOpen !== prevProps.meetingPresentationIsOpen) {
+      if (meetingPresentationIsOpen !== prevProps.meetingPresentationIsOpen
+        || (lostPresenter && presentationIsOpen !== meetingPresentationIsOpen)) {
         layoutContextDispatch({
           type: ACTIONS.SET_PRESENTATION_IS_OPEN,
           value: meetingPresentationIsOpen,
