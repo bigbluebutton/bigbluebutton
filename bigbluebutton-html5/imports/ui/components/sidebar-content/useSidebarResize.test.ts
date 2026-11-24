@@ -35,4 +35,12 @@ describe('useSidebarResize', () => {
     result.current.onResizeEnd(900);
     expect(dispatch.mock.lastCall?.[0].value.width).toBe(800);
   });
+
+  it('starts from nothing when the backdrop is gone', () => {
+    const dispatch = vi.fn();
+    const { result } = renderHook(() => useSidebarResize('SET_WIDTH', dispatch, vi.fn()));
+    result.current.onResizeStart();
+    result.current.onResize(400);
+    expect(dispatch.mock.lastCall?.[0].value).toEqual(expect.objectContaining({ width: 400, height: 0 }));
+  });
 });

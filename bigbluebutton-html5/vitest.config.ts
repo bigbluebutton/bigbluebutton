@@ -36,6 +36,7 @@ export default defineConfig({
       include: [
         'imports/ui/components/layout/**',
         'imports/ui/components/webcam/component.tsx',
+        'imports/ui/components/sidebar-content/useSidebarResize.ts',
         'imports/ui/components/plugins-engine/ui-commands/{nav-bar,actions-bar,sidekick-area}/**',
         'imports/ui/components/plugins-engine/ui-data-hooks/layout/**',
         'imports/ui/core/hooks/useElementSize.ts',

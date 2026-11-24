@@ -100,6 +100,23 @@ describe('useLayoutShell', () => {
   });
 });
 
+describe('useLayoutShell with a sparse layout input', () => {
+  it('reads absent optional parts of the input as empty', () => {
+    setLayout({
+      input: {
+        externalVideo: undefined,
+        cameraDock: { ...INITIAL_INPUT_STATE.cameraDock, cameraOptimalGridSize: undefined },
+        presentation: { ...INITIAL_INPUT_STATE.presentation, currentSlide: undefined },
+        screenShare: { hasScreenShare: true },
+        genericMainContent: { genericContentId: undefined },
+      },
+    });
+    const { result } = renderHook(() => useLayoutShell());
+    expect(result.current.style['--bbb-camera-grid-width']).toBeUndefined();
+    expect(result.current.attributes['data-media-off']).toBeUndefined();
+  });
+});
+
 describe('shell context', () => {
   it('defaults to a media box with an area and no state outside the app', () => {
     expect(renderHook(() => useMediaBoxCollapse()).result.current).toBe('none');

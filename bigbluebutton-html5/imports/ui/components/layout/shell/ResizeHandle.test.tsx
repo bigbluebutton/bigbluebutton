@@ -83,4 +83,33 @@ describe('ResizeHandle', () => {
     expect(onResize).not.toHaveBeenCalled();
     expect(onResizeEnd).toHaveBeenCalledWith(5);
   });
+
+  it('captures the pointer for the drag and releases it at the end', () => {
+    const capture = vi.fn();
+    const release = vi.fn();
+    const proto = HTMLElement.prototype as unknown as Record<string, unknown>;
+    proto.setPointerCapture = capture;
+    proto.releasePointerCapture = release;
+    proto.hasPointerCapture = () => true;
+    const { handle, onResizeEnd } = setup({ edge: 'bottom' });
+    fireEvent.pointerDown(handle, {
+      button: 0, clientX: 0, clientY: 0, pointerId: 7,
+    });
+    fireEvent.pointerUp(handle, { clientX: 0, clientY: 12, pointerId: 7 });
+    expect(capture).toHaveBeenCalled();
+    expect(release).toHaveBeenCalled();
+    expect(onResizeEnd).toHaveBeenCalledWith(12);
+    delete proto.setPointerCapture;
+    delete proto.releasePointerCapture;
+    delete proto.hasPointerCapture;
+  });
+
+  it('ignores moves and ends without a drag', () => {
+    const { handle, onResize, onResizeEnd } = setup();
+    fireEvent.pointerMove(handle, { clientX: 5, clientY: 0 });
+    fireEvent.pointerUp(handle, { clientX: 5, clientY: 0 });
+    frame();
+    expect(onResize).not.toHaveBeenCalled();
+    expect(onResizeEnd).not.toHaveBeenCalled();
+  });
 });
