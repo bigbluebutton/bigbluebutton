@@ -193,9 +193,10 @@ export function createMeetingUrl(createParameter?: string, customMeetingId?: str
   const defaults = ['allowStartStopRecording=true', 'autoStartRecording=false', `welcome=${parameters.welcome}`].filter(
     (pair) => !overridden.has(pair.split('=')[0]),
   );
-  const baseQuery = [`name=${encodeURIComponent(meetingID)}&meetingID=${encodeURIComponent(meetingID)}&attendeePW=${ap}&moderatorPW=${mp}`, ...defaults].join(
-    '&',
-  );
+  const baseQuery = [
+    `name=${encodeURIComponent(meetingID)}&meetingID=${encodeURIComponent(meetingID)}&attendeePW=${ap}&moderatorPW=${mp}`,
+    ...defaults,
+  ].join('&');
   const query = createParameter !== undefined ? `${baseQuery}&${createParameter}` : baseQuery;
   const apiCall = `create${query}${parameters.secret}`;
   const checksum = getChecksum(apiCall, parameters.secret!);
