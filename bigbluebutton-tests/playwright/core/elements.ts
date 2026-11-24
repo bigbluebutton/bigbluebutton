@@ -441,6 +441,9 @@ export const elements = {
   userJoinPushAlerts: 'input[data-test="userJoinPopupAlerts"]',
   userLeavePushAlerts: 'input[data-test="userLeavePopupAlerts"]',
   toastContainer: 'div[data-test="toastContainer"]',
+
+  // Smart triggers
+  mutedAlert: 'div[data-test="mutedAlert"]',
   presentationStatusInfo: 'span[data-test="presentationStatusInfo"]',
   processingPresentationItem: 'span[data-test="processingPresentationItem"]',
   uploadDoneIcon: 'i[data-test="uploadDoneIcon"]',
