@@ -10,15 +10,14 @@ const intlMessages = defineMessages({
 });
 
 interface DropAreaProps {
+  /** the dock position the zone drops to; the CSS layout places the zone by it */
   id: string;
   dataTest: string;
-  style: Record<string, unknown>;
 }
 
 const DropArea: React.FC<DropAreaProps> = ({
   id,
   dataTest,
-  style,
 }) => {
   const intl = useIntl();
   return (
@@ -26,20 +25,12 @@ const DropArea: React.FC<DropAreaProps> = ({
       <Styled.DropZoneArea
         id={id}
         data-test={dataTest}
-        style={
-          {
-            ...style,
-            zIndex: (style.zIndex as number) + 1,
-          }
-        }
+        data-layout-region="drop-zone"
+        data-zone={id}
       />
       <Styled.DropZoneBg
-        style={
-          {
-            ...style,
-            zIndex: (style.zIndex as number),
-          }
-        }
+        data-layout-region="drop-zone-bg"
+        data-zone={id}
       >
         {intl.formatMessage(intlMessages.dropZoneLabel)}
       </Styled.DropZoneBg>

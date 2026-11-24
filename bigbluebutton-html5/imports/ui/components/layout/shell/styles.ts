@@ -417,6 +417,54 @@ const LayoutShellStyles = createGlobalStyle`
     pointer-events: none;
   }
 
+  /* drop zones while the dock is dragged (calculatesDropAreas): 100 px bands along the media area, which
+     the engine measured with a fixed 85 px nav bar and no banners; the hit area above its background */
+  #layout {
+    --bbb-dz-width: calc(100% - var(--bbb-sidebar-space) - 1%);
+    --bbb-dz-height: calc(100% - 85px - var(--bbb-actionbar-height));
+  }
+  #layout [data-layout-region="drop-zone"],
+  #layout [data-layout-region="drop-zone-bg"] {
+    position: absolute;
+    left: var(--bbb-sidebar-space);
+    width: var(--bbb-dz-width);
+    height: 100px;
+  }
+  #layout [data-layout-region="drop-zone"] { z-index: 100; }
+  #layout [data-layout-region="drop-zone-bg"] { z-index: 99; }
+  #layout[data-rtl] [data-layout-region^="drop-zone"] {
+    left: auto;
+    right: var(--bbb-sidebar-space);
+  }
+  #layout [data-layout-region^="drop-zone"][data-zone="contentTop"] { top: 85px; }
+  #layout [data-layout-region^="drop-zone"][data-zone="contentBottom"] {
+    top: calc(100% - var(--bbb-actionbar-height) - 100px);
+  }
+  #layout [data-layout-region^="drop-zone"]:is([data-zone="contentLeft"], [data-zone="contentRight"]) {
+    top: 185px;
+    width: 100px;
+    height: calc(var(--bbb-dz-height) - 200px);
+  }
+  /* the right zone sits at a physical left, 1% in from the window edge in either direction */
+  #layout [data-layout-region^="drop-zone"][data-zone="contentRight"],
+  #layout[data-rtl] [data-layout-region^="drop-zone"][data-zone="contentRight"] {
+    left: calc(100% - 100px - 1%);
+    right: auto;
+  }
+  #layout[data-rtl] [data-layout-region^="drop-zone"][data-zone="contentRight"] { left: 1%; }
+  #layout [data-layout-region^="drop-zone"][data-zone="sidebarContentBottom"] {
+    top: calc(100% - 100px);
+    left: var(--bbb-nav-space);
+    width: 0;
+  }
+  #layout[data-content-open] [data-layout-region^="drop-zone"][data-zone="sidebarContentBottom"] {
+    width: calc(var(--bbb-sidebars-width) - 1%);
+  }
+  #layout[data-rtl] [data-layout-region^="drop-zone"][data-zone="sidebarContentBottom"] {
+    left: auto;
+    right: var(--bbb-nav-space);
+  }
+
   /* live captions (SET_CAPTIONS_OUTPUT): past the sidebars, the phone's floating rail included. In RTL
      the engine left 'left' unset, so the stylesheet's 20% still applies next to 'right'. */
   #layout [data-layout-region="captions"] {
