@@ -1,0 +1,129 @@
+{
+  "autoarrAngeLayout": true,
+  "userMetadata": {},
+  "browser": "<window>",
+  "bannerBar": {
+    "hasBanner": false
+  },
+  "notificationsBar": {
+    "hasNotification": false,
+    "hideNotificationToasts": false
+  },
+  "navBar": {
+    "hasNavBar": false,
+    "height": 85
+  },
+  "actionBar": {
+    "hasActionBar": true,
+    "height": 42
+  },
+  "sidebarNavigation": {
+    "isOpen": true,
+    "width": 70,
+    "height": 0,
+    "browserWidth": 0,
+    "registeredApps": {
+      "app": {
+        "id": "app"
+      }
+    },
+    "pinnedApps": [
+      "app"
+    ]
+  },
+  "sidebarContent": {
+    "isOpen": true,
+    "currentPanelType": "chat",
+    "width": 350,
+    "height": 0,
+    "browserWidth": 0,
+    "sidebarContentPanel": "userlist",
+    "resizableEdge": {
+      "top": false,
+      "right": false,
+      "bottom": false,
+      "left": false
+    }
+  },
+  "sidebarContentHorizontalResizer": {
+    "isOpen": true,
+    "currentPanelType": "chat",
+    "width": 0,
+    "height": 0,
+    "browserWidth": 0
+  },
+  "sidebarContentAuxiliary": {
+    "isOpen": false,
+    "currentPanelType": "chat",
+    "width": 320,
+    "height": 0,
+    "browserWidth": 0,
+    "sidebarContentPanel": "none",
+    "resizableEdge": {
+      "top": false,
+      "right": false,
+      "bottom": false,
+      "left": false
+    }
+  },
+  "cameraDock": {
+    "numCameras": 2,
+    "position": "contentLeft",
+    "width": 300,
+    "height": 200,
+    "browserWidth": 0,
+    "browserHeight": 0,
+    "isDragging": false,
+    "isResizing": false,
+    "isLocalChange": true,
+    "cameraOptimalGridSize": {
+      "width": 0,
+      "height": 0
+    },
+    "focusedId": "cam-1"
+  },
+  "presentation": {
+    "contentUpdatedAt": 0,
+    "isOpen": false,
+    "slidesLength": 3,
+    "currentSlide": {
+      "num": 2,
+      "size": {
+        "width": 1600,
+        "height": 900
+      }
+    },
+    "width": 0,
+    "height": 0,
+    "browserWidth": 0,
+    "browserHeight": 0
+  },
+  "screenShare": {
+    "hasScreenShare": true,
+    "width": 1280,
+    "height": 720,
+    "browserWidth": 0,
+    "browserHeight": 0
+  },
+  "externalVideo": {
+    "hasExternalVideo": true,
+    "width": 0,
+    "height": 0,
+    "browserWidth": 0,
+    "browserHeight": 0
+  },
+  "genericMainContent": {
+    "genericContentId": "plugin-content",
+    "width": 0,
+    "height": 0,
+    "browserWidth": 0,
+    "browserHeight": 0
+  },
+  "sharedNotes": {
+    "isPinned": true,
+    "width": 0,
+    "height": 0,
+    "browserWidth": 0,
+    "browserHeight": 0
+  }
+}
