@@ -1,6 +1,7 @@
 import { test } from '../core/setup/fixtures';
+import { constants as c } from '../parameters/constants';
 import { SmartTriggers } from './smartTriggers';
-import { smartTriggersOverride } from './util';
+import { silenceMicrophone, smartTriggersOverride } from './util';
 
 test.describe.parallel('Smart triggers', { tag: '@ci' }, () => {
   test.describe.parallel('Microphone', { tag: '@media' }, () => {
@@ -36,6 +37,19 @@ test.describe.parallel('Smart triggers', { tag: '@ci' }, () => {
         testInfo,
       });
       await smartTriggers.noMicSignalOpensAudioSettings();
+    });
+
+    // https://docs.bigbluebutton.org/4.0/testing/release-testing/#recording-with-no-speech-partially-automated
+    test('Recording with no speech hint pauses the recording', async ({ browser, context, page }, testInfo) => {
+      const smartTriggers = new SmartTriggers(browser, context);
+      await page.addInitScript(silenceMicrophone);
+      await smartTriggers.initModPage(page, {
+        createParameter: c.recordMeeting,
+        clientSettingsOverrides: smartTriggersOverride('recordingWithNoSpeech', { startCheckSeconds: 5 }),
+        shouldCloseAudioModal: false,
+        testInfo,
+      });
+      await smartTriggers.recordingWithNoSpeechPauses();
     });
   });
 });

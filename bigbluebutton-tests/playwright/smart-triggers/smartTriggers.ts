@@ -3,6 +3,7 @@ import { expect, type Page as PlaywrightPage } from '@playwright/test';
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { MultiUsers } from '../user/multiusers';
+import { IDLE_CHECK_TIMEOUT } from './util';
 
 // Polls in the page so an element that flashes in and out between two
 // Playwright checks still counts as having appeared.
@@ -87,5 +88,32 @@ export class SmartTriggers extends MultiUsers {
     );
     await this.modPage.waitAndClick(e.smartTriggerChangeMic);
     await this.modPage.hasElement(e.audioSettingsModal, 'should open the audio settings from the hint');
+  }
+
+  async recordingWithNoSpeechPauses() {
+    // joinMicrophone() would wait for the talking indicator, which a silent
+    // microphone never shows
+    await this.modPage.joinMicrophone({ shouldUnmute: false });
+    await this.modPage.waitAndClick(e.unmuteMicButton);
+    await this.modPage.hasElement(e.muteMicButton, 'should display the mute button after unmuting');
+    const recordingIndicatorButton = this.modPage.page.locator(`${e.recordingIndicator} button`);
+    await this.modPage.waitAndClick(e.recordingIndicator);
+    await this.modPage.waitAndClick(e.confirmRecordingButton);
+    await expect(recordingIndicatorButton, 'should start recording').toHaveCSS('border-top-style', 'solid');
+
+    await this.modPage.hasElement(
+      e.smartTriggerPauseRecording,
+      'should warn the moderator that nobody talks in the recording',
+      IDLE_CHECK_TIMEOUT,
+    );
+    await this.modPage.hasElement(
+      e.smartTriggerCheckAudio,
+      'should offer to check the audio of a moderator who is in audio',
+    );
+    await this.modPage.waitAndClick(e.smartTriggerPauseRecording);
+    await expect(recordingIndicatorButton, 'should pause the recording from the hint').toHaveCSS(
+      'border-top-style',
+      'none',
+    );
   }
 }
