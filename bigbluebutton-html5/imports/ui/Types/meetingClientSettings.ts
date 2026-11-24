@@ -127,17 +127,7 @@ export interface AudioCaptions {
   provider: string
   speechProcessing: 'cloud' | 'local' | 'auto'
   showInSidebarNavigation: boolean
-  microphoneAlert: MicrophoneAlert
   language: Language
-}
-
-export interface MicrophoneAlert {
-  enabled: boolean
-  helpLink: string
-  threshold: number
-  speakingThreshold: number
-  duration: number
-  interval: number
 }
 
 export interface Language {
@@ -174,6 +164,13 @@ export interface RecordingWithNoSpeechSmartTrigger extends SmartTrigger {
   maxSilenceMinutes: number
 }
 
+export interface SpeechNotTranscribedSmartTrigger extends SmartTrigger {
+  speechThresholdDb: number
+  afterSpeakingSeconds: number
+  hideAfterMs: number
+  helpLink: string
+}
+
 export interface SmartTriggers {
   enabled: boolean
   talkingWhileMuted: TalkingWhileMutedSmartTrigger
@@ -183,6 +180,7 @@ export interface SmartTriggers {
   recordingWithNoSpeech: RecordingWithNoSpeechSmartTrigger
   presenterAway: CooldownSmartTrigger
   idlePresentation: IdleSmartTrigger
+  speechNotTranscribed: SpeechNotTranscribedSmartTrigger
 }
 
 export interface AppsGallery {

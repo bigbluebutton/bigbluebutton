@@ -72,14 +72,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         provider: 'webspeech',
         speechProcessing: 'cloud',
         showInSidebarNavigation: false,
-        microphoneAlert: {
-          enabled: true,
-          helpLink: '',
-          threshold: -50,
-          speakingThreshold: 5000,
-          duration: 10000,
-          interval: 200,
-        },
         language: {
           available: [
             'en-US',
@@ -125,6 +117,13 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           enabled: true,
           afterMinutes: 10,
           cooldownMs: 1800000,
+        },
+        speechNotTranscribed: {
+          enabled: true,
+          speechThresholdDb: -50,
+          afterSpeakingSeconds: 5,
+          hideAfterMs: 10000,
+          helpLink: '',
         },
       },
       appsGallery: {

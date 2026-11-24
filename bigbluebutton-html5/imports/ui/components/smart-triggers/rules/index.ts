@@ -6,6 +6,7 @@ import useNewMicrophoneRule from './useNewMicrophoneRule';
 import useRecordingWithNoSpeechRule from './useRecordingWithNoSpeechRule';
 import usePresenterAwayRule from './usePresenterAwayRule';
 import useIdlePresentationRule from './useIdlePresentationRule';
+import useSpeechNotTranscribedRule from './useSpeechNotTranscribedRule';
 
 const RULES: RuleDefinition[] = [
   { id: 'talkingWhileMuted', presentation: 'anchored', useRule: useTalkingWhileMutedRule },
@@ -15,6 +16,7 @@ const RULES: RuleDefinition[] = [
   { id: 'recordingWithNoSpeech', presentation: 'toast', useRule: useRecordingWithNoSpeechRule },
   { id: 'presenterAway', presentation: 'announcement', useRule: usePresenterAwayRule },
   { id: 'idlePresentation', presentation: 'toast', useRule: useIdlePresentationRule },
+  { id: 'speechNotTranscribed', presentation: 'toast', useRule: useSpeechNotTranscribedRule },
 ];
 
 export default RULES;

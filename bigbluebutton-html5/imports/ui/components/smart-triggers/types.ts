@@ -5,7 +5,8 @@ export type RuleId =
   | 'newMicrophone'
   | 'recordingWithNoSpeech'
   | 'presenterAway'
-  | 'idlePresentation';
+  | 'idlePresentation'
+  | 'speechNotTranscribed';
 
 export type CooldownPolicy =
   | { kind: 'time'; ms: number }
