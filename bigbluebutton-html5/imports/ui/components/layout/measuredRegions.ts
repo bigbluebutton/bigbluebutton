@@ -40,12 +40,19 @@ export const useRegionSize = (region: MeasuredRegion): ElementSize | null => use
   () => getRegionSize(region),
 );
 
-/** For the component that renders a region: a callback ref that measures and publishes its box. */
-export function useMeasureRegion<T extends Element>(region: MeasuredRegion): (element: T | null) => void {
+/**
+ * For the component that renders a region: a callback ref that measures and publishes its box. While
+ * `hold` is true the last published size stays (a dock being dragged shrinks to one tile, but its
+ * committed size is the one that counts); the current size is published again when it is released.
+ */
+export function useMeasureRegion<T extends Element>(
+  region: MeasuredRegion,
+  { hold = false }: { hold?: boolean } = {},
+): (element: T | null) => void {
   const [ref, size] = useElementSize<T>();
   useLayoutEffect(() => {
-    setRegionSize(region, size);
-  }, [region, size]);
+    if (!hold) setRegionSize(region, size);
+  }, [region, size, hold]);
   useLayoutEffect(() => () => setRegionSize(region, null), [region]);
   return ref;
 }

@@ -34,6 +34,7 @@ import {
 } from '../context';
 import { calculatePresentationVideoRate, equalDouble, hasCameraDockChanged } from './service';
 import { useMeetingLayoutUpdater, usePushLayoutUpdater, useLayoutUpdater } from './hooks';
+import { useRegionSize } from '../measuredRegions';
 import { setEnforcedLayout } from '/imports/ui/components/plugins-engine/ui-commands/layout/handler';
 import { useIsChatEnabled } from '/imports/ui/services/features';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
@@ -393,11 +394,14 @@ const PushLayoutEngineContainer = (props) => {
   } = layoutSettings;
 
   const {
-    width: cameraWidth,
-    height: cameraHeight,
     position: cameraDockPosition,
     focusedId: focusedCamera,
   } = cameraDockOutput;
+  // The dock's rendered box (0 x 0 while it is not rendered), at its committed size during a drag
+  const measuredCameraDock = useRegionSize('cameraDock');
+  const cameraWidth = measuredCameraDock?.width ?? 0;
+  const cameraHeight = measuredCameraDock?.height ?? 0;
+  const cameraDock = { ...cameraDockOutput, width: cameraWidth, height: cameraHeight };
 
   const getKeepPushingLayout = () => {
     // check if current layout is a hidden layout
@@ -467,12 +471,12 @@ const PushLayoutEngineContainer = (props) => {
   // The output lags a rotation by one layout pass, in both directions.
   const isCameraDockPropagationSuppressed = cameraDockOutput.isLocalOnly
     || isPhoneLandscape(browserInput);
-  const presentationVideoRate = calculatePresentationVideoRate(cameraDockOutput);
+  const presentationVideoRate = calculatePresentationVideoRate(cameraDock);
 
   const setLocalSettings = useUserChangedLocalSettings();
   const setPushLayout = usePushLayoutUpdater(pushLayout);
   const setMeetingLayout = useMeetingLayoutUpdater({
-    cameraDockOutput,
+    cameraDockOutput: cameraDock,
     cameraDockInput,
     presentationInput,
     layoutSettings,

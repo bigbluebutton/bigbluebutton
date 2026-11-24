@@ -87,8 +87,8 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
   const [resizeStart, setResizeStart] = useState({ width: 0, height: 0 });
   const [cameraMaxWidth, setCameraMaxWidth] = useState(0);
   const [draggedAtLeastOneTime, setDraggedAtLeastOneTime] = useState(false);
-  // the dock's rendered box, for the push-layout rate
-  const measureCameraDock = useMeasureRegion<HTMLDivElement>('cameraDock');
+  // the dock's rendered box, for the push-layout rate; held while dragging, when it shrinks to a tile
+  const measureCameraDock = useMeasureRegion<HTMLDivElement>('cameraDock', { hold: isDragging });
   const cameraDockRef = useRef(cameraDock);
   const cameraSizeRef = useRef(cameraSize);
   const cameraDockGridSettleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);

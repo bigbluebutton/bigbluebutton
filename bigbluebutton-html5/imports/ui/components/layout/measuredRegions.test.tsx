@@ -17,8 +17,8 @@ const setBox = (element: Element, width: number, height: number) => {
 };
 
 // The owner of a region measures its own element and publishes the size under the region's name
-const Owner = ({ box }: { box: [number, number] }) => {
-  const measure = useMeasureRegion<HTMLDivElement>('cameraDock');
+const Owner = ({ box, hold = false }: { box: [number, number]; hold?: boolean }) => {
+  const measure = useMeasureRegion<HTMLDivElement>('cameraDock', { hold });
   const ref = React.useCallback((node: HTMLDivElement | null) => {
     if (node) setBox(node, box[0], box[1]);
     measure(node);
@@ -70,6 +70,31 @@ describe('measured regions', () => {
       vi.advanceTimersByTime(20);
     });
     expect(seen.at(-1)).toEqual({ width: 982, height: 244 });
+  });
+
+  it('keeps publishing the last size while the owner holds it (a dock being dragged)', () => {
+    const tree = (hold: boolean) => (
+      <>
+        <Owner box={[982, 244]} hold={hold} />
+        <Reader />
+      </>
+    );
+    const { container, rerender } = render(tree(false));
+    const owner = container.querySelector('#owner')!;
+    rerender(tree(true));
+    setBox(owner, 160, 120);
+    act(() => ResizeObserverMock.trigger(owner, { width: 160, height: 120 }));
+    act(() => {
+      vi.advanceTimersByTime(20);
+    });
+    expect(seen.at(-1), 'the committed size while held').toEqual({ width: 982, height: 244 });
+    setBox(owner, 982, 300);
+    act(() => ResizeObserverMock.trigger(owner, { width: 982, height: 300 }));
+    act(() => {
+      vi.advanceTimersByTime(20);
+    });
+    rerender(tree(false));
+    expect(seen.at(-1), 'the current size once released').toEqual({ width: 982, height: 300 });
   });
 
   it('clears the size when the owner unmounts', () => {
