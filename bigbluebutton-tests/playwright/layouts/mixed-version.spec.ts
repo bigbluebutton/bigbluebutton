@@ -53,6 +53,20 @@ async function pushIsFollowed(browser: Browser, testInfo: TestInfo, presenterDis
     .toBeLessThanOrEqual(0.005 * viewport.height + PX);
 }
 
+// The documented bbb-* classes (the theming hooks) of a client with a camera shared.
+async function bbbClasses(browser: Browser, testInfo: TestInfo, clientDist: string) {
+  const client = await openClient(browser, testInfo, { fullName: 'Presenter', clientDist });
+  await shareWebcam(client);
+  await waitForStableGeometry(client.page);
+  const classes = await client.page.evaluate(() =>
+    Array.from(document.querySelectorAll('[class*="bbb-"]')).flatMap((element) =>
+      Array.from(element.classList).filter((name) => name.startsWith('bbb-')),
+    ),
+  );
+  await client.page.close();
+  return [...new Set(classes)].sort();
+}
+
 test.describe('Mixed client versions in one meeting', { tag: ['@layout', '@media'] }, () => {
   test.skip(!OLD || !NEW, 'BBB_CLIENT_DIST_OLD and BBB_CLIENT_DIST_NEW are not both set');
 
@@ -70,5 +84,13 @@ test.describe('Mixed client versions in one meeting', { tag: ['@layout', '@media
       description: `presenter ${clientBuildLabel(NEW!)}, viewer ${clientBuildLabel(OLD!)}`,
     });
     await pushIsFollowed(browser, testInfo, NEW!, OLD!);
+  });
+
+  test('Both builds render the same bbb-* classes', async ({ browser }, testInfo) => {
+    testInfo.annotations.push({
+      type: 'builds',
+      description: `${clientBuildLabel(OLD!)} and ${clientBuildLabel(NEW!)}`,
+    });
+    expect(await bbbClasses(browser, testInfo, NEW!)).toEqual(await bbbClasses(browser, testInfo, OLD!));
   });
 });

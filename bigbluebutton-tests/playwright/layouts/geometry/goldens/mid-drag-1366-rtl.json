@@ -1,0 +1,127 @@
+{
+  "scenario": {
+    "id": "mid-drag-1366-rtl",
+    "profile": {
+      "width": 1366,
+      "height": 768
+    },
+    "rtl": true,
+    "cameras": 1,
+    "midDrag": true
+  },
+  "capturedWith": "dist-base (bundle.8184c460488bf2b301d9.js)",
+  "geometry": {
+    "viewport": {
+      "width": 1366,
+      "height": 768
+    },
+    "attributes": {
+      "layout": "unified"
+    },
+    "regions": {
+      "navBar": {
+        "x": 0,
+        "y": 0,
+        "width": 982,
+        "height": 85,
+        "visible": true,
+        "id": "Navbar"
+      },
+      "actionsBar": {
+        "x": 0,
+        "y": 704,
+        "width": 982,
+        "height": 64,
+        "visible": true,
+        "id": "ActionsBar"
+      },
+      "sidebarNavigation": {
+        "x": 1292,
+        "y": 14,
+        "width": 60,
+        "height": 741,
+        "visible": true
+      },
+      "sidebarContent": {
+        "x": 996,
+        "y": 0,
+        "width": 283,
+        "height": 768,
+        "visible": true
+      },
+      "sidebarContentPanel": {
+        "x": 1009,
+        "y": 31,
+        "width": 270,
+        "height": 707,
+        "visible": true
+      },
+      "sidebarContentAuxiliary": null,
+      "sidebarContentAuxiliaryPanel": null,
+      "cameraDock": {
+        "x": 433,
+        "y": 95,
+        "width": 164,
+        "height": 123,
+        "visible": true,
+        "id": "cameraDock"
+      },
+      "presentation": {
+        "x": 14,
+        "y": 85,
+        "width": 982,
+        "height": 619,
+        "visible": true
+      },
+      "screenShare": null,
+      "externalVideo": null,
+      "genericContent": null,
+      "pinnedNotes": null
+    },
+    "multi": {
+      "banners": [],
+      "dropZones": [
+        {
+          "x": 14,
+          "y": 85,
+          "width": 982,
+          "height": 100,
+          "visible": true,
+          "id": "contentTop"
+        },
+        {
+          "x": 14,
+          "y": 185,
+          "width": 100,
+          "height": 419,
+          "visible": true,
+          "id": "contentRight"
+        },
+        {
+          "x": 14,
+          "y": 604,
+          "width": 982,
+          "height": 100,
+          "visible": true,
+          "id": "contentBottom"
+        },
+        {
+          "x": 895,
+          "y": 185,
+          "width": 100,
+          "height": 419,
+          "visible": true,
+          "id": "contentLeft"
+        },
+        {
+          "x": 1009,
+          "y": 668,
+          "width": 270,
+          "height": 100,
+          "visible": true,
+          "id": "sidebarContentBottom"
+        }
+      ]
+    }
+  }
+}

@@ -68,6 +68,8 @@ export const SCENARIOS: Scenario[] = [
   // RTL
   { id: 'rtl-1366', profile: laptop, rtl: true },
   { id: 'rtl-1366-dock-right', profile: laptop, rtl: true, cameras: 1, dock: 'contentRight' },
+  { id: 'rtl-1366-dock-left', profile: laptop, rtl: true, cameras: 1, dock: 'contentLeft' },
+  { id: 'mid-drag-1366-rtl', profile: laptop, rtl: true, cameras: 1, midDrag: true },
   {
     id: 'rtl-1920-userlist-dock-sidebar',
     profile: fullHd,
