@@ -24,6 +24,7 @@ import { Meeting } from '/imports/ui/Types/meeting';
 import { RAISED_HAND_USERS } from '/imports/ui/core/graphql/queries/users';
 import { filterByMeetingId } from '/imports/ui/core/utils/subscriptionFilters';
 import propsEqualIgnoringFloor from './utils';
+import useElementSize from '/imports/ui/core/hooks/useElementSize';
 
 interface VideoListContainerProps {
   streams: VideoItem[];
@@ -64,6 +65,8 @@ const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
   } = props;
   const numberOfPages = useNumberOfPages();
   const gridSize = useGridSize();
+  // the grid fills the canvas: its measured box, not the dock size the layout engine computed
+  const [canvasRef, canvasSize] = useElementSize<HTMLDivElement>();
 
   // Read once here rather than per tile: a hand toggle then re-renders only the
   // tiles whose position changed, not every tile's container.
@@ -163,6 +166,8 @@ const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
           onVirtualBgDrop={onVirtualBgDrop}
           gridSize={gridSize}
           raisedHandPositions={raisedHandPositions}
+          canvasRef={canvasRef}
+          canvasSize={canvasSize}
         />
       )
   );
