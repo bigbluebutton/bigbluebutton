@@ -4,7 +4,6 @@ import React, {
 import { defineMessages, useIntl } from 'react-intl';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { GenericContentType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/generic-content-item/enums';
-import getFromUserSettings from '/imports/ui/services/users-settings';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { layoutSelect, layoutSelectInput } from '/imports/ui/components/layout/context';
 import { PANELS } from '/imports/ui/components/layout/enums';
@@ -17,6 +16,7 @@ import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import {
   DOCUMENT_TITLE_VIEW_CHANGED,
   getActiveDocumentTitleView,
+  getClientTitle,
 } from './service';
 
 const intlMessages = defineMessages({
@@ -73,11 +73,6 @@ const intlMessages = defineMessages({
     description: 'default breakout room name',
   },
 });
-
-const getClientTitle = () => {
-  const publicConfig = window.meetingClientSettings?.public;
-  return getFromUserSettings('bbb_client_title', publicConfig?.app?.clientTitle || 'BigBlueButton');
-};
 
 const getChatTitle = (
   chatId: string,

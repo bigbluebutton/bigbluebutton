@@ -24,6 +24,8 @@ import logger from '/imports/startup/client/logger';
 import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
 import useMeeting from '../../core/hooks/useMeeting';
 import useCurrentUser from '../../core/hooks/useCurrentUser';
+import meetingStaticData from '/imports/ui/core/singletons/meetingStaticData';
+import { getClientTitle } from '/imports/ui/components/app/document-title-manager/service';
 
 const intlMessage = defineMessages({
   410: {
@@ -314,6 +316,17 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
       }, timeoutBeforeRedirectOnMeetingEnd);
     }
   }, []);
+
+  useEffect(() => {
+    // This screen replaces the app, and with it the title manager: without this the tab keeps
+    // naming the view the user was on ("... - Public Chat") or the guest lobby.
+    const meetingName = meetingStaticData.hasData() ? meetingStaticData.getMeetingData().name?.trim() : '';
+    document.title = [
+      getClientTitle(),
+      meetingName,
+      generateEndMessage(endMessageCode, endedBy),
+    ].filter(Boolean).join(' - ');
+  }, [endMessageCode, endedBy]);
 
   if (skipMeetingEnded) {
     confirmRedirect(isBreakout, allowRedirect);
