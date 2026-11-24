@@ -171,6 +171,11 @@ public:
         # Audio energy (dB) below which the input counts as no signal.
         signalFloorDb: -95
         cooldownMs: 300000
+      # Suggests lowering the hand when it is still raised after the user
+      # unmuted, spoke and muted again.
+      handStillRaised:
+        enabled: true
+        cooldownMs: 120000
       # Shows a hint when browser transcription is on and the user keeps talking
       # but nothing gets transcribed: the browser may be using another microphone,
       # or the background is too noisy. It shows again only after a transcription.

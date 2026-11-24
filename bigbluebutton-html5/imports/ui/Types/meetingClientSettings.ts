@@ -166,6 +166,7 @@ export interface SmartTriggers {
   enabled: boolean
   talkingWhileMuted: TalkingWhileMutedSmartTrigger
   noMicSignal: NoMicSignalSmartTrigger
+  handStillRaised: CooldownSmartTrigger
   speechNotTranscribed: SpeechNotTranscribedSmartTrigger
 }
 

@@ -97,6 +97,10 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           signalFloorDb: -95,
           cooldownMs: 300000,
         },
+        handStillRaised: {
+          enabled: true,
+          cooldownMs: 120000,
+        },
         speechNotTranscribed: {
           enabled: true,
           speechThresholdDb: -50,
