@@ -9,6 +9,8 @@ on:
       - "bbb-shared-notes-server/**"
       - "bbb-export-annotations/**"
       - "docker-compose.yml"
+      - ".env.sample"
+      - "docker/README.md"
       - "docker/compose/**"
       - ".github/workflows/component-unit-tests.yml"
 permissions:
