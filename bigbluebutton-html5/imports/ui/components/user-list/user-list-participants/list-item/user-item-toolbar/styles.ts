@@ -15,6 +15,9 @@ const ToolbarContainer = styled.div`
 `;
 
 const ToolbarItem = styled.div<{ disabled?: boolean, hasText?: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   color: ${({ hasText }) => (hasText ? colorPrimary : colorGrayIcons)};
 
@@ -26,11 +29,18 @@ const ToolbarItem = styled.div<{ disabled?: boolean, hasText?: boolean }>`
 `;
 
 const MoreItems = styled.div`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
   cursor: pointer;
   color: ${colorGrayIcons};
 `;
 
 const Pipe = styled.span`
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
   color: ${colorGrayIcons};
 `;
 

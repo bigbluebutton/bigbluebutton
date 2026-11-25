@@ -75,14 +75,22 @@ const TalkingIndicatorButton = styled(Button)`
   }
 
   i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
     font-size: ${fontSizeSmaller};
     width: 1rem;
     height: 1rem;
-    line-height: 1rem;
+    line-height: 1;
     background-color: ${colorSuccess};
     border-radius: 50%;
     position: relative;
     right: ${talkerMarginSm};
+
+    &::before {
+      line-height: 1;
+    }
 
     @media ${phoneLandscape} {
       height: ${talkerMarginSm};

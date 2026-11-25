@@ -3,32 +3,30 @@
 import styled from 'styled-components';
 import Icon from '/imports/ui/components/common/icon/component';
 import { colorDanger, colorSuccess, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
+import { fontSizeSmaller } from '/imports/ui/stylesheets/styled-components/typography';
 
-const Voice = styled(Icon)`
-  height: 1.1rem;
-  width: 1.1rem;
-  margin-left: 0.5rem;
+const VoiceBadgeBase = styled(Icon)`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 1rem;
+  width: 1rem;
+  line-height: 1;
+  margin-inline-start: 0.5rem;
   color: ${colorWhite};
   border-radius: 50%;
 
   &::before {
-    font-size: 80%;
+    font-size: ${fontSizeSmaller};
+    line-height: 1;
   }
+`;
 
+const Voice = styled(VoiceBadgeBase)`
   background-color: ${colorSuccess};
 `;
 
-const Muted = styled(Icon)`
-  height: 1.1rem;
-  width: 1.1rem;
-  color: ${colorWhite};
-  border-radius: 50%;
-  margin-left: 0.5rem;
-
-  &::before {
-    font-size: 80%;
-  }
-
+const Muted = styled(VoiceBadgeBase)`
   background-color: ${colorDanger};
 `;
 
