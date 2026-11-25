@@ -51,7 +51,8 @@ cd bigbluebutton
 docker compose pull
 commit=$(docker image inspect --format '{{index .Config.Labels "org.opencontainers.image.revision"}}' "$(docker compose config --images web | grep /bbb-web:)")
 cd ..
-curl -fsSL "https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/$commit/docker/compose/install.sh" | BBB_BRANCH=$commit sh -s -- <domain>
+repo=bigbluebutton/bigbluebutton  # or the BBB_REPO you installed from
+curl -fsSL "https://raw.githubusercontent.com/$repo/$commit/docker/compose/install.sh" | BBB_REPO=$repo BBB_BRANCH=$commit sh -s -- <domain>
 cd bigbluebutton
 docker compose up -d --force-recreate
 ```
