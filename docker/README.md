@@ -96,10 +96,15 @@ volumes (slides, recordings, captions, learning-dashboard reports) it serves its
   optional `webhooks`, whose location there resolves it per request, so without it nginx starts
   and answers `/bigbluebutton/api/hooks` with 502.
 
-A deployment uses these names or mounts its own files. Except `livekit`, which has a fixed address
-in the compose network, the upstreams resolve their names at run time through the container's DNS
-server, every 30 s: a service recreated alone with a new address, and Hasura scaled up or down,
-are found in about 30 s without reloading nginx, and nginx starts before they resolve.
+A deployment uses these names or mounts its own files. Its own `bbb-upstreams.conf` must define
+all seven upstreams: the image's `bbb-html5.nginx` and `learning-dashboard.nginx` proxy to
+`bbb-html5-client` and `bbb-learning-dashboard`, and without them nginx does not start (`host not
+found in upstream "bbb-html5-client"`).
+
+Except `livekit`, which has a fixed address in the compose network, the upstreams resolve their
+names at run time through the container's DNS server, every 30 s: a service recreated alone with
+a new address, and Hasura scaled up or down, are found in about 30 s without reloading nginx, and
+nginx starts before they resolve.
 
 The base image's entrypoint renders that resolver at start into `/tmp/bbb-resolver.conf`, so the
 image must be started with its entrypoint (a Kubernetes `command:` replaces it, and nginx then does
