@@ -44,14 +44,27 @@ const hasCameraDockChanged = (
     || curr.cameraDockSize !== prev.cameraDockSize;
 };
 
+/**
+ * Whether a follower applies the meeting's dock size again: when it or the meeting's position (whose axis
+ * the size belongs to) changed since the last render. Never on the first render: the join applies the
+ * meeting's size there, and keeps the user's own while the meeting has none (0).
+ */
+const hasMeetingCameraDockChanged = (
+  curr: MeetingCameraDock,
+  prev: Partial<MeetingCameraDock>,
+) => prev.size !== undefined
+  && (curr.size !== prev.size || curr.position !== prev.position);
+
 export {
   getPropagatedCameraDock,
   hasCameraDockChanged,
+  hasMeetingCameraDockChanged,
   meetingCameraDockSize,
 };
 
 export default {
   getPropagatedCameraDock,
   hasCameraDockChanged,
+  hasMeetingCameraDockChanged,
   meetingCameraDockSize,
 };

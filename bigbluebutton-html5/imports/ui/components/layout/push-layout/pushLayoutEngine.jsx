@@ -33,7 +33,7 @@ import {
 } from '../context';
 import { useShellState } from '../shell/context';
 import { cameraDockPosition as reportedCameraDockPosition } from '../shell/selectors';
-import { hasCameraDockChanged, meetingCameraDockSize } from './service';
+import { hasCameraDockChanged, hasMeetingCameraDockChanged, meetingCameraDockSize } from './service';
 import { useMeetingLayoutUpdater, usePushLayoutUpdater, useLayoutUpdater } from './hooks';
 import {
   applyMeetingDockSize, DOCK_SIZE_STORAGE_KEY, fractionFor, readStoredDockSize,
@@ -235,8 +235,10 @@ const PushLayoutEngine = (props) => {
 
     // the size is a fraction for the axis of the meeting's position: a new position needs it again
     const replicateCameraDockSize = () => {
-      if (meetingLayoutDockSize !== prevProps.meetingLayoutDockSize
-        || meetingLayoutCameraPosition !== prevProps.meetingLayoutCameraPosition) {
+      if (hasMeetingCameraDockChanged(
+        { position: meetingLayoutCameraPosition, size: meetingLayoutDockSize },
+        { position: prevProps.meetingLayoutCameraPosition, size: prevProps.meetingLayoutDockSize },
+      )) {
         applyMeetingDockSize(meetingLayoutCameraPosition, meetingLayoutDockSize);
       }
     };

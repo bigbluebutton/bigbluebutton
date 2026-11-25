@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   getPropagatedCameraDock,
   hasCameraDockChanged,
+  hasMeetingCameraDockChanged,
   meetingCameraDockSize,
 } from './service';
 
@@ -84,6 +85,25 @@ describe('push-layout service', () => {
 
     it('reports nothing when every field is equal', () => {
       expect(hasCameraDockChanged(base, { ...base })).toBe(false);
+    });
+  });
+
+  describe('hasMeetingCameraDockChanged', () => {
+    const meeting = { position: 'contentTop', size: 0.3 };
+
+    it('reports nothing on the first render: the join applies the meeting size, and keeps a local one for 0', () => {
+      expect(hasMeetingCameraDockChanged(meeting, {})).toBe(false);
+      expect(hasMeetingCameraDockChanged({ ...meeting, size: 0 }, {})).toBe(false);
+    });
+
+    it('reports a new size, or a new position, whose axis needs the size again', () => {
+      expect(hasMeetingCameraDockChanged(meeting, { ...meeting, size: 0.25 })).toBe(true);
+      expect(hasMeetingCameraDockChanged(meeting, { ...meeting, position: 'contentLeft' })).toBe(true);
+      expect(hasMeetingCameraDockChanged({ ...meeting, size: 0 }, meeting)).toBe(true);
+    });
+
+    it('reports nothing when the meeting dock is the same', () => {
+      expect(hasMeetingCameraDockChanged(meeting, { ...meeting })).toBe(false);
     });
   });
 });
