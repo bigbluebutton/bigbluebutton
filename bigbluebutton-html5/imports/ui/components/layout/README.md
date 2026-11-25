@@ -31,7 +31,9 @@ layout state (context.jsx) ──► shell/useLayoutShell.ts ──► shell/she
 - `shell/context.ts`: the shell state for the few regions that act on it in JS (the presentation
   unmounts while the media box has no area; the dock reads its position and edges).
 - `shell/ResizeHandle.tsx`: the resize handle of the sidebars and the camera dock (Pointer Events with
-  pointer capture, one report per animation frame, primary button only).
+  pointer capture, one report per animation frame, primary button only). The last move is drawn before
+  the end is reported. A drag that is cancelled, loses its capture, or whose handle is disabled or
+  removed ends where the last move left it.
 - `shell/mediaOnlyFit.ts`: measures the mediaOnly area for the content fit (see below).
 
 ## Regions
