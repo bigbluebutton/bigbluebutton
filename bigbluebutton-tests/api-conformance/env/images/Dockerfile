@@ -7,7 +7,7 @@
 # The LibreOffice the bbb-libreoffice-docker package converts Office
 # documents with; make -C env passes the tag bbb-libreoffice/docker/Dockerfile
 # names.
-ARG LIBREOFFICE_IMAGE=bigbluebutton/bbb-libreoffice:25.8.4.2-20260129-151200
+ARG LIBREOFFICE_IMAGE=bigbluebutton/bbb-libreoffice:26.8.3.1-20261120-120000
 FROM ${LIBREOFFICE_IMAGE} AS libreoffice
 
 # Ubuntu 24.04, as packaged servers run, with the bigbluebutton user every
@@ -23,6 +23,20 @@ RUN apt-get update \
  && useradd -u "$BBB_UID" -g bigbluebutton -d /home/bigbluebutton -m -s /bin/false bigbluebutton
 # unpack PATTERN: unpack the one deb in /debs matching PATTERN into /.
 COPY --chmod=755 images/unpack /usr/local/bin/unpack
+
+# JaCoCo's agent and command line, for measuring which of bbb-web's code the
+# suite reaches: make -C env up COVERAGE=1 starts bbb-web with the agent,
+# and make -C env coverage writes the report (see the README, "Coverage").
+# A new version needs its two sums here.
+FROM base AS jacoco
+RUN mkdir -p /opt/jacoco && cd /opt/jacoco \
+ && curl -fsSL -o jacocoagent.jar https://repo1.maven.org/maven2/org/jacoco/org.jacoco.agent/0.8.13/org.jacoco.agent-0.8.13-runtime.jar \
+ && curl -fsSL -o jacococli.jar https://repo1.maven.org/maven2/org/jacoco/org.jacoco.cli/0.8.13/org.jacoco.cli-0.8.13-nodeps.jar \
+ && printf '%s  %s\n' \
+      47e700ccb0fdb9e27c5241353f8161938f4e53c3561dd35e063c5fe88dc3349b jacocoagent.jar \
+      8f748683833d4dc4d72cea5d6b43f49344687b831e0582c97bcb9b984e3de0a3 jacococli.jar \
+    | sha256sum -c - \
+ && chmod 644 jacocoagent.jar jacococli.jar
 
 # Creates the data directory tree as bbb-config, bbb-record-core and
 # bbb-web do at install, then exits.
@@ -72,6 +86,8 @@ COPY --chmod=755 images/bbb-web/run-in-systemd.sh /usr/share/bbb-web/run-in-syst
 # The stack's rendered configuration is mounted at /etc/bigbluebutton/conform;
 # a profile switch rewrites the file there.
 RUN ln -s conform/bbb-web.properties /etc/bigbluebutton/bbb-web.properties
+# Unused unless JAVA_TOOL_OPTIONS asks for the agent (COVERAGE=1).
+COPY --from=jacoco /opt/jacoco /opt/jacoco
 COPY --chmod=755 images/bbb-web/start /usr/local/bin/start-bbb-web
 CMD ["start-bbb-web"]
 HEALTHCHECK --interval=5s --timeout=5s --start-period=180s \

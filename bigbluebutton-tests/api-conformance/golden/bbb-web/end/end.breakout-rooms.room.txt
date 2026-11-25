@@ -1,0 +1,37 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case end.breakout-rooms.room
+target bbb-web
+
+== step 9: call end
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "SUCCESS"
+/response/messageKey "sentEndMeetingRequest"
+/response/message "A request to end the meeting was sent. Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended."
+
+== step 11: call getMeetingInfo
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "FAILED"
+/response/messageKey "notFound"
+/response/message "A meeting with that ID does not exist"
+
+== step 12: call isMeetingRunning
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "SUCCESS"
+/response/running "false"
+
+== step 15: call isMeetingRunning
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "SUCCESS"
+/response/running "true"

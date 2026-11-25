@@ -102,6 +102,11 @@ trait RegisterUserReqMsgHdlr {
       case GuestStatus.ALLOW =>
         val g = GuestApprovedVO(regUser.id, GuestStatus.ALLOW)
         UsersApp.approveOrRejectGuest(liveMeeting, g, SystemUser.ID)
+      case GuestStatus.WAIT if GuestsWaiting.getGuestPolicy(liveMeeting.guestsWaiting).policy == GuestPolicyType.ALWAYS_ACCEPT =>
+        // bbb-web decided WAIT before it learned that the meeting now accepts everyone
+        val g = GuestApprovedVO(regUser.id, GuestStatus.ALLOW)
+        UsersApp.approveOrRejectGuest(liveMeeting, g, SystemUser.ID)
+        outGW.send(MsgBuilder.buildGuestsWaitingApprovedEvtMsg(liveMeeting.props.meetingProp.intId, "nodeJSapp", Vector(g), SystemUser.ID))
       case GuestStatus.WAIT =>
         val guest = GuestWaiting(regUser.id, regUser.name, regUser.role, regUser.guest, regUser.avatarURL, regUser.webcamBackgroundURL, regUser.color, regUser.authed, regUser.registeredOn)
         addGuestToWaitingForApproval(guest, liveMeeting.guestsWaiting)

@@ -23,77 +23,82 @@ trait GuestsWaitingApprovedMsgHdlr extends HandlerHelpers with RightsManagementT
       val reason = "No permission to approve or deny guests in meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
     } else {
-      msg.body.guests foreach { g =>
-        for {
-          // Remove guest from waiting list
-          _ <- GuestsWaiting.remove(liveMeeting.guestsWaiting, g.guest)
-        } yield {
-          if (g.guest.startsWith(IntIdPrefixType.DIAL_IN)) {
-            Users2x.findWithIntId(liveMeeting.users2x, g.guest) match {
-              case Some(dialInUser) =>
-                if (g.status == GuestStatus.ALLOW) {
-                  //Set dial in user as Joined
-                  for {
-                    regUser <- RegisteredUsers.findWithUserId(dialInUser.intId, liveMeeting.registeredUsers)
-                  } yield {
-                    if (!regUser.loggedOut) {
-                      RegisteredUsers.updateUserJoin(liveMeeting.registeredUsers, regUser, joined = true)
-                    }
-                  }
-
-                  VoiceApp.handleUserJoinedVoiceConfEvtMsg(
-                    liveMeeting,
-                    outGW,
-                    eventBus,
-                    liveMeeting.props.voiceProp.voiceConf,
-                    g.guest,
-                    dialInUser.extId,
-                    "none",
-                    dialInUser.name,
-                    dialInUser.name,
-                    role = dialInUser.role,
-                    dialInUser.color,
-                    speechLocale = "",
-                    MeetingStatus2x.isMeetingMuted(liveMeeting.status),
-                    listenOnlyInputDevice = false,
-                    deafened = false,
-                    talking = false,
-                    "freeswitch",
-                    hold = false,
-                    "unused"
-                  )
-                  VoiceUsers.findWithIntId(
-                    liveMeeting.voiceUsers,
-                    dialInUser.intId
-                  ) match {
-                      case Some(vu) =>
-                        VoiceApp.toggleUserAudioInVoiceConf(
-                          liveMeeting,
-                          outGW,
-                          vu.intId,
-                          vu.voiceUserId,
-                          enabled = true
-                        )
-                      case None =>
-                        println(s"Skipping transferring dial-in user to the "
-                          + "voiceconf: dial-in user already left. meetingId= "
-                          + "${liveMeeting.props.meetingProp.intId}, userId="
-                          + "${dialInUser.intId}")
-                    }
-                } else {
-                  VoiceApp.removeUserFromVoiceConf(liveMeeting, outGW, dialInUser.extId)
-                  val event = MsgBuilder.buildEjectUserFromVoiceConfSysMsg(liveMeeting.props.meetingProp.intId, liveMeeting.props.voiceProp.voiceConf, g.guest)
-                  outGW.send(event)
-                }
-              case None => None
-            }
-          }
-          UsersApp.approveOrRejectGuest(liveMeeting, g, msg.body.approvedBy)
-        }
-      }
-
-      notifyBbbWebOfGuestsApproval(msg.body.guests, msg.body.approvedBy)
+      approveOrRejectWaitingGuests(msg.body.guests, msg.body.approvedBy)
     }
+  }
+
+  // Serves both a moderator's decision and a guest policy change.
+  def approveOrRejectWaitingGuests(guests: Vector[GuestApprovedVO], approvedBy: String): Unit = {
+    guests foreach { g =>
+      for {
+        // Remove guest from waiting list
+        _ <- GuestsWaiting.remove(liveMeeting.guestsWaiting, g.guest)
+      } yield {
+        if (g.guest.startsWith(IntIdPrefixType.DIAL_IN)) {
+          Users2x.findWithIntId(liveMeeting.users2x, g.guest) match {
+            case Some(dialInUser) =>
+              if (g.status == GuestStatus.ALLOW) {
+                //Set dial in user as Joined
+                for {
+                  regUser <- RegisteredUsers.findWithUserId(dialInUser.intId, liveMeeting.registeredUsers)
+                } yield {
+                  if (!regUser.loggedOut) {
+                    RegisteredUsers.updateUserJoin(liveMeeting.registeredUsers, regUser, joined = true)
+                  }
+                }
+
+                VoiceApp.handleUserJoinedVoiceConfEvtMsg(
+                  liveMeeting,
+                  outGW,
+                  eventBus,
+                  liveMeeting.props.voiceProp.voiceConf,
+                  g.guest,
+                  dialInUser.extId,
+                  "none",
+                  dialInUser.name,
+                  dialInUser.name,
+                  role = dialInUser.role,
+                  dialInUser.color,
+                  speechLocale = "",
+                  MeetingStatus2x.isMeetingMuted(liveMeeting.status),
+                  listenOnlyInputDevice = false,
+                  deafened = false,
+                  talking = false,
+                  "freeswitch",
+                  hold = false,
+                  "unused"
+                )
+                VoiceUsers.findWithIntId(
+                  liveMeeting.voiceUsers,
+                  dialInUser.intId
+                ) match {
+                    case Some(vu) =>
+                      VoiceApp.toggleUserAudioInVoiceConf(
+                        liveMeeting,
+                        outGW,
+                        vu.intId,
+                        vu.voiceUserId,
+                        enabled = true
+                      )
+                    case None =>
+                      log.info(
+                        s"Skipping transferring dial-in user to the voiceconf: dial-in user already left. "
+                          + s"meetingId=${liveMeeting.props.meetingProp.intId}, userId=${dialInUser.intId}"
+                      )
+                  }
+              } else {
+                VoiceApp.removeUserFromVoiceConf(liveMeeting, outGW, dialInUser.extId)
+                val event = MsgBuilder.buildEjectUserFromVoiceConfSysMsg(liveMeeting.props.meetingProp.intId, liveMeeting.props.voiceProp.voiceConf, g.guest)
+                outGW.send(event)
+              }
+            case None => None
+          }
+        }
+        UsersApp.approveOrRejectGuest(liveMeeting, g, approvedBy)
+      }
+    }
+
+    notifyBbbWebOfGuestsApproval(guests, approvedBy)
   }
 
   def notifyBbbWebOfGuestsApproval(guests: Vector[GuestApprovedVO], approvedBy: String): Unit = {

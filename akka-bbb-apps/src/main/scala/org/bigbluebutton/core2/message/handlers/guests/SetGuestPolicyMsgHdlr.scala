@@ -1,8 +1,8 @@
 package org.bigbluebutton.core2.message.handlers.guests
 
-import org.bigbluebutton.common2.msgs.SetGuestPolicyCmdMsg
+import org.bigbluebutton.common2.msgs.{ GuestApprovedVO, SetGuestPolicyCmdMsg }
 import org.bigbluebutton.core.db.NotificationDAO
-import org.bigbluebutton.core.models.{ GuestPolicy, GuestPolicyType, GuestsWaiting }
+import org.bigbluebutton.core.models.{ GuestPolicy, GuestPolicyType, GuestStatus, GuestsWaiting }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
@@ -33,6 +33,17 @@ trait SetGuestPolicyMsgHdlr extends RightsManagementTrait {
           liveMeeting.props.meetingProp.intId, msg.header.userId, newPolicy, msg.body.setBy
         )
         outGW.send(event)
+
+        if (newPolicy == GuestPolicyType.ALWAYS_ACCEPT) {
+          val waitingGuests = GuestsWaiting.findAll(liveMeeting.guestsWaiting)
+          if (waitingGuests.nonEmpty) {
+            log.info(
+              "Guest policy set to ALWAYS_ACCEPT: admitting {} waiting users. meetingId={} setBy={}",
+              waitingGuests.size, liveMeeting.props.meetingProp.intId, msg.header.userId
+            )
+            approveOrRejectWaitingGuests(waitingGuests.map(g => GuestApprovedVO(g.intId, GuestStatus.ALLOW)), msg.header.userId)
+          }
+        }
 
         if (oldPolicy != newPolicy) {
           val policyLabelKey: Option[String] = newPolicy match {
