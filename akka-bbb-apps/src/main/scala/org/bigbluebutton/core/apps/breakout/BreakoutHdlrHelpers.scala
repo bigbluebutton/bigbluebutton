@@ -133,15 +133,23 @@ object BreakoutHdlrHelpers extends SystemConfiguration {
   }
 
   def ejectUserFromBreakoutRoom(
-      eventBus:   InternalEventBus,
-      parentId:   String,
-      room:       BreakoutRoom2x,
-      userId:     String,
-      ejectedBy:  String,
-      reason:     String,
-      reasonCode: String
+      liveMeeting: LiveMeeting,
+      eventBus:    InternalEventBus,
+      room:        BreakoutRoom2x,
+      userId:      String,
+      ejectedBy:   String,
+      reason:      String,
+      reasonCode:  String
   ): Unit = {
-    room.users.filter(u => u.extId == userId + "-" + room.sequence).foreach(user => {
+    val parentId = liveMeeting.props.meetingProp.intId
+    // The access revocation that follows ejects the user's other sessions from this room
+    // with a generic reason, so eject them here first with the caller's reason.
+    val ejectUserIds =
+      if (room.freeJoin) Vector(userId)
+      else (userId +: userSessionIdsToRevoke(liveMeeting, userId)).distinct
+    val ejectExtIds = ejectUserIds.map(_ + "-" + room.sequence)
+
+    room.users.filter(u => ejectExtIds.contains(u.extId)).foreach(user => {
       eventBus.publish(BigBlueButtonEvent(room.id, EjectUserFromBreakoutInternalMsg(parentId, room.id, user.extId, ejectedBy, reason, reasonCode, false)))
     })
   }
@@ -153,10 +161,7 @@ object BreakoutHdlrHelpers extends SystemConfiguration {
       userId:      String
   ): Unit = {
     val parentId = liveMeeting.props.meetingProp.intId
-    val revokeUserIds = RegisteredUsers.findAllSessionsWithUserId(userId, liveMeeting.registeredUsers) match {
-      case Vector() => Vector(userId)
-      case sessions => sessions.filter(_.role != Roles.MODERATOR_ROLE).map(_.id)
-    }
+    val revokeUserIds = userSessionIdsToRevoke(liveMeeting, userId)
 
     rooms
       .filter(room => !room.freeJoin)
@@ -165,5 +170,12 @@ object BreakoutHdlrHelpers extends SystemConfiguration {
           eventBus.publish(BigBlueButtonEvent(room.id, UpdateBreakoutUserAccessInternalMsg(parentId, room.id, revokeUserId + "-" + room.sequence, revoked = true)))
         })
       })
+  }
+
+  private def userSessionIdsToRevoke(liveMeeting: LiveMeeting, userId: String): Vector[String] = {
+    RegisteredUsers.findAllSessionsWithUserId(userId, liveMeeting.registeredUsers) match {
+      case Vector() => Vector(userId)
+      case sessions => sessions.filter(_.role != Roles.MODERATOR_ROLE).map(_.id)
+    }
   }
 }

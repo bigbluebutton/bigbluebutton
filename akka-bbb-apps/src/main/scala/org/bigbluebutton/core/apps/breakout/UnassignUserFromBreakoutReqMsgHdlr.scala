@@ -26,7 +26,7 @@ trait UnassignUserFromBreakoutReqMsgHdlr extends RightsManagementTrait {
 
       roomOpt match {
         case Some((breakoutModel, room)) =>
-          BreakoutHdlrHelpers.ejectUserFromBreakoutRoom(eventBus, meetingId, room, msg.body.userId, msg.header.userId, "User unassigned from breakout room", EjectReasonCode.BREAKOUT_USER_UNASSIGNED)
+          BreakoutHdlrHelpers.ejectUserFromBreakoutRoom(liveMeeting, eventBus, room, msg.body.userId, msg.header.userId, "User unassigned from breakout room", EjectReasonCode.BREAKOUT_USER_UNASSIGNED)
           BreakoutHdlrHelpers.revokeUserAccessToBreakoutRooms(liveMeeting, eventBus, breakoutModel.rooms.values, msg.body.userId)
           BreakoutRoomUserDAO.unassignUser(meetingId, msg.body.userId)
         case None =>
