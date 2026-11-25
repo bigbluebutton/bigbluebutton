@@ -39,7 +39,15 @@ function loadConfig(): AppSettings {
   // These variables, if set, win over the default and the override file
   const env = process.env;
   if (env.SERVER_HOST) config.expressServer.host = env.SERVER_HOST;
-  if (env.BBB_WEB_HOST) config.bbbWeb.host = env.BBB_WEB_HOST;
+  if (env.BBB_WEB_URL) {
+    // bbb-web's base URL, as for bbb-export-annotations, e.g. http://web:8090
+    const url = new URL(env.BBB_WEB_URL);
+    if (url.protocol !== 'http:' || url.pathname !== '/') {
+      console.warn(`BBB_WEB_URL=${env.BBB_WEB_URL}: only http://host[:port] is used`);
+    }
+    config.bbbWeb.host = url.hostname;
+    config.bbbWeb.port = url.port || '80';
+  }
   if (env.REDIS_HOST) config.redis.host = env.REDIS_HOST;
   if (env.REDIS_PASSWORD) config.redis.password = env.REDIS_PASSWORD;
   if (env.REDIS_PORT) {
