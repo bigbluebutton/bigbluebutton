@@ -174,6 +174,32 @@ test.describe('Push layout: characterization', { tag: ['@layout', '@media'] }, (
     expect(Math.abs(dock.height - size), 'the late joiner gets the presenter size').toBeLessThanOrEqual(PX);
   });
 
+  test('A follower keeps its own size when it joins a meeting whose presenter never resized', async ({
+    browser,
+  }, testInfo) => {
+    // The size a follower set itself stays in its tab across a reload (sessionStorage); the meeting's 0
+    // means "not set" and must not overwrite it.
+    const presenter = await openClient(browser, testInfo, { fullName: 'Presenter' });
+    await shareWebcam(presenter);
+    await presenter.page.waitForTimeout(2000);
+    const context = await newDeviceContext(browser);
+    await context.addInitScript(() => {
+      window.sessionStorage.setItem('BBB_cameraDockSize', JSON.stringify({ width: 0, height: 0.5 }));
+    });
+    const viewer = await openClient(browser, testInfo, {
+      context,
+      fullName: 'Viewer',
+      isModerator: false,
+      meetingId: presenter.meetingId,
+    });
+    await viewer.page.locator('#cameraDock').waitFor();
+    await waitForStableGeometry(viewer.page);
+    await viewer.page.waitForTimeout(1000);
+    const area = (await box(viewer.page, '[data-layout-region="camera-dock-area"]'))!;
+    const dock = (await box(viewer.page, '#cameraDock'))!;
+    expect(Math.abs(dock.height - area.height * 0.5), 'the follower keeps half of its area').toBeLessThanOrEqual(PX);
+  });
+
   test('SetLayoutProps per 200 px dock resize drag', async ({ browser }, testInfo) => {
     const context = await newDeviceContext(browser);
     const sent = await recordLayoutProps(context);
