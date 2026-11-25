@@ -469,29 +469,17 @@ dpkg -i ./target/bbb-fsesl-akka_<tab>.deb
 You can manually run the service.
 When running, it'll process export jobs stored in Redis containing the state of the whiteboard at the time of the request.
 
-First, stop the component so that you're not running two copies in parallel:
-
-```
-sudo systemctl stop bbb-export-annotations
-```
-
-To install the npm dependencies, run:
-
 ```
 cd ~/dev/bigbluebutton/bbb-export-annotations
-npm install
+./run-dev.sh
 ```
 
-followed by
+`run-dev.sh` installs the npm dependencies, stops the `bbb-export-annotations` service so that you're not running two copies in parallel, and starts the export with the same configuration as the service: `config/default.json`, then `/etc/bigbluebutton/bbb-export-annotations/production.json`, then the environment variables (if that file exists, your user must be able to read it, or the export stops with "cannot be read"). A plain `npm start` reads only `config/default.json` and ignores the override without a message.
 
-```
-npm start
-```
-
-to begin exporting presentations with annotations. If you run into permission issues, change `presAnnDropboxDir` in `config/default.json` to a folder in your home directory
+If you run into permission issues, set `shared.presAnnDropboxDir` in `/etc/bigbluebutton/bbb-export-annotations/production.json` to a folder in your home directory
 and make sure your user account has access to the presentation directory (see "Developing BBB-Web").
 
-Use `journalctl -u bbb-export-annotations -e` to see recent logs.
+The output goes to the terminal; `journalctl -u bbb-export-annotations -e` shows the logs of the service.
 
 ## Developing the Learning Dashboard
 
