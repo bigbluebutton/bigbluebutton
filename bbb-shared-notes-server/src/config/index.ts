@@ -32,7 +32,8 @@ function loadConfig(): AppSettings {
   let config = load(readFileSync(defaultPath, 'utf8')) as AppSettings;
 
   if (existsSync(OVERRIDE_PATH)) {
-    const override = load(readFileSync(OVERRIDE_PATH, 'utf8')) as Partial<AppSettings>;
+    // an empty file is null for js-yaml
+    const override = (load(readFileSync(OVERRIDE_PATH, 'utf8')) ?? {}) as Partial<AppSettings>;
     config = deepMerge(config, override);
   }
 
