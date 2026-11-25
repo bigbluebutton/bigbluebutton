@@ -133,11 +133,15 @@ create_certs() {
 # bbb-web loads the default slides from https://$DOMAIN, so it has to trust the CA.
 # Only docker-compose.yml is read here: an override that already mounts the truststore would
 # make Docker create data/certs/cacerts as a directory while the file is not there yet.
+# It runs as root, so that it can replace a cacerts left by an earlier run and write to data/certs
+# with rootless Docker or Podman too. The file then gets the owner of data/certs, which this script
+# created as the caller (rootless, the container's root is already the caller).
 create_truststore() {
   docker compose -f docker-compose.yml run --rm --no-deps --user 0 -v "$PWD/$CERTS:/certs" -v "$PWD/$CA/rootCA.pem:/ca.pem:ro" \
     --entrypoint sh web -c \
     'cp "$JAVA_HOME/lib/security/cacerts" /certs/cacerts &&
-     keytool -importcert -noprompt -alias local-ca -file /ca.pem -keystore /certs/cacerts -storepass changeit'
+     keytool -importcert -noprompt -alias local-ca -file /ca.pem -keystore /certs/cacerts -storepass changeit &&
+     chown --reference=/certs /certs/cacerts'
 }
 
 # Makes web use the truststore. A new override file gets only that; an existing one is left
