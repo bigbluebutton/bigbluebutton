@@ -986,7 +986,7 @@ export const elements = {
 
   // Layout
   cameraDock: 'div#cameraDock',
-  // the client writes the layout it is in on this element, as data-layout (layoutEngine.jsx)
+  // the client writes the layout it is in on this element, as data-layout (layout/shell/shellState.ts)
   layoutContainer: 'div#layout',
 
   // Font size
