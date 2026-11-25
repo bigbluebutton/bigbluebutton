@@ -84,31 +84,32 @@ deployments use their official images.
 
 ### Edge nginx
 
-`bbb-nginx` is the server's nginx with the site and location files of the packages. It proxies the
-static apps by their default service names on port 8080: `html5-client`, `learning-dashboard` and
-`playback`. nginx resolves these names when it starts, so a deployment either runs those images
-under these service names or mounts its own fragments at `/usr/share/bigbluebutton/nginx/`.
-Content from volumes (slides, recordings, captions, learning-dashboard reports) it serves itself
-from `/var/bigbluebutton`. The backends are the upstreams in `/etc/nginx/conf.d/bbb-upstreams.conf`,
-by their default service names: `web`, `graphql-middleware`, `livekit`, `webrtc-sfu` and
-`shared-notes-server`; Hasura is `graphql-server` in `sites-available/hasura-loadbalancer.conf`.
-A deployment uses these names or mounts its own two files. nginx resolves the backends when it
-starts, so they must resolve then. Two names are resolved at run time through the container's DNS
-server instead, every 30 s or per request:
-- `graphql-server`, so that scaling Hasura (more or fewer instances behind the one name) takes effect
-  in about 30 s, without reloading nginx;
-- the optional `webhooks`, whose location (`/usr/share/bigbluebutton/nginx/webhooks.nginx`) resolves
-  it per request, so without it nginx starts and answers `/bigbluebutton/api/hooks` with 502.
+`bbb-nginx` is the server's nginx with the site and location files of the packages. Content from
+volumes (slides, recordings, captions, learning-dashboard reports) it serves itself from
+`/var/bigbluebutton`. It proxies to the other images by their default service names:
+- the upstreams in `/etc/nginx/conf.d/bbb-upstreams.conf`: the backends `web`,
+  `graphql-middleware`, `livekit`, `webrtc-sfu` and `shared-notes-server`, and the static apps
+  `html5-client` and `learning-dashboard` (port 8080);
+- Hasura, `graphql-server`, in `sites-available/hasura-loadbalancer.conf`;
+- `playback` in `/usr/share/bigbluebutton/nginx/playback.nginx` (the compose file mounts one that
+  resolves the name per request, as playback runs only with the recording profile), and the
+  optional `webhooks`, whose location there resolves it per request, so without it nginx starts
+  and answers `/bigbluebutton/api/hooks` with 502.
+
+A deployment uses these names or mounts its own files. Except `livekit`, which has a fixed address
+in the compose network, the upstreams resolve their names at run time through the container's DNS
+server, every 30 s: a service recreated alone with a new address, and Hasura scaled up or down,
+are found in about 30 s without reloading nginx, and nginx starts before they resolve.
 
 The base image's entrypoint renders that resolver at start into `/tmp/bbb-resolver.conf`, so the
 image must be started with its entrypoint (a Kubernetes `command:` replaces it, and nginx then does
 not start), and `/tmp` must be writable, as it already must be for nginx's pid and temp files. With
 several nameservers in `/etc/resolv.conf` nginx rotates between them, so all of them must know the
-names; on Kubernetes `graphql-server` and `webhooks` need their full service names, because nginx's
-resolver ignores search domains, so mount your own `hasura-loadbalancer.conf` (and webhooks
-location) with them. Resolving `graphql-server` spreads the load over several Hasura pods only
-with a headless Service, whose name resolves to the pods; a ClusterIP Service resolves to one
-address. TLS and `server_name` are deployment config.
+names. On Kubernetes the short names do not resolve, because nginx's resolver ignores search
+domains: mount your own `bbb-upstreams.conf`, `hasura-loadbalancer.conf` and locations with the full
+service names. Resolving a name spreads the load over several pods only with a headless Service,
+whose name resolves to the pods; a ClusterIP Service resolves to one address. TLS and
+`server_name` are deployment config.
 
 ## Environment variables
 
