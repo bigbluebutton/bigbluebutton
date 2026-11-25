@@ -42,11 +42,11 @@ commit and the dated version, `org.opencontainers.image.title` its name.
 | bbb-html5-client | `bigbluebutton-html5/` | 8080 | none (client settings come from bbb-apps-akka) |
 | bbb-learning-dashboard | `bbb-learning-dashboard/` | 8080 | none |
 | bbb-graphql-actions | `bbb-graphql-actions/` | 8093 | environment only |
-| bbb-graphql-middleware | `bbb-graphql-middleware/` | 8378 | `/etc/bigbluebutton/bbb-graphql-middleware.yml` |
+| bbb-graphql-middleware | `bbb-graphql-middleware/` | 8378 | environment (`SERVER_HOST`, `REDIS_*`, `*_URL`), `/etc/bigbluebutton/bbb-graphql-middleware.yml` |
 | bbb-graphql-server | `bbb-graphql-server/` | 8085 | environment (`HASURA_GRAPHQL_*`) |
 | bbb-export-annotations | `bbb-export-annotations/` | none | environment (`REDIS_*`, `BBB_WEB_URL`, `BBB_EXPORT_ANNOTATIONS_*`), `/etc/bigbluebutton/bbb-export-annotations/production.json` |
-| bbb-shared-notes-server | `bbb-shared-notes-server/` | 8787 | `/etc/bigbluebutton/bbb-shared-notes-server.yml` |
-| bbb-record-and-playback | `record-and-playback/` | none | `/etc/bigbluebutton/recording/recording.yml`, `presentation.yml`, `/etc/bigbluebutton/bbb-web.properties` |
+| bbb-shared-notes-server | `bbb-shared-notes-server/` | 8787 | environment (`SERVER_HOST`, `BBB_WEB_URL`, `REDIS_*`, `POSTGRES_*`), `/etc/bigbluebutton/bbb-shared-notes-server.yml` |
+| bbb-record-and-playback | `record-and-playback/` | none | environment (`REDIS_*`, `PLAYBACK_HOST`, `BN_NOTES_ENDPOINT`, `SHARED_SECRET`), `/etc/bigbluebutton/recording/recording.yml`, `presentation.yml`, `/etc/bigbluebutton/bbb-web.properties` |
 | bbb-nginx | `docker/nginx/` | 8080, 8185 | `/etc/nginx/sites-available/`, `/usr/share/bigbluebutton/nginx/` |
 | bbb-webrtc-sfu | `docker/bbb-webrtc-sfu/` | 3008 | `/etc/bigbluebutton/bbb-webrtc-sfu/production.yml` |
 | bbb-webrtc-recorder | `docker/bbb-webrtc-recorder/` | none | `/etc/bigbluebutton/bbb-webrtc-recorder.yml` (replaces the default) |
@@ -110,7 +110,9 @@ resolver ignores search domains. TLS and `server_name` are deployment config.
 
 ## Environment variables
 
-Only these are read; everything else is set in the mounted configuration.
+Only these are read; everything else is set in the mounted configuration. Where a component also
+has a configuration file, the variable wins over the file, and a variable set to an empty value
+counts as not set.
 
 - **bbb-apps-akka** (HOCON `${?VAR}` in upstream's `application.conf`): `SHARED_SECRET`,
   `BBB_WEB_API`, `GRAPHQL_MIDDLEWARE_API`, `REDIS_HOST`, `REDIS_PASSWORD`, `POSTGRES_HOST`,
@@ -133,7 +135,11 @@ Only these are read; everything else is set in the mounted configuration.
   `BBB_EXPORT_ANNOTATIONS_*` for the log level, the shared paths and the rasterize timeout.
   Environment variables take precedence over a mounted
   `/etc/bigbluebutton/bbb-export-annotations/production.json`.
-- **bbb-record-and-playback**: resque's `QUEUE` and `COUNT` (preset as in the systemd unit).
+- **bbb-record-and-playback**: `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`, `PLAYBACK_HOST` (the
+  public domain in the playback URLs), `BN_NOTES_ENDPOINT` (the notes export of
+  bbb-shared-notes-server) and `SHARED_SECRET`, which signs the callbacks and wins over
+  `securitySalt` in `bbb-web.properties`. The resque queue uses `redis_workers_*` from the files
+  when they are set. Also resque's `QUEUE` and `COUNT` (preset as in the systemd unit).
 - **bbb-webrtc-sfu**, **bbb-webhooks**: the variables in the component's
   `config/custom-environment-variables.yml` (node-config), e.g. `REDIS_HOST`, `REDIS_PASSWORD`;
   for the SFU also `LIVEKIT_HOST`, `LIVEKIT_KEY`, `LIVEKIT_SECRET`; for webhooks `SERVER_DOMAIN`,
@@ -142,14 +148,20 @@ Only these are read; everything else is set in the mounted configuration.
   `BBBRECORDER_LIVEKIT_APIKEY`, `BBBRECORDER_LIVEKIT_APISECRET`. A Redis address in
   `BBBRECORDER_PUBSUB_ADAPTERS_REDIS_ADDRESS` needs `BBBRECORDER_PUBSUB_ADAPTERS_REDIS_NETWORK=tcp`
   as well.
-- **bbb-graphql-middleware**, **bbb-shared-notes-server**: `SERVER_HOST`, the listen address (the
-  image sets `0.0.0.0`); an override file cannot change it, as the environment wins.
+- **bbb-graphql-middleware**: `SERVER_HOST`, the listen address (the image sets `0.0.0.0`),
+  `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`, `HASURA_URL`,
+  `HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL` (the graphql-actions URL, the name bbb-graphql-server
+  reads for the same address), `AUTH_HOOK_URL` and `SESSION_VARS_HOOK_URL`.
+- **bbb-shared-notes-server**: `SERVER_HOST`, the listen address (the image sets `0.0.0.0`),
+  `BBB_WEB_URL` (bbb-web's base URL, e.g. `http://web:8090`), `REDIS_HOST`, `REDIS_PORT`,
+  `REDIS_PASSWORD`, `POSTGRES_HOST` and `POSTGRES_PASSWORD`.
 - **bbb-html5-client**, **bbb-learning-dashboard**, **bbb-playback**: none.
 - **bbb-nginx**: the base image's `NGINX_ENTRYPOINT_LOCAL_RESOLVERS`, which the image sets.
 
 On Kubernetes, a Service named `redis` makes Kubernetes set `REDIS_PORT=tcp://<address>:6379` in
-the pods of the namespace. The recording and bbb-export-annotations ignore a `REDIS_PORT` that is
-not a number, with a warning; `enableServiceLinks: false` in the pod spec avoids the variable.
+the pods of the namespace. The recording, bbb-export-annotations, bbb-shared-notes-server and
+bbb-graphql-middleware ignore a `REDIS_PORT` that is not a number, with a warning;
+`enableServiceLinks: false` in the pod spec avoids the variable.
 
 ## Running with docker compose
 
