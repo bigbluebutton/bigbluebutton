@@ -79,6 +79,7 @@ public interface IBbbWebApiGWApp {
                      String notifyRecordingAppend,
                      String presentationUploadExternalDescription,
                      String presentationUploadExternalUrl,
+                     String roomMode,
                      Map<String, Object> plugins,
                      String html5PluginSdkVersion,
                      String overrideClientSettings);

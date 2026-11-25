@@ -36,6 +36,7 @@
               notifyRecordingAppend
               presentationUploadExternalDescription
               presentationUploadExternalUrl
+              roomModeOnCreate
               recordingPolicies {
                 allowStartStopRecording
                 autoStartRecording

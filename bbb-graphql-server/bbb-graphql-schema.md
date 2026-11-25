@@ -33,6 +33,7 @@
 - `presentationUploadExternalUrl`
 - `roomBaseSettings`
 - `roomMode`
+- `roomModeOnCreate`
 - `screenShareBridge`
 ### Relationships:
 - `breakoutPolicies: Object` [Type meeting_breakoutPolicies](#type-meeting_breakoutPolicies)

@@ -20,7 +20,8 @@ public class CreateMeeting extends RequestWithChecksum<CreateMeeting.Params> {
         MODERATOR_PW("moderatorPW"),
         IS_BREAKOUT_ROOM("isBreakoutRoom"),
         RECORD("record"),
-        PRES_UPLOAD_EXT_URL("presentationUploadExternalUrl");
+        PRES_UPLOAD_EXT_URL("presentationUploadExternalUrl"),
+        ROOM_MODE("roomMode");
 
         private final String value;
 
@@ -57,6 +58,12 @@ public class CreateMeeting extends RequestWithChecksum<CreateMeeting.Params> {
 
     @UrlConstraint
     private String presentationUploadExternalUrl;
+
+    // The shape a room mode has everywhere else (meetingSetRoomMode, akka), with the empty value allowed.
+    public static final String ROOM_MODE_PATTERN = "^([a-z][a-z0-9-]{0,31})?$";
+
+    @Pattern(regexp = ROOM_MODE_PATTERN, message = "Room mode must be lowercase letters, digits and dashes, starting with a letter, up to 32 characters")
+    private String roomMode;
 
     public CreateMeeting(Checksum checksum, HttpServletRequest servletRequest) {
         super(checksum, servletRequest);
@@ -134,6 +141,14 @@ public class CreateMeeting extends RequestWithChecksum<CreateMeeting.Params> {
         this.presentationUploadExternalUrl = presentationUploadExternalUrl;
     }
 
+    public String getRoomMode() {
+        return roomMode;
+    }
+
+    public void setRoomMode(String roomMode) {
+        this.roomMode = roomMode;
+    }
+
     @Override
     public void populateFromParamsMap(Map<String, String[]> params) {
         if(params.containsKey(Params.NAME.getValue())) setName(params.get(Params.NAME.getValue())[0]);
@@ -144,6 +159,7 @@ public class CreateMeeting extends RequestWithChecksum<CreateMeeting.Params> {
         if(params.containsKey(Params.IS_BREAKOUT_ROOM.getValue())) setBreakoutRoomString(params.get(Params.IS_BREAKOUT_ROOM.value)[0]);
         if(params.containsKey(Params.RECORD.getValue())) setRecordString(params.get(Params.RECORD.getValue())[0]);
         if(params.containsKey(Params.PRES_UPLOAD_EXT_URL.getValue())) setPresentationUploadExternalUrl(params.get(Params.PRES_UPLOAD_EXT_URL.getValue())[0]);
+        if(params.containsKey(Params.ROOM_MODE.getValue())) setRoomMode(params.get(Params.ROOM_MODE.getValue())[0]);
     }
 
     @Override

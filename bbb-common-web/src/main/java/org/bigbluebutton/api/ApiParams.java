@@ -87,6 +87,7 @@ public class ApiParams {
 
     public static final String PRESENTATION_UPLOAD_EXTERNAL_DESCRIPTION = "presentationUploadExternalDescription";
     public static final String PRESENTATION_UPLOAD_EXTERNAL_URL = "presentationUploadExternalUrl";
+    public static final String ROOM_MODE = "roomMode";
     public static final String PRESENTATION_CONVERSION_CACHE_ENABLED = "presentationConversionCacheEnabled";
 
     public static final String BREAKOUT_ROOMS_CAPTURE_SLIDES = "breakoutRoomsCaptureSlides";

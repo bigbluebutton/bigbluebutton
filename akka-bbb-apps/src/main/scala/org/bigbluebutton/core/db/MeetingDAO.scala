@@ -25,7 +25,8 @@ case class MeetingBridgesDbModel(
 
 case class MeetingRoomConfigDbModel(
   roomMode:         String,
-  roomBaseSettings: JsValue
+  roomBaseSettings: JsValue,
+  roomModeOnCreate: String
 )
 
 case class MeetingDbModel(
@@ -112,8 +113,9 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
   val endedBy = column[Option[String]]("endedBy")
   val roomMode = column[String]("roomMode")
   val roomBaseSettings = column[JsValue]("roomBaseSettings")
+  val roomModeOnCreate = column[String]("roomModeOnCreate")
 
-  val roomConfig = (roomMode, roomBaseSettings) <> (MeetingRoomConfigDbModel.tupled, MeetingRoomConfigDbModel.unapply)
+  val roomConfig = (roomMode, roomBaseSettings, roomModeOnCreate) <> (MeetingRoomConfigDbModel.tupled, MeetingRoomConfigDbModel.unapply)
 }
 
 object MeetingDAO {
@@ -181,7 +183,8 @@ object MeetingDAO {
           endedBy = None,
           roomConfig = MeetingRoomConfigDbModel(
             roomMode = "",
-            roomBaseSettings = roomBaseSettings(meetingProps)
+            roomBaseSettings = roomBaseSettings(meetingProps),
+            roomModeOnCreate = meetingProps.meetingProp.roomMode
           )
         )
       )

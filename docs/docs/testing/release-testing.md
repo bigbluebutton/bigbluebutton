@@ -871,6 +871,29 @@ The panel needs the pre-flight on and `public.app.preFlight.roomModes.enabled: t
 
     - No pre-flight, and so no room mode panel, should show up in the breakout room
 
+### Room mode from the create call [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/pre-flight/roomModeCreate.spec.ts)
+
+With the room mode panel on, as in "Room mode panel for moderators":
+
+1. Create a new session with `roomMode=meeting` and join it as a moderator
+
+    - The room mode panel should come up with "Meeting" already marked and shown as the selected mode
+    - Click "Start room": you should land in the meeting, and the "Room modes" tab of the settings window should have "Meeting" marked as the current mode
+
+2. Create a new session with `roomMode=class` and join it as a moderator with `userdata-bbb_pre_flight_room_modes=false`
+
+    - There should be no room mode panel, and after joining no mode should be marked as current in the "Room modes" tab
+    - Join the same session as a second moderator, without the `userdata` parameter: the panel should come up with "Class" marked. Click "Start room" without changing it: there should be no notice, and the room should still have no mode
+    - Repeat with a third moderator who clicks "Meeting" and then "Class" before "Start room": this time the running-room notice should come up
+
+3. Create a new session with `roomMode=webinar`, a mode the client does not offer
+
+    - The create should succeed, and the room mode panel should come up with no card marked
+
+4. Create a session with `roomMode=Class`
+
+    - The create should fail with `validationError`
+
 ### Room mode settings summary [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/pre-flight/roomModeSummary.spec.ts)
 
 Same settings as the room mode panel. Nothing here reaches the room before "Start room" is clicked: what is applied after the join is in "Room mode applied after the join" below.

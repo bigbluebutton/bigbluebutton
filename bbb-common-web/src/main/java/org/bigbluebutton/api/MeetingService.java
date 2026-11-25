@@ -710,7 +710,7 @@ public class MeetingService implements MessageListener {
             m.getAllowModsToRequestCameraShare(), m.getMeetingKeepEvents(),
             m.breakoutRoomsParams, m.lockSettingsParams, m.getLoginUrl(), m.getLogoutUrl(), m.getCustomLogoURL(), m.getCustomDarkLogoURL(),
             m.getBannerText(), m.getBannerColor(), m.getGroups(), m.getDisabledFeatures(), m.getNotifyRecordingIsOn(),
-            m.getNotifyRecordingAppend(), m.getPresentationUploadExternalDescription(), m.getPresentationUploadExternalUrl(), m.getPlugins(),
+            m.getNotifyRecordingAppend(), m.getPresentationUploadExternalDescription(), m.getPresentationUploadExternalUrl(), m.getRoomMode(), m.getPlugins(),
             m.getHtml5PluginSdkVersion(), m.getOverrideClientSettings());
   }
 
