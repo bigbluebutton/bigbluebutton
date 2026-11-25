@@ -103,9 +103,9 @@ export class UserdataParameters extends MultiUsers {
   }
 
   async preferDarkTheme() {
-    // DarkReader adds its style elements while the dark theme is on (see options/systemTheme.ts)
+    // the client stamps data-theme="dark" on <html> while the dark theme is on (see options/systemTheme.ts)
     await expect
-      .poll(() => this.modPage.page.evaluate(() => document.querySelectorAll('style.darkreader').length > 0), {
+      .poll(() => this.modPage.page.evaluate(() => document.documentElement.getAttribute('data-theme') === 'dark'), {
         message: 'should apply the dark theme on load',
         timeout: ELEMENT_WAIT_LONGER_TIME,
       })
