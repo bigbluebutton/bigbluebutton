@@ -41,13 +41,13 @@ interface CameraDock {
     height: number;
 }
 
-export interface ExternalVideo {
+interface ExternalVideo {
     hasExternalVideo?: boolean;
     height: number;
     width: number;
 }
 
-export interface GenericContentMainArea {
+interface GenericContentMainArea {
     genericContentId?: string;
     height: number;
     width: number;
@@ -88,7 +88,7 @@ interface ScreenShare {
     width: number;
 }
 
-export interface SharedNotes {
+interface SharedNotes {
     isPinned?: boolean;
     height: number;
     width: number;
