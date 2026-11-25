@@ -51,8 +51,11 @@ export function loadConfig(paths: ConfigPaths = installedPaths(), env: NodeJS.Pr
   if (env.SERVER_HOST) config.expressServer.host = env.SERVER_HOST;
   if (env.BBB_WEB_URL) {
     // bbb-web's base URL, as for bbb-export-annotations, e.g. http://web:8090
-    const url = new URL(env.BBB_WEB_URL);
-    if (url.protocol !== 'http:' || url.pathname !== '/') {
+    const url = URL.canParse(env.BBB_WEB_URL) ? new URL(env.BBB_WEB_URL) : undefined;
+    if (url?.protocol !== 'http:' || !url.hostname) {
+      throw new Error(`BBB_WEB_URL=${env.BBB_WEB_URL} is not bbb-web's base URL: use http://host[:port], e.g. http://web:8090`);
+    }
+    if (url.pathname !== '/') {
       console.warn(`BBB_WEB_URL=${env.BBB_WEB_URL}: only http://host[:port] is used`);
     }
     config.bbbWeb.host = url.hostname;

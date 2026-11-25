@@ -61,6 +61,12 @@ test('BBB_WEB_URL sets the host and port of bbb-web', () => {
   assert.equal(load(undefined, { BBB_WEB_URL: 'http://web' }).bbbWeb.port, '80');
 });
 
+test('BBB_WEB_URL that is not http://host[:port] stops with a message', () => {
+  for (const value of ['web', 'web:8090', 'https://web:8443']) {
+    assert.throws(() => load(undefined, { BBB_WEB_URL: value }), /is not bbb-web's base URL: use http:\/\/host\[:port\]/, value);
+  }
+});
+
 test('BBB_WEB_HOST is not read', () => {
   assert.equal(load(undefined, { BBB_WEB_HOST: 'web' }).bbbWeb.host, defaults.bbbWeb.host);
 });
