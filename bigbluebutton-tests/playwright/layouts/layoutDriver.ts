@@ -342,11 +342,23 @@ export async function geometryOf(page: PlaywrightPage): Promise<Geometry> {
 export interface LayoutPropsMessage {
   layout: string;
   presentationIsOpen: boolean;
-  isResizing: boolean;
   cameraPosition: string;
   focusedCamera: string;
-  presentationVideoRate: number;
+  /** the dock size as a fraction (0-1) of its area along its axis; 0 = not set */
+  cameraDockSize: number;
   syncWithPresenterLayout: boolean;
+}
+
+/** The dock's area along its axis (the box the client measures it against), and the dock's size along it. */
+export async function dockShareOfArea(page: PlaywrightPage): Promise<number> {
+  return page.evaluate(() => {
+    const dock = document.querySelector('#cameraDock')!.getBoundingClientRect();
+    const area = document.querySelector('[data-layout-region="camera-dock-area"]')!.getBoundingClientRect();
+    const side = ['contentLeft', 'contentRight'].includes(
+      document.querySelector('#cameraDock')!.getAttribute('data-position') ?? '',
+    );
+    return side ? dock.width / area.width : dock.height / area.height;
+  });
 }
 
 /**

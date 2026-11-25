@@ -33,10 +33,8 @@ const PX = 2;
 
 const isHorizontal = (position: DockPosition) => position === 'contentLeft' || position === 'contentRight';
 
-// When a resize of a left/right dock stops, the engine stores the width minus the 1vw sidebar
-// margin (unifiedLayout.jsx, Storage webcamSize), so the dock ends 1vw short of the drag.
-const sideDockLoss = (page: Page, position: DockPosition) =>
-  isHorizontal(position) ? 0.01 * page.page.viewportSize()!.width : 0;
+// When a resize stops, the dock stores the size it rendered as a share of its area (BBB_cameraDockSize),
+// so it stays where the drag left it. (Until then a left/right dock ended 1vw short of the drag.)
 
 // The box that gives way when the dock grows: the presentation, or the sidebar panel for the sidebar dock
 async function counterpartSize(page: Page, position: DockPosition): Promise<number> {
@@ -66,13 +64,12 @@ test.describe('Camera dock resize', { tag: ['@layout', '@media'] }, () => {
       await resizeBy(mod.page, DOCK_HANDLE, '#cameraDock', 120);
       const dock1 = await dockSize(mod.page);
       const other1 = await counterpartSize(mod, position);
-      const loss = sideDockLoss(mod, position);
-      expect(Math.abs(dock1 - dock0 - (120 - loss)), 'the dock grows by the drag').toBeLessThanOrEqual(PX);
+      expect(Math.abs(dock1 - dock0 - 120), 'the dock grows by the drag').toBeLessThanOrEqual(PX);
       expect(Math.abs(other0 - other1 - (dock1 - dock0)), 'the counterpart shrinks by as much').toBeLessThanOrEqual(PX);
 
       await resizeBy(mod.page, DOCK_HANDLE, '#cameraDock', -60);
       const dock2 = await dockSize(mod.page);
-      expect(Math.abs(dock1 - dock2 - (60 + loss)), 'the dock shrinks by the drag').toBeLessThanOrEqual(PX);
+      expect(Math.abs(dock1 - dock2 - 60), 'the dock shrinks by the drag').toBeLessThanOrEqual(PX);
       expect(Math.abs((await counterpartSize(mod, position)) - other1 - (dock1 - dock2))).toBeLessThanOrEqual(PX);
     });
   }
@@ -127,16 +124,16 @@ test.describe('Camera dock resize', { tag: ['@layout', '@media'] }, () => {
     expect(Math.abs((await dockSize(mod.page)) - 120)).toBeLessThanOrEqual(PX);
   });
 
-  test('The resized dock size persists in the tab across a new join (BBB_webcamSize)', async ({
+  test('The resized dock size persists in the tab across a new join (BBB_cameraDockSize)', async ({
     browser,
   }, testInfo) => {
     const mod = await presenterWithCamera(browser, testInfo);
     await resizeBy(mod.page, DOCK_HANDLE, '#cameraDock', 150);
     const resized = await dockSize(mod.page);
-    const stored = await mod.page.evaluate(() => sessionStorage.getItem('BBB_webcamSize'));
-    expect(JSON.parse(stored ?? 'null'), 'the size is stored when the resize stops').toMatchObject({
-      height: expect.any(Number),
-    });
+    const stored = await mod.page.evaluate(() => sessionStorage.getItem('BBB_cameraDockSize'));
+    const { height } = JSON.parse(stored ?? 'null') as { height: number };
+    expect(height, 'the size is stored, as a share of the dock area, when the resize stops').toBeGreaterThan(0);
+    expect(height).toBeLessThanOrEqual(1);
     // a join token is single-use, so the "reload" is a new join in the same tab: sessionStorage stays
     const again = new Page(browser, mod.page, testInfo);
     await again.init(true, { testInfo, meetingId: mod.meetingId, fullName: 'Presenter' });
@@ -244,9 +241,7 @@ test.describe('Resize and drag by device', { tag: ['@layout', '@media'] }, () =>
     expect((await findHandle(mod.page, DOCK_HANDLE, '#cameraDock'))?.edge).toBe('right');
     const before = await dockSize(mod.page);
     await resizeBy(mod.page, DOCK_HANDLE, '#cameraDock', 100);
-    expect(
-      Math.abs((await dockSize(mod.page)) - before - (100 - sideDockLoss(mod, 'contentRight'))),
-    ).toBeLessThanOrEqual(PX);
+    expect(Math.abs((await dockSize(mod.page)) - before - 100)).toBeLessThanOrEqual(PX);
   });
 
   test('Tablet (1024x768): the sidebar resizes and the dock resizes and drags', async ({ browser }, testInfo) => {

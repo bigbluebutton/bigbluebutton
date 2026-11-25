@@ -68,6 +68,10 @@ async function bbbClasses(browser: Browser, testInfo: TestInfo, clientDist: stri
 }
 
 test.describe('Mixed client versions in one meeting', { tag: ['@layout', '@media'] }, () => {
+  // The dock size push changed from a share of the window (presentationVideoRate) to a share of the
+  // dock's area (cameraDockSize), with a matching backend: old and new clients cannot share a meeting,
+  // so mixed-version support ends here on purpose.
+  test.skip(true, 'the dock size push contract changed: old and new clients no longer share a meeting');
   test.skip(!OLD || !NEW, 'BBB_CLIENT_DIST_OLD and BBB_CLIENT_DIST_NEW are not both set');
 
   test('An old presenter and a new viewer', async ({ browser }, testInfo) => {

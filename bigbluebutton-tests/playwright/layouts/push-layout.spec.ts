@@ -154,7 +154,8 @@ test.describe('Push layout: when the viewer does not follow', { tag: ['@layout',
 });
 
 test.describe('Push layout: characterization', { tag: ['@layout', '@media'] }, () => {
-  test('A late joiner does not get the size the presenter resized to (defect 12)', async ({ browser }, testInfo) => {
+  test('A late joiner gets the size the presenter resized to', async ({ browser }, testInfo) => {
+    // Until the dock size travelled as a share of its area, a joiner kept the 20% default (defect 12).
     const { presenter, viewer: early } = await presenterAndViewer(browser, testInfo);
     await resizeBy(presenter.page, DOCK_HANDLE, '#cameraDock', 200);
     const size = await dockSize(presenter.page);
@@ -169,12 +170,8 @@ test.describe('Push layout: characterization', { tag: ['@layout', '@media'] }, (
     await late.page.locator('#cameraDock').waitFor();
     await waitForStableGeometry(late.page);
     const dock = (await box(late.page, '#cameraDock'))!;
-    const presentation = (await box(late.page, '[data-test="presentationContainer"]'))!;
-    const media = dock.height + 10 + presentation.height;
-    const defaultHeight = Math.max(0.2 * media, 120);
     testInfo.annotations.push({ type: 'late-joiner', description: `presenter ${size}, late ${dock.height}` });
-    expect(Math.abs(dock.height - defaultHeight), 'the late joiner gets the 20% default').toBeLessThanOrEqual(PX);
-    expect(Math.abs(dock.height - size), 'not the presenter size').toBeGreaterThan(PX);
+    expect(Math.abs(dock.height - size), 'the late joiner gets the presenter size').toBeLessThanOrEqual(PX);
   });
 
   test('SetLayoutProps per 200 px dock resize drag', async ({ browser }, testInfo) => {
@@ -190,11 +187,8 @@ test.describe('Push layout: characterization', { tag: ['@layout', '@media'] }, (
     const count = sent.length - before;
     testInfo.annotations.push({ type: 'SetLayoutProps per 200 px drag', description: String(count) });
     console.log(`[push] SetLayoutProps per 200 px drag: ${count}`);
-    const resizing = sent.slice(before).map((m) => m.isResizing);
-    expect(resizing[0], 'the first push marks the resize').toBe(true);
-    expect(resizing[resizing.length - 1], 'the last push ends it').toBe(false);
-    // today's client: about one push per 0.01 of rate change, plus start and stop
-    expect(count).toBeLessThanOrEqual(LAYOUT_PROPS_PER_200PX_BUDGET);
+    // the size travels once, when the resize ends
+    expect(count).toBe(1);
   });
 
   test('A moderator who joins in a hidden layout sends no syncWithPresenterLayout change', async ({
@@ -228,6 +222,3 @@ test.describe('Push layout: characterization', { tag: ['@layout', '@media'] }, (
     expect(syncs).toEqual([]);
   });
 });
-
-// Measured on the unchanged client (dist-base): 22 in 3 of 3 runs. The new client must not send more.
-export const LAYOUT_PROPS_PER_200PX_BUDGET = 22;

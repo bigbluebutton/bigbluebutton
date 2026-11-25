@@ -71,19 +71,19 @@ async function assertDesktopLayoutActive(page: Page) {
 type LayoutMutation = {
   presentationIsOpen: boolean;
   cameraPosition: string;
-  presentationVideoRate: number;
+  cameraDockSize: number;
 };
 
 export class Layouts extends MultiUsers {
-  private layoutMutationRates: unknown[] = [];
+  private layoutMutationDockSizes: unknown[] = [];
 
   private layoutMutationErrors: string[] = [];
 
   private layoutMutations: LayoutMutation[] = [];
 
-  private injectedPresentationVideoRate = false;
+  private injectedCameraDockSize = false;
 
-  private receivedCameraDockAspectRatios: number[] = [];
+  private receivedCameraDockSizes: number[] = [];
 
   async configurePhoneLandscapeLayoutDelay() {
     await this.context.addInitScript(() => {
@@ -95,22 +95,22 @@ export class Layouts extends MultiUsers {
       const server = webSocket.connectToServer();
       webSocket.onMessage((message) => {
         const serializedMessage = message.toString();
-        // SetLayoutProps is the GraphQL operation whose presentationVideoRate payload this regression protects.
+        // SetLayoutProps is the GraphQL operation whose cameraDockSize payload this regression protects.
         if (serializedMessage.includes('SetLayoutProps')) {
-          const rateMatch = serializedMessage.match(/"presentationVideoRate":(null|-?\d+(?:\.\d+)?)/);
-          if (!rateMatch) throw new Error('SetLayoutProps message is missing presentationVideoRate');
-          this.layoutMutationRates.push(rateMatch[1] === 'null' ? null : Number(rateMatch[1]));
+          const sizeMatch = serializedMessage.match(/"cameraDockSize":(null|-?\d+(?:\.\d+)?)/);
+          if (!sizeMatch) throw new Error('SetLayoutProps message is missing cameraDockSize');
+          this.layoutMutationDockSizes.push(sizeMatch[1] === 'null' ? null : Number(sizeMatch[1]));
         }
         server.send(message);
       });
       server.onMessage((message) => {
         const serializedMessage = message.toString();
-        // This server validation message is the regression's observable symptom for a non-numeric rate.
-        if (serializedMessage.includes("Parameter 'presentationVideoRate' should be of type number")) {
+        // This server validation message is the regression's observable symptom for a non-numeric size.
+        if (serializedMessage.includes("Parameter 'cameraDockSize' should be of type number")) {
           this.layoutMutationErrors.push(serializedMessage);
         }
-        // Delaying cameraDockAspectRatio reproduces the subscription race that previously produced NaN.
-        const delay = serializedMessage.includes('cameraDockAspectRatio') ? 2500 : 0;
+        // Delaying the meeting's cameraDockSize reproduces the subscription race that previously produced NaN.
+        const delay = serializedMessage.includes('cameraDockSize') ? 2500 : 0;
         setTimeout(() => webSocket.send(message), delay);
       });
     });
@@ -131,7 +131,7 @@ export class Layouts extends MultiUsers {
           this.layoutMutations.push({
             presentationIsOpen: variables.presentationIsOpen,
             cameraPosition: variables.cameraPosition,
-            presentationVideoRate: variables.presentationVideoRate,
+            cameraDockSize: variables.cameraDockSize,
           });
         }
         server.send(message);
@@ -157,7 +157,8 @@ export class Layouts extends MultiUsers {
     // What the meeting holds before the phone ever rotates.
     const baseline = this.layoutMutations[this.layoutMutations.length - 1];
     expect(baseline, 'the presenter should publish its portrait layout').toBeDefined();
-    expect(baseline!.presentationVideoRate, 'the portrait dock should publish a real rate').toBeGreaterThan(0);
+    // no resize yet: the size is not set (0), the CSS default
+    expect(typeof baseline!.cameraDockSize, 'the portrait dock should publish a numeric size').toBe('number');
     this.layoutMutations = [];
 
     const ROTATIONS = 6;
@@ -196,9 +197,8 @@ export class Layouts extends MultiUsers {
     ).toBeLessThanOrEqual(ROTATIONS);
     expect(
       this.layoutMutations.every(
-        ({ cameraPosition, presentationVideoRate }) =>
-          cameraPosition === baseline!.cameraPosition &&
-          Math.abs(presentationVideoRate - baseline!.presentationVideoRate) <= 0.01,
+        ({ cameraPosition, cameraDockSize }) =>
+          cameraPosition === baseline!.cameraPosition && cameraDockSize === baseline!.cameraDockSize,
       ),
       'the landscape arrangement should never reach the meeting: every push keeps the portrait dock',
     ).toBe(true);
@@ -211,22 +211,22 @@ export class Layouts extends MultiUsers {
     );
   }
 
-  async configurePresentationVideoRateClampProbe() {
+  async configureCameraDockSizeClampProbe() {
     await this.context.routeWebSocket('**/graphql**', (webSocket) => {
       const server = webSocket.connectToServer();
       webSocket.onMessage((message) => {
         const serializedMessage = message.toString();
         if (serializedMessage.includes('SetLayoutProps')) {
-          if (!this.injectedPresentationVideoRate) {
+          if (!this.injectedCameraDockSize) {
             const rewrittenMessage = serializedMessage.replace(
-              /"presentationVideoRate":-?\d+(?:\.\d+)?/,
-              '"presentationVideoRate":2',
+              /"cameraDockSize":-?\d+(?:\.\d+)?/,
+              '"cameraDockSize":2',
             );
             if (rewrittenMessage === serializedMessage) {
-              throw new Error('SetLayoutProps message is missing a numeric presentationVideoRate');
+              throw new Error('SetLayoutProps message is missing a numeric cameraDockSize');
             }
-            this.receivedCameraDockAspectRatios = [];
-            this.injectedPresentationVideoRate = true;
+            this.receivedCameraDockSizes = [];
+            this.injectedCameraDockSize = true;
             server.send(rewrittenMessage);
           }
           return;
@@ -235,55 +235,54 @@ export class Layouts extends MultiUsers {
       });
       server.onMessage((message) => {
         const serializedMessage = message.toString();
-        if (this.injectedPresentationVideoRate) {
-          const ratioMatches = serializedMessage.matchAll(/"cameraDockAspectRatio":(-?\d+(?:\.\d+)?)/g);
-          for (const match of ratioMatches) this.receivedCameraDockAspectRatios.push(Number(match[1]));
+        if (this.injectedCameraDockSize) {
+          const sizeMatches = serializedMessage.matchAll(/"cameraDockSize":"?(-?\d+(?:\.\d+)?)/g);
+          for (const match of sizeMatches) this.receivedCameraDockSizes.push(Number(match[1]));
         }
         webSocket.send(message);
       });
     });
   }
 
-  async serverClampsPresentationVideoRate() {
+  async serverClampsCameraDockSize() {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.minimizePresentation);
 
     await expect
-      .poll(() => this.injectedPresentationVideoRate, {
-        message: 'the harness should inject an out-of-range presentation video rate',
+      .poll(() => this.injectedCameraDockSize, {
+        message: 'the harness should inject an out-of-range camera dock size',
         timeout: ELEMENT_WAIT_TIME,
       })
       .toBe(true);
     await expect
-      .poll(() => this.receivedCameraDockAspectRatios.includes(1), {
-        message: 'the server should broadcast the clamped camera dock aspect ratio',
+      .poll(() => this.receivedCameraDockSizes.includes(1), {
+        message: 'the server should broadcast the clamped camera dock size',
         timeout: ELEMENT_WAIT_TIME,
       })
       .toBe(true);
     expect(
-      this.receivedCameraDockAspectRatios,
-      'the server should never broadcast the injected out-of-range rate',
+      this.receivedCameraDockSizes,
+      'the server should never broadcast the injected out-of-range size',
     ).not.toContain(2);
   }
 
-  async phoneLandscapePublishesFinitePresentationVideoRate() {
+  async phoneLandscapePublishesFiniteCameraDockSize() {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.page.setViewportSize({ width: 915, height: 412 });
     await this.modPage.shareWebcam();
     // Five seconds covers the delayed update and leaves time for the resulting layout mutations to settle.
-    // Any push in landscape sends back the meeting's rate, which the delay leaves undefined.
+    // Any push in landscape sends back the meeting's size, which the delay leaves undefined.
     await this.modPage.page.waitForTimeout(5000);
-    // Portrait lifts the suppression: the rate is measured again, off a dock that has
-    // just left the enforced arrangement.
+    // Portrait lifts the suppression: the presenter's own stored size is sent again.
     await this.modPage.page.setViewportSize({ width: 412, height: 915 });
     await this.modPage.page.waitForTimeout(3000);
 
     // Fewer than 20 mutations catches a feedback loop while allowing the expected responsive layout updates.
-    expect(this.layoutMutationRates.length, 'layout mutation count should stay bounded').toBeLessThan(20);
-    expect(this.layoutMutationRates.length, 'the presenter should publish its layout').toBeGreaterThan(0);
+    expect(this.layoutMutationDockSizes.length, 'layout mutation count should stay bounded').toBeLessThan(20);
+    expect(this.layoutMutationDockSizes.length, 'the presenter should publish its layout').toBeGreaterThan(0);
     expect(
-      this.layoutMutationRates.every((rate) => typeof rate === 'number' && Number.isFinite(rate)),
-      'every presentation video rate should be a finite number',
+      this.layoutMutationDockSizes.every((size) => typeof size === 'number' && Number.isFinite(size)),
+      'every camera dock size should be a finite number',
     ).toBe(true);
     expect(this.layoutMutationErrors, 'the server should accept every layout mutation').toHaveLength(0);
   }
@@ -444,7 +443,7 @@ export class Layouts extends MultiUsers {
     await this.userPage.hasElement(e.restorePresentation, 'restore presentation button should appear for the viewer');
 
     // A third participant turns their webcam on. This updates the meeting layout
-    // record (cameraDockAspectRatio + updatedAt) without changing the meeting's
+    // record (updatedAt) without changing the meeting's
     // presentation state, and must not clobber the viewer's local minimize.
     await this.userPage2.shareWebcam();
     // Fixed wait (matches the sibling tests' style): the wrongful reopen fires ~2s
