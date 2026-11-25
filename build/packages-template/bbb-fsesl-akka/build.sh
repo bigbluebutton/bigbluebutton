@@ -20,15 +20,13 @@ find -name build.sbt -exec sed -i "s|\(.*org.bigbluebutton.*bbb-fsesl-client[^\"
 
 build_common_messages () {
     cd bbb-common-message
-    sbt publish
-    sbt publishLocal
+    sbt publish publishLocal
     cd ..
 }
 
 build_fsesl_client () {
     cd bbb-fsesl-client
-    sbt publish
-    sbt publishLocal
+    sbt publish publishLocal
     cd ..
 }
 

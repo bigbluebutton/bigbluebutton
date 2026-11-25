@@ -12,18 +12,14 @@ val compileSettings = Seq(
     "-Ywarn-dead-code",
     "-language:_",
     "-release:21",
-    "-encoding", "UTF-8"
+    "-encoding", "UTF-8",
+    "-Ybackend-parallelism", "4"
   ),
   javacOptions ++= List(
     "-Xlint:unchecked",
     "-Xlint:deprecation"
   )
 )
-
-// We want to have our jar files in lib_managed dir.
-// This way we'll have the right path when we import
-// into eclipse.
-retrieveManaged := true
 
 // The ScalaTest HTML reporter (-h) needs com.vladsch.flexmark, which is not on the test
 // classpath, so it fails with NoClassDefFoundError. -oD reports to stdout with durations.
@@ -47,9 +43,13 @@ lazy val commonWeb = (project in file(".")).settings(name := "bbb-common-web", l
 
 // See https://github.com/scala-ide/scalariform
 // Config file is in ./.scalariform.conf
-scalariformAutoformat := true
+scalariformAutoformat := false
 
 scalaVersion := "2.13.18"
+
+// scala.reflect.runtime.universe is used directly; don't rely on getting
+// scala-reflect only through bbb-common-message.
+libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value
 //-----------
 // Packaging
 //
@@ -109,6 +109,10 @@ pomExtra := (
 licenses := Seq("LGPL-3.0" -> url("https://opensource.org/licenses/LGPL-3.0"))
 
 homepage := Some(url("https://www.bigbluebutton.org"))
+
+// Skip building and publishing the scaladoc jar: generating it is the slow
+// part of publishLocal. The sources jar is cheap and IDEs use it, so keep it.
+Compile / packageDoc / publishArtifact := false
 
 libraryDependencies ++= Seq(
   // Jakarta EE 11 / Spring Framework 7 levels (aligned with Spring Boot 4.1 dependency management)

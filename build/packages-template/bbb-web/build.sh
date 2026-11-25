@@ -41,30 +41,27 @@ sed -i "s/EPHEMERAL_VERSION/$EPHEMERAL_VERSION/g" bbb-common-web/project/Depende
 
 echo start building bbb-common-message
 cd bbb-common-message
-sbt publish
-sbt publishLocal
+sbt publish publishLocal
 cd ..
 echo end building bbb-common-message
 
 # New project directory containing parts of bbb-web
 cd bbb-common-web
-sbt update
-sbt publish
-sbt publishLocal
+sbt update publish publishLocal
 cd ..
 
 cd bigbluebutton-web
 # Build new version of bbb-web
-./gradlew clean
-./gradlew resolveDeps
-./gradlew assemble
+./gradlew --no-build-cache clean
+./gradlew --no-build-cache resolveDeps
+./gradlew --no-build-cache assemble
 
 # Build presentation checker
 if [ -d pres-checker ]; then
   cd pres-checker
-    ../gradlew clean
-    ../gradlew resolveDeps
-    ../gradlew jar
+    ../gradlew --no-build-cache clean
+    ../gradlew --no-build-cache resolveDeps
+    ../gradlew --no-build-cache jar
     mkdir -p "$STAGING"/usr/share/prescheck/lib
     cp lib/* "$STAGING"/usr/share/prescheck/lib
     cp build/libs/bbb-pres-check-*.jar "$STAGING"/usr/share/prescheck/lib

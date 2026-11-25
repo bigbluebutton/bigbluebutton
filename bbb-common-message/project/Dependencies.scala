@@ -7,7 +7,6 @@ object Dependencies {
 
   object Versions {
     // Scala
-    val scala = "2.13.9"
     val junit = "4.12"
     val junitInterface = "0.11"
     val scalactic = "3.0.8"
@@ -38,9 +37,6 @@ object Dependencies {
   }
 
   object Compile {
-    val scalaLibrary = "org.scala-lang" % "scala-library" % Versions.scala
-    val scalaCompiler = "org.scala-lang" % "scala-compiler" % Versions.scala
-
     val pekkoActor = "org.apache.pekko" %% "pekko-actor" % Versions.pekkoVersion
 
     val googleGson = "com.google.code.gson" % "gson" % Versions.gson
@@ -75,8 +71,6 @@ object Dependencies {
     Test.scalactic)
 
   val runtime = Seq(
-    Compile.scalaLibrary,
-    Compile.scalaCompiler,
     Compile.pekkoActor,
     Compile.googleGson,
     Compile.jacksonModule,

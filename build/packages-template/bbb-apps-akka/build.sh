@@ -17,8 +17,7 @@ find -name build.sbt -exec sed -i "s|\(.*org.bigbluebutton.*bbb-common-message[^
 export JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF8
 
 cd bbb-common-message
-sbt publish
-sbt publishLocal
+sbt publish publishLocal
 cd ..
 
 cd akka-bbb-apps
@@ -38,8 +37,7 @@ if [[ -n $EPOCH && $EPOCH -gt 0 ]] ; then
 else
     echo 'version in Debian := "'1:$VERSION-$BUILD'"' >> build.sbt
 fi
-sbt update
-sbt debian:packageBin
+sbt update debian:packageBin
 cp ./target/*.deb ..
 
 ##
