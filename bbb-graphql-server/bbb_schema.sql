@@ -2407,9 +2407,9 @@ CREATE UNLOGGED TABLE "layout" (
 	"meetingId" 			varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
 	"currentLayoutType"     varchar(100),
 	"presentationMinimized" boolean,
-	"cameraDockIsResizing"	boolean,
 	"cameraDockPlacement" 	varchar(100),
-	"cameraDockAspectRatio" numeric,
+	-- the dock size as a fraction (0-1) of the area it sits in, along its axis; 0 = not set
+	"cameraDockSize"        numeric,
 	"cameraWithFocus" 		varchar(255),
 	"propagateLayout" 		boolean,
 	"screenshareAsContent" 	boolean,
