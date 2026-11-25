@@ -60,7 +60,7 @@ The keys of `presentation_text.json` follow the text file names (`slide-{pageId}
 
 ### Override file location changes
 
-- The override file for bbb-export-annotations was moved from `/etc/bigbluebutton/bbb-export-annotations.json` to `/etc/bigbluebutton/bbb-export-annotations/production.json`
+- bbb-export-annotations now reads its settings from `config/default.json`, then the override `/etc/bigbluebutton/bbb-export-annotations/production.json`, then environment variables. In 4.0 there was no override file: a change made in `/usr/local/bigbluebutton/bbb-export-annotations/config/settings.json` is replaced on the upgrade to 4.1, so make it again in `/etc/bigbluebutton/bbb-export-annotations/production.json`. (Development builds of 4.1 had the override at `/etc/bigbluebutton/bbb-export-annotations.json`; the package moves it.)
 
 ## Development
 

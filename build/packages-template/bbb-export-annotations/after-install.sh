@@ -5,7 +5,8 @@ case "$1" in
 
   fc-cache -f
 
-  # Before 4.1 the override was /etc/bigbluebutton/bbb-export-annotations.json
+  # Development builds of 4.1 had the override at /etc/bigbluebutton/bbb-export-annotations.json
+  # (no release had an override file: 4.0 kept its settings in the config/ of the package)
   OLD_OVERRIDE=/etc/bigbluebutton/bbb-export-annotations.json
   NEW_OVERRIDE=/etc/bigbluebutton/bbb-export-annotations/production.json
   if [ -f $OLD_OVERRIDE ] && [ ! -e $NEW_OVERRIDE ]; then
