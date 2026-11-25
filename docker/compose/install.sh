@@ -87,6 +87,8 @@ fi
 # What to do next
 echo
 if [ -z "$email" ]; then
+  # created here, so that it belongs to this user and not to root when docker creates it
+  mkdir -p data/certs
   echo "Put your certificate in $BBB_DIR/data/certs as fullchain.pem and privkey.pem."
 fi
 if [ -n "$loopback_ip" ]; then
