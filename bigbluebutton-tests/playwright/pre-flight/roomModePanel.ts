@@ -93,6 +93,23 @@ export const startsRoom = async (page: Page) => {
   await page.wasRemoved(e.preFlight, 'should remove the pre-flight screen after starting the room');
 };
 
+// After a reload the client skips the pre-flight only while user_current still has
+// the user as joined. Once the server has seen the old tab leave, the moderator
+// gets the pre-flight again, with no panel since the room has a mode.
+export const reloadsIntoRoom = async (page: Page) => {
+  await page.page.reload();
+  const preFlight = page.page.locator(e.preFlight);
+  await expect(
+    page.page.locator(e.layoutContainer).or(preFlight).first(),
+    'should land in the room or on the pre-flight after the reload',
+  ).toBeVisible({ timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
+  if (await preFlight.isVisible()) {
+    await hasNoPanel(page, 'should not show the room mode panel again in a room that has a mode');
+    await page.waitAndClick(e.preFlightJoinButton);
+  }
+  await page.waitForSelector(e.layoutContainer, ELEMENT_WAIT_EXTRA_LONG_TIME);
+};
+
 // The way the moderator picks an option: open the select, then click the option.
 export const pickOption = async (page: Page, selector: string, value: string) => {
   await page.waitAndClick(selector);
