@@ -16,7 +16,7 @@ import {
   type RoomSettings,
   switchToMeeting,
 } from './roomMode';
-import { hasPanel, pickOption, RoomModePanel, startsRoom } from './roomModePanel';
+import { hasPanel, pickOption, reloadsIntoRoom, RoomModePanel, startsRoom } from './roomModePanel';
 import { NO_PRE_FLIGHT_INIT_OPTIONS, PRE_FLIGHT_CREATE_PARAMETER } from './util';
 
 const MEETING_CREATE_PARAMETER = [
@@ -187,8 +187,7 @@ export class RoomModeApply extends RoomModePanel {
         expect((await readRoomSettings(this.modPage)).muteOnStart, 'should show the change made by hand').toBe(false);
       }).toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
 
-      await this.modPage.page.reload();
-      await this.modPage.waitForSelector(e.layoutContainer, ELEMENT_WAIT_EXTRA_LONG_TIME);
+      await reloadsIntoRoom(this.modPage);
       await ensureProbe(this.modPage);
       // The room renders only once a pick is applied, and a room that has a mode
       // offers none, so the read is settled once the room is up again.

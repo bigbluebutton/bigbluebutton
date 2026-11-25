@@ -17,7 +17,7 @@ import {
   switchToMeeting,
 } from './roomMode';
 import { CLASS_APPLIED, MEETING_APPLIED, readWhiteboardWriteAccess, routeOperation, setMuted } from './roomModeApply';
-import { hasPanel, RoomModePanel, startsRoom } from './roomModePanel';
+import { hasPanel, reloadsIntoRoom, RoomModePanel, startsRoom } from './roomModePanel';
 import { NO_PRE_FLIGHT_INIT_OPTIONS, NO_ROOM_MODE_PANEL_INIT_OPTIONS, ROOM_MODE_PANEL_INIT_OPTIONS } from './util';
 
 const LOCK_SETTINGS_QUERY = queryDocument([
@@ -340,8 +340,7 @@ export class RoomModeSwitch extends RoomModePanel {
     expect((await setMuted(this.modPage, false)).errors, 'should accept the change made by hand').toEqual([]);
     await expectRoomSettings(this.modPage, { ...MEETING_APPLIED, muteOnStart: false }, 'should show the hand change');
 
-    await this.modPage.page.reload();
-    await this.modPage.waitForSelector(e.layoutContainer, ELEMENT_WAIT_EXTRA_LONG_TIME);
+    await reloadsIntoRoom(this.modPage);
     await ensureProbe(this.modPage);
     await expectRoomSettingsStable(
       this.modPage,
