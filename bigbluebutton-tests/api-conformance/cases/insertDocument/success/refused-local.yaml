@@ -1,0 +1,47 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# bbb-web fetches from a local address (loopback, private, link-local)
+# only when the URL's host is in fetchUrlAllowedLocalHosts. A document at
+# the sink's local address (sinkLocalUrl, 127.0.0.1 on Tier 1), which the
+# server reaches but doesn't list, is dropped without being fetched; the
+# control document beside it, at the listed sink.test, goes on to
+# conversion. A target without sinkLocalUrl skips the case: a fetch that
+# can't connect, or that fails the TLS handshake, would pass it.
+id: insertDocument.success.refused-local
+title: insertDocument drops a document at a local address bbb-web may not fetch from
+endpoint: insertDocument
+class: contract
+tags: [ci, conversion]
+requires: [akka, bus, callbacks, presentation-conversion]
+steps:
+  # The meeting starts with a small image rather than the server's default
+  # presentation, which takes longer to convert.
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Insert document}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}-start/fixtures/presentations/image.png" filename="start.png"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - call: insertDocument
+    method: POST
+    params: {meetingID: "${uid}"}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkLocalUrl}/${uid}-local/fixtures/presentations/two-pages.pdf" filename="local.pdf"/><document url="${sinkUrl}/${uid}/fixtures/presentations/two-pages.pdf" filename="control.pdf"/></module></modules>'}
+    golden: document
+    expect: {returncode: SUCCESS}
+  - bus: {name: PresentationConversionStartedSysPubMsg, meetingId: "${intId}", within: 60s}
+    select: [$.core.body.common.presentationName]
+    expect:
+      jsonpath: {$.core.body.common.presentationName: "control.pdf"}
+  - bus: {name: PresentationConversionStartedSysPubMsg, meetingId: "${intId}", within: 1s}
+    golden: off
+    expect:
+      absent: true
+      jsonpath: {$.core.body.common.presentationName: "local.pdf"}
+  - sink: {key: "${uid}-local", within: 1s}
+    golden: off
+    expect: {absent: true}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

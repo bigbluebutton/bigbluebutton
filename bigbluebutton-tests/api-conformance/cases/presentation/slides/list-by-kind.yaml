@@ -1,0 +1,49 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# Like slides (presentation.slides.list), bbb-web lists a presentation's
+# ${kind} for a joined user of its meeting, in XML. A defect: these three
+# routes answer 500 (expectations/bbb-web.yaml).
+id: presentation.slides.list-by-kind
+title: A joined user lists a presentation's ${kind}
+endpoint: presentation
+class: defect
+tags: [ci, conversion]
+requires: [akka, bus, callbacks, presentation-conversion]
+variants:
+  - {id: thumbnails, vars: {kind: thumbnails, route: presentation-thumbnails}}
+  - {id: svgs, vars: {kind: svgs, route: presentation-svgs}}
+  - {id: textfiles, vars: {kind: textfiles, route: presentation-textfiles}}
+steps:
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Slides}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}/fixtures/presentations/two-pages.pdf"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - call: join
+    client: ann
+    params: {meetingID: "${uid}", fullName: Ann, role: moderator, redirect: "false"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {annToken: /response/session_token}
+  # The page URLs bbb-web hands akka-apps, which reach the client in its
+  # presentation data: each carries the page's pageToken.
+  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 60s}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.presentation.name: two-pages.pdf}
+    capture:
+      presId: $.core.body.presentation.id
+      page1: "$.core.body.presentation.pages[?@.num==1].svgUri"
+      page2: "$.core.body.presentation.pages[?@.num==2].svgUri"
+  - route: "${route}"
+    client: ann
+    pathParams: {conference: "${intId}", room: "${intId}", presentationName: "${presId}"}
+    params: {sessionToken: "${annToken}"}
+    golden: off
+    expect: {status: 200, format: xml}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

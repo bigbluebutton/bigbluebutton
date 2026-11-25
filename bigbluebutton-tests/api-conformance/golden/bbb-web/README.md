@@ -102,6 +102,17 @@ there compares like with like.
   from the same packages, for its rooms' new 601-second duration; only
   the duration changed.
 
+  On 2026-11-25 the presentation cases were added: insertDocument's
+  (`insertDocument/insertDocument.{errors,success,compat}.*`), create's
+  documents (`create/create.presentation.*`,
+  `create/create.default-presentation.*`), the body modules of
+  `create.client-settings.body*` (`body` and `body-and-url` under the
+  client-settings-body profile, `body-strict` under
+  client-settings-body-strict) and `create.shared-notes.body*`,
+  and the slide routes (`presentation/presentation.slides.*`,
+  `presentation/presentation.authz.*`). They were recorded from a stack
+  running packages built from v4.0.x-develop of that day (c9a1df59ca).
+
 ## Reviewing
 
 A recording becomes an expectation only after a person reviews it against the

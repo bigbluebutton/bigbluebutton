@@ -1,0 +1,50 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# insertDocument answers SUCCESS, "Presentation is being uploaded", and
+# uploads each document in the background: by URL, which bbb-web fetches,
+# or as base64 in the document element. Each one converts and joins the
+# meeting's presentations. An inserted document isn't current unless it
+# asks to be (insertDocument.success.flags), is removable, and isn't the
+# meeting's default presentation. Images and Office documents are taken as
+# well as PDFs.
+id: insertDocument.success.documents
+title: insertDocument uploads documents by URL and in base64
+endpoint: insertDocument
+class: contract
+tags: [ci, conversion]
+requires: [akka, bus, callbacks, presentation-conversion]
+steps:
+  # The meeting starts with a small image rather than the server's default
+  # presentation, which takes longer to convert.
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Insert document}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}-start/fixtures/presentations/image.png" filename="start.png"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - call: insertDocument
+    method: POST
+    params: {meetingID: "${uid}"}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}/fixtures/presentations/two-pages.pdf"/><document url="${sinkUrl}/${uid}/fixtures/presentations/image.png"/><document url="${sinkUrl}/${uid}/fixtures/presentations/slides.odp"/><document name="inline.pdf">${base64File("presentations/two-pages.pdf")}</document></module></modules>'}
+    expect: {returncode: SUCCESS}
+  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 60s}
+    select: [$.core.body.presentation.name, $.core.body.presentation.current, $.core.body.presentation.removable, $.core.body.presentation.defaultPresentation]
+    expect:
+      jsonpath: {$.core.body.presentation.name: "two-pages.pdf"}
+  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 60s}
+    select: [$.core.body.presentation.name, $.core.body.presentation.current, $.core.body.presentation.removable, $.core.body.presentation.defaultPresentation]
+    expect:
+      jsonpath: {$.core.body.presentation.name: "image.png"}
+  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 60s}
+    select: [$.core.body.presentation.name, $.core.body.presentation.current, $.core.body.presentation.removable, $.core.body.presentation.defaultPresentation]
+    expect:
+      jsonpath: {$.core.body.presentation.name: "slides.odp"}
+  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 60s}
+    select: [$.core.body.presentation.name, $.core.body.presentation.current, $.core.body.presentation.removable, $.core.body.presentation.defaultPresentation]
+    expect:
+      jsonpath: {$.core.body.presentation.name: "inline.pdf"}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

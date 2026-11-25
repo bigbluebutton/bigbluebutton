@@ -14,6 +14,12 @@ expected:
   - {id: isMeetingRunning.checksum.rejected, reason: "bbb-api answers HTTP 202 where bbb-web answers 200"}
   - {id: insertDocument.checksum.accepted, reason: "bbb-api answers HTTP 202 where bbb-web answers 200"}
   - {id: insertDocument.checksum.rejected, reason: "bbb-api answers HTTP 202 where bbb-web answers 200"}
+  - {id: insertDocument.errors.not-found, reason: "bbb-api answers HTTP 202 where bbb-web answers 200"}
+  - {id: insertDocument.errors.malformed-xml, reason: "the case starts with create, which can't succeed yet"}
+  - {id: insertDocument.errors.invalid-url, reason: "the case starts with create, which can't succeed yet"}
+  - {id: insertDocument.errors.invalid-filename, reason: "the case starts with create, which can't succeed yet"}
+  - {id: insertDocument.errors.no-documents, reason: "the case starts with create, which can't succeed yet"}
+  - {id: insertDocument.compat.json-errors, reason: "the case starts with create, which can't succeed yet"}
   - {id: "join.*", reason: join isn't implemented}
   - {id: "end.*", reason: end isn't implemented}
   - {id: "getSessions.*", reason: getSessions isn't implemented}

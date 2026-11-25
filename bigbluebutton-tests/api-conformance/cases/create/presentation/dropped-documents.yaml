@@ -1,0 +1,53 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A document bbb-web won't fetch, or can't use once it has it, is dropped,
+# and only that document: a URL over http, one of a type bbb-web doesn't
+# take (svg), one whose content doesn't match its extension (a PDF named
+# .pptx), and one over maxFileSizeUpload (30 MB; the sink makes it). The
+# others go on to conversion. create's answer doesn't say a document was dropped, so it
+# is recorded but not compared.
+id: create.presentation.dropped-documents
+title: create drops a document it won't fetch or can't use, and uploads the others
+endpoint: create
+class: contract
+tags: [ci, conversion]
+requires: [akka, bus, callbacks, presentation-conversion]
+steps:
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Presentations}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}/fixtures/presentations/two-pages.pdf" filename="control.pdf"/><document url="${sinkHttpUrl}/${uid}-http/fixtures/presentations/two-pages.pdf" filename="http.pdf"/><document url="${sinkUrl}/${uid}/fixtures/presentations/drawing.svg"/><document url="${sinkUrl}/${uid}/fixtures/presentations/two-pages.pdf" filename="spoof.pptx"/><document url="${sinkUrl}/${uid}/fixtures/generated/large.pdf?_size=31000000"/></module></modules>'}
+    golden: document
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: PresentationConversionStartedSysPubMsg, meetingId: "${intId}", within: 60s}
+    select: [$.core.body.common.presentationName]
+    expect:
+      jsonpath: {$.core.body.common.presentationName: "control.pdf"}
+  - bus: {name: PresentationConversionStartedSysPubMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+    expect:
+      absent: true
+      jsonpath: {$.core.body.common.presentationName: "http.pdf"}
+  - bus: {name: PresentationConversionStartedSysPubMsg, meetingId: "${intId}", within: 1s}
+    golden: off
+    expect:
+      absent: true
+      jsonpath: {$.core.body.common.presentationName: "drawing.svg"}
+  - bus: {name: PresentationConversionStartedSysPubMsg, meetingId: "${intId}", within: 1s}
+    golden: off
+    expect:
+      absent: true
+      jsonpath: {$.core.body.common.presentationName: "spoof.pptx"}
+  - bus: {name: PresentationConversionStartedSysPubMsg, meetingId: "${intId}", within: 1s}
+    golden: off
+    expect:
+      absent: true
+      jsonpath: {$.core.body.common.presentationName: "large.pdf"}
+  - sink: {key: "${uid}-http", within: 1s}
+    golden: off
+    expect: {absent: true}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

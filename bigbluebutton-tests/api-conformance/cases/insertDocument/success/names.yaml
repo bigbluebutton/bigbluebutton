@@ -1,0 +1,43 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A document's name keeps only the last segment of the filename it was
+# given, with / or \ as separator, and a name taken from the URL leaves
+# the query string out.
+id: insertDocument.success.names
+title: insertDocument names a document by the last segment of its filename or URL path
+endpoint: insertDocument
+class: contract
+tags: [ci, conversion]
+requires: [akka, bus, callbacks, presentation-conversion]
+steps:
+  # The meeting starts with a small image rather than the server's default
+  # presentation, which takes longer to convert.
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Insert document}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}-start/fixtures/presentations/image.png" filename="start.png"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - call: insertDocument
+    method: POST
+    params: {meetingID: "${uid}"}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}/fixtures/presentations/two-pages.pdf" filename="../../dir/slash.pdf"/><document url="${sinkUrl}/${uid}/fixtures/presentations/two-pages.pdf" filename="dir\backslash.pdf"/><document url="${sinkUrl}/${uid}/fixtures/presentations/image.png?version=2"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - bus: {name: PresentationConversionStartedSysPubMsg, meetingId: "${intId}", within: 60s}
+    select: [$.core.body.common.presentationName]
+    expect:
+      jsonpath: {$.core.body.common.presentationName: "slash.pdf"}
+  - bus: {name: PresentationConversionStartedSysPubMsg, meetingId: "${intId}", within: 60s}
+    select: [$.core.body.common.presentationName]
+    expect:
+      jsonpath: {$.core.body.common.presentationName: "backslash.pdf"}
+  - bus: {name: PresentationConversionStartedSysPubMsg, meetingId: "${intId}", within: 60s}
+    select: [$.core.body.common.presentationName]
+    expect:
+      jsonpath: {$.core.body.common.presentationName: "image.png"}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

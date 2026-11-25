@@ -1,0 +1,9 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.default-presentation.none
+target bbb-web
+
+== step 2: bus PresentationConversionCompletedSysPubMsg select $.core.body.presentation.name, $.core.body.presentation.current, $.core.body.presentation.removable, $.core.body.presentation.defaultPresentation
+$.core.body.presentation.current true
+$.core.body.presentation.defaultPresentation true
+$.core.body.presentation.name "default.pdf"
+$.core.body.presentation.removable true

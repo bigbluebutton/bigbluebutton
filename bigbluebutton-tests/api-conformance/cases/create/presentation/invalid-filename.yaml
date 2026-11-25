@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# Unlike insertDocument, create doesn't refuse a body with a document whose
+# name has no extension: it skips that document, uploads the others, and
+# answers SUCCESS. The skipped document was the first, so none of those
+# uploaded is current or the default presentation.
+id: create.presentation.invalid-filename
+title: create skips a document whose name has no extension and uploads the others
+endpoint: create
+class: compat
+tags: [ci, conversion]
+requires: [akka, bus, callbacks, presentation-conversion]
+steps:
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Presentations}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}/fixtures/presentations/two-pages.pdf" filename="slides"/><document url="${sinkUrl}/${uid}/fixtures/presentations/two-pages.pdf" filename="second.pdf"/></module></modules>'}
+    golden: document
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 60s}
+    select: [$.core.body.presentation.name, $.core.body.presentation.current, $.core.body.presentation.removable, $.core.body.presentation.defaultPresentation]
+    expect:
+      jsonpath: {$.core.body.presentation.name: "second.pdf"}
+  - sink: {key: "${uid}", within: 1s}
+    golden: off
+    expect: {count: {between: [1, 2]}}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

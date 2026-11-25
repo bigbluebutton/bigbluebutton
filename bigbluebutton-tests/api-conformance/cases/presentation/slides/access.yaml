@@ -1,0 +1,83 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A page's ${kind} is served only to a joined user of its meeting, with the
+# page's own pageToken and the user's session: the sessionToken in the query,
+# and the session cookie join set. Without the pageToken, or with another
+# page's, the request is refused with 403 even with a valid session; without
+# the sessionToken, or from a client without the cookie, with 401; and to a
+# user of another meeting, with 403 even with the page's pageToken. nginx
+# answers for the files it serves, after asking checkAuthorization, and
+# bbb-web for PNGs.
+id: presentation.slides.access
+title: A page's ${kind} is refused without its pageToken, the session, or to another meeting
+endpoint: presentation
+class: contract
+tags: [ci, conversion]
+requires: [akka, bus, callbacks, presentation-conversion]
+variants:
+  - {id: svg, vars: {kind: svg}}
+  - {id: thumbnail, vars: {kind: thumbnail}}
+  - {id: textfile, vars: {kind: textfiles}}
+  - {id: png, vars: {kind: png}}
+steps:
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Slides}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}/fixtures/presentations/two-pages.pdf"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - call: join
+    client: ann
+    params: {meetingID: "${uid}", fullName: Ann, role: moderator, redirect: "false"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {annToken: /response/session_token}
+  # The page URLs bbb-web hands akka-apps, which reach the client in its
+  # presentation data: each carries the page's pageToken.
+  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 60s}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.presentation.name: two-pages.pdf}
+    capture:
+      presId: $.core.body.presentation.id
+      page1: "$.core.body.presentation.pages[?@.num==1].svgUri"
+      page2: "$.core.body.presentation.pages[?@.num==2].svgUri"
+  - call: create
+    params: {meetingID: "${uid}-b", name: Slides}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: join
+    client: bob
+    params: {meetingID: "${uid}-b", fullName: Bob, role: moderator, redirect: "false"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {bobToken: /response/session_token}
+  # No pageToken.
+  - url: '${baseUrl}/bigbluebutton/presentation/${intId}/${intId}/${presId}/${kind}/1?sessionToken=${annToken}'
+    client: ann
+    expect: {status: 403}
+  # Page 2's pageToken on page 1.
+  - url: '${baseUrl}/bigbluebutton/presentation/${intId}/${intId}/${presId}/${kind}/1?pageToken=${match(page2, "pageToken=([0-9a-f]+)")}&sessionToken=${annToken}'
+    client: ann
+    expect: {status: 403}
+  # No sessionToken.
+  - url: '${baseUrl}/bigbluebutton/presentation/${intId}/${intId}/${presId}/${kind}/1?pageToken=${match(page1, "pageToken=([0-9a-f]+)")}'
+    client: ann
+    expect: {status: 401}
+  # No session cookie.
+  - url: '${baseUrl}/bigbluebutton/presentation/${intId}/${intId}/${presId}/${kind}/1?pageToken=${match(page1, "pageToken=([0-9a-f]+)")}&sessionToken=${annToken}'
+    client: other
+    expect: {status: 401}
+  # A user of another meeting.
+  - url: '${baseUrl}/bigbluebutton/presentation/${intId}/${intId}/${presId}/${kind}/1?pageToken=${match(page1, "pageToken=([0-9a-f]+)")}&sessionToken=${bobToken}'
+    client: bob
+    expect: {status: 403}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}
+  - call: end
+    params: {meetingID: "${uid}-b"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

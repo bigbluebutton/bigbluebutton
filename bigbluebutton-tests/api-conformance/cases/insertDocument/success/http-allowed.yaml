@@ -1,0 +1,40 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# With http in fetchUrlSupportedProtocols (the fetch-http profile; shipped
+# https only), bbb-web fetches a document at an http URL and takes it, so
+# the default's refusal (insertDocument.success.refused-urls) comes from
+# that setting.
+id: insertDocument.success.http-allowed
+title: insertDocument fetches a document at an http URL once fetchUrlSupportedProtocols lists http
+endpoint: insertDocument
+class: contract
+tags: [ci, conversion, disruptive]
+profile: fetch-http
+requires: [akka, bus, callbacks, presentation-conversion]
+steps:
+  # The meeting starts with a small image rather than the server's default
+  # presentation, which takes longer to convert.
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Insert document}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}-start/fixtures/presentations/image.png" filename="start.png"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - call: insertDocument
+    method: POST
+    params: {meetingID: "${uid}"}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkHttpUrl}/${uid}/fixtures/presentations/two-pages.pdf" filename="http.pdf"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - bus: {name: PresentationConversionStartedSysPubMsg, meetingId: "${intId}", within: 60s}
+    select: [$.core.body.common.presentationName]
+    expect:
+      jsonpath: {$.core.body.common.presentationName: "http.pdf"}
+  - sink: {key: "${uid}", within: 1s}
+    golden: off
+    expect: {count: {between: [1, 2]}}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

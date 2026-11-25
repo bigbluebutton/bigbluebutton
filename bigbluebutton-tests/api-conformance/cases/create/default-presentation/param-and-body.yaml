@@ -1,0 +1,38 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# With documents in create's body as well, the preUploadedPresentation
+# document comes first: it is the current, default presentation, the body's
+# documents follow, and the server's default presentation isn't uploaded.
+id: create.default-presentation.param-and-body
+title: create uploads preUploadedPresentation's document first, then the body's
+endpoint: create
+class: contract
+tags: [ci, conversion]
+requires: [akka, bus, callbacks, presentation-conversion]
+steps:
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Default presentation, preUploadedPresentation: "${sinkUrl}/${uid}/fixtures/presentations/two-pages.pdf", preUploadedPresentationName: from-param.pdf}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}/fixtures/presentations/image.png"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 60s}
+    select: [$.core.body.presentation.name, $.core.body.presentation.current, $.core.body.presentation.removable, $.core.body.presentation.defaultPresentation]
+    expect:
+      jsonpath:
+        $.core.body.presentation.name: "from-param.pdf"
+  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 60s}
+    select: [$.core.body.presentation.name, $.core.body.presentation.current, $.core.body.presentation.removable, $.core.body.presentation.defaultPresentation]
+    expect:
+      jsonpath:
+        $.core.body.presentation.name: "image.png"
+  - bus: {name: PresentationConversionStartedSysPubMsg, meetingId: "${intId}", within: 1s}
+    golden: off
+    expect:
+      absent: true
+      jsonpath: {$.core.body.common.presentationName: "default.pdf"}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

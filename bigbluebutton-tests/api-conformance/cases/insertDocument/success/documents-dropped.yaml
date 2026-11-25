@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# insertDocument takes at most maxPresentationsPerRequest (10) documents
+# per request. It uploads the first ten, drops the rest, and says so in a
+# documentsDropped answer. The documents point at sink URLs that answer
+# 404, so the sink shows which ones bbb-web went for.
+id: insertDocument.success.documents-dropped
+title: insertDocument uploads the first ten documents of a request and drops the rest
+endpoint: insertDocument
+class: contract
+tags: [ci]
+requires: [akka, callbacks]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Insert document}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: insertDocument
+    method: POST
+    params: {meetingID: "${uid}"}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}/d1.pdf?_status=404"/><document url="${sinkUrl}/${uid}/d2.pdf?_status=404"/><document url="${sinkUrl}/${uid}/d3.pdf?_status=404"/><document url="${sinkUrl}/${uid}/d4.pdf?_status=404"/><document url="${sinkUrl}/${uid}/d5.pdf?_status=404"/><document url="${sinkUrl}/${uid}/d6.pdf?_status=404"/><document url="${sinkUrl}/${uid}/d7.pdf?_status=404"/><document url="${sinkUrl}/${uid}/d8.pdf?_status=404"/><document url="${sinkUrl}/${uid}/d9.pdf?_status=404"/><document url="${sinkUrl}/${uid}/d10.pdf?_status=404"/><document url="${sinkUrl}/${uid}/d11.pdf?_status=404"/></module></modules>'}
+    expect: {returncode: SUCCESS, messageKey: documentsDropped}
+  - sink: {key: "${uid}", within: 5s}
+    golden: off
+    expect: {path: "/${uid}/d10.pdf"}
+  - sink: {key: "${uid}", within: 1s}
+    golden: off
+    expect: {path: "/${uid}/d11.pdf", absent: true}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

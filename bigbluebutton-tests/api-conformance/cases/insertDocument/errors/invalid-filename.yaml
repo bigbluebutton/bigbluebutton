@@ -1,0 +1,30 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A document's name comes from its filename attribute, or else from the
+# last segment of its URL's path; a base64 document's from its name
+# attribute. A name without an extension is refused as invalidFilename,
+# before anything is fetched.
+id: insertDocument.errors.invalid-filename
+title: insertDocument refuses a document whose name has no extension (${case})
+endpoint: insertDocument
+class: contract
+tags: [ci]
+requires: [akka]
+variants:
+  - {id: filename, vars: {case: from its filename attribute, doc: '<document url="https://example.com/files/a.pdf" filename="slides"/>'}}
+  - {id: url, vars: {case: from its URL, doc: '<document url="https://example.com/files/slides"/>'}}
+  - {id: base64, vars: {case: a base64 document, doc: '<document name="slides">JVBERi0=</document>'}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Insert document}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: insertDocument
+    method: POST
+    params: {meetingID: "${uid}"}
+    body: {xml: '<modules><module name="presentation">${doc}</module></modules>'}
+    expect: {returncode: FAILED, messageKey: invalidFilename}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

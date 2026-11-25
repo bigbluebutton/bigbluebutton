@@ -1,0 +1,62 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# bbb-web fetches a document only over a protocol fetchUrlSupportedProtocols
+# lists (https by default): a document at an http URL is dropped without
+# being fetched (insertDocument.success.http-allowed has it fetched once the
+# setting lists http). Documents at file, ftp and jar URLs, which bbb-web
+# fetches over no setting, are dropped too. The control document beside them
+# goes on to conversion. The answer doesn't say a document was dropped, so it is recorded
+# but not compared.
+id: insertDocument.success.refused-urls
+title: insertDocument drops a document whose URL uses a protocol bbb-web doesn't fetch
+endpoint: insertDocument
+class: contract
+tags: [ci, conversion]
+requires: [akka, bus, callbacks, presentation-conversion]
+steps:
+  # The meeting starts with a small image rather than the server's default
+  # presentation, which takes longer to convert.
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Insert document}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}-start/fixtures/presentations/image.png" filename="start.png"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - call: insertDocument
+    method: POST
+    params: {meetingID: "${uid}"}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkHttpUrl}/${uid}-http/fixtures/presentations/two-pages.pdf" filename="http.pdf"/><document url="file:///etc/hosts" filename="file.pdf"/><document url="ftp://sink.test/two-pages.pdf" filename="ftp.pdf"/><document url="jar:${sinkUrl}/${uid}/a.jar!/two-pages.pdf" filename="jar.pdf"/><document url="${sinkUrl}/${uid}/fixtures/presentations/two-pages.pdf" filename="control.pdf"/></module></modules>'}
+    golden: document
+    expect: {returncode: SUCCESS}
+  - bus: {name: PresentationConversionStartedSysPubMsg, meetingId: "${intId}", within: 60s}
+    select: [$.core.body.common.presentationName]
+    expect:
+      jsonpath: {$.core.body.common.presentationName: "control.pdf"}
+  - bus: {name: PresentationConversionStartedSysPubMsg, meetingId: "${intId}", within: 1s}
+    golden: off
+    expect:
+      absent: true
+      jsonpath: {$.core.body.common.presentationName: "http.pdf"}
+  - bus: {name: PresentationConversionStartedSysPubMsg, meetingId: "${intId}", within: 1s}
+    golden: off
+    expect:
+      absent: true
+      jsonpath: {$.core.body.common.presentationName: "file.pdf"}
+  - bus: {name: PresentationConversionStartedSysPubMsg, meetingId: "${intId}", within: 1s}
+    golden: off
+    expect:
+      absent: true
+      jsonpath: {$.core.body.common.presentationName: "ftp.pdf"}
+  - bus: {name: PresentationConversionStartedSysPubMsg, meetingId: "${intId}", within: 1s}
+    golden: off
+    expect:
+      absent: true
+      jsonpath: {$.core.body.common.presentationName: "jar.pdf"}
+  - sink: {key: "${uid}-http", within: 1s}
+    golden: off
+    expect: {absent: true}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

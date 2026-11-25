@@ -1,0 +1,48 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# create's body can hold documents for the meeting to start with, in a
+# presentation module: by URL, which bbb-web fetches, or as base64 in the
+# document element. They upload once the meeting exists and each joins the
+# meeting's presentations. The first is current and the meeting's default
+# presentation, and replaces the server's default presentation
+# (create.default-presentation.*). Images and Office documents are taken as
+# well as PDFs.
+id: create.presentation.documents
+title: create uploads the documents in its body, the first current
+endpoint: create
+class: contract
+tags: [ci, conversion]
+requires: [akka, bus, callbacks, presentation-conversion]
+steps:
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Presentations}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}/fixtures/presentations/two-pages.pdf"/><document url="${sinkUrl}/${uid}/fixtures/presentations/image.png"/><document url="${sinkUrl}/${uid}/fixtures/presentations/slides.odp"/><document name="inline.pdf">${base64File("presentations/two-pages.pdf")}</document></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 60s}
+    select: [$.core.body.presentation.name, $.core.body.presentation.current, $.core.body.presentation.removable, $.core.body.presentation.defaultPresentation]
+    expect:
+      jsonpath: {$.core.body.presentation.name: "two-pages.pdf"}
+  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 60s}
+    select: [$.core.body.presentation.name, $.core.body.presentation.current, $.core.body.presentation.removable, $.core.body.presentation.defaultPresentation]
+    expect:
+      jsonpath: {$.core.body.presentation.name: "image.png"}
+  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 60s}
+    select: [$.core.body.presentation.name, $.core.body.presentation.current, $.core.body.presentation.removable, $.core.body.presentation.defaultPresentation]
+    expect:
+      jsonpath: {$.core.body.presentation.name: "slides.odp"}
+  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 60s}
+    select: [$.core.body.presentation.name, $.core.body.presentation.current, $.core.body.presentation.removable, $.core.body.presentation.defaultPresentation]
+    expect:
+      jsonpath: {$.core.body.presentation.name: "inline.pdf"}
+  - bus: {name: PresentationConversionStartedSysPubMsg, meetingId: "${intId}", within: 1s}
+    golden: off
+    expect:
+      absent: true
+      jsonpath: {$.core.body.common.presentationName: "default.pdf"}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}
