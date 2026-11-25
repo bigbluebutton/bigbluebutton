@@ -5,13 +5,18 @@ const Draggable = styled.div<{
   $isDragging: boolean;
 }>`
   ${({ $isDraggable }) => $isDraggable && css`
-    & > video {
-      cursor: grabbing;
+    video {
+      cursor: grab;
     }
   `}
 
   ${({ $isDragging }) => $isDragging && css`
     background-color: rgba(200, 200, 200, 0.5);
+    cursor: grabbing;
+
+    video {
+      cursor: grabbing;
+    }
   `}
 `;
 
