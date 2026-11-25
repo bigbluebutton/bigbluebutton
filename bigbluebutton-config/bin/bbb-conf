@@ -873,8 +873,14 @@ check_configuration() {
 
     if [ -f $EXPORT_OVERRIDE ] && ! sudo -u bigbluebutton test -r $EXPORT_OVERRIDE; then
         echo
-        echo "# Warning: bbb-export-annotations (user bigbluebutton) cannot read $EXPORT_OVERRIDE"
-        echo "#   and runs without it. The file and its directory must be readable by bigbluebutton."
+        if ! sudo -u bigbluebutton test -x "$(dirname "$EXPORT_OVERRIDE")"; then
+            echo "# Warning: bbb-export-annotations (user bigbluebutton) cannot open $(dirname "$EXPORT_OVERRIDE"),"
+            echo "#   so it skips $EXPORT_OVERRIDE and runs with its defaults."
+        else
+            echo "# Warning: bbb-export-annotations (user bigbluebutton) cannot read $EXPORT_OVERRIDE"
+            echo "#   and stops at start."
+        fi
+        echo "#   The file and its directory must be readable by bigbluebutton."
         echo
     fi
 
