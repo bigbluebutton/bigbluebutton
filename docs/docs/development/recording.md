@@ -938,7 +938,7 @@ The sections that follow cover the types of events you will encounter in `events
 | EndAndKickAllEvent           | - timestampUTC<br/>- reason<br/>- date<br/>                                        |
 | RecordStatusEvent            | - timestampUTC<br/>- date<br/>-status<br/> -userId                                 |
 | ParticipantStatusChangeEvent | - timestampUTC<br/>- status<br/>- userId<br/>- date<br/>- value                    |
-| LayoutBroadcastedEvent       | - timestampUTC<br/>- focusedCamera<br/>- presentationVideoRate<br/>- date<br/>- cameraPosition<br/>- presentationIsOpen<br/>- layout<br/>- isResizing                    |
+| LayoutBroadcastedEvent       | - timestampUTC<br/>- focusedCamera<br/>- cameraDockSize<br/>- date<br/>- cameraPosition<br/>- presentationIsOpen<br/>- layout                    |
 
 **LayoutBroadcastedEvent** — Emitted when the meeting layout is updated.
 
@@ -948,10 +948,9 @@ The sections that follow cover the types of events you will encounter in `events
 | date                   | String  | Date of the event                                                                                                       |
 | layout                 | String  | Active layout. Currently always `UNIFIED_LAYOUT` in BigBlueButton 4.0.                                                   |
 | cameraPosition         | String  | Position of the camera dock. One of `contentTop`, `contentRight`, `contentBottom`, `contentLeft`, `sidebarContentBottom` |
-| presentationVideoRate  | Float   | Number between 0 and 1 indicating the ratio of the camera dock size relative to the window size                         |
+| cameraDockSize         | Float   | Number between 0 and 1: the camera dock size as a share of the area it sits in, along its axis (0 when not set)         |
 | presentationIsOpen     | Boolean | Whether the presentation area is open                                                                                   |
 | focusedCamera          | String  | ID of the camera that is currently focused                                                                              |
-| isResizing             | Boolean | Whether the presenter is actively resizing the layout                                                                   |
 
 ### Presentation
 
