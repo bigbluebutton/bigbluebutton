@@ -96,7 +96,7 @@ A deployment uses these names or mounts its own two files. nginx resolves the ba
 starts, so they must resolve then. Two names are resolved at run time through the container's DNS
 server instead, every 30 s or per request:
 - `graphql-server`, so that scaling Hasura (more or fewer instances behind the one name) takes effect
-  within 30 s, without reloading nginx;
+  in about 30 s, without reloading nginx;
 - the optional `webhooks`, whose location (`/usr/share/bigbluebutton/nginx/webhooks.nginx`) resolves
   it per request, so without it nginx starts and answers `/bigbluebutton/api/hooks` with 502.
 
@@ -105,7 +105,10 @@ image must be started with its entrypoint (a Kubernetes `command:` replaces it, 
 not start), and `/tmp` must be writable, as it already must be for nginx's pid and temp files. With
 several nameservers in `/etc/resolv.conf` nginx rotates between them, so all of them must know the
 names; on Kubernetes `graphql-server` and `webhooks` need their full service names, because nginx's
-resolver ignores search domains. TLS and `server_name` are deployment config.
+resolver ignores search domains, so mount your own `hasura-loadbalancer.conf` (and webhooks
+location) with them. Resolving `graphql-server` spreads the load over several Hasura pods only
+with a headless Service, whose name resolves to the pods; a ClusterIP Service resolves to one
+address. TLS and `server_name` are deployment config.
 
 ## Environment variables
 

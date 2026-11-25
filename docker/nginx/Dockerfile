@@ -30,7 +30,8 @@ COPY docker/nginx/bbb-html5.nginx docker/nginx/learning-dashboard.nginx docker/n
      /usr/share/bigbluebutton/nginx/
 # webhooks is optional: this location resolves its name per request instead of in an upstream
 COPY docker/nginx/webhooks.nginx /usr/share/bigbluebutton/nginx/
-# The base image's entrypoint renders the resolver for webhooks into /tmp at start (read-only root).
+# The base image's entrypoint renders the resolver for the names resolved at run time (graphql-server
+# and webhooks) into /tmp at start (read-only root).
 ENV NGINX_ENTRYPOINT_LOCAL_RESOLVERS=1 NGINX_ENVSUBST_OUTPUT_DIR=/tmp
 COPY docker/nginx/bbb-resolver.conf.template /etc/nginx/templates/
 

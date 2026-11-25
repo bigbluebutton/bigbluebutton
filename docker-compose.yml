@@ -91,7 +91,8 @@ services:
       - ./docker/compose/nginx/playback.nginx:/usr/share/bigbluebutton/nginx/playback.nginx:ro
       - acme-challenge:/var/www/bigbluebutton-default/assets/.well-known/acme-challenge:ro
       - ./data/bigbluebutton:/var/bigbluebutton:ro,z
-    # nginx resolves the names of these upstreams when it starts
+    # nginx resolves the names of these upstreams when it starts (graphql-server at run time, but
+    # it still starts after it)
     depends_on:
       - web
       - graphql-middleware
