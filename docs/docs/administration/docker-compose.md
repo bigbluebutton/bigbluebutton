@@ -43,12 +43,15 @@ The images come from the registry (`docker compose pull`, or the first `up`); no
 
 ## Upgrade
 
-The compose files go with the images: a newer image can need a change in `docker-compose.yml` or `docker/compose/`, so upgrade them together. Take the files from the commit the image tag was built from (the last part of a pinned tag, `v4.1.x-develop-<commit>` or `v4.1.x-develop-<date>-<commit>`; for a tag without a commit, such as `v4.1.x-develop`, that branch or tag itself) by running `install.sh` again with `BBB_BRANCH` set to it, in the directory that contains `bigbluebutton`. It downloads the files again and keeps `.env` and `docker-compose.override.yml`. Then set `BBB_IMAGE_TAG` in `.env` to the tag, and pull and recreate:
+The compose files go with the images: a newer image can need a change in `docker-compose.yml` or `docker/compose/`, so upgrade them together, with the files of the commit the images were built from. Each image carries that commit in its label `org.opencontainers.image.revision`, also for a tag without a commit such as `v4.1.x-develop`. Set `BBB_IMAGE_TAG` in `.env` to the new tag (or keep a branch tag), pull, read the commit, and run `install.sh` of that commit again in the directory that contains `bigbluebutton`; it downloads the files again and keeps `.env` and `docker-compose.override.yml`. Then recreate:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/<commit>/docker/compose/install.sh | BBB_BRANCH=<commit> sh -s -- <domain> [email]
 cd bigbluebutton
 docker compose pull
+commit=$(docker image inspect --format '{{index .Config.Labels "org.opencontainers.image.revision"}}' "$(docker compose config --images web | grep /bbb-web:)")
+cd ..
+curl -fsSL "https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/$commit/docker/compose/install.sh" | BBB_BRANCH=$commit sh -s -- <domain>
+cd bigbluebutton
 docker compose up -d --force-recreate
 ```
 
