@@ -860,6 +860,17 @@ check_configuration() {
         fi
         echo
     fi
+    # Since 4.1 the database URL of the BigBlueButton source comes from the packaged unit; a copy
+    # of an older unit in /etc/systemd/system hides it and the metadata turns inconsistent
+    GQL_PID=$(systemctl show -p MainPID --value bbb-graphql-server@8085 2>/dev/null)
+    if [ -n "$GQL_PID" ] && [ "$GQL_PID" != 0 ] && ! tr '\0' '\n' < "/proc/$GQL_PID/environ" | grep -q '^HASURA_GRAPHQL_BBB_DATABASE_URL='; then
+        echo
+        echo "# Warning: bbb-graphql-server runs without HASURA_GRAPHQL_BBB_DATABASE_URL"
+        echo "#   ($(systemctl show -p FragmentPath --value bbb-graphql-server@8085)). Remove a copy of the unit in"
+        echo "#   /etc/systemd/system, or set the variable in /etc/bigbluebutton/bbb-graphql-server.env"
+        echo
+    fi
+
     if [ -f $EXPORT_OVERRIDE ] && ! sudo -u bigbluebutton test -r $EXPORT_OVERRIDE; then
         echo
         echo "# Warning: bbb-export-annotations (user bigbluebutton) cannot read $EXPORT_OVERRIDE"
