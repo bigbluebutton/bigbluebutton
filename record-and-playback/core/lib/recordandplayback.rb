@@ -285,9 +285,18 @@ module BigBlueButton
     # Environment variables win over both files
     @props['redis_host'] = ENV['REDIS_HOST'] if env_set?('REDIS_HOST')
     @props['redis_port'] = env_port('REDIS_PORT', @props['redis_port']) if env_set?('REDIS_PORT')
+    @props['redis_password'] = ENV['REDIS_PASSWORD'] if env_set?('REDIS_PASSWORD')
     @props['playback_host'] = ENV['PLAYBACK_HOST'] if env_set?('PLAYBACK_HOST')
     @props['bn_notes_endpoint'] = ENV['BN_NOTES_ENDPOINT'] if env_set?('BN_NOTES_ENDPOINT')
     @props
+  end
+
+  # The Redis of the resque queues: redis_workers_* if set, else redis_*
+  def self.resque_redis(props = BigBlueButton.read_props)
+    require 'redis'
+    Redis.new(host: props['redis_workers_host'] || props['redis_host'],
+              port: props['redis_workers_port'] || props['redis_port'],
+              password: props['redis_workers_password'] || props['redis_password'])
   end
 
   def self.env_set?(name)
