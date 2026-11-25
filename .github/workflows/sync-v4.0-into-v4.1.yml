@@ -12,9 +12,12 @@ name: "Sync v4.0 into v4.1"
 # labels reach the script only through env.
 #
 # It runs in bigbluebutton/bigbluebutton, and in a fork only with the repository variable
-# SYNC_V41_ENABLED=true. With the GITHUB_TOKEN, a change to .github/workflows/ cannot be pushed and
-# the pull requests it opens start no workflow, so the script starts the automated tests itself; a
-# SYNC_TOKEN secret (GitHub App or PAT with the workflows permission) lifts the first limit.
+# SYNC_V41_ENABLED=true. Without a SYNC_TOKEN secret it uses the GITHUB_TOKEN, which needs the
+# repository setting "Allow GitHub Actions to create and approve pull requests" (Settings > Actions
+# > General) to open the sync pull requests. With the GITHUB_TOKEN, a change to .github/workflows/
+# cannot be pushed and the pull requests it opens start no workflow, so the script starts the
+# automated tests itself; a SYNC_TOKEN secret (GitHub App or PAT with the workflows permission)
+# lifts the first limit and does not depend on that setting.
 on:
   pull_request_target:
     types: [closed]
