@@ -111,14 +111,94 @@ set_state() {
 	printf '%s\n' "$@" >"$s.next" && mv "$s.next" "$s"
 }
 
-# strict FILE: the one of bbb-web's settings akka-apps reads at startup too,
-# as it reads it with java.util.Properties: the key's last value, with
-# spaces or a colon around the separator allowed, true when it says true in
-# any case once trimmed.
+# strict FILE: the one of bbb-web's settings akka-apps reads at startup too
+# (SystemConfiguration.scala), read as java.util.Properties reads it. Lines
+# end at LF, CR or CRLF. One that ends in an odd number of backslashes goes
+# on into the next, without that line's leading blanks. Blank lines are
+# skipped, and so are comments: a line whose first character, blanks
+# aside, is # or ! is one, unless it continues a line that has text
+# already. Keys and values have their escapes decoded, and the key's last
+# value counts: true when it says true in any case once trimmed. A
+# malformed \uxxxx in any key or value fails the load, which akka-apps
+# takes as false. NUL is read as \001, which Java treats alike here. Prints
+# unknown if awk fails.
 strict() {
-	v=$(sed -n 's/^[[:space:]]*clientSettingsOverrideStrictValidation[[:space:]]*[=:[:space:]][[:space:]]*//p' "$1" 2>/dev/null |
-		tail -n 1 | sed 's/[[:space:]]*$//' | tr '[:upper:]' '[:lower:]')
-	if [ "$v" = true ]; then echo true; else echo false; fi
+	tr '\000' '\001' <"$1" | LC_ALL=C awk '
+	# natural LINE: a line as written; line holds what came before it, when
+	# the lines before went on into it.
+	function natural(s) {
+		sub(/^[ \t\f]+/, "", s)
+		if (line == "" && s ~ /^[#!]/) return
+		match(s, /\\+$/)
+		if (RLENGTH > 0 && RLENGTH % 2) { line = line substr(s, 1, length(s) - 1); return }
+		s = line s
+		line = ""
+		if (s != "") logical(s)
+	}
+	function logical(s,   n, i, c, esc, from, sep) {
+		n = length(s); from = n + 1; sep = 0; esc = 0
+		for (i = 1; i <= n; i++) {
+			c = substr(s, i, 1)
+			if (!esc && (c == "=" || c == ":")) { from = i + 1; sep = 1; break }
+			if (!esc && (c == " " || c == "\t" || c == "\f")) { from = i + 1; break }
+			esc = (c == "\\") ? !esc : 0
+		}
+		for (; from <= n; from++) {
+			c = substr(s, from, 1)
+			if (c == " " || c == "\t" || c == "\f") continue
+			if (sep || (c != "=" && c != ":")) break
+			sep = 1
+		}
+		# Every key and value is decoded: a malformed escape fails the load.
+		if (decode(substr(s, 1, i - 1)) == key) val = decode(substr(s, from))
+		else decode(substr(s, from))
+	}
+	function decode(s,   out, n, i, c, h, k, d) {
+		if (!index(s, "\\")) return s
+		out = ""; n = length(s)
+		for (i = 1; i <= n; i++) {
+			c = substr(s, i, 1)
+			if (c == "\\") {
+				c = substr(s, ++i, 1)
+				if (c == "u") {
+					if (i + 4 > n) { bad = 1; return "" }
+					h = 0
+					for (k = 1; k <= 4; k++) {
+						d = index("0123456789abcdef", tolower(substr(s, i + k, 1)))
+						if (!d) { bad = 1; return "" }
+						h = h * 16 + d - 1
+					}
+					i += 4
+					# Only ASCII matters here: \001 stands in for NUL, \200 for the rest.
+					c = h == 0 ? "\001" : h < 128 ? sprintf("%c", h) : "\200"
+				} else if (c == "t") c = "\t"
+				else if (c == "r") c = "\r"
+				else if (c == "n") c = "\n"
+				else if (c == "f") c = "\f"
+			}
+			out = out c
+		}
+		return out
+	}
+	BEGIN {
+		key = "clientSettingsOverrideStrictValidation"
+		# What String.trim drops, NUL aside.
+		for (i = 1; i <= 32; i++) low = low sprintf("%c", i)
+	}
+	{
+		# A CR before the LF is part of a CRLF; any other ends a line too.
+		sub(/\r$/, "")
+		n = split($0, part, "\r")
+		if (!n) natural("")
+		for (i = 1; i <= n; i++) natural(part[i])
+	}
+	END {
+		if (line != "") logical(line)
+		if (bad) val = ""
+		while (val != "" && index(low, substr(val, 1, 1))) val = substr(val, 2)
+		while (val != "" && index(low, substr(val, length(val), 1))) val = substr(val, 1, length(val) - 1)
+		print (tolower(val) == "true" ? "true" : "false")
+	}' || echo unknown
 }
 
 [ -f "$F" ] || : >"$F"
@@ -133,8 +213,10 @@ elif [ -s "$AKKA_OVERLAY" ]; then
 	exit 1
 fi
 
-# Each restart marker is made before the file it is for changes.
-[ "$(strict "$F.bbb-conform-next")" = "$(strict "$F")" ] || : >"$PENDING"
+# Each restart marker is made before the file it is for changes. A setting
+# strict couldn't read counts as changed.
+s=$(strict "$F.bbb-conform-next")
+[ "$s" != unknown ] && [ "$s" = "$(strict "$F")" ] || : >"$PENDING"
 install "$F" "$WEB_PENDING"
 systemctl is-active -q bbb-web || : >"$WEB_PENDING"
 if $akka; then
