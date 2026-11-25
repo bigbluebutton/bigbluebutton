@@ -15,6 +15,10 @@ if [ ! -d ./node_modules ] || ! npm ls --depth=0 >/dev/null 2>&1; then
 fi
 
 sudo cp -r ./* /usr/local/bigbluebutton/bbb-export-annotations
+# The unit of this checkout: it sets NODE_CONFIG_DIR, without which the override in
+# /etc/bigbluebutton/bbb-export-annotations/ is not read
+sudo cp ../build/packages-template/bbb-export-annotations/bbb-export-annotations.service /usr/lib/systemd/system/
+sudo systemctl daemon-reload
 sudo systemctl restart bbb-export-annotations
 echo ''
 echo ''
