@@ -4,6 +4,7 @@ package metricstest
 import (
 	"fmt"
 	"strings"
+	"testing"
 
 	"github.com/prometheus/client_golang/prometheus"
 	dto "github.com/prometheus/client_model/go"
@@ -89,4 +90,21 @@ func Changed(before, after map[string]float64) map[string]float64 {
 		}
 	}
 	return changed
+}
+
+// MustRead reads one series of the default registry by its Series key (a histogram by its count,
+// key + " count", or its sum, key + " sum"), and fails the test if the registry does not export it.
+// It is for the series of a closed label set, which must exist before any event: reading a child of
+// a vector with WithLabelValues would create it, and hide that the code never did.
+func MustRead(t testing.TB, key string) float64 {
+	t.Helper()
+	series, err := Series()
+	if err != nil {
+		t.Fatalf("gather: %v", err)
+	}
+	value, ok := series[key]
+	if !ok {
+		t.Fatalf("%s is not exported", key)
+	}
+	return value
 }

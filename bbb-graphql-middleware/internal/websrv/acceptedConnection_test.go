@@ -22,7 +22,6 @@ import (
 	"bbb-graphql-middleware/internal/metricstest"
 
 	"github.com/coder/websocket"
-	"github.com/prometheus/client_golang/prometheus"
 )
 
 // serveOn serves handler on the address of the repository's config.yml that the middleware calls.
@@ -179,7 +178,8 @@ func TestAnAcceptedConnectionThroughTheHandler(t *testing.T) {
 		return metricstest.Value(common.GqlReceivedDataCounter.WithLabelValues(subscription, operationName))
 	}
 	firstData := func() float64 {
-		return metricstest.Value(common.GqlSubscriptionFirstDataDuration.WithLabelValues(subscription).(prometheus.Histogram))
+		common.RegisterMetrics()
+		return metricstest.MustRead(t, `gql_subscription_first_data_duration_seconds{type="`+subscription+`"} count`)
 	}
 	peaks := func() float64 { return metricstest.Value(common.WsConnectionSubscriptionsPeak) }
 	peakSum := func() float64 { return metricstest.Sum(common.WsConnectionSubscriptionsPeak) }
@@ -219,7 +219,8 @@ func TestAnAcceptedConnectionThroughTheHandler(t *testing.T) {
 func TestAReconnectionToHasuraThroughTheHandler(t *testing.T) {
 	fakeServices(t, 1)
 	reconnections := func() float64 {
-		return metricstest.Value(common.GqlHasuraReconnectionCounter.WithLabelValues(common.ReconnectionHasuraReadError))
+		common.RegisterMetrics()
+		return metricstest.MustRead(t, `gql_hasura_reconnection_total{reason="`+common.ReconnectionHasuraReadError+`"}`)
 	}
 	before := reconnections()
 

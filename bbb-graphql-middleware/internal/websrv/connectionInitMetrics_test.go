@@ -23,9 +23,7 @@ func TestRecordConnectionInitCountsOnlyAcceptedConnections(t *testing.T) {
 }
 
 func TestRecordConnectionInitLabelsRejectionsByMessageId(t *testing.T) {
-	rejected := func(reason string) float64 {
-		return metricstest.Value(common.WsConnectionRejectedCounter.WithLabelValues(reason))
-	}
+	rejected := func(reason string) float64 { return rejectedConnections(t, reason) }
 	cases := []struct{ errorMessageId, reason string }{
 		{"meeting_not_found", "meeting_not_found"},
 		{"param_missing", "param_missing"},
@@ -38,8 +36,12 @@ func TestRecordConnectionInitLabelsRejectionsByMessageId(t *testing.T) {
 			t.Errorf("errorMessageId %q: reason %q went %v -> %v, want +1", c.errorMessageId, c.reason, before, got)
 		}
 	}
-	if got := rejected("error on trying to check authorization"); got != 0 {
-		t.Errorf("the error text is still used as the reason: %v", got)
+	series, err := metricstest.Series()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := series[`ws_connection_rejected{reason="error on trying to check authorization"}`]; ok {
+		t.Error("the error text is still used as the reason")
 	}
 }
 

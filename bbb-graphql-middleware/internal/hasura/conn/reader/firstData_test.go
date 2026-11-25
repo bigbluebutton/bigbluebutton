@@ -8,7 +8,6 @@ import (
 	"bbb-graphql-middleware/internal/common"
 	"bbb-graphql-middleware/internal/metricstest"
 
-	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 )
 
@@ -19,7 +18,8 @@ func TestRecordFirstDataObservesOnlyTheFirstMessage(t *testing.T) {
 	}}
 	hasura := &common.HasuraConnection{Id: "HC1", BrowserConn: browser}
 	observations := func() float64 {
-		return metricstest.Value(common.GqlSubscriptionFirstDataDuration.WithLabelValues(string(common.Streaming)).(prometheus.Histogram))
+		common.RegisterMetrics()
+		return metricstest.MustRead(t, `gql_subscription_first_data_duration_seconds{type="`+string(common.Streaming)+`"} count`)
 	}
 
 	before := observations()
@@ -91,7 +91,8 @@ func TestFirstDataThroughTheHandler(t *testing.T) {
 		}
 		hasura := &common.HasuraConnection{Id: "HC1", BrowserConn: browser, Context: context.Background()}
 		observations := func() float64 {
-			return metricstest.Value(common.GqlSubscriptionFirstDataDuration.WithLabelValues(string(c.queryType)).(prometheus.Histogram))
+			common.RegisterMetrics()
+			return metricstest.MustRead(t, `gql_subscription_first_data_duration_seconds{type="`+string(c.queryType)+`"} count`)
 		}
 
 		before := observations()
@@ -146,12 +147,15 @@ func TestFirstDataIsObservedInSeconds(t *testing.T) {
 		FirstDataPendingSince: time.Now().Add(-200 * time.Millisecond),
 	}
 	hasura := &common.HasuraConnection{Id: "HC1", BrowserConn: browser, Context: context.Background()}
-	histogram := common.GqlSubscriptionFirstDataDuration.WithLabelValues(string(common.SubscriptionAggregate)).(prometheus.Histogram)
-	before := metricstest.Sum(histogram)
+	common.RegisterMetrics()
+	sum := func() float64 {
+		return metricstest.MustRead(t, `gql_subscription_first_data_duration_seconds{type="`+string(common.SubscriptionAggregate)+`"} sum`)
+	}
+	before := sum()
 
 	handleMessageReceivedFromHasura(hasura, []byte(`{"type":"next","id":"1","payload":{"data":{"user_aggregate":{"aggregate":{"count":1}}}}}`))
 
-	if observed := metricstest.Sum(histogram) - before; observed < 0.2 || observed > 10 {
+	if observed := sum() - before; observed < 0.2 || observed > 10 {
 		t.Errorf("observed %v for a wait of 200 ms, want it in seconds", observed)
 	}
 }

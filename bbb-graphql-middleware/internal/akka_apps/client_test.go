@@ -19,7 +19,8 @@ func TestAkkaAppsGetSessionVariablesMeasuresEachRequest(t *testing.T) {
 	sessionVarsHookUrl = server.URL
 
 	requests := func(result string) float64 {
-		return metricstest.Value(common.SessionVarsHookRequestCounter.WithLabelValues(result))
+		common.RegisterMetrics()
+		return metricstest.MustRead(t, `session_vars_hook_request_total{result="`+result+`"}`)
 	}
 	ok, unauthorized, failed := requests("ok"), requests("unauthorized"), requests("error")
 	observed := metricstest.Value(common.SessionVarsHookRequestDuration)

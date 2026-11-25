@@ -19,7 +19,8 @@ func TestBBBWebCheckAuthorizationMeasuresEachRequest(t *testing.T) {
 	authHookUrl = server.URL
 
 	requests := func(result string) float64 {
-		return metricstest.Value(common.AuthHookRequestCounter.WithLabelValues(result))
+		common.RegisterMetrics()
+		return metricstest.MustRead(t, `auth_hook_request_total{result="`+result+`"}`)
 	}
 	ok, unauthorized, failed := requests("ok"), requests("unauthorized"), requests("error")
 	observed := metricstest.Value(common.AuthHookRequestDuration)

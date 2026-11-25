@@ -9,7 +9,6 @@ import (
 	"bbb-graphql-middleware/internal/common"
 	"bbb-graphql-middleware/internal/metricstest"
 
-	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 )
 
@@ -74,7 +73,8 @@ func TestASubscriptionRemovedDuringADataMessageIsCountedOnce(t *testing.T) {
 					return total
 				}
 				firstData := func() float64 {
-					return metricstest.Value(common.GqlSubscriptionFirstDataDuration.WithLabelValues(string(common.Streaming)).(prometheus.Histogram))
+					common.RegisterMetrics()
+					return metricstest.MustRead(t, `gql_subscription_first_data_duration_seconds{type="`+string(common.Streaming)+`"} count`)
 				}
 				removedBefore, firstDataBefore := removed(), firstData()
 

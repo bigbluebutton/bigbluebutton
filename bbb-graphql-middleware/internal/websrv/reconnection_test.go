@@ -16,7 +16,8 @@ import (
 func TestKeepConnectedToHasuraCountsEachReconnectionMade(t *testing.T) {
 	for _, connections := range []int{1, 3} {
 		reconnections := func() float64 {
-			return metricstest.Value(common.GqlHasuraReconnectionCounter.WithLabelValues(common.ReconnectionDialError))
+			common.RegisterMetrics()
+			return metricstest.MustRead(t, `gql_hasura_reconnection_total{reason="`+common.ReconnectionDialError+`"}`)
 		}
 		before := reconnections()
 

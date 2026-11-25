@@ -14,20 +14,25 @@ import (
 	"github.com/coder/websocket"
 )
 
-func rejectedConnections(reason string) float64 {
-	return metricstest.Value(common.WsConnectionRejectedCounter.WithLabelValues(reason))
+// rejectedConnections reads ws_connection_rejected for a reason from the registry, which must
+// export it before any rejection (the series of a closed set exist from the start).
+func rejectedConnections(t *testing.T, reason string) float64 {
+	t.Helper()
+	common.RegisterMetrics()
+	RegisterConnectionMetrics()
+	return metricstest.MustRead(t, `ws_connection_rejected{reason="`+reason+`"}`)
 }
 
 // A connection rejected at init: counted as rejected with its reason, not as accepted, and left out
 // of the peak.
 func TestRejectedConnectionMetrics(t *testing.T) {
-	accepted, rejected, peaks := metricstest.Value(common.WsConnectionAcceptedCounter), rejectedConnections("param_missing"), metricstest.Value(common.WsConnectionSubscriptionsPeak)
+	accepted, rejected, peaks := metricstest.Value(common.WsConnectionAcceptedCounter), rejectedConnections(t, "param_missing"), metricstest.Value(common.WsConnectionSubscriptionsPeak)
 
 	browser := connectBrowser(t)
 	browser.init(t, map[string]string{"X-ClientSessionUUID": "uuid-no-token"}) // no X-Session-Token
 	browser.waitHandled(t)
 
-	if got := rejectedConnections("param_missing"); got != rejected+1 {
+	if got := rejectedConnections(t, "param_missing"); got != rejected+1 {
 		t.Errorf("ws_connection_rejected{reason=param_missing}: %v -> %v, want +1", rejected, got)
 	}
 	if got := metricstest.Value(common.WsConnectionAcceptedCounter); got != accepted {
@@ -40,15 +45,15 @@ func TestRejectedConnectionMetrics(t *testing.T) {
 
 // A browser that leaves before it sends its connection_init has its own reason.
 func TestConnectionClosedBeforeInitMetrics(t *testing.T) {
-	closedBeforeInit, paramMissing := rejectedConnections("closed_before_init"), rejectedConnections("param_missing")
+	closedBeforeInit, paramMissing := rejectedConnections(t, "closed_before_init"), rejectedConnections(t, "param_missing")
 
 	browser := connectBrowser(t)
 	browser.close(t)
 
-	if got := rejectedConnections("closed_before_init"); got != closedBeforeInit+1 {
+	if got := rejectedConnections(t, "closed_before_init"); got != closedBeforeInit+1 {
 		t.Errorf("ws_connection_rejected{reason=closed_before_init}: %v -> %v, want +1", closedBeforeInit, got)
 	}
-	if got := rejectedConnections("param_missing"); got != paramMissing {
+	if got := rejectedConnections(t, "param_missing"); got != paramMissing {
 		t.Errorf("counted as param_missing: %v -> %v", paramMissing, got)
 	}
 }
@@ -64,11 +69,11 @@ func TestConnectionOverTheServerLimitMetrics(t *testing.T) {
 		common.GlobalConnectionsCount = saved
 		common.UserConnectionsCountMutex.Unlock()
 	})
-	rejected := rejectedConnections("connections_limit_exceeded")
+	rejected := rejectedConnections(t, "connections_limit_exceeded")
 
 	connectBrowser(t).waitHandled(t)
 
-	if got := rejectedConnections("connections_limit_exceeded"); got != rejected+1 {
+	if got := rejectedConnections(t, "connections_limit_exceeded"); got != rejected+1 {
 		t.Errorf("ws_connection_rejected{reason=connections_limit_exceeded}: %v -> %v, want +1", rejected, got)
 	}
 }
@@ -136,7 +141,7 @@ func TestConnectionInitTimeoutMetrics(t *testing.T) {
 			t.Errorf("%s: moved by %v, want %v", key, changed[key], delta)
 		}
 	}
-	if got := rejectedConnections("other"); got != before[`ws_connection_rejected{reason="other"}`] {
+	if got := rejectedConnections(t, "other"); got != before[`ws_connection_rejected{reason="other"}`] {
 		t.Errorf("counted as other: %v", got)
 	}
 }
