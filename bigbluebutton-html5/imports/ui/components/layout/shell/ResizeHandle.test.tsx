@@ -104,6 +104,39 @@ describe('ResizeHandle', () => {
     delete proto.hasPointerCapture;
   });
 
+  it('ends a cancelled drag where the last move left it, not at the cancel event\'s position', () => {
+    const { handle, onResizeEnd } = setup();
+    fireEvent.pointerDown(handle, { button: 0, clientX: 100, clientY: 50 });
+    fireEvent.pointerMove(handle, { clientX: 130, clientY: 50 });
+    fireEvent.pointerCancel(handle, { clientX: 0, clientY: 0 });
+    expect(onResizeEnd).toHaveBeenCalledWith(30);
+  });
+
+  it('ends the drag when the pointer capture is lost', () => {
+    const { handle, onResizeEnd } = setup();
+    fireEvent.pointerDown(handle, { button: 0, clientX: 100, clientY: 50 });
+    fireEvent.pointerMove(handle, { clientX: 120, clientY: 50 });
+    fireEvent(handle, new Event('lostpointercapture', { bubbles: true }));
+    expect(onResizeEnd).toHaveBeenCalledTimes(1);
+    expect(onResizeEnd).toHaveBeenCalledWith(20);
+    fireEvent.pointerUp(handle, { clientX: 300, clientY: 50 });
+    expect(onResizeEnd).toHaveBeenCalledTimes(1);
+  });
+
+  it('ends the drag on a move with no button pressed (the release happened elsewhere)', () => {
+    const { handle, onResize, onResizeEnd } = setup();
+    fireEvent.pointerDown(handle, { button: 0, clientX: 100, clientY: 50 });
+    fireEvent.pointerMove(handle, {
+      clientX: 120, clientY: 50, buttons: 1, pointerType: 'mouse',
+    });
+    fireEvent.pointerMove(handle, {
+      clientX: 400, clientY: 50, buttons: 0, pointerType: 'mouse',
+    });
+    frame();
+    expect(onResizeEnd).toHaveBeenCalledWith(20);
+    expect(onResize).not.toHaveBeenCalledWith(300);
+  });
+
   it('ignores moves and ends without a drag', () => {
     const { handle, onResize, onResizeEnd } = setup();
     fireEvent.pointerMove(handle, { clientX: 5, clientY: 0 });
