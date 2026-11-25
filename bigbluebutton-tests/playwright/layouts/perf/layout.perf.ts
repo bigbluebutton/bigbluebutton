@@ -135,6 +135,8 @@ async function dockResize(browser: Browser, testInfo: Parameters<typeof openClie
 
 const WITHIN_BREAKPOINT = [1366, 1400, 1450, 1500, 1550, 1600, 1650, 1700, 1750, 1800];
 const ACROSS_BREAKPOINT = [1366, 1150, 1366, 1150, 1366, 1150, 1366, 1150, 1366, 1150];
+const IDLE_WINDOW_MS = 2000;
+const STEP_WINDOW_MS = 100;
 
 async function windowResize(
   browser: Browser,
@@ -145,6 +147,11 @@ async function windowResize(
   const { client } = await openMeasuredPage(browser, testInfo, variant, cpu, { fullName: 'Measured' });
   await waitForLayoutReady(client.page);
   const result: Record<string, number> = {};
+  // the meeting commits on its own (clocks, subscriptions): the rate without any resize, for reference
+  const idleStart = await perfSnapshot(client.page);
+  await client.page.waitForTimeout(IDLE_WINDOW_MS);
+  const idleEnd = await perfSnapshot(client.page);
+  result.idleCommitsPerSecond = (between(idleEnd, idleStart.now, idleEnd.now).commits * 1000) / IDLE_WINDOW_MS;
   for (const [name, widths] of [
     ['within', WITHIN_BREAKPOINT],
     ['across', ACROSS_BREAKPOINT],
@@ -152,9 +159,11 @@ async function windowResize(
     // eslint-disable-next-line no-await-in-loop
     const before = await perfSnapshot(client.page);
     let lastResize = 0;
+    const resizedAt: number[] = [];
     for (const width of widths) {
       // eslint-disable-next-line no-await-in-loop
       lastResize = await client.page.evaluate(() => performance.now());
+      resizedAt.push(lastResize);
       // eslint-disable-next-line no-await-in-loop
       await client.page.setViewportSize({ width, height: 768 });
       // eslint-disable-next-line no-await-in-loop
@@ -165,6 +174,10 @@ async function windowResize(
     // eslint-disable-next-line no-await-in-loop
     const after = await perfSnapshot(client.page);
     const window = between(after, before.now, after.now);
+    // commits in the 100 ms after each resize, and the time those windows add up to
+    const stepCommits = resizedAt.map((at) => between(after, at, at + STEP_WINDOW_MS).commits);
+    result[`${name}StepCommitsMax`] = Math.max(...stepCommits);
+    result[`${name}StepCommitsTotal`] = stepCommits.reduce((sum, n) => sum + n, 0);
     result[`${name}Commits`] = window.commits;
     result[`${name}LongFrameMs`] = window.longFrameMs;
     result[`${name}StableAfterMs`] = Math.max(0, stable - lastResize);
