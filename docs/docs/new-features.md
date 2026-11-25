@@ -62,6 +62,10 @@ BigBlueButton 4.1 can run on one server with Docker Compose, from container imag
 
 bbb-graphql-middleware, bbb-shared-notes-server, bbb-export-annotations and the recording processing read their addresses, ports and passwords also from environment variables, which win over their configuration files. On a package install they are unset and nothing changes; the variables are listed in [docker/README.md](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/docker/README.md#environment-variables).
 
+### Removal of old raw recordings
+
+On a package install, the daily cleanup (`/etc/cron.daily/bigbluebutton`) removes the raw files of a recording after `published_days` once every format in the recording `steps` is published. Before, it waited for every installed format, so a playback format that was installed but not in the steps kept every raw recording. A server that has such a format now removes the raw files of recordings published only in the formats of the steps; to keep them, add the format to the steps or raise `published_days`.
+
 ### bbb-graphql-server unit
 
 The unit `bbb-graphql-server@.service` now sets `HASURA_GRAPHQL_BBB_DATABASE_URL`, the database of the BigBlueButton source in Hasura's metadata. If you keep a copy of the unit in `/etc/systemd/system`, it hides the packaged one and the metadata is inconsistent after the upgrade: remove the copy, or set the variable in `/etc/bigbluebutton/bbb-graphql-server.env`. `bbb-conf --check` warns about it.
