@@ -163,8 +163,8 @@ const RoomModeApplyOnJoin: React.FC<RoomModeApplyOnJoinProps> = ({
     }, 'Room mode not applied: the room is already running');
     // The room is running: the pick, with its edits, can still be applied
     // from the room.
-    const { modeId, edits } = choiceRef.current;
-    notifyRoomModeNotApplied(intl, 'roomRunning', { modeId, edits });
+    const { modeId, edits, fromCreate } = choiceRef.current;
+    if (!fromCreate) notifyRoomModeNotApplied(intl, 'roomRunning', { modeId, edits });
     onDoneRef.current();
   };
 

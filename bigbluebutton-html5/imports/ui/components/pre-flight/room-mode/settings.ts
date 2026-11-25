@@ -29,6 +29,9 @@ export type RoomModeEdits = Partial<RoomModeEditableValues>;
 export interface RoomModeChoice {
   modeId: string;
   edits: RoomModeEdits;
+  // Left as the create call gave it. The moderator did not pick it, so when it
+  // cannot be applied, they are not told.
+  fromCreate?: boolean;
 }
 
 // What the summary shows and the applier will apply: one value per setting

@@ -3,6 +3,7 @@
 import Session from '/imports/ui/services/storage/session';
 import meetingStaticData from '/imports/ui/core/singletons/meetingStaticData';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import { getRoomMode } from './room-mode/modes';
 
 const PRE_FLIGHT_COMPLETED_KEY = 'preFlightCompleted';
 const PRE_FLIGHT_SHARE_CAMERA_KEY = 'preFlightShareCamera';
@@ -37,6 +38,14 @@ export const isRoomModePanelEnabled = (): boolean => {
   );
 
   return enabled === true;
+};
+
+// The mode the create call marked the room with, when the panel offers it: the
+// panel opens with it picked. Fixed at create, so read from the static data,
+// which is there before the join.
+export const getRoomModeOnCreate = (): string | null => {
+  const id = meetingStaticData.getMeetingData()?.roomModeOnCreate;
+  return id && getRoomMode(id) ? id : null;
 };
 
 // Flag-gated too: the keys outlive a reload, so a tab moving on to a meeting

@@ -22,6 +22,8 @@ export interface MeetingStaticData {
   notifyRecordingAppend: string;
   presentationUploadExternalDescription: string;
   presentationUploadExternalUrl: string;
+  // '' when the create gave no room mode.
+  roomModeOnCreate?: string;
   recordingPolicies: {
     allowStartStopRecording: boolean;
     autoStartRecording: boolean;

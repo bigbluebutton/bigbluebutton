@@ -259,7 +259,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
             logCode: 'pre_flight_room_mode_apply_skipped',
             extraInfo: { modeId: roomModeChoice.modeId, reason: 'room mode already set' },
           }, 'Room mode not applied: another moderator set one first');
-          notifyRoomModeNotApplied(intl, 'modeSet');
+          if (!roomModeChoice.fromCreate) notifyRoomModeNotApplied(intl, 'modeSet');
         }
         if (roomModeChoice) roomModeChoiceRef.current = null;
         setAllowToRender(true);

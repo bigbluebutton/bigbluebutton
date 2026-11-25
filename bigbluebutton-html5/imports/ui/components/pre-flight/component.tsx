@@ -20,7 +20,7 @@ import {
   RoomModeEditableValues,
   RoomModeEdits,
 } from './room-mode/settings';
-import { setPreFlightCompleted, setPreFlightShareCamera } from './service';
+import { getRoomModeOnCreate, setPreFlightCompleted, setPreFlightShareCamera } from './service';
 import { getAudioModeAvailability } from './audio-options';
 import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
 import AudioService, {
@@ -151,11 +151,15 @@ const PreFlight: React.FC<PreFlightProps> = ({
   // Where listen only is off, a denied microphone can still be passed over:
   // the user joins without audio and can join it from the session.
   const [microphoneSkipped, setMicrophoneSkipped] = useState(false);
-  const [roomMode, setRoomModeState] = useState<string | null>(null);
+  // Without the panel nothing reads this, so a mode from the create is never applied.
+  const [roomMode, setRoomModeState] = useState<string | null>(getRoomModeOnCreate);
   const [roomModeEdits, setRoomModeEdits] = useState<RoomModeEdits>({});
+  // Until the moderator picks, cancels or edits, the pick is the create's.
+  const roomModeTouched = useRef(false);
   // Edits belong to the mode they were made under: switching mode, or clearing
   // it, starts the next one from its preset.
   const setRoomMode = useCallback((next: string | null) => {
+    roomModeTouched.current = true;
     if (next !== roomMode) setRoomModeEdits({});
     setRoomModeState(next);
   }, [roomMode]);
@@ -163,6 +167,7 @@ const PreFlight: React.FC<PreFlightProps> = ({
     id: K,
     value: RoomModeEditableValues[K],
   ) => {
+    roomModeTouched.current = true;
     setRoomModeEdits((edits) => ({ ...edits, [id]: value }));
   }, []);
   const commitCameraRef = useRef<(() => void) | null>(null);
@@ -254,7 +259,11 @@ const PreFlight: React.FC<PreFlightProps> = ({
       // A pick whose panel went away (another moderator set the mode) is not applied.
       // eslint-disable-next-line no-param-reassign
       roomModeChoiceRef.current = hasRoomModePanel && roomMode
-        ? { modeId: roomMode, edits: roomModeEdits }
+        ? {
+          modeId: roomMode,
+          edits: roomModeEdits,
+          fromCreate: !roomModeTouched.current,
+        }
         : null;
     }
 
