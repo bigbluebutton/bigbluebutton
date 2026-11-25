@@ -374,6 +374,7 @@ export const elements = {
   deactivateTimer: 'button[data-test="deactivateTimer"]',
   timerButton: 'button[data-test="timerButton"]',
   timerIndicator: 'div[data-test="timeIndicator"]',
+  timerIndicatorAccessibleTime: 'span[data-test="timerIndicatorAccessibleTime"]',
   stopwatch: 'button[data-test="stopwatchButton"]',
   timerHoursInput: 'input[data-test="timerHoursInput"]',
   timerMinutesInput: 'input[data-test="timerMinutesInput"]',

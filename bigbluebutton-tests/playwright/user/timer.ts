@@ -90,9 +90,9 @@ export class Timer extends MultiUsers {
     await this.checkTimerInputs('00', '10', '30', 'should add 30 seconds to the timer inputs');
     await this.modPage.hasText(e.timerIndicator, /10:30/, 'should add 30 seconds to the timer indicator');
     await expect(
-      timerIndicatorLocator,
+      this.modPage.page.locator(e.timerIndicatorAccessibleTime),
       'should expose the timer countdown in a readable form to assistive technologies',
-    ).toHaveAccessibleName('10 minutes, 30 seconds');
+    ).toHaveText('10 minutes, 30 seconds');
 
     // a running timer locks the inputs, which show the countdown
     await this.clickOnTimerControl();

@@ -245,9 +245,7 @@ export async function drawArrow(testPage: Page) {
 
 export async function timeInSeconds(locator: Locator) {
   const text = await locator.innerText();
-  const visibleTime = text.match(/\d+:\d+/)?.[0];
-  if (!visibleTime) throw new Error(`No digit-formatted time found in "${text}"`);
-  const [minutes, seconds] = visibleTime.split(':').map(Number);
+  const [minutes, seconds] = text.split(':').map(Number);
   const totalSeconds = minutes * 60 + seconds;
   return totalSeconds;
 }

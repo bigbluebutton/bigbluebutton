@@ -191,9 +191,9 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
             >
               {humanizeSeconds(timeInSeconds)}
             </Styled.TimerTime>
-            <span className="sr-only">{accessibleTime}</span>
           </Styled.TimerContent>
         </Styled.TimerButton>
+        <span className="sr-only" data-test="timerIndicatorAccessibleTime">{accessibleTime}</span>
       </Styled.Timer>
     </Styled.TimerWrapper>
   );
