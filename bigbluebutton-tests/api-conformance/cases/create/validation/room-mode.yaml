@@ -1,0 +1,27 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# roomMode takes the shape a room mode has elsewhere, or is empty. The create
+# does not check whether a client offers the mode.
+id: create.validation.room-mode
+title: create with ${scenario}
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka]
+variants:
+  - {id: upper-case, vars: {scenario: an upper-case room mode, roomMode: Class, returncode: FAILED, key: validationError}}
+  - {id: leading-digit, vars: {scenario: a room mode that starts with a digit, roomMode: 1class, returncode: FAILED, key: validationError}}
+  - {id: too-long, vars: {scenario: a room mode of 33 characters, roomMode: cllllllllllllllllllllllllllllllll, returncode: FAILED, key: validationError}}
+  - {id: empty, vars: {scenario: an empty room mode, roomMode: "", returncode: SUCCESS, key: ""}}
+  - {id: longest, vars: {scenario: a room mode of 32 characters, roomMode: class-2-with-digits-and-dashes-x, returncode: SUCCESS, key: ""}}
+  - {id: unknown, vars: {scenario: a room mode no client offers, roomMode: webinar, returncode: SUCCESS, key: ""}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Room mode, roomMode: "${roomMode}"}
+    expect: {returncode: "${returncode}", messageKey: "${key}"}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}
