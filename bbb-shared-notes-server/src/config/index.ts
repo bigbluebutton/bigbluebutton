@@ -27,18 +27,27 @@ function deepMerge<T extends object>(base: T, override: Partial<T>): T {
   return result;
 }
 
-function loadConfig(): AppSettings {
-  const defaultPath = existsSync(PRODUCTION_DEFAULT_PATH) ? PRODUCTION_DEFAULT_PATH : DEV_DEFAULT_PATH;
-  let config = load(readFileSync(defaultPath, 'utf8')) as AppSettings;
+export interface ConfigPaths {
+  defaultPath: string;
+  overridePath: string;
+}
 
-  if (existsSync(OVERRIDE_PATH)) {
+const installedPaths = (): ConfigPaths => ({
+  defaultPath: existsSync(PRODUCTION_DEFAULT_PATH) ? PRODUCTION_DEFAULT_PATH : DEV_DEFAULT_PATH,
+  overridePath: OVERRIDE_PATH,
+});
+
+// The default file, then the override file, then the environment
+export function loadConfig(paths: ConfigPaths = installedPaths(), env: NodeJS.ProcessEnv = process.env): AppSettings {
+  let config = load(readFileSync(paths.defaultPath, 'utf8')) as AppSettings;
+
+  if (existsSync(paths.overridePath)) {
     // an empty file is null for js-yaml
-    const override = (load(readFileSync(OVERRIDE_PATH, 'utf8')) ?? {}) as Partial<AppSettings>;
+    const override = (load(readFileSync(paths.overridePath, 'utf8')) ?? {}) as Partial<AppSettings>;
     config = deepMerge(config, override);
   }
 
   // These variables, if set, win over the default and the override file
-  const env = process.env;
   if (env.SERVER_HOST) config.expressServer.host = env.SERVER_HOST;
   if (env.BBB_WEB_URL) {
     // bbb-web's base URL, as for bbb-export-annotations, e.g. http://web:8090
