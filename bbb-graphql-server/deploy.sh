@@ -113,3 +113,7 @@ fi
 echo "Applying new metadata to Hasura"
 source <(sudo cat /etc/default/bbb-graphql-server-admin-pass)
 timeout 15s sudo hasura metadata apply --skip-update-check --admin-secret "$HASURA_GRAPHQL_ADMIN_SECRET"
+
+if [ "$MODE" = "metadata" ]; then
+  echo "Note: Hasura closes every client connection when metadata changes; connected clients reconnect and get the new permissions."
+fi
