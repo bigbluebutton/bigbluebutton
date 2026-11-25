@@ -44,22 +44,30 @@ module BigBlueButton
       participants_ids.length
     end
 
-    # A page id: a lowercase UUID v4. Recordings made since pages have ids name their pages this way.
-    PAGE_ID_PATTERN = /\A[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\z/
-
-    def self.page_id?(id)
-      !id.nil? && PAGE_ID_PATTERN.match?(id)
-    end
-
-    # The page ids of each converted presentation, in page order, keyed by presentation id. Empty for
-    # recordings made before pages had ids: those identify pages by their number.
-    def self.get_page_ids(events)
-      page_ids = {}
+    # The pages of each presentation shown in the recording, in page order, keyed by presentation id.
+    # A page is identified by an opaque string: the page id, for recordings whose ConversionCompletedEvent
+    # lists them (BigBlueButton 4.1 and later); otherwise its 1-based page number, as a string, counted from
+    # the files of the presentation in presentation_dir. A presentation always has at least one page: an
+    # uploaded image is one page, and older recordings may have no thumbnails for it.
+    def self.presentation_page_ids(events, presentation_dir)
+      converted = {}
       events.xpath("/recording/event[@eventname='ConversionCompletedEvent']").each do |event|
         ids = event.at_xpath('pageIds')&.text
         next if ids.nil? || ids.empty?
 
-        page_ids[event.at_xpath('presentationName').text] = ids.split(',')
+        # The last conversion of a presentation wins.
+        converted[event.at_xpath('presentationName').text] = ids.split(',')
+      end
+
+      page_ids = {}
+      events.xpath("/recording/event[@eventname='SharePresentationEvent']").each do |event|
+        presentation = event.at_xpath('presentationName').text
+        next if page_ids.key?(presentation)
+
+        page_ids[presentation] = converted.fetch(presentation) do
+          num_pages = BigBlueButton::Presentation.get_number_of_pages_for("#{presentation_dir}/#{presentation}")
+          (1..[num_pages, 1].max).map(&:to_s)
+        end
       end
       page_ids
     end
