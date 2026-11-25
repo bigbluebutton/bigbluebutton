@@ -136,7 +136,7 @@ counts as not set.
   because the image sets the auth hook.
 - **bbb-export-annotations**: the variables in `config/custom-environment-variables.json`:
   `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`, `BBB_WEB_URL` (bbb-web's base URL, e.g.
-  `http://web:8090`; bbb-apps-akka's `BBB_WEB_API` is the API URL) and
+  `http://web:8090`, without a trailing slash; bbb-apps-akka's `BBB_WEB_API` is the API URL) and
   `BBB_EXPORT_ANNOTATIONS_*` for the log level, the shared paths and the rasterize timeout.
   Environment variables take precedence over a mounted
   `/etc/bigbluebutton/bbb-export-annotations/production.json`.
