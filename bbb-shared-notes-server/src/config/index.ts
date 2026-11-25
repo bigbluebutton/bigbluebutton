@@ -41,6 +41,12 @@ function loadConfig(): AppSettings {
   if (env.SERVER_HOST) config.expressServer.host = env.SERVER_HOST;
   if (env.BBB_WEB_HOST) config.bbbWeb.host = env.BBB_WEB_HOST;
   if (env.REDIS_HOST) config.redis.host = env.REDIS_HOST;
+  if (env.REDIS_PASSWORD) config.redis.password = env.REDIS_PASSWORD;
+  if (env.REDIS_PORT) {
+    // Kubernetes sets REDIS_PORT=tcp://<address>:6379 for a Service named redis
+    if (/^\d+$/.test(env.REDIS_PORT)) config.redis.port = Number(env.REDIS_PORT);
+    else console.warn(`REDIS_PORT=${env.REDIS_PORT} is not a port number, using ${config.redis.port}`);
+  }
   if (env.POSTGRES_HOST) config.postgres.host = env.POSTGRES_HOST;
   if (env.POSTGRES_PASSWORD) config.postgres.password = env.POSTGRES_PASSWORD;
 

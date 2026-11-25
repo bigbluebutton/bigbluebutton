@@ -27,8 +27,8 @@ log:
 
 redis:
   host: 127.0.0.1 # or REDIS_HOST from the environment
-  port: 6379
-  password: null
+  port: 6379 # or REDIS_PORT from the environment
+  password: null # or REDIS_PASSWORD from the environment
   channels:
     publish:
       - to-akka-apps-redis-channel
