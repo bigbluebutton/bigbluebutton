@@ -14,6 +14,7 @@ import ResizeHandle, { ResizeEdge } from '/imports/ui/components/layout/shell/Re
 import { useShellState } from '/imports/ui/components/layout/shell/context';
 import {
   cameraDockPosition,
+  cameraDockState,
   Edges,
   isCameraDockDraggable,
   isCameraDockShown,
@@ -77,6 +78,8 @@ interface WebcamComponentProps {
   cameraOptimalGridSize: Input['cameraDock']['cameraOptimalGridSize'];
   snapToCameraGrid: boolean;
   isRTL: boolean;
+  /** the dock sits in its position, rather than filling the media area or the window */
+  isPositioned: boolean;
 }
 
 const RESIZE_EDGES: ResizeEdge[] = ['top', 'right', 'bottom', 'left'];
@@ -94,6 +97,7 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
   cameraOptimalGridSize: cameraSize,
   snapToCameraGrid,
   isRTL,
+  isPositioned,
 }) => {
   const [isResizing, setIsResizing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -173,8 +177,10 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
 
   // A side dock wider than it may be (80% of the media area, for the presenter the area less the
   // presentation toolbar) is held to that width, and the stored size with it, as the user's size.
+  // Only while it sits beside the media: a dock that fills the media area (presentation minimized) or
+  // the window has no such limit, as with the layout engine.
   useEffect(() => {
-    if (!isCameraLeftOrRight || isResizing || isDragging) return undefined;
+    if (!isCameraLeftOrRight || !isPositioned || isResizing || isDragging) return undefined;
     const holdWithinLimit = () => {
       const limit = limitRef.current?.getBoundingClientRect().width ?? 0;
       const { width, height } = dockSize();
@@ -189,7 +195,7 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
     if (limitRef.current) observer.observe(limitRef.current);
     if (dockRef.current) observer.observe(dockRef.current);
     return () => observer.disconnect();
-  }, [position, isPresenter, presentationIsOpen, isResizing, isDragging]);
+  }, [position, isPresenter, presentationIsOpen, isResizing, isDragging, isPositioned]);
 
   const handleVideoFocus = useCallback((id: string) => {
     layoutContextDispatch({
@@ -442,6 +448,7 @@ const WebcamContainer: React.FC = () => {
           position,
           isDraggable: isCameraDockDraggable(shell),
           resizableEdge: resizableCameraDockEdges(shell),
+          isPositioned: cameraDockState(shell) === 'positioned',
           swapLayout,
           usersVideo,
           focusedId,

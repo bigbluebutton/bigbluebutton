@@ -11,11 +11,13 @@ import {
   DockPosition,
   dockSize,
   findHandle,
+  minimizePresentation,
   moveDock,
   MULTI_FUNCTIONAL_MODE,
   openAuxiliaryWithUserList,
   openClient,
   resizeBy,
+  restorePresentation,
   shareWebcam,
   SIDEBAR_AUX_HANDLE,
   SIDEBAR_CONTENT_HANDLE,
@@ -144,6 +146,24 @@ test.describe('Camera dock resize', { tag: ['@layout', '@media'] }, () => {
       'the dock comes back at the stored size',
     ).toBeLessThanOrEqual(PX);
   });
+
+  for (const position of ['contentLeft', 'contentRight'] as const) {
+    test(`A ${position} dock keeps its width across a presentation minimize and restore`, async ({
+      browser,
+    }, testInfo) => {
+      // While the presentation is minimized the dock fills the media area; no side-dock limit applies
+      // there, and nothing may be stored as the user's size.
+      const mod = await presenterWithCamera(browser, testInfo);
+      await moveDock(mod.page, position);
+      const before = await dockSize(mod.page);
+      await minimizePresentation(mod);
+      await waitForStableGeometry(mod.page);
+      await restorePresentation(mod);
+      await waitForStableGeometry(mod.page);
+      await mod.page.waitForTimeout(1000);
+      expect(Math.abs((await dockSize(mod.page)) - before), 'the dock comes back at its width').toBeLessThanOrEqual(PX);
+    });
+  }
 
   test('With two cameras, a top dock taller than its grid snaps down to the grid', async ({ browser }, testInfo) => {
     const mod = await presenterWithCamera(browser, testInfo);
