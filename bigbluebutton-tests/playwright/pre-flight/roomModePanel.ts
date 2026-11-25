@@ -12,7 +12,13 @@ import { elements as e } from '../core/elements';
 import { applyClientSettingsOverridesToContext, Page } from '../core/page';
 import { InitExtraPageOptionsProps } from '../user/multiusers';
 import { USER_JOIN_OPERATION } from './preFlight';
-import { ensureProbe, expectRoomMode, expectRoomModeRefusedInBreakout, RoomMode } from './roomMode';
+import {
+  ensureProbe,
+  expectRoomMode,
+  expectRoomModeOnCreate,
+  expectRoomModeRefusedInBreakout,
+  RoomMode,
+} from './roomMode';
 import {
   NO_LISTEN_ONLY_JOIN_PARAMETER,
   NO_ROOM_MODE_PANEL_INIT_OPTIONS,
@@ -56,7 +62,7 @@ export const hasNoPanel = async (page: Page, description: string) => {
   expect(await page.checkElement(e.preFlightRoomModePanel), description).toBeFalsy();
 };
 
-const expectSelected = async (page: Page, selected: RoomModeCard | null) => {
+export const expectSelected = async (page: Page, selected: RoomModeCard | null) => {
   for (const card of ROOM_MODE_CARDS) {
     await expect(
       page.page.locator(card),
@@ -77,7 +83,7 @@ const createBreakoutRooms = async (page: Page) => {
 // The page pins only the pre-flight, so no client-side value masks the one the room
 // gets on create. This override replaces the APOLLO_CLIENT_SETTINGS_OVERRIDE that
 // initModPage sends, so it carries enableApolloDevTools for the probe.
-const roomModesOnCreate = (enabled: boolean): InitExtraPageOptionsProps => ({
+export const roomModesOnCreate = (enabled: boolean): InitExtraPageOptionsProps => ({
   ...PRE_FLIGHT_INIT_OPTIONS,
   clientSettingsOverrides: PRE_FLIGHT_ONLY_SETTINGS_OVERRIDE,
   createClientSettingsOverride: {
@@ -85,7 +91,7 @@ const roomModesOnCreate = (enabled: boolean): InitExtraPageOptionsProps => ({
   },
 });
 
-const ROOM_MODES_OFF_JOIN_PARAMETER = 'userdata-bbb_pre_flight_room_modes=false';
+export const ROOM_MODES_OFF_JOIN_PARAMETER = 'userdata-bbb_pre_flight_room_modes=false';
 
 export const startsRoom = async (page: Page) => {
   await page.waitAndClick(e.preFlightJoinButton);
@@ -432,6 +438,8 @@ export class RoomModePanel extends RoomMode {
   async startsWithoutMode() {
     await ensureProbe(this.modPage);
     await hasPanel(this.modPage);
+    await expectRoomModeOnCreate(this.modPage, '', 'should have no room mode from a create that gave none');
+    await expectSelected(this.modPage, null);
     await startsRoom(this.modPage);
     // Without a pick no applier starts, and the room opens only after that check.
     await expectRoomMode(this.modPage, '', 'should leave the room unconfigured when started without a mode');

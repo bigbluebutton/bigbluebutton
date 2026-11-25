@@ -39,6 +39,42 @@ const readRoomMode = async (page: Page): Promise<RoomModeRead> => {
 
 const getRoomMode = async (page: Page): Promise<string> => (await readRoomMode(page)).meeting.roomMode;
 
+const ROOM_MODE_ON_CREATE_QUERY = queryDocument(
+  [field('user_current', [field('meeting', [field('roomMode'), field('roomModeOnCreate')])])],
+  'userCurrentSubscription',
+);
+
+export interface RoomModeOnCreateRead {
+  roomMode: string;
+  roomModeOnCreate: string;
+}
+
+export const readRoomModeOnCreate = async (page: Page): Promise<RoomModeOnCreateRead> => {
+  const data = await runQuery(page.page, ROOM_MODE_ON_CREATE_QUERY);
+  const rows = data.user_current as { meeting: RoomModeOnCreateRead }[];
+  if (!rows?.length) throw new Error('user_current returned no rows');
+  return rows[0].meeting;
+};
+
+export const expectRoomModeOnCreate = async (page: Page, expected: string, message: string): Promise<void> => {
+  expect((await readRoomModeOnCreate(page)).roomModeOnCreate, message).toBe(expected);
+};
+
+// Only users in the meeting may read roomBaseSettings. The middleware lets this
+// operation through by its name alone. Hasura's permission refuses the field
+// instead, answering as if it did not exist.
+const ROOM_BASE_SETTINGS_QUERY = queryDocument(
+  [field('user_current', [field('meeting', [field('roomBaseSettings')])])],
+  'userCurrentSubscription',
+);
+
+export const expectRoomBaseSettingsClosedBeforeJoining = async (page: Page): Promise<void> => {
+  await expect(
+    runQuery(page.page, ROOM_BASE_SETTINGS_QUERY),
+    'should not let a user who has not joined read the room as created',
+  ).rejects.toThrow(/roomBaseSettings/);
+};
+
 interface SetRoomModeOutcome {
   accepted: boolean;
   errors: string[];
