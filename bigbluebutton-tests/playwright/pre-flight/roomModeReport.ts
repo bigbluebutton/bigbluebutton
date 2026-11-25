@@ -16,7 +16,7 @@ import {
   switchToMeeting,
 } from './roomMode';
 import { MEETING_APPLIED } from './roomModeApply';
-import { hasNoPanel } from './roomModePanel';
+import { hasNoPanel, reloadsIntoRoom } from './roomModePanel';
 import { expectRoomSettings, readLockSettings, RoomModeSwitch } from './roomModeSwitch';
 import { ROOM_MODE_PANEL_INIT_OPTIONS } from './util';
 
@@ -169,8 +169,7 @@ export class RoomModeReport extends RoomModeSwitch {
     await expectRoomConfiguredCount(meetingId, 1, 'should record the applied mode');
 
     await test.step('a reload or a second moderator records nothing', async () => {
-      await this.modPage.page.reload();
-      await this.modPage.waitForSelector(e.layoutContainer, ELEMENT_WAIT_EXTRA_LONG_TIME);
+      await reloadsIntoRoom(this.modPage);
       await ensureProbe(this.modPage);
       await expectRoomMode(this.modPage, 'class', 'should keep the class mode after a reload');
       // Through the pre-flight with the room mode panel on, the way a moderator arrives.
