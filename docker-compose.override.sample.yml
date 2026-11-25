@@ -8,13 +8,11 @@
 # The bake target is the image name without "bbb-". The image in .env is enough to run it;
 # pull_policy: never below lets `docker compose pull` skip the local image.
 #
-# For the HTML5 client, docker/compose/dev/html5.yml runs the webpack dev server instead of an
-# image (see "Develop with Docker Compose" in the development guide). With COMPOSE_FILE set in
-# .env, compose reads this file only when COMPOSE_FILE lists it.
+# For the HTML5 client from the webpack dev server instead of an image, uncomment the HTML5 block
+# at the end (see "Develop with Docker Compose" in the development guide).
 
 # services:
-  # nginx:
-  #   pull_policy: never
+  # nginx: at the end, with the HTML5 block
 
   # apps-akka:
   #   pull_policy: never
@@ -68,3 +66,51 @@
 
   # webhooks:
   #   pull_policy: never
+
+  # nginx:
+  #   pull_policy: never # only with a local nginx image
+  #
+  #   # HTML5 block: nginx serves /html5client/ from the webpack dev server and the locales from
+  #   # the source tree. The html5-client image keeps running (nginx depends on it) but gets no
+  #   # requests.
+  #   configs:
+  #     - source: bbb-html5.nginx
+  #       target: /usr/share/bigbluebutton/nginx/bbb-html5.nginx
+  #   volumes:
+  #     - ./bigbluebutton-html5/public/locales:/usr/share/bigbluebutton/html5-client/locales:ro
+  #   # (a) dev server on your machine (cd bigbluebutton-html5 && npm ci && npm start)
+  #   extra_hosts:
+  #     - html5-dev:host-gateway
+  #   # (b) dev server in a container, without Node on your machine: instead of (a)
+  #   depends_on:
+  #     - html5-dev
+  # (b) also this service and the volume below
+  # html5-dev:
+  #   image: node:24@sha256:14078204b6bb268c107ceff6d3c43f45a888105e5c2b18b14c32b3409d93a1b0
+  #   working_dir: /app
+  #   # node_modules is a volume, not in the source tree
+  #   command: sh -ec 'npm ls --depth=0 >/dev/null 2>&1 || npm ci; exec npm start'
+  #   volumes:
+  #     - ./bigbluebutton-html5:/app
+  #     - html5-node-modules:/app/node_modules
+
+# volumes: # (b)
+#   html5-node-modules:
+
+# configs:
+#   bbb-html5.nginx:
+#     content: |
+#       # as build/packages-template/bbb-html5/bbb-html5.nginx.dev
+#       location /html5client/ {
+#         proxy_pass http://html5-dev:3000/;
+#         proxy_http_version 1.1;
+#         proxy_set_header Upgrade $$http_upgrade;
+#         proxy_set_header Connection "Upgrade";
+#         proxy_set_header Host $$host;
+#       }
+#       # the client lists the locales from nginx's JSON index
+#       location /html5client/locales {
+#         alias /usr/share/bigbluebutton/html5-client/locales;
+#         autoindex on;
+#         autoindex_format json;
+#       }
