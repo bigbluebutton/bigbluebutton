@@ -61,7 +61,7 @@ const UserStatus: React.FC<UserStatusProps> = (props) => {
               ariaLabel={intl.formatMessage(intlMessages.listenOnly)}
             />
           )}
-          {!muted && (
+          {(!muted && !listenOnly) && (
             <Styled.Voice
               iconName="unmute"
               ariaLabel={intl.formatMessage(intlMessages.microphoneOpen)}
