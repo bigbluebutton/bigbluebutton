@@ -284,7 +284,7 @@ module BigBlueButton
     end
     # Environment variables win over both files
     @props['redis_host'] = ENV['REDIS_HOST'] if env_set?('REDIS_HOST')
-    @props['redis_port'] = Integer(ENV['REDIS_PORT']) if env_set?('REDIS_PORT')
+    @props['redis_port'] = env_port('REDIS_PORT', @props['redis_port']) if env_set?('REDIS_PORT')
     @props['playback_host'] = ENV['PLAYBACK_HOST'] if env_set?('PLAYBACK_HOST')
     @props['bn_notes_endpoint'] = ENV['BN_NOTES_ENDPOINT'] if env_set?('BN_NOTES_ENDPOINT')
     @props
@@ -292,6 +292,15 @@ module BigBlueButton
 
   def self.env_set?(name)
     !ENV.fetch(name, '').empty?
+  end
+
+  # The port in variable name, or fallback when it is not a number. Kubernetes sets
+  # REDIS_PORT=tcp://<address>:6379 for a Service named redis.
+  def self.env_port(name, fallback)
+    Integer(ENV[name], 10)
+  rescue ArgumentError
+    BigBlueButton.logger.warn("#{name}=#{ENV[name]} is not a port number, using #{fallback}")
+    fallback
   end
 
   # Reads a Java .properties file into a Hash with symbol keys.

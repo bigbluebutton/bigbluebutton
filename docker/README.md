@@ -147,6 +147,10 @@ Only these are read; everything else is set in the mounted configuration.
 - **bbb-html5-client**, **bbb-learning-dashboard**, **bbb-playback**: none.
 - **bbb-nginx**: the base image's `NGINX_ENTRYPOINT_LOCAL_RESOLVERS`, which the image sets.
 
+On Kubernetes, a Service named `redis` makes Kubernetes set `REDIS_PORT=tcp://<address>:6379` in
+the pods of the namespace. The recording and bbb-export-annotations ignore a `REDIS_PORT` that is
+not a number, with a warning; `enableServiceLinks: false` in the pod spec avoids the variable.
+
 ## Running with docker compose
 
 `docker-compose.yml` runs these images on one server. Installing, configuring and upgrading it
