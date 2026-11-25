@@ -142,8 +142,8 @@ const AudioModalContainer = (props) => {
   const chosenLocale = useReactiveVar(chosenSpeechLocale);
   const speechLocale = chosenLocale ?? userSpeechLocale;
   useEffect(() => {
-    if (chosenLocale !== null && chosenLocale === userSpeechLocale) chosenSpeechLocale(null);
-  }, [chosenLocale, userSpeechLocale]);
+    if (chosenSpeechLocale() === userSpeechLocale) chosenSpeechLocale(null);
+  }, [userSpeechLocale]);
   const {
     needsDownload: transcriptionNeedsDownload,
     busy: transcriptionNotReady,
