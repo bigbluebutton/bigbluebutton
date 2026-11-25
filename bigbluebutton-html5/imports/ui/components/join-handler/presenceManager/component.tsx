@@ -1,5 +1,7 @@
 import { useMutation, useReactiveVar } from '@apollo/client';
-import React, { useContext, useEffect, useState } from 'react';
+import React, {
+  useContext, useEffect, useMemo, useState,
+} from 'react';
 import { useIntl } from 'react-intl';
 import Session from '/imports/ui/services/storage/in-memory';
 import {
@@ -37,6 +39,7 @@ import {
   RoomModePanel,
 } from '/imports/ui/components/pre-flight/room-mode/component';
 import useRoomModePanelGate from '/imports/ui/components/pre-flight/room-mode/useRoomModePanelGate';
+import useRoomModeGuestPolicy from '/imports/ui/components/pre-flight/room-mode/guestPolicy';
 import RoomModeApplyOnJoin, {
   notifyRoomModeNotApplied,
 } from '/imports/ui/components/pre-flight/room-mode/apply-on-join';
@@ -87,7 +90,6 @@ interface PresenceManagerProps extends PresenceManagerContainerProps {
     isBot: boolean;
     isModerator: boolean;
     roomMode: string | undefined;
-    guestPolicy: string | undefined;
     record: boolean;
     autoStartRecording: boolean;
 }
@@ -120,7 +122,6 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   isBot,
   isModerator,
   roomMode,
-  guestPolicy,
   record,
   autoStartRecording,
 }) => {
@@ -286,7 +287,6 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   const showPreFlight = preFlightEnabled && !userCurrentlyInMeeting && !hasLeftMeeting;
   const roomModePanel = useRoomModePanelGate(
     roomMode,
-    guestPolicy,
     record,
     autoStartRecording,
     isModerator,
@@ -296,12 +296,28 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   // The panel stays up while its choice is applied, though the room shows the
   // mode by then.
   const showRoomModePanel = roomModePanel.show || applyingRoomMode;
+  const isGuestDenied = guestStatus === GUEST_STATUSES.DENY;
+  // What puts the panel on screen (see below): not in the guest lobby, not
+  // once the moderator has left.
+  const guestAdmitted = isGuestAllowed && !isGuestDenied;
+  const roomModePanelShown = showPreFlight && showRoomModePanel && guestAdmitted;
+  // Only the summary shows the room's guest policy, so it is read only while
+  // the panel is shown. Read here rather than in the panel, which remounts when
+  // the layout moves it (a device error, the phone breakpoint): the value stays
+  // across those. Applying a mode sends the policy only when it was edited, so
+  // the applier gets the room values without it.
+  const roomGuestPolicy = useRoomModeGuestPolicy(!roomModePanelShown);
+  const panelRoomValues = useMemo(
+    () => (roomGuestPolicy
+      ? { ...roomModePanel.roomValues, guestPolicy: roomGuestPolicy }
+      : roomModePanel.roomValues),
+    [roomModePanel.roomValues, roomGuestPolicy],
+  );
   // Joining lasts until the room opens: a stalled join that landed late is no
   // longer requested, but its room mode is still being applied.
   const isJoining = joinRequested || applyingRoomMode;
   const isPhoneWidth = useMediaQuery(smallOnly);
   const isTabletWidth = useMediaQuery(mediumOnly);
-  const isGuestDenied = guestStatus === GUEST_STATUSES.DENY;
   const isSettingUp = guestStatus === GUEST_STATUSES.ALLOW || guestStatus === GUEST_STATUSES.WAIT;
   // The panel stays up behind a denial only for the guest who was already
   // using it: a tab that loads into the denial asks for no devices.
@@ -369,9 +385,9 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   // panel up, the pre-flight lays out as on a phone. That layout pins the
   // actions to the bottom, so the join notices stay in the header.
   const phoneLayout = isPhoneWidth
-    || (isTabletWidth && !isGuestDenied && isGuestAllowed && showRoomModePanel);
+    || (isTabletWidth && guestAdmitted && showRoomModePanel);
 
-  if (!isGuestDenied && isGuestAllowed) {
+  if (guestAdmitted) {
     preFlightHeader = (
       <JoiningRoomHeader
         meetingName={meetingName}
@@ -382,7 +398,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
     );
     if (showRoomModePanel) {
       preFlightPanel = (
-        <RoomModePanel isJoining={isJoining} roomValues={roomModePanel.roomValues} />
+        <RoomModePanel isJoining={isJoining} roomValues={panelRoomValues} />
       );
       preFlightActions = (
         <RoomModeActions
@@ -425,7 +441,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
               showSetupPanel={isSettingUp || (isGuestDenied && setupPanelShown)}
               header={preFlightHeader}
               topInfo={<SessionInfo meetingName={meetingName} createdTime={meetingCreatedTime} />}
-              headerNamesSession={!isGuestDenied && isGuestAllowed}
+              headerNamesSession={guestAdmitted}
               actions={preFlightActions}
               error={preFlightError}
               gateJoinOnDevices={isGuestAllowed && !isJoining}
@@ -558,7 +574,6 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
       isBot={bot}
       isModerator={isModerator}
       roomMode={meeting?.roomMode}
-      guestPolicy={meeting?.usersPolicies?.guestPolicy}
       // Fixed at creation, so read from the meeting's static data rather than
       // polled with the user. False is the server's default.
       record={meetingStaticStore?.recordingPolicies?.record ?? false}

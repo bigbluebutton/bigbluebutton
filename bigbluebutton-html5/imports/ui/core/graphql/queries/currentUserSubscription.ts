@@ -49,9 +49,6 @@ subscription userCurrentSubscription {
       endedByUserName
       logoutUrl
       roomMode
-      usersPolicies {
-        guestPolicy
-      }
     }
     lastBreakoutRoom {
       isUserCurrentlyInRoom

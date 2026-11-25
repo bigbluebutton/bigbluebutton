@@ -25,9 +25,6 @@ export interface UserMeeting {
   endedByUserName: string;
   logoutUrl: string;
   roomMode: string;
-  usersPolicies: {
-    guestPolicy: string;
-  } | null;
 }
 
 export interface Voice {

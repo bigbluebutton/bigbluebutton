@@ -38,7 +38,8 @@ import (
 // joins (bbb-graphql-middleware/config/Config.go).
 var preJoinOps = map[string]bool{
 	"getUserInfo": true, "getMeetingEndData": true, "PluginConfigurationQuery": true,
-	"getGuestLobbyInfo": true, "userCurrentSubscription": true, "Patched_userCurrentSubscription": true,
+	"getGuestLobbyInfo": true, "getRoomModeGuestPolicy": true, "userCurrentSubscription": true,
+	"Patched_userCurrentSubscription": true,
 }
 
 // maxConnsPerSession is the middleware's max_connections_per_session_token.

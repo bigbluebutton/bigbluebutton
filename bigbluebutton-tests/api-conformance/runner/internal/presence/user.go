@@ -16,7 +16,8 @@ import (
 // query silently, and sends it again after the join.
 var PreJoinOps = map[string]bool{
 	"getUserInfo": true, "getMeetingEndData": true, "PluginConfigurationQuery": true,
-	"getGuestLobbyInfo": true, "userCurrentSubscription": true, "Patched_userCurrentSubscription": true,
+	"getGuestLobbyInfo": true, "getRoomModeGuestPolicy": true, "userCurrentSubscription": true,
+	"Patched_userCurrentSubscription": true,
 }
 
 // ErrNotJoined refuses a query the middleware wouldn't answer: the user
