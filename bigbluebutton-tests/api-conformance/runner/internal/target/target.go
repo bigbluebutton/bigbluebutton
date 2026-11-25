@@ -51,8 +51,10 @@ type Target struct {
 	// address (https://127.0.0.1:8444 on Tier 1), for ${sinkLocalUrl}, or
 	// BBB_SINK_LOCAL_URL when blank: for cases that check the server won't
 	// fetch from a local address its settings don't list. Only a target
-	// whose server does reach the sink there sets it: elsewhere a fetch
-	// that can't connect would pass those cases too, so they are skipped.
+	// whose server does reach the sink there, with a certificate that names
+	// the address, sets it: elsewhere a fetch that can't connect, or that
+	// fails the TLS handshake, would pass those cases too, so they are
+	// skipped.
 	SinkLocalURL string `yaml:"sinkLocalUrl"`
 	// FixtureURL is where the server fetches fixtures from, for
 	// ${fixtureUrl}, or BBB_FIXTURE_URL when blank.
