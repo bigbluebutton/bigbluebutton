@@ -74,14 +74,17 @@ describe('ResizeHandle', () => {
     expect(container.querySelector('.resizeSidebarContentWrapper > [data-test="handle"]')).not.toBeNull();
   });
 
-  it('cancels a pending frame when the drag ends', () => {
+  it('reports the final size before the end, once, in place of a pending frame', () => {
+    // the end handlers measure the DOM: the last move must be drawn by then
     const { handle, onResize, onResizeEnd } = setup();
+    const calls: string[] = [];
+    onResize.mockImplementation((delta: number) => calls.push(`resize ${delta}`));
+    onResizeEnd.mockImplementation((delta: number) => calls.push(`end ${delta}`));
     fireEvent.pointerDown(handle, { button: 0, clientX: 0, clientY: 0 });
     fireEvent.pointerMove(handle, { clientX: 5, clientY: 0 });
-    fireEvent.pointerCancel(handle, { clientX: 5, clientY: 0 });
+    fireEvent.pointerUp(handle, { clientX: 7, clientY: 0 });
     frame();
-    expect(onResize).not.toHaveBeenCalled();
-    expect(onResizeEnd).toHaveBeenCalledWith(5);
+    expect(calls).toEqual(['resize 7', 'end 7']);
   });
 
   it('captures the pointer for the drag and releases it at the end', () => {
@@ -135,6 +138,33 @@ describe('ResizeHandle', () => {
     frame();
     expect(onResizeEnd).toHaveBeenCalledWith(20);
     expect(onResize).not.toHaveBeenCalledWith(300);
+  });
+
+  it('ends the drag where the last move left it when the handle is disabled or removed mid-drag', () => {
+    const {
+      handle, onResizeStart, onResize, onResizeEnd, rerender, unmount,
+    } = setup();
+    fireEvent.pointerDown(handle, { button: 0, clientX: 100, clientY: 50 });
+    fireEvent.pointerMove(handle, { clientX: 112, clientY: 50 });
+    rerender(
+      <ResizeHandle
+        edge="right"
+        dataTest="handle"
+        disabled
+        onResizeStart={onResizeStart}
+        onResize={onResize}
+        onResizeEnd={onResizeEnd}
+      />,
+    );
+    expect(onResizeEnd).toHaveBeenCalledWith(12);
+    unmount();
+    expect(onResizeEnd).toHaveBeenCalledTimes(1);
+
+    const second = setup();
+    fireEvent.pointerDown(second.handle, { button: 0, clientX: 100, clientY: 50 });
+    fireEvent.pointerMove(second.handle, { clientX: 95, clientY: 50 });
+    second.unmount();
+    expect(second.onResizeEnd).toHaveBeenCalledWith(-5);
   });
 
   it('ignores moves and ends without a drag', () => {

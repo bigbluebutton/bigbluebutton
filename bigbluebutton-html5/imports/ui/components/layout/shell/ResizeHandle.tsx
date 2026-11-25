@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef } from 'react';
+import { flushSync } from 'react-dom';
 
 export type ResizeEdge = 'top' | 'right' | 'bottom' | 'left';
 
@@ -78,16 +79,34 @@ const ResizeHandle: React.FC<ResizeHandleProps> = ({
 
   // Ends the drag with the given growth. A cancelled drag, or one whose capture was lost (the tab was
   // hidden, the element went away), ends where the last move left it: the event that ends it may carry
-  // no position.
-  const end = useCallback((target: HTMLDivElement, pointerId: number | undefined, delta: number) => {
+  // no position. The final growth is drawn (a pending frame is dropped for it) before the end is
+  // reported, since the end handlers measure the box.
+  const end = useCallback((
+    target: HTMLDivElement | null,
+    pointerId: number | undefined,
+    delta: number,
+    { inEffect = false } = {},
+  ) => {
     if (!start.current) return;
     start.current = null;
     cancelFrame();
-    if (pointerId !== undefined && target.releasePointerCapture && target.hasPointerCapture?.(pointerId)) {
+    if (target && pointerId !== undefined && target.releasePointerCapture
+      && target.hasPointerCapture?.(pointerId)) {
       target.releasePointerCapture(pointerId);
     }
+    // React cannot flush from an effect; there the box goes away or stops resizing anyway
+    if (onResize && inEffect) onResize(delta);
+    else if (onResize) flushSync(() => onResize(delta));
     onResizeEnd?.(delta);
-  }, [onResizeEnd]);
+  }, [onResize, onResizeEnd]);
+
+  // a handle disabled or removed mid-drag hears no end: end the drag where the last move left it
+  const endRef = useRef(end);
+  endRef.current = end;
+  useEffect(() => {
+    if (disabled) endRef.current(null, undefined, latest.current, { inEffect: true });
+  }, [disabled]);
+  useEffect(() => () => endRef.current(null, undefined, latest.current, { inEffect: true }), []);
 
   const onPointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     if (!start.current) return;

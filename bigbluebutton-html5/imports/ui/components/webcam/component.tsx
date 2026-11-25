@@ -238,9 +238,10 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
   };
 
   const onResizeEnd = () => {
-    // the size the dock settled at, within its limits, is the user's size
+    // the size the dock settled at, within its limits, is the user's size (a dock no longer drawn, its
+    // cameras gone mid-resize, keeps the size it was dragged to)
     const settled = dockSize();
-    setDockSize(settled.width, settled.height);
+    if (settled.width > 0 && settled.height > 0) setDockSize(settled.width, settled.height);
     setTimeout(() => setIsResizing(false), 500);
     const stopCameraDockResize = () => {
       layoutContextDispatch({
