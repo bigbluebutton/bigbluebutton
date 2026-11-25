@@ -3,9 +3,10 @@ package org.bigbluebutton.core.apps.layout
 import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPathAsBooleanOrElse
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
-import org.bigbluebutton.core.db.LayoutDAO
+import org.bigbluebutton.core.db.{ LayoutDAO, NotificationDAO }
 import org.bigbluebutton.core.models.Layouts
 import org.bigbluebutton.core.running.OutMsgRouter
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait SetHideUsersWithoutCameraReqMsgHdlr extends RightsManagementTrait {
   this: LayoutApp2x =>
@@ -32,10 +33,29 @@ trait SetHideUsersWithoutCameraReqMsgHdlr extends RightsManagementTrait {
       val reason = "No permission to hide users without camera."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
     } else {
+      val changed = Layouts.getHideUsersWithoutCamera(liveMeeting.layouts) != msg.body.hideUsersWithoutCamera
       Layouts.setHideUsersWithoutCamera(liveMeeting.layouts, msg.body.hideUsersWithoutCamera)
       LayoutDAO.insertOrUpdate(liveMeeting.props.meetingProp.intId, liveMeeting.layouts)
       sendSetHideUsersWithoutCameraEvtMsg(msg.header.userId)
+      if (changed) {
+        notifyLayoutUpdate(msg.header.userId)
+      }
     }
+  }
+
+  // Same confirmation push layout gives, since the option applies to everyone.
+  private def notifyLayoutUpdate(userId: String): Unit = {
+    val notifyEvent = MsgBuilder.buildNotifyUserInMeetingEvtMsg(
+      userId,
+      liveMeeting.props.meetingProp.intId,
+      "info",
+      "user",
+      "app.layoutUpdate.label",
+      "Notification to when the layout view options change for everyone",
+      Map()
+    )
+    outGW.send(notifyEvent)
+    NotificationDAO.insert(notifyEvent)
   }
 
   def sendSetHideUsersWithoutCameraEvtMsg(fromUserId: String): Unit = {
