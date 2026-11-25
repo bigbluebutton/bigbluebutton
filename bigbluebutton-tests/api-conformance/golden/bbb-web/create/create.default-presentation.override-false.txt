@@ -3,6 +3,12 @@ case create.default-presentation.override-false
 target bbb-web
 
 == step 2: bus PresentationConversionCompletedSysPubMsg select $.core.body.presentation.name, $.core.body.presentation.current, $.core.body.presentation.removable, $.core.body.presentation.defaultPresentation
+$.core.body.presentation.current true
+$.core.body.presentation.defaultPresentation true
+$.core.body.presentation.name "default.pdf"
+$.core.body.presentation.removable true
+
+== step 3: bus PresentationConversionCompletedSysPubMsg select $.core.body.presentation.name, $.core.body.presentation.current, $.core.body.presentation.removable, $.core.body.presentation.defaultPresentation
 $.core.body.presentation.current false
 $.core.body.presentation.defaultPresentation false
 $.core.body.presentation.name "two-pages.pdf"
