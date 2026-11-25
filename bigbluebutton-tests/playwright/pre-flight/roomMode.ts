@@ -9,6 +9,7 @@ import {
   runMutation,
   runQuery,
   stringVarMutation,
+  typedVarMutation,
 } from '../core/apolloProbe';
 import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
@@ -54,6 +55,13 @@ export const expectRoomMode = async (page: Page, expected: string, message: stri
     expect(await getRoomMode(page), message).toBe(expected);
   }).toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
 };
+
+// A guest policy set by hand: no mode asserts one.
+export const setGuestPolicy = (page: Page, guestPolicy: string) =>
+  runMutation(
+    page.page,
+    typedVarMutation('guestUsersSetPolicy', { guestPolicy: { type: 'String!', value: guestPolicy } }),
+  );
 
 // Akka refuses breakouts too, but only after the call has answered true, and
 // with ejectOnViolation on it would eject the moderator from the breakout.

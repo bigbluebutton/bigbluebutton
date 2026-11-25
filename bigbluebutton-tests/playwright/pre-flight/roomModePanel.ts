@@ -151,6 +151,81 @@ const countGetUserMedia = () => {
   };
 };
 
+// The subscription the room mode panel reads the room's guest policy with. The
+// middleware forwards it before the join because it is on its allowlist.
+export const GUEST_POLICY_OPERATION = 'getRoomModeGuestPolicy';
+
+interface WatchedOperation {
+  operationName: string;
+  query: string;
+  active: boolean;
+}
+
+interface GraphqlMessage {
+  id?: string;
+  type?: string;
+  payload?: { operationName?: string; query?: string };
+}
+
+const parseGraphqlMessage = (payload: string | Buffer): GraphqlMessage | null => {
+  if (typeof payload !== 'string') return null;
+  try {
+    return JSON.parse(payload) as GraphqlMessage;
+  } catch {
+    return null;
+  }
+};
+
+// The subscriptions a page starts on its GraphQL sockets, each with its query and
+// whether it is still running. A subscription stops when either side completes it
+// or when its socket closes. The socket opens as the client loads, so the watch is
+// attached before that.
+export const watchSubscriptions = (page: PlaywrightPage) => {
+  const subscriptions: WatchedOperation[] = [];
+  page.on('websocket', (socket) => {
+    if (!socket.url().includes('/graphql')) return;
+    const byId = new Map<string, WatchedOperation>();
+    const stop = (payload: string | Buffer) => {
+      const message = parseGraphqlMessage(payload);
+      if (message?.type !== 'complete' || !message.id) return;
+      const subscription = byId.get(message.id);
+      if (subscription) subscription.active = false;
+    };
+    socket.on('framesent', ({ payload }) => {
+      const message = parseGraphqlMessage(payload);
+      if (message?.type === 'subscribe' && message.id) {
+        const subscription = {
+          operationName: message.payload?.operationName ?? '',
+          query: message.payload?.query ?? '',
+          active: true,
+        };
+        byId.set(message.id, subscription);
+        subscriptions.push(subscription);
+        return;
+      }
+      stop(payload);
+    });
+    socket.on('framereceived', ({ payload }) => stop(payload));
+    socket.on('close', () => {
+      for (const subscription of byId.values()) subscription.active = false;
+    });
+  });
+  return subscriptions;
+};
+
+const runningGuestPolicyReads = (subscriptions: WatchedOperation[]) =>
+  subscriptions.filter(({ operationName, active }) => operationName === GUEST_POLICY_OPERATION && active).length;
+
+// Every user polls user_current for the whole session, so the room's guest policy
+// must not ride along with it. The patched variant carries a Patched_ prefix.
+const expectUserCurrentWithoutGuestPolicy = (subscriptions: WatchedOperation[], user: string) => {
+  const userCurrent = subscriptions.filter(({ operationName }) => operationName.endsWith('userCurrentSubscription'));
+  expect(userCurrent.length, `should subscribe to user_current for the ${user}`).toBeGreaterThan(0);
+  for (const { query } of userCurrent) {
+    expect(query, `should not read the guest policy through user_current for the ${user}`).not.toContain('guestPolicy');
+  }
+};
+
 export class RoomModePanel extends RoomMode {
   // Most cases only drive the panel, so they run on any server; the ones that
   // read or write the room mode require the probe themselves.
@@ -283,6 +358,48 @@ export class RoomModePanel extends RoomMode {
         'should have the room mode panel turned on for the second moderator',
       ).toBe(true);
       await hasNoPanel(this.modPage2, 'should not display the room mode panel in a room that already has a mode');
+    });
+  }
+
+  // Only the room mode panel reads the room's guest policy, through its own
+  // subscription, and only until the room opens. Nobody reads it through
+  // user_current anymore.
+  async readsGuestPolicyOnlyWithPanel(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
+    const moderatorSubscriptions = watchSubscriptions(page);
+    await this.initModPageWithPanel(page, options);
+
+    await test.step("A viewer's session never reads the guest policy", async () => {
+      let viewerSubscriptions: WatchedOperation[] = [];
+      // The viewer's page is opened by initUserPage, before it loads the client.
+      this.context.once('page', (viewerPage) => {
+        viewerSubscriptions = watchSubscriptions(viewerPage);
+      });
+      await this.initUserPage(this.context, ROOM_MODE_PANEL_INIT_OPTIONS);
+      // The join button waits for user_current, so its subscription has been sent by then.
+      await hasNoPanel(this.userPage, 'should never display the room mode panel to a viewer');
+      expectUserCurrentWithoutGuestPolicy(viewerSubscriptions, 'viewer');
+      expect(
+        viewerSubscriptions.some(({ operationName }) => operationName === GUEST_POLICY_OPERATION),
+        "should not subscribe to the room's guest policy for a viewer",
+      ).toBe(false);
+    });
+
+    await test.step('The panel reads it until the room opens', async () => {
+      await hasPanel(this.modPage);
+      expectUserCurrentWithoutGuestPolicy(moderatorSubscriptions, 'moderator');
+      await expect(async () => {
+        expect(
+          runningGuestPolicyReads(moderatorSubscriptions),
+          "should read the room's guest policy while the room mode panel is shown",
+        ).toBe(1);
+      }).toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
+      await startsRoom(this.modPage);
+      await expect(async () => {
+        expect(
+          runningGuestPolicyReads(moderatorSubscriptions),
+          "should stop reading the room's guest policy once the room opens",
+        ).toBe(0);
+      }).toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
     });
   }
 

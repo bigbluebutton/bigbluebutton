@@ -15,6 +15,11 @@ test.describe.parallel('Room mode panel', { tag: '@ci' }, () => {
     await panel.hidesPanelFromViewerAndConfiguredRoom();
   });
 
+  test('Only the panel reads the guest policy, until the room opens', async ({ browser, context, page }, testInfo) => {
+    const panel = new RoomModePanel(browser, context);
+    await panel.readsGuestPolicyOnlyWithPanel(page, { testInfo });
+  });
+
   test('No panel and no room mode in a breakout room', async ({ browser, context, page }, testInfo) => {
     const panel = new RoomModePanel(browser, context);
     await panel.noPanelNorModeInBreakout(page, { testInfo });

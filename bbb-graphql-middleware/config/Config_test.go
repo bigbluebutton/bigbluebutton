@@ -15,6 +15,13 @@ func TestShippedSubscriptionListsAreDisjoint(t *testing.T) {
 	}
 }
 
+// The pre-flight room mode panel starts getRoomModeGuestPolicy before the join.
+func TestNotInMeetingAllowlistHasRoomModeGuestPolicy(t *testing.T) {
+	if !slices.Contains(AllowedSubscriptionsForNotInMeetingUsers, "getRoomModeGuestPolicy") {
+		t.Fatal("getRoomModeGuestPolicy is not in the not-in-meeting allowlist")
+	}
+}
+
 func TestValidateSubscriptionListsRejectsOverlap(t *testing.T) {
 	// Restored rather than shadowed: the check reads the package-level lists, which is the point of
 	// it, so the overlap has to be introduced there.

@@ -31,3 +31,15 @@ test.describe.parallel('Room mode summary', { tag: '@ci' }, () => {
     await summary.appliesNothingAfterCancel();
   });
 });
+
+// Races and edge cases: out of the per-PR gates, run by `npm run test-nightly`.
+test.describe.parallel('Room mode summary: edge cases', { tag: '@nightly' }, () => {
+  test('Follows a guest policy changed while the panel is open, across the phone breakpoint', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    const summary = new RoomModeSummary(browser, context);
+    await summary.followsGuestPolicyChangedWithPanelOpen(page, { testInfo });
+  });
+});

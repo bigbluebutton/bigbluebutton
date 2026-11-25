@@ -4,9 +4,16 @@ import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 import { InitExtraPageOptionsProps } from '../user/multiusers';
-import { CLASS_ROOM_AS_CREATED, ensureProbe, readRoomSettings } from './roomMode';
-import { hasPanel, pickOption, RoomModePanel, startsRoom } from './roomModePanel';
-import { PHONE_VIEWPORT, PRE_FLIGHT_CREATE_PARAMETER } from './util';
+import { CLASS_ROOM_AS_CREATED, ensureProbe, readRoomSettings, setGuestPolicy } from './roomMode';
+import {
+  GUEST_POLICY_OPERATION,
+  hasPanel,
+  pickOption,
+  RoomModePanel,
+  startsRoom,
+  watchSubscriptions,
+} from './roomModePanel';
+import { NO_PRE_FLIGHT_INIT_OPTIONS, PHONE_VIEWPORT, PRE_FLIGHT_CREATE_PARAMETER } from './util';
 
 type Switch =
   | typeof e.preFlightRoomModeJoinMuted
@@ -239,6 +246,53 @@ export class RoomModeSummary extends RoomModePanel {
       ).toHaveCount(0);
       await this.modPage.page.keyboard.press('Escape');
     }
+  }
+
+  // The guest policy is read while the panel is shown, so the summary follows
+  // a change made from the room.
+  async followsGuestPolicyChangedWithPanelOpen(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
+    const subscriptions = watchSubscriptions(page);
+    await this.initModPageWithPanel(page, options);
+    await hasPanel(this.modPage);
+    await this.modPage.waitAndClick(e.preFlightRoomModeClass);
+    await expectSelectValue(
+      this.modPage,
+      e.preFlightRoomModeGuestPolicy,
+      AS_CREATED.guestPolicy,
+      "should start the waiting room from the room's guest policy",
+    );
+
+    // Without the pre-flight, this moderator joins straight away and leaves the
+    // room mode empty, so the first moderator keeps the panel.
+    await this.initModPage2(this.context, NO_PRE_FLIGHT_INIT_OPTIONS);
+    await ensureProbe(this.modPage2);
+    expect(
+      (await setGuestPolicy(this.modPage2, 'ASK_MODERATOR')).errors,
+      'should accept the guest policy from the moderator in the room',
+    ).toEqual([]);
+
+    await expectSelectValue(
+      this.modPage,
+      e.preFlightRoomModeGuestPolicy,
+      'ASK_MODERATOR',
+      'should show the guest policy another moderator set while the panel is open',
+    );
+
+    // Crossing the phone breakpoint moves the panel into a tab, which remounts
+    // it. The policy is read outside the panel, so it is there at once and is
+    // not asked for again.
+    await this.modPage.page.setViewportSize(PHONE_VIEWPORT);
+    await this.modPage.waitAndClick(e.preFlightRoomModeTab);
+    await expectSelectValue(
+      this.modPage,
+      e.preFlightRoomModeGuestPolicy,
+      'ASK_MODERATOR',
+      'should keep the guest policy when the panel moves into a tab',
+    );
+    expect(
+      subscriptions.filter(({ operationName }) => operationName === GUEST_POLICY_OPERATION).length,
+      "should not read the room's guest policy again when the panel remounts",
+    ).toBe(1);
   }
 
   async startsWaitingRoomFromRoomPolicies(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {

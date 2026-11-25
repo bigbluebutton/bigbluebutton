@@ -14,6 +14,7 @@ import {
   openRoomModeTab,
   readRoomSettings,
   RoomSettings,
+  setGuestPolicy,
   switchToMeeting,
 } from './roomMode';
 import { CLASS_APPLIED, MEETING_APPLIED, readWhiteboardWriteAccess, routeOperation, setMuted } from './roomModeApply';
@@ -79,13 +80,6 @@ const lockPrivateChat = async (page: Page) => {
     }),
   );
 };
-
-// A guest policy set by hand: no mode asserts one.
-const setGuestPolicy = (page: Page, guestPolicy: string) =>
-  runMutation(
-    page.page,
-    typedVarMutation('guestUsersSetPolicy', { guestPolicy: { type: 'String!', value: guestPolicy } }),
-  );
 
 export const expectRoomSettings = async (page: Page, expected: RoomSettings, message: string) => {
   await expect(async () => {
