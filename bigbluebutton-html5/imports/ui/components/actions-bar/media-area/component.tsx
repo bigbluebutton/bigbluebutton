@@ -48,6 +48,7 @@ const MediaArea = (props: MediaAreaProps) => {
   const openMediaArea = useShortcut('openActions');
   const withShortcut = useShortcutTooltip();
   const previousRequestedPresenter = useRef<boolean | null>(null);
+  const mediaAreaButtonRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     if (
@@ -78,7 +79,7 @@ const MediaArea = (props: MediaAreaProps) => {
         || activeElement === focusedOnClose
         || document.getElementById('mediaAreaDropUp')?.contains(activeElement);
       if (focusUnclaimed) {
-        document.querySelector<HTMLElement>('[data-test="mediaAreaButton"]')?.focus();
+        mediaAreaButtonRef.current?.focus();
       }
     }, 0);
   }, []);
@@ -91,6 +92,7 @@ const MediaArea = (props: MediaAreaProps) => {
     <>
       {/* eslint-disable-next-line jsx-a11y/no-access-key */}
       <Styled.HideDropdownButton
+        setRef={(element: HTMLButtonElement | null) => { mediaAreaButtonRef.current = element; }}
         hideLabel
         aria-label={intl.formatMessage(intlMessages.mediaLabel)}
         data-test="mediaAreaButton"
