@@ -11,7 +11,7 @@ import { createGlobalStyle } from 'styled-components';
  */
 const LayoutShellStyles = createGlobalStyle`
   #layout {
-    /* banners: 34 px reserved per bar (defaultValues.bannerHeight) */
+    /* banners: 34 px reserved per bar (the former defaultValues.bannerHeight) */
     --bbb-banners: 0px;
     /* nav bar: 85 px (defaultValues.navBarHeight), half with bbb_hide_controls, 0 when hidden */
     --bbb-navbar-height: 85px;

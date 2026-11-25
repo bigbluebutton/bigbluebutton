@@ -21,8 +21,6 @@ export const DEVICE_ORIENTATION = {
 
 export const SMALL_VIEWPORT_BREAKPOINT = 640;
 
-export const MEDIA_ONLY_LAYOUT_MARGIN = 10;
-
 export const CAMERADOCK_POSITION = {
   CONTENT_TOP: 'contentTop',
   CONTENT_RIGHT: 'contentRight',
@@ -94,14 +92,12 @@ export const ACTIONS = {
   SET_SIDEBAR_CONTENT_AUXILIARY_IS_OPEN: 'setSidebarContentAuxiliaryIsOpen',
   SET_SIDEBAR_CONTENT_AUXILIARY_SIZE: 'setSidebarContentAuxiliarySize',
 
-
   SET_NUM_CAMERAS: 'setNumCameras',
   SET_CAMERA_DOCK_IS_DRAGGING: 'setCameraDockIsDragging',
   SET_CAMERA_DOCK_IS_RESIZING: 'setCameraDockIsResizing',
   SET_CAMERA_DOCK_POSITION: 'setCameraDockPosition',
   SET_CAMERA_DOCK_SIZE: 'setCameraDockSize',
   SET_CAMERA_DOCK_OPTIMAL_GRID_SIZE: 'setCameraDockOptimalGridSize',
-
 
   SET_PRESENTATION_IS_OPEN: 'setPresentationIsOpen',
   SET_PRESENTATION_CONTENT_UPDATED: 'setPresentationContentUpdated',
@@ -118,7 +114,6 @@ export const ACTIONS = {
   SET_HAS_GENERIC_CONTENT: 'setHasGenericContent',
 
   SET_NOTES_IS_PINNED: 'setNotesIsPinned',
-
 
   SET_PILE_CONTENT_FOR_PRESENTATION_AREA: 'setPileContentForPresentationArea',
 };

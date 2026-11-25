@@ -106,12 +106,15 @@ Derived in CSS (read them, do not set them): `--bbb-banners`, `--bbb-navbar-heig
 
 ## Constants and their sources
 
+The sources name the v4.0 layout engine code, removed since; the values now live only in
+`shell/styles.ts`.
+
 | Constant | Value | Source |
 |---|---|---|
-| banner / notification bar | 34 px each | `defaultValues.bannerHeight` |
+| banner / notification bar | 34 px each | v4.0 `defaultValues.bannerHeight` |
 | nav bar | 85 px; 42.5 px with `bbb_hide_controls` | `defaultValues.navBarHeight` |
 | actions bar | `3rem + 22.4px` (inner `3rem`, padding 11.2 px) | `layoutEngine calculatesActionbarHeight` |
-| navigation sidebar | `60px + 2%` desktop, 48 px floating on phones | `SIDEBAR_NAVIGATION_PANEL_WIDTH`, `SIDEBAR_NAVIGATION_MARGIN_PERCENTAGE_WIDTH`, `defaultValues.sidebarNavWidthMobile` |
+| navigation sidebar | `60px + 2%` desktop, 48 px floating on phones | `SIDEBAR_NAVIGATION_PANEL_WIDTH`, `SIDEBAR_NAVIGATION_MARGIN_PERCENTAGE_WIDTH`, v4.0 `defaultValues.sidebarNavWidthMobile` |
 | sidebar content | 20% by default, between 283.2 and 800 px; full width on phones | `defaultValues.sidebarContentMinWidth`, `sidebarContentMaxWidth` |
 | margin to the media | 1% of the width; 4vh above and below the panel | `general.contentSidebarMarginToMedia`, `contentSidebarVerticalMargin` |
 | camera dock | 20% by default, at least 120 px, leaving 120 px; side docks at most 80% (presenter: area less 440 px); phone landscape 25% | `unifiedLayout calculatesCameraDockBounds` |

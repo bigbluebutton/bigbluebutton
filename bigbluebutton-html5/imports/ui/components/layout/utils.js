@@ -51,7 +51,7 @@ const getInitialSidebarContentPanel = (isChatEnabled) => {
 };
 
 export {
-  isMobile, isTabletPortrait, isTabletLandscape, isDesktop,
+  isMobile,
 };
 
 const hasGenericContentChanged = (current, previous) => !equals(
@@ -179,17 +179,7 @@ const isLayoutSupported = (deviceType, givenLayout) => {
   return layout.suportedDevices.includes(deviceType);
 };
 
-const getSupportedLayouts = (deviceType) => suportedLayouts.filter(
-  (layout) => layout.suportedDevices.includes(deviceType),
-);
-
 const isValidSynchronizationLayout = (layout) => layout && LAYOUTS_SYNC[layout] != null;
-
-const layoutAllowedInSettings = (layout) => layout !== LAYOUT_TYPE.CAMERAS_ONLY
-  && layout !== LAYOUT_TYPE.PRESENTATION_ONLY
-  && layout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY
-  && layout !== LAYOUT_TYPE.MEDIA_ONLY
-  && layout !== LAYOUT_TYPE.UNIFIED_LAYOUT;
 
 const getDeviceType = () => {
   let deviceType = null;
@@ -210,7 +200,7 @@ const isPhoneLandscape = (browser) => deviceInfo.isPhone
   && getDeviceOrientation(browser) === DEVICE_ORIENTATION.LANDSCAPE;
 
 export {
-  suportedLayouts, LAYOUTS_SYNC, getSupportedLayouts, isLayoutSupported, layoutAllowedInSettings,
+  LAYOUTS_SYNC, isLayoutSupported,
   getWaitLayout, getDeviceType, getInitialSidebarContentPanel,
   isValidSynchronizationLayout, isPhoneLandscape,
 };
