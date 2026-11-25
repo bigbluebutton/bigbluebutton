@@ -23,6 +23,14 @@ object SetCurrentPagePubMsg { val NAME = "SetCurrentPagePubMsg" }
 case class SetCurrentPagePubMsg(header: BbbClientMsgHeader, body: SetCurrentPagePubMsgBody) extends StandardMsg
 case class SetCurrentPagePubMsgBody(podId: String, presentationId: String, pageId: String)
 
+/**
+ * Asks for the page at position pageNum. seenTotalPages is the totalPages the client read together
+ * with pageNum, so the server can convert the number if the page order changed meanwhile; 0 when unknown.
+ */
+object SetCurrentPageByNumPubMsg { val NAME = "SetCurrentPageByNumPubMsg" }
+case class SetCurrentPageByNumPubMsg(header: BbbClientMsgHeader, body: SetCurrentPageByNumPubMsgBody) extends StandardMsg
+case class SetCurrentPageByNumPubMsgBody(podId: String, presentationId: String, pageNum: Int, seenTotalPages: Int)
+
 object SetPageInfiniteWhiteboardPubMsg { val NAME = "SetPageInfiniteWhiteboardPubMsg" }
 case class SetPageInfiniteWhiteboardPubMsg(header: BbbClientMsgHeader, body: SetPageInfiniteWhiteboardPubMsgBody) extends StandardMsg
 case class SetPageInfiniteWhiteboardPubMsgBody(pageId: String, infiniteWhiteboard: Boolean)
@@ -398,7 +406,7 @@ case class GetAllPresentationPodsRespMsgBody(pods: Vector[PresentationPodVO])
 
 object SetCurrentPageEvtMsg { val NAME = "SetCurrentPageEvtMsg" }
 case class SetCurrentPageEvtMsg(header: BbbClientMsgHeader, body: SetCurrentPageEvtMsgBody) extends BbbCoreMsg
-case class SetCurrentPageEvtMsgBody(podId: String, presentationId: String, pageId: String)
+case class SetCurrentPageEvtMsgBody(podId: String, presentationId: String, pageId: String, pageNum: Int)
 
 object SetPageInfiniteWhiteboardEvtMsg { val NAME = "SetPageInfiniteWhiteboardEvtMsg" }
 case class SetPageInfiniteWhiteboardEvtMsg(header: BbbClientMsgHeader, body: SetPageInfiniteWhiteboardEvtMsgBody) extends BbbCoreMsg

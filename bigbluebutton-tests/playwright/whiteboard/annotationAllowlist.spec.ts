@@ -130,7 +130,7 @@ function browserSubmitShapes({ shapes, acceptedIds }: SubmitArgs): Promise<Store
           }
         }
         if (!currentPage) throw new Error('no current page found');
-        const { pageId, num } = currentPage;
+        const { pageId } = currentPage;
 
         const annotations = shapes.map((shape, i) => ({
           id: shape.id,
@@ -142,7 +142,7 @@ function browserSubmitShapes({ shapes, acceptedIds }: SubmitArgs): Promise<Store
             y: 40,
             rotation: 0,
             index: shape.index,
-            parentId: `page:${num}`,
+            parentId: `page:${pageId}`,
             isLocked: false,
             opacity: 1,
             props: shape.props,

@@ -556,12 +556,27 @@ def determine_presentation(presentation, current_presentation)
   presentation&.text || current_presentation
 end
 
-def determine_slide_number(slide, current_slide)
-  return current_slide unless slide
+# The key of the slide an event belongs to, as in BigBlueButton::Events.presentation_page_ids. Since
+# BigBlueButton 4.1 events name the page by its id: whiteboardId in whiteboard events, id in GotoSlideEvent.
+# Older events give its 0-based number in pageNumber (whiteboard events) or slide (GotoSlideEvent), and the
+# key is the 1-based number. Events without that information belong to the current slide.
+def determine_slide_key(event, current_slide)
+  if @version_atleast_4_1_0
+    page_id = event.at_xpath('whiteboardId') || event.at_xpath('id')
+    return page_id ? page_id.text : current_slide
+  end
 
-  slide = slide.text.to_i
-  slide -= 1 unless @version_atleast_0_9_0
-  slide
+  page_number = event.at_xpath('pageNumber')
+  if page_number
+    slide = page_number.text.to_i
+    slide -= 1 unless @version_atleast_0_9_0
+  else
+    slide_element = event.at_xpath('slide')
+    return current_slide unless slide_element
+
+    slide = slide_element.text.to_i
+  end
+  (slide + 1).to_s
 end
 
 def clean_arrow_end_or_start_props(props)
@@ -577,10 +592,9 @@ end
 
 def events_parse_tldraw_shape(shapes, event, current_presentation, current_slide, timestamp)
   presentation = event.at_xpath('presentation')
-  slide = event.at_xpath('pageNumber')
 
   presentation = determine_presentation(presentation, current_presentation)
-  slide = determine_slide_number(slide, current_slide)
+  slide = determine_slide_key(event, current_slide)
 
   # Set up the shapes data structures if needed
   shapes[presentation] ||= {}
@@ -632,10 +646,9 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
   # Figure out what presentation+slide this shape is for, with fallbacks
   # for old BBB where this info isn't in the shape messages
   presentation = event.at_xpath('presentation')
-  slide = event.at_xpath('pageNumber')
 
   presentation = determine_presentation(presentation, current_presentation)
-  slide = determine_slide_number(slide, current_slide)
+  slide = determine_slide_key(event, current_slide)
 
   # Set up the shapes data structures if needed
   shapes[presentation] ||= {}
@@ -759,7 +772,7 @@ def events_parse_undo(shapes, event, current_presentation, current_slide, timest
   # Figure out what presentation+slide this undo is for, with fallbacks
   # for old BBB where this info isn't in the undo messages
   presentation = determine_presentation(event.at_xpath('presentation'), current_presentation)
-  slide = determine_slide_number(event.at_xpath('pageNumber'), current_slide)
+  slide = determine_slide_key(event, current_slide)
 
   # Newer undo messages have the shape id, making this a lot easier
   shape_id = event.at_xpath('shapeId')&.text
@@ -798,7 +811,7 @@ def events_parse_clear(shapes, event, current_presentation, current_slide, times
   # Figure out what presentation+slide this clear is for, with fallbacks
   # for old BBB where this info isn't in the clear messages
   presentation = determine_presentation(event.at_xpath('presentation'), current_presentation)
-  slide = determine_slide_number(event.at_xpath('pageNumber'), current_slide)
+  slide = determine_slide_key(event, current_slide)
 
   # BigBlueButton 2.0 per-user clear features; default to full clear on older versions
   full_clear = event.at_xpath('fullClear')
@@ -836,10 +849,10 @@ def events_get_image_info(slide, tldraw)
   elsif slide_presentation == ''
     slide[:src] = 'presentation/logo.png'
   else
-    slide_nr = slide[:slide] + 1
-    tldraw ? slide[:src] = "presentation/#{slide_presentation}/svgs/slide#{slide_nr}.svg"
-           : slide[:src] = "presentation/#{slide_presentation}/slide-#{slide_nr}.png"
-    slide[:text] = "presentation/#{slide_presentation}/textfiles/slide-#{slide_nr}.txt"
+    slide_key = slide[:slide]
+    tldraw ? slide[:src] = "presentation/#{slide_presentation}/svgs/slide#{slide_key}.svg"
+           : slide[:src] = "presentation/#{slide_presentation}/slide-#{slide_key}.png"
+    slide[:text] = "presentation/#{slide_presentation}/textfiles/slide-#{slide_key}.txt"
   end
   image_path = "#{@process_dir}/#{slide[:src]}"
 
@@ -890,7 +903,7 @@ def process_presentation(package_dir)
   # Current presentation/slide state
   current_presentation_slide = {}
   current_presentation = ''
-  current_slide = 0
+  current_slide = ''
   # Current pan/zoom state
   current_x_offset = current_y_offset = 0.0
   current_width_ratio = current_height_ratio = 100.0
@@ -917,6 +930,8 @@ def process_presentation(package_dir)
   # xml files as we go
   last_timestamp = 0.0
   events_xml = Nokogiri::XML(File.read("#{@process_dir}/events.xml"))
+  # List of slide filename keys for each presentation, in the original order.
+  page_ids = BigBlueButton::Events.presentation_page_ids(events_xml, "#{@process_dir}/presentation")
   events_xml.xpath('/recording/event').each do |event|
     eventname = event['eventname']
     last_timestamp = timestamp =
@@ -937,11 +952,12 @@ def process_presentation(package_dir)
         current_panzoom_width = current_panzoom_height = nil
       end
       current_presentation = next_presentation
-      current_slide = current_presentation_slide[current_presentation].to_i
+      # A presentation shown for the first time starts at its first page.
+      current_slide = current_presentation_slide.fetch(current_presentation) { page_ids[current_presentation].first }
       slide_changed = panzoom_changed = true
 
     when 'GotoSlideEvent'
-      current_slide = event.at_xpath('slide').text.to_i
+      current_slide = determine_slide_key(event, current_slide)
       current_presentation_slide[current_presentation] = current_slide
       slide_changed = panzoom_changed = true
 
@@ -1462,6 +1478,9 @@ begin
         )
         @version_atleast_2_6_0 = BigBlueButton::Events.bbb_version_compare(
           @doc, 2, 6, 0
+        )
+        @version_atleast_4_1_0 = BigBlueButton::Events.bbb_version_compare(
+          @doc, 4, 1, 0
         )
         BigBlueButton.logger.info('Creating metadata.xml')
 

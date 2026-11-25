@@ -367,7 +367,7 @@ async function processPresentationAnnotations() {
     const svgBackgroundSlide = path.join(
         exportJob.presLocation,
         'svgs',
-        `slide${currentSlide.page}.svg`);
+        `slide${currentSlide.pageId}.svg`);
 
     let backgroundFormat = '';
     if (fs.existsSync(`${bgImagePath}.png`)) {

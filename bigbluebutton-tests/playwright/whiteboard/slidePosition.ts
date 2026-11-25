@@ -4,7 +4,7 @@ import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { uploadSinglePresentation } from '../presentation/util';
 import { MultiUsers } from '../user/multiusers';
-import { getTldrawCamera, getTldrawEditor, type TldrawCamera } from './util';
+import { getPageIdByNum, getTldrawCamera, getTldrawEditor, type TldrawCamera } from './util';
 
 // Toggling fit-to-width remounts the editor and its mount code moves the camera again
 // about a second later; wait for the camera to stop changing.
@@ -69,6 +69,7 @@ async function rebuiltEditorHasZoomed(page: PlaywrightPage) {
 
 export class SlidePosition extends MultiUsers {
   private async waitForExactCamera(pageNumber: number, expected: TldrawCamera[], label: string) {
+    const pageId = await getPageIdByNum(this.modPage.page, pageNumber);
     const pages = [
       ['presenter', this.modPage.page],
       ['viewer', this.userPage.page],
@@ -80,7 +81,7 @@ export class SlidePosition extends MultiUsers {
           timeout: ELEMENT_WAIT_LONGER_TIME,
         })
         .toMatchObject({
-          pageId: `page:${pageNumber}`,
+          pageId: `page:${pageId}`,
           x: expect.closeTo(expected[index].x, 2),
           y: expect.closeTo(expected[index].y, 2),
           z: expect.closeTo(expected[index].z, 3),
@@ -89,6 +90,7 @@ export class SlidePosition extends MultiUsers {
   }
 
   private async waitForCamera(pageNumber: number, expectedY: number, label: string) {
+    const pageId = await getPageIdByNum(this.modPage.page, pageNumber);
     for (const [role, page] of [
       ['presenter', this.modPage.page],
       ['viewer', this.userPage.page],
@@ -98,7 +100,7 @@ export class SlidePosition extends MultiUsers {
           message: `${role} ${label}`,
           timeout: ELEMENT_WAIT_LONGER_TIME,
         })
-        .toMatchObject({ pageId: `page:${pageNumber}` });
+        .toMatchObject({ pageId: `page:${pageId}` });
       await expect
         .poll(async () => (await getTldrawCamera(page))?.y, {
           message: `${role} ${label}`,
@@ -215,8 +217,9 @@ export class SlidePosition extends MultiUsers {
     await uploadSinglePresentation(this.modPage, e.nonDefaultRatioPresentationFileName);
     await this.userPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     if (slowDecode) {
+      const pageTwo = await getPageIdByNum(this.modPage.page, 2);
       for (const page of [this.modPage.page, this.userPage.page]) {
-        await page.route(/\/svg\/2(?:\?|$)/, async (route) => {
+        await page.route(new RegExp(`/svg/${pageTwo}(?:\\?|$)`), async (route) => {
           await new Promise((resolve) => {
             setTimeout(resolve, 400);
           });
@@ -399,7 +402,7 @@ export class SlidePosition extends MultiUsers {
         message: 'presenter is back on page 1',
         timeout: ELEMENT_WAIT_LONGER_TIME,
       })
-      .toBe('page:1');
+      .toBe(`page:${await getPageIdByNum(this.modPage.page, 1)}`);
     await this.modPage.waitAndClick(e.fitToWidthButton);
     await this.waitForSettledPresenterCamera('fit-to-width camera settles');
 

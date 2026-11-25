@@ -10,7 +10,7 @@ import {
 } from '/imports/ui/services/features';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { POLL_CREATE } from '/imports/ui/components/poll/mutations';
-import { PRESENTATION_SET_ZOOM, PRESENTATION_SET_PAGE, PRESENTATION_SET_PAGE_INFINITE_WHITEBOARD } from '../mutations';
+import { PRESENTATION_SET_ZOOM, PRESENTATION_SET_PAGE_BY_NUM, PRESENTATION_SET_PAGE_INFINITE_WHITEBOARD } from '../mutations';
 import PresentationToolbar from './component';
 import Session from '/imports/ui/services/storage/in-memory';
 import { useMeetingIsBreakout } from '/imports/ui/components/app/service';
@@ -110,7 +110,7 @@ const PresentationToolbarContainer = (props) => {
 
   const [createPoll] = useMutation(POLL_CREATE);
   const [presentationSetZoom] = useMutation(PRESENTATION_SET_ZOOM);
-  const [presentationSetPage] = useMutation(PRESENTATION_SET_PAGE);
+  const [presentationSetPageByNum] = useMutation(PRESENTATION_SET_PAGE_BY_NUM);
   const [presentationSetPageInfiniteWhiteboard] = useMutation(
     PRESENTATION_SET_PAGE_INFINITE_WHITEBOARD,
   );
@@ -130,17 +130,9 @@ const PresentationToolbarContainer = (props) => {
     });
   };
 
-  const setPresentationPage = (pageId) => {
-    presentationSetPage({
-      variables: {
-        presentationId,
-        pageId,
-      },
-    });
-  };
-
   const setPresentationPageInfiniteWhiteboard = (infiniteWhiteboard) => {
-    const pageId = `${presentationId}/${currentSlideNum}`;
+    const pageId = currentPresentationPage?.pageId;
+    if (!pageId) return;
     presentationSetPageInfiniteWhiteboard({
       variables: {
         pageId,
@@ -149,9 +141,16 @@ const PresentationToolbarContainer = (props) => {
     });
   };
 
+  // currentSlideNum and numberOfSlides come from the same page row: the server uses the total to
+  // follow the page if the order changed before the request arrives.
   const skipToSlide = (slideNum) => {
-    const slideId = `${presentationId}/${slideNum}`;
-    setPresentationPage(slideId);
+    presentationSetPageByNum({
+      variables: {
+        presentationId,
+        pageNum: slideNum,
+        seenTotalPages: numberOfSlides,
+      },
+    });
   };
 
   const previousSlide = () => {

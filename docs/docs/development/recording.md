@@ -957,7 +957,7 @@ The sections that follow cover the types of events you will encounter in `events
 
 | Event                      | Attributes                                                                                                                                |
 | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| ConversionCompletedEvent   | - originalFilename<br/>- timestampUTC<br/> - presentationName<br/>- podId<br/> -share<br/>- date                                          |
+| ConversionCompletedEvent   | - originalFilename<br/>- timestampUTC<br/>- presentationName<br/>- podId<br/>- pageIds<br/>- date                                         |
 | ResizeAndMoveSlideEvent    | - timestampUTC<br/>- xOffset<br/>- presentationName<br/>- podId<br/>- heightRatio<br/>- id<br/>- date<br/>- yOffset<br/>- widthRatio      |
 | SharePresentationEvent     | - timestampUTC<br/>- presentationName<br/>- podId<br/>- share<br/>- date                                                                  |
 | GotoSlideEvent             | - timestampUTC<br/>- presentationName<br/>- podId<br/>- id<br/>- slide<br/>- date                                                         |
@@ -974,6 +974,46 @@ The sections that follow cover the types of events you will encounter in `events
 | AddShapeEvent (poll)      | - num_responders <br/>- status<br/>- userId<br/>- result<br/>- whiteboardId<br/>- position<br/>- num_respondents<br/>- id<br/>- pageNumber<br/>- presentation<br/>- dataPoints<br/>- timestampUTC<br/>- date<br/>- pollType<br/>- type<br/>- shapeId |
 | UndoAnnotationEvent       | - timestampUTC<br/>- date<br/>- whiteboardID<br/>- pageNumber<br/>- userId<br/>- shapeId<br/>- presentation                                                                                                                                          |
 | WhiteboardCursorMoveEvent | - timestampUTC<br/>- xOffset<br/>- date<br/>- whiteboardId<br/>- pageNumber<br/>- userId<br/>- yOffset<br/>- presentation                                                                                                                            |
+| AddTldrawShapeEvent       | - timestampUTC<br/>- date<br/>- presentation<br/>- pageNumber<br/>- whiteboardId<br/>- userId<br/>- shapeId<br/>- shapeData                                                                                                                          |
+| DeleteTldrawShapeEvent    | - timestampUTC<br/>- date<br/>- presentation<br/>- pageNumber<br/>- whiteboardId<br/>- userId<br/>- shapeId                                                                                                                                          |
+
+### Page ids in recordings
+
+Since BigBlueButton 4.1 (`bbb_version="4.1.0"` on the `<recording>` element), every presentation page has a page id: a string that never changes, given to the page when its presentation is converted. Events name a page by its page id; earlier recordings named it `<presentationName>/<pageNumber>`, with a 1-based page number. Treat a page id as an opaque string.
+
+**ConversionCompletedEvent**
+
+| Attribute        | Type   | Description                                                                                         |
+| ---------------- | ------ | --------------------------------------------------------------------------------------------------- |
+| presentationName | String | Id of the presentation                                                                              |
+| originalFilename | String | Name of the uploaded file                                                                           |
+| pageIds          | String | Since 4.1: comma-separated list of the page id of each page of the presentation, in page order     |
+
+**GotoSlideEvent**
+
+| Attribute        | Type    | Description                                                                         |
+| ---------------- | ------- | ----------------------------------------------------------------------------------- |
+| presentationName | String  | Id of the presentation                                                              |
+| id               | String  | Since 4.1: page id of the page shown. Before: `<presentationName>/<pageNumber>`     |
+| slide            | Integer | 0-based position of the page in the presentation when it was shown (unchanged)     |
+
+**ResizeAndMoveSlideEvent**
+
+| Attribute                                  | Type   | Description                                                                     |
+| ------------------------------------------ | ------ | ------------------------------------------------------------------------------- |
+| presentationName                           | String | Id of the presentation                                                          |
+| id                                         | String | Since 4.1: page id of the page. Before: `<presentationName>/<pageNumber>`       |
+| xOffset, yOffset, widthRatio, heightRatio  | Float  | Pan and zoom of the page (unchanged)                                            |
+
+**Whiteboard events** (`module="WHITEBOARD"`, for example `AddTldrawShapeEvent`, `DeleteTldrawShapeEvent` and `WhiteboardCursorMoveEvent`)
+
+| Attribute    | Type    | Description                                                                                    |
+| ------------ | ------- | ---------------------------------------------------------------------------------------------- |
+| presentation | String  | Id of the presentation of the page                                                             |
+| whiteboardId | String  | Since 4.1: page id of the page. Before: `<presentationName>/<pageNumber>`                      |
+| pageNumber   | Integer | 0-based position of the page in the presentation when the event happened (unchanged)          |
+
+The presentation files of a recording are named by the page id: `presentation/{presentationName}/svgs/slide{pageId}.svg`, `presentation/{presentationName}/textfiles/slide-{pageId}.txt` and `presentation/{presentationName}/thumbnails/thumb-{pageId}.png`, and the keys of `presentation_text.json` are `slide-{pageId}`. In earlier recordings the same files are named by the 1-based page number (`slide{pageNumber}.svg`, `slide-{pageNumber}.txt`, `thumb-{pageNumber}.png`).
 
 ### Voice
 

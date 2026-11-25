@@ -22,6 +22,12 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     await presentation.navigateSlidesWithKeys();
   });
 
+  test('Navigate slides with arrow keys on the whiteboard', async ({ browser, context, page }, testInfo) => {
+    const presentation = new Presentation(browser, context);
+    await presentation.initModPage(page, { testInfo });
+    await presentation.navigateSlidesWithKeysOnWhiteboard();
+  });
+
   test('Share Camera As Content', { tag: '@media' }, async ({ browser, browserName }, testInfo) => {
     test.skip(
       browserName === 'firefox',

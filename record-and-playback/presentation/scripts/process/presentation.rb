@@ -86,7 +86,6 @@ unless FileTest.directory?(target_dir)
     FileUtils.cp(events_xml, target_dir)
 
     presentation_dir = "#{raw_archive_dir}/presentation"
-    presentations = BigBlueButton::Presentation.get_presentations(events_xml)
 
     processed_pres_dir = "#{target_dir}/presentation"
     FileUtils.mkdir_p processed_pres_dir
@@ -141,11 +140,12 @@ unless FileTest.directory?(target_dir)
     BigBlueButton.logger.info('Created an updated metadata.xml with start_time and end_time')
 
     version_atleast_2_6_0 = BigBlueButton::Events.bbb_version_compare(@doc, 2, 6, 0)
+    # List of slide filename keys for each presentation, in the original order.
+    page_ids = BigBlueButton::Events.presentation_page_ids(@doc, presentation_dir)
     # Start processing raw files
     presentation_text = {}
-    presentations.each do |pres|
+    page_ids.each do |pres, pages|
       pres_dir = "#{presentation_dir}/#{pres}"
-      num_pages = BigBlueButton::Presentation.get_number_of_pages_for(pres_dir)
 
       target_pres_dir = "#{processed_pres_dir}/#{pres}"
       FileUtils.mkdir_p target_pres_dir
@@ -170,9 +170,9 @@ unless FileTest.directory?(target_dir)
 
         unless pres_pdf.empty?
           text = {}
-          1.upto(num_pages) do |page|
+          pages.each_with_index do |page, index|
             BigBlueButton::Presentation.extract_png_page_from_pdf(
-              page, pres_pdf, "#{target_pres_dir}/slide-#{page}.png", '1600x1600'
+              index + 1, pres_pdf, "#{target_pres_dir}/slide-#{page}.png", '1600x1600'
             ) if !version_atleast_2_6_0
             next unless File.exist?("#{pres_dir}/textfiles/slide-#{page}.txt")
             t = File.read("#{pres_dir}/textfiles/slide-#{page}.txt", encoding: 'UTF-8')

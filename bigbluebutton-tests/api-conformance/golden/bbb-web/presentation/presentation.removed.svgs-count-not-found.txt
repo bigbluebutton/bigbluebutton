@@ -1,0 +1,12 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case presentation.removed.svgs-count-not-found
+target bbb-web
+
+== step 1: route presentation-svgs (document)
+status 404
+header Content-Type application/json
+body json
+$.error "Not Found"
+$.path "/bigbluebutton/presentation/meeting-1/meeting-1/pres-1/svgs"
+$.status 404
+$.timestamp "<time>"

@@ -6,11 +6,14 @@ import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 import org.apache.commons.compress.utils.IOUtils;
 import com.amazonaws.services.s3.model.S3Object;
+import com.google.gson.Gson;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
 public class TarGzManager {
@@ -18,7 +21,14 @@ public class TarGzManager {
             Arrays.asList("thumbnails", "textfiles", "svgs", "pngs")
     );
 
-    public static File compress(String sourceDirectory, String outputFileName, Integer numOfPages) throws IOException {
+    public static final String MANIFEST = "manifest.json";
+
+    /**
+     * pageIds maps each page number to the id that names its files; it is stored as manifest.json
+     * ({"<num>": "<pageId>"}) so a restore can tell which files belong to which page.
+     */
+    public static File compress(String sourceDirectory, String outputFileName, Integer numOfPages,
+                                Map<Integer, String> pageIds) throws IOException {
         File tempTarGzFile = File.createTempFile(outputFileName, ".tar.gz");
 
         File parentDir = new File(sourceDirectory);
@@ -29,6 +39,8 @@ public class TarGzManager {
              TarArchiveOutputStream taos = new TarArchiveOutputStream(gzos)) {
 
             taos.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
+
+            addManifestToTarGz(taos, pageIds);
 
             for (File directory : directories) {
                 if (allowedDirs.contains(directory.getName())) {
@@ -54,6 +66,9 @@ public class TarGzManager {
             TarArchiveEntry tarEntry;
             while ((tarEntry = tarInputStream.getNextTarEntry()) != null) {
                 File outputFile = new File(destinationPath, tarEntry.getName());
+                if (!isInside(destinationPath, outputFile)) {
+                    throw new IOException("Entry outside of the destination: " + tarEntry.getName());
+                }
 
                 if (tarEntry.isDirectory()) {
                     if (!outputFile.exists() && !outputFile.mkdirs()) {
@@ -71,6 +86,20 @@ public class TarGzManager {
                 }
             }
         }
+    }
+
+    private static boolean isInside(String destinationPath, File file) throws IOException {
+        String destination = new File(destinationPath).getCanonicalPath() + File.separator;
+        return file.getCanonicalPath().startsWith(destination);
+    }
+
+    private static void addManifestToTarGz(TarArchiveOutputStream taos, Map<Integer, String> pageIds) throws IOException {
+        byte[] manifest = new Gson().toJson(pageIds).getBytes(StandardCharsets.UTF_8);
+        TarArchiveEntry entry = new TarArchiveEntry(MANIFEST);
+        entry.setSize(manifest.length);
+        taos.putArchiveEntry(entry);
+        taos.write(manifest);
+        taos.closeArchiveEntry();
     }
 
     private static void addDirectoryToTarGz(TarArchiveOutputStream taos, File directory, String base) throws IOException {
