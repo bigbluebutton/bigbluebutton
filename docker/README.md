@@ -31,7 +31,6 @@ pushes to the develop and release branches and on tags, it builds amd64 and arm6
 client's build id, the commit date in UTC, so these tags sort by date. The labels
 `org.opencontainers.image.revision` and `org.opencontainers.image.version` of each image hold the
 commit and the dated version, `org.opencontainers.image.title` its name.
-`bbb-record-and-playback` is amd64 only: mkclean, which it needs, has no 64-bit ARM build.
 
 ## Images
 
