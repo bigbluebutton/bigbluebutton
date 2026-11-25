@@ -118,8 +118,11 @@ class InsertPagesMessagesTests extends UnitSpec2 {
     roundTrips(PresentationInsertPagesDiscardSysMsgBody("meeting-1", presId, Vector(pageId)), "pageIds")
   }
 
-  "PresentationPagesInsertedEvtMsgBody" should "carry the position and the inserted pages" in {
+  "PresentationPagesInsertedEvtMsgBody" should "carry the position, the inserted pages and every page id" in {
     val page = PageVO(id = pageId, num = 3, thumbUri = "t", txtUri = "x", svgUri = "s", pageToken = "token")
-    roundTrips(PresentationPagesInsertedEvtMsgBody("DEFAULT_PRESENTATION_POD", presId, 3, Vector(page)), "insertedAt")
+    val body = PresentationPagesInsertedEvtMsgBody("DEFAULT_PRESENTATION_POD", presId, 3, Vector(page),
+      Vector("1a2b3c4d-0000-4000-8000-000000000001", "1a2b3c4d-0000-4000-8000-000000000002", pageId))
+    roundTrips(body, "insertedAt")
+    roundTrips(body, "pageIds")
   }
 }

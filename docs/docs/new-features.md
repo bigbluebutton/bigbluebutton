@@ -38,6 +38,7 @@ Each presentation page now has an id that never changes: a UUID, given to the pa
 Recordings made with BigBlueButton 4.1 identify presentation pages by their page id. They are marked with `bbb_version="4.1.0"` on the `<recording>` element. The recording processing scripts read both forms, so recordings made with earlier versions are processed as before.
 
 - `ConversionCompletedEvent`: new `pageIds` element, the comma-separated list of the page id of each page of the presentation, in page order.
+- `PresentationPagesInsertedEvent` (new): recorded when pages are inserted into a presentation; its `pageIds` element lists every page of the presentation after the insert, in page order.
 - `GotoSlideEvent`: the `id` element contains the page id; it was `<presentationName>/<pageNumber>`. The `slide` element is unchanged (0-based page number).
 - `ResizeAndMoveSlideEvent`: the `id` element contains the page id; it was `<presentationName>/<pageNumber>`.
 - Whiteboard events (`module="WHITEBOARD"`, for example `AddTldrawShapeEvent`, `DeleteTldrawShapeEvent` and `WhiteboardCursorMoveEvent`): the `whiteboardId` element contains the page id; it was `<presentationName>/<pageNumber>`. The `pageNumber` element is unchanged (0-based page number).

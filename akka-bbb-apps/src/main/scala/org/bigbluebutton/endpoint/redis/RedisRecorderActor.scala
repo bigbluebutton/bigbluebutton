@@ -68,6 +68,7 @@ class RedisRecorderActor(
 
       // Presentation
       case m: PresentationConversionCompletedEvtMsg => handlePresentationConversionCompletedEvtMsg(m)
+      case m: PresentationPagesInsertedEvtMsg       => handlePresentationPagesInsertedEvtMsg(m)
       case m: SetCurrentPageEvtMsg                  => handleSetCurrentPageEvtMsg(m)
       case m: ResizeAndMovePageEvtMsg               => handleResizeAndMovePageEvtMsg(m)
       case m: RemovePresentationEvtMsg              => handleRemovePresentationEvtMsg(m)
@@ -244,6 +245,16 @@ class RedisRecorderActor(
     if (msg.body.presentation.current) {
       recordSharePresentationEvent(msg.header.meetingId, msg.body.podId, msg.body.presentation.id)
     }
+  }
+
+  private def handlePresentationPagesInsertedEvtMsg(msg: PresentationPagesInsertedEvtMsg) {
+    val ev = new PresentationPagesInsertedRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setPodId(msg.body.podId)
+    ev.setPresentationName(msg.body.presentationId)
+    ev.setPageIds(msg.body.pageIds)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
   }
 
   private def handleSetCurrentPageEvtMsg(msg: SetCurrentPageEvtMsg) {

@@ -676,4 +676,23 @@ class PresentationInsertPagesSpec extends AnyFlatSpec {
     val target = presentation(targetId, 12, orderChanges = List(OrderChange(10, 1, 2)))
     assert(referencePage(target, 1, 10).map(_.id).contains(idAt(target, 3)))
   }
+
+  // ---------- page ids of the recorded insert ----------
+
+  behavior of "PresentationInsertPages.pageIdsInOrder"
+
+  it should "list every page of the target after an insert in the middle, in page order" in {
+    val target = presentation(targetId, 3)
+    val inserted = Vector(vo(uuid()), vo(uuid()))
+    val a = applied(insertOne(podsWith(target), intent(position = 2, seenTotalPages = 3), inserted))
+    assert(pageIdsInOrder(a.target) ==
+      Vector(idAt(target, 1)) ++ inserted.map(_.id) ++ Vector(idAt(target, 2), idAt(target, 3)))
+  }
+
+  it should "list the inserted pages first after an insert at position 1" in {
+    val target = presentation(targetId, 2)
+    val inserted = Vector(vo(uuid()))
+    val a = applied(insertOne(podsWith(target), intent(position = 1, seenTotalPages = 2), inserted))
+    assert(pageIdsInOrder(a.target) == inserted.map(_.id) ++ Vector(idAt(target, 1), idAt(target, 2)))
+  }
 }

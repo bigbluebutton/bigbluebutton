@@ -183,7 +183,7 @@ trait InsertPagesMsgHdlr extends SystemConfiguration {
         svgUri = p.urls.getOrElse("svg", ""), current = p.current, width = p.width, height = p.height,
         pageToken = p.pageToken)
     }
-    val body = PresentationPagesInsertedEvtMsgBody(a.entry.podId, a.target.id, a.insertedAt, pages)
+    val body = PresentationPagesInsertedEvtMsgBody(a.entry.podId, a.target.id, a.insertedAt, pages, pageIdsInOrder(a.target))
     BbbCommonEnvCoreMsg(envelope, PresentationPagesInsertedEvtMsg(header, body))
   }
 }

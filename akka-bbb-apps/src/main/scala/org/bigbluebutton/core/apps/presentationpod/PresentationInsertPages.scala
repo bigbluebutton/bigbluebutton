@@ -279,6 +279,10 @@ object PresentationInsertPages {
     }
   }
 
+  /** The page ids of a presentation in page order: after an insert, what the recording keeps. */
+  def pageIdsInOrder(presentation: PresentationInPod): Vector[String] =
+    presentation.pages.values.toVector.sortBy(_.num).map(_.id)
+
   /**
    * The target with the pages inserted. The requested position is at least 1, converted to the current order
    * from the total the request saw, and at most N + 1. The client is taken to the first inserted page only if

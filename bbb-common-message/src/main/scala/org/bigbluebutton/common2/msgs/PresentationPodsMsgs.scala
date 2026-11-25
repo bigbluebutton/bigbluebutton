@@ -483,7 +483,9 @@ case class PresentationInsertPagesFailedSysMsgBody(podId: String, uploadPresenta
 // on moved pages.size positions forward.
 object PresentationPagesInsertedEvtMsg { val NAME = "PresentationPagesInsertedEvtMsg" }
 case class PresentationPagesInsertedEvtMsg(header: BbbClientMsgHeader, body: PresentationPagesInsertedEvtMsgBody) extends BbbCoreMsg
-case class PresentationPagesInsertedEvtMsgBody(podId: String, presentationId: String, insertedAt: Int, pages: Vector[PageVO])
+// pageIds: every page of the presentation after the insert, in page order (the recording keeps it).
+case class PresentationPagesInsertedEvtMsgBody(podId: String, presentationId: String, insertedAt: Int, pages: Vector[PageVO],
+                                               pageIds: Vector[String])
 
 // ------------ akka-apps to bbb-common-web ------------
 object PresentationUploadTokenSysPubMsg { val NAME = "PresentationUploadTokenSysPubMsg" }
