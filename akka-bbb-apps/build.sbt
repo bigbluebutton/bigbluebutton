@@ -66,6 +66,10 @@ lazy val bbbAppsAkka = (project in file(".")).settings(name := "bbb-apps-akka", 
 scalariformAutoformat := false
 
 scalaVersion := "2.13.18"
+
+// scala.reflect.runtime.universe is used directly; don't rely on getting
+// scala-reflect only through bbb-common-message.
+libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value
 //-----------
 // Packaging
 //
