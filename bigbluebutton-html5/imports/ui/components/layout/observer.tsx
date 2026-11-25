@@ -16,7 +16,7 @@ import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import MediaService from '/imports/ui/components/media/service';
-import { useVideoStreamsCount } from '/imports/ui/components/video-provider/hooks';
+import { useLoadedVideoStreamsCount } from '/imports/ui/components/video-provider/hooks';
 import { useIsChatEnabled, useIsPresentationEnabled, useIsScreenSharingEnabled } from '/imports/ui/services/features';
 import useUserChangedLocalSettings from '/imports/ui/services/settings/hooks/useUserChangedLocalSettings';
 import Session from '/imports/ui/services/storage/in-memory';
@@ -30,6 +30,8 @@ import {
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const ORIENTATION_MEDIA = '(orientation: portrait)';
 const ORIENTATION_SETTLE_DELAY = 250;
+// Sharing a camera again leaves no camera in the meeting for about 2 s.
+const LAST_CAMERA_STOP_DELAY = 3000;
 
 const LayoutObserver: React.FC = () => {
   const layoutType = useRef<string | null>(null);
@@ -103,7 +105,8 @@ const LayoutObserver: React.FC = () => {
     }
   }, [currentPageId, loadingPresentationPageData, loadingMeeting, currentMeeting?.isBreakout]);
 
-  const isThereWebcam = useVideoStreamsCount() > 0;
+  const videoStreamsCount = useLoadedVideoStreamsCount();
+  const isThereWebcam = (videoStreamsCount ?? 0) > 0;
   const isScreenSharingEnabled = useIsScreenSharingEnabled();
   const isPresentationEnabled = useIsPresentationEnabled();
   const isChatEnabled = useIsChatEnabled();
@@ -122,6 +125,67 @@ const LayoutObserver: React.FC = () => {
   const { currentLayoutType } = currentMeeting?.layout || {};
   const meetingLayout = currentLayoutType && LAYOUT_TYPE[currentLayoutType as keyof typeof LAYOUT_TYPE];
   const isSharingVideo = currentMeeting?.componentsFlags?.hasExternalVideo;
+
+  const appliedLayoutType = layoutSelect((i: Layout) => i.layoutType);
+  const genericMainContent = layoutSelectInput((i: Input) => i.genericMainContent);
+  // From this component's meeting data, so it is never read before loadingMeeting settles.
+  const hideUsersWithoutCamera = !!currentMeeting?.layout?.hideUsersWithoutCamera;
+  const componentsFlags = currentMeeting?.componentsFlags;
+  const hasCurrentPresentation = !!componentsFlags?.hasCurrentPresentation;
+  // Same content the restore presentation button offers.
+  const hasMainContent = hasCurrentPresentation
+    || !!componentsFlags?.hasScreenshare
+    || !!componentsFlags?.hasExternalVideo
+    || !!componentsFlags?.isSharedNotesPinned
+    || !!componentsFlags?.hasCameraAsContent
+    || !!genericMainContent?.genericContentId;
+  const isVideoStreamsLoaded = videoStreamsCount !== undefined;
+  const isNoCameraShared = videoStreamsCount === 0;
+  // Unset until the first loaded sample, which only sets the baseline: a joining user
+  // keeps the presentation state the layout settings give them.
+  const lastGridSample = useRef<{ hideUsersWithoutCamera: boolean; isNoCameraShared: boolean }>();
+  // Read when the restore runs, which can be after the delay below.
+  const restoreConditions = useRef({
+    appliedLayoutType, hasMainContent, hasCurrentPresentation, presentationIsOpen,
+  });
+  restoreConditions.current = {
+    appliedLayoutType, hasMainContent, hasCurrentPresentation, presentationIsOpen,
+  };
+
+  // With participants without camera hidden and no camera shared, the grid has no tiles,
+  // so a minimized presentation leaves the stage empty. Restore it only when that starts,
+  // so a later minimize is respected.
+  useEffect(() => {
+    if (loadingMeeting || !isVideoStreamsLoaded) return undefined;
+    const before = lastGridSample.current;
+    lastGridSample.current = { hideUsersWithoutCamera, isNoCameraShared };
+    const wasGridEmptied = before?.hideUsersWithoutCamera && before.isNoCameraShared;
+    if (!before || wasGridEmptied || !hideUsersWithoutCamera || !isNoCameraShared) return undefined;
+
+    const wasPresentationOpen = presentationIsOpen;
+    const restorePresentation = () => {
+      const now = restoreConditions.current;
+      // Opened or minimized in the meantime: keep that choice.
+      if (now.presentationIsOpen !== wasPresentationOpen) return;
+      if (now.appliedLayoutType !== LAYOUT_TYPE.UNIFIED_LAYOUT || !now.hasMainContent) return;
+      // Ending a screen share or external video goes back to this state.
+      if (now.hasCurrentPresentation) Session.setItem('presentationLastState', true);
+      if (!now.presentationIsOpen) {
+        layoutContextDispatch({
+          type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+          value: true,
+        });
+      }
+    };
+
+    // The option was already on, so the last camera stopped and may be shared again.
+    if (before.hideUsersWithoutCamera) {
+      const timeout = setTimeout(restorePresentation, LAST_CAMERA_STOP_DELAY);
+      return () => clearTimeout(timeout);
+    }
+    restorePresentation();
+    return undefined;
+  }, [hideUsersWithoutCamera, isNoCameraShared, loadingMeeting, isVideoStreamsLoaded]);
 
   // Not compared to `deviceType`: the resize listener captures it on mount, and the
   // reducer already bails out when the value has not changed.
