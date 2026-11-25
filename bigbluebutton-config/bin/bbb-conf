@@ -849,10 +849,21 @@ check_configuration() {
         echo
     fi
 
+    EXPORT_OVERRIDE=/etc/bigbluebutton/bbb-export-annotations/production.json
     if [ -f /etc/bigbluebutton/bbb-export-annotations.json ]; then
         echo
         echo "# Warning: /etc/bigbluebutton/bbb-export-annotations.json is no longer read by bbb-export-annotations."
-        echo "#   Move it to /etc/bigbluebutton/bbb-export-annotations/production.json"
+        if [ -f $EXPORT_OVERRIDE ]; then
+            echo "#   Merge it into $EXPORT_OVERRIDE and remove it"
+        else
+            echo "#   Move it to $EXPORT_OVERRIDE"
+        fi
+        echo
+    fi
+    if [ -f $EXPORT_OVERRIDE ] && ! sudo -u bigbluebutton test -r $EXPORT_OVERRIDE; then
+        echo
+        echo "# Warning: bbb-export-annotations (user bigbluebutton) cannot read $EXPORT_OVERRIDE"
+        echo "#   and runs without it. The file and its directory must be readable by bigbluebutton."
         echo
     fi
 
