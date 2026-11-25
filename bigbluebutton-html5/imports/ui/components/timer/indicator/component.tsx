@@ -1,6 +1,7 @@
 import { useMutation } from '@apollo/client';
 import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
+import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
@@ -10,6 +11,33 @@ import { Input } from '../../layout/layoutTypes';
 import { TIMER_START, TIMER_STOP } from '../mutations';
 import useTimer from '/imports/ui/core/hooks/useTimer';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
+
+const intlMessages = defineMessages({
+  hoursSingular: {
+    id: 'app.timer.aria.hoursSingular',
+    description: 'Accessible timer duration in hours, singular',
+  },
+  hoursPlural: {
+    id: 'app.timer.aria.hoursPlural',
+    description: 'Accessible timer duration in hours, plural',
+  },
+  minutesSingular: {
+    id: 'app.timer.aria.minutesSingular',
+    description: 'Accessible timer duration in minutes, singular',
+  },
+  minutesPlural: {
+    id: 'app.timer.aria.minutesPlural',
+    description: 'Accessible timer duration in minutes, plural',
+  },
+  secondsSingular: {
+    id: 'app.timer.aria.secondsSingular',
+    description: 'Accessible timer duration in seconds, singular',
+  },
+  secondsPlural: {
+    id: 'app.timer.aria.secondsPlural',
+    description: 'Accessible timer duration in seconds, plural',
+  },
+});
 
 interface TimerIndicatorProps {
   timePassed: number;
@@ -30,6 +58,7 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   sidebarNavigationIsOpen,
   sidebarContentIsOpen,
 }) => {
+  const intl = useIntl();
   const timeRef = useRef<HTMLSpanElement>(null);
   const alarm = useRef<HTMLAudioElement>();
   const music = useRef<HTMLAudioElement>();
@@ -117,6 +146,25 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   }, [running, songTrackState]);
 
   const onClick = running ? stopTimer : startTimer;
+  const timeInSeconds = Math.max(0, Math.floor(timePassed / 1000));
+  const hours = Math.floor(timeInSeconds / 3600);
+  const minutes = Math.floor((timeInSeconds % 3600) / 60);
+  const seconds = timeInSeconds % 60;
+  const timeParts = [
+    hours > 0 && intl.formatMessage(
+      hours === 1 ? intlMessages.hoursSingular : intlMessages.hoursPlural,
+      { count: hours },
+    ),
+    minutes > 0 && intl.formatMessage(
+      minutes === 1 ? intlMessages.minutesSingular : intlMessages.minutesPlural,
+      { count: minutes },
+    ),
+    (seconds > 0 || timeInSeconds === 0) && intl.formatMessage(
+      seconds === 1 ? intlMessages.secondsSingular : intlMessages.secondsPlural,
+      { count: seconds },
+    ),
+  ].filter((part): part is string => Boolean(part));
+  const accessibleTime = intl.formatList(timeParts, { type: 'unit' });
 
   return (
     <Styled.TimerWrapper
@@ -141,8 +189,9 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
               aria-hidden
               ref={timeRef}
             >
-              {humanizeSeconds(Math.floor(timePassed / 1000))}
+              {humanizeSeconds(timeInSeconds)}
             </Styled.TimerTime>
+            <span className="sr-only">{accessibleTime}</span>
           </Styled.TimerContent>
         </Styled.TimerButton>
       </Styled.Timer>

@@ -160,6 +160,28 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
   const serverMinutes = Math.floor((timeInSeconds % 3600) / 60);
   const serverSeconds = timeInSeconds % 60;
 
+  const formatAccessibleDuration = (totalSeconds: number) => {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    const timeParts = [
+      hours > 0 && intl.formatMessage(
+        hours === 1 ? intlMessages.hoursSingular : intlMessages.hoursPlural,
+        { count: hours },
+      ),
+      minutes > 0 && intl.formatMessage(
+        minutes === 1 ? intlMessages.minutesSingular : intlMessages.minutesPlural,
+        { count: minutes },
+      ),
+      (seconds > 0 || totalSeconds === 0) && intl.formatMessage(
+        seconds === 1 ? intlMessages.secondsSingular : intlMessages.secondsPlural,
+        { count: seconds },
+      ),
+    ].filter((part): part is string => Boolean(part));
+
+    return intl.formatList(timeParts, { type: 'unit' });
+  };
+
   const [focusedUnit, setFocusedUnit] = useState<'hours' | 'minutes' | 'seconds' | null>(null);
   const [localHours, setLocalHours] = useState(0);
   const [localMinutes, setLocalMinutes] = useState(0);
@@ -344,11 +366,17 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
 
   if (stopwatch) {
     return (
-      <Styled.TimerCurrent
-        data-test="stopwatchCurrent"
-      >
-        {humanizeSeconds(Math.floor(timePassed / 1000))}
-      </Styled.TimerCurrent>
+      <>
+        <Styled.TimerCurrent
+          data-test="stopwatchCurrent"
+          aria-hidden
+        >
+          {humanizeSeconds(timeInSeconds)}
+        </Styled.TimerCurrent>
+        <span className="sr-only" data-test="stopwatchAccessibleTime">
+          {formatAccessibleDuration(timeInSeconds)}
+        </span>
+      </>
     );
   }
 
@@ -543,21 +571,7 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
             const h = Math.floor(addSeconds / 3600);
             const m = Math.floor((addSeconds % 3600) / 60);
             const s = addSeconds % 60;
-            const timeParts = [
-              h > 0 && intl.formatMessage(
-                h === 1 ? intlMessages.hoursSingular : intlMessages.hoursPlural,
-                { count: h },
-              ),
-              m > 0 && intl.formatMessage(
-                m === 1 ? intlMessages.minutesSingular : intlMessages.minutesPlural,
-                { count: m },
-              ),
-              s > 0 && intl.formatMessage(
-                s === 1 ? intlMessages.secondsSingular : intlMessages.secondsPlural,
-                { count: s },
-              ),
-            ].filter((part): part is string => Boolean(part));
-            const timeLabel = intl.formatList(timeParts, { type: 'unit' });
+            const timeLabel = formatAccessibleDuration(addSeconds);
             const fmt = (n: number) => (n < 10 ? `0${n}` : n.toString());
             const displayLabel = h > 0
               ? `+${fmt(h)}:${fmt(m)}:${fmt(s)}`

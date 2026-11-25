@@ -11,11 +11,6 @@ export class Timer extends MultiUsers {
     await this.modPage.waitAndClick(e.timerStopwatchFeature);
     await this.modPage.waitAndClick(e.stopwatch);
     await this.modPage.hasElement(e.stopwatchCurrent, 'should display the timer counter in the sidebar content');
-    await expect(
-      this.modPage.page.locator(e.stopwatchCurrent),
-      'should expose the stopwatch time to assistive technologies',
-    ).not.toHaveAttribute('aria-hidden');
-
     const timerCurrentLocator = this.modPage.page.locator(e.stopwatchCurrent);
     const timerIndicatorLocator = this.modPage.page.locator(e.timerIndicator);
 
@@ -48,6 +43,14 @@ export class Timer extends MultiUsers {
     // reset a running stopwatch and check if the values are reset
     await this.clickOnTimerControl();
     await this.modPage.hasText(e.stopwatchCurrent, /00:02/, 'should display 00:02 after 2 seconds');
+    await expect(
+      this.modPage.page.locator(e.stopwatchCurrent),
+      'should hide the digit-formatted stopwatch time from assistive technologies',
+    ).toHaveAttribute('aria-hidden', 'true');
+    await expect(
+      this.modPage.page.locator(e.stopwatchAccessibleTime),
+      'should expose the stopwatch time in a readable form to assistive technologies',
+    ).toHaveText('2 seconds');
     await this.modPage.waitAndClick(e.resetTimerStopwatch);
     await expect(async () => {
       const { r, b } = await this.getStartStopButtonColor();
@@ -86,6 +89,10 @@ export class Timer extends MultiUsers {
     await this.modPage.waitAndClick(e.timerAdd30s);
     await this.checkTimerInputs('00', '10', '30', 'should add 30 seconds to the timer inputs');
     await this.modPage.hasText(e.timerIndicator, /10:30/, 'should add 30 seconds to the timer indicator');
+    await expect(
+      timerIndicatorLocator,
+      'should expose the timer countdown in a readable form to assistive technologies',
+    ).toHaveAccessibleName('10 minutes, 30 seconds');
 
     // a running timer locks the inputs, which show the countdown
     await this.clickOnTimerControl();
