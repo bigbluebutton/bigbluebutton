@@ -182,8 +182,6 @@ const PushLayoutEngine = (props) => {
             value: {
               width: w,
               height: h,
-              browserWidth: window.innerWidth,
-              browserHeight: window.innerHeight,
             },
           });
         }
@@ -279,8 +277,6 @@ const PushLayoutEngine = (props) => {
           value: {
             width: w,
             height: h,
-            browserWidth: window.innerWidth,
-            browserHeight: window.innerHeight,
           },
           isLocalChange: false,
         });

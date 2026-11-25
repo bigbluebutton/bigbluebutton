@@ -30,8 +30,6 @@ const useSidebarResize = (
       value: {
         width,
         height: start.current.height,
-        browserWidth: window.innerWidth,
-        browserHeight: window.innerHeight,
       },
     });
   }, [actionType, dispatch]);

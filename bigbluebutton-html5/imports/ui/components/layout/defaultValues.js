@@ -11,7 +11,6 @@ export const SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH = 0.01;
 
 const DEFAULT_VALUES = {
   layoutType: LAYOUT_TYPE.UNIFIED_LAYOUT,
-  panelType: 'chat',
   fontSize: 16,
 
   cameraPosition: CAMERADOCK_POSITION.CONTENT_TOP,

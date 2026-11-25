@@ -14,13 +14,6 @@ interface PresentationAreaContentActions {
     },
 }
 
-interface ResizableEdge {
-    bottom: boolean;
-    left: boolean;
-    right: boolean;
-    top: boolean;
-}
-
 interface BannerBar {
     hasBanner: boolean;
 }
@@ -36,8 +29,6 @@ interface CameraOptimalGridSize {
 }
 
 interface CameraDock {
-    browserHeight?: number;
-    browserWidth?: number;
     cameraOptimalGridSize?: CameraOptimalGridSize;
     focusedId: string;
     isDragging?: boolean;
@@ -51,8 +42,6 @@ interface CameraDock {
 }
 
 export interface ExternalVideo {
-    browserHeight?: number;
-    browserWidth?: number;
     hasExternalVideo?: boolean;
     height: number;
     width: number;
@@ -60,8 +49,6 @@ export interface ExternalVideo {
 
 export interface GenericContentMainArea {
     genericContentId?: string;
-    browserHeight?: number;
-    browserWidth?: number;
     height: number;
     width: number;
 }
@@ -87,8 +74,6 @@ interface CurrentSlide {
 }
 
 interface Presentation {
-    browserHeight?: number;
-    browserWidth?: number;
     contentUpdatedAt?: number;
     currentSlide?: CurrentSlide;
     isOpen?: boolean;
@@ -98,38 +83,23 @@ interface Presentation {
 }
 
 interface ScreenShare {
-    browserHeight?: number;
-    browserWidth?: number;
     hasScreenShare?: boolean;
     height: number;
     width: number;
 }
 
 export interface SharedNotes {
-    browserHeight?: number;
-    browserWidth?: number;
     isPinned?: boolean;
     height: number;
     width: number;
 }
 
 interface SidebarContent {
-    browserWidth?: number;
-    currentPanelType?: string;
     isOpen?: boolean;
-    resizableEdge: ResizableEdge;
     sidebarContentPanel?: string
     /** the width the user dragged the panel to */
     width: number;
     height: number;
-}
-
-interface SidebarContentHorizontalResizer {
-    browserWidth: number;
-    currentPanelType: string;
-    height: number;
-    isOpen: boolean;
-    width: number;
 }
 
 interface Widget {
@@ -156,7 +126,6 @@ export interface registeredApps {
 }
 
 export interface SidebarNavigation {
-    browserWidth?: number;
     isOpen?: boolean;
     width: number;
     height: number;
@@ -171,11 +140,9 @@ interface Fullscreen {
 
 interface Input {
     actionBar: ActionBar;
-    autoarrAngeLayout: boolean;
     bannerBar: BannerBar;
     browser: Browser;
     cameraDock: CameraDock
-    userMetadata: NonNullable<unknown>;
     externalVideo: ExternalVideo;
     genericMainContent: GenericContentMainArea;
     navBar: NavBar;
@@ -184,7 +151,6 @@ interface Input {
     screenShare: ScreenShare;
     sharedNotes: SharedNotes;
     sidebarContent: SidebarContent;
-    sidebarContentHorizontalResizer: SidebarContentHorizontalResizer;
     sidebarContentAuxiliary: SidebarContent;
     sidebarNavigation: SidebarNavigation;
 }

@@ -143,10 +143,8 @@ describe('layout reducer: semantic input cases', () => {
       expect(remote.input.cameraDock.isLocalChange).toBe(false);
     });
 
-    it('SET_CAMERA_DOCK_SIZE writes the size with the browser size, local by default', () => {
-      const value = {
-        width: 0, height: 240, browserWidth: 1366, browserHeight: 768,
-      };
+    it('SET_CAMERA_DOCK_SIZE writes the size, local by default', () => {
+      const value = { width: 0, height: 240 };
       const next = dispatch(freshState(), ACTIONS.SET_CAMERA_DOCK_SIZE, value);
       expect(next.input.cameraDock).toMatchObject({ ...value, isLocalChange: true });
       expect(dispatch(next, ACTIONS.SET_CAMERA_DOCK_SIZE, { ...value })).toBe(next);
@@ -207,9 +205,7 @@ describe('layout reducer: semantic input cases', () => {
       [ACTIONS.SET_SIDEBAR_CONTENT_SIZE, 'sidebarContent'],
       [ACTIONS.SET_SIDEBAR_CONTENT_AUXILIARY_SIZE, 'sidebarContentAuxiliary'],
     ])('%s writes the user-chosen size', (type, key) => {
-      const value = {
-        width: 400, browserWidth: 1366, height: 707, browserHeight: 768,
-      };
+      const value = { width: 400, height: 707 };
       const next = dispatch(freshState(), type, value);
       expect(get(next, `input.${key}`)).toMatchObject(value);
       expect(dispatch(next, type, { ...value })).toBe(next);

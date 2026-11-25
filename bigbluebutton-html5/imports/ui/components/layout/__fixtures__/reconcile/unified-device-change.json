@@ -1,6 +1,4 @@
 {
-  "autoarrAngeLayout": true,
-  "userMetadata": {},
   "browser": "<window>",
   "bannerBar": {
     "hasBanner": false
@@ -22,7 +20,6 @@
     "isOpen": true,
     "width": 70,
     "height": 0,
-    "browserWidth": 0,
     "registeredApps": {
       "app": {
         "id": "app"
@@ -34,46 +31,21 @@
   },
   "sidebarContent": {
     "isOpen": true,
-    "currentPanelType": "chat",
     "width": 350,
     "height": 0,
-    "browserWidth": 0,
-    "sidebarContentPanel": "userlist",
-    "resizableEdge": {
-      "top": false,
-      "right": false,
-      "bottom": false,
-      "left": false
-    }
-  },
-  "sidebarContentHorizontalResizer": {
-    "isOpen": true,
-    "currentPanelType": "chat",
-    "width": 0,
-    "height": 0,
-    "browserWidth": 0
+    "sidebarContentPanel": "userlist"
   },
   "sidebarContentAuxiliary": {
     "isOpen": false,
-    "currentPanelType": "chat",
     "width": 320,
     "height": 0,
-    "browserWidth": 0,
-    "sidebarContentPanel": "none",
-    "resizableEdge": {
-      "top": false,
-      "right": false,
-      "bottom": false,
-      "left": false
-    }
+    "sidebarContentPanel": "none"
   },
   "cameraDock": {
     "numCameras": 2,
     "position": "contentLeft",
     "width": 300,
     "height": 200,
-    "browserWidth": 0,
-    "browserHeight": 0,
     "isDragging": false,
     "isResizing": false,
     "isLocalChange": true,
@@ -94,36 +66,26 @@
       }
     },
     "width": 0,
-    "height": 0,
-    "browserWidth": 0,
-    "browserHeight": 0
+    "height": 0
   },
   "screenShare": {
     "hasScreenShare": true,
     "width": 1280,
-    "height": 720,
-    "browserWidth": 0,
-    "browserHeight": 0
+    "height": 720
   },
   "externalVideo": {
     "hasExternalVideo": true,
     "width": 0,
-    "height": 0,
-    "browserWidth": 0,
-    "browserHeight": 0
+    "height": 0
   },
   "genericMainContent": {
     "genericContentId": "plugin-content",
     "width": 0,
-    "height": 0,
-    "browserWidth": 0,
-    "browserHeight": 0
+    "height": 0
   },
   "sharedNotes": {
     "isPinned": true,
     "width": 0,
-    "height": 0,
-    "browserWidth": 0,
-    "browserHeight": 0
+    "height": 0
   }
 }

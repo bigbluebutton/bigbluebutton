@@ -308,8 +308,6 @@ class ScreenshareComponent extends React.Component {
     const value = {
       width,
       height,
-      browserWidth: window.innerWidth,
-      browserHeight: window.innerHeight,
     };
 
     layoutContextDispatch({

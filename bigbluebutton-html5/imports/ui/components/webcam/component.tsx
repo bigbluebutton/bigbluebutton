@@ -140,8 +140,6 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
       value: {
         width,
         height,
-        browserWidth: window.innerWidth,
-        browserHeight: window.innerHeight,
       },
     });
   };

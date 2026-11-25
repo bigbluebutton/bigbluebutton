@@ -565,15 +565,11 @@ const reducer = (state, action) => {
     case ACTIONS.SET_SIDEBAR_CONTENT_AUXILIARY_SIZE: {
       const {
         width,
-        browserWidth,
         height,
-        browserHeight,
       } = action.value;
       const { sidebarContentAuxiliary } = state.input;
       if (sidebarContentAuxiliary.width === width
-        && sidebarContentAuxiliary.browserWidth === browserWidth
-        && sidebarContentAuxiliary.height === height
-        && sidebarContentAuxiliary.browserHeight === browserHeight) {
+        && sidebarContentAuxiliary.height === height) {
         return state;
       }
       return {
@@ -583,9 +579,7 @@ const reducer = (state, action) => {
           sidebarContentAuxiliary: {
             ...sidebarContentAuxiliary,
             width,
-            browserWidth,
             height,
-            browserHeight,
           },
         },
       };
@@ -652,15 +646,11 @@ const reducer = (state, action) => {
     case ACTIONS.SET_SIDEBAR_CONTENT_SIZE: {
       const {
         width,
-        browserWidth,
         height,
-        browserHeight,
       } = action.value;
       const { sidebarContent } = state.input;
       if (sidebarContent.width === width
-        && sidebarContent.browserWidth === browserWidth
-        && sidebarContent.height === height
-        && sidebarContent.browserHeight === browserHeight) {
+        && sidebarContent.height === height) {
         return state;
       }
       return {
@@ -670,9 +660,7 @@ const reducer = (state, action) => {
           sidebarContent: {
             ...sidebarContent,
             width,
-            browserWidth,
             height,
-            browserHeight,
           },
         },
       };
@@ -748,13 +736,11 @@ const reducer = (state, action) => {
     case ACTIONS.SET_CAMERA_DOCK_SIZE: {
       const { value, isLocalChange = true } = action;
       const {
-        width, height, browserWidth, browserHeight,
+        width, height,
       } = value;
       const { cameraDock } = state.input;
       if (cameraDock.width === width
-        && cameraDock.height === height
-        && cameraDock.browserWidth === browserWidth
-        && cameraDock.browserHeight === browserHeight) {
+        && cameraDock.height === height) {
         return state;
       }
       return {
@@ -765,8 +751,6 @@ const reducer = (state, action) => {
             ...cameraDock,
             width,
             height,
-            browserWidth,
-            browserHeight,
             isLocalChange,
           },
         },
@@ -902,13 +886,11 @@ const reducer = (state, action) => {
     }
     case ACTIONS.SET_SCREEN_SHARE_SIZE: {
       const {
-        width, height, browserWidth, browserHeight,
+        width, height,
       } = action.value;
       const { screenShare } = state.input;
       if (screenShare.width === width
-        && screenShare.height === height
-        && screenShare.browserWidth === browserWidth
-        && screenShare.browserHeight === browserHeight) {
+        && screenShare.height === height) {
         return state;
       }
       return {
@@ -919,8 +901,6 @@ const reducer = (state, action) => {
             ...screenShare,
             width,
             height,
-            browserWidth,
-            browserHeight,
           },
         },
       };
