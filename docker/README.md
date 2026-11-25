@@ -118,7 +118,9 @@ has a configuration file, the variable wins over the file, and a variable set to
 counts as not set.
 
 - **bbb-apps-akka** (HOCON `${?VAR}` in upstream's `application.conf`): `SHARED_SECRET`,
-  `BBB_WEB_API`, `GRAPHQL_MIDDLEWARE_API`, `REDIS_HOST`, `REDIS_PASSWORD`, `POSTGRES_HOST`,
+  `BBB_WEB_API` (bbb-web's public API URL, e.g. `https://<domain>/bigbluebutton/api`: the
+  breakout rooms' join links are built on it and opened by the browser),
+  `GRAPHQL_MIDDLEWARE_API`, `REDIS_HOST`, `REDIS_PASSWORD`, `POSTGRES_HOST`,
   `POSTGRES_PASSWORD`; upstream's `INTERFACE` (set to `0.0.0.0`) and `PORT`; `JAVA_OPTS`;
   `BBB_LOG_FILE_APPENDER` (set to `STDOUT`).
 - **bbb-web**: any key of `bigbluebutton.properties`, upper case with `.` as `_` (or the key

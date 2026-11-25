@@ -202,7 +202,8 @@ services:
     image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-apps-akka:${BBB_IMAGE_TAG}
     environment:
       SHARED_SECRET: ${BBB_SHARED_SECRET:?}
-      BBB_WEB_API: http://web:8090/bigbluebutton/api
+      # the base of the breakout rooms' join links, which the browser opens: the public address
+      BBB_WEB_API: https://${BBB_DOMAIN}/bigbluebutton/api
       GRAPHQL_MIDDLEWARE_API: http://graphql-middleware:8378
       REDIS_HOST: redis
       POSTGRES_HOST: postgres
