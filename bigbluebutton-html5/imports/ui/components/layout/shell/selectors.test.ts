@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  cameraDockFractionVariable,
   cameraDockPosition,
   cameraDockSizeVariable,
   cameraDockState,
@@ -249,24 +250,48 @@ describe('layout shell selectors', () => {
     });
   });
 
-  describe('cameraDockSizeVariable (the size the user chose, or none for the default)', () => {
-    it('is none before any resize', () => {
+  describe('cameraDockSizeVariable (the live size while the user drags the handle)', () => {
+    it('is none unless resizing', () => {
       expect(cameraDockSizeVariable(base)).toBeUndefined();
+      expect(cameraDockSizeVariable(at({ storedDockHeight: 0.3 }))).toBeUndefined();
     });
 
-    it('is the live size while resizing and the stored size afterwards, along the dock axis', () => {
+    it('is the live size along the dock axis while resizing', () => {
       expect(cameraDockSizeVariable(at({ isResizing: true, dockInputHeight: 244, dockInputWidth: 982 }))).toBe(244);
-      expect(cameraDockSizeVariable(at({ storedDockHeight: 240 }))).toBe(240);
-      expect(cameraDockSizeVariable(at({ dockPosition: 'contentRight', storedDockWidth: 302.7 }))).toBe(302.7);
-      expect(cameraDockSizeVariable(at({ dockPosition: 'sidebarContentBottom', storedDockHeight: 240 }))).toBe(240);
+      expect(cameraDockSizeVariable(at({
+        isResizing: true, dockPosition: 'contentRight', dockInputHeight: 580, dockInputWidth: 302,
+      }))).toBe(302);
     });
 
     it('keeps the default for a top dock on a phone, and the 25% rule when locked side by side', () => {
-      expect(cameraDockSizeVariable(at({ deviceType: DEVICE_TYPE.MOBILE, storedDockHeight: 240 }))).toBeUndefined();
-      expect(cameraDockSizeVariable(at({
-        deviceType: DEVICE_TYPE.MOBILE, dockPosition: 'contentBottom', storedDockHeight: 240,
-      }))).toBe(240);
-      expect(cameraDockSizeVariable(at({ isPhoneLandscape: true, storedDockWidth: 300 }))).toBeUndefined();
+      expect(cameraDockSizeVariable(at({ deviceType: DEVICE_TYPE.MOBILE, isResizing: true, dockInputHeight: 200 })))
+        .toBeUndefined();
+      expect(cameraDockSizeVariable(at({ isPhoneLandscape: true, isResizing: true, dockInputWidth: 300 })))
+        .toBeUndefined();
+    });
+  });
+
+  describe('cameraDockFractionVariable (the stored share of the dock area)', () => {
+    it('is none before any resize', () => {
+      expect(cameraDockFractionVariable(base)).toBeUndefined();
+    });
+
+    it('is the stored fraction along the dock axis', () => {
+      expect(cameraDockFractionVariable(at({ storedDockHeight: 0.3 }))).toBe(0.3);
+      expect(cameraDockFractionVariable(at({ dockPosition: 'contentRight', storedDockWidth: 0.22 }))).toBe(0.22);
+      expect(cameraDockFractionVariable(at({ dockPosition: 'contentRight', storedDockHeight: 0.3 })))
+        .toBeUndefined();
+      expect(cameraDockFractionVariable(at({ dockPosition: 'sidebarContentBottom', storedDockHeight: 0.2 })))
+        .toBe(0.2);
+    });
+
+    it('keeps the default for a top dock on a phone, and the 25% rule when locked side by side', () => {
+      expect(cameraDockFractionVariable(at({ deviceType: DEVICE_TYPE.MOBILE, storedDockHeight: 0.3 })))
+        .toBeUndefined();
+      expect(cameraDockFractionVariable(at({
+        deviceType: DEVICE_TYPE.MOBILE, dockPosition: 'contentBottom', storedDockHeight: 0.3,
+      }))).toBe(0.3);
+      expect(cameraDockFractionVariable(at({ isPhoneLandscape: true, storedDockWidth: 0.3 }))).toBeUndefined();
     });
   });
 });

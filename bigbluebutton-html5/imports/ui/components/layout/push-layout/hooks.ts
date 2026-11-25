@@ -58,7 +58,6 @@ const useMeetingLayoutUpdater = ({
     const cameraDock = getPropagatedCameraDock({
       isSuppressed: isCameraDockPropagationSuppressed,
       cameraDock: pushedCameraDock,
-      cameraDockInput,
       meetingCameraDock,
     });
 

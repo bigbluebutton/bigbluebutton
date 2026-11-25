@@ -17,8 +17,8 @@ const setBox = (element: Element, width: number, height: number) => {
 };
 
 // The owner of a region measures its own element and publishes the size under the region's name
-const Owner = ({ box, hold = false }: { box: [number, number]; hold?: boolean }) => {
-  const measure = useMeasureRegion<HTMLDivElement>('cameraDock', { hold });
+const Owner = ({ box }: { box: [number, number] }) => {
+  const measure = useMeasureRegion<HTMLDivElement>('sidebarContent');
   const ref = React.useCallback((node: HTMLDivElement | null) => {
     if (node) setBox(node, box[0], box[1]);
     measure(node);
@@ -29,7 +29,7 @@ const Owner = ({ box, hold = false }: { box: [number, number]; hold?: boolean })
 describe('measured regions', () => {
   let seen: (ElementSize | null)[];
   const Reader = () => {
-    seen.push(useRegionSize('cameraDock'));
+    seen.push(useRegionSize('sidebarContent'));
     return null;
   };
   const withReader = (box: [number, number]) => (
@@ -58,7 +58,7 @@ describe('measured regions', () => {
   it('publishes the owner size to readers elsewhere in the tree', () => {
     render(withReader([982, 124]));
     expect(seen.at(-1)).toEqual({ width: 982, height: 124 });
-    expect(getRegionSize('cameraDock')).toEqual({ width: 982, height: 124 });
+    expect(getRegionSize('sidebarContent')).toEqual({ width: 982, height: 124 });
   });
 
   it('updates readers when the owner box changes', () => {
@@ -72,35 +72,10 @@ describe('measured regions', () => {
     expect(seen.at(-1)).toEqual({ width: 982, height: 244 });
   });
 
-  it('keeps publishing the last size while the owner holds it (a dock being dragged)', () => {
-    const tree = (hold: boolean) => (
-      <>
-        <Owner box={[982, 244]} hold={hold} />
-        <Reader />
-      </>
-    );
-    const { container, rerender } = render(tree(false));
-    const owner = container.querySelector('#owner')!;
-    rerender(tree(true));
-    setBox(owner, 160, 120);
-    act(() => ResizeObserverMock.trigger(owner, { width: 160, height: 120 }));
-    act(() => {
-      vi.advanceTimersByTime(20);
-    });
-    expect(seen.at(-1), 'the committed size while held').toEqual({ width: 982, height: 244 });
-    setBox(owner, 982, 300);
-    act(() => ResizeObserverMock.trigger(owner, { width: 982, height: 300 }));
-    act(() => {
-      vi.advanceTimersByTime(20);
-    });
-    rerender(tree(false));
-    expect(seen.at(-1), 'the current size once released').toEqual({ width: 982, height: 300 });
-  });
-
   it('clears the size when the owner unmounts', () => {
     const { rerender } = render(withReader([196, 599]));
     rerender(<Reader />);
     expect(seen.at(-1)).toBeNull();
-    expect(getRegionSize('cameraDock')).toBeNull();
+    expect(getRegionSize('sidebarContent')).toBeNull();
   });
 });

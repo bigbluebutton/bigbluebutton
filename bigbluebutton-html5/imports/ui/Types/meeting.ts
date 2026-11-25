@@ -103,9 +103,9 @@ export interface Layout {
   currentLayoutType: string;
   updatedAt: string;
   propagateLayout: boolean;
-  cameraDockIsResizing: boolean;
   cameraDockPlacement: string;
-  cameraDockAspectRatio: string;
+  /** the dock size as a fraction (0-1) of the dock's area along its axis, as a numeric string; 0 = not set */
+  cameraDockSize: string;
   cameraWithFocus: string;
   presentationMinimized: boolean;
   hideUsersWithoutCamera: boolean;

@@ -1,6 +1,7 @@
 import { DEVICE_TYPE, LAYOUT_TYPE } from '../enums';
 import {
   cameraDockPosition,
+  cameraDockFractionVariable,
   cameraDockSizeVariable,
   cameraDockState,
   isMediaContentOff,
@@ -86,6 +87,8 @@ export const shellState = (s: ShellState): ShellOutput => {
   if (s.sidebarContentAuxiliaryWidth > 0) style['--bbb-sidebar-aux-size'] = `${s.sidebarContentAuxiliaryWidth}px`;
   const dockSize = cameraDockSizeVariable(s);
   if (dockSize !== undefined) style['--bbb-camera-dock-size'] = `${dockSize}px`;
+  const dockFraction = cameraDockFractionVariable(s);
+  if (dockFraction !== undefined) style['--bbb-camera-dock-fraction'] = String(dockFraction);
   if (s.cameraGridWidth > 0) style['--bbb-camera-grid-width'] = `${s.cameraGridWidth}px`;
   if (s.cameraGridHeight > 0) style['--bbb-camera-grid-height'] = `${s.cameraGridHeight}px`;
   if (s.mediaOnlyContentRatio > 0) style['--bbb-media-only-ratio'] = String(s.mediaOnlyContentRatio);

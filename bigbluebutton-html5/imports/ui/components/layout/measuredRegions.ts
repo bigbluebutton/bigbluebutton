@@ -2,12 +2,12 @@ import { useLayoutEffect, useSyncExternalStore } from 'react';
 import useElementSize, { ElementSize } from '/imports/ui/core/hooks/useElementSize';
 
 /**
- * Measured boxes of layout regions that components outside the region need: the camera dock (the
- * push-layout rate) and the sidebar content (the poll charts and the user list's crowd buttons). The
- * component that renders a region measures its own element and publishes the size here; readers get
- * the rendered size instead of a number computed from the window.
+ * Measured boxes of layout regions that components outside the region need: the sidebar content (the
+ * poll charts and the user list's crowd buttons). The component that renders a region measures its own
+ * element and publishes the size here; readers get the rendered size instead of a number computed from
+ * the window.
  */
-export type MeasuredRegion = 'cameraDock' | 'sidebarContent';
+export type MeasuredRegion = 'sidebarContent';
 
 const sizes = new Map<MeasuredRegion, ElementSize | null>();
 const listeners = new Set<() => void>();
@@ -41,18 +41,13 @@ export const useRegionSize = (region: MeasuredRegion): ElementSize | null => use
 );
 
 /**
- * For the component that renders a region: a callback ref that measures and publishes its box. While
- * `hold` is true the last published size stays (a dock being dragged shrinks to one tile, but its
- * committed size is the one that counts); the current size is published again when it is released.
+ * For the component that renders a region: a callback ref that measures and publishes its box.
  */
-export function useMeasureRegion<T extends Element>(
-  region: MeasuredRegion,
-  { hold = false }: { hold?: boolean } = {},
-): (element: T | null) => void {
+export function useMeasureRegion<T extends Element>(region: MeasuredRegion): (element: T | null) => void {
   const [ref, size] = useElementSize<T>();
   useLayoutEffect(() => {
-    if (!hold) setRegionSize(region, size);
-  }, [region, size, hold]);
+    setRegionSize(region, size);
+  }, [region, size]);
   useLayoutEffect(() => () => setRegionSize(region, null), [region]);
   return ref;
 }

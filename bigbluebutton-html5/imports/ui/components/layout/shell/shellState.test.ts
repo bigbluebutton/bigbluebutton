@@ -111,19 +111,24 @@ describe('shellState', () => {
     expect(at({ slidesLength: 0 }).attributes['data-media-off']).toBe('');
   });
 
+  it('carries the live dock size while resizing', () => {
+    expect(at({ numCameras: 1, isResizing: true, dockInputHeight: 250 }).style)
+      .toEqual({ '--bbb-camera-dock-size': '250px' });
+  });
+
   it('carries the sizes the user chose as custom properties', () => {
     expect(at({
       sidebarContentWidth: 390,
       sidebarContentAuxiliaryIsOpen: true,
       sidebarContentAuxiliaryWidth: 400,
       numCameras: 1,
-      storedDockHeight: 240,
+      storedDockHeight: 0.3,
       cameraGridWidth: 160,
       cameraGridHeight: 120,
     }).style).toEqual({
       '--bbb-sidebar-content-size': '390px',
       '--bbb-sidebar-aux-size': '400px',
-      '--bbb-camera-dock-size': '240px',
+      '--bbb-camera-dock-fraction': '0.3',
       '--bbb-camera-grid-width': '160px',
       '--bbb-camera-grid-height': '120px',
     });

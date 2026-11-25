@@ -14,7 +14,6 @@ import ResizeHandle, { ResizeEdge } from '/imports/ui/components/layout/shell/Re
 import { useShellState } from '/imports/ui/components/layout/shell/context';
 import {
   cameraDockPosition,
-  cameraDockState,
   Edges,
   isCameraDockDraggable,
   isCameraDockShown,
@@ -39,7 +38,9 @@ import useSettings from '../../services/settings/hooks/useSettings';
 import { SETTINGS } from '../../services/settings/enums';
 import { INITIAL_INPUT_STATE } from '../layout/initState';
 import { contentSidebarMarginToMedia } from '../../stylesheets/styled-components/general';
-import { useMeasureRegion } from '../layout/measuredRegions';
+import {
+  DOCK_SIZE_STORAGE_KEY, fractionOfBox, readStoredDockSize, withFraction,
+} from '../layout/dockSize';
 
 const intlMessages = defineMessages({
   camerasAriaLabel: {
@@ -78,8 +79,6 @@ interface WebcamComponentProps {
   cameraOptimalGridSize: Input['cameraDock']['cameraOptimalGridSize'];
   snapToCameraGrid: boolean;
   isRTL: boolean;
-  /** the dock sits in its position, rather than filling the media area or the window */
-  isPositioned: boolean;
 }
 
 const RESIZE_EDGES: ResizeEdge[] = ['top', 'right', 'bottom', 'left'];
@@ -97,25 +96,19 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
   cameraOptimalGridSize: cameraSize,
   snapToCameraGrid,
   isRTL,
-  isPositioned,
 }) => {
   const [isResizing, setIsResizing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [draggedAtLeastOneTime, setDraggedAtLeastOneTime] = useState(false);
-  // the dock's rendered box, for the push-layout rate; held while dragging, when it shrinks to a tile
-  const measureCameraDock = useMeasureRegion<HTMLDivElement>('cameraDock', { hold: isDragging });
   const dockRef = useRef<HTMLDivElement | null>(null);
-  const limitRef = useRef<HTMLDivElement | null>(null);
+  const areaRef = useRef<HTMLDivElement | null>(null);
   const resizeStart = useRef({ width: 0, height: 0 });
   const cameraSizeRef = useRef(cameraSize);
   const cameraDockGridSettleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const intl = useIntl();
 
   cameraSizeRef.current = cameraSize;
-
-  const lastSize = Storage.getItem('webcamSize') || { width: 0, height: 0 };
-  const { height: lastHeight } = lastSize as { width: number, height: number };
 
   const isCameraTopOrBottom = position === CAMERADOCK_POSITION.CONTENT_TOP
     || position === CAMERADOCK_POSITION.CONTENT_BOTTOM;
@@ -125,8 +118,7 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
 
   const attachDock = useCallback((element: HTMLDivElement | null) => {
     dockRef.current = element;
-    measureCameraDock(element);
-  }, [measureCameraDock]);
+  }, []);
 
   /** the dock's size as drawn: the size the layout gave it */
   const dockSize = () => {
@@ -173,28 +165,6 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
     cams?.setAttribute('data-position', position);
   }, [position, isPresenter, presentationIsOpen]);
 
-  // A side dock wider than it may be (80% of the media area, for the presenter the area less the
-  // presentation toolbar) is held to that width, and the stored size with it, as the user's size.
-  // Only while it sits beside the media: a dock that fills the media area (presentation minimized) or
-  // the window has no such limit, as with the layout engine.
-  useEffect(() => {
-    if (!isCameraLeftOrRight || !isPositioned || isResizing || isDragging) return undefined;
-    const holdWithinLimit = () => {
-      const limit = limitRef.current?.getBoundingClientRect().width ?? 0;
-      const { width, height } = dockSize();
-      if (limit > 0 && width > limit + 0.5) {
-        setDockSize(limit, height);
-        Storage.setItem('webcamSize', { width: limit, height: lastHeight });
-      }
-    };
-    holdWithinLimit();
-    if (typeof ResizeObserver === 'undefined') return undefined;
-    const observer = new ResizeObserver(holdWithinLimit);
-    if (limitRef.current) observer.observe(limitRef.current);
-    if (dockRef.current) observer.observe(dockRef.current);
-    return () => observer.disconnect();
-  }, [position, isPresenter, presentationIsOpen, isResizing, isDragging, isPositioned]);
-
   const handleVideoFocus = useCallback((id: string) => {
     layoutContextDispatch({
       type: ACTIONS.SET_FOCUSED_CAMERA_ID,
@@ -226,18 +196,28 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
     else setDockSize(start.width + delta, start.height);
   };
 
+  /** the dock's height once fit to the camera grid (the live size takes it until the resize ends) */
   const snapCameraDockToGrid = () => {
-    if (!snapToCameraGrid) return;
     const currentCameraSize = cameraSizeRef.current;
     const { width, height: dockHeight } = dockSize();
     const height = snapCameraDockDimensionToGrid(dockHeight, currentCameraSize?.height, 120, dockHeight);
-    if (height === dockHeight) return;
-    setDockSize(width, height);
+    if (height !== dockHeight) setDockSize(width, height);
+    return height;
+  };
+
+  // The size the dock settled at, within its limits, is the user's size: stored as a share of the dock's
+  // area along its axis (layout/dockSize.ts), which the CSS layout renders and the presenter pushes.
+  const storeSettledSize = (height?: number) => {
+    const dock = dockSize();
+    const areaRect = areaRef.current?.getBoundingClientRect();
+    const area = { width: areaRect?.width ?? 0, height: areaRect?.height ?? 0 };
+    const fraction = fractionOfBox(position, { ...dock, height: height ?? dock.height }, area);
+    const stored = readStoredDockSize(Storage.getItem(DOCK_SIZE_STORAGE_KEY));
+    Storage.setItem(DOCK_SIZE_STORAGE_KEY, withFraction(stored, position, fraction));
   };
 
   const onResizeEnd = () => {
-    // the size the dock settled at, within its limits, is the user's size (a dock no longer drawn, its
-    // cameras gone mid-resize, keeps the size it was dragged to)
+    // a dock no longer drawn (its cameras gone mid-resize) has no size to settle at
     const settled = dockSize();
     if (settled.width > 0 && settled.height > 0) setDockSize(settled.width, settled.height);
     setTimeout(() => setIsResizing(false), 500);
@@ -256,10 +236,11 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
       }
       cameraDockGridSettleTimeoutRef.current = setTimeout(() => {
         cameraDockGridSettleTimeoutRef.current = null;
-        snapCameraDockToGrid();
+        storeSettledSize(snapCameraDockToGrid());
         stopCameraDockResize();
       }, CAMERA_DOCK_GRID_SETTLE_DELAY);
     } else {
+      storeSettledSize();
       stopCameraDockResize();
     }
   };
@@ -368,7 +349,7 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
             ))}
           </div>
         </Draggable>
-        <div data-layout-region="camera-dock-limit" ref={limitRef} />
+        <div data-layout-region="camera-dock-area" ref={areaRef} />
       </Styled.ResizableWrapper>
     </>
   );
@@ -447,7 +428,6 @@ const WebcamContainer: React.FC = () => {
           position,
           isDraggable: isCameraDockDraggable(shell),
           resizableEdge: resizableCameraDockEdges(shell),
-          isPositioned: cameraDockState(shell) === 'positioned',
           swapLayout,
           usersVideo,
           focusedId,

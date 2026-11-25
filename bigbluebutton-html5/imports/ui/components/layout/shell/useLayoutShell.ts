@@ -4,15 +4,11 @@ import { Input, Layout } from '../layoutTypes';
 import { getWaitLayout, isPhoneLandscape } from '../utils';
 import { useIsPresentationEnabled } from '/imports/ui/services/features';
 import { useStorageKey, STORAGES } from '/imports/ui/services/storage/hooks';
+import { DOCK_SIZE_STORAGE_KEY, readStoredDockSize } from '../dockSize';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { shellState, ShellOutput } from './shellState';
 import { useMediaOnlyFit } from './mediaOnlyFit';
 import { DEVICE_TYPE, LAYOUT_TYPE } from '../enums';
-
-interface StoredDockSize {
-  width?: number;
-  height?: number;
-}
 
 /**
  * The data attributes and custom properties for #layout, from the layout state. Each field is selected on
@@ -53,7 +49,8 @@ const useLayoutShell = (): ShellOutput & { mediaOnlyAreaRef: (element: HTMLDivEl
   const presentationEnabled = useIsPresentationEnabled();
   const { data: currentUser } = useCurrentUser((u) => ({ presenter: u.presenter }));
   const isPresenter = !!currentUser?.presenter;
-  const storedDockSize = (useStorageKey('webcamSize', STORAGES.SESSION) ?? {}) as StoredDockSize;
+  // the size the user stored on release, as fractions of the dock's area (layout/dockSize.ts)
+  const storedDockSize = readStoredDockSize(useStorageKey(DOCK_SIZE_STORAGE_KEY, STORAGES.SESSION));
   // bbb_hide_controls hides the nav bar's top row (observer.tsx)
   const hideTopRow = layoutSelectInput((i: Input) => !!i.navBar.hideTopRow);
   const layoutPending = !!getWaitLayout() && layoutLoading;
@@ -103,8 +100,8 @@ const useLayoutShell = (): ShellOutput & { mediaOnlyAreaRef: (element: HTMLDivEl
     isResizing,
     dockInputWidth,
     dockInputHeight,
-    storedDockWidth: storedDockSize.width ?? 0,
-    storedDockHeight: storedDockSize.height ?? 0,
+    storedDockWidth: storedDockSize.width,
+    storedDockHeight: storedDockSize.height,
     cameraGridWidth,
     cameraGridHeight,
     isPresenter,

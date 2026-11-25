@@ -1,24 +1,16 @@
 import { useEffect, useRef } from 'react';
 import { layoutDispatch, layoutSelect, layoutSelectInput } from './context';
 import {
-  ACTIONS, CAMERADOCK_POSITION, DEVICE_TYPE, LAYOUT_TYPE, PANELS,
+  ACTIONS, DEVICE_TYPE, LAYOUT_TYPE, PANELS,
 } from './enums';
 import { Input, Layout } from './layoutTypes';
 import { getWaitLayout } from './utils';
 import { reconcileLayoutInput } from './reconcile';
-import { useShellState } from './shell/context';
-import {
-  cameraDockState, effectiveCameraDockPosition, isUnifiedLayout, renderedLayoutType,
-} from './shell/selectors';
-import { SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH } from './defaultValues';
-import { usePreviousValue } from '/imports/ui/hooks/usePreviousValue';
+import { renderedLayoutType } from './shell/selectors';
 import Session from '/imports/ui/services/storage/in-memory';
-import Storage from '/imports/ui/services/storage/session';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const LAYOUTS_WITHOUT_SIDEBARS: string[] = [LAYOUT_TYPE.CAMERAS_ONLY, LAYOUT_TYPE.PRESENTATION_ONLY];
-
-interface StoredDockSize { width: number; height: number }
 
 /** the value before its last change (the engine's usePrevious, updated only when the value changes) */
 const usePreviousDistinct = <T, >(value: T): T | undefined => {
@@ -35,9 +27,8 @@ const usePreviousDistinct = <T, >(value: T): T | undefined => {
  *   when the device type changes, then marks the layout ready (Session layoutReady);
  * - marks the layout state as set up once (Session hasLayoutEngineLoadedOnce), from its first render;
  * - waits while an enforced layout loads (waitLayout);
- * - keeps the sidebars closed in camerasOnly and presentationOnly;
- * - stores the dock size when a resize stops (sessionStorage webcamSize): the dragged height for a top,
- *   bottom or sidebar dock, the dragged width less 1% of the window for a side dock.
+ * - keeps the sidebars closed in camerasOnly and presentationOnly.
+ * The dock size the user chose is stored by the dock itself when a resize ends (layout/dockSize.ts).
  */
 const LayoutLifecycle = () => {
   const dispatch = layoutDispatch();
@@ -49,7 +40,6 @@ const LayoutLifecycle = () => {
   const contentPanel = layoutSelectInput((i: Input) => i.sidebarContent.sidebarContentPanel);
   const auxiliaryOpen = layoutSelectInput((i: Input) => i.sidebarContentAuxiliary.isOpen);
   const auxiliaryPanel = layoutSelectInput((i: Input) => i.sidebarContentAuxiliary.sidebarContentPanel);
-  const shell = useShellState();
   const pending = !!getWaitLayout() && layoutLoading;
   const rendered = renderedLayoutType(layoutType);
   // the layout before the last change of type, as the engine passed it to the layouts
@@ -91,23 +81,6 @@ const LayoutLifecycle = () => {
     dispatch({ type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN, value: false });
     dispatch({ type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL, value: PANELS.NONE });
   }, [pending, deviceType, rendered, navigationOpen, contentOpen, contentPanel, auxiliaryOpen, auxiliaryPanel]);
-
-  const isResizing = !!shell?.isResizing;
-  const wasResizing = usePreviousValue(isResizing);
-  useEffect(() => {
-    if (!shell || !wasResizing || isResizing) return;
-    if (!isUnifiedLayout(shell) || cameraDockState(shell) !== 'positioned') return;
-    const position = effectiveCameraDockPosition(shell);
-    const alongHeight = position === CAMERADOCK_POSITION.CONTENT_TOP
-      || position === CAMERADOCK_POSITION.CONTENT_BOTTOM
-      || position === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM;
-    const last = (Storage.getItem('webcamSize') || { width: 0, height: 0 }) as StoredDockSize;
-    const margin = window.document.documentElement.clientWidth * SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH;
-    Storage.setItem('webcamSize', {
-      width: alongHeight ? last.width : shell.dockInputWidth - margin,
-      height: alongHeight ? shell.dockInputHeight : last.height,
-    });
-  }, [isResizing]);
 
   return null;
 };

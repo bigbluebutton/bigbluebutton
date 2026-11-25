@@ -26,7 +26,10 @@ export interface ShellInputs {
   /** the live dock size while a resize is in progress */
   dockInputWidth: number;
   dockInputHeight: number;
-  /** the stored dock size (sessionStorage BBB_webcamSize), 0 when never resized */
+  /**
+   * the dock size the user stored (sessionStorage BBB_cameraDockSize), as fractions (0-1) of the dock's
+   * area along each axis; 0 = not set
+   */
   storedDockWidth: number;
   storedDockHeight: number;
   sidebarContentIsOpen: boolean;
@@ -229,18 +232,22 @@ export const resizableCameraDockEdges = (s: ShellInputs): Edges => {
   };
 };
 
-/**
- * The dock size the user chose along the dock's axis (px), or undefined when the CSS default applies:
- * the live size while resizing, otherwise the stored one. A top dock on a phone and a dock locked side by
- * side always use their default.
- */
+/** A top dock on a phone and a dock locked side by side always use their default size. */
+const usesDefaultDockSize = (s: ShellInputs) => isSideBySideCamerasEnforced(s)
+  || (effectiveCameraDockPosition(s) === CAMERADOCK_POSITION.CONTENT_TOP && isMobile(s));
+
+/** The live dock size along its axis (px) while the user drags the handle, undefined otherwise. */
 export const cameraDockSizeVariable = (s: ShellInputs): number | undefined => {
-  const position = effectiveCameraDockPosition(s);
-  const horizontal = isSideDock(position);
-  if (isSideBySideCamerasEnforced(s)) return undefined;
-  if (position === CAMERADOCK_POSITION.CONTENT_TOP && isMobile(s)) return undefined;
-  const stored = horizontal ? s.storedDockWidth : s.storedDockHeight;
-  if (stored === 0 && !s.isResizing) return undefined;
-  if (s.isResizing) return horizontal ? s.dockInputWidth : s.dockInputHeight;
-  return stored;
+  if (!s.isResizing || usesDefaultDockSize(s)) return undefined;
+  return isSideDock(effectiveCameraDockPosition(s)) ? s.dockInputWidth : s.dockInputHeight;
+};
+
+/**
+ * The stored dock size for the dock's axis, a fraction (0-1) of its area, or undefined when not set
+ * (the CSS default applies). The CSS layout renders it as that share of the area.
+ */
+export const cameraDockFractionVariable = (s: ShellInputs): number | undefined => {
+  if (usesDefaultDockSize(s)) return undefined;
+  const stored = isSideDock(effectiveCameraDockPosition(s)) ? s.storedDockWidth : s.storedDockHeight;
+  return stored > 0 ? stored : undefined;
 };

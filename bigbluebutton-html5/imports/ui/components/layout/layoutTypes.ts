@@ -168,14 +168,14 @@ interface Layout {
 
 interface MeetingCameraDock {
     position?: string;
-    videoRate: number;
+    /** a fraction (0-1) of the dock's area along its axis; 0 = not set */
+    size: number;
 }
 
 interface CameraDockPropagationState {
     isCameraDockPropagationSuppressed: boolean;
-    cameraIsResizing?: boolean;
     cameraPosition: string;
-    presentationVideoRate: number;
+    cameraDockSize: number;
 }
 
 interface ActionForDispatcher {

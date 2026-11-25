@@ -175,20 +175,22 @@ const LayoutShellStyles = createGlobalStyle`
     z-index: 11;
   }
 
-  /* camera dock size along its axis (calculatesCameraDockBounds): the user's size or 20% of the media
-     area (of the window, below the sidebar), at least 120 px and leaving 120 px; min(max()) because the
-     engine inverts when the area is under 240 px. Locked side by side on a phone: 25%, never under 120 px.
-     While resizing, the live size is first held within the dock's max size, as the resizable box did. */
+  /* camera dock size along its axis: the share of its area the user stored (--bbb-camera-dock-fraction,
+     layout/dockSize.ts) or 20% of it, at least 120 px and leaving 120 px; min(max()) because the formula
+     inverts when the area is under 240 px. The area is the media area's height for a top or bottom dock,
+     its width for a side dock, the sidebar column's height below the sidebar. A side dock is at most 80%
+     of the media area, for the presenter the area less 440 px (the whiteboard toolbar and its gap).
+     Locked side by side on a phone: 25%, never under 120 px. While resizing, the live size in px
+     (--bbb-camera-dock-size) is held within the dock's max size. */
   #layout {
     --bbb-dock-src: var(--bbb-camera-dock-size);
-    /* the widest a side dock may be: 80% of the media area, for the presenter the area less 440 px */
     --bbb-dock-max-w: calc(var(--bbb-media-width) * 0.8);
     --bbb-dock-positioned-h: min(
       max(var(--bbb-dock-src, calc(var(--bbb-media-height) * 0.2)), 120px),
       calc(var(--bbb-media-height) - 120px)
     );
     --bbb-dock-positioned-w: min(
-      max(var(--bbb-dock-src, calc(var(--bbb-media-width) * 0.2)), 120px),
+      max(min(var(--bbb-dock-src, calc(var(--bbb-media-width) * 0.2)), var(--bbb-dock-max-w)), 120px),
       calc(var(--bbb-media-width) - 120px)
     );
     --bbb-dock-sidebar-h: min(max(var(--bbb-dock-src, 20%), 120px), calc(100% - 120px));
@@ -197,6 +199,17 @@ const LayoutShellStyles = createGlobalStyle`
   }
   #layout[data-presenter] { --bbb-dock-max-w: calc(var(--bbb-media-width) - 440px); }
   #layout[data-dock-enforced] { --bbb-dock-max-w: var(--bbb-dock-w); }
+  #layout[data-dock="contentTop"],
+  #layout[data-dock="contentBottom"] {
+    --bbb-dock-src: calc(var(--bbb-camera-dock-fraction) * var(--bbb-media-height));
+  }
+  #layout[data-dock="contentLeft"],
+  #layout[data-dock="contentRight"] {
+    --bbb-dock-src: calc(var(--bbb-camera-dock-fraction) * var(--bbb-media-width));
+  }
+  #layout[data-dock="sidebarContentBottom"] {
+    --bbb-dock-src: calc(var(--bbb-camera-dock-fraction) * (100% - var(--bbb-banners)));
+  }
   #layout[data-resizing][data-dock="contentTop"],
   #layout[data-resizing][data-dock="contentBottom"] {
     --bbb-dock-src: min(var(--bbb-camera-dock-size), calc(var(--bbb-media-height) * 0.8));
@@ -411,15 +424,19 @@ const LayoutShellStyles = createGlobalStyle`
     width: 100%;
     height: 100%;
   }
-  /* the dock's max width, measured by the dock to hold the user's size within it (webcam/component.tsx) */
-  #layout [data-layout-region="camera-dock-limit"] {
+  /* the dock's area, measured by the dock when a resize ends to store its size as a share of it
+     (webcam/component.tsx): the media area, or the sidebar column for a dock below the sidebar */
+  #layout [data-layout-region="camera-dock-area"] {
     position: absolute;
     top: 0;
     left: 0;
-    width: var(--bbb-dock-max-w);
-    height: 0;
+    width: var(--bbb-media-width);
+    height: var(--bbb-media-height);
     visibility: hidden;
     pointer-events: none;
+  }
+  #layout[data-dock="sidebarContentBottom"] [data-layout-region="camera-dock-area"] {
+    height: calc(100% - var(--bbb-banners));
   }
 
   /* drop zones while the dock is dragged (calculatesDropAreas): 100 px bands along the media area, which
@@ -545,7 +562,6 @@ const LayoutShellStyles = createGlobalStyle`
     --bbb-media-height: calc(100% - var(--bbb-navbar-height) - var(--bbb-actionbar-height)
       - var(--bbb-banners) - 20px);
     --bbb-media-top: calc(var(--bbb-navbar-height) + var(--bbb-banners) + 10px);
-    --bbb-dock-max-w: calc(var(--bbb-media-width) * 0.8);
     --bbb-hcd: 0px;
     --bbb-mo-top: var(--bbb-media-top);
     --bbb-mo-left: 10px;

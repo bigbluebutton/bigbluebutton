@@ -5,18 +5,17 @@ import {
 import { render } from '@testing-library/react';
 import { INITIAL_INPUT_STATE } from './initState';
 import {
-  ACTIONS, CAMERADOCK_POSITION, DEVICE_TYPE, LAYOUT_TYPE, PANELS,
+  ACTIONS, DEVICE_TYPE, LAYOUT_TYPE, PANELS,
 } from './enums';
 import Session from '/imports/ui/services/storage/in-memory';
-import Storage from '/imports/ui/services/storage/session';
 import { LayoutShellContext } from './shell/context';
 import type { ShellOutput, ShellState } from './shell/shellState';
 import { reconcileLayoutInput } from './reconcile';
 import type { Input } from './layoutTypes';
 
 // The layout engine's jobs besides geometry: the input reconciliation (reconcile.ts) when a layout is
-// first rendered or the device type changes, layoutReady and hasLayoutEngineLoadedOnce, the sidebars
-// camerasOnly and presentationOnly keep closed, and the dock size stored when a resize stops.
+// first rendered or the device type changes, layoutReady and hasLayoutEngineLoadedOnce, and the sidebars
+// camerasOnly and presentationOnly keep closed.
 
 const fake = vi.hoisted(() => ({
   state: {} as Record<string, unknown>,
@@ -73,7 +72,6 @@ describe('LayoutLifecycle', () => {
     fake.waitLayout = false;
     Session.removeItem('hasLayoutEngineLoadedOnce');
     Session.removeItem('layoutReady');
-    Storage.removeItem('webcamSize');
     setState();
   });
   afterEach(() => vi.restoreAllMocks());
@@ -146,28 +144,5 @@ describe('LayoutLifecycle', () => {
       [ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN, false],
       [ACTIONS.SET_SIDEBAR_CONTENT_PANEL, PANELS.NONE],
     ]);
-  });
-
-  it('stores the dock size when a resize stops, less 1% of the width for a side dock', () => {
-    Object.defineProperty(document.documentElement, 'clientWidth', { configurable: true, value: 1000 });
-    Storage.setItem('webcamSize', { width: 0, height: 150 });
-    const side = {
-      layoutType: LAYOUT_TYPE.UNIFIED_LAYOUT,
-      numCameras: 1,
-      presentationIsOpen: true,
-      presentationEnabled: true,
-      slidesLength: 1,
-      dockPosition: CAMERADOCK_POSITION.CONTENT_RIGHT,
-      dockInputWidth: 300,
-      dockInputHeight: 500,
-      isResizing: true,
-    };
-    const { update } = renderLifecycle(shellWith(side));
-    update(shellWith({ ...side, isResizing: false }));
-    expect(Storage.getItem('webcamSize')).toEqual({ width: 290, height: 150 });
-    const top = { ...side, dockPosition: CAMERADOCK_POSITION.CONTENT_TOP, dockInputHeight: 220 };
-    update(shellWith({ ...top, isResizing: true }));
-    update(shellWith({ ...top, isResizing: false }));
-    expect(Storage.getItem('webcamSize')).toEqual({ width: 290, height: 220 });
   });
 });

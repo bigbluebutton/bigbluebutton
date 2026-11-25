@@ -9,8 +9,8 @@ The layout state (`context.jsx`) holds only semantic input. `LayoutLifecycle.tsx
 the former layout engine that are not geometry: it reconciles the input when a layout is first rendered
 or the device type changes (`reconcile.ts`, a pure function characterized against the old layout
 managers in `__fixtures__/reconcile`), marks the layout ready (`layoutReady`, `hasLayoutEngineLoadedOnce`),
-keeps the sidebars closed in camerasOnly and presentationOnly, waits while an enforced layout loads
-(`waitLayout`), and stores the camera dock size when a resize stops (`webcamSize`).
+keeps the sidebars closed in camerasOnly and presentationOnly, and waits while an enforced layout loads
+(`waitLayout`). The camera dock stores its own size when a resize ends (see below).
 
 ## How it fits together
 
@@ -58,7 +58,7 @@ uses `1vw`.
 | `presentation`, `screenshare`, `external-video`, `generic-content`, `pinned-notes` | the media regions |
 | `captions` | live captions |
 | `camera-dock` | the camera dock's box (`#cameraDock` fills it) |
-| `camera-dock-limit` | an invisible box as wide as a side dock may be (presenter clamp) |
+| `camera-dock-area` | an invisible box the size of the dock's area (measured when a resize ends) |
 | `drop-zone`, `drop-zone-bg` | the dock's drop zones while dragging (`data-zone` = position) |
 | `media-only-area` | an invisible box the size of the mediaOnly media area (measured) |
 
@@ -93,7 +93,8 @@ Set by JavaScript (the user's sizes and measured values), inline on `#layout`:
 | Property | Meaning |
 |---|---|
 | `--bbb-sidebar-content-size`, `--bbb-sidebar-aux-size` | the width the user dragged a sidebar to (absent: 20% default) |
-| `--bbb-camera-dock-size` | the dock size along its axis: live while resizing, else the stored one (absent: default) |
+| `--bbb-camera-dock-size` | the dock size along its axis in px, live while the user drags the handle |
+| `--bbb-camera-dock-fraction` | the stored dock size, a fraction of its area along its axis (absent: the 20% default) |
 | `--bbb-camera-grid-width`, `--bbb-camera-grid-height` | the camera grid size, the dock's size while dragged |
 | `--bbb-media-only-ratio` | mediaOnly: the content's aspect ratio |
 | `--bbb-media-only-width`, `--bbb-media-only-height` | mediaOnly: the measured media area, in px |
@@ -140,18 +141,23 @@ The sources name the v4.0 layout engine code, removed since; the values now live
 |---|---|---|
 | presentation (`presentation/container.jsx`) | its own box (`useElementSize`) | the slide fit and the toolbar |
 | sidebar content backdrop | `useMeasureRegion('sidebarContent')` | poll charts, the user list's crowd buttons |
-| camera dock (`#cameraDock`) | `useMeasureRegion('cameraDock', { hold: isDragging })` | the push-layout rate |
-| camera dock | its own box at resize start and end, the `camera-dock-limit` box | the stored dock size, the presenter clamp |
+| camera dock | its own box at resize start and end, and the `camera-dock-area` box when a resize ends | the stored dock size (a share of the area) |
 | sidebar backdrops | their own box at resize start | the stored sidebar width |
 | mediaOnly area | `media-only-area` (`mediaOnlyFit.ts`) | `--bbb-media-only-*`, `data-media-only-fit` |
 
-## Push layout rate
+## Camera dock size and the layout push
 
-The presenter pushes the dock position (`data-dock`'s value) and a rate: for a left or right dock the
-dock's rendered width over the window width, otherwise its rendered height over the window height,
-rounded to 2 decimals and held within [0, 1] (`push-layout/service.ts`). The size is the measured
-`#cameraDock` box, held at its committed size during a drag. A phone in landscape keeps its forced dock
-position to itself.
+The dock size the user chooses is a fraction (0-1) of the area the dock sits in, along its axis: the
+media area's height for a top or bottom dock, its width for a left or right dock, the sidebar column's
+height for a dock below the sidebar; 0 means not set (`dockSize.ts`). When a resize ends, the dock stores
+its rendered size over its area's (sessionStorage `BBB_cameraDockSize`, one fraction per axis), and the
+CSS renders that share of the area within the dock's limits.
+
+The presenter pushes the dock position (`data-dock`'s value) and that fraction as `cameraDockSize`
+(`push-layout/service.ts`), once when a resize ends and on the other layout changes, never during a drag.
+Followers and joiners store the meeting's fraction for the meeting's position, so they get the same share
+of their own area. A phone in landscape keeps its forced dock position to itself and re-sends the
+meeting's.
 
 ## CSS features
 
