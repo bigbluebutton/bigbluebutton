@@ -112,7 +112,7 @@ const CrowdActionButtons: React.FC = () => {
       )}
       <Styled.ActionButtonsWrapper className="bbb-crowd-actions" $isMinWidth={isMinWidthLayout}>
         <Styled.ActionButtonWrapper className="bbb-crowd-actions__item">
-          <Styled.ActionButtonLabel id={muteAllLabelId} className="bbb-crowd-actions__label">
+          <Styled.ActionButtonLabel id={muteAllLabelId} className="bbb-crowd-actions__label" aria-hidden>
             {intl.formatMessage(intlMessages.muteAllExceptPresenterLabel)}
           </Styled.ActionButtonLabel>
           <span id={muteAllDescId} className="sr-only" aria-hidden>
@@ -132,7 +132,7 @@ const CrowdActionButtons: React.FC = () => {
           />
         </Styled.ActionButtonWrapper>
         <Styled.ActionButtonWrapper className="bbb-crowd-actions__item">
-          <Styled.ActionButtonLabel id={lockSettingsLabelId} className="bbb-crowd-actions__label">
+          <Styled.ActionButtonLabel id={lockSettingsLabelId} className="bbb-crowd-actions__label" aria-hidden>
             {intl.formatMessage(intlMessages.lockSettingsButtonLabel)}
           </Styled.ActionButtonLabel>
           <span id={lockSettingsDescId} className="sr-only" aria-hidden>
