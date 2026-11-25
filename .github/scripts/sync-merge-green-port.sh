@@ -11,7 +11,8 @@
 # still waiting for something is left alone until the next run. After a merge the sync branch is
 # deleted. Nothing waits: the workflow runs it on a schedule and when the tests finish.
 #
-# Run by .github/workflows/sync-v4.1-merge-green-ports.yml.
+# Run by .github/workflows/sync-v4.1-merge-green-ports.yml, which is off by default and runs only
+# with the repository variable SYNC_V41_AUTO_MERGE=true.
 #
 # Inputs (env):
 #   GH_TOKEN          the SYNC_TOKEN secret: a merge made with it starts the push workflows of the

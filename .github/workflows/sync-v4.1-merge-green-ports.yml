@@ -1,10 +1,14 @@
 name: "Sync v4.0 into v4.1: merge green ports"
+# Optional, and off by default: it does nothing unless the repository variable SYNC_V41_AUTO_MERGE
+# is "true". While it is off, its triggers show up as skipped runs in the Actions list, and a
+# maintainer merges the sync pull requests by hand.
+#
 # Merges the sync pull requests opened by "Sync v4.0 into v4.1" once they are green: a passed
 # Automated tests run on the head commit, every other check and commit status green, and mergeable.
 # Nothing waits for the tests: this runs when Automated tests or Build docker images finish on a sync
 # branch, and every 30 minutes (a chosen default) to catch anything those events missed. The logic is
 # in .github/scripts/sync-merge-green-port.sh; it only uses the GitHub API and never checks out the
-# code of a pull request.
+# code of a pull request. After a merge it deletes the sync branch.
 #
 # The merges are made with the SYNC_TOKEN secret, so they start the push workflows of
 # v4.1.x-develop (packages and images) like a merge made by a person. Schedule and workflow_run take
@@ -24,7 +28,9 @@ concurrency:
   cancel-in-progress: false
 jobs:
   merge:
-    if: github.repository == 'bigbluebutton/bigbluebutton' || vars.SYNC_V41_ENABLED == 'true'
+    if: >-
+      vars.SYNC_V41_AUTO_MERGE == 'true' &&
+      (github.repository == 'bigbluebutton/bigbluebutton' || vars.SYNC_V41_ENABLED == 'true')
     runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 15
     permissions:

@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Ports one pull request merged into v4.0.x-develop to v4.1.x-develop: cherry-picks its change onto a
-# sync/v4.1/pr-<N> branch and opens a pull request for it, which starts its own checks. Merging it is
-# left to .github/scripts/sync-merge-green-port.sh. A port with conflicts opens as a draft with the
+# sync/v4.1/pr-<N> branch and opens a pull request for it, which starts its own checks. A maintainer
+# merges it, or .github/scripts/sync-merge-green-port.sh when the optional merge workflow is enabled
+# (repository variable SYNC_V41_AUTO_MERGE=true). A port with conflicts opens as a draft with the
 # "sync: needs maintainer" label; anything that cannot be ported is reported on the source pull
 # request with the same label.
 #
@@ -186,7 +187,7 @@ draft=false
     printf '\nTo redo the port with a merge tool, start from `%s` and run:\n\n```\n%s\n```\n' "$TARGET_BRANCH" "$redo"
     printf '\nThis pull request needs a maintainer and is not merged automatically.\n'
   else
-    printf '\nThis pull request is merged automatically once a run of `Automated tests` on its head has passed, every other check and commit status is green, and it is mergeable. Otherwise it stays open for a maintainer.\n'
+    printf '\nA maintainer merges this pull request once its tests have passed. If the optional merge workflow is enabled in this repository, it merges it automatically when a run of `Automated tests` on its head has passed, every other check is green and it is mergeable.\n'
   fi
 } > "$TMP/body.md"
 jq -n --arg title "$title" --rawfile body "$TMP/body.md" --arg head "$SYNC_BRANCH" --arg base "$TARGET_BRANCH" \
