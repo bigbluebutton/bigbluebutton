@@ -289,8 +289,10 @@ services:
   export-annotations:
     <<: *bbb
     image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-export-annotations:${BBB_IMAGE_TAG}
+    environment:
+      BBB_WEB_API: http://web:8090
+      REDIS_HOST: redis
     volumes:
-      - ./docker/compose/bbb-export-annotations.json:/etc/bigbluebutton/bbb-export-annotations.json:ro
       - ./data/bigbluebutton:/var/bigbluebutton:z
     depends_on: *redis-init
 
