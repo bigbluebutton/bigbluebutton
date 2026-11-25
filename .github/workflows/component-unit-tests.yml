@@ -5,6 +5,7 @@ on:
     paths:
       - "bbb-graphql-middleware/**"
       - "record-and-playback/core/**"
+      - "bigbluebutton-config/cron.daily/**"
       - "bbb-shared-notes-server/**"
       - "bbb-export-annotations/**"
       - "docker-compose.yml"
@@ -44,7 +45,7 @@ jobs:
       # Only the tests of the configuration: edl/test_video.rb has a known failure
       - name: Configuration tests
         working-directory: record-and-playback/core
-        run: bundle exec ruby -Itest -Ilib -e 'ARGV.each { |f| require File.expand_path(f) }' test/recordandplayback/test_env_props.rb test/recordandplayback/test_config_yaml.rb
+        run: bundle exec ruby -Itest -Ilib -e 'ARGV.each { |f| require File.expand_path(f) }' test/recordandplayback/test_env_props.rb test/recordandplayback/test_config_yaml.rb test/recordandplayback/test_cron_formats.rb
 
   shared-notes-server:
     runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-24.04' }}
