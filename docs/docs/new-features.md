@@ -26,12 +26,31 @@ Each presentation page now has an id that never changes: a UUID, given to the pa
 - The links to a slide's image, thumbnail, png and text use the page id instead of the page number, for example `.../svg/3f2b8c1e-5d4a-4f6b-9c7d-0e1a2b3c4d5e`. Links with a page number answer 404, and the page token is computed with the page id.
 - Every request that names a page (changing the current page, annotating, zooming, the cursor) uses the page id. A page id built as `<presentationId>/<pageNumber>`, as before, is no longer recognized and the request has no effect.
 - The new GraphQL action `presentationSetPageByNum(presentationId, pageNum, seenTotalPages)` changes to the page at a position. `seenTotalPages` is the total number of pages the client saw when it read that position (`0` when unknown).
-- In recordings, `events.xml` identifies pages by their id (`GotoSlideEvent` `id`, whiteboard events `whiteboardId`, and the new `pageIds` element of `ConversionCompletedEvent`), and the published slide images and text files are named by it (`svgs/slide<pageId>.svg`, `textfiles/slide-<pageId>.txt`, `thumbnails/thumb-<pageId>.png`). Recordings made before this change are still processed as before.
+- In recordings, `events.xml` identifies pages by their id, and the published slide images and text files are named by it. Recordings made before this change are still processed as before. See [Changes to events.xml](#changes-to-eventsxml).
 - The presentation conversion cache is stored in a new form (`<hash>.v2.tar.gz`), so after the upgrade it starts empty.
 
 #### Removed
 
 - The bbb-web endpoints that counted the files of a presentation: `/bigbluebutton/presentation/{conference}/{room}/{presentationName}/slides`, `/thumbnails`, `/svgs` and `/textfiles`.
+
+### Changes to events.xml
+
+Recordings made with BigBlueButton 4.1 identify presentation pages by their page id. They are marked with `bbb_version="4.1.0"` on the `<recording>` element. The recording processing scripts read both forms, so recordings made with earlier versions are processed as before.
+
+- `ConversionCompletedEvent`: new `pageIds` element, the comma-separated list of the page id of each page of the presentation, in page order.
+- `GotoSlideEvent`: the `id` element contains the page id; it was `<presentationName>/<pageNumber>`. The `slide` element is unchanged (0-based page number).
+- `ResizeAndMoveSlideEvent`: the `id` element contains the page id; it was `<presentationName>/<pageNumber>`.
+- Whiteboard events (`module="WHITEBOARD"`, for example `AddTldrawShapeEvent`, `DeleteTldrawShapeEvent` and `WhiteboardCursorMoveEvent`): the `whiteboardId` element contains the page id; it was `<presentationName>/<pageNumber>`. The `pageNumber` element is unchanged (0-based page number).
+
+The presentation files of a recording are named by the page id instead of the 1-based page number:
+
+| File | BigBlueButton 4.1 | Before |
+| ---- | ----------------- | ------ |
+| Slide image | `presentation/{presentationName}/svgs/slide{pageId}.svg` | `presentation/{presentationName}/svgs/slide{pageNumber}.svg` |
+| Slide text | `presentation/{presentationName}/textfiles/slide-{pageId}.txt` | `presentation/{presentationName}/textfiles/slide-{pageNumber}.txt` |
+| Thumbnail | `presentation/{presentationName}/thumbnails/thumb-{pageId}.png` | `presentation/{presentationName}/thumbnails/thumb-{pageNumber}.png` |
+
+The keys of `presentation_text.json` follow the text file names (`slide-{pageId}`). See [Page ids in recordings](/development/recording#page-ids-in-recordings) for the details of each event.
 
 ### bbb-web properties changes
 
