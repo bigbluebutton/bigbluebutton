@@ -42,6 +42,14 @@ for tool in curl openssl getent; do
   command -v "$tool" >/dev/null || fail "$tool is not installed."
 done
 
+# An existing .env is kept: it has to be for the same domain, and its email counts
+if [ -e "$BBB_DIR/.env" ]; then
+  env_domain=$(sed -n 's/^BBB_DOMAIN=//p' "$BBB_DIR/.env" | tail -n 1)
+  [ -z "$env_domain" ] || [ "$env_domain" = "$domain" ] ||
+    fail "$BBB_DIR/.env is set up for $env_domain, not $domain. Run install.sh with $env_domain, or change BBB_DOMAIN in .env first."
+  email=$(sed -n 's/^ACME_EMAIL=//p' "$BBB_DIR/.env" | tail -n 1)
+fi
+
 # Download the compose file and its configuration
 echo "Downloading $URL to $BBB_DIR"
 mkdir -p "$BBB_DIR/docker/compose/nginx"
@@ -56,7 +64,7 @@ done
 # Keep an existing .env
 loopback_ip=
 if [ -e .env ]; then
-  echo "$BBB_DIR/.env exists, left unchanged."
+  echo "$BBB_DIR/.env exists, left unchanged (BBB_DOMAIN, BBB_PUBLIC_IP, ACME_EMAIL and the secrets stay as they are)."
 else
   # The public IPv4 address is the first address of the domain that is not a loopback address
   # (e.g. from 127.0.1.1 in /etc/hosts). With only loopback addresses, .env gets an empty
