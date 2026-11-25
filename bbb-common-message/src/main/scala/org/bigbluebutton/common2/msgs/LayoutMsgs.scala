@@ -10,11 +10,12 @@ case class GetCurrentLayoutRespMsgBody(layout: String, setByUserId: String)
 
 object BroadcastLayoutMsg { val NAME = "BroadcastLayoutMsg" }
 case class BroadcastLayoutMsg(header: BbbClientMsgHeader, body: BroadcastLayoutMsgBody) extends StandardMsg
-case class BroadcastLayoutMsgBody(layout: String, pushLayout: Boolean, presentationIsOpen: Boolean, isResizing: Boolean, cameraPosition: String, focusedCamera: String, presentationVideoRate: Double)
+// cameraDockSize: the dock size as a fraction (0-1) of the area it sits in, along its axis; 0 = not set
+case class BroadcastLayoutMsgBody(layout: String, pushLayout: Boolean, presentationIsOpen: Boolean, cameraPosition: String, focusedCamera: String, cameraDockSize: Double)
 
 object BroadcastLayoutEvtMsg { val NAME = "BroadcastLayoutEvtMsg" }
 case class BroadcastLayoutEvtMsg(header: BbbClientMsgHeader, body: BroadcastLayoutEvtMsgBody) extends BbbCoreMsg
-case class BroadcastLayoutEvtMsgBody(layout: String, pushLayout: Boolean, presentationIsOpen: Boolean, isResizing: Boolean, cameraPosition: String, focusedCamera: String, presentationVideoRate: Double, setByUserId: String)
+case class BroadcastLayoutEvtMsgBody(layout: String, pushLayout: Boolean, presentationIsOpen: Boolean, cameraPosition: String, focusedCamera: String, cameraDockSize: Double, setByUserId: String)
 
 object BroadcastPushLayoutMsg { val NAME = "BroadcastPushLayoutMsg" }
 case class BroadcastPushLayoutMsg(header: BbbClientMsgHeader, body: BroadcastPushLayoutMsgBody) extends StandardMsg
