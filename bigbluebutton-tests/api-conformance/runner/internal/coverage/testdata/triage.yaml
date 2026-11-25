@@ -1,0 +1,10 @@
+scope:
+  - org.bigbluebutton.api
+  - org.bigbluebutton.api2
+  - org.bigbluebutton.web
+ignore:
+  - {classes: "org.bigbluebutton.api2.**", methods: "copy|copy\\$default\\$\\d+", reason: Scala case-class members}
+methods:
+  - {class: org.bigbluebutton.api.MeetingService, method: endMeeting, outcome: case, ref: end.lifecycle.something}
+  - {class: org.bigbluebutton.api.MeetingService, method: log, desc: "(Ljava/lang/String;)V", outcome: excluded, reason: logging only}
+  - {class: org.bigbluebutton.web.controllers.ApiController, method: legacy, outcome: leftover, ref: "https://example.com/issues/1"}

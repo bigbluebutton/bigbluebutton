@@ -231,11 +231,13 @@ go run ./cmd/bbb-conform run --target ../targets/bbb-web.yaml --cases ../cases -
 | Target | Does |
 |---|---|
 | `debs` | Builds the five packages the stack runs (bbb-web, bbb-apps-akka, bbb-graphql-server, bbb-graphql-middleware, bbb-graphql-actions) with their own build scripts, in the image CI builds them in. `PKGS=bbb-web` builds one. About 20 minutes cold. |
-| `up` | Renders the configuration, builds what changed and starts the stack, then waits until every service is healthy (about a minute). `CLAMAV=1` adds a ClamAV daemon. |
+| `up` | Renders the configuration, builds what changed and starts the stack, then waits until every service is healthy (about a minute). `CLAMAV=1` adds a ClamAV daemon. `COVERAGE=1` starts bbb-web with JaCoCo's agent (see [Coverage](#coverage-coverage)). |
 | `env` | Prints the variables the runner reads: `BBB_URL`, `BBB_SECRET`, `BBB_PAGE_TOKEN_SECRET`, `BBB_TAP_URL`, `BBB_TAP_TOKEN`, `BBB_SINK_URL`, `BBB_SINK_READ_URL`, `BBB_SINK_HTTP_URL`, `BBB_SINK_TOKEN`, `BBB_FIXTURE_URL`, `BBB_WEB_DIRECT_URL`, `TURN_SECRET` (read from `env/bbb-web/turn-stun-servers.xml`), `BBB_PROFILE_CMD` and `SSL_CERT_FILE`. The tokens are made once, in `env/.state/tokens.env`. |
 | `profile` | `NAME=reveal-version` switches bbb-web to a profile in `env/bbb-web/profiles/`, `NAME=default` back; without `NAME`, prints the one in force. Cases use it through `BBB_PROFILE_CMD`. |
 | `reset` | Starts again from nothing: no meetings, an empty data directory, the default profile. A profile switch waits until it is done. |
 | `check-copies` | Warns about the package files Tier 1 mirrors by hand that changed since it last followed them (see below). |
+| `coverage` | Stops bbb-web so its coverage agent writes what it recorded, builds JaCoCo's reports into `out/coverage/` (or `COVERAGE_OUT`), and starts bbb-web again. |
+| `coverage-clean` | Forgets the coverage data, to measure from here on. |
 | `logs`, `ps`, `down` | `SERVICE=bbb-web` for one service's log; `TAIL=all` for all of it, not the last 200 lines. |
 
 It needs Linux on amd64, Docker with Compose 2.24 or later, and network
@@ -1275,6 +1277,98 @@ may vary by design; `document` in `defect` cases; otherwise `compare`.
 Case files are YAML 1.2, as the runner and the schema read them: there,
 `golden: off` is the string `off`. A YAML 1.1 tool (PyYAML, for one) reads
 an unquoted `off` as false; quote it for such a tool.
+
+## Coverage: `coverage`
+
+How much of bbb-web's code the suite reaches, measured while the suite runs
+unchanged: bbb-web runs with [JaCoCo](https://www.jacoco.org/)'s agent, and
+the report is built from the class files of the build that ran. The suite
+adds no unit tests for this; it is the coverage of these black-box cases.
+
+```sh
+make -C env up COVERAGE=1     # bbb-web with the agent
+cd runner
+go run ./cmd/bbb-conform run --target ../targets/bbb-web.yaml --cases ../cases ...
+make -C ../env coverage       # ../out/coverage/: jacoco.xml, jacoco.csv, html/index.html
+w=../../../bigbluebutton-web
+go run ./cmd/bbb-conform coverage --report ../out/coverage/jacoco.xml \
+    --triage ../coverage/triage.yaml --md ../out/coverage/summary.md \
+    --sources $w/grails-app/controllers --sources $w/grails-app/services \
+    --sources $w/grails-app/init --sources $w/src/main/groovy
+```
+
+- **What's recorded.** Every bbb-web session adds to one data file
+  (`/var/bigbluebutton/coverage/bbb-web.exec` on the data volume): bbb-web
+  stops cleanly, so the agent writes at every profile switch and at
+  `make coverage`. A later `make up` without `COVERAGE=1` recreates bbb-web
+  without the agent. `make reset` and `make coverage-clean` start again.
+- **Class files.** `make coverage` reports on `WEB-INF/classes` (the Groovy
+  controllers, services and filters) and the bbb-common-web jar, from the
+  image that ran, with links to the repo's sources. Run `coverage-clean`
+  after rebuilding bbb-web: JaCoCo refuses another build's data only for a
+  class that has none from this build, and otherwise keeps it without a
+  word, so a report over two builds can count what the old one reached.
+- **Closures and lambdas.** The compilers number some code per class, so
+  the numbers change whenever such code is added elsewhere in the class:
+  - a Grails action is a Groovy closure (`def create = {...}`), and each
+    closure is a class of its own (`ApiController$_closure2`);
+  - Java lambdas (`lambda$start$2`) and Scala anonymous functions
+    (`$anonfun$build$1`) are numbered methods.
+
+  `bbb-conform coverage` names them after the member they are in instead:
+  `ApiController#create{}`, `MeetingService#start->` and
+  `MsgBuilder#build=>`. It numbers a member's ones in line order, so
+  `desc: "{2}"` is the member's second. For a closure in a field, it needs
+  `--sources`, the Groovy source roots, to find the member from the
+  closure's first line.
+- **`bbb-conform coverage`** reads JaCoCo's XML report through the triage
+  file and prints what the suite reached. `--md` writes a per-package table,
+  `--untriaged` lists the methods it doesn't reach that the triage file
+  doesn't account for, and `--write-baseline` writes the numbers as a
+  baseline. With `--baseline`, a package whose share of reached methods is
+  more than `--drop-tolerance` percentage points (0.5) below it is a warning;
+  `--fail-on-drop` makes it fail. A triage file that doesn't fit the report
+  fails (exit 1), and then `--write-baseline` writes nothing.
+- **Methods, branches and lines.** The triage file and the baseline
+  comparison work on methods. Methods and branches leave out the methods an
+  ignore rule names (a branch belongs to one method). Lines are JaCoCo's
+  count per package, as its HTML report shows it: a line two methods share
+  (a lambda's, a Scala case class's) counts once, and it can't be split
+  between them, so generated code's lines are in it.
+
+**`coverage/triage.yaml`:**
+
+```yaml
+scope:                       # the packages measured; each takes in its subpackages
+  - org.bigbluebutton.web
+ignore:                      # methods compilers generate, left out of the method numbers
+  - classes: "org.bigbluebutton.api2.**"      # * within a name segment, ** across
+    methods: "copy|copy\\$default\\$\\d+"     # a regular expression for the whole name
+    reason: Scala case-class members
+methods:                     # one entry per method in scope the suite doesn't reach
+  - class: org.bigbluebutton.api.MeetingService
+    method: log
+    desc: "(Ljava/lang/String;)V"             # only for an overloaded name
+    outcome: excluded                         # case, leftover or excluded
+    reason: logging only                      # excluded: why
+  - class: org.bigbluebutton.web.controllers.ApiController
+    method: legacy
+    outcome: leftover                         # code with no effect
+    # ref, for case: the case or ticket to cover it in; for leftover: the
+    # issue, or the list in this repository, that has it
+    ref: "https://github.com/bigbluebutton/bigbluebutton/issues/<n>"
+```
+
+An entry for a method outside the scope, one an ignore rule already leaves
+out, an overloaded name without `desc`, or a method the report doesn't have
+is an error, and so is a scope in which the report has no method the ignore
+rules leave in. An entry for a method the suite now reaches is a warning: the
+entry can go. Like everything public here, a note describes behaviour, never
+a weakness (see [Public-repo rule](#public-repo-rule)).
+
+**`coverage/baseline.json`** holds the numbers to compare with: the tool,
+the scope, and per package (and in total) the covered and missed methods,
+lines and branches, as `--write-baseline` writes them.
 
 ## Public-repo rule
 
