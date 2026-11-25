@@ -361,7 +361,7 @@ To learn more about integrating BigBlueButton with your application, check out t
 
 ## Other installation options
 
-There are members of the community that provide other installation options for BigBlueButton.
+Docker Compose is maintained in the BigBlueButton repository, as the package install is. The other options here are provided by members of the community.
 
 ### Docker Compose
 
