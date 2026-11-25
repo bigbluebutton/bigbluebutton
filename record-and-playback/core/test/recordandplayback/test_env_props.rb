@@ -104,9 +104,18 @@ class TestEnvProps < Minitest::Test
     props = { 'redis_host' => 'h', 'redis_port' => 1, 'redis_password' => 'p',
               'redis_workers_host' => 'wh', 'redis_workers_port' => 2 }
     Redis.stub(:new, ->(**o) { redis.new(o) }) do
-      assert_equal({ host: 'wh', port: 2, password: 'p' }, BigBlueButton.resque_redis(props).options)
+      # a queue on another host does not get the main Redis' password
+      assert_equal({ host: 'wh', port: 2, password: nil }, BigBlueButton.resque_redis(props).options)
+      assert_equal({ host: 'wh', port: 2, password: 'wp' },
+                   BigBlueButton.resque_redis(props.merge('redis_workers_password' => 'wp')).options)
       assert_equal({ host: 'h', port: 1, password: 'p' },
                    BigBlueButton.resque_redis(props.except('redis_workers_host', 'redis_workers_port')).options)
+      # only the port changed: the same host, so the main password
+      assert_equal({ host: 'h', port: 2, password: 'p' },
+                   BigBlueButton.resque_redis(props.except('redis_workers_host')).options)
+      # the same host on another port with a password of its own
+      assert_equal({ host: 'h', port: 2, password: 'wp' },
+                   BigBlueButton.resque_redis(props.except('redis_workers_host').merge('redis_workers_password' => 'wp')).options)
     end
   end
 

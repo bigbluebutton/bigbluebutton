@@ -291,12 +291,15 @@ module BigBlueButton
     @props
   end
 
-  # The Redis of the resque queues: redis_workers_* if set, else redis_*
+  # The Redis of the resque queues: redis_workers_* if set, else redis_*. redis_workers_password
+  # is used whenever it is set; the password of the main Redis is not sent to a queue on another
+  # host (redis_workers_host), which then gets no password.
   def self.resque_redis(props = BigBlueButton.read_props)
     require 'redis'
+    password = props['redis_workers_password'] || (props['redis_workers_host'] ? nil : props['redis_password'])
     Redis.new(host: props['redis_workers_host'] || props['redis_host'],
               port: props['redis_workers_port'] || props['redis_port'],
-              password: props['redis_workers_password'] || props['redis_password'])
+              password: password)
   end
 
   def self.env_set?(name)
