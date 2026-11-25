@@ -85,6 +85,9 @@ func Response(o *observe.Observation, ctx *Context, r *Rules) []string {
 	default:
 		lines = append(lines, bodyLines(o, ctx, r)...)
 	}
+	if o.Truncated {
+		lines = append(lines, "body cut short")
+	}
 	return lines
 }
 
