@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"cmp"
 	"fmt"
+	"net"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -46,6 +47,13 @@ type Target struct {
 	// blank: for cases that check the server won't call an http URL. The
 	// runner reads what it records through SinkReadURL.
 	SinkHTTPURL string `yaml:"sinkHttpUrl"`
+	// SinkLocalURL is the sink as the server reaches it at a local IP
+	// address (https://127.0.0.1:8444 on Tier 1), for ${sinkLocalUrl}, or
+	// BBB_SINK_LOCAL_URL when blank: for cases that check the server won't
+	// fetch from a local address its settings don't list. Only a target
+	// whose server does reach the sink there sets it: elsewhere a fetch
+	// that can't connect would pass those cases too, so they are skipped.
+	SinkLocalURL string `yaml:"sinkLocalUrl"`
 	// FixtureURL is where the server fetches fixtures from, for
 	// ${fixtureUrl}, or BBB_FIXTURE_URL when blank.
 	FixtureURL string `yaml:"fixtureUrl"`
@@ -301,6 +309,13 @@ func (t *Target) Bases() []string {
 	return out
 }
 
+// NamedURLs maps the placeholders a case writes for the sink's URLs to the
+// target's values, empty when it has none: a server reports some of them
+// back, such as a fetched plugin manifest's address.
+func (t *Target) NamedURLs() map[string]string {
+	return map[string]string{"${sinkUrl}": t.SinkURL, "${sinkHttpUrl}": t.SinkHTTPURL, "${sinkLocalUrl}": t.SinkLocalURL, "${fixtureUrl}": t.FixtureURL}
+}
+
 // FillPath replaces each {name} in path with the path-escaped value of
 // params[name]. Params the path doesn't use are ignored, since another
 // target may map the same route with other placeholders.
@@ -327,13 +342,14 @@ func (t *Target) completeSink(getenv func(string) string) error {
 	t.SinkURL = strings.TrimSuffix(cmp.Or(t.SinkURL, getenv("BBB_SINK_URL")), "/")
 	t.SinkReadURL = strings.TrimSuffix(cmp.Or(t.SinkReadURL, getenv("BBB_SINK_READ_URL"), t.SinkURL), "/")
 	t.SinkHTTPURL = strings.TrimSuffix(cmp.Or(t.SinkHTTPURL, getenv("BBB_SINK_HTTP_URL")), "/")
+	t.SinkLocalURL = strings.TrimSuffix(cmp.Or(t.SinkLocalURL, getenv("BBB_SINK_LOCAL_URL")), "/")
 	t.FixtureURL = strings.TrimSuffix(cmp.Or(t.FixtureURL, getenv("BBB_FIXTURE_URL")), "/")
 	for _, f := range []struct {
 		name, url string
 		root      bool // the sink keys requests by their first path segment
 		plain     bool // the sink's plain-HTTP listener
 	}{{"sinkUrl", t.SinkURL, true, false}, {"sinkReadUrl", t.SinkReadURL, true, false}, {"sinkHttpUrl", t.SinkHTTPURL, true, true},
-		{"fixtureUrl", t.FixtureURL, false, false}} {
+		{"sinkLocalUrl", t.SinkLocalURL, true, false}, {"fixtureUrl", t.FixtureURL, false, false}} {
 		if f.url == "" {
 			continue
 		}
@@ -347,12 +363,19 @@ func (t *Target) completeSink(getenv func(string) string) error {
 		if f.root && (u.Path != "" || u.RawQuery != "") {
 			return fmt.Errorf("%s %q must be scheme and host only: the sink takes a request's first path segment as its key", f.name, f.url)
 		}
+		if f.name == "sinkLocalUrl" {
+			if ip := net.ParseIP(u.Hostname()); ip == nil || !(ip.IsLoopback() || ip.IsPrivate() || ip.IsLinkLocalUnicast()) {
+				return fmt.Errorf("sinkLocalUrl %q must name the sink by a local IP address (loopback, private or link-local)", f.url)
+			}
+		}
 	}
 	switch {
 	case t.SinkURL == "" && t.SinkReadURL != "":
 		return fmt.Errorf("sinkReadUrl %q needs a sinkUrl, the sink as the server reaches it", t.SinkReadURL)
 	case t.SinkURL == "" && t.SinkHTTPURL != "":
 		return fmt.Errorf("sinkHttpUrl %q needs a sinkUrl: the runner reads what the sink recorded through it", t.SinkHTTPURL)
+	case t.SinkURL == "" && t.SinkLocalURL != "":
+		return fmt.Errorf("sinkLocalUrl %q needs a sinkUrl: the runner reads what the sink recorded through it", t.SinkLocalURL)
 	case t.SinkURL != "" && !t.Has("callbacks"):
 		t.Capabilities = append(t.Capabilities, "callbacks")
 	case t.SinkURL == "" && t.Has("callbacks"):

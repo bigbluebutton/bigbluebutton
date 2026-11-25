@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# bbb-web checks a redirect's new URL against the fetch rules too: a
+# redirect from https to plain http is refused as shipped
+# (fetchUrlSupportedProtocols=https), and the sink's plain-HTTP listener
+# never sees the request.
+id: create.fetch.redirect-to-http
+title: create refuses a redirect to http
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus, callbacks]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Fetch rules, clientSettingsOverrideJsonUrl: '${sinkUrl}/${uid}/moved?_redirect=${sinkHttpUrl}/${uid}/fixtures/client-settings/override.json'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 30s}
+    select: [$.core.body.props.overrideClientSettings]
+    expect:
+      jsonpath:
+        $.core.body.props.overrideClientSettings: ""
+  - sink: {key: "${uid}", within: 2s}
+    golden: off
+    expect: {path: "/${uid}/fixtures/client-settings/override.json", count: 0}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

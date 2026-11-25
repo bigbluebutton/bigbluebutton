@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# The shared notes' initial content is fetched and handed on even with
+# sharedNotes in disabledFeatures.
+id: create.shared-notes.notes-disabled
+title: create fetches the shared notes' initial content with the notes disabled
+endpoint: create
+class: compat
+tags: [ci]
+requires: [akka, bus, callbacks]
+steps:
+  - call: create
+    params:
+      meetingID: "${uid}"
+      name: Shared notes
+      disabledFeatures: sharedNotes
+      sharedNotesInitialContentMarkdownUrl: "${sinkUrl}/${uid}/fixtures/shared-notes/initial.md"
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 10s}
+    select: [$.core.body.props.meetingProp.sharedNotesInitialContentMarkdown]
+    expect:
+      jsonpath:
+        $.core.body.props.meetingProp.sharedNotesInitialContentMarkdown: {regex: '^# Conform notes'}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

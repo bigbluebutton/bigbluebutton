@@ -142,6 +142,40 @@ body xml
 	}
 }
 
+func TestSinkURLs(t *testing.T) {
+	c := ctx("bbbc-u3")
+	c.Named = map[string]string{"${sinkUrl}": "https://sink.test:8444", "${sinkHttpUrl}": "http://sink.test:8445",
+		"${fixtureUrl}": "https://sink.test:8444/fixtures", "${unset}": ""}
+	doc := `{"plugins":{"p":{"manifest":{"url":"https://sink.test:8444/bbbc-u3/fixtures/plugins/p.json"}},` +
+		`"q":{"manifest":{"url":"https://sink.test:8444/fixtures/plugins/q.json"}},` +
+		`"r":{"manifest":{"url":"http://sink.test:8445/bbbc-u3/r.json"}}}}`
+	check(t, Document([]byte(doc), c, Default()), `
+$.plugins.p.manifest.url "${sinkUrl}/${uid}/fixtures/plugins/p.json"
+$.plugins.q.manifest.url "${fixtureUrl}/plugins/q.json"
+$.plugins.r.manifest.url "${sinkHttpUrl}/${uid}/r.json"`)
+	// In text, as in a URL, a named URL is replaced only where it ends.
+	if got := c.substitute("at https://sink.test:8444/fixtures-old/x, https://sink.test:84445 and https://sink.test:8444/fixtures?a"); got != "at ${sinkUrl}/fixtures-old/x, https://sink.test:84445 and ${fixtureUrl}?a" {
+		t.Errorf("substitute = %q", got)
+	}
+}
+
+// A JSON key holding the run's own strings is renamed like a value; one
+// that then has a / or a . prints in brackets. Other keys print as before.
+func TestRenamedKeys(t *testing.T) {
+	c := ctx("bbbc-u3")
+	c.Named = map[string]string{"${sinkUrl}": "https://sink.test:8444"}
+	doc := `{"pluginProp":{` +
+		`"https://sink.test:8444/bbbc-u3/fixtures/plugins/a.json?x=1":{"loadFailureReason":"r","manifest":{"content":{},"url":"https://sink.test:8444/bbbc-u3/fixtures/plugins/a.json?x=1"}},` +
+		`"Plain":{"tags":["a"]},"bbbc-u3":{"n":1},"a.b":2}}`
+	check(t, Document([]byte(doc), c, Default()), `
+$.pluginProp['${sinkUrl}/${uid}/fixtures/plugins/a.json?x=1'].loadFailureReason "r"
+$.pluginProp['${sinkUrl}/${uid}/fixtures/plugins/a.json?x=1'].manifest.content {}
+$.pluginProp['${sinkUrl}/${uid}/fixtures/plugins/a.json?x=1'].manifest.url "${sinkUrl}/${uid}/fixtures/plugins/a.json?x=1"
+$.pluginProp.${uid}.n 1
+$.pluginProp.Plain.tags[] "a"
+$.pluginProp.a.b 2`)
+}
+
 func TestLocationAndCookies(t *testing.T) {
 	o := obs(302, map[string]string{
 		"Location":   base + "/html5client/join?sessionToken=abc123&b=2",

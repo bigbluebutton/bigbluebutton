@@ -1,0 +1,40 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A plugin manifest's content can use placeholders, which bbb-web fills in
+# from the create params before handing the manifest on:
+# ${meta_<name>:default} from the meeting's metadata, and
+# ${plugin_<plugin name>_<param>:default} from create params named
+# plugin_<plugin name>_<param>. Without the param, the default is used.
+# fixtures/plugins/settings.json has one of each.
+id: create.plugins.content-placeholders
+title: create fills in a plugin manifest's placeholders${how}
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus, callbacks]
+variants:
+  - {id: defaults, vars: {how: " with their defaults", entry: null, locales: null, wantEntry: ConformSettings.js, wantLocales: "https://plugins.invalid/locales"}}
+  - {id: params, vars: {how: " from meta_ and plugin_ params", entry: conform-entry.js, locales: "https://locales.invalid/conform", wantEntry: conform-entry.js, wantLocales: "https://locales.invalid/conform"}}
+steps:
+  - call: create
+    params:
+      meetingID: "${uid}"
+      name: Plugins
+      pluginManifests: '[{"url":"${sinkUrl}/${uid}/fixtures/plugins/settings.json"}]'
+      plugin_ConformSettings_entry: "${entry}"
+      meta_conform-locales: "${locales}"
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.props.pluginProp]
+    expect:
+      jsonpath:
+        $.core.body.props.pluginProp.ConformSettings.manifest.content.javascriptEntrypointUrl: "${wantEntry}"
+        $.core.body.props.pluginProp.ConformSettings.manifest.content.localesBaseUrl: "${wantLocales}"
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

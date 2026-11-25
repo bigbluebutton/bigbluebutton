@@ -1,0 +1,10 @@
+# want: 9: var "url" refers to ${sinkUrl}, but a var's value isn't expanded
+# A literal ${...} that names no built-in variable is a plain value.
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+variants:
+  - {id: plain, vars: {url: "${meta_x}", other: "a"}}
+  - {id: sink, vars: {url: "${sinkUrl}/k/x.json", other: "b"}}
+steps: [{call: create, params: {a: "${url}", b: "${other}"}}]

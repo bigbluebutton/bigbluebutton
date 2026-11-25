@@ -56,7 +56,7 @@ Each case ends as one of:
   unreachable or a template didn't expand;
 - **SKIP**, with the reason: a capability the target lacks, a URL the case
   uses that the target doesn't set (`not-configured: sinkUrl`,
-  `sinkHttpUrl` or `fixtureUrl`), something the runner can't do yet, or an interrupt before
+  `sinkHttpUrl`, `sinkLocalUrl` or `fixtureUrl`), something the runner can't do yet, or an interrupt before
   the case started.
 
 The exit status is 0 when nothing failed or errored, 1 when something did
@@ -84,6 +84,7 @@ defaultSign: sha256
 sinkUrl: https://sink.test:8444      # the sink as the server reaches it, for ${sinkUrl}
 sinkReadUrl: https://localhost:8444  # where the runner reads it, when that differs; both scheme and host only
 sinkHttpUrl: http://sink.test:8445     # the sink's plain-HTTP listener, for ${sinkHttpUrl}; scheme and host only
+sinkLocalUrl: https://127.0.0.1:8444  # the sink at a local IP address the server reaches it by, for ${sinkLocalUrl}; scheme and host only
 fixtureUrl: https://sink.test:8444/fixtures   # for ${fixtureUrl}
 graphqlUrl: wss://bbb.example.com/graphql  # the default: baseUrl's host at /graphql; keep that host, for the join's cookie
 tapUrl: http://10.0.0.5:8099         # the server's tap, for bus, fs and redis steps
@@ -94,7 +95,7 @@ vars:
 Blank fields fall back to the variables the Playwright suite uses: `BBB_URL`
 (e.g. `https://bbb-ci.test/bigbluebutton/`) and `BBB_SECRET`; to
 `BBB_TAP_URL` for `tapUrl`; and to `BBB_SINK_URL`, `BBB_SINK_READ_URL`,
-`BBB_SINK_HTTP_URL` and `BBB_FIXTURE_URL` for the sink's. `targets/bbb-web.yaml` and
+`BBB_SINK_HTTP_URL`, `BBB_SINK_LOCAL_URL` and `BBB_FIXTURE_URL` for the sink's. `targets/bbb-web.yaml` and
 `targets/bbb-api.yaml` are set up that way. The tap's and the sink's tokens
 come only from `BBB_TAP_TOKEN` and `BBB_SINK_TOKEN`, never a target file;
 like the salt, they are redacted from what the runner writes.
@@ -105,6 +106,12 @@ server that doesn't give it: `targets/bbb-web.yaml` has the `turn`
 capability, for the stuns cases that check TURN credentials, while
 `TURN_SECRET` holds the TURN servers' shared secret. Listing the capability
 without the var's value is an error.
+
+`sinkLocalUrl` is for the cases that check the server won't fetch from a
+local address its settings don't list (`fetchUrlAllowedLocalHosts`). Set
+it only where the server does reach the sink at that address, as on
+Tier 1, where the services share one network: elsewhere a fetch that
+can't connect would pass those cases too, so without it they are skipped.
 
 A target with a tap has the `bus`, `fs` and `redis` capabilities, and one
 with a sink the `callbacks` capability. Listing them without one is an
@@ -159,7 +166,8 @@ profiles:
 
 **Profiles on a full install.** `targets/bbb-web.yaml` lists the suite's
 profiles with `env/full-install/profile.sh` as their command. Each profile
-is an overlay, `env/bbb-web/profiles/<name>.properties`:
+is an overlay, `env/bbb-web/profiles/<name>.properties`, and some also have
+akka-apps settings, `<name>.akka.conf` (HOCON; `chapter-breaks` does):
 
 ```sh
 export BBB_EXEC="docker exec -i bbb40"     # or local, or "ssh root@host"
@@ -172,7 +180,12 @@ env/full-install/profile.sh default        # restore the server's own file
   - it keeps the server's `/etc/bigbluebutton/bbb-web.properties` aside;
   - it writes that file plus the overlay (bbb-web takes the last value of a
     key) and restarts bbb-web;
-  - it waits until the API answers again, about 15 seconds.
+  - with akka-apps settings, it does the same to
+    `/etc/bigbluebutton/bbb-apps-akka.conf` and restarts bbb-apps-akka
+    first, as it also does when the switch changes
+    `clientSettingsOverrideStrictValidation`, which akka-apps reads too;
+  - it waits until the API answers again, about 15 seconds, and after an
+    akka-apps restart until its `/healthz` does.
 - **Applying the profile already in force** restarts nothing.
 - **Safety:** it refuses to touch a profiled file that was edited by hand,
   and it takes a lock, so two switches never overlap.
@@ -232,7 +245,7 @@ go run ./cmd/bbb-conform run --target ../targets/bbb-web.yaml --cases ../cases -
 |---|---|
 | `debs` | Builds the five packages the stack runs (bbb-web, bbb-apps-akka, bbb-graphql-server, bbb-graphql-middleware, bbb-graphql-actions) with their own build scripts, in the image CI builds them in. `PKGS=bbb-web` builds one. About 20 minutes cold. |
 | `up` | Renders the configuration, builds what changed and starts the stack, then waits until every service is healthy (about a minute). `CLAMAV=1` adds a ClamAV daemon. `COVERAGE=1` starts bbb-web with JaCoCo's agent (see [Coverage](#coverage-coverage)). |
-| `env` | Prints the variables the runner reads: `BBB_URL`, `BBB_SECRET`, `BBB_PAGE_TOKEN_SECRET`, `BBB_TAP_URL`, `BBB_TAP_TOKEN`, `BBB_SINK_URL`, `BBB_SINK_READ_URL`, `BBB_SINK_HTTP_URL`, `BBB_SINK_TOKEN`, `BBB_FIXTURE_URL`, `BBB_WEB_DIRECT_URL`, `TURN_SECRET` (read from `env/bbb-web/turn-stun-servers.xml`), `BBB_PROFILE_CMD` and `SSL_CERT_FILE`. The tokens are made once, in `env/.state/tokens.env`. |
+| `env` | Prints the variables the runner reads: `BBB_URL`, `BBB_SECRET`, `BBB_PAGE_TOKEN_SECRET`, `BBB_TAP_URL`, `BBB_TAP_TOKEN`, `BBB_SINK_URL`, `BBB_SINK_READ_URL`, `BBB_SINK_HTTP_URL`, `BBB_SINK_LOCAL_URL`, `BBB_SINK_TOKEN`, `BBB_FIXTURE_URL`, `BBB_WEB_DIRECT_URL`, `TURN_SECRET` (read from `env/bbb-web/turn-stun-servers.xml`), `BBB_PROFILE_CMD` and `SSL_CERT_FILE`. The tokens are made once, in `env/.state/tokens.env`. |
 | `profile` | `NAME=reveal-version` switches bbb-web to a profile in `env/bbb-web/profiles/`, `NAME=default` back; without `NAME`, prints the one in force. Cases use it through `BBB_PROFILE_CMD`. |
 | `reset` | Starts again from nothing: no meetings, an empty data directory, the default profile. A profile switch waits until it is done. |
 | `check-copies` | Warns about the package files Tier 1 mirrors by hand that changed since it last followed them (see below). |
@@ -265,7 +278,9 @@ access for the first build.
     a name the stack's hosts file gives it and nginx's certificate names.
     The sink serves `fixtures/` (`BBB_FIXTURE_URL`), and plain HTTP on
     `http://sink.test:8445` (`BBB_SINK_HTTP_URL`), which only the stack
-    reaches.
+    reaches. The stack's services share one network, so bbb-web also
+    reaches it at `https://127.0.0.1:8444` (`BBB_SINK_LOCAL_URL`), a local
+    address it isn't allowed to fetch from.
 - **Its configuration** is a packaged server's, with what bbb-install sets:
   the host and a test salt (`env/tier1/tier1.env`, published on purpose),
   and a TURN server (`env/bbb-web/turn-stun-servers.xml`). Timeouts are the
@@ -297,8 +312,9 @@ access for the first build.
 - **Restarts.** Services are restarted when they exit, as the packages'
   units restart theirs; the GraphQL middleware exits when it loses its
   redis subscription. A profile switch restarts bbb-web, and akka-apps too
-  when it changes `clientSettingsOverrideStrictValidation`, the one
-  bbb-web setting akka-apps reads.
+  when it changes akka-apps' settings (`<name>.akka.conf`, appended to the
+  stack's `bbb-apps-akka.conf`) or `clientSettingsOverrideStrictValidation`,
+  the one bbb-web setting akka-apps reads.
 - **ClamAV.** `make up CLAMAV=1` runs the daemon where bbb-web looks for
   it; the `clamav-scan` profile turns scanning on.
 - **In CI.** The `api-conformance` job of `.github/workflows/automated-tests.yml`
@@ -476,10 +492,16 @@ to an end callback.
 |---|---|
 | `_status=N` | Status N (200 to 599). |
 | `_delay=D` | After D, up to 2m. The request is recorded when it arrives, so a server that gives up still counts as having sent it. |
-| `_redirect=URL` | 302, or `_status`, with that Location. |
+| `_redirect=URL` | 302, or `_status`, with that Location. `_redirect=self` sends the request's own path and query back, so with `_first=N` it is a chain of N redirects that then ends in the answer. |
 | `_type=T` | Content-Type T. |
 | `_first=N` | The params above apply to the first N requests to the path that it still holds; later ones get a plain answer. `_status=500&_first=1` fails once, then succeeds. Only under a key. |
+| `_after=N` | The params above apply only after the first N requests to the path that it still holds, which get a plain answer; with `_first=M`, to the M requests after those. `_status=500&_after=1` succeeds once, then fails: a fetch whose URL is checked with one request and downloaded with another fails the download only. bbb-web fetches that way, so a case that relies on it is `compat` (`create.fetch.two-requests`); other cases allow one request or two for each URL. Only under a key. |
+| `_expand=1` | A fixture file with each `{{origin}}` replaced by the scheme and host the request reached the sink at, such as `https://sink.test:8444`: a fixture that lists other fixtures' URLs, such as a plugin manifest list, then names the sink the way the server reaches it. Not for generated files. |
 | `_size=N` | A generated file's length; only for `fixtures/generated/`. |
+
+`_expand` and `_redirect=self` build URLs from the scheme, host and path the
+sink itself sees, so the server must reach the sink directly, not through a
+proxy that changes them.
 
 An unknown or misplaced `_` param gets a 400, so a misspelt one isn't
 ignored. Every request to a key is recorded, with why the sink couldn't
@@ -836,6 +858,9 @@ steps:
 - A var whose value is `null` removes the mapping entry or list item that is
   exactly `${var}`. That's how a variant leaves a param out. Using a null var
   anywhere else is an error.
+- A var's value is used as written: a template in it isn't expanded. So
+  write `"${sinkUrl}/${uid}/${rest}"` in the step and give the var only
+  `rest`; `validate` refuses a var that refers to a built-in variable.
 - A variant can also set `profile` and `class` (replacing the case's) and
   `requires` and `tags` (added to the case's).
 
@@ -1008,7 +1033,7 @@ These steps check what a call did outside its answer, through the target's
   - `fs` and `redis` steps look every 250ms, and a last time at the end of
     the window. A `redis` step reads the key as it is then.
 - **What matches:** these keys narrow what counts as a match:
-  - `jsonpath`, for all three, on the step's document;
+  - `jsonpath`, for `bus` and `fs`, on the step's document;
   - `contents`, for `fs`;
   - `hash`, `members` (the exact set) and `ttl`, for `redis`.
 
@@ -1060,7 +1085,7 @@ These steps check what a call did outside its answer, through the target's
 
 A `sink` step checks what the server sent to the target's
 [sink](#the-sink-sink): a callback, or a fetch of a fixture. The case gives
-the server a URL under `${sinkUrl}` (or `${sinkHttpUrl}`) whose first path segment is a key,
+the server a URL under `${sinkUrl}` (or `${sinkHttpUrl}`, `${sinkLocalUrl}`) whose first path segment is a key,
 normally made from `${uid}`, and the step looks at the requests under that
 key. A key is one path segment: no `/`, and neither `fixtures` nor a name
 starting with `_`, which the sink keeps for itself.
@@ -1235,7 +1260,7 @@ Any string can contain `${...}`.
 - **Variables:**
   - `${uid}`: unique per case per run, valid as a meetingID;
   - `${salt}`: redacted from reports;
-  - `${baseUrl}`, `${sinkUrl}`, `${sinkHttpUrl}`, `${fixtureUrl}`;
+  - `${baseUrl}`, `${sinkUrl}`, `${sinkHttpUrl}`, `${sinkLocalUrl}`, `${fixtureUrl}`;
   - `${target.<name>}`: from the target file's `vars`, where an entry marked
     `secret` is redacted;
   - captures from earlier steps and variant vars.

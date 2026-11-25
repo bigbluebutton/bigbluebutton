@@ -1,0 +1,7 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.dashboard.disabled
+target bbb-web
+
+== step 3: fs learning-dashboard/${intId}/*/learning_dashboard_data.json
+$.found false
+$.path "learning-dashboard/<sha1(meetingID)>-<time>/<token>/learning_dashboard_data.json"

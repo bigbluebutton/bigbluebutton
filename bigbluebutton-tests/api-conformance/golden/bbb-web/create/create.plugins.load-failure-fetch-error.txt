@@ -1,0 +1,9 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.plugins.load-failure-fetch-error
+target bbb-web
+
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.pluginProp
+$.core.body.props.pluginProp['${sinkUrl}/${uid}/fixtures/plugins/basic.json?_after=1&_status=500'].loadFailureReason "I/O error when fetching a plugin URL. For more information, see bbb-web"
+$.core.body.props.pluginProp['${sinkUrl}/${uid}/fixtures/plugins/basic.json?_after=1&_status=500'].loadFailureSource "bbb-web"
+$.core.body.props.pluginProp['${sinkUrl}/${uid}/fixtures/plugins/basic.json?_after=1&_status=500'].manifest.content {}
+$.core.body.props.pluginProp['${sinkUrl}/${uid}/fixtures/plugins/basic.json?_after=1&_status=500'].manifest.url "${sinkUrl}/${uid}/fixtures/plugins/basic.json?_after=1&_status=500"
