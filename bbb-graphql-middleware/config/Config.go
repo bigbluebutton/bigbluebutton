@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strconv"
 	"sync"
 
 	"dario.cat/mergo"
@@ -100,6 +101,7 @@ func (c *Config) loadConfigs() {
 	for name, value := range map[string]*string{
 		"SERVER_HOST":                            &configDefault.Server.Host,
 		"REDIS_HOST":                             &configDefault.Redis.Host,
+		"REDIS_PASSWORD":                         &configDefault.Redis.Password,
 		"HASURA_URL":                             &configDefault.Hasura.Url,
 		"HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL": &configDefault.GraphqlActions.Url,
 		"AUTH_HOOK_URL":                          &configDefault.AuthHook.Url,
@@ -107,6 +109,16 @@ func (c *Config) loadConfigs() {
 	} {
 		if env := os.Getenv(name); env != "" {
 			*value = env
+		}
+	}
+
+	// Kubernetes sets REDIS_PORT=tcp://<address>:6379 for a Service named redis: a value that is not
+	// a port number keeps the one from the files
+	if env := os.Getenv("REDIS_PORT"); env != "" {
+		if port, err := strconv.ParseInt(env, 10, 32); err == nil {
+			configDefault.Redis.Port = int32(port)
+		} else {
+			log.Warnf("REDIS_PORT=%s is not a port number, using %d", env, configDefault.Redis.Port)
 		}
 	}
 
