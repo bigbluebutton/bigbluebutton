@@ -63,7 +63,7 @@ func TestMetricsRegisterOnce(t *testing.T) {
 	// The gauge computed on collection has no variable of its own: find it by name.
 	maxGauge := prometheus.NewGaugeFunc(prometheus.GaugeOpts{
 		Name: "ws_connection_subscriptions_max",
-		Help: "Highest number of active subscriptions held by a single Websocket connection",
+		Help: "Highest number of entries (subscriptions, and queries in flight) held by one of the Websocket connections open at the time of the scrape",
 	}, func() float64 { return 0 })
 	var alreadyRegistered prometheus.AlreadyRegisteredError
 	if err := prometheus.Register(maxGauge); !errors.As(err, &alreadyRegistered) {

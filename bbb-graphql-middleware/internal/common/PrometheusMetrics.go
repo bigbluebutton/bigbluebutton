@@ -81,7 +81,7 @@ var (
 	GqlSubscribeCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "gql_subscription_total",
-			Help: "Total number of Graphql subscriptions started by clients",
+			Help: "Total number of GraphQL operations of the clients forwarded to Hasura (subscriptions, queries, and the mutations that go through Hasura), by type; a message whose id is already active, a resend after a reconnection or a repeated subscribe, is not counted",
 		},
 		[]string{"type", "operationName"},
 	)
@@ -137,7 +137,7 @@ var (
 	})
 	HttpConnectionRateLimitExceededCounter = prometheus.NewCounter(prometheus.CounterOpts{
 		Name: "http_connection_rate_limit_exceeded_total",
-		Help: "Total number of connections that timed out in the rate limiter",
+		Help: "Total number of connections refused by the server connection rate limiter, without waiting, because the wait they needed passed 120 seconds",
 	})
 	GqlQueryRateLimitWait = prometheus.NewHistogram(prometheus.HistogramOpts{
 		Name:    "gql_query_rate_limit_wait_seconds",
@@ -146,7 +146,7 @@ var (
 	})
 	GqlQueryRateLimitExceededCounter = prometheus.NewCounter(prometheus.CounterOpts{
 		Name: "gql_query_rate_limit_exceeded_total",
-		Help: "Total number of subscribe messages that timed out in the rate limiter",
+		Help: "Total number of subscribe messages refused by the per-connection query rate limiter, without waiting, because the wait they needed passed 30 seconds",
 	})
 	GqlSubscriptionRemovedCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
@@ -172,7 +172,7 @@ var (
 	)
 	WsConnectionSubscriptionsPeak = prometheus.NewHistogram(prometheus.HistogramOpts{
 		Name: "ws_connection_subscriptions_peak",
-		Help: "Highest number of active subscriptions a Websocket connection held, observed when it closes",
+		Help: "Highest number of entries (subscriptions, and queries in flight) a Websocket connection held, observed when a connection accepted at init closes",
 		// Past 150, the default max_connection_concurrent_subscriptions: the limit can be raised, and
 		// the peak can pass it, since it never rejects a resend or a query.
 		Buckets: []float64{10, 20, 30, 40, 50, 75, 100, 125, 150, 175, 200, 250, 300, 500},

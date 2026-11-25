@@ -588,7 +588,7 @@ func RegisterConnectionMetrics() {
 	registerConnectionMetricsOnce.Do(func() {
 		prometheus.MustRegister(prometheus.NewGaugeFunc(prometheus.GaugeOpts{
 			Name: "ws_connection_subscriptions_max",
-			Help: "Highest number of active subscriptions held by a single Websocket connection",
+			Help: "Highest number of entries (subscriptions, and queries in flight) held by one of the Websocket connections open at the time of the scrape",
 		}, maxActiveSubscriptions))
 		// The reasons are a closed set: their series exist from the start, at zero.
 		for _, reason := range append(slices.Clone(rejectionReasons), rejectionClosedBeforeInit, rejectionInitTimeout, rejectionOther) {

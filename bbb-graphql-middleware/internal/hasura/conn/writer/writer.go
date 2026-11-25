@@ -604,9 +604,9 @@ func countNestingTokens(query string) int {
 	return strings.Count(query, "{") + strings.Count(query, "[")
 }
 
-// recordSubscriptionStart counts a subscription started by the browser. A message whose id is
-// already active is a retransmission after a reconnection to Hasura, which the retransmitter
-// counts, so it is not counted again here.
+// recordSubscriptionStart counts an operation the browser started. A message whose id is already
+// active is not counted: a resend after a reconnection to Hasura, which the retransmitter counts,
+// or a subscribe the client repeats for an id it holds, which no counter counts.
 func recordSubscriptionStart(messageType common.QueryType, operationNameLabel string, alreadyActive bool) {
 	if alreadyActive {
 		return
