@@ -96,9 +96,11 @@ export class Timer extends MultiUsers {
     // Arrow-button selection is visual state, not input focus. Starting during
     // its one-second sync interval must leave every input tracking the countdown.
     // Pin the page clock so the selection timeout cannot clear before the
-    // subscription update reaches the input.
-    await this.modPage.page.clock.install();
-    await this.modPage.page.clock.pauseAt(new Date());
+    // subscription update reaches the input. Keep the pause target deliberately
+    // ahead of the install time so it cannot become stale while the command runs.
+    const clockStart = Date.now();
+    await this.modPage.page.clock.install({ time: clockStart });
+    await this.modPage.page.clock.pauseAt(clockStart + 5000);
     const secondsInput = this.modPage.page.locator(e.timerSecondsInput);
     await this.modPage.page.getByRole('button', { name: 'Decrease seconds by 1' }).click();
     await this.modPage.page.locator(e.startStopTimer).evaluate((button: HTMLButtonElement) => button.click());
