@@ -1,9 +1,10 @@
 name: "Sync v4.0 into v4.1"
 # Ports every pull request merged into v4.0.x-develop to v4.1.x-develop: one sync pull request per
-# merged pull request, cherry-picked onto a sync/v4.1/pr-<N> branch. The sync pull request is merged
-# automatically when the automated tests pass on it and it is mergeable; otherwise it stays open for
-# a maintainer, with the reason in a comment and the "sync: needs maintainer" label. Pull requests
-# with the "no-sync-4.1" label, and the merges of whole lines or releases, are not ported.
+# merged pull request, cherry-picked onto a sync/v4.1/pr-<N> branch. The job ends once the pull
+# request is open; the pull request starts its own checks, and "Sync v4.0 into v4.1: merge green
+# ports" merges it when they pass. A port with conflicts opens as a draft with the
+# "sync: needs maintainer" label. Pull requests with the "no-sync-4.1" label, and the merges of whole
+# lines or releases, are not ported.
 #
 # pull_request_target takes the workflow file and github.sha from the default branch, which is
 # v4.0.x-develop here: this file has to stay on the default branch to run. The logic is in
@@ -11,13 +12,14 @@ name: "Sync v4.0 into v4.1"
 # v4.1.x-develop). Nothing from the merged pull request is checked out or run: its title, branch and
 # labels reach the script only through env.
 #
-# It runs in bigbluebutton/bigbluebutton, and in a fork only with the repository variable
-# SYNC_V41_ENABLED=true. Without a SYNC_TOKEN secret it uses the GITHUB_TOKEN, which needs the
-# repository setting "Allow GitHub Actions to create and approve pull requests" (Settings > Actions
-# > General) to open the sync pull requests. With the GITHUB_TOKEN, a change to .github/workflows/
-# cannot be pushed and the pull requests it opens start no workflow, so the script starts the
-# automated tests itself; a SYNC_TOKEN secret (GitHub App or PAT with the workflows permission)
-# lifts the first limit and does not depend on that setting.
+# Configuration:
+# - SYNC_TOKEN secret: a GitHub App token or PAT with write access to contents, pull requests and
+#   workflows. It pushes the sync branches (including changes under .github/workflows/) and opens
+#   the pull requests, which then start their own checks.
+# - Public repositories: from 2026-12-02 GitHub blocks pull_request_target unless an Actions event
+#   policy allows it (as for check-merge-conflict.yml, playwright-reports-cleanup.yml, welcome.yml).
+# - It runs in bigbluebutton/bigbluebutton, and in a fork only with the repository variable
+#   SYNC_V41_ENABLED=true.
 on:
   pull_request_target:
     types: [closed]
@@ -29,19 +31,22 @@ jobs:
       github.event.pull_request.merged == true &&
       github.event.pull_request.base.ref == 'v4.0.x-develop' &&
       (github.repository == 'bigbluebutton/bigbluebutton' || vars.SYNC_V41_ENABLED == 'true')
-    # It mostly waits for the automated tests, so it stays off the CI_LIGHT_RUNNER pool that those
-    # tests need, as the nightly schedule does.
-    runs-on: ubuntu-24.04
-    timeout-minutes: 330
+    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 15
     permissions:
-      contents: write
-      pull-requests: write
-      actions: write
-      checks: read
+      contents: read
     concurrency:
       group: sync-v4.1-pr-${{ github.event.pull_request.number }}
       cancel-in-progress: false
     steps:
+      - name: Require the SYNC_TOKEN secret
+        env:
+          SYNC_TOKEN: ${{ secrets.SYNC_TOKEN }}
+        run: |
+          if [ -z "$SYNC_TOKEN" ]; then
+            echo "::error::The SYNC_TOKEN secret is not set; see the Configuration notes in this workflow."
+            exit 1
+          fi
       - name: Check out the sync script from the default branch
         uses: actions/checkout@v5
         with:
@@ -55,11 +60,10 @@ jobs:
           ref: v4.1.x-develop
           path: work
           fetch-depth: 1
-          token: ${{ secrets.SYNC_TOKEN || github.token }}
+          token: ${{ secrets.SYNC_TOKEN }}
       - name: Port the pull request to v4.1.x-develop
         env:
-          GH_TOKEN: ${{ secrets.SYNC_TOKEN || github.token }}
-          TOKEN_KIND: ${{ secrets.SYNC_TOKEN != '' && 'sync' || 'github' }}
+          GH_TOKEN: ${{ secrets.SYNC_TOKEN }}
           REPO: ${{ github.repository }}
           SOURCE_PR_NUMBER: ${{ github.event.pull_request.number }}
           SOURCE_PR_TITLE: ${{ github.event.pull_request.title }}
