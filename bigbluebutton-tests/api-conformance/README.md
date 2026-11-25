@@ -109,9 +109,13 @@ without the var's value is an error.
 
 `sinkLocalUrl` is for the cases that check the server won't fetch from a
 local address its settings don't list (`fetchUrlAllowedLocalHosts`). Set
-it only where the server does reach the sink at that address, as on
-Tier 1, where the services share one network: elsewhere a fetch that
-can't connect would pass those cases too, so without it they are skipped.
+it only where the server reaches the sink at that address and the
+certificate the sink serves names the address, as an IP subject
+alternative name, from a CA the server's JVM trusts. Tier 1 is such a
+place: its services share one network, and its certificate names
+127.0.0.1. Otherwise a fetch that can't connect, or that fails the TLS
+handshake, would pass those cases too, so a target without
+`sinkLocalUrl` skips them.
 
 A target with a tap has the `bus`, `fs` and `redis` capabilities, and one
 with a sink the `callbacks` capability. Listing them without one is an
@@ -280,7 +284,8 @@ access for the first build.
     `http://sink.test:8445` (`BBB_SINK_HTTP_URL`), which only the stack
     reaches. The stack's services share one network, so bbb-web also
     reaches it at `https://127.0.0.1:8444` (`BBB_SINK_LOCAL_URL`), a local
-    address it isn't allowed to fetch from.
+    address it isn't allowed to fetch from, which that certificate names
+    too.
 - **Its configuration** is a packaged server's, with what bbb-install sets:
   the host and a test salt (`env/tier1/tier1.env`, published on purpose),
   and a TURN server (`env/bbb-web/turn-stun-servers.xml`). Timeouts are the
@@ -468,7 +473,7 @@ It also serves the fixtures cases have the server fetch.
 |---|---|
 | `--listen ADDR` | `127.0.0.1:8444`. An address other hosts reach needs `BBB_SINK_TOKEN` set, as does `--listen-http` on one. |
 | `--hosts a,b` | None: host names the runner reads it by. `/_received` always answers requests sent to an IP address, `localhost` or a name `--cert` covers, the name the server reaches it by. |
-| `--cert FILE`, `--key FILE` | None, for plain HTTP. bbb-web fetches and calls back over https only (`fetchUrlSupportedProtocols`), so give the sink a certificate for a name the server resolves to it, from a CA the server's JVM trusts. A name that resolves to a private address must also be in the server's `fetchUrlAllowedLocalHosts`. |
+| `--cert FILE`, `--key FILE` | None, for plain HTTP. bbb-web fetches and calls back over https only (`fetchUrlSupportedProtocols`), so give the sink a certificate for a name the server resolves to it, from a CA the server's JVM trusts. A name that resolves to a private address must also be in the server's `fetchUrlAllowedLocalHosts`. With `sinkLocalUrl`, the certificate must also name that address, as an IP subject alternative name. |
 | `--listen-http ADDR` | None. With `--cert`, also serve plain HTTP there, for cases that check the server won't call an `http://` URL (`${sinkHttpUrl}`). Both listeners record into one log. |
 | `--fixtures DIR` | None: the directory served under `fixtures/`. |
 | `--max-mb N`, `--max-age D` | 64 MiB and 2h: how much of what it recorded it keeps. Both must be positive. |
