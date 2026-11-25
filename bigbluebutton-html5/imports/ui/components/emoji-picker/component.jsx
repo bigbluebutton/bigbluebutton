@@ -33,7 +33,6 @@ const EmojiPicker = (props) => {
       symbols: intl.formatMessage({ id: 'app.emojiPicker.categories.symbols' }),
       flags: intl.formatMessage({ id: 'app.emojiPicker.categories.flags' }),
       frequent: intl.formatMessage({ id: 'app.emojiPicker.categories.recent' }),
-      recent: intl.formatMessage({ id: 'app.emojiPicker.categories.recent' }),
       search: intl.formatMessage({ id: 'app.emojiPicker.categories.search' }),
     },
     categorieslabel: intl.formatMessage({ id: 'app.emojiPicker.categories.label' }),

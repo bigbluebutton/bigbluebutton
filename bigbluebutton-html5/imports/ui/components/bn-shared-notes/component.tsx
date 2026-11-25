@@ -170,9 +170,11 @@ const intlMessages = defineMessages({
   },
   title: {
     id: 'app.notes.title',
+    description: 'Accessible name for the shared notes editor',
   },
   blockTypeSelectLabel: {
     id: 'app.notes.blocknote.blockTypeSelectLabel',
+    description: 'Accessible name for the text type select, including the current type',
   },
 });
 
@@ -412,10 +414,11 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
     [MAX_DOCUMENT_CHARS],
   );
 
+  const editorLabel = intl.formatMessage(intlMessages.title);
   const editor = useCreateBlockNote(withCollaboration({
     domAttributes: {
       editor: {
-        'aria-label': intl.formatMessage(intlMessages.title),
+        'aria-label': editorLabel,
         'data-test': 'blockNoteEditor',
       },
     },
@@ -542,6 +545,14 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
     () => (floatingUiElement ? { default: floatingUiElement } : undefined),
     [floatingUiElement],
   );
+
+  // domAttributes only apply when the editor view is created, and the editor is
+  // not recreated when the new locale keeps the same BlockNote dictionary. Set the
+  // label directly; re-run after BlockNoteView (re)mounts the view (first render
+  // with floatingUiElement, editable flips), which restores the creation-time label.
+  React.useEffect(() => {
+    editor.domElement?.setAttribute('aria-label', editorLabel);
+  }, [editor, editorLabel, editable, floatingUiElement]);
 
   // Keep the editor's focus/selection when tapping a toolbar button by
   // cancelling the default focus move on mousedown. The toolbar mounts with

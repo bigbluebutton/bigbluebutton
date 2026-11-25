@@ -5,6 +5,7 @@ import { elements as e } from '../core/elements';
 import { endMeetings, linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { LOGOUT_URL_CREATE_PARAMETER } from '../meetingEnded/meetingEnded';
+import { selectLocale } from '../options/util';
 import { MultiUsers } from '../user/multiusers';
 
 const CREATE_PARAMETERS = [
@@ -38,8 +39,19 @@ test.describe.parallel('Accessible control names', { tag: '@ci' }, () => {
     await modPage.waitAndClick(e.sharedNotesSidebarButton);
     const editor = modPage.page.locator(e.blockNoteEditorByDataTest);
     await expect(editor, 'shared notes editor should expose its translated name').toHaveAccessibleName('Shared Notes');
+    // BlockNote ships no Catalan dictionary, so this switch keeps the same editor instance.
+    await selectLocale(modPage, 'ca');
+    await expect(editor, 'shared notes editor name should follow a mid-session locale change').toHaveAccessibleName(
+      'Notes compartides',
+    );
     await editor.fill('Accessible notes');
     await expect(editor, 'shared notes editor should remain editable').toContainText('Accessible notes');
+    await expect(editor, 'shared notes editor name should persist while typing').toHaveAccessibleName(
+      'Notes compartides',
+    );
+    await selectLocale(modPage, 'en');
+    await expect(editor).toHaveAccessibleName('Shared Notes');
+    await editor.click();
 
     const blockTypeSelect = modPage.page.locator(e.blockTypeSelect);
     await expect(blockTypeSelect, 'block type select should name its current value').toHaveAccessibleName(
