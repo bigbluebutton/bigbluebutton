@@ -71,6 +71,11 @@ const intlMessages = defineMessages({
     id: 'app.poll.quiz.options.incorrect',
     description: 'Label for incorrect answer option in quiz poll',
   },
+});
+
+// Kept apart from intlMessages, which is also the lookup table that translates
+// poll answers: a custom answer such as "Vote" must keep its authored text.
+const voteCountMessages = defineMessages({
   vote: {
     id: 'app.chat.content.pollVote',
     description: 'Vote label',
@@ -117,7 +122,9 @@ const LiveResult: React.FC<LiveResultProps> = ({
     };
   });
 
-  const voteLabel = (count: number) => intl.formatMessage(count === 1 ? intlMessages.vote : intlMessages.votes);
+  const voteLabel = (count: number) => intl.formatMessage(
+    count === 1 ? voteCountMessages.vote : voteCountMessages.votes,
+  );
 
   return (
     <div>
