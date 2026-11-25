@@ -52,16 +52,16 @@ cd ..
 
 cd bigbluebutton-web
 # Build new version of bbb-web
-./gradlew clean
-./gradlew resolveDeps
-./gradlew assemble
+./gradlew --no-build-cache clean
+./gradlew --no-build-cache resolveDeps
+./gradlew --no-build-cache assemble
 
 # Build presentation checker
 if [ -d pres-checker ]; then
   cd pres-checker
-    ../gradlew clean
-    ../gradlew resolveDeps
-    ../gradlew jar
+    ../gradlew --no-build-cache clean
+    ../gradlew --no-build-cache resolveDeps
+    ../gradlew --no-build-cache jar
     mkdir -p "$STAGING"/usr/share/prescheck/lib
     cp lib/* "$STAGING"/usr/share/prescheck/lib
     cp build/libs/bbb-pres-check-*.jar "$STAGING"/usr/share/prescheck/lib
