@@ -7,7 +7,7 @@ cd /var/bigbluebutton
 set -- . diagnostics basic_stats captions captions/inbox deleted events unpublished published \
   recording recording/raw recording/process recording/publish recording/status
 for s in ended recorded archived processed sanity published; do set -- "$@" "recording/status/$s"; done
-for f in presentation video notes screenshare; do
+for f in presentation video notes screenshare podcast; do
   set -- "$@" "published/$f" "recording/publish/$f" "/var/log/bigbluebutton/$f"
 done
 mkdir -p "$@" /var/lib/bbb-webrtc-recorder
