@@ -29,11 +29,11 @@ curl -fsSL https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.1.x-
 cd bigbluebutton && docker compose up -d
 ```
 
-`docker/compose/install.sh` checks the Docker versions, downloads `docker-compose.yml`, `.env.sample` and `docker/compose/` into `./bigbluebutton` and writes `.env` with the domain, its IPv4 address, the email and new secrets; an existing `.env` is kept. Without the script: copy these files from the repository, `cp .env.sample .env` and set every value.
+`docker/compose/install.sh` checks the Docker versions, downloads `docker-compose.yml`, `.env.sample` and `docker/compose/` into `./bigbluebutton` and writes `.env` with the domain, its IPv4 address, the email and new secrets; an existing `.env` is kept. `BBB_REPO` and `BBB_BRANCH` choose the GitHub repository and the branch, tag or commit to download from (default `bigbluebutton/bigbluebutton` and `v4.1.x-develop`), `BBB_DIR` the target directory (default `bigbluebutton`), e.g. `curl ... | BBB_DIR=bbb sh -s -- <domain>`. Without the script: copy these files from the repository, `cp .env.sample .env` and set every value.
 
-The images come from the registry (`docker compose pull`, or the first `up`); no local build is needed. `BBB_IMAGE_TAG` is a branch tag such as `v4.1.x-develop`, or `v4.1.x-develop-<commit>` to pin a set of images built together.
+The images come from the registry (`docker compose pull`, or the first `up`); no local build is needed. `BBB_IMAGE_TAG` is a branch tag such as `v4.1.x-develop`, or `v4.1.x-develop-<commit>` to pin a set of images built together. `BBB_IMAGE_REGISTRY` (default `ghcr.io/bigbluebutton/bigbluebutton`) points to another registry with the same image names, e.g. a mirror.
 
-`COMPOSE_PROFILES` in `.env` selects the optional parts: `recording` (on by default, as in a bare-metal install: the recorder, the processing and the player) and `webhooks`. Without `recording`, meetings are not recorded, even when they are created with `record=true`.
+`COMPOSE_PROFILES` in `.env` selects the optional parts: `recording` (on by default, as in a bare-metal install: the recorder, the processing and the player) and `webhooks`. Without `recording`, meetings are not recorded, even when they are created with `record=true`. To turn a profile off, remove it from `COMPOSE_PROFILES` and remove its containers, which `up -d` leaves running, e.g. for webhooks `docker compose rm -sf webhooks`, for recording `docker compose rm -sf webrtc-recorder recording-workers recording-starter recording-caption-inbox recording-cleanup playback`.
 
 ### What happens on the first start
 
@@ -69,7 +69,7 @@ Data, in `./data` next to `docker-compose.yml`:
 - `letsencrypt`: `/etc/letsencrypt` (certificate and ACME account);
 - `certs`: your own certificate, if you use one.
 
-Backup: `./data`, `.env` and `docker-compose.override.yml`. PostgreSQL (a volume) holds only the state of running meetings, and `init` recreates its databases, so it is not part of a backup. Redis (the `redis` volume) holds the events of recorded meetings until they are archived and the queue of recordings to process; `docker compose down` keeps it. `docker compose down -v` removes it and the other volumes, but not `./data`.
+Backup: `./data`, `.env` and `docker-compose.override.yml`. PostgreSQL (a volume) holds only the state of running meetings, and `init` recreates its databases, so it is not part of a backup. Redis (the `redis` volume) holds the events of recorded meetings until they are archived and the queue of recordings to process; `docker compose down` keeps it. `docker compose down -v` removes it and the other volumes, but not `./data`. To restore on another server, set `BBB_PUBLIC_IP` (and `BBB_DOMAIN` if it changes) in the restored `.env` before the first `up`.
 
 ## Configuration
 
@@ -124,7 +124,7 @@ Backup: `./data`, `.env` and `docker-compose.override.yml`. PostgreSQL (a volume
 | `bbb-conf --setsecret <secret>` | set `BBB_SHARED_SECRET` in `.env`, then `docker compose up -d --force-recreate` |
 | `bbb-conf --setip <hostname>` | set `BBB_DOMAIN` and `BBB_PUBLIC_IP` in `.env`, then `docker compose up -d --force-recreate` |
 | `bbb-conf --debug` / `--watch` | `docker compose logs <service>` / `docker compose logs -f` |
-| `bbb-conf --version` | `docker compose images` (the image tags) |
+| `bbb-conf --version` | `docker compose images` (the image tags); the dated version of an image is its label `org.opencontainers.image.version` (`docker image inspect --format '{{index .Config.Labels "org.opencontainers.image.version"}}' <image>`) |
 
 ## Greenlight and other front ends
 
