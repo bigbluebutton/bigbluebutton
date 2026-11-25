@@ -18,6 +18,7 @@ Not covered yet: office document conversion (bbb-web expects `/usr/share/bbb-lib
 
 - one Linux server with Docker Engine 28 or later and the compose plugin 2.35 or later (`init` mounts the database schemas from the images as image volumes);
 - a DNS name for it and a public IPv4 address;
+- IPv6 not turned off in the kernel (no `ipv6.disable=1` on the kernel command line): nginx also listens on `[::]` and does not start without it. The server needs no IPv6 address;
 - open ports: 80/tcp and 443/tcp (web, Let's Encrypt, TURN over TLS), 3478/tcp and 3478/udp (TURN), 7882/udp (LiveKit media);
 - LiveKit wants larger UDP buffers than most hosts have (it warns `UDP receive buffer is too small` at start): set `net.core.rmem_max` and `net.core.wmem_max` on the host, e.g. to 5000000 (the value LiveKit suggests in that warning) in `/etc/sysctl.d/`;
 - the subnet `172.30.82.0/24` free on the host (the compose network; LiveKit has a fixed address in it, the only address coturn relays to).
