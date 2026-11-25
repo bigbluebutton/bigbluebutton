@@ -106,8 +106,10 @@ const LayoutShellStyles = createGlobalStyle`
     z-index: 2;
   }
   #layout[data-rtl] [data-layout-region="sidebar-navigation"] { left: auto; right: 0; }
+  /* the phone's floating rail: 0.8rem from the top, over any banner (the engine's top for it, banner
+     offset included, never reached the element: the reducer dropped it) */
   #layout[data-mobile] [data-layout-region="sidebar-navigation"] {
-    top: calc(var(--bbb-banners) + 0.8rem);
+    top: 0.8rem;
     left: 5px;
     height: calc(98% - var(--bbb-actionbar-height) - 20px);
     z-index: 12;
@@ -511,9 +513,11 @@ const LayoutShellStyles = createGlobalStyle`
       - var(--bbb-actionbar-height));
   }
   #layout[data-shell-layout="participantsAndChatOnly"][data-mobile] { --bbb-content-width: 100%; }
+  #layout[data-shell-layout="participantsAndChatOnly"] [data-layout-region="sidebar-navigation"] {
+    top: var(--bbb-navbar-height);
+  }
   #layout[data-shell-layout="participantsAndChatOnly"]
     [data-layout-region="sidebar-navigation"]:not([data-collapsed]) {
-    top: var(--bbb-navbar-height);
     height: var(--bbb-sidebar-height);
   }
   #layout[data-shell-layout="participantsAndChatOnly"] [data-layout-region="sidebar-content"] {

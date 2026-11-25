@@ -81,6 +81,7 @@ export const SCENARIOS: Scenario[] = [
   // banner and hidden bars
   { id: 'banner-1366', profile: laptop, banner: true },
   { id: 'banner-1280-camera', profile: hd, banner: true, cameras: 1 },
+  { id: 'banner-phone', profile: phone, banner: true },
   { id: 'hide-nav-bar-1366', profile: laptop, hideNavBar: true },
   { id: 'hide-actions-bar-1366', profile: laptop, hideActionsBar: true },
   { id: 'hide-controls-1366', profile: laptop, hideControls: true },
@@ -95,6 +96,7 @@ export const SCENARIOS: Scenario[] = [
   { id: 'cameras-only-1920', profile: fullHd, layout: 'CAMERAS_ONLY' },
   { id: 'presentation-only-1366', profile: laptop, layout: 'PRESENTATION_ONLY' },
   { id: 'presentation-only-phone', profile: phone, layout: 'PRESENTATION_ONLY' },
+  { id: 'participants-and-chat-only-phone', profile: phone, layout: 'PARTICIPANTS_AND_CHAT_ONLY' },
   { id: 'participants-and-chat-only-1366', profile: laptop, layout: 'PARTICIPANTS_AND_CHAT_ONLY' },
   { id: 'participants-and-chat-only-800x1000', profile: tabletPortrait, layout: 'PARTICIPANTS_AND_CHAT_ONLY' },
   { id: 'media-only-1366', profile: laptop, layout: 'MEDIA_ONLY' },

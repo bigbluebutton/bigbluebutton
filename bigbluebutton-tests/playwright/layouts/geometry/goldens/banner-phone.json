@@ -1,0 +1,74 @@
+{
+  "scenario": {
+    "id": "banner-phone",
+    "profile": {
+      "width": 390,
+      "height": 844,
+      "phone": true
+    },
+    "banner": true
+  },
+  "capturedWith": "dist-base (bundle.8184c460488bf2b301d9.js)",
+  "geometry": {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "attributes": {
+      "layout": "unified"
+    },
+    "regions": {
+      "navBar": {
+        "x": 0,
+        "y": 34,
+        "width": 390,
+        "height": 85,
+        "visible": true,
+        "id": "Navbar"
+      },
+      "actionsBar": {
+        "x": 0,
+        "y": 774,
+        "width": 390,
+        "height": 70,
+        "visible": true,
+        "id": "ActionsBar"
+      },
+      "sidebarNavigation": {
+        "x": 5,
+        "y": 13,
+        "width": 48,
+        "height": 20,
+        "visible": true
+      },
+      "sidebarContent": null,
+      "sidebarContentPanel": null,
+      "sidebarContentAuxiliary": null,
+      "sidebarContentAuxiliaryPanel": null,
+      "cameraDock": null,
+      "presentation": {
+        "x": 0,
+        "y": 119,
+        "width": 390,
+        "height": 655,
+        "visible": true
+      },
+      "screenShare": null,
+      "externalVideo": null,
+      "genericContent": null,
+      "pinnedNotes": null
+    },
+    "multi": {
+      "banners": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 30,
+          "visible": true
+        }
+      ],
+      "dropZones": []
+    }
+  }
+}
