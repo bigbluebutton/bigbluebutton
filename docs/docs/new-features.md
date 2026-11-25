@@ -52,6 +52,16 @@ The presentation files of a recording are named by the page id instead of the 1-
 
 The keys of `presentation_text.json` follow the text file names (`slide-{pageId}`). See [Page ids in recordings](/development/recording#page-ids-in-recordings) for the details of each event.
 
+### Installation
+
+#### Docker Compose
+
+BigBlueButton 4.1 can run on one server with Docker Compose, from container images built in the BigBlueButton repository, as an alternative to the package install. See [Install with Docker Compose](/administration/docker-compose).
+
+#### Environment variables
+
+bbb-graphql-middleware, bbb-shared-notes-server, bbb-export-annotations and the recording processing read their addresses, ports and passwords also from environment variables, which win over their configuration files. On a package install they are unset and nothing changes; the variables are listed in [docker/README.md](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/docker/README.md#environment-variables).
+
 ### bbb-web properties changes
 
 #### Added
