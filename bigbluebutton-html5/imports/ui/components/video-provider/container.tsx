@@ -22,6 +22,7 @@ import VideoService from './service';
 import logger from '/imports/startup/client/logger';
 import { Output } from '/imports/ui/components/layout/layoutTypes';
 import { VideoItem } from './types';
+import { mergePinnedGridUsers } from './stream-sorting';
 import { debounce } from '/imports/utils/debounce';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
@@ -88,6 +89,7 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
   const { data: currentUser } = useCurrentUser((user) => ({
     locked: user.locked,
     userId: user.userId,
+    isModerator: user.isModerator,
   }));
 
   const currentUserId = currentUser?.userId ?? '';
@@ -105,11 +107,11 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
     totalNumberOfOtherStreams,
   } = useVideoStreams();
 
-  let usersVideo: VideoItem[] = streams;
-
-  if (gridUsers.length > 0) {
-    usersVideo = usersVideo.concat(gridUsers);
-  }
+  let usersVideo: VideoItem[] = mergePinnedGridUsers(
+    streams,
+    gridUsers,
+    !currentUser?.isModerator,
+  );
 
   if (
     currentMeeting?.usersPolicies?.webcamsOnlyForModerator

@@ -25,6 +25,7 @@ import Styled from './styles';
 import { Input, Layout, Output } from '/imports/ui/components/layout/layoutTypes';
 import { VideoItem } from '/imports/ui/components/video-provider/types';
 import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
+import { mergePinnedGridUsers } from '/imports/ui/components/video-provider/stream-sorting';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import useSettings from '../../services/settings/hooks/useSettings';
@@ -432,6 +433,7 @@ const WebcamContainer: React.FC = () => {
 
   const { data: currentUserData } = useCurrentUser((user) => ({
     presenter: user.presenter,
+    isModerator: user.isModerator,
   }));
   const { selectedLayout } = useSettings(SETTINGS.LAYOUT) as { selectedLayout: string };
   const isUnifiedLayout = selectedLayout === LAYOUT_TYPE.UNIFIED_LAYOUT;
@@ -455,15 +457,11 @@ const WebcamContainer: React.FC = () => {
     });
   }, [numCamerasValue]);
 
-  let usersVideo: VideoItem[];
-  if (gridUsers.length > 0) {
-    usersVideo = [
-      ...videoUsers,
-      ...gridUsers,
-    ];
-  } else {
-    usersVideo = videoUsers;
-  }
+  const usersVideo: VideoItem[] = mergePinnedGridUsers(
+    videoUsers,
+    gridUsers,
+    !currentUserData?.isModerator,
+  );
 
   const audioModalIsOpen = useStorageKey('audioModalIsOpen');
 

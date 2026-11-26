@@ -15,7 +15,7 @@ import { SET_CAMERA_PINNED } from '/imports/ui/core/graphql/mutations/userMutati
 import { VideoItem } from '/imports/ui/components/video-provider/types';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import { useIsVideoPinEnabledForCurrentUser } from '/imports/ui/components/video-provider/hooks';
-import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
+import { isVideoItemPinned } from '/imports/ui/components/video-provider/stream-sorting';
 
 const intlMessages = defineMessages({
   focusLabel: {
@@ -147,7 +147,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
 
   const getAvailableActions = () => {
     if (!cameraId) return [];
-    const pinned = stream.type === VIDEO_TYPES.STREAM && stream.user?.pinned;
+    const pinned = isVideoItemPinned(stream);
     const { userId } = stream;
     const isPinnedIntlKey = !pinned ? 'pin' : 'unpin';
     const isFocusedIntlKey = !focused ? 'focus' : 'unfocus';
