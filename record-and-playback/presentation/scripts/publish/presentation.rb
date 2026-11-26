@@ -930,7 +930,7 @@ def process_presentation(package_dir)
   # xml files as we go
   last_timestamp = 0.0
   events_xml = Nokogiri::XML(File.read("#{@process_dir}/events.xml"))
-  # The pages of each presentation, in page order (see BigBlueButton::Events.presentation_page_ids).
+  # List of slide filename keys for each presentation, in the original order.
   page_ids = BigBlueButton::Events.presentation_page_ids(events_xml, "#{@process_dir}/presentation")
   first_pages = BigBlueButton::Events.presentation_first_pages(events_xml, page_ids)
   events_xml.xpath('/recording/event').each do |event|

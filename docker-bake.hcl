@@ -29,7 +29,7 @@ group "default" {
     "apps-akka", "web", "html5-client", "learning-dashboard",
     "graphql-actions", "graphql-middleware", "graphql-server",
     "export-annotations", "shared-notes-server", "record-and-playback", "nginx",
-    "webrtc-sfu", "webrtc-recorder", "webhooks", "playback",
+    "webrtc-sfu", "webrtc-recorder", "webhooks", "playback", "init",
   ]
 }
 
@@ -68,10 +68,11 @@ target "web" {
   context  = "./bigbluebutton-web"
   args     = { CLIENT_BUILD = CLIENT_BUILD }
   contexts = {
-    java-base      = "target:_java-base"
-    bbb-common-web = "target:_bbb-common-web"
-    slides         = "./bigbluebutton-config/slides"
-    html5-config   = "./bigbluebutton-html5/private/config"
+    java-base          = "target:_java-base"
+    bbb-common-web     = "target:_bbb-common-web"
+    slides             = "./bigbluebutton-config/slides"
+    html5-config       = "./bigbluebutton-html5/private/config"
+    libreoffice-assets = "./bbb-libreoffice/assets"
   }
 }
 
@@ -169,4 +170,15 @@ target "playback" {
   tags     = tags("playback")
   context  = "./docker/bbb-playback"
   contexts = { placeholders = "." }
+}
+
+# Creates the databases and the data directories; the schemas come from this commit's sources
+target "init" {
+  inherits = ["_image"]
+  tags     = tags("init")
+  context  = "./docker/bbb-init"
+  contexts = {
+    graphql-server      = "./bbb-graphql-server"
+    shared-notes-server = "./bbb-shared-notes-server"
+  }
 }

@@ -15,7 +15,7 @@
       "__format": "number"
     }
   },
-  "bbbWebAPI": "BBB_WEB_API",
+  "bbbWebAPI": "BBB_WEB_URL",
   "redis": {
     "host": "REDIS_HOST",
     "port": {

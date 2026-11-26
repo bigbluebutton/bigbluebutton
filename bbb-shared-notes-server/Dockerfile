@@ -10,8 +10,12 @@ RUN npm run build && mv dist/index.js dist/bbb-shared-notes-server.js && npm pru
 
 FROM node:24.22.3-slim@sha256:dc26ae92c9fb15cf6b1d63e20f0944b2efe0f115b20e00be48fb23fceb061c54
 
-# wkhtmltopdf is the PDF converter of the package (not available on Alpine)
-RUN apt-get update && apt-get install -y --no-install-recommends wkhtmltopdf \
+# wkhtmltopdf is the PDF converter of the package (not available on Alpine). The Noto fonts are
+# the ones a package install has through bbb-web (fonts-noto) and bbb-libreoffice-docker
+# (fonts-noto-cjk); without them CJK, Indic and Thai text is missing from the PDF. fonts-liberation
+# (a dependency of the package) gives Arial and Liberation Mono, which the notes' CSS asks for, the
+# same metrics as on a package install.
+RUN apt-get update && apt-get install -y --no-install-recommends wkhtmltopdf fonts-noto-core fonts-noto-cjk fonts-liberation \
  && rm -rf /var/lib/apt/lists/* \
  && groupadd -g 998 bigbluebutton && useradd -u 998 -g 998 -m bigbluebutton
 

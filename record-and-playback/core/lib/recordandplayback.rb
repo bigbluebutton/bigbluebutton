@@ -284,14 +284,35 @@ module BigBlueButton
     end
     # Environment variables win over both files
     @props['redis_host'] = ENV['REDIS_HOST'] if env_set?('REDIS_HOST')
-    @props['redis_port'] = Integer(ENV['REDIS_PORT']) if env_set?('REDIS_PORT')
+    @props['redis_port'] = env_port('REDIS_PORT', @props['redis_port']) if env_set?('REDIS_PORT')
+    @props['redis_password'] = ENV['REDIS_PASSWORD'] if env_set?('REDIS_PASSWORD')
     @props['playback_host'] = ENV['PLAYBACK_HOST'] if env_set?('PLAYBACK_HOST')
     @props['bn_notes_endpoint'] = ENV['BN_NOTES_ENDPOINT'] if env_set?('BN_NOTES_ENDPOINT')
     @props
   end
 
+  # The Redis of the resque queues: redis_workers_* if set, else redis_*. redis_workers_password
+  # is used whenever it is set; the password of the main Redis is not sent to a queue on another
+  # host (redis_workers_host), which then gets no password.
+  def self.resque_redis(props = BigBlueButton.read_props)
+    require 'redis'
+    password = props['redis_workers_password'] || (props['redis_workers_host'] ? nil : props['redis_password'])
+    Redis.new(host: props['redis_workers_host'] || props['redis_host'],
+              port: props['redis_workers_port'] || props['redis_port'],
+              password: password)
+  end
+
   def self.env_set?(name)
     !ENV.fetch(name, '').empty?
+  end
+
+  # The port in variable name, or fallback when it is not a number. Kubernetes sets
+  # REDIS_PORT=tcp://<address>:6379 for a Service named redis.
+  def self.env_port(name, fallback)
+    Integer(ENV[name], 10)
+  rescue ArgumentError
+    BigBlueButton.logger.warn("#{name}=#{ENV[name]} is not a port number, using #{fallback}")
+    fallback
   end
 
   # Reads a Java .properties file into a Hash with symbol keys.
