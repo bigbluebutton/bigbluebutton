@@ -285,14 +285,37 @@ export class Presentation extends MultiUsers {
       'the volume slider should stay hidden while the player is neither hovered nor focused',
     ).toBeHidden({ timeout: ELEMENT_WAIT_LONGER_TIME });
 
-    await userPage.page.locator(e.externalVideoOverlay).focus();
-    await userPage.press('ArrowDown');
+    const overlay = userPage.page.locator(e.externalVideoOverlay);
+    await expect(overlay, 'the focusable video overlay should be exposed as a group').toHaveRole('group');
+    await expect(overlay, 'the focusable video overlay should have an accessible name').toHaveAccessibleName(
+      'External video',
+    );
+    await expect(overlay, 'the video overlay should describe its keyboard shortcut').toHaveAccessibleDescription(
+      'Use the Up and Down arrow keys to change the volume',
+    );
+
+    // Tab from the overlay walks the toolbar before leaving the player. The stub is a file
+    // player, so its toolbar is mute, volume, reload and fullscreen (no subtitles button).
     const volumeSlider = userPage.page.locator(e.externalVideoVolumeSlider);
+    const muteButton = userPage.page.locator(e.externalVideoMuteButton);
+    await overlay.focus();
+    await userPage.press('Tab');
+    await expect(muteButton, 'Tab from the video overlay should focus the mute button').toBeFocused();
+    await userPage.press('Tab');
+    await expect(volumeSlider, 'Tab from the mute button should focus the volume slider').toBeFocused();
+    await userPage.press('Tab');
+    await userPage.press('Tab');
+    await expect(
+      userPage.page.locator(e.externalVideoFullscreenButton),
+      'Tab from the reload button should focus the fullscreen button',
+    ).toBeFocused();
+
+    await overlay.focus();
+    await userPage.press('ArrowDown');
     await expect(volumeSlider, 'ArrowDown on the player should move focus to the volume slider').toBeFocused();
     await expect(volumeSlider, 'the volume slider should be visible while it has focus').toBeVisible();
 
     await userPage.press('Shift+Tab');
-    const muteButton = userPage.page.locator(e.externalVideoMuteButton);
     await expect(muteButton, 'Shift+Tab from the volume slider should focus the mute button').toBeFocused();
     await expect(muteButton, 'the mute button should be visible while it has focus').toBeVisible();
     await expect(muteButton, 'the mute button should have its own accessible name').toHaveAttribute(

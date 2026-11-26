@@ -590,6 +590,7 @@ export const elements = {
   externalVideoOverlay: 'div[id="external-video-overlay"]',
   externalVideoMuteButton: 'button[data-test="externalVideoMuteButton"]',
   externalVideoVolumeSlider: 'input[data-test="externalVideoVolumeSlider"]',
+  externalVideoFullscreenButton: 'div[data-test="videoPlayer"] button[data-test="webcamFullscreenButton"]',
   presentationTitle: 'h1[data-test="presentationTitle"]',
   fitToWidthButton: 'button[data-test="fitToWidthButton"]',
   presentationsList: 'div[id="upload-modal"] tbody',
