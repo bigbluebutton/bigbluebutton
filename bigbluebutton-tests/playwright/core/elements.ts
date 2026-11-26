@@ -22,6 +22,7 @@ export const elements = {
   modalConfirmButton: 'button[data-test="modalConfirmButton"]',
   screenshareConnecting: 'div[data-test="screenshareConnecting"]',
   screenShareVideo: 'video[id="screenshareVideo"]',
+  screenshareContainer: 'div[id="screenshareContainer"]',
   screenshareFullscreenButton: 'div[id="screenshareContainer"] button[data-test="webcamFullscreenButton"]',
   screenshareMuteButton: 'button[data-test="screenshareMuteButton"]',
   screenshareVolumeSlider: 'input[data-test="screenshareVolumeSlider"]',

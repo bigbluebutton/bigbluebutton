@@ -115,6 +115,24 @@ test.describe.parallel('Screenshare', { tag: ['@ci', '@media'] }, () => {
     await screenshare.initModPage(page, { testInfo });
     await screenshare.initUserPage(context, { testInfo });
     await screenshare.attendeeVolumeByKeyboard();
+    await screenshare.attendeeScreenshareHasNoExtraTabStop();
+  });
+
+  test('Attendee reaches the screenshare volume controls by keyboard without fullscreen', async ({
+    browser,
+    context,
+    browserName,
+    page,
+  }, testInfo) => {
+    test.skip(browserName === 'firefox', 'Screenshare tests not able in Firefox browser without desktop');
+    linkIssue(26704);
+    const screenshare = new ScreenShare(browser, context);
+    await screenshare.initModPage(page, { testInfo });
+    await screenshare.initUserPage(context, {
+      testInfo,
+      clientSettingsOverrides: { public: { app: { allowFullscreen: false } } },
+    });
+    await screenshare.attendeeVolumeByKeyboardWithoutFullscreen();
   });
 
   test('Start screenshare stops external video', async ({ browser, context, page }, testInfo) => {

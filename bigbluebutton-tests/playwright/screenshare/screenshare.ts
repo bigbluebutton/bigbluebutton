@@ -89,6 +89,52 @@ export class ScreenShare extends MultiUsers {
     await expect(volumeSlider, 'the volume slider should be visible while it has focus').toBeVisible();
   }
 
+  // https://github.com/bigbluebutton/bigbluebutton/issues/26704
+  // With fullscreen disabled (public.app.allowFullscreen: false) and no plugin buttons, the screenshare
+  // has no other Tab stop, so the container itself takes focus and reveals the volume control.
+  async attendeeVolumeByKeyboardWithoutFullscreen() {
+    test.skip(!this.modPage.settings?.screensharingEnabled, 'Screen sharing is disabled');
+    await startScreenshare(this.modPage);
+    const { userPage } = this;
+    await userPage.hasElement(
+      e.screenShareVideo,
+      'should display the screenshare to the attendee',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+    await userPage.wasRemoved(
+      e.screenshareFullscreenButton,
+      'should not display the fullscreen button when fullscreen is disabled',
+    );
+    await userPage.page.mouse.move(0, 0);
+    const volumeSlider = userPage.page.locator(e.screenshareVolumeSlider);
+    await expect(volumeSlider, 'the volume slider should stay hidden without mouse movement or focus').toBeHidden({
+      timeout: ELEMENT_WAIT_LONGER_TIME,
+    });
+
+    const container = userPage.page.locator(e.screenshareContainer);
+    await expect(container, 'the screenshare should be a keyboard Tab stop').toHaveAttribute('tabindex', '0');
+    await expect(container, 'the screenshare Tab stop should be exposed as a group').toHaveRole('group');
+    await expect(container, 'the screenshare Tab stop should have an accessible name').toHaveAccessibleName(
+      'Screen share',
+    );
+
+    await container.focus();
+    await userPage.press('Tab');
+    const muteButton = userPage.page.locator(e.screenshareMuteButton);
+    await expect(muteButton, 'Tab from the screenshare should focus the mute button').toBeFocused();
+    await expect(muteButton, 'the mute button should be visible while it has focus').toBeVisible();
+    await userPage.press('Tab');
+    await expect(volumeSlider, 'Tab from the mute button should focus the volume slider').toBeFocused();
+    await expect(volumeSlider, 'the volume slider should be visible while it has focus').toBeVisible();
+  }
+
+  async attendeeScreenshareHasNoExtraTabStop() {
+    await expect(
+      this.userPage.page.locator(e.screenshareContainer),
+      'the screenshare should not add a Tab stop while the fullscreen button provides one',
+    ).not.toHaveAttribute('tabindex', /.*/);
+  }
+
   async refusedScreenCapture() {
     await this.modPage.waitAndClick(e.startScreenSharing);
     await this.modPage.hasText(
