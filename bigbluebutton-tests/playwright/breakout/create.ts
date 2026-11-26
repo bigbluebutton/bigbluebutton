@@ -289,6 +289,12 @@ export class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
   }
 
+  // For suites outside breakout/ that only need a moderator inside a room.
+  async joinAssignedBreakoutAsModerator() {
+    await this.createAssignedBreakout();
+    return this.joinFirstBreakoutRoomAsModerator();
+  }
+
   async inheritLockSettingsCheckboxIsNotOffered() {
     if (!this?.modPage) throw new Error('modPage not initialized');
 

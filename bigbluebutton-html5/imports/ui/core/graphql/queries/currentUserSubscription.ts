@@ -48,6 +48,10 @@ subscription userCurrentSubscription {
       endedReasonCode
       endedByUserName
       logoutUrl
+      roomMode
+      usersPolicies {
+        guestPolicy
+      }
     }
     lastBreakoutRoom {
       isUserCurrentlyInRoom
