@@ -420,6 +420,7 @@ export const elements = {
   blockNoteToolbar: 'div[data-test="blockNoteToolbar"]',
   blockNoteEditorByDataTest: '[data-test="blockNoteEditor"]',
   blockTypeSelect: 'button[data-test="blockTypeSelect"]',
+  blockNoteFloatingToolbar: '.bn-formatting-toolbar',
   blockNoteLinkToolbar: '.bn-link-toolbar',
   blockNoteLinkForm: '.bn-form-popover',
   blockNoteUnderlineButton: 'div[data-test="blockNoteToolbar"] button[aria-label="Underline"]',

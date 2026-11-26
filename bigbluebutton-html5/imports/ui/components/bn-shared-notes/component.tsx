@@ -37,6 +37,7 @@ import {
   ComponentProps,
   ComponentsContext,
   FormattingToolbar,
+  FormattingToolbarController,
   getDefaultReactSlashMenuItems,
   NestBlockButton,
   preventFocusOnTap,
@@ -296,9 +297,10 @@ const AccessibleMenuRoot: React.FC<{
   </MantineMenu>
 );
 
-// Patches ComponentsContext so every Generic.Menu.Root in the toolbar uses
-// AccessibleMenuRoot — fixes both ColorStyleButton and TextAlignSelect.
-function ToolbarWithAccessibleMenus({ children }: { children: React.ReactNode }) {
+// Patches ComponentsContext so BlockTypeSelect renders AccessibleToolbarSelect,
+// which names the select "Text type: <current type>". Used by both the static
+// and the floating formatting toolbar.
+function AccessibleBlockTypeSelectProvider({ children }: { children: React.ReactNode }) {
   const components = useComponentsContext()!;
   const intl = useIntl();
   const AccessibleBlockTypeSelect = React.useCallback((
@@ -318,10 +320,6 @@ function ToolbarWithAccessibleMenus({ children }: { children: React.ReactNode })
   }, [intl]);
   const patchedComponents = React.useMemo(() => ({
     ...components,
-    Generic: {
-      ...components.Generic,
-      Menu: { ...components.Generic.Menu, Root: AccessibleMenuRoot },
-    },
     FormattingToolbar: {
       ...components.FormattingToolbar,
       Select: AccessibleBlockTypeSelect,
@@ -329,6 +327,25 @@ function ToolbarWithAccessibleMenus({ children }: { children: React.ReactNode })
   }), [AccessibleBlockTypeSelect, components]);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return <ComponentsContext.Provider value={patchedComponents as any}>{children}</ComponentsContext.Provider>;
+}
+
+// Patches ComponentsContext so every Generic.Menu.Root in the static toolbar uses
+// AccessibleMenuRoot — fixes both ColorStyleButton and TextAlignSelect.
+function ToolbarWithAccessibleMenus({ children }: { children: React.ReactNode }) {
+  const components = useComponentsContext()!;
+  const patchedComponents = React.useMemo(() => ({
+    ...components,
+    Generic: {
+      ...components.Generic,
+      Menu: { ...components.Generic.Menu, Root: AccessibleMenuRoot },
+    },
+  }), [components]);
+  return (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    <ComponentsContext.Provider value={patchedComponents as any}>
+      <AccessibleBlockTypeSelectProvider>{children}</AccessibleBlockTypeSelectProvider>
+    </ComponentsContext.Provider>
+  );
 }
 
 interface BlockNoteAppProps {
@@ -703,7 +720,8 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
           editable={editable}
           editor={editor}
           theme="light"
-          formattingToolbar={!STATIC_FORMATTING_TOOLBAR_ENABLED}
+          // The floating toolbar is rendered below so it gets the accessible select
+          formattingToolbar={false}
           slashMenu={false}
           renderEditor={false}
           portalElements={portalElements}
@@ -741,6 +759,11 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
             </ToolbarWithAccessibleMenus>
           )}
           <BlockNoteViewEditor>
+            {!STATIC_FORMATTING_TOOLBAR_ENABLED && (
+              <AccessibleBlockTypeSelectProvider>
+                <FormattingToolbarController />
+              </AccessibleBlockTypeSelectProvider>
+            )}
             <SuggestionMenuController
               triggerCharacter="/"
               shouldOpen={shouldOpenSlashMenu}

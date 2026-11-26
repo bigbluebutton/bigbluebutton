@@ -14,6 +14,14 @@ const CREATE_PARAMETERS = [
   'sharedNotesEditor=blockNote',
 ].join('&');
 
+const FLOATING_FORMATTING_TOOLBAR_SETTINGS_OVERRIDE = {
+  public: {
+    sharedNotes: {
+      staticFormattingToolbar: false,
+    },
+  },
+};
+
 test.describe.parallel('Accessible control names', { tag: '@ci' }, () => {
   test('names chat, notes, and meeting-ended controls', async ({ browser, context, page, request }, testInfo) => {
     linkIssue(26613);
@@ -130,5 +138,43 @@ test.describe.parallel('Accessible control names', { tag: '@ci' }, () => {
       modPage.page.locator(e.redirectButton),
       'meeting-ended confirmation should expose its translated description',
     ).toHaveAccessibleDescription('Logs you out of the session');
+  });
+
+  test('names the text type select in the floating notes toolbar', async ({ browser, context, page }, testInfo) => {
+    linkIssue(26613);
+    const session = new MultiUsers(browser, context);
+    await session.initModPage(page, {
+      clientSettingsOverrides: FLOATING_FORMATTING_TOOLBAR_SETTINGS_OVERRIDE,
+      createParameter: CREATE_PARAMETERS,
+      testInfo,
+    });
+    const { modPage } = session;
+
+    await modPage.waitAndClick(e.sharedNotesSidebarButton);
+    const editor = modPage.page.locator(e.blockNoteEditorByDataTest);
+    await editor.fill('Floating toolbar');
+    await expect(
+      modPage.page.locator(e.blockNoteToolbar),
+      'static toolbar should be off with staticFormattingToolbar=false',
+    ).toHaveCount(0);
+    await editor.press('ControlOrMeta+a');
+
+    const floatingToolbar = modPage.page.locator(e.blockNoteFloatingToolbar);
+    await expect(floatingToolbar, 'selecting text should open the floating toolbar').toBeVisible();
+    const blockTypeSelect = floatingToolbar.getByRole('button').first();
+    await expect(blockTypeSelect, 'floating block type select should name its current value').toHaveAccessibleName(
+      'Text type: Paragraph',
+    );
+
+    await blockTypeSelect.click();
+    await modPage.page
+      .locator('[role="menu"]:visible')
+      .getByRole('menuitem', { name: 'Heading 1', exact: true })
+      .click();
+    await editor.press('ControlOrMeta+a');
+    await expect(
+      floatingToolbar.getByRole('button').first(),
+      'floating block type select name should follow the selected type',
+    ).toHaveAccessibleName('Text type: Heading 1');
   });
 });
