@@ -65,6 +65,12 @@ cd ..
 if [ -f dist/index.html ] || [ -f dist/stylesheets/fonts.css ]; then
   sed -i "s/?v=VERSION/?v=$(($BUILD))/g" dist/index.html
   sed -i "s/?v=VERSION/?v=$(($BUILD))/g" dist/stylesheets/fonts.css
+  # webpack wrote the .gz copies, which nginx serves, before the substitution
+  for FILE in dist/index.html dist/stylesheets/fonts.css; do
+    if [ -f "$FILE.gz" ]; then
+      gzip -9 -n -k -f "$FILE"
+    fi
+  done
 fi
 
 cp -r dist/* staging/usr/share/bigbluebutton/html5-client
