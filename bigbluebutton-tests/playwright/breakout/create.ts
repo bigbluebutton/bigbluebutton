@@ -114,7 +114,7 @@ export class Create extends MultiUsers {
     await this.modPage.setHeightWidthViewPortSize(); // reset to default size
   }
 
-  protected async joinFirstBreakoutRoomAsModerator() {
+  async joinFirstBreakoutRoomAsModerator() {
     if (!this?.modPage) throw new Error('modPage not initialized');
 
     const isRoomOptionsVisible = await this.modPage.page

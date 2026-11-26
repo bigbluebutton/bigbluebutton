@@ -116,6 +116,7 @@ public class Meeting {
 	private Boolean meetingKeepEvents;
 	private String presentationUploadExternalDescription;
 	private String presentationUploadExternalUrl;
+	private String roomMode = "";
 
 	private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
 	private Integer meetingExpireWhenLastUserLeftInMinutes = 1;
@@ -150,6 +151,7 @@ public class Meeting {
 		notifyRecordingAppend = builder.notifyRecordingAppend;
 		presentationUploadExternalDescription = builder.presentationUploadExternalDescription;
 		presentationUploadExternalUrl = builder.presentationUploadExternalUrl;
+		roomMode = builder.roomMode;
 		if (builder.viewerPass == null){
 			viewerPass = "";
 		} else {
@@ -455,6 +457,10 @@ public class Meeting {
 	}
 	public String getPresentationUploadExternalUrl() {
 		return presentationUploadExternalUrl;
+	}
+
+	public String getRoomMode() {
+		return roomMode;
 	}
 
   public String getWelcomeMessageTemplate() {
@@ -989,6 +995,7 @@ public class Meeting {
 		private String notifyRecordingAppend = "";
 		private String presentationUploadExternalDescription;
 		private String presentationUploadExternalUrl;
+		private String roomMode = "";
     	private int duration;
     	private String telVoice;
     	private String welcomeMsgTemplate;
@@ -1185,6 +1192,11 @@ public class Meeting {
 
 			public Builder withPresentationUploadExternalUrl(String u) {
 	    	this.presentationUploadExternalUrl = u;
+	    	return this;
+	    }
+
+	    public Builder withRoomMode(String m) {
+	    	this.roomMode = m;
 	    	return this;
 	    }
 

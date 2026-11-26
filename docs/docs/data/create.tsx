@@ -371,6 +371,13 @@ const createEndpointTableData = [
     "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> starts the meeting with participants without a camera hidden from the webcam grid, for everyone. Moderators and the presenter can turn it off from the "Layout view" button in the actions bar. (added 4.1)</>)
   },
   {
+    "name": "roomMode",
+    "required": false,
+    "type": "String",
+    "default": "",
+    "description": (<>The room mode the room is meant for, such as <code className="language-plaintext highlighter-rouge">class</code> or <code className="language-plaintext highlighter-rouge">meeting</code>. It only marks the room: while the room has no mode, the pre-flight's room mode panel comes up with that mode picked. The moderator still starts the room to apply it, and with the panel off (see <code className="language-plaintext highlighter-rouge">userdata-bbb_pre_flight_room_modes</code>) nothing applies it. A mode the client does not offer is kept on the room with nothing picked. Lowercase letters, digits and dashes, starting with a letter, up to 32 characters; any other value fails the create with <code className="language-plaintext highlighter-rouge">validationError</code>. Breakout rooms do not inherit it. (added 4.1)</>)
+  },
+  {
     "name": "learningDashboardCleanupDelayInMinutes",
     "required": false,
     "type": "Number",

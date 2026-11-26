@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
 
 import com.google.gson.*;
 import org.bigbluebutton.api.domain.*;
+import org.bigbluebutton.api.model.request.CreateMeeting;
 import org.bigbluebutton.api.util.PluginUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -912,6 +913,18 @@ public class ParamsProcessorUtil {
             presentationUploadExternalUrl = params.get(ApiParams.PRESENTATION_UPLOAD_EXTERNAL_URL);
         }
 
+        // CreateMeeting validates it sanitized, so it is stored sanitized.
+        String roomMode = "";
+        if (!StringUtils.isEmpty(params.get(ApiParams.ROOM_MODE))) {
+            roomMode = ParamsUtil.sanitizeString(params.get(ApiParams.ROOM_MODE));
+        }
+        // Validation sanitizes the keys too, so the value it checked can come from
+        // another key that sanitizes to roomMode.
+        if (!roomMode.matches(CreateMeeting.ROOM_MODE_PATTERN)) {
+            log.warn("Invalid param [roomMode] for meeting=[{}]", internalMeetingId);
+            roomMode = "";
+        }
+
         String meetingLayout = defaultMeetingLayout;
 
         ArrayList<Group> groups = processGroupsParams(params);
@@ -1014,6 +1027,7 @@ public class ParamsProcessorUtil {
                 .withNotifyRecordingAppend(notifyRecordingAppend)
                 .withPresentationUploadExternalDescription(presentationUploadExternalDescription)
                 .withPresentationUploadExternalUrl(presentationUploadExternalUrl)
+                .withRoomMode(roomMode)
                 .build();
 
         if (!StringUtils.isEmpty(params.get(ApiParams.MODERATOR_ONLY_MESSAGE))) {

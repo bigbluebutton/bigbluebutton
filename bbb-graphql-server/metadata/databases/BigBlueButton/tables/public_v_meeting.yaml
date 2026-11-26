@@ -186,6 +186,9 @@ select_permissions:
         - notifyRecordingIsOn
         - presentationUploadExternalDescription
         - presentationUploadExternalUrl
+        - roomBaseSettings
+        - roomMode
+        - roomModeOnCreate
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId
@@ -221,6 +224,8 @@ select_permissions:
         - notifyRecordingIsOn
         - presentationUploadExternalDescription
         - presentationUploadExternalUrl
+        - roomMode
+        - roomModeOnCreate
         - screenShareBridge
       filter:
         meetingId:

@@ -1,7 +1,10 @@
 package org.bigbluebutton.core.db
 
 import org.bigbluebutton.common2.domain.DefaultProps
+import org.bigbluebutton.common2.msgs.RoomModeSettings
+import org.bigbluebutton.common2.util.JsonUtil
 import PostgresProfile.api._
+import spray.json.JsValue
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
 import org.bigbluebutton.core.models.PluginModel
 
@@ -18,6 +21,12 @@ case class MeetingBridgesDbModel(
   cameraBridge: String,
   screenShareBridge: String,
   audioBridge: String
+)
+
+case class MeetingRoomConfigDbModel(
+  roomMode:         String,
+  roomBaseSettings: JsValue,
+  roomModeOnCreate: String
 )
 
 case class MeetingDbModel(
@@ -42,6 +51,7 @@ case class MeetingDbModel(
     endedAt:                               Option[java.sql.Timestamp],
     endedReasonCode:                       Option[String],
     endedBy:                               Option[String],
+    roomConfig:                            MeetingRoomConfigDbModel,
 )
 
 class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meeting") {
@@ -66,7 +76,8 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
     endWhenNoModeratorDelayInMinutes,
     endedAt,
     endedReasonCode,
-    endedBy
+    endedBy,
+    roomConfig
   ) <> (MeetingDbModel.tupled, MeetingDbModel.unapply)
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val extId = column[String]("extId")
@@ -100,9 +111,22 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
   val endedAt = column[Option[java.sql.Timestamp]]("endedAt")
   val endedReasonCode = column[Option[String]]("endedReasonCode")
   val endedBy = column[Option[String]]("endedBy")
+  val roomMode = column[String]("roomMode")
+  val roomBaseSettings = column[JsValue]("roomBaseSettings")
+  val roomModeOnCreate = column[String]("roomModeOnCreate")
+
+  val roomConfig = (roomMode, roomBaseSettings, roomModeOnCreate) <> (MeetingRoomConfigDbModel.tupled, MeetingRoomConfigDbModel.unapply)
 }
 
 object MeetingDAO {
+  // The settings a room mode changes, as the room was created: switching modes
+  // brings back what the previous mode set and the new one does not. Shaped
+  // like the lockSettings, usersPolicies and voiceSettings the client already
+  // reads. webcamsOnlyForModerator is there for modes that leave the webcams
+  // as created; today every mode sets them.
+  def roomBaseSettings(meetingProps: DefaultProps): JsValue =
+    JsonUtils.stringToJson(JsonUtil.toJson(RoomModeSettings.fromProps(meetingProps)))
+
   def insert(meetingProps: DefaultProps, clientSettings: Map[String, Object], pluginProps: PluginModel) = {
     DatabaseConnection.enqueue(
       TableQuery[MeetingDbTableDef].forceInsert(
@@ -156,7 +180,12 @@ object MeetingDAO {
           endWhenNoModeratorDelayInMinutes = meetingProps.durationProps.endWhenNoModeratorDelayInMinutes,
           endedAt = None,
           endedReasonCode = None,
-          endedBy = None
+          endedBy = None,
+          roomConfig = MeetingRoomConfigDbModel(
+            roomMode = "",
+            roomBaseSettings = roomBaseSettings(meetingProps),
+            roomModeOnCreate = meetingProps.meetingProp.roomMode
+          )
         )
       )
     )
@@ -185,6 +214,15 @@ object MeetingDAO {
         .filter(_.meetingId in subqueryBreakoutRooms)
         .map(u => u.durationInSeconds)
         .update(newDurationInSeconds)
+    )
+  }
+
+  def updateRoomMode(meetingId: String, roomMode: String) = {
+    DatabaseConnection.enqueue(
+      TableQuery[MeetingDbTableDef]
+        .filter(_.meetingId === meetingId)
+        .map(m => m.roomMode)
+        .update(roomMode)
     )
   }
 

@@ -1,5 +1,8 @@
 import { useMutation, useReactiveVar } from '@apollo/client';
-import React, { useContext, useEffect, useState } from 'react';
+import React, {
+  useContext, useEffect, useMemo, useState,
+} from 'react';
+import { useIntl } from 'react-intl';
 import Session from '/imports/ui/services/storage/in-memory';
 import {
   GetGuestLobbyInfo,
@@ -31,11 +34,24 @@ import {
   JoiningRoomHeader,
 } from '/imports/ui/components/pre-flight/joining-room/component';
 import { isPreFlightEnabled } from '/imports/ui/components/pre-flight/service';
+import {
+  RoomModeActions,
+  RoomModePanel,
+} from '/imports/ui/components/pre-flight/room-mode/component';
+import useRoomModePanelGate from '/imports/ui/components/pre-flight/room-mode/useRoomModePanelGate';
+import useRoomModeGuestPolicy from '/imports/ui/components/pre-flight/room-mode/guestPolicy';
+import RoomModeApplyOnJoin, {
+  notifyRoomModeNotApplied,
+} from '/imports/ui/components/pre-flight/room-mode/apply-on-join';
+import { getRoomMode } from '/imports/ui/components/pre-flight/room-mode/modes';
+import { RoomModeChoice } from '/imports/ui/components/pre-flight/room-mode/settings';
 import PluginTopLevelManager from '/imports/ui/components/plugin-top-level-manager/component';
 import meetingStaticData from '/imports/ui/core/singletons/meetingStaticData';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Auth from '/imports/ui/services/auth';
+import useMediaQuery from '/imports/ui/hooks/useMediaQuery';
+import { smallOnly, mediumOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 
 const connectionTimeout = 60000;
@@ -72,6 +88,10 @@ interface PresenceManagerProps extends PresenceManagerContainerProps {
     guestLobbyMessage: string | null;
     positionInWaitingQueue: number | null;
     isBot: boolean;
+    isModerator: boolean;
+    roomMode: string | undefined;
+    record: boolean;
+    autoStartRecording: boolean;
 }
 
 const PresenceManager: React.FC<PresenceManagerProps> = ({
@@ -100,7 +120,12 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   guestStatus,
   positionInWaitingQueue,
   isBot,
+  isModerator,
+  roomMode,
+  record,
+  autoStartRecording,
 }) => {
+  const intl = useIntl();
   const [allowToRender, setAllowToRender] = React.useState(false);
   const [dispatchUserJoin] = useMutation(userJoinMutation);
   const timeoutRef = React.useRef<ReturnType<typeof setTimeout>>();
@@ -115,6 +140,9 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   const [joinFailed, setJoinFailed] = useState(false);
   const joinRetryRef = React.useRef<ReturnType<typeof setTimeout>>();
   const preFlightCommitRef = React.useRef<(() => boolean) | null>(null);
+  // The room mode picked before the join, applied to the room once the user is in.
+  const roomModeChoiceRef = React.useRef<RoomModeChoice | null>(null);
+  const [applyingRoomMode, setApplyingRoomMode] = useState(false);
   const isConnected = useReactiveVar(connectionStatus.getConnectedStatusVar());
   // A socket that stops carrying messages stays "connected" until the
   // heartbeat watchdog terminates it, about 45 s into the silence.
@@ -217,9 +245,33 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
       // with. A device denied meanwhile commits nothing, as on a retry.
       if (joinFailed) preFlightCommitRef.current?.();
       clearTimeout(timeoutRef.current);
-      setAllowToRender(true);
+      const roomModeChoice = roomModeChoiceRef.current;
+      // The pick was checked when Start room was pressed; a mode another
+      // moderator set since then stays.
+      if (roomModeChoice && getRoomMode(roomModeChoice.modeId) && roomMode === '') {
+        // A join that landed after it stalled shows the panel as joining while
+        // the mode is applied, not as delayed.
+        setJoinFailed(false);
+        setApplyingRoomMode(true);
+      } else {
+        if (roomModeChoice && roomMode) {
+          logger.info({
+            logCode: 'pre_flight_room_mode_apply_skipped',
+            extraInfo: { modeId: roomModeChoice.modeId, reason: 'room mode already set' },
+          }, 'Room mode not applied: another moderator set one first');
+          if (!roomModeChoice.fromCreate) notifyRoomModeNotApplied(intl, 'modeSet');
+        }
+        if (roomModeChoice) roomModeChoiceRef.current = null;
+        setAllowToRender(true);
+      }
     }
   }, [joined]);
+
+  const finishRoomModeApply = () => {
+    roomModeChoiceRef.current = null;
+    setApplyingRoomMode(false);
+    setAllowToRender(true);
+  };
 
   useEffect(() => {
     if (joinErrorCode) {
@@ -233,7 +285,39 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   const hasLeftMeeting = meetingEnded || !!joinErrorCode || !!ejectReasonCode || loggedOut;
   const userCurrentlyInMeeting = allowToRender && !hasLeftMeeting;
   const showPreFlight = preFlightEnabled && !userCurrentlyInMeeting && !hasLeftMeeting;
+  const roomModePanel = useRoomModePanelGate(
+    roomMode,
+    record,
+    autoStartRecording,
+    isModerator,
+    isBot,
+    showPreFlight,
+  );
+  // The panel stays up while its choice is applied, though the room shows the
+  // mode by then.
+  const showRoomModePanel = roomModePanel.show || applyingRoomMode;
   const isGuestDenied = guestStatus === GUEST_STATUSES.DENY;
+  // What puts the panel on screen (see below): not in the guest lobby, not
+  // once the moderator has left.
+  const guestAdmitted = isGuestAllowed && !isGuestDenied;
+  const roomModePanelShown = showPreFlight && showRoomModePanel && guestAdmitted;
+  // Only the summary shows the room's guest policy, so it is read only while
+  // the panel is shown. Read here rather than in the panel, which remounts when
+  // the layout moves it (a device error, the phone breakpoint): the value stays
+  // across those. Applying a mode sends the policy only when it was edited, so
+  // the applier gets the room values without it.
+  const roomGuestPolicy = useRoomModeGuestPolicy(!roomModePanelShown);
+  const panelRoomValues = useMemo(
+    () => (roomGuestPolicy
+      ? { ...roomModePanel.roomValues, guestPolicy: roomGuestPolicy }
+      : roomModePanel.roomValues),
+    [roomModePanel.roomValues, roomGuestPolicy],
+  );
+  // Joining lasts until the room opens: a stalled join that landed late is no
+  // longer requested, but its room mode is still being applied.
+  const isJoining = joinRequested || applyingRoomMode;
+  const isPhoneWidth = useMediaQuery(smallOnly);
+  const isTabletWidth = useMediaQuery(mediumOnly);
   const isSettingUp = guestStatus === GUEST_STATUSES.ALLOW || guestStatus === GUEST_STATUSES.WAIT;
   // The panel stays up behind a denial only for the guest who was already
   // using it: a tab that loads into the denial asks for no devices.
@@ -259,6 +343,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
     />
   );
   let preFlightActions: React.ReactNode = null;
+  let preFlightPanel: React.ReactNode = null;
   let preFlightError: PreFlightError | null = null;
 
   const retryConnection = () => {
@@ -296,20 +381,39 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
     };
   }
 
-  if (!isGuestDenied && isGuestAllowed) {
+  // A tablet has no room for the room mode panel beside the setup: with the
+  // panel up, the pre-flight lays out as on a phone. That layout pins the
+  // actions to the bottom, so the join notices stay in the header.
+  const phoneLayout = isPhoneWidth
+    || (isTabletWidth && guestAdmitted && showRoomModePanel);
+
+  if (guestAdmitted) {
     preFlightHeader = (
       <JoiningRoomHeader
         meetingName={meetingName}
         clientTitle={CLIENT_TITLE}
-        isJoining={joinRequested}
+        isJoining={isJoining}
+        withNotices={!showRoomModePanel || phoneLayout}
       />
     );
-    preFlightActions = (
-      <JoiningRoomActions
-        isJoining={joinRequested}
-        onJoin={() => setJoinRequested(true)}
-      />
-    );
+    if (showRoomModePanel) {
+      preFlightPanel = (
+        <RoomModePanel isJoining={isJoining} roomValues={panelRoomValues} />
+      );
+      preFlightActions = (
+        <RoomModeActions
+          isJoining={isJoining}
+          onJoin={() => setJoinRequested(true)}
+        />
+      );
+    } else {
+      preFlightActions = (
+        <JoiningRoomActions
+          isJoining={isJoining}
+          onJoin={() => setJoinRequested(true)}
+        />
+      );
+    }
   }
 
   return (
@@ -337,11 +441,25 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
               showSetupPanel={isSettingUp || (isGuestDenied && setupPanelShown)}
               header={preFlightHeader}
               topInfo={<SessionInfo meetingName={meetingName} createdTime={meetingCreatedTime} />}
-              headerNamesSession={!isGuestDenied && isGuestAllowed}
+              headerNamesSession={guestAdmitted}
               actions={preFlightActions}
               error={preFlightError}
-              gateJoinOnDevices={isGuestAllowed && !joinRequested}
+              gateJoinOnDevices={isGuestAllowed && !isJoining}
               commitRef={preFlightCommitRef}
+              roomModeChoiceRef={roomModeChoiceRef}
+              panel={preFlightPanel}
+              phoneLayout={phoneLayout}
+            />
+          )
+          : null
+      }
+      {
+        applyingRoomMode && roomModeChoiceRef.current
+          ? (
+            <RoomModeApplyOnJoin
+              choice={roomModeChoiceRef.current}
+              roomValues={roomModePanel.roomValues}
+              onDone={finishRoomModeApply}
             />
           )
           : null
@@ -383,6 +501,7 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
     userId: u.userId,
     bot: u.bot,
     logoutUrl: u.logoutUrl,
+    isModerator: u.isModerator,
   }));
 
   const { error, data } = useDeduplicatedSubscription<GetGuestLobbyInfo>(getGuestLobbyInfo, {
@@ -412,6 +531,7 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
     name,
     bot = false,
     logoutUrl,
+    isModerator = false,
   } = currentUserData;
 
   const guestStatusDetails = data?.user_current?.[0]?.guestStatusDetails;
@@ -452,6 +572,12 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
       positionInWaitingQueue={guestStatusDetails?.positionInWaitingQueue ?? null}
       guestStatus={guestStatus ?? ''}
       isBot={bot}
+      isModerator={isModerator}
+      roomMode={meeting?.roomMode}
+      // Fixed at creation, so read from the meeting's static data rather than
+      // polled with the user. False is the server's default.
+      record={meetingStaticStore?.recordingPolicies?.record ?? false}
+      autoStartRecording={meetingStaticStore?.recordingPolicies?.autoStartRecording ?? false}
     >
       {children}
     </PresenceManager>

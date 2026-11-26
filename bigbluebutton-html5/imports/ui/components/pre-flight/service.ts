@@ -3,6 +3,7 @@
 import Session from '/imports/ui/services/storage/session';
 import meetingStaticData from '/imports/ui/core/singletons/meetingStaticData';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import { getRoomMode } from './room-mode/modes';
 
 const PRE_FLIGHT_COMPLETED_KEY = 'preFlightCompleted';
 const PRE_FLIGHT_SHARE_CAMERA_KEY = 'preFlightShareCamera';
@@ -24,6 +25,27 @@ export const isPreFlightEnabled = (): boolean => {
   const isBreakout = meetingStaticData.getMeetingData()?.isBreakout;
 
   return !isBreakout;
+};
+
+// The moderator's room mode panel. Breakouts are already out through the
+// pre-flight itself.
+export const isRoomModePanelEnabled = (): boolean => {
+  if (!isPreFlightEnabled()) return false;
+
+  const enabled = getFromUserSettings(
+    'bbb_pre_flight_room_modes',
+    window.meetingClientSettings?.public?.app?.preFlight?.roomModes?.enabled,
+  );
+
+  return enabled === true;
+};
+
+// The mode the create call marked the room with, when the panel offers it: the
+// panel opens with it picked. Fixed at create, so read from the static data,
+// which is there before the join.
+export const getRoomModeOnCreate = (): string | null => {
+  const id = meetingStaticData.getMeetingData()?.roomModeOnCreate;
+  return id && getRoomMode(id) ? id : null;
 };
 
 // Flag-gated too: the keys outlive a reload, so a tab moving on to a meeting

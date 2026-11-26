@@ -16,6 +16,7 @@ $.core.body.props.meetingProp.notifyRecordingAppend ""
 $.core.body.props.meetingProp.notifyRecordingIsOn false
 $.core.body.props.meetingProp.presentationUploadExternalDescription ""
 $.core.body.props.meetingProp.presentationUploadExternalUrl ""
+$.core.body.props.meetingProp.roomMode ""
 $.core.body.props.meetingProp.screenShareBridge "livekit"
 $.core.body.props.meetingProp.sharedNotesInitialContentJson []
 $.core.body.props.meetingProp.sharedNotesInitialContentMarkdown ""

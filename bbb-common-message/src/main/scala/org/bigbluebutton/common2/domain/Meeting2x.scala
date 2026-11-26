@@ -25,6 +25,8 @@ case class MeetingProp(
     notifyRecordingAppend:                  String,
     presentationUploadExternalDescription:  String,
     presentationUploadExternalUrl:          String,
+    // Only marks the room: see meeting.roomModeOnCreate in bbb_schema.sql.
+    roomMode:                               String = "",
 )
 
 case class BreakoutProps(
