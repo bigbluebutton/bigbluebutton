@@ -276,6 +276,9 @@ export class Presentation extends MultiUsers {
   // The attendee's external video toolbar used to appear only on mouse hover, so keyboard users
   // could not reach the volume controls. Drives it with the keyboard only (no pointer over the player).
   async externalVideoVolumeByKeyboard() {
+    // startExternalVideo() already asserted the share button is absent when the feature is
+    // disabled; there is no overlay to drive in that case.
+    if (!this.modPage.settings?.externalVideoPlayer) return;
     const { userPage } = this;
     await userPage.hasElement(e.externalVideoOverlay, 'should display the external video overlay for the attendee');
     // Park the pointer outside the player: from here on only the keyboard may reveal the toolbar.
