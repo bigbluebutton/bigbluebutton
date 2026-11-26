@@ -47,10 +47,19 @@ export class Timer extends MultiUsers {
       this.modPage.page.locator(e.stopwatchCurrent),
       'should hide the digit-formatted stopwatch time from assistive technologies',
     ).toHaveAttribute('aria-hidden', 'true');
-    await expect(
-      this.modPage.page.locator(e.stopwatchAccessibleTime),
-      'should expose the stopwatch time in a readable form to assistive technologies',
-    ).toHaveText('2 seconds');
+    // The stopwatch is still running: read both texts in one snapshot so they come from the same tick.
+    const { digits, readable } = await this.modPage.page.evaluate(
+      ([digitsSelector, readableSelector]) => ({
+        digits: document.querySelector(digitsSelector)?.textContent ?? '',
+        readable: document.querySelector(readableSelector)?.textContent ?? '',
+      }),
+      [e.stopwatchCurrent, e.stopwatchAccessibleTime],
+    );
+    expect(digits, 'should display the running stopwatch time in the mm:ss format').toMatch(/^00:\d{2}$/);
+    const elapsedSeconds = Number(digits.split(':')[1]);
+    expect(readable, 'should expose the stopwatch time in a readable form to assistive technologies').toBe(
+      elapsedSeconds === 1 ? '1 second' : `${elapsedSeconds} seconds`,
+    );
     await this.modPage.waitAndClick(e.resetTimerStopwatch);
     await expect(async () => {
       const { r, b } = await this.getStartStopButtonColor();
