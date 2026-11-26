@@ -269,7 +269,6 @@ const PresentationContainer = ({
   const shouldRestoreOnUpdate = userIsPresenter
     && currentPresentationId === prevPresentationId ? false : restoreOnUpdate;
 
-
   const multiUserWhiteboardEnabled = currentMeeting?.usersPolicies?.multiUserWhiteboardEnabled
     ?? false;
 
