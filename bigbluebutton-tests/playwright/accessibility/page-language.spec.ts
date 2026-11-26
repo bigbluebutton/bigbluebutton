@@ -57,6 +57,15 @@ test.describe.parallel('Language of page', { tag: '@ci' }, () => {
     await session.userPage.hasElement(e.guestMessage, 'should keep the guest in the lobby');
     await expectPageLanguage(session.userPage.page, 'pt-BR', 'ltr');
   });
+
+  test('follows the catalog that loaded when the requested one fails', async ({ browser, context }, testInfo) => {
+    const arabicContext = await browser.newContext({ locale: 'ar' });
+    // the Arabic catalog fails, so the client shows the English fallback
+    await arabicContext.route(/\/locales\/ar\.json/, (route) => route.fulfill({ status: 404, body: 'not found' }));
+    const session = new MultiUsers(browser, context);
+    await session.initModPage(await arabicContext.newPage(), { testInfo });
+    await expectPageLanguage(session.modPage.page, 'en', 'ltr');
+  });
 });
 
 // WCAG 2.2 SC 3.1.2 (Language of Parts): in "Deutsch - German", only "Deutsch" is German.
