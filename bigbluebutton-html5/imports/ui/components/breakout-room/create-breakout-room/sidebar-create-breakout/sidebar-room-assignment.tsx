@@ -119,6 +119,7 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
 
   const moveUserAndKeepFocus = useCallback((userId: string, from: number, to: number) => {
     pendingFocusId.current = `${userId}-${to}`;
+    setOpenMoveMenu(null);
     moveUser(userId, from, to);
   }, [moveUser]);
 
