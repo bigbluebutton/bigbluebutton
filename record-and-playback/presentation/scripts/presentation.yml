@@ -11,6 +11,10 @@ deskshare_output_framerate: 5
 audio_offset: 0
 include_deskshare: true
 
+# Generate thumbnails from most viewed slides
+heuristic_thumbnails: false
+number_thumbnails: 3
+
 # For PRODUCTION
 publish_dir: /var/bigbluebutton/published/presentation
 video_formats:
