@@ -107,7 +107,7 @@
 #     content: |
 #       # as build/packages-template/bbb-html5/bbb-html5.nginx.dev
 #       location /html5client/ {
-#         proxy_pass http://html5-dev:3000/;
+#         proxy_pass http://html5-dev:3000;
 #         proxy_http_version 1.1;
 #         proxy_set_header Upgrade $$http_upgrade;
 #         proxy_set_header Connection "Upgrade";
