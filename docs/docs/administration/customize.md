@@ -1353,7 +1353,7 @@ apps {
 
 ##### Limit the time an insert of pages may take
 
-An insert of pages into a presentation goes through three stages, each with a deadline in `bbb-apps-akka`. An insert that passes the deadline of its stage fails, the presenter is notified, and the inserts requested after it move on:
+An insert of pages into a presentation goes through three stages, each with a deadline in `bbb-apps-akka`. An insert that passes the deadline of its stage fails, the presenter is notified, and the inserts into the same presentation requested after it move on:
 
 - **30** seconds from the upload token to the start of the file upload (`presentationInsertRequestTimeoutSec`).
 - **300** seconds from the start of the file upload to the file accepted (`presentationInsertTransferTimeoutSec`).

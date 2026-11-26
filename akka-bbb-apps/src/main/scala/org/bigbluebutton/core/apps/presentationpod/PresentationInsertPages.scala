@@ -201,10 +201,13 @@ object PresentationInsertPages {
     }
   }
 
-  /** After an outcome: applies the first entry while it is waiting with its Ready, and stops at one without. */
+  /**
+   * After an outcome: applies, in queue order, the first insert into each presentation while it is waiting
+   * with its Ready, and stops when the first insert into every presentation has none.
+   */
   def advance(result: Result): Result = {
-    result.queue.entries.headOption match {
-      case Some(first) if first.stage == InsertStage.Ready && first.ready.isDefined =>
+    result.queue.firstOfEachTarget.find(e => e.stage == InsertStage.Ready && e.ready.isDefined) match {
+      case Some(first) =>
         val (newPods, outcome) = decideApply(first, first.ready.get, result.pods)
         advance(Result(result.queue.remove(first.uploadPresentationId), newPods, result.outcomes :+ outcome))
       case _ => result
