@@ -125,7 +125,6 @@ test.describe('Breakout room keyboard accessibility', { tag: '@ci' }, () => {
     await createRoomInput.press('Enter');
     const renamedCreateRoom = modPage.page.getByRole('button', { name: 'Rename Keyboard room' });
     await expect(renamedCreateRoom).toBeFocused();
-    await modPage.page.waitForTimeout(750);
     await renamedCreateRoom.press('Enter');
     await createRoomInput.press('ControlOrMeta+A');
     await createRoomInput.pressSequentially('Room 1');
@@ -185,10 +184,8 @@ test.describe('Breakout room keyboard accessibility', { tag: '@ci' }, () => {
     await expect(modPage.page.locator(firstMoveItem).first()).toBeFocused();
     await expect(modPage.page.locator(e.smallToastMsg)).toHaveCount(0);
     await expect(modPage.page.locator(e.breakoutBox0)).toContainText(firstRowText);
-    await modPage.page.waitForTimeout(500);
     await modPage.page.keyboard.press('Escape');
     await expect(firstMoveButton).toBeFocused();
-    await modPage.page.waitForTimeout(500);
 
     await secondMoveButton.focus();
     await modPage.page.keyboard.press('Enter');
@@ -198,8 +195,7 @@ test.describe('Breakout room keyboard accessibility', { tag: '@ci' }, () => {
 
     await userPage.waitAndClick(e.breakoutRoomSidebarButton);
     await userPage.waitAndClick(e.joinFirstRoom);
-    await modPage.page.locator(`${e.breakoutBox1} [data-test="draggableUser"]`).waitFor();
-    await modPage.page.waitForTimeout(750);
+    await expect(modPage.page.locator(`${e.breakoutBox1} [data-test="draggableUser"]`)).toBeVisible();
 
     const roomOneCard = modPage.page.locator(e.breakoutBox1);
     await expect(roomOneCard).toHaveAccessibleName('Room 1, Participants: 1');
@@ -221,7 +217,6 @@ test.describe('Breakout room keyboard accessibility', { tag: '@ci' }, () => {
     await expect(modPage.page.locator(e.breakoutBox2)).toContainText('Attendee', { timeout: 20000 });
     await expect(modPage.page.locator(e.breakoutBox2)).toBeFocused();
     await expect.poll(() => modPage.page.evaluate(() => document.activeElement?.tagName)).not.toBe('BODY');
-    await modPage.page.waitForTimeout(750);
 
     const roomTwoRow = modPage.page.locator(`${e.breakoutBox2} [data-test="draggableUser"]`).first();
     await expect(roomTwoRow.locator(':scope > span')).toHaveText('Attendee');
