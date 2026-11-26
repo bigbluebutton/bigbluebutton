@@ -1,5 +1,4 @@
-import { expect, Page as PlaywrightPage, Request, WebSocketRoute } from '@playwright/test';
-import fs from 'fs';
+import { expect, Page as PlaywrightPage, Request } from '@playwright/test';
 import path from 'path';
 
 import { Create } from '../breakout/create';
@@ -11,10 +10,23 @@ import {
 } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { applyClientSettingsOverridesToContext, ClientSettingsOverrides, Page } from '../core/page';
-import { GeneratedFile, getCurrentSlideAspectRatio, getCurrentSlideSvg, uploadSinglePresentation } from './util';
+import {
+  buildPdfWithPages,
+  fixtureFile,
+  GeneratedFile,
+  getCurrentSlideAspectRatio,
+  getCurrentSlideSvg,
+  getCurrentSlideSvgPath,
+  HeldUploadRequests,
+  holdUploadRequests,
+  listPresentations,
+  loseUploadAnswers,
+  routeGraphqlSocket,
+  UPLOAD_REQUEST,
+  uploadSinglePresentation,
+} from './util';
 
-// The upload POST of a presentation, after the token was received (service.js: <endpoint>/<token>/upload).
-const UPLOAD_POST_URL = '**/bigbluebutton/presentation/*/upload';
+// The path of the upload POST of a presentation, after the token was received (service.js: <endpoint>/<token>/upload).
 const UPLOAD_POST_PATH = /\/bigbluebutton\/presentation\/[^/]+\/upload$/;
 // The client gives up on the token request and on the blank-page mutation after this (TOKEN_TIMEOUT).
 const CLIENT_REQUEST_TIMEOUT = 5000;
@@ -30,10 +42,8 @@ const notConfirmedText = (filename: string) => `${filename}: ${e.insertPagesNotC
 
 type FileToInsert = string | GeneratedFile;
 
-interface HeldUpload {
-  requests: Request[];
-  release: () => void;
-}
+// A file of 30 pages, whose conversion takes a while.
+const MANY_PAGES = buildPdfWithPages(30);
 
 // What a page showed since the probe was installed: every toast, every screen-reader alert, the state of the
 // insert button, the image of the current slide, the status of the rows in progress of the upload toast and
@@ -71,9 +81,9 @@ export class InsertPages extends Create {
   // Routes the GraphQL socket of the page, before it joins: each mutation of the insert goes through, is
   // dropped, answered with an error or held, as socketMode says.
   async routeGraphqlSocket(page: PlaywrightPage) {
-    await page.routeWebSocket('**/graphql**', (webSocket: WebSocketRoute) => {
-      const server = webSocket.connectToServer();
-      webSocket.onMessage((message) => {
+    await routeGraphqlSocket(
+      page,
+      (message, { toServer, toPage }) => {
         const text = message.toString();
         const isToken = text.includes('presentationRequestUploadToken(');
         const isBlank = text.includes('presentationInsertBlankPage(');
@@ -82,26 +92,26 @@ export class InsertPages extends Create {
         if (mode === 'drop') return;
         if (mode === 'error') {
           const { id } = JSON.parse(text);
-          webSocket.send(JSON.stringify({ id, type: 'error', payload: [{ message: 'Refused by the e2e test' }] }));
+          toPage(JSON.stringify({ id, type: 'error', payload: [{ message: 'Refused by the e2e test' }] }));
           return;
         }
         if (mode === 'hold') {
-          this.heldMessages.push(() => server.send(message));
+          this.heldMessages.push(() => toServer(message));
           return;
         }
         if (isBlank && this.blankPageTarget) {
           const request = JSON.parse(text);
           request.payload.variables.presentationId = this.blankPageTarget;
-          server.send(JSON.stringify(request));
+          toServer(JSON.stringify(request));
           return;
         }
-        server.send(message);
-      });
-      server.onMessage((message) => {
+        toServer(message);
+      },
+      (message, { toPage }) => {
         if (this.dropServerInsertErrors && message.toString().includes('app.presentation.insertPages.error.')) return;
-        webSocket.send(message);
-      });
-    });
+        toPage(message);
+      },
+    );
   }
 
   // Fails the test on any unhandled error of the page (an unhandled rejection included).
@@ -128,22 +138,7 @@ export class InsertPages extends Create {
     return posts.length;
   }
 
-  // Holds the upload POSTs of the page until release() (a held POST never reaches the server).
-  private static async holdUploadPost(testPage: Page): Promise<HeldUpload> {
-    let release: () => void = () => {};
-    const released = new Promise<void>((resolve) => {
-      release = resolve;
-    });
-    const requests: Request[] = [];
-    await testPage.page.route(UPLOAD_POST_URL, async (route) => {
-      requests.push(route.request());
-      await released;
-      await route.continue();
-    });
-    return { requests, release };
-  }
-
-  private static async waitForHeldPost(held: HeldUpload) {
+  private static async waitForHeldPost(held: HeldUploadRequests) {
     await expect
       .poll(() => held.requests.length, { message: 'should send the upload POST of the insert' })
       .toBeGreaterThan(0);
@@ -177,8 +172,9 @@ export class InsertPages extends Create {
           const disabled = button?.getAttribute('aria-disabled') === 'true' || (button as HTMLButtonElement)?.disabled;
           changed('button', button ? `${disabled ? 'disabled' : 'enabled'}` : 'absent');
           const slide = document.querySelector(slideSel) as HTMLElement | null;
+          // the /svg/<pageId> part of the path, as getCurrentSlideSvgPath
           const url = slide?.style?.backgroundImage?.split('"')[1] ?? '';
-          changed('slide', url ? new URL(url).pathname : '');
+          changed('slide', url ? (new URL(url).pathname.match(/\/svg\/[^/]+$/)?.[0] ?? '') : '');
           const texts = (selector: string) =>
             Array.from(document.querySelectorAll(selector))
               .map((element) => element.textContent?.trim() ?? '')
@@ -262,15 +258,7 @@ export class InsertPages extends Create {
     await expect
       .poll(
         async () => {
-          slidePath = await testPage.page.evaluate(
-            ([selector]) => {
-              const url = (document.querySelector(selector) as HTMLElement | null)?.style?.backgroundImage?.split(
-                '"',
-              )[1];
-              return url ? new URL(url).pathname : '';
-            },
-            [e.currentSlideImg],
-          );
+          slidePath = (await getCurrentSlideSvgPath(testPage)) ?? '';
           return slidePath;
         },
         { message: 'should show the image of the current slide' },
@@ -417,13 +405,7 @@ export class InsertPages extends Create {
   }
 
   private async presentationNames(): Promise<string[]> {
-    await this.modPage.waitAndClick(e.mediaAreaButton);
-    await this.modPage.waitAndClick(e.managePresentations);
-    await expect(this.modPage.page.locator(e.presentationNames).first()).toBeVisible();
-    const names = await this.modPage.page.locator(e.presentationNames).allInnerTexts();
-    await this.modPage.press('Escape');
-    await this.modPage.waitForSelectorDetached(e.presentationFileUpload);
-    return names.map((name) => name.trim()).sort();
+    return (await listPresentations(this.modPage)).map((name) => name.trim()).sort();
   }
 
   // ---------- Ac-B 1 ----------
@@ -599,7 +581,7 @@ export class InsertPages extends Create {
     await InsertPages.waitForEmptyAlert(this.modPage);
     await InsertPages.installProbe(this.modPage);
 
-    const held = await InsertPages.holdUploadPost(this.modPage);
+    const held = await holdUploadRequests(this.modPage);
     await InsertPages.insertFile(this.modPage, e.insertThreePagesFileName);
     await InsertPages.waitForHeldPost(held);
     const slideFive = await InsertPages.goToSlide(this.modPage, 5);
@@ -643,7 +625,7 @@ export class InsertPages extends Create {
     await InsertPages.waitForPresentation(this.modPage);
     await InsertPages.installProbe(this.modPage);
 
-    const held = await InsertPages.holdUploadPost(this.modPage);
+    const held = await holdUploadRequests(this.modPage);
     await InsertPages.insertFile(this.modPage, e.insertThreePagesFileName);
     await InsertPages.waitForHeldPost(held);
     await this.switchPresentation('default.pdf');
@@ -668,7 +650,7 @@ export class InsertPages extends Create {
 
   // A file that cannot be inserted: one error notification, the button enabled, the target intact, and the
   // next insert (a blank page) is applied.
-  async refusedFileThenBlankPage(file: string, errorText: string) {
+  async refusedFileThenBlankPage(file: GeneratedFile, errorText: string) {
     await InsertPages.waitForPresentation(this.modPage);
     const total = await InsertPages.totalSlides(this.modPage);
     const slides = await InsertPages.slidePaths(this.modPage, 1, 2);
@@ -676,12 +658,16 @@ export class InsertPages extends Create {
     await InsertPages.installProbe(this.modPage);
 
     await InsertPages.insertFile(this.modPage, file);
-    await InsertPages.expectToastSeen(this.modPage, `${file}: ${errorText}`, `should notify that ${file} failed`);
+    await InsertPages.expectToastSeen(
+      this.modPage,
+      `${file.name}: ${errorText}`,
+      `should notify that ${file.name} failed`,
+    );
     await InsertPages.expectButtonEnabled(this.modPage, 'should enable the button after the failure');
     await this.modPage.page.waitForTimeout(NO_MORE_TOASTS_TIME);
     expect(
-      (await InsertPages.probeMarks(this.modPage, 'toast')).filter((mark) => mark.value.includes(file)),
-      `should notify the failure of ${file} once`,
+      (await InsertPages.probeMarks(this.modPage, 'toast')).filter((mark) => mark.value.includes(file.name)),
+      `should notify the failure of ${file.name} once`,
     ).toHaveLength(1);
     expect(await InsertPages.totalSlides(this.modPage), 'should keep the pages of the target').toBe(total);
     expect(await InsertPages.slidePath(this.modPage), 'should keep slide 1').toBe(slides[0]);
@@ -700,8 +686,8 @@ export class InsertPages extends Create {
     const total = await InsertPages.totalSlides(this.modPage);
     await InsertPages.installProbe(this.modPage);
 
-    const held = await InsertPages.holdUploadPost(this.modPage);
-    await InsertPages.insertFile(this.modPage, e.insertManyPagesFileName);
+    const held = await holdUploadRequests(this.modPage);
+    await InsertPages.insertFile(this.modPage, MANY_PAGES);
     await InsertPages.waitForHeldPost(held);
     await InsertPages.expectButtonDisabled(this.modPage, 'should disable the button while the upload is held');
     await this.modPage.page.waitForTimeout(1000);
@@ -795,7 +781,7 @@ export class InsertPages extends Create {
     await InsertPages.waitForPresentation(this.modPage);
     await this.modPage.closeAllToastNotifications();
 
-    const held = await InsertPages.holdUploadPost(this.modPage);
+    const held = await holdUploadRequests(this.modPage);
     await InsertPages.insertFile(this.modPage, e.insertThreePagesFileName);
     await InsertPages.waitForHeldPost(held);
     const uploadRow = this.modPage.page.locator(e.presentationUploadProgressToast).locator('div', {
@@ -856,8 +842,8 @@ export class InsertPages extends Create {
     const slideOne = await InsertPages.slidePath(a);
     await InsertPages.installProbe(a);
 
-    const held = await InsertPages.holdUploadPost(a);
-    await InsertPages.insertFile(a, e.insertManyPagesFileName);
+    const held = await holdUploadRequests(a);
+    await InsertPages.insertFile(a, MANY_PAGES);
     await InsertPages.waitForHeldPost(held);
     await this.takePresenter();
     await b.press('Escape');
@@ -871,9 +857,9 @@ export class InsertPages extends Create {
     await expect(bToast, "B's upload toast should show B's blank page").toContainText(e.blankPageFileName, {
       timeout: ELEMENT_WAIT_LONGER_TIME,
     });
-    await expect(bToast, "B's upload toast should show A's upload").toContainText(e.insertManyPagesFileName);
+    await expect(bToast, "B's upload toast should show A's upload").toContainText(MANY_PAGES.name);
     await expect(
-      a.page.locator(e.presentationUploadProgressToast).filter({ hasText: e.insertManyPagesFileName }),
+      a.page.locator(e.presentationUploadProgressToast).filter({ hasText: MANY_PAGES.name }),
       "A's upload toast should no longer show A's row",
     ).toHaveCount(0);
     held.release();
@@ -1046,7 +1032,7 @@ export class InsertPages extends Create {
     await InsertPages.waitForPresentation(this.modPage);
     const total = await InsertPages.totalSlides(this.modPage);
     await InsertPages.installProbe(this.modPage);
-    await this.modPage.page.route(UPLOAD_POST_URL, (route) => route.abort());
+    await this.modPage.page.route(UPLOAD_REQUEST, (route) => route.abort());
 
     await InsertPages.insertFile(this.modPage, e.insertThreePagesFileName);
     await InsertPages.expectToast(
@@ -1077,24 +1063,7 @@ export class InsertPages extends Create {
     const total = await InsertPages.totalSlides(this.modPage);
     await InsertPages.goToSlide(this.modPage, 1);
     await InsertPages.installProbe(this.modPage);
-    await this.modPage.page.route(UPLOAD_POST_URL, async (route) => {
-      // The intercepted request does not carry the bytes of the file, so the same form is sent again with them.
-      const form = route.request().postData() ?? '';
-      const field = (name: string) => form.match(new RegExp(`name="${name}"\\r\\n\\r\\n([^\\r]*)\\r\\n`))?.[1] ?? '';
-      const fields = ['conference', 'room', 'temporaryPresentationId', 'pod_id', 'is_downloadable', 'current'];
-      const sent = await this.modPage.page.request.post(route.request().url(), {
-        multipart: {
-          ...Object.fromEntries(fields.map((name) => [name, field(name)])),
-          fileUpload: {
-            name: e.insertThreePagesFileName,
-            mimeType: 'application/pdf',
-            buffer: fs.readFileSync(path.join(__dirname, `../core/media/${e.insertThreePagesFileName}`)),
-          },
-        },
-      });
-      expect(sent.status(), 'bbb-web should take the file').toBe(200);
-      await route.fulfill({ status: 504, contentType: 'text/html', body: '504 Gateway Time-out' });
-    });
+    await loseUploadAnswers(this.modPage, fixtureFile(e.insertThreePagesFileName), 'gateway timeout');
 
     await InsertPages.insertFile(this.modPage, e.insertThreePagesFileName);
     await InsertPages.expectToastSeen(

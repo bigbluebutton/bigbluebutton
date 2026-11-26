@@ -1,4 +1,4 @@
-import { BrowserContext, expect, Locator, Page as PlaywrightPage, Request } from '@playwright/test';
+import { BrowserContext, expect, Locator, Page as PlaywrightPage, Request, WebSocketRoute } from '@playwright/test';
 import { readFileSync } from 'fs';
 import path from 'path';
 import tls from 'tls';
@@ -341,6 +341,11 @@ export function buildExecutableNamedPdf(): GeneratedFile {
   };
 }
 
+// A file of 0 bytes named like a PDF.
+export function buildEmptyPdf(): GeneratedFile {
+  return { name: 'empty.pdf', mimeType: 'application/pdf', buffer: Buffer.alloc(0) };
+}
+
 // A valid PDF of blank pages, a few dozen bytes each.
 export function buildPdfWithPages(pageCount: number): GeneratedFile {
   const objects = [
@@ -514,18 +519,31 @@ export async function hasTextOnCurrentPresentationToast(
 }
 
 // The request that carries the file of an upload; the upload token is part of its path.
-const UPLOAD_REQUEST = '**/bigbluebutton/presentation/*/upload';
+export const UPLOAD_REQUEST = '**/bigbluebutton/presentation/*/upload';
 
-// Stops the page's upload requests on their way out and never answers them: the client is left
-// waiting, so it neither finishes the upload nor learns that it failed. `url` resolves with the
-// address of the first one, for a test to send its own request with that upload token.
-export async function holdUploadRequests(testPage: Page): Promise<{ url: Promise<string> }> {
+export type HeldUploadRequests = { url: Promise<string>; requests: Request[]; release: () => void };
+
+// Stops the page's upload requests on their way out and does not answer them until release() sends
+// them on: the client is left waiting, so it neither finishes the upload nor learns that it failed.
+// `url` resolves with the address of the first one, for a test to send its own request with that
+// upload token; `requests` lists the requests held so far.
+export async function holdUploadRequests(testPage: Page): Promise<HeldUploadRequests> {
   let seen: (url: string) => void = () => {};
   const url = new Promise<string>((resolve) => {
     seen = resolve;
   });
-  await testPage.page.route(UPLOAD_REQUEST, (route) => seen(route.request().url()));
-  return { url };
+  let release: () => void = () => {};
+  const released = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const requests: Request[] = [];
+  await testPage.page.route(UPLOAD_REQUEST, async (route) => {
+    requests.push(route.request());
+    seen(route.request().url());
+    await released;
+    await route.continue();
+  });
+  return { url, requests, release };
 }
 
 // Answers the page's upload requests the way the server does when it refuses one.
@@ -644,21 +662,43 @@ export function sendStalledUpload(
 // has since asked the server to remove a presentation. Call it before the page joins the meeting.
 export type HeldUploadTokenRequest = { release: () => void; removalRequested: () => boolean };
 
+// Where a message routed by routeGraphqlSocket can go: on to the server, or back to the page.
+export type GraphqlSocketEnds = {
+  toServer: (message: string | Buffer) => void;
+  toPage: (message: string | Buffer) => void;
+};
+
+// Routes the page's GraphQL socket through fromPage (each message of the page) and, when given,
+// fromServer (each message of the server); each decides where the message goes. Messages of the
+// server go to the page as they are without fromServer. Call it before the page joins the meeting.
+export async function routeGraphqlSocket(
+  page: PlaywrightPage,
+  fromPage: (message: string | Buffer, ends: GraphqlSocketEnds) => void,
+  fromServer?: (message: string | Buffer, ends: GraphqlSocketEnds) => void,
+) {
+  await page.routeWebSocket(/\/graphql/, (webSocket: WebSocketRoute) => {
+    const server = webSocket.connectToServer();
+    const ends: GraphqlSocketEnds = {
+      toServer: (message) => server.send(message),
+      toPage: (message) => webSocket.send(message),
+    };
+    webSocket.onMessage((message) => fromPage(message, ends));
+    if (fromServer) server.onMessage((message) => fromServer(message, ends));
+  });
+}
+
 export async function holdUploadTokenRequest(page: PlaywrightPage): Promise<HeldUploadTokenRequest> {
   let sendHeldRequest: (() => void) | null = null;
   let released = false;
   let removalRequested = false;
-  await page.routeWebSocket(/\/graphql/, (ws) => {
-    const server = ws.connectToServer();
-    ws.onMessage((message) => {
-      const text = typeof message === 'string' ? message : '';
-      if (!released && text.includes('presentationRequestUploadToken')) {
-        sendHeldRequest = () => server.send(message);
-        return;
-      }
-      if (text.includes('presentationRemove')) removalRequested = true;
-      server.send(message);
-    });
+  await routeGraphqlSocket(page, (message, { toServer }) => {
+    const text = typeof message === 'string' ? message : '';
+    if (!released && text.includes('presentationRequestUploadToken')) {
+      sendHeldRequest = () => toServer(message);
+      return;
+    }
+    if (text.includes('presentationRemove')) removalRequested = true;
+    toServer(message);
   });
   return {
     release: () => {

@@ -1,6 +1,7 @@
 import { elements as e } from '../core/elements';
 import { test } from '../core/setup/fixtures';
 import { InsertPages } from './insertPages';
+import { buildEmptyPdf, buildTruncatedPdf } from './util';
 
 test.describe.parallel('Insert pages', { tag: '@ci' }, () => {
   // Ac-B 1
@@ -45,14 +46,14 @@ test.describe.parallel('Insert pages', { tag: '@ci' }, () => {
   test('Empty file, then a blank page', async ({ browser, context, page }, testInfo) => {
     const insertPages = new InsertPages(browser, context);
     await insertPages.initModPage(page, { testInfo });
-    await insertPages.refusedFileThenBlankPage(e.insertEmptyFileName, e.insertPagesFailedLabel);
+    await insertPages.refusedFileThenBlankPage(buildEmptyPdf(), e.insertPagesFailedLabel);
   });
 
   // Ac-B 5
   test('Truncated PDF, then a blank page', async ({ browser, context, page }, testInfo) => {
     const insertPages = new InsertPages(browser, context);
     await insertPages.initModPage(page, { testInfo });
-    await insertPages.refusedFileThenBlankPage(e.insertTruncatedFileName, e.insertPagesFailedLabel);
+    await insertPages.refusedFileThenBlankPage(buildTruncatedPdf(), e.insertPagesFailedLabel);
   });
 
   // Ac-B 6

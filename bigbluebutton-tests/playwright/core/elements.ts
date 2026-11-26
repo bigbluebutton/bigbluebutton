@@ -647,11 +647,8 @@ export const elements = {
   // core/media fixtures for the insert of pages
   insertThreePagesFileName: 'insertThreePages.pdf', // 1024x768, 1280x720 (16:9) and 1024x768
   insertDeck4x3FileName: 'insertDeck4x3.pdf', // 3 pages of 1024x768 (4:3)
-  insertManyPagesFileName: 'insertManyPages.pdf', // 30 pages of 1024x768
   insertPortraitA4FileName: 'insertPortraitA4.pdf', // 2 pages of 595.28x841.89 (fractional A4)
   insertSquareFileName: 'insertSquare.pdf', // 2 pages of 600x600
-  insertEmptyFileName: 'vazio.pdf', // 0 bytes
-  insertTruncatedFileName: 'truncado.pdf', // the first 2 KB of a 30-page PDF: pdfinfo fails on it
   blankPageFileName: 'blank.pdf', // the name of a blank page in the upload toast
   blankPageNameLabel: 'Blank page', // the name of a blank page in the warnings and the notifications
 
