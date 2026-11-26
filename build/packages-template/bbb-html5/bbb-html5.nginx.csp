@@ -1,0 +1,40 @@
+# The client's HTML document (index.html, built from bigbluebutton-html5/client/main.html).
+#
+# nginx sends a per-request Content-Security-Policy: the nonce is this request's
+# $request_id (random per request, and never exposed to the client), and sub_filter
+# writes it into the document's BBB_CSP_NONCE placeholders (the inline script tags).
+# Scripts the page creates dynamically (the bundle, plugin entrypoints) read the
+# nonce back from the document's csp-nonce meta tag (client/main.html,
+# imports/utils/dom-utils.js).
+#
+# sub_filter works on uncompressed responses only, so the document is not served
+# from its pre-compressed .gz file here (gzip_static off); gzip still compresses
+# it on the fly. The exact match takes precedence over the /html5client prefix
+# location (bbb-html5.nginx.static), and the index rewrites of /html5client and
+# /html5client/ land here.
+#
+# Policy notes:
+# - script-src: 'unsafe-eval' is needed for WebAssembly compilation (audio
+#   processor, tflite virtual background) until wasm-unsafe-eval is supported by
+#   every browser the client supports.
+# - connect-src: the WebSockets to the public host (GraphQL, LiveKit, SFU) need
+#   the ws:/wss: schemes; pin them to the deployment's host to tighten.
+# - frame-src: Peertube video embeds and plugin iframes point at third-party origins.
+# - blob: in img-src/media-src/worker-src: the virtual background creates its
+#   worker from a blob: URL, as do canvas exports and some media elements.
+# - frame-ancestors is deliberately not set: the client must run inside iframes
+#   (e.g. LMS integrations). A proxy in front of it can still restrict framing
+#   by sending its own "Content-Security-Policy: frame-ancestors ..." header;
+#   browsers enforce all received policies as their intersection.
+location = /html5client/index.html {
+    alias /usr/share/bigbluebutton/html5-client/index.html;
+
+    gzip_static off;
+    sub_filter_types text/html;
+    sub_filter_once off;
+    sub_filter 'BBB_CSP_NONCE' $request_id;
+
+    add_header Content-Security-Policy "default-src 'self'; script-src 'nonce-$request_id' 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' ws: wss:; media-src 'self' blob:; worker-src 'self' blob:; frame-src 'self' http: https:; object-src 'none'; base-uri 'self'; form-action 'self'";
+    # The document is unique per request (nonce inlined), so it must not be cached.
+    add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0";
+}

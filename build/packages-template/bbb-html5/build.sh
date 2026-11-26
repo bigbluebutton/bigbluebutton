@@ -26,6 +26,7 @@ done
 cp bbb-html5.nginx staging/usr/share/bigbluebutton/nginx
 cp bbb-html5.nginx.dev staging/usr/share/bigbluebutton/nginx
 cp bbb-html5.nginx.static staging/usr/share/bigbluebutton/nginx
+cp bbb-html5.nginx.csp staging/usr/share/bigbluebutton/nginx
 
 # Prefer the build's COMMIT_DATE (e.g. 20260525T143438, same value baked into the
 # deb VERSION string in setup-inside-docker.sh) so the client's About dialog and

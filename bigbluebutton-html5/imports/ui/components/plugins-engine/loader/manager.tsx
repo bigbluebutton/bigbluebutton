@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { PluginLoaderManagerProps } from './types';
 import logger from '/imports/startup/client/logger';
 import { setLogger } from '../utils';
+import { getCspNonce } from '/imports/utils/dom-utils';
 
 const PluginLoaderManager = (props: PluginLoaderManagerProps) => {
   const {
@@ -30,6 +31,10 @@ const PluginLoaderManager = (props: PluginLoaderManagerProps) => {
     containerRef.current?.appendChild(div);
 
     const script: HTMLScriptElement = document.createElement('script');
+    // Plugin entrypoints are third-party scripts; the document's CSP admits them
+    // by the per-request nonce nginx injected into the inline scripts.
+    const cspNonce = getCspNonce();
+    if (cspNonce) script.nonce = cspNonce;
     const loadStartedAt = performance.now();
     script.onload = () => {
       logger.info({
