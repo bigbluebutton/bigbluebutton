@@ -220,12 +220,16 @@ export const screenshareHasEnded = () => {
     setCameraAsContentDeviceId('');
   }
 
-  screenShareBridge.stop();
+  const stopPromise = screenShareBridge.stop();
 
   if (window.bbbMobileApp && window.bbbMobileApp.onScreenshareStopRequest) {
     window.bbbMobileApp.onScreenshareStopRequest();
   }
+
+  return stopPromise;
 };
+
+let activeLocalStream = null;
 
 export const _handleStreamTermination = () => {
   screenshareHasEnded();
@@ -329,9 +333,8 @@ export const shareScreen = async (
   onFail,
   options = {},
 ) => {
-  if (isCameraAsContentBroadcasting) {
-    screenshareHasEnded();
-  }
+  const hadActiveShare = isCameraAsContentBroadcasting || isSharing();
+  let streamAcquired = false;
 
   try {
     let stream;
@@ -346,12 +349,23 @@ export const shareScreen = async (
       contentType = CONTENT_TYPE_CAMERA;
       stream = options.stream;
     }
-    _trackStreamTermination(stream, _handleStreamTermination);
+    streamAcquired = true;
 
     if (!isPresenter) {
       MediaStreamUtils.stopMediaStreamTracks(stream);
       return;
     }
+
+    if (hadActiveShare) {
+      await screenshareHasEnded();
+    }
+
+    // Only the current share may end the session: the replaced stream fires its
+    // own 'inactive' event after the new share has already started.
+    activeLocalStream = stream;
+    _trackStreamTermination(stream, () => {
+      if (activeLocalStream === stream) _handleStreamTermination();
+    });
 
     await screenShareBridge.share(stream, onFail, contentType);
 
@@ -368,7 +382,11 @@ export const shareScreen = async (
     setSharingContentType(contentType);
     setIsSharing(true);
   } catch (error) {
-    onFail(error);
+    if (hadActiveShare && !streamAcquired) {
+      onFail(error, false);
+    } else {
+      onFail(error);
+    }
   }
 };
 

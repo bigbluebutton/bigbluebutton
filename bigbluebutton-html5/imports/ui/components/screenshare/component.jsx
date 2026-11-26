@@ -122,6 +122,7 @@ class ScreenshareComponent extends React.Component {
       streamId,
     } = this.props;
 
+    this.handledStreamId = streamId;
     screenshareHasStarted(streamId, hasAudio, isPresenter, { outputDeviceId });
     // Autoplay failure handling
     window.addEventListener('screensharePlayFailed', this.handlePlayElementFailed);
@@ -142,10 +143,28 @@ class ScreenshareComponent extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { isPresenter, outputDeviceId, shouldShowScreenshare } = this.props;
+    const {
+      isPresenter, outputDeviceId, shouldShowScreenshare, streamId, hasAudio,
+    } = this.props;
     const { videoTagRef } = this.state;
     if (prevProps.isPresenter && !isPresenter) {
       screenshareHasEnded();
+    }
+
+    // A replacement share (e.g. screen -> camera as content) can stop the old
+    // stream and start the new one without unmounting this component, so
+    // viewers must switch to the new stream themselves and the presenter's
+    // local preview must be attached again.
+    // The stream id can go through undefined between the two shares, so compare
+    // with the last stream this component handled, not with the previous props.
+    if (streamId && streamId !== this.handledStreamId) {
+      this.handledStreamId = streamId;
+      if (isPresenter) {
+        attachLocalPreviewStream(getMediaElement());
+      } else {
+        screenshareHasEnded();
+        screenshareHasStarted(streamId, hasAudio, isPresenter, { outputDeviceId });
+      }
     }
 
     if (prevProps.outputDeviceId !== outputDeviceId && !isPresenter) {

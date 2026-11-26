@@ -226,7 +226,6 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
   };
 
   const handleCameraAsContentClick = () => {
-    screenshareHasEnded();
     setCurrentView('cameraAsContent');
   };
 
