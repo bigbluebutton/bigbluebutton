@@ -126,7 +126,13 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.moveToMainRoom',
     description: 'Move participant to main room menu item',
   },
+  runningKeyboardInstructions: {
+    id: 'app.createBreakoutRoom.runningKeyboardInstructions',
+    description: 'Keyboard instructions for managing participants in running breakout rooms',
+  },
 });
+
+const RUNNING_KEYBOARD_INSTRUCTIONS_ID = 'running-breakout-room-keyboard-instructions';
 
 interface RunningBreakoutRoomProps {
   breakouts: BreakoutRoomType[];
@@ -450,6 +456,9 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
       <Styled.Separator />
 
       <Styled.ScrollContent ref={scrollContainerRef} onDragOver={handleScrollDragOver}>
+        <span id={RUNNING_KEYBOARD_INSTRUCTIONS_ID} className="sr-only">
+          {intl.formatMessage(intlMessages.runningKeyboardInstructions)}
+        </span>
         <Styled.UsersSection
           onDragOver={(ev) => {
             ev.preventDefault();
@@ -466,6 +475,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
           id="breakoutBox-0"
           tabIndex={0}
           onKeyDown={rover}
+          aria-describedby={RUNNING_KEYBOARD_INSTRUCTIONS_ID}
         >
           <Styled.UsersSectionHeader>
             <span>{intl.formatMessage(intlMessages.unassignedUsers)}</span>
@@ -560,6 +570,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                 }}
                 tabIndex={0}
                 onKeyDown={rover}
+                aria-describedby={RUNNING_KEYBOARD_INSTRUCTIONS_ID}
               >
                 <Styled.RoomCardHeader>
                   <Styled.RoomCardLeft>

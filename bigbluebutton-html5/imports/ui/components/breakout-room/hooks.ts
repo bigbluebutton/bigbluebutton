@@ -96,7 +96,7 @@ export const useRoverNavigation = (
   userItemSelector: string,
   moveUser: MoveUserFn,
   numberOfRooms: number,
-  afterMove?: () => void,
+  afterMove?: (userId: string, from: number, to: number) => void,
   allowArrowMoves = true,
 ) => {
   const rover = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -133,7 +133,7 @@ export const useRoverNavigation = (
         e.stopPropagation();
         if (from + 1 <= numberOfRooms) {
           moveUser(userId, from, from + 1);
-          if (afterMove) afterMove();
+          if (afterMove) afterMove(userId, from, from + 1);
         }
       }
 
@@ -142,7 +142,7 @@ export const useRoverNavigation = (
         e.stopPropagation();
         if (from - 1 >= 0) {
           moveUser(userId, from, from - 1);
-          if (afterMove) afterMove();
+          if (afterMove) afterMove(userId, from, from - 1);
         }
       }
     }

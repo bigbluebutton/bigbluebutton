@@ -26,6 +26,61 @@ test.describe('Breakout room keyboard accessibility', { tag: '@ci' }, () => {
     await expect(modPage.page.getByRole('button', { name: 'Rename Keyboard room' })).toBeFocused();
   });
 
+  test('keeps focus while assigning participants with arrows and the move menu', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    const session = new MultiUsers(browser, context);
+    await session.initPages(page, testInfo);
+    await session.initUserPage2(context);
+    const { modPage } = session;
+
+    await modPage.waitAndClick(e.breakoutRoomSidebarButton);
+    const instructions = modPage.page.locator(e.breakoutKeyboardInstructions);
+    await expect(instructions).toHaveText(
+      'Use Up and Down arrows to choose a participant, Right and Left arrows to move them to another ' +
+        'room, or Enter or Space to open the Move to menu.',
+    );
+    await expect(modPage.page.locator(e.breakoutBox0)).toHaveAttribute(
+      'aria-describedby',
+      'breakout-room-assignment-keyboard-instructions',
+    );
+    await expect(modPage.page.locator(e.breakoutBox1)).toHaveAttribute(
+      'aria-describedby',
+      'breakout-room-assignment-keyboard-instructions',
+    );
+
+    const attendee = modPage.page.getByLabel('Attendee, Unassigned Users');
+    await attendee.focus();
+    await modPage.page.keyboard.press('ArrowRight');
+    const attendeeRoomOne = modPage.page.getByLabel('Attendee, Room 1');
+    await expect(attendeeRoomOne).toBeFocused();
+    await modPage.page.keyboard.press('ArrowRight');
+    const attendeeRoomTwo = modPage.page.getByLabel('Attendee, Room 2');
+    await expect(attendeeRoomTwo).toBeFocused();
+    await modPage.page.keyboard.press('ArrowLeft');
+    await expect(attendeeRoomOne).toBeFocused();
+
+    const attendeeTwo = modPage.page.getByLabel('Attendee2, Unassigned Users');
+    await attendeeTwo.focus();
+    await modPage.page.keyboard.press('Enter');
+    await expect(modPage.page.locator(e.moveUserToRoom1)).toBeFocused();
+    await modPage.page.keyboard.press('Enter');
+    await expect(modPage.page.getByLabel('Attendee2, Room 1')).toBeFocused();
+
+    await attendeeRoomOne.focus();
+    await modPage.page.keyboard.press('Space');
+    await expect(modPage.page.locator(e.moveUserToUnassigned)).toBeFocused();
+    await modPage.page.keyboard.press('Enter');
+    await expect(modPage.page.getByLabel('Attendee, Unassigned Users')).toBeFocused();
+
+    const roomOne = modPage.page.locator(e.breakoutBox1);
+    await roomOne.focus();
+    await modPage.page.keyboard.press('Enter');
+    await expect(modPage.page.getByLabel('Attendee2, Room 1')).toBeFocused();
+  });
+
   test('manages running breakout rooms with the keyboard', async ({ browser, context, page }, testInfo) => {
     const session = new MultiUsers(browser, context);
     await session.initPages(page, testInfo);

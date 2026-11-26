@@ -578,6 +578,18 @@ export const UserRemoveBtn = styled.button`
   }
 `;
 
+export const MoveUserBtn = styled(UserRemoveBtn)`
+  color: ${colorPrimary};
+
+  &::before {
+    content: '↪';
+  }
+
+  &:hover {
+    color: ${colorPrimary};
+  }
+`;
+
 export const PresentationSelect = styled(Select)`
   width: 100%;
   margin-top: 0.5rem;
@@ -687,6 +699,7 @@ export default {
   RoomCardUserList,
   RoomCardUserItem,
   UserRemoveBtn,
+  MoveUserBtn,
   PresentationSelect,
   StartButtonWrapper,
   MaterialSwitch,
