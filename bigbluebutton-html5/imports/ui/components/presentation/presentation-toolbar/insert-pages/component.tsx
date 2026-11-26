@@ -78,6 +78,7 @@ const InsertPagesButton: React.FC<InsertPagesButtonProps> = ({
   return (
     <>
       <BBBMenu
+        disabled={disabled}
         trigger={(
           <Button
             data-test="insertPagesButton"
