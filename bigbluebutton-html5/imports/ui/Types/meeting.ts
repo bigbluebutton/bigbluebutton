@@ -11,6 +11,8 @@ export interface LockSettings {
   hideViewersAnnotation: boolean,
   meetingId: boolean;
   webcamsOnlyForModerator: boolean;
+  lockOnJoin: boolean;
+  lockOnJoinConfigurable: boolean;
 }
 
 export interface groups {
@@ -139,6 +141,7 @@ export interface Meeting {
   cameraBridge: string;
   screenShareBridge: string;
   audioBridge: string;
+  roomMode: string;
   meetingId: string;
   name: string;
   notifyRecordingIsOn: boolean;

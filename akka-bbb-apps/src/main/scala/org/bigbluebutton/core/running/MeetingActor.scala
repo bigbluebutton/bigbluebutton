@@ -93,6 +93,7 @@ class MeetingActor(
   with UserDisconnectedFromGlobalAudioMsgHdlr
   with MuteAllExceptPresentersCmdMsgHdlr
   with MuteMeetingCmdMsgHdlr
+  with SetRoomModeCmdMsgHdlr
   with IsMeetingMutedReqMsgHdlr
   with GetGlobalAudioPermissionReqMsgHdlr
   with GetMicrophonePermissionReqMsgHdlr
@@ -626,6 +627,9 @@ class MeetingActor(
       case m: MuteMeetingCmdMsg =>
         handleMuteMeetingCmdMsg(m)
         updateUserLastActivity(m.body.mutedBy)
+      case m: SetRoomModeCmdMsg =>
+        handleSetRoomModeCmdMsg(m)
+        updateUserLastActivity(m.body.setBy)
       case m: UserConnectedToGlobalAudioMsg      => handleUserConnectedToGlobalAudioMsg(m)
       case m: UserDisconnectedFromGlobalAudioMsg => handleUserDisconnectedFromGlobalAudioMsg(m)
       case m: VoiceConfRunningEvtMsg             => handleVoiceConfRunningEvtMsg(m)
