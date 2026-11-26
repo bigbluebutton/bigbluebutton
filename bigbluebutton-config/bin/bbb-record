@@ -188,6 +188,84 @@ check_path_owner_group() {
    fi
 }
 
+backup_file_with_number() {
+   PATH_WITH_FILENAME=$1
+   path=$( dirname $PATH_WITH_FILENAME )
+   filename=$( basename $PATH_WITH_FILENAME )
+   pushd $path > /dev/null
+      higher_id=$( ls | grep -oP "$filename\-\K\d+(?=.*)" | tail -n1 )
+      updated_id=$( expr $higher_id + 1 )
+      new_filename="$filename-$updated_id.backup"
+   popd > /dev/null
+   cp $PATH_WITH_FILENAME $path/$new_filename
+   return $updated_id
+}
+
+# Version $1 less than or equal to the $2
+verlte() {
+   [ "$1" = "`echo -e "$1\n$2" | sort -V | head -n1`" ]
+}
+
+merge_gemfiles() {
+   CURRENT_GEMFILE_PATH=$1
+   NEW_GEMFILE_PATH=$2
+   current_gems=$( cat $CURRENT_GEMFILE_PATH | grep -oP "gem\s\'\K[^']+(?=.*)" )
+
+   while read line
+   do 
+      new_gem=$( echo $line | grep -oP "gem\s\'\K[^']+(?=.*)" )
+      is_new_gem_in_gemfile=0
+      for current_gem in $current_gems; do
+         if [ "$current_gem" = "$new_gem" ]; then
+            is_new_gem_in_gemfile=1
+            new_gem_version=$( echo $line | grep -oP "\~\>\s\K[^']+(?=.*)" )
+            current_gem_version=$( cat $CURRENT_GEMFILE_PATH | grep -oP "$new_gem\'\,\s\'\~\>\s\K[^']+(?=.*)" )            
+
+            verlte $new_gem_version $current_gem_version \
+               && echo "Info: Version of $new_gem in $NEW_GEMFILE_PATH is lower than or equal to the current one... Ignoring" \
+               || echo "Info: upgrading $new_gem from $current_gem_version to $new_gem_version" \
+               && sudo sed -Ei "s/.+$new_gem.*/$line/g" $CURRENT_GEMFILE_PATH
+         fi
+      done
+      if [ ! $is_new_gem_in_gemfile -eq 1 ]; then
+         echo "$line" >> $CURRENT_GEMFILE_PATH
+      fi
+      
+   done < $NEW_GEMFILE_PATH
+}
+
+add_gems() {
+   echo "Checking for adding gems file..."
+   FILENAME_OF_GEMS="GemsToAdd"
+   FILE_TO_ADD_GEMS="/etc/bigbluebutton/recording/$FILENAME_OF_GEMS"
+   if [ -f "$FILE_TO_ADD_GEMS" ]; then
+      backup_file_with_number "/usr/local/bigbluebutton/core/Gemfile"
+      backup_id=$?
+      backup_file_with_number "/usr/local/bigbluebutton/core/Gemfile.lock"
+      merge_gemfiles "/usr/local/bigbluebutton/core/Gemfile" "$FILE_TO_ADD_GEMS"
+      mv $FILE_TO_ADD_GEMS "$FILE_TO_ADD_GEMS-used"
+   else
+      echo "No file to add gems, please insert one first"
+   fi
+   pushd /usr/local/bigbluebutton/core > /dev/null
+      bundle config unset --local deployment
+      bundle install &> bundle_install.log #| tee -a bundle_install.log #| grep "Could not find" # tee -a bundle_install.log & 
+      if [ -z "$( cat bundle_install.log | grep -P "Err|(Could not find)" )" ]; then 
+         echo "Info: Gems installed or upgraded successfuly"
+      else 
+         echo "Error: $( cat bundle_install.log | grep -P "Err|(Could not find)" )"
+         echo "Error, reverting..."
+         mv Gemfile "Gemfile-$backup_id.error" && mv "Gemfile-$backup_id.backup" Gemfile
+         mv Gemfile.lock "Gemfile.lock-$backup_id.error" && mv "Gemfile.lock-$backup_id.backup" Gemfile.lock
+         bundle install &> bundle_install.log
+      fi
+      sudo rm bundle_install.log 
+      # Remove unneeded files to reduce package size
+      bundle clean
+      bundle config set --local deployment true
+   popd > /dev/null
+}
+
 usage() {
    echo "BigBlueButton Recording Diagnostic Utility (BigBlueButton Version $BIGBLUEBUTTON_RELEASE)"
    echo
@@ -215,6 +293,7 @@ usage() {
    echo "   --tointernal <external meetingId>  get the internal meeting ids for the given external meetingId"
    echo "   --toexternal <internal meetingId>  get the external meeting id for the given internal meetingId"
    echo "   --republish <internal meetingID>   republish the recording for meetingID. (Only for Matterhorn Integration)"
+   echo "   --addcustomgems                    rebuild and install new custom gems (if /etc/bigbluebutton/recording/GemsToAdd is set with the new gems)"
    #echo "   --rearchive [meetingId]            rearchive the recording (created before a restart)"
    echo
 }
@@ -365,6 +444,13 @@ while [ $# -gt 0 ]; do
          shift
       fi
       TOINTERNAL=1
+      shift
+      continue
+   fi
+
+   if [ "$1" = "-addcustomgems" ] || [ "$1" = "--addcustomgems" ]; then
+      need_root
+      ADD_CUSTOM_GEMS=1
       shift
       continue
    fi
@@ -965,4 +1051,8 @@ if [ $DEBUG ]; then
    fi
 
    exit 0
+fi
+
+if [ $ADD_CUSTOM_GEMS ]; then
+   add_gems
 fi
