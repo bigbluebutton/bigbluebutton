@@ -51,6 +51,10 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.keyboardInstructions',
     description: 'Keyboard instructions for assigning participants before breakout rooms start',
   },
+  participants: {
+    id: 'app.userList.participantsTitle',
+    description: 'Participants label',
+  },
 });
 
 const KEYBOARD_INSTRUCTIONS_ID = 'breakout-room-assignment-keyboard-instructions';
@@ -162,6 +166,10 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
     `${intl.formatMessage(intlMessages.moveUserMenu, { userName })}, ${roomName}`
   );
 
+  const roomCardLabel = (roomName: string, participantCount: number) => (
+    `${roomName}, ${intl.formatMessage(intlMessages.participants)}: ${participantCount}`
+  );
+
   const unassignedRoom = rooms[0];
   const unassignedUsers = unassignedRoom?.users || [];
   const unassignedUsersLabel = intl.formatMessage(intlMessages.unassignedUsers);
@@ -241,6 +249,8 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
             <Styled.RoomCard
               id={`breakoutBox-${roomNum}`}
               key={`room-card-${roomNum}`}
+              role="group"
+              aria-label={roomCardLabel(roomName, usersInRoom.length)}
               onDrop={drop(roomNum)}
               onDragOver={allowDrop}
               tabIndex={0}

@@ -15,6 +15,7 @@ test.describe('Breakout room keyboard accessibility', { tag: '@ci' }, () => {
     await modPage.waitAndClick(e.breakoutRoomSidebarButton);
 
     await expect(modPage.page.getByRole('group', { name: 'Number of rooms' })).toBeVisible();
+    await expect(modPage.page.locator(e.breakoutBox1)).toHaveAccessibleName('Room 1, Participants: 0');
     const roomName = modPage.page.getByRole('button', { name: 'Rename Room 1' });
     await roomName.focus();
     await modPage.page.keyboard.press('Enter');
@@ -137,6 +138,16 @@ test.describe('Breakout room keyboard accessibility', { tag: '@ci' }, () => {
     await modPage.waitAndClick(e.createBreakoutRoomsButton);
     await userPage.waitAndClick(e.modalDismissButton);
 
+    const runningRoomOneCard = modPage.page.locator(e.breakoutBox1);
+    const runningRoomOneName = modPage.page.getByRole('button', { name: 'Rename Room 1' });
+    await expect(runningRoomOneCard).toHaveAccessibleName('Room 1, Participants: 0');
+    await expect(runningRoomOneCard).toHaveAccessibleDescription(
+      'Press Enter to focus the rename button, or use the Down arrow to choose a participant.',
+    );
+    await runningRoomOneCard.focus();
+    await modPage.page.keyboard.press('Enter');
+    await expect(runningRoomOneName).toBeFocused();
+
     const runningRoomName = modPage.page.getByRole('button', { name: 'Rename Room 2' });
     await runningRoomName.focus();
     await modPage.page.keyboard.press('Enter');
@@ -191,6 +202,7 @@ test.describe('Breakout room keyboard accessibility', { tag: '@ci' }, () => {
     await modPage.page.waitForTimeout(750);
 
     const roomOneCard = modPage.page.locator(e.breakoutBox1);
+    await expect(roomOneCard).toHaveAccessibleName('Room 1, Participants: 1');
     await roomOneCard.focus();
     await modPage.page.keyboard.press('ArrowDown');
     const joinedRow = modPage.page.locator(`${e.breakoutBox1} [data-test="draggableUser"]`);

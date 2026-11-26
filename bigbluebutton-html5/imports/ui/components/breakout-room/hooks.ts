@@ -99,6 +99,7 @@ export const useRoverNavigation = (
   afterMove?: (userId: string, from: number, to: number) => void,
   allowArrowMoves = true,
   focusTargetSelector?: string,
+  onContainerEnter?: (element: HTMLElement) => boolean,
 ) => {
   const rover = useCallback((e: React.KeyboardEvent<HTMLElement>) => {
     const element = e.target as HTMLElement;
@@ -108,6 +109,7 @@ export const useRoverNavigation = (
       if (e.key === KEYS.ENTER || e.key === KEYS.ARROW_DOWN) {
         e.preventDefault();
         e.stopPropagation();
+        if (e.key === KEYS.ENTER && onContainerEnter?.(element)) return;
         const firstChild = element.querySelector(
           `[data-test="${focusSelector}"]`,
         ) as HTMLElement;
@@ -161,6 +163,7 @@ export const useRoverNavigation = (
     afterMove,
     allowArrowMoves,
     focusTargetSelector,
+    onContainerEnter,
   ]);
 
   return rover;

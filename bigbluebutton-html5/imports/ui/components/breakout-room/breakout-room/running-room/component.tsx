@@ -130,9 +130,18 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.runningKeyboardInstructions',
     description: 'Keyboard instructions for managing participants in running breakout rooms',
   },
+  roomCardKeyboardInstructions: {
+    id: 'app.createBreakoutRoom.roomCardKeyboardInstructions',
+    description: 'Keyboard instructions for navigating a running breakout room card',
+  },
+  participants: {
+    id: 'app.userList.participantsTitle',
+    description: 'Participants label',
+  },
 });
 
 const RUNNING_KEYBOARD_INSTRUCTIONS_ID = 'running-breakout-room-keyboard-instructions';
+const ROOM_CARD_KEYBOARD_INSTRUCTIONS_ID = 'running-breakout-room-card-keyboard-instructions';
 
 interface RunningBreakoutRoomProps {
   breakouts: BreakoutRoomType[];
@@ -345,6 +354,10 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
     `${intl.formatMessage(intlMessages.moveUserMenu, { userName })}, ${roomName}`
   ), [intl]);
 
+  const roomCardLabel = useCallback((roomName: string, participantCount: number) => (
+    `${roomName}, ${intl.formatMessage(intlMessages.participants)}: ${participantCount}`
+  ), [intl]);
+
   const moveUserBetweenRooms = useCallback((
     movedUserId: string,
     fromRoomMeetingId: string,
@@ -393,6 +406,16 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
     moveUserBetweenRooms(droppedUserId, fromRoomMeetingId, toRoomId, userName);
   }, [moveUserBetweenRooms]);
 
+  const focusRoomNameFromCard = useCallback((element: HTMLElement) => {
+    const roomSequence = Number(element.id.replace('breakoutBox-', ''));
+    const room = breakouts.find((breakout) => breakout.sequence === roomSequence);
+    if (!room) return false;
+    const roomNameButton = roomNameRefs.current[room.breakoutRoomMeetingId];
+    if (!roomNameButton) return false;
+    roomNameButton.focus();
+    return true;
+  }, [breakouts]);
+
   const rover = useRoverNavigation(
     'draggableUser',
     () => {},
@@ -400,6 +423,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
     undefined,
     false,
     'moveUserMenuButton',
+    focusRoomNameFromCard,
   );
   const closeMoveMenu = () => {
     setOpenMoveMenu(null);
@@ -455,6 +479,9 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
       <Styled.ScrollContent ref={scrollContainerRef} onDragOver={handleScrollDragOver}>
         <span id={RUNNING_KEYBOARD_INSTRUCTIONS_ID} className="sr-only">
           {intl.formatMessage(intlMessages.runningKeyboardInstructions)}
+        </span>
+        <span id={ROOM_CARD_KEYBOARD_INSTRUCTIONS_ID} className="sr-only">
+          {intl.formatMessage(intlMessages.roomCardKeyboardInstructions)}
         </span>
         <Styled.UsersSection
           onDragOver={(ev) => {
@@ -553,6 +580,8 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
               <Styled.RoomCard
                 id={`breakoutBox-${breakout.sequence}`}
                 key={breakout.breakoutRoomMeetingId}
+                role="group"
+                aria-label={roomCardLabel(displayName, totalRoomUsers)}
                 // eslint-disable-next-line max-len
                 data-test={breakout.isUserCurrentlyInRoom ? 'alreadyConnected' : undefined}
                 onDrop={handleDrop(breakout.breakoutRoomMeetingId)}
@@ -569,7 +598,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                 }}
                 tabIndex={0}
                 onKeyDown={rover}
-                aria-describedby={RUNNING_KEYBOARD_INSTRUCTIONS_ID}
+                aria-describedby={ROOM_CARD_KEYBOARD_INSTRUCTIONS_ID}
               >
                 <Styled.RoomCardHeader>
                   <Styled.RoomCardLeft>

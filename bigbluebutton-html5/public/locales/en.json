@@ -1581,6 +1581,7 @@
     "app.createBreakoutRoom.moveToUnassignedUsers": "Move to Unassigned Users",
     "app.createBreakoutRoom.keyboardInstructions": "Use Up and Down arrows to choose a participant, Right and Left arrows to move them to another room, or Enter or Space to open the Move to menu.",
     "app.createBreakoutRoom.runningKeyboardInstructions": "Use Up and Down arrows to choose a participant, or Enter or Space to open the Move to menu.",
+    "app.createBreakoutRoom.roomCardKeyboardInstructions": "Press Enter to focus the rename button, or use the Down arrow to choose a participant.",
     "app.createBreakoutRoom.moveToMainRoom": "Move to main room",
     "app.createBreakoutRoom.durationInMinutes": "Duration (minutes)",
     "app.createBreakoutRoom.randomlyAssign": "Assign viewers randomly",
