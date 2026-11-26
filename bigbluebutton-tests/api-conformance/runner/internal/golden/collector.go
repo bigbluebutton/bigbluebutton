@@ -136,6 +136,7 @@ func (c *Collector) Add(ev steps.Observed) []string {
 	ctx := c.ctxs[ev.Case.ID]
 	if ctx == nil {
 		ctx = normalize.NewContext(ev.UID, c.target.Bases(), c.target.APIPrefix, c.target.Salt)
+		ctx.Named = c.target.NamedURLs()
 		c.ctxs[ev.Case.ID] = ctx
 		c.cases[ev.Case.ID] = map[Key]Step{}
 	}

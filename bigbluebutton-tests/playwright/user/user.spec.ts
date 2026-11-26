@@ -38,6 +38,28 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await guestPolicy.allowEveryoneInWaitingQueues();
     });
 
+    test('Always accept admits the users already waiting', async ({ browser, context, page }, testInfo) => {
+      const guestPolicy = new GuestPolicy(browser, context);
+      await guestPolicy.initModPage(page, { createParameter: 'guestPolicy=ASK_MODERATOR', testInfo });
+      await guestPolicy.alwaysAcceptAdmitsWaitingUsers();
+    });
+
+    test('Remember choice on one accept admits the other waiting users', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      const guestPolicy = new GuestPolicy(browser, context);
+      await guestPolicy.initModPage(page, { createParameter: 'guestPolicy=ASK_MODERATOR', testInfo });
+      await guestPolicy.rememberChoiceAcceptAdmitsTheRest();
+    });
+
+    test('Always deny keeps the users already waiting (guard)', async ({ browser, context, page }, testInfo) => {
+      const guestPolicy = new GuestPolicy(browser, context);
+      await guestPolicy.initModPage(page, { createParameter: 'guestPolicy=ASK_MODERATOR', testInfo });
+      await guestPolicy.alwaysDenyKeepsWaitingUsers();
+    });
+
     test('Keeps queue totals visible while searching', async ({ browser, context, page }, testInfo) => {
       const guestPolicy = new GuestPolicy(browser, context);
       await guestPolicy.initModPage(page, { createParameter: 'guestPolicy=ASK_MODERATOR', testInfo });

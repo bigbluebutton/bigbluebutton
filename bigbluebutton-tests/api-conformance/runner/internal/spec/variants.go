@@ -95,6 +95,11 @@ func (f *fileCtx) variants(root *yaml.Node) (vs []variant, ok bool) {
 					}
 					if value.ShortTag() == "!!null" {
 						v.vars[name.Value] = nil
+					} else if ref := builtinRef(value.Value); ref != "" {
+						// A var's value is used as written, so ${uid} or
+						// ${sinkUrl} in it would reach the server as is.
+						f.errf(value, "variants: var %q refers to ${%s}, but a var's value isn't expanded: write the template in the step and give the var only the part that varies", name.Value, ref)
+						ok = false
 					} else {
 						s := value.Value
 						v.vars[name.Value], v.varTags[name.Value] = &s, value.ShortTag()
@@ -158,6 +163,23 @@ func addNames(c *yaml.Node, key string, names []*yaml.Node) {
 			list.Content = append(list.Content, deepCopy(n))
 		}
 	}
+}
+
+// builtinRef returns the first built-in variable s refers to, or "".
+func builtinRef(s string) string {
+	if !tmpl.HasExpr(s) {
+		return ""
+	}
+	t, err := tmpl.Parse(s)
+	if err != nil {
+		return ""
+	}
+	for _, r := range t.Refs() {
+		if builtinVars[r] {
+			return r
+		}
+	}
+	return ""
 }
 
 // subst replaces variant vars in n. A string that is exactly ${v} takes v's

@@ -1,0 +1,46 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A plugin manifest whose URL passes bbb-web's check but which can't be
+# loaded still gets an entry in pluginProp, so the client can say why:
+# no content, the reason, and bbb-web as its source. create succeeds.
+# The entry is keyed by the URL, or by the plugin's name when the failure
+# comes from filling in its placeholders. The checksum is compared as
+# lower-case hex, so an upper-case one fails. _after=1 lets the check
+# through and fails the fetch, a failure only bbb-web's two requests have
+# (create.fetch.two-requests): compat. A URL whose check fails is dropped
+# (create.plugins.dropped-unreachable).
+id: create.plugins.load-failure
+title: create records a plugin manifest that fails to load (${case})
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus, callbacks]
+variants:
+  - {id: invalid-json, vars: {case: not JSON, file: plugins/invalid.json, checksum: "", reason: "^Failed to parse manifest JSON"}}
+  - {id: no-name, vars: {case: no name, file: plugins/no-name.json, checksum: "", reason: "^Plugin Manifest without a plugin name"}}
+  - {id: too-large, vars: {case: over maxPluginManifestsFetchUrlPayloadSize, file: "generated/big.json?_size=1100000", checksum: "", reason: "^I/O error when fetching a plugin URL"}}
+  - {id: fetch-error, vars: {case: an error fetching it, file: "plugins/basic.json?_status=500&_after=1", checksum: "", reason: "^I/O error when fetching a plugin URL"}, class: compat}
+  - {id: missing-metadata, vars: {case: a required meta_ param missing, file: plugins/required.json, checksum: "", reason: "^Missing required metadata"}}
+  - {id: checksum-mismatch, vars: {case: a checksum mismatch, file: plugins/basic.json, checksum: ',"checksum":"0000000000000000000000000000000000000000000000000000000000000000"', reason: "checksum mismatch"}}
+  - {id: checksum-upper-case, vars: {case: an upper-case checksum, file: plugins/basic.json, checksum: ',"checksum":"AC8E79924EB80F5B109940FCC40E42044A94DC2335E90E0FCB99BBE8BD71DC78"', reason: "checksum mismatch"}, class: compat}
+steps:
+  - call: create
+    params:
+      meetingID: "${uid}"
+      name: Plugins
+      pluginManifests: '[{"url":"${sinkUrl}/${uid}/fixtures/${file}"${checksum}}]'
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 30s}
+    select: [$.core.body.props.pluginProp]
+    expect:
+      jsonpath:
+        $.core.body.props.pluginProp.*.loadFailureReason: {regex: "${reason}"}
+        $.core.body.props.pluginProp.*.loadFailureSource: bbb-web
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

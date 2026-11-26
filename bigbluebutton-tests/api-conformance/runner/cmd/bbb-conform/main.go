@@ -13,6 +13,9 @@
 //	bbb-conform review --golden DIR [--cases DIR] [--id GLOB,..] [--since REV] [--html FILE]
 //	bbb-conform gap --results FILE [--results FILE ...] [--md FILE] [--html FILE]
 //	bbb-conform validate [--cases DIR] [--fixtures DIR] [--golden DIR]
+//	bbb-conform coverage --report FILE --triage FILE [--baseline FILE] [--drop-tolerance PP]
+//	                     [--fail-on-drop] [--md FILE] [--untriaged FILE] [--write-baseline FILE]
+//	                     [--sources DIR ...]
 //	bbb-conform tap [--listen ADDR] [--redis URL] [--data-dir DIR] [--watch DIR,..]
 //	                [--channels CH,..] [--redis-keys GLOB,..] [--max-mb N] [--max-age D]
 //	bbb-conform sink [--listen ADDR] [--cert FILE --key FILE [--listen-http ADDR]] [--fixtures DIR] [--max-mb N] [--max-age D]
@@ -59,6 +62,8 @@ const (
   bbb-conform gap --results FILE... [--md F] [--html F] the gap matrix of several runs
   bbb-conform validate [--cases DIR] [--fixtures DIR] [--golden DIR]
                                                         check case files, and their recordings in DIR
+  bbb-conform coverage --report FILE --triage FILE [options]
+                                                        summarise bbb-web's coverage (make -C env coverage)
   bbb-conform tap [options]                             serve a server's bus, redis and files to the runner
   bbb-conform sink [options]                            record a server's callbacks and fetches, serve fixtures
   bbb-conform version                                   print the version
@@ -89,6 +94,8 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return cmdGap(args[1:], stdout, stderr)
 	case "validate":
 		return cmdValidate(args[1:], stdout, stderr)
+	case "coverage":
+		return cmdCoverage(args[1:], stdout, stderr)
 	case "tap":
 		return cmdTap(args[1:], stdout, stderr)
 	case "sink":

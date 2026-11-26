@@ -1,0 +1,11 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case end.dashboard.breakouts
+target bbb-web
+
+== step 8: fs learning-dashboard/${room1}/*/learning_dashboard_data.json
+$.found false
+$.path "learning-dashboard/<sha1(?)>-<time>/<token>/learning_dashboard_data.json"
+
+== step 9: fs learning-dashboard/${intId}/*/learning_dashboard_data.json
+$.found false
+$.path "learning-dashboard/<sha1(meetingID)>-<time>/<token>/learning_dashboard_data.json"

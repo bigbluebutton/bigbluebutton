@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A plugin manifest entry can carry the manifest's checksum: the SHA-256
+# of its content, in lower-case hex. A manifest that matches is loaded as
+# any other; one that doesn't is a load failure
+# (create.plugins.load-failure).
+id: create.plugins.checksum
+title: create loads a plugin manifest whose checksum matches
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus, callbacks]
+steps:
+  - call: create
+    params:
+      meetingID: "${uid}"
+      name: Plugins
+      pluginManifests: '[{"url":"${sinkUrl}/${uid}/fixtures/plugins/basic.json","checksum":"ac8e79924eb80f5b109940fcc40e42044a94dc2335e90e0fcb99bbe8bd71dc78"}]'
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.props.pluginProp]
+    expect:
+      jsonpath:
+        $.core.body.props.pluginProp.ConformBasic.manifest.content.name: ConformBasic
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

@@ -21,3 +21,6 @@ expected:
     reason: "bbb-web checks userName trimmed, but posts it as sent, and defaults only an empty one to System"
   - id: create.breakouts.sequence
     reason: "bbb-web answers 500: it parses a breakout room's sequence as an integer without checking it"
+  - id: create.breakout-rooms.capture
+    reason: "bbb-web's Meeting setters for captureSlides and captureNotes ignore their argument, so a breakout room's meeting:breakout hash has both false"
+    issue: https://github.com/bigbluebutton/bigbluebutton/issues/26716

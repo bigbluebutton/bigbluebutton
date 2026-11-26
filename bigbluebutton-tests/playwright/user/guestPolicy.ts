@@ -318,4 +318,119 @@ export class GuestPolicy extends MultiUsers {
     await this.initUserPage(this.context, { shouldCloseAudioModal: false, shouldCheckAllInitialSteps: false });
     await this.userPage.hasElement(e.deniedMessageElement, 'should display the denied message for the attendee');
   }
+
+  async alwaysAcceptAdmitsWaitingUsers(): Promise<void> {
+    await this.initTwoWaitingQueues();
+    await this.modPage.hasElement(e.lockViewersButton, 'should finish opening the users panel');
+    await setGuestPolicyOption(this.modPage, e.alwaysAccept);
+    await expect(
+      this.modPage.page.getByText('The guest policy is now: Always accept'),
+      'should confirm that the guest policy changed to Always accept',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+
+    await this.userPage.hasText(
+      e.guestMessage,
+      /approved/,
+      'should approve the authenticated viewer who was already waiting',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await this.userPage2.hasText(
+      e.guestMessage,
+      /approved/,
+      'should approve the guest viewer who was already waiting',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await expect(this.modPage.page.locator(e.authenticatedWaitingUsers)).toHaveCount(0);
+    await expect(this.modPage.page.locator(e.guestWaitingUsers)).toHaveCount(0);
+    await this.userPage.hasElement(
+      e.audioModal,
+      'should display the audio modal for the authenticated viewer',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await this.userPage2.hasElement(
+      e.audioModal,
+      'should display the audio modal for the guest viewer',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+  }
+
+  async rememberChoiceAcceptAdmitsTheRest(): Promise<void> {
+    await this.initTwoWaitingQueues();
+    await this.modPage.waitAndClick(e.rememberChoice);
+    await expect(
+      this.modPage.page.locator(`${e.rememberChoice} input`),
+      'should keep Remember choice checked before accepting one user',
+    ).toBeChecked();
+    await this.modPage.waitAndClick(e.authenticatedWaitingUsers);
+    await this.modPage.waitAndClick(e.acceptGuest);
+    await expect(
+      this.modPage.page.getByText('The guest policy is now: Always accept'),
+      'should confirm that Remember choice changed the policy to Always accept',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+
+    await this.userPage.hasText(
+      e.guestMessage,
+      /approved/,
+      'should approve the selected authenticated viewer',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await this.userPage2.hasText(
+      e.guestMessage,
+      /approved/,
+      'should approve the other guest viewer after the policy change',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await expect(this.modPage.page.locator(e.guestWaitingUsers)).toHaveCount(0);
+    await this.userPage2.hasElement(
+      e.audioModal,
+      'should display the audio modal for the other guest viewer',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+  }
+
+  // Guard: Always deny applies only to later arrivals and leaves the existing queue actionable.
+  async alwaysDenyKeepsWaitingUsers(): Promise<void> {
+    await this.initTwoWaitingQueues();
+    await this.modPage.hasElement(e.lockViewersButton, 'should finish opening the users panel');
+    await setGuestPolicyOption(this.modPage, e.alwaysDeny);
+    await expect(
+      this.modPage.page.getByText('The guest policy is now: Always deny'),
+      'should confirm that the guest policy changed to Always deny',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+
+    const lateViewer = new Page(this.browser, await this.context.newPage(), this.modPage.testInfo);
+    await lateViewer.init(false, {
+      fullName: 'LateViewer',
+      meetingId: this.modPage.meetingId,
+      shouldCloseAudioModal: false,
+      shouldCheckAllInitialSteps: false,
+    });
+    await lateViewer.hasElement(
+      e.deniedMessageElement,
+      'should deny a viewer who arrives after the policy change',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await this.userPage.hasText(e.guestMessage, /wait/, 'should keep the authenticated viewer waiting');
+    await this.userPage2.hasText(e.guestMessage, /wait/, 'should keep the guest viewer waiting');
+    await expect(this.modPage.page.locator(e.authenticatedWaitingUsers)).toBeVisible();
+    await expect(this.modPage.page.locator(e.guestWaitingUsers)).toBeVisible();
+
+    await this.modPage.waitAndClick(e.authenticatedWaitingUsers);
+    await this.modPage.waitAndClick(e.acceptGuest);
+    await this.userPage.hasText(
+      e.guestMessage,
+      /approved/,
+      'should still allow the moderator to accept the authenticated viewer',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await expect(this.modPage.page.locator(e.authenticatedWaitingUsers)).toHaveCount(0);
+    await this.modPage.waitAndClick(e.guestWaitingUsers);
+    await this.modPage.waitAndClick(e.denyGuest);
+    await this.userPage2.hasText(
+      e.guestMessage,
+      /denied/,
+      'should still allow the moderator to deny the guest viewer',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+  }
 }

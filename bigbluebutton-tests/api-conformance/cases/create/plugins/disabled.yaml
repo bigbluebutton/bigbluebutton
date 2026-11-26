@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# With plugins in disabledFeatures, bbb-web fetches no plugin manifest and
+# the meeting has no plugins, whatever create lists.
+id: create.plugins.disabled
+title: create with plugins disabled fetches no plugin manifest
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus, callbacks]
+steps:
+  - call: create
+    params:
+      meetingID: "${uid}"
+      name: Plugins
+      disabledFeatures: plugins
+      pluginManifests: '[{"url":"${sinkUrl}/${uid}/fixtures/plugins/basic.json"}]'
+      pluginManifestsFetchUrl: "${sinkUrl}/${uid}/fixtures/plugins/list.json?_expand=1"
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.props.pluginProp]
+    expect:
+      jsonpath:
+        $.core.body.props.pluginProp.*: {absent: true}
+  - sink: {key: "${uid}", within: 2s}
+    expect: {absent: true}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}
