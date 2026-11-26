@@ -569,7 +569,7 @@ export const UserRemoveBtn = styled.button`
   align-items: center;
   transition: opacity 0.1s, color 0.1s;
 
-  ${RoomCardUserItem}:hover & {
+  ${UserItem}:hover &, ${UserItem}:focus-within &, ${RoomCardUserItem}:hover & {
     opacity: 1;
   }
 

@@ -391,6 +391,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
     if (event.key === 'Enter') {
       event.preventDefault();
       event.stopPropagation();
+      moveFocusTarget.current = rowId;
       setOpenMoveMenu(rowId);
     } else if (event.key === ' ') {
       event.preventDefault();
@@ -401,13 +402,14 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
     if (event.key === ' ' && event.target === event.currentTarget) {
       event.preventDefault();
       event.stopPropagation();
+      moveFocusTarget.current = rowId;
       setOpenMoveMenu(rowId);
     }
   };
-  const closeMoveMenu = (rowId: string) => {
+  const closeMoveMenu = () => {
     setOpenMoveMenu(null);
     requestAnimationFrame(() => {
-      (document.getElementById(rowId) || document.getElementById(moveFocusTarget.current))?.focus();
+      document.getElementById(moveFocusTarget.current)?.focus();
     });
   };
 
@@ -501,7 +503,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                   </span>
                   <BBBMenu
                     open={openMoveMenu === `running-${user.userId}-main`}
-                    onCloseCallback={() => closeMoveMenu(`running-${user.userId}-main`)}
+                    onCloseCallback={closeMoveMenu}
                     trigger={(
                       <Styled.MoveUserBtn
                         type="button"
@@ -513,7 +515,10 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                         aria-haspopup="menu"
                         aria-expanded={openMoveMenu === `running-${user.userId}-main`}
                         data-test="moveUserMenuButton"
-                        onClick={() => setOpenMoveMenu(`running-${user.userId}-main`)}
+                        onClick={() => {
+                          moveFocusTarget.current = `running-${user.userId}-main`;
+                          setOpenMoveMenu(`running-${user.userId}-main`);
+                        }}
                       />
                     )}
                     actions={breakouts.map((room) => ({
@@ -698,9 +703,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                             open={openMoveMenu === (
                               `running-${participant.userId}-${breakout.breakoutRoomMeetingId}`
                             )}
-                            onCloseCallback={() => closeMoveMenu(
-                              `running-${participant.userId}-${breakout.breakoutRoomMeetingId}`,
-                            )}
+                            onCloseCallback={closeMoveMenu}
                             trigger={(
                               <Styled.MoveUserBtn
                                 type="button"
@@ -714,9 +717,14 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                                   `running-${participant.userId}-${breakout.breakoutRoomMeetingId}`
                                 )}
                                 data-test="moveUserMenuButton"
-                                onClick={() => setOpenMoveMenu(
-                                  `running-${participant.userId}-${breakout.breakoutRoomMeetingId}`,
-                                )}
+                                onClick={() => {
+                                  moveFocusTarget.current = (
+                                    `running-${participant.userId}-${breakout.breakoutRoomMeetingId}`
+                                  );
+                                  setOpenMoveMenu(
+                                    `running-${participant.userId}-${breakout.breakoutRoomMeetingId}`,
+                                  );
+                                }}
                               />
                             )}
                             actions={[

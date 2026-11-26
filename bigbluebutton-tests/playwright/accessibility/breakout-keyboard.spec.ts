@@ -52,6 +52,8 @@ test.describe('Breakout room keyboard accessibility', { tag: '@ci' }, () => {
     );
 
     const attendee = modPage.page.getByLabel('Attendee, Unassigned Users');
+    await attendee.hover();
+    await expect(attendee.locator('[data-test="moveUserMenuButton"]')).toHaveCSS('opacity', '1');
     await attendee.focus();
     await modPage.page.keyboard.press('ArrowRight');
     const attendeeRoomOne = modPage.page.getByLabel('Attendee, Room 1');
@@ -167,6 +169,8 @@ test.describe('Breakout room keyboard accessibility', { tag: '@ci' }, () => {
     await modPage.page.locator(e.moveUserToRoom2).press('Enter');
     await userPage.waitAndClick(e.modalConfirmButton);
     await expect(modPage.page.locator(e.breakoutBox2)).toContainText('Attendee', { timeout: 20000 });
+    await expect(modPage.page.locator(e.breakoutBox2)).toBeFocused();
+    await expect.poll(() => modPage.page.evaluate(() => document.activeElement?.tagName)).not.toBe('BODY');
     await modPage.page.waitForTimeout(750);
 
     const roomTwoRow = modPage.page.locator(`${e.breakoutBox2} [data-test="draggableUser"]`).first();
