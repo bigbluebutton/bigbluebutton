@@ -363,14 +363,17 @@ class ScreenshareComponent extends React.Component {
   }
 
   // The attendee volume control shows while focus is inside the screenshare. Its usual way in is
-  // the fullscreen button; with fullscreen disabled and no plugin button there is no Tab stop
-  // inside, so the screenshare itself becomes one.
+  // the fullscreen button; when that button does not render (fullscreen disabled, or an iPhone,
+  // where the button renders nothing) and there is no plugin button, there is no Tab stop inside,
+  // so the screenshare itself becomes one.
   needsKeyboardEntryPoint() {
     const { isPresenter, isBot, enableVolumeControl } = this.props;
     const { loaded } = this.state;
     const ALLOW_FULLSCREEN = window.meetingClientSettings.public.app.allowFullscreen;
+    const fullscreenButtonRenders = ALLOW_FULLSCREEN && !deviceInfo.isIphone;
 
-    if (isPresenter || isBot || !loaded || !enableVolumeControl || ALLOW_FULLSCREEN) return false;
+    if (isPresenter || isBot || !loaded || !enableVolumeControl) return false;
+    if (fullscreenButtonRenders) return false;
     return Object.values(this.splitPluginItems()).every((items) => items.length === 0);
   }
 
