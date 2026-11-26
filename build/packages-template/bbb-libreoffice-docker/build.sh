@@ -20,7 +20,7 @@ if [ $DISTRO != "amzn2" ]; then
   cp assets/zzz-bbb-docker-libreoffice  staging/etc/sudoers.d/zzz-bbb-docker-libreoffice
 fi
 
-cp assets/convert-local.sh  staging/usr/share/bbb-libreoffice-conversion/convert-cool.sh
+cp assets/convert-cool.sh   staging/usr/share/bbb-libreoffice-conversion/convert-cool.sh
 cp assets/convert-local.sh  staging/usr/share/bbb-libreoffice-conversion/convert-local.sh
 cp assets/convert-remote.sh staging/usr/share/bbb-libreoffice-conversion/convert-remote.sh
 
