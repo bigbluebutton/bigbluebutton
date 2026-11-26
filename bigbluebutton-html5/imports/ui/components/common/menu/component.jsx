@@ -227,15 +227,17 @@ class BBBMenu extends React.Component {
             className={itemClassName}
             data-test={dataTest}
             data-key={isToggle ? `menuItem-${dataTest}` : undefined}
-            tabIndex={isToggle ? 0 : undefined}
-            onClick={isToggle && onClick ? onClick : undefined}
-            onKeyDown={isToggle && onClick ? (e) => {
-              if ([KEY_CODES.ENTER, KEY_CODES.SPACE].includes(e.which)) {
+            tabIndex={isToggle && !disabled ? 0 : undefined}
+            onClick={isToggle && onClick && !disabled ? onClick : undefined}
+            onKeyDown={isToggle && onClick && !disabled ? (e) => {
+              if ([KEYS.ENTER, KEYS.SPACE].includes(e.key)) {
                 e.preventDefault();
+                e.stopPropagation();
                 onClick(e);
               }
             } : undefined}
-            disabled={disabled || isTitle}
+            aria-disabled={isToggle && disabled ? 'true' : undefined}
+            aria-checked={isToggle ? Boolean(selected) : undefined}
             // eslint-disable-next-line no-nested-ternary
             role={isToggle ? 'menuitemcheckbox' : (isTitle ? 'presentation' : undefined)}
             aria-label={isToggle ? (ariaLabel || label) : undefined}
