@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A redirect to a local address whose name fetchUrlAllowedLocalHosts
+# doesn't list is refused: here the sink again, at its local address
+# (sinkLocalUrl, 127.0.0.1 on Tier 1), which the server reaches but
+# doesn't list (Tier 1 lists sink.test). The sink sees the first request
+# only. A target without sinkLocalUrl skips the case.
+id: create.fetch.redirect-to-local
+title: create refuses a redirect to a local address by a name it doesn't list
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus, callbacks]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Fetch rules, clientSettingsOverrideJsonUrl: '${sinkUrl}/${uid}/moved?_redirect=${sinkLocalUrl}/${uid}/fixtures/client-settings/override.json'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 30s}
+    select: [$.core.body.props.overrideClientSettings]
+    expect:
+      jsonpath:
+        $.core.body.props.overrideClientSettings: ""
+  - sink: {key: "${uid}", within: 2s}
+    golden: off
+    expect: {path: "/${uid}/fixtures/client-settings/override.json", count: 0}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

@@ -14,10 +14,10 @@ func KnownCapabilities() []string { return sortedKeys(knownCapabilities) }
 var knownTags = set("ci", "slow", "disruptive", "full-stack", "presence", "conversion", "serial", "triage")
 
 // builtinVars are always defined at run time.
-var builtinVars = set("uid", "salt", "baseUrl", "sinkUrl", "sinkHttpUrl", "fixtureUrl")
+var builtinVars = set("uid", "salt", "baseUrl", "sinkUrl", "sinkHttpUrl", "sinkLocalUrl", "fixtureUrl")
 
 // targetURLs are the built-in variables a target may leave unset.
-var targetURLs = set("sinkUrl", "sinkHttpUrl", "fixtureUrl")
+var targetURLs = set("sinkUrl", "sinkHttpUrl", "sinkLocalUrl", "fixtureUrl")
 
 // stepKeys maps each key that names a step type to its kind.
 var stepKeys = map[string]StepKind{

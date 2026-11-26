@@ -20,6 +20,7 @@
 package sink
 
 import (
+	"bytes"
 	"cmp"
 	"context"
 	"crypto/rand"
@@ -182,9 +183,11 @@ func (s *Server) record(r *http.Request, key string, problem error) int64 {
 type modifiers struct {
 	status   int           // _status: the answer's status
 	delay    time.Duration // _delay: how long to wait before answering
-	redirect string        // _redirect: a Location to send, with a 302 or _status
+	redirect string        // _redirect: a Location to send, with a 302 or _status; self for the request's own URL
 	ctype    string        // _type: the answer's Content-Type
 	first    int           // _first: how many requests to the path the others apply to
+	after    int           // _after: how many requests to the path come before those they apply to
+	expand   bool          // _expand: a fixture's {{origin}} becomes the sink's address as requested
 	// _size, a generated file's length, is read where the file is made.
 }
 
@@ -193,7 +196,7 @@ func (m modifiers) changesAnswer() bool {
 	return m.status != 0 || m.delay > 0 || m.redirect != "" || m.ctype != ""
 }
 
-var knownModifiers = []string{"_status", "_delay", "_redirect", "_type", "_first", "_size"}
+var knownModifiers = []string{"_status", "_delay", "_redirect", "_type", "_first", "_after", "_expand", "_size"}
 
 // parseModifiers reads the query params that start with an underscore.
 // One it doesn't know is an error, so a misspelt one isn't ignored.
@@ -232,6 +235,22 @@ func parseModifiers(q url.Values) (modifiers, error) {
 		}
 		m.first = n
 	}
+	if v := q.Get("_expand"); v != "" {
+		if v != "1" {
+			return m, fmt.Errorf("bad _expand %q: 1", v)
+		}
+		m.expand = true
+	}
+	if v := q.Get("_after"); v != "" {
+		n, err := strconv.Atoi(v)
+		if err != nil || n < 1 {
+			return m, fmt.Errorf("bad _after %q: a number of requests, at least 1", v)
+		}
+		if !m.changesAnswer() {
+			return m, errors.New("_after delays _status, _delay, _redirect or _type, and none is given")
+		}
+		m.after = n
+	}
 	return m, nil
 }
 
@@ -253,8 +272,10 @@ func (s *Server) prepare(r *http.Request, rest string, recorded bool) (answering
 	case err != nil:
 	case r.URL.Query().Has("_size") && !(isFixture && strings.HasPrefix(name, generatedDir+"/")):
 		err = errors.New("_size is for generated files: fixtures/generated/<name>")
-	case m.first > 0 && !recorded:
-		err = errors.New("_first needs a key: the sink counts a path's requests in what it recorded")
+	case m.expand && (!isFixture || strings.HasPrefix(name, generatedDir+"/")):
+		err = errors.New("_expand is for fixture files: fixtures/<path>")
+	case (m.first > 0 || m.after > 0) && !recorded:
+		err = errors.New("_first and _after need a key: the sink counts a path's requests in what it recorded")
 	}
 	if err != nil {
 		return answering{}, http.StatusBadRequest, err
@@ -264,6 +285,13 @@ func (s *Server) prepare(r *http.Request, rest string, recorded bool) (answering
 		f, status, err := s.open(name, r.URL.Query().Get("_size"))
 		if err != nil {
 			return answering{}, status, err
+		}
+		if m.expand {
+			if err := f.expand(origin(r)); err != nil {
+				// answer closes the files it sends; this one goes no further.
+				f.close()
+				return answering{}, http.StatusInternalServerError, err
+			}
 		}
 		a.f = f
 	}
@@ -277,9 +305,14 @@ func (s *Server) answer(w http.ResponseWriter, r *http.Request, a answering, seq
 	if f != nil {
 		defer f.close()
 	}
-	// Past the first N requests to the path, the answer is a plain one.
-	if m.first > 0 && s.log.countBefore(r.URL.EscapedPath(), seq) >= m.first {
-		m = modifiers{}
+	// The others apply to the requests to the path after the first
+	// _after, and with _first, to that many of them; the rest get a plain
+	// answer.
+	if m.first > 0 || m.after > 0 {
+		n := s.log.countBefore(r.URL.EscapedPath(), seq)
+		if n < m.after || (m.first > 0 && n >= m.after+m.first) {
+			m = modifiers{}
+		}
 	}
 	if m.delay > 0 {
 		select {
@@ -289,7 +322,13 @@ func (s *Server) answer(w http.ResponseWriter, r *http.Request, a answering, seq
 		}
 	}
 	if m.redirect != "" {
-		w.Header().Set("Location", m.redirect)
+		loc := m.redirect
+		if loc == "self" {
+			// The request's own URL: with _first=N, a chain of N
+			// redirects that ends where it began.
+			loc = r.URL.RequestURI()
+		}
+		w.Header().Set("Location", loc)
 		w.WriteHeader(cmp.Or(m.status, http.StatusFound))
 		return
 	}
@@ -322,6 +361,34 @@ type file struct {
 	name    string
 	modTime time.Time
 	close   func()
+}
+
+// origin is the scheme and host a request reached the sink at, such as
+// https://sink.test:8444.
+func origin(r *http.Request) string {
+	scheme := "http"
+	if r.TLS != nil {
+		scheme = "https"
+	}
+	return scheme + "://" + r.Host
+}
+
+// maxExpand is the largest fixture _expand reads into memory.
+const maxExpand = 1 << 20
+
+// expand replaces {{origin}} in the file with o: a fixture that lists URLs
+// of other fixtures, such as a plugin manifest list, names the sink the
+// way the server reached it.
+func (f *file) expand(o string) error {
+	b, err := io.ReadAll(io.LimitReader(f.content, maxExpand+1))
+	if err != nil {
+		return err
+	}
+	if len(b) > maxExpand {
+		return fmt.Errorf("_expand reads fixtures of up to %d bytes", maxExpand)
+	}
+	f.content = bytes.NewReader(bytes.ReplaceAll(b, []byte("{{origin}}"), []byte(o)))
+	return nil
 }
 
 // open finds the fixture at p, or generates it, with the status to answer

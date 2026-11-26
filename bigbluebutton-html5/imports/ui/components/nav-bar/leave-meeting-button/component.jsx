@@ -53,12 +53,14 @@ const propTypes = {
   ismobile: PropTypes.bool.isRequired,
   userLeaveMeeting: PropTypes.func.isRequired,
   openLeaveMenu: PropTypes.string,
+  withShortcut: PropTypes.func,
 };
 
 const defaultProps = {
   amIModerator: false,
   isBreakoutRoom: false,
   isDropdownOpen: false,
+  withShortcut: (label) => label,
 };
 
 class LeaveMeetingButton extends PureComponent {
@@ -129,6 +131,7 @@ class LeaveMeetingButton extends PureComponent {
       isRTL,
       openLeaveMenu,
       connected,
+      withShortcut,
     } = this.props;
 
     const enableExitLabel = window?.meetingClientSettings?.public?.layout?.showLeaveSessionLabel;
@@ -154,7 +157,10 @@ class LeaveMeetingButton extends PureComponent {
               accessKey={openLeaveMenu}
               aria-label={intl.formatMessage(intlMessages.leaveMeetingBtnLabel)}
               label={intl.formatMessage(intlMessages.leaveMeetingBtnLabel)}
-              tooltipLabel={intl.formatMessage(intlMessages.leaveMeetingBtnLabel)}
+              tooltipLabel={withShortcut(
+                intl.formatMessage(intlMessages.leaveMeetingBtnLabel),
+                openLeaveMenu,
+              )}
               description={intl.formatMessage(intlMessages.leaveMeetingBtnDesc)}
               data-test="leaveMeetingDropdown"
               icon="logout"

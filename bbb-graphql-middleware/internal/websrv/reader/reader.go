@@ -85,7 +85,10 @@ func BrowserConnectionReader(
 			continue
 		}
 
-		if browserMessageType.Type == "subscribe" {
+		// Until connection_init is authorized, every message stays on the channel that
+		// connectionInitHandler reads, which discards all but connection_init. The other paths have
+		// no authentication, limit or consumer before that.
+		if browserMessageType.Type == "subscribe" && initAuthorized(browserConnection) {
 			if bytes.Contains(message, []byte("\"query\":\"mutation")) {
 				browserConnection.FromBrowserToGqlActionsChannel.SendWait(browserConnection.Context, message)
 				continue
@@ -107,4 +110,13 @@ func BrowserConnectionReader(
 
 		browserConnection.FromBrowserToHasuraChannel.SendWait(browserConnection.Context, message)
 	}
+}
+
+// initAuthorized reports whether connectionInitHandler has authorized this connection, which is when
+// it sets the meeting.
+func initAuthorized(browserConnection *common.BrowserConnection) bool {
+	browserConnection.RLock()
+	defer browserConnection.RUnlock()
+
+	return browserConnection.MeetingId != ""
 }

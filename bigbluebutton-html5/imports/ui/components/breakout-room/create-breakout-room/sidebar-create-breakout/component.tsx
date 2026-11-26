@@ -759,6 +759,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
               onClick={handleCreateRoom}
               label={intl.formatMessage(intlMessages.startLabel)}
               dataTest="createBreakoutRoomsButton"
+              fullWidth
             />
           </Styled.StartButtonWrapper>
         );

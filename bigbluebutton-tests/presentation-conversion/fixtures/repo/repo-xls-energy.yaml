@@ -8,3 +8,8 @@ expect: converted
 kind: any
 tolerance: { maxDiffPixelRatio: 0.04 }
 checks: [outcome, pages, kind, aspect, text]
+notes: >-
+  Ten pages have narrow, centred cells with text wrapping on that hold long hyperlinks. LibreOffice 25.8 drew such a
+  link on one line, cut off at the cell border. LibreOffice 26.2 and 26.8 wrap it, but draw each wrapped line shifted
+  to the left, past the cell's left edge, so only fragments of these URLs are on the slides and in the text goldens,
+  or none. Left-aligned hyperlink cells and plain text are drawn in full.

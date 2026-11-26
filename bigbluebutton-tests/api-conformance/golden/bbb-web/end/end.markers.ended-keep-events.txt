@@ -1,0 +1,11 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case end.markers.ended-keep-events
+target bbb-web
+
+== step 4: fs recording/status/ended/${intId}.done
+$.found true
+$.path "recording/status/ended/<sha1(meetingID)>-<time>.done"
+
+== step 5: fs recording/status/recorded/${intId}.done
+$.found false
+$.path "recording/status/recorded/<sha1(meetingID)>-<time>.done"

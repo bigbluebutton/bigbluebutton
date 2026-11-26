@@ -80,7 +80,27 @@ there compares like with like.
   `join.session.ignored-params` and `create.breakouts.sequence`) were
   recorded from a stack running packages built from v4.0.x-develop of that
   day (3fc5b07e3d), and `getJoinUrl.signed-url.parameters` was recorded
-  again for its new check step; its answers didn't change.
+  again for its new check step; its answers didn't change. On 2026-11-23
+  the side-effect cases (`create/` redis, breakout-rooms, dashboard,
+  plugins, client-settings, shared-notes and fetch; `end/` markers and
+  dashboard) were recorded from a fresh stack (`make reset`) running
+  packages built from v4.0.x-develop of that day (aca03d0651). On
+  2026-11-24 `end.markers.none` was recorded again, from the same
+  packages, for its new step; its answer didn't change. The same day
+  `create.breakout-rooms.capture`, `create.fetch.two-requests` and the
+  `download-error` variants of `create.client-settings.failed` and
+  `create.shared-notes.failed` were added, and
+  `create.breakout-rooms.redis` recorded again because its
+  `meeting:breakout` step is now documented rather than compared; its
+  answer didn't change.
+
+  On 2026-11-23 the breakout room cases (`getMeetingInfo/`, `getMeetings/`
+  and `end/` breakout-rooms) were recorded from a stack running packages
+  built from v4.0.x-develop of that day (aca03d0651; the three commits
+  since, to the HTML5 client and bbb-libreoffice, change none of them).
+  On 2026-11-24 `getMeetingInfo.breakout-rooms.room` was recorded again,
+  from the same packages, for its rooms' new 601-second duration; only
+  the duration changed.
 
 ## Reviewing
 

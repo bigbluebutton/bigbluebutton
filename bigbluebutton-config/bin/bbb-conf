@@ -459,6 +459,10 @@ display_bigbluebutton_status () {
         units="$units bbb-rap-resque-worker"
     fi
 
+    if [ -f /usr/lib/systemd/system/bbb-rap-archive-worker.service ]; then
+        units="$units bbb-rap-archive-worker"
+    fi
+
     if [ -f /usr/lib/systemd/system/bbb-rap-starter.service ]; then
         units="$units bbb-rap-starter"
     fi

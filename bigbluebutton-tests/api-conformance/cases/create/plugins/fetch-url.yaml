@@ -1,0 +1,44 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# create's pluginManifestsFetchUrl names a JSON list of plugin manifests,
+# in the pluginManifests param's form. bbb-web fetches the list (checking
+# its URL first), then each manifest on it, as for the param
+# (create.plugins.param). The list's URLs use %%MEETING_ID%%, the
+# meeting's external ID, which is this case's sink key.
+id: create.plugins.fetch-url
+title: create fetches the plugin manifests its pluginManifestsFetchUrl lists
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus, callbacks]
+steps:
+  - call: create
+    params:
+      meetingID: "${uid}"
+      name: Plugins
+      pluginManifestsFetchUrl: "${sinkUrl}/${uid}/fixtures/plugins/list.json?_expand=1"
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.props.pluginProp]
+    expect:
+      jsonpath:
+        $.core.body.props.pluginProp.ConformBasic.manifest.url: "${sinkUrl}/${uid}/fixtures/plugins/basic.json"
+        $.core.body.props.pluginProp.ConformSecond.manifest.url: "${sinkUrl}/${uid}/fixtures/plugins/second.json"
+  # The list and each manifest, once each, or twice as bbb-web does.
+  - sink: {key: "${uid}", within: 2s}
+    golden: off
+    expect: {path: "/${uid}/fixtures/plugins/list.json", count: {between: [1, 2]}}
+  - sink: {key: "${uid}", within: 0s}
+    golden: off
+    expect: {path: "/${uid}/fixtures/plugins/basic.json", count: {between: [1, 2]}}
+  - sink: {key: "${uid}", within: 0s}
+    golden: off
+    expect: {path: "/${uid}/fixtures/plugins/second.json", count: {between: [1, 2]}}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

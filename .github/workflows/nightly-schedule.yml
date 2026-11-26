@@ -1,0 +1,64 @@
+name: "Nightly schedule"
+# Starts the Nightly tests workflow (nightly-tests.yml) every night on each branch below, with that
+# branch's own copy of the workflow, so each branch keeps its own job list and gets a run of its own.
+# GitHub starts scheduled workflows only from the default branch, so this file holds the one
+# schedule for every branch: a branch gets its nightly by being listed here. Each job waits for the
+# run it started and fails with it: GitHub notifies the owner of a scheduled run, but nobody about a
+# run that github-actions[bot] started. The GITHUB_TOKEN may start workflow_dispatch runs, so no
+# secret is needed. It runs only in bigbluebutton/bigbluebutton; a manual run starts the nightly of
+# every branch at once.
+on:
+  schedule:
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+permissions:
+  actions: write
+jobs:
+  dispatch:
+    if: github.repository == 'bigbluebutton/bigbluebutton'
+    name: Nightly tests on ${{ matrix.branch }}
+    # It only calls the API while it waits, so it stays off the CI_LIGHT_RUNNER pool that the
+    # nightly's own light jobs need: a small pool could otherwise deadlock.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 330
+    strategy:
+      fail-fast: false
+      matrix:
+        branch:
+          - v4.0.x-develop
+          - v4.1.x-develop
+    steps:
+      - uses: actions/github-script@v8
+        env:
+          BRANCH: ${{ matrix.branch }}
+        with:
+          retries: 3
+          script: |
+            const { owner, repo } = context.repo;
+            const ref = process.env.BRANCH;
+            const { data: run } = await github.rest.actions.createWorkflowDispatch({
+              owner,
+              repo,
+              ref,
+              workflow_id: 'nightly-tests.yml',
+              inputs: { branch: ref },
+              return_run_details: true,
+            });
+            if (!run?.workflow_run_id) {
+              return core.setFailed(`${ref}: the dispatch did not return its run, so its result is unknown`);
+            }
+            core.info(`${ref}: started ${run.html_url}`);
+            const deadline = Date.now() + 5 * 60 * 60 * 1000;
+            let result = 'still running after 5 hours';
+            while (Date.now() < deadline) {
+              await new Promise((resolve) => setTimeout(resolve, 60000));
+              const { data } = await github.rest.actions.getWorkflowRun({ owner, repo, run_id: run.workflow_run_id });
+              if (data.status === 'completed') {
+                result = data.conclusion;
+                break;
+              }
+            }
+            await core.summary.addRaw(`- ${ref}: [run ${run.workflow_run_id}](${run.html_url}) ${result}\n`).write();
+            if (result !== 'success') {
+              core.setFailed(`${ref}: run ${run.workflow_run_id} ${result}, see ${run.html_url}`);
+            }

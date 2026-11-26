@@ -1,0 +1,103 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A meeting's breakout rooms, which akka-apps asks bbb-web to create when a
+# moderator starts them (breakoutRoomCreate, as the client does), are listed
+# under its breakoutRooms: one breakout element per room, holding the room's
+# meetingID. The order isn't the rooms' sequence, so the cases match the
+# IDs by value. The element is absent until there are rooms.
+id: getMeetingInfo.breakout-rooms.parent
+title: getMeetingInfo lists a meeting's breakout rooms
+endpoint: getMeetingInfo
+class: contract
+tags: [ci, presence]
+requires: [akka, presence, bus]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Breakout parent}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - presence:
+      action: join
+      as: ann
+      args: {meetingID: "${uid}", fullName: Ann, role: MODERATOR}
+    golden: off
+  - call: getMeetingInfo
+    params: {meetingID: "${uid}"}
+    expect:
+      returncode: SUCCESS
+      xpath:
+        /response/isBreakout: "false"
+        /response/breakoutRooms: {absent: true}
+  # Two rooms, as the client asks for them: akka-apps wants at least two.
+  - graphql:
+      as: ann
+      query: >-
+        mutation CreateBreakouts($record: Boolean!, $notes: Boolean!, $slides: Boolean!, $duration: Int!,
+        $invite: Boolean!, $lock: Boolean!, $rooms: [BreakoutRoom]!) {
+        breakoutRoomCreate(record: $record, captureNotes: $notes, captureSlides: $slides, durationInSeconds: $duration,
+        sendInviteToModerators: $invite, inheritLockSettings: $lock, rooms: $rooms) }
+      variables:
+        record: false
+        notes: false
+        slides: false
+        duration: 600
+        invite: false
+        lock: false
+        rooms:
+          - name: Room 1
+            shortName: Room 1
+            sequence: 1
+            isDefaultName: true
+            freeJoin: false
+            users: []
+            captureNotesFilename: ""
+            captureSlidesFilename: ""
+            allPages: true
+            presId: ""
+          - name: Room 2
+            shortName: Room 2
+            sequence: 2
+            isDefaultName: true
+            freeJoin: false
+            users: []
+            captureNotesFilename: ""
+            captureSlidesFilename: ""
+            allPages: true
+            presId: ""
+    golden: off
+  - bus: {name: BreakoutRoomStartedEvtMsg, meetingId: "${intId}", within: 15s}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.breakout.sequence: "1"}
+    capture: {r1int: $.core.body.breakout.breakoutId}
+  - bus: {name: BreakoutRoomStartedEvtMsg, meetingId: "${intId}", within: 15s}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.breakout.sequence: "2"}
+    capture: {r2int: $.core.body.breakout.breakoutId}
+  # Each room's meetingID, as bbb-web gave it.
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${r1int}", within: 5s}
+    golden: off
+    capture: {r1ext: $.core.body.props.meetingProp.extId}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${r2int}", within: 5s}
+    golden: off
+    capture: {r2ext: $.core.body.props.meetingProp.extId}
+  - call: getMeetingInfo
+    params: {meetingID: "${uid}"}
+    expect:
+      returncode: SUCCESS
+      xpath:
+        /response/isBreakout: "false"
+        count(/response/breakoutRooms/breakout): "2"
+        count(/response/breakoutRooms/breakout[. = '${r1ext}']): "1"
+        count(/response/breakoutRooms/breakout[. = '${r2ext}']): "1"
+teardown:
+  # Ending the parent ends its rooms. Again until bbb-web no longer knows
+  # the meeting: an end that reaches akka-apps before the create does is
+  # lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

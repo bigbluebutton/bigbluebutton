@@ -1,0 +1,12 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.client-settings.strict-unknown
+target bbb-web
+
+== step 1: call create
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "FAILED"
+/response/errors/error/key "clientSettingsOverrideValidationError"
+/response/errors/error/message "The client settings override has the following issue(s): unknown-key 'public.app.conformUnknownSetting' - not present in settings.yml (possible typo)"

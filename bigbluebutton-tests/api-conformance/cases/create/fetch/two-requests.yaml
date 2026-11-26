@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# bbb-web makes two requests for each URL it fetches: a GET that checks the
+# URL and follows its redirects (RedirectFollowerService), then a GET that
+# downloads it (SecureUrlDownloader). Compat: the other fetch cases allow
+# one request or two. What only the two requests make possible, a check
+# that passes and a download that fails or is slow, is compat too
+# (create.client-settings.failed, create.shared-notes.failed and
+# create.plugins.load-failure variants, create.plugins.load-failure-timeout),
+# as is the manifest cache (create.plugins.cache). Shown on
+# clientSettingsOverrideJsonUrl.
+id: create.fetch.two-requests
+title: create requests each URL it fetches twice
+endpoint: create
+class: compat
+tags: [ci]
+requires: [akka, bus, callbacks]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Fetch rules, clientSettingsOverrideJsonUrl: "${sinkUrl}/${uid}/fixtures/client-settings/override.json"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.props.overrideClientSettings]
+    expect:
+      jsonpath:
+        $.core.body.props.overrideClientSettings: {regex: '^\{"public":'}
+  - sink: {key: "${uid}", within: 2s}
+    golden: off
+    expect: {count: 2, method: GET, path: "/${uid}/fixtures/client-settings/override.json"}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

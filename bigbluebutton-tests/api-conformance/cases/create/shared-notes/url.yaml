@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# create fetches the shared notes' initial content and hands it to
+# akka-apps in the meeting's props, which start the notes with it:
+# sharedNotesInitialContentJsonUrl, a JSON array, and
+# sharedNotesInitialContentMarkdownUrl, markdown. A markdown URL takes the
+# place of the sharedNotesInitialContentMarkdown param.
+id: create.shared-notes.url
+title: create fetches the shared notes' initial content
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus, callbacks]
+steps:
+  - call: create
+    params:
+      meetingID: "${uid}"
+      name: Shared notes
+      sharedNotesInitialContentJsonUrl: "${sinkUrl}/${uid}/fixtures/shared-notes/initial.json"
+      sharedNotesInitialContentMarkdownUrl: "${sinkUrl}/${uid}/fixtures/shared-notes/initial.md"
+      sharedNotesInitialContentMarkdown: "# Not this"
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 10s}
+    select: [$.core.body.props.meetingProp.sharedNotesInitialContentJson, $.core.body.props.meetingProp.sharedNotesInitialContentMarkdown]
+    expect:
+      jsonpath:
+        $.core.body.props.meetingProp.sharedNotesInitialContentJson[0].insert: "Conform notes\n"
+        $.core.body.props.meetingProp.sharedNotesInitialContentMarkdown: {regex: '^# Conform notes\n\nInitial \*markdown\* content\.\n?$'}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

@@ -79,6 +79,33 @@ masks:
     as: regex
     regex: '-[0-9]{13}-track\.'
     replace: '-<ms>-track.'
+  # What create.plugins.url-placeholders has bbb-web fill into a plugin
+  # manifest URL changes with the release and the plugin SDK: the sink's
+  # query values and the URL in pluginProp alike.
+  - field: conformBbbVersion
+    as: regex
+    regex: '^[0-9][0-9A-Za-z.+-]*$'
+    replace: '<version>'
+  - field: conformBbbMainVersion
+    as: regex
+    regex: '^[0-9][0-9A-Za-z.+-]*$'
+    replace: '<version>'
+  - field: conformSdkVersion
+    as: regex
+    regex: '^[0-9][0-9A-Za-z.+-]*$'
+    replace: '<version>'
+  - field: conformSdkMainVersion
+    as: regex
+    regex: '^[0-9][0-9A-Za-z.+-]*$'
+    replace: '<version>'
+  # A recording chapter's marker is named after the meeting's internal ID
+  # and a time of the chapter's, which changes from run to run
+  # (end.markers.chapter-break).
+  - field: path
+    as: regex
+    regex: '^(recording/status/recorded/[0-9a-f]{40}-[0-9]+)-[0-9]+\.done$'
+    replace: '${1}-<ms>.done'
+    onlyMatching: true
   # getRecordingProcessingInfo counts every recording still queued on the
   # server, and on Tier 1, where nothing processes them, that is every
   # recorded meeting the run has ended so far. The oldest queued work's

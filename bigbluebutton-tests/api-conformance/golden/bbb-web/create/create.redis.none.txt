@@ -1,0 +1,9 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.redis.none
+target bbb-web
+
+== step 3: redis meeting:info:${intId}
+$.key "meeting:info:<sha1(meetingID)>-<time>"
+$.ttl -2
+$.type "none"
+$.value null

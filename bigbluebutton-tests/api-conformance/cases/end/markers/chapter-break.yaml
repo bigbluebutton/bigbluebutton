@@ -1,0 +1,50 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# While a recorded meeting records, akka-apps closes a chapter every
+# recording.chapterBreakLengthInMinutes (its own setting, shipped 0: no
+# chapters; a minute under the chapter-breaks profile), and bbb-web writes
+# recording/status/recorded/<internal ID>-<n>.done for each, n being
+# akka-apps' clock in ms when the chapter closed, so
+# record-and-playback can process a chapter before the meeting ends. The
+# meeting's own marker comes when it ends. akka-apps checks every 10
+# seconds, so the first chapter closes within about 70 seconds of the
+# recording starting.
+id: end.markers.chapter-break
+title: A recorded meeting leaves a marker for each chapter
+endpoint: end
+class: contract
+tags: [slow, presence, disruptive]
+profile: chapter-breaks
+requires: [akka, presence, bus, fs]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Markers, record: "true", autoStartRecording: "true"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - presence:
+      action: join
+      as: ann
+      args: {meetingID: "${uid}", fullName: Ann, role: MODERATOR}
+    golden: off
+  - bus: {name: RecordingStatusChangedEvtMsg, meetingId: "${intId}", within: 10s}
+    golden: off
+    expect: {jsonpath: {$.core.body.recording: "true"}}
+  - fs: {path: "recording/status/recorded/${intId}-*.done", within: 100s}
+    expect: {exists: true}
+  - fs: {path: "recording/status/recorded/${intId}.done"}
+    expect: {exists: false}
+  - call: end
+    params: {meetingID: "${uid}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - fs: {path: "recording/status/recorded/${intId}.done", within: 10s}
+    expect: {exists: true}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# When a recorded meeting ends, bbb-web writes
+# recording/status/recorded/<internal ID>.done, which tells
+# record-and-playback to archive and process its recording. record=true is
+# all it takes: the recording needn't have been started. It is written
+# after akka-apps reports the meeting ended (end.markers.expired: or
+# expired). A meeting that doesn't keep its events gets no ended marker.
+id: end.markers.recorded
+title: An ended recorded meeting leaves the recorded marker
+endpoint: end
+class: contract
+tags: [ci]
+requires: [akka, bus, fs]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Markers, record: "true", meetingKeepEvents: "false"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  # An end that reaches akka-apps before it has the meeting is lost.
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    golden: off
+  - fs: {path: "recording/status/recorded/${intId}.done", within: 10s}
+    expect: {exists: true}
+  - fs: {path: "recording/status/ended/${intId}.done", within: 2s}
+    expect: {absent: true}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

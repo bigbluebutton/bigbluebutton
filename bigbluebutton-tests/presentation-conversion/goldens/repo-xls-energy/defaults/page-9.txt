@@ -5,7 +5,7 @@
                                                                                                                                                      drive, cyclic steam injections, and in situ combustion.
                                                                     Spr,
   ENERGY 226      Thermal Recovery Methods                                                Lecture    Enginee                                         Models of combined mass and energy transport. Estimates
-                                                 --        3      Alternat      --                           Graduates      --       Castanier, L                                                                       None
+                                                 --        3      Alternat      --                           Graduates      --       Castanier, L                                                                   None
                                                                                            (15)        ring                                          of heated reservoir volume and oil recovery performance.
                                                                   e Years
                                                                                                                                                      Wellbore heat losses, recovery production, and field
@@ -29,7 +29,7 @@
                                                                                                                         logging;
                    Advanced Topics in Well                                                Lecture,              level
   ENERGY 230                                                                                         Enginee                and
-                          Logging                --        3        Spr         --        with field         undergrad               Lindblom, R                                                                        None
+                          Logging                --        3        Spr         --        with field         undergrad               Lindblom, R                                                                    None
                                                                                                        ring            standard
                                                                                          trip (8-12)         uates and
                                                                                                                         practice
@@ -51,18 +51,18 @@
                                                                                             s (25)
                                                                                                                                                      disciplines. Weekend field trip.
                                                                                                                                                      On-the-job training for master's degree students under the
-                  Master's Report on Energy                                                                                                                                                                                            May be
+                  Master's Report on Energy                                                                                                                                                                                  May be
   ENERGY 255                                                                             Independe Enginee            Consent                        guidance of on-site supervisors. Students submit a report
-                      Industry Training          --      1 to 3    Sum          --                         Graduates                     Staff                                                                          None         repeated for
+                      Industry Training          --      1 to 3    Sum          --                         Graduates                     Staff                                                                      None   repeated for
                                                                                            nt work   ring            of adviser                      detailing work activities, problems, assignments, and key
-                                                                                                                                                                                                                                        credit.
+                                                                                                                                                                                                                              credit.
                                                                                                                                                      results.
                                                                                                                                                      Conceptual models of heat and mass flows within
                                                                                                                                                      geothermal reservoirs. The fundamentals of fluid/heat flow
                                                                                                                                                      in porous media; convective/conductive regimes, dispersion
                     Geothermal Reservoir                                                 Lecture; 2           Seniors                                of solutes, reactions in porous media, stability of fluid
   ENERGY 269                                                                                         Enginee
-                        Engineering              --        3        Spr         --       field trips            and         --         Horne, R      interfaces, liquid and vapor flows. Interpretation of              None
+                        Engineering              --        3        Spr         --       field trips            and         --         Horne, R      interfaces, liquid and vapor flows. Interpretation of          None
                                                                                                        ring
                                                                                            (25-30)           graduates                               geochemical, geological, and well data to determine
                                                                                                                                                      reservoir properties/characteristics. Geothermal plants and
@@ -75,19 +75,18 @@
                                                                    Sum
                                                                                           Seminar                                                     Interdisciplinary exploration of current energy challenges
                                                                                                              Undergra
-                                                                   Aut,                      (70    Science/                                         and opportunities, with talks by faculty, visitors, and                            May be
+                                                                   Aut,                      (70    Science/                                         and opportunities, with talks by faculty, visitors, and                 May be
   ENERGY 301           Energy Seminar                                                                         duates
-                                               CEE 301     1       Win,         --        enrolled, Enginee                 --         Horne, R      students.                                                      http://woods.stanford.edu/cgi-bin/energyseminar.php
-                                                                                                                                                                                                                                      repeated for
+                                               CEE 301     1       Win,         --        enrolled, Enginee                 --         Horne, R      students.                                                             repeated for
                                                                                                                 and
-                                                                   Spr                       150      ring                                                                                                                               credit.
+                                                                   Spr                       150      ring                                                                                                                    credit.
                                                                                                              Graduates
                                                                                          attendees)
-                  Doctoral Report on Energy                                                                                                          On-the-job training for doctoral students under the guidance                      May be
+                  Doctoral Report on Energy                                                                                                          On-the-job training for doctoral students under the guidance            May be
   ENERGY 355                                                                             Independe Enginee   PhD     Consent
-                      Industry Training          --      1 to 3    Sum          --                                                       Staff       of on-site supervisors. Students submit a report on work           None         repeated for
+                      Industry Training          --      1 to 3    Sum          --                                                       Staff       of on-site supervisors. Students submit a report on work       None   repeated for
                                                                                            nt work   ring  students of advisor
-                                                                                                                                                     activities, problems, assignments, and results.                                    credit.
+                                                                                                                                                     activities, problems, assignments, and results.                          credit.
                                                                                                                                                      How quantitative understanding of the Earth helps inform
                                                                                                                                                      decisions about energy supply. How can enough energy be
                         Energy and the
@@ -110,4 +109,4 @@
 
 
 
-Last updated: March 17, 2009                                                                                                                                                                                                                 Send additions and corrections to leighj@stanford.edu
+Last updated: March 17, 2009                                                                                                                                                                                                      Send additions and corrections to leighj@stanford.edu
