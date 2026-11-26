@@ -8,6 +8,7 @@ trait LayoutApp2x
   with BroadcastPushLayoutMsgHdlr
   with SetScreenshareAsContentReqMsgHdlr
   with SetHideUsersWithoutCameraReqMsgHdlr
+  with SetCameraPageSizeReqMsgHdlr
   with GetCurrentLayoutReqMsgHdlr {
 
   this: MeetingActor =>

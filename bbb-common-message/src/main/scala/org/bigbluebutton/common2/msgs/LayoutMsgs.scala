@@ -39,3 +39,11 @@ case class SetHideUsersWithoutCameraReqMsgBody(hideUsersWithoutCamera: Boolean)
 object SetHideUsersWithoutCameraEvtMsg { val NAME = "SetHideUsersWithoutCameraEvtMsg" }
 case class SetHideUsersWithoutCameraEvtMsg(header: BbbClientMsgHeader, body: SetHideUsersWithoutCameraEvtMsgBody) extends BbbCoreMsg
 case class SetHideUsersWithoutCameraEvtMsgBody(hideUsersWithoutCamera: Boolean, setByUserId: String)
+
+object SetCameraPageSizeReqMsg { val NAME = "SetCameraPageSizeReqMsg" }
+case class SetCameraPageSizeReqMsg(header: BbbClientMsgHeader, body: SetCameraPageSizeReqMsgBody) extends StandardMsg
+case class SetCameraPageSizeReqMsgBody(cameraPageSize: Int)
+
+object SetCameraPageSizeEvtMsg { val NAME = "SetCameraPageSizeEvtMsg" }
+case class SetCameraPageSizeEvtMsg(header: BbbClientMsgHeader, body: SetCameraPageSizeEvtMsgBody) extends BbbCoreMsg
+case class SetCameraPageSizeEvtMsgBody(cameraPageSize: Int, setByUserId: String)

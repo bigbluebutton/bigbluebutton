@@ -269,6 +269,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[SetScreenshareAsContentReqMsg](envelope, jsonNode)
       case SetHideUsersWithoutCameraReqMsg.NAME =>
         routeGenericMsg[SetHideUsersWithoutCameraReqMsg](envelope, jsonNode)
+      case SetCameraPageSizeReqMsg.NAME =>
+        routeGenericMsg[SetCameraPageSizeReqMsg](envelope, jsonNode)
 
       case UserLeaveReqMsg.NAME =>
         routeGenericMsg[UserLeaveReqMsg](envelope, jsonNode)

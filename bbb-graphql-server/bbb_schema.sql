@@ -2414,6 +2414,7 @@ CREATE UNLOGGED TABLE "layout" (
 	"propagateLayout" 		boolean,
 	"screenshareAsContent" 	boolean,
 	"hideUsersWithoutCamera" boolean default false,
+	"cameraPageSize" integer,
     "setByUserId"           varchar(50),
 	"updatedAt" 			timestamp with time zone
 );

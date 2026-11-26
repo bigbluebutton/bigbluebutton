@@ -75,6 +75,14 @@ object Layouts {
     instance.hideUsersWithoutCamera
   }
 
+  def setCameraPageSize(instance: Layouts, cameraPageSize: Option[Int]) = {
+    instance.cameraPageSize = cameraPageSize
+  }
+
+  def getCameraPageSize(instance: Layouts): Option[Int] = {
+    instance.cameraPageSize
+  }
+
   def setRequestedBy(instance: Layouts, setBy: String) = {
     instance.setByUser = setBy;
   }
@@ -95,6 +103,7 @@ class Layouts {
   private var presentationVideoRate: Double = 0;
   private var screenshareAsContent: Boolean = false;
   private var hideUsersWithoutCamera: Boolean = false;
+  private var cameraPageSize: Option[Int] = None;
 }
 
 object LayoutsType {
