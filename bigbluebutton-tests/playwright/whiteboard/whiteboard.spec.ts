@@ -16,6 +16,7 @@ import { SlidePosition } from './slidePosition';
 import { TextShape } from './textShape';
 import { TouchPinchZoom } from './touchPinchZoom';
 import { WhiteboardResize } from './whiteboardResize';
+import { WhiteboardImagePaste } from './imagePaste';
 
 async function runResizeTest(
   method: 'cameraResync' | 'cameraResyncVisual' | 'cameraResyncZoomedVisual' | 'cameraResyncAfterMinimizeRestore',
@@ -349,6 +350,29 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
     page,
   }, testInfo) => {
     await runResizeTest('cameraResyncAfterMinimizeRestore', browser, context, page, testInfo);
+  });
+
+  test.describe('Image paste', { tag: '@setting-required:whiteboard.imagePaste' }, () => {
+    test('Paste an image onto the whiteboard', async ({ browser, context, page }, testInfo) => {
+      const imagePaste = new WhiteboardImagePaste(browser, context);
+      await imagePaste.initModPage(page, { testInfo });
+      await imagePaste.initUserPage(context, { testInfo });
+      await imagePaste.pasteImage();
+    });
+
+    test('Viewer without write access cannot paste an image', async ({ browser, context, page }, testInfo) => {
+      const imagePaste = new WhiteboardImagePaste(browser, context);
+      await imagePaste.initModPage(page, { testInfo });
+      await imagePaste.initUserPage(context, { testInfo });
+      await imagePaste.viewerCannotPasteImage();
+    });
+
+    test('Slide snapshot keeps the pasted image', async ({ browser, context, page, browserName }, testInfo) => {
+      test.skip(browserName === 'firefox', 'Firefox does not support download.');
+      const imagePaste = new WhiteboardImagePaste(browser, context);
+      await imagePaste.initModPage(page, { testInfo });
+      await imagePaste.snapshotKeepsPastedImage();
+    });
   });
 
   test.describe.parallel('Touch pinch zoom', () => {

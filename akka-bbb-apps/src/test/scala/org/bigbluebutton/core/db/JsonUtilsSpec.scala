@@ -49,6 +49,25 @@ class JsonUtilsSpec extends AnyFlatSpec {
     assert(fields("meta").asJsObject.fields("tags") == JsArray(JsNumber(1), JsNumber(4294967296L)))
   }
 
+  it should "serialize every numeric type a metadata value can have" in {
+    // Server-side code (the chat attachment size) stores Longs and Scala numbers
+    // directly, not only what Jackson reads from a client message.
+    val json = JsonUtils.mapToJson(Map(
+      "int" -> 1,
+      "long" -> 8979L,
+      "scalaBigInt" -> BigInt(7),
+      "scalaDecimal" -> BigDecimal("2.5"),
+      "nested" -> Map("size" -> 8979L)
+    ))
+    assert(json == JsObject(
+      "int" -> JsNumber(1),
+      "long" -> JsNumber(8979),
+      "scalaBigInt" -> JsNumber(7),
+      "scalaDecimal" -> JsNumber(BigDecimal("2.5")),
+      "nested" -> JsObject("size" -> JsNumber(8979))
+    ))
+  }
+
   it should "still reject a value that has no JSON form" in {
     assertThrows[IllegalArgumentException](JsonUtils.mapToJson(Map("x" -> new Object)))
   }

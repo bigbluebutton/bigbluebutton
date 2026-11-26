@@ -23,6 +23,7 @@ class WhiteboardModelSpec extends AnyFlatSpec {
     ForbiddenAnnotationTypes,
     effectiveAllowedTypes,
     hasSafeAnnotationUrl,
+    isAllowedAnnotation,
     isAllowedAnnotationType,
     readConfiguredTypes
   }
@@ -187,6 +188,83 @@ class WhiteboardModelSpec extends AnyFlatSpec {
     val hostileGeo = geoWithUrl("javascript:alert(1)")
     assert(isAllowedAnnotationType(hostileGeo, defaultTypes), "sanity: the type gate passes it")
     assert(!hasSafeAnnotationUrl(hostileGeo), "the url gate is what rejects it")
+  }
+
+  behavior of "isAllowedAnnotation (image paste)"
+
+  // Image stays in ForbiddenAnnotationTypes, so the configurable allowlist never
+  // enables it: it is accepted only through the per-meeting image paste flag AND a
+  // same-origin upload src within the size cap. Every other type follows the allowlist.
+  private val meetingId = "meeting-abc"
+
+  private def imageInfo(src: String): Map[String, Any] =
+    Map("type" -> "image", "id" -> "shape:1", "meta" -> Map("bbbImageSrc" -> src))
+
+  private val validSrc = s"/bigbluebutton/fileUpload/$meetingId/0a1b2c3d-4e5f.png"
+
+  it should "reject an image shape when the meeting has image paste disabled" in {
+    assert(!isAllowedAnnotation(imageInfo(validSrc), meetingId, imagePasteEnabled = false, defaultTypes))
+  }
+
+  it should "allow an image shape referencing a same-origin upload when the flag is on" in {
+    assert(isAllowedAnnotation(imageInfo(validSrc), meetingId, imagePasteEnabled = true, defaultTypes))
+  }
+
+  it should "reject an image shape with a data: URI source (base64 bloat / upload bypass)" in {
+    assert(!isAllowedAnnotation(imageInfo("data:image/png;base64,AAAA"), meetingId, imagePasteEnabled = true, defaultTypes))
+  }
+
+  it should "reject an image shape whose source points at another meeting" in {
+    val foreignSrc = "/bigbluebutton/fileUpload/other-meeting/0a1b2c3d-4e5f.png"
+    assert(!isAllowedAnnotation(imageInfo(foreignSrc), meetingId, imagePasteEnabled = true, defaultTypes))
+  }
+
+  it should "reject an image shape with an external source (privacy / SSRF)" in {
+    assert(!isAllowedAnnotation(imageInfo("https://tracker.example/pixel.png"), meetingId, imagePasteEnabled = true, defaultTypes))
+    assert(!isAllowedAnnotation(imageInfo("//tracker.example/pixel.png"), meetingId, imagePasteEnabled = true, defaultTypes))
+  }
+
+  it should "reject an image shape whose filename is not lowercase hex (serving contract)" in {
+    // nginx only serves [a-f0-9-]+ filenames, so anything the validator lets
+    // through beyond that could never be served - keep both in lockstep.
+    assert(!isAllowedAnnotation(imageInfo(s"/bigbluebutton/fileUpload/$meetingId/DEADBEEF-4e5f.png"), meetingId, imagePasteEnabled = true, defaultTypes))
+    assert(!isAllowedAnnotation(imageInfo(s"/bigbluebutton/fileUpload/$meetingId/not-a-uuid.png"), meetingId, imagePasteEnabled = true, defaultTypes))
+  }
+
+  it should "reject an image shape with no src in meta" in {
+    assert(!isAllowedAnnotation(Map("type" -> "image", "id" -> "shape:1"), meetingId, imagePasteEnabled = true, defaultTypes))
+  }
+
+  it should "reject an image shape whose serialized annotation exceeds the size cap" in {
+    val oversizedMeta = Map("bbbImageSrc" -> validSrc, "junk" -> ("x" * (WhiteboardModel.MaxImageAnnotationSizeBytes + 1)))
+    val oversized = Map("type" -> "image", "id" -> "shape:1", "meta" -> oversizedMeta)
+    assert(!isAllowedAnnotation(oversized, meetingId, imagePasteEnabled = true, defaultTypes))
+  }
+
+  it should "count the size cap in UTF-8 bytes, not UTF-16 chars" in {
+    // Half the cap in chars, but each char is 2 bytes in UTF-8: under the cap
+    // by char count, over it by byte count.
+    val multiByteJunk = "ä" * (WhiteboardModel.MaxImageAnnotationSizeBytes / 2 + 1)
+    val oversizedMeta = Map("bbbImageSrc" -> validSrc, "junk" -> multiByteJunk)
+    val oversized = Map("type" -> "image", "id" -> "shape:1", "meta" -> oversizedMeta)
+    assert(!isAllowedAnnotation(oversized, meetingId, imagePasteEnabled = true, defaultTypes))
+  }
+
+  it should "not let a configured allowlist enable image without the meeting flag" in {
+    val allowed = effectiveAllowedTypes(Set("draw", "image"))
+    assert(!isAllowedAnnotation(imageInfo(validSrc), meetingId, imagePasteEnabled = false, allowed))
+  }
+
+  it should "not let the image paste flag enable the other excluded types" in {
+    List("embed", "bookmark", "video").foreach { t =>
+      assert(!isAllowedAnnotation(shapeInfo(t), meetingId, imagePasteEnabled = true, defaultTypes), s"expected shape type '$t' to stay rejected")
+    }
+  }
+
+  it should "defer every non-image type to the allowlist" in {
+    assert(isAllowedAnnotation(shapeInfo("draw"), meetingId, imagePasteEnabled = false, defaultTypes))
+    assert(!isAllowedAnnotation(shapeInfo("text"), meetingId, imagePasteEnabled = true, effectiveAllowedTypes(Set("draw"))))
+    assert(!isAllowedAnnotation(Map.empty[String, Any], meetingId, imagePasteEnabled = true, defaultTypes))
   }
 
   behavior of "readConfiguredTypes"

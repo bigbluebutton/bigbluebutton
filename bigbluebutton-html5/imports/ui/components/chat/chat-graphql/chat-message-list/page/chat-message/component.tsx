@@ -16,6 +16,7 @@ import { PollHeaderAction } from './message-header/styles';
 import ChatMessageTextContent from './message-content/text-content/component';
 import ChatPollContent, { ChatPollContentHandle } from './message-content/poll-content/component';
 import ChatMessagePresentationContent from './message-content/presentation-content/component';
+import ChatMessageAttachmentContent from './message-content/attachment-content/component';
 import {
   ChatWrapper,
   ChatMessageContentWrapper,
@@ -57,6 +58,11 @@ import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 import useChat from '/imports/ui/core/hooks/useChat';
+import {
+  downloadAttachment,
+  parseAttachment,
+  removeAttachmentFromHtml,
+} from '/imports/ui/components/chat/chat-graphql/service';
 
 interface ChatMessageProps {
   message: Message;
@@ -575,6 +581,14 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   const msgTime = formattedTime;
   const clearMessage = `${msgTime} ${intl.formatMessage(intlMessages.chatClear)}`;
 
+  const attachment = useMemo(() => (
+    message.messageType === ChatMessageType.TEXT ? parseAttachment(message.messageMetadata) : null
+  ), [message.messageType, message.messageMetadata]);
+
+  const replyToAttachment = useMemo(() => (
+    message.replyToMessage ? parseAttachment(message.replyToMessage.messageMetadata) : null
+  ), [message.replyToMessage?.messageMetadata]);
+
   const messageContent: {
     name: string;
     color: string;
@@ -759,7 +773,8 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
         };
       }
       case ChatMessageType.TEXT:
-      default:
+      default: {
+        const text = attachment ? removeAttachmentFromHtml(message.messageAsHtml, attachment) : message.messageAsHtml;
         return {
           name: message.user?.name,
           color: message.user?.color,
@@ -768,14 +783,16 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           showAvatar: true,
           showHeading: true,
           showToolbar: true,
-          component: (
+          // A message that is only a file has no text below the attachment.
+          component: text ? (
             <ChatMessageTextContent
-              text={message.messageAsHtml}
+              text={text}
             />
-          ),
+          ) : null,
         };
+      }
     }
-  }, [message.message, intl.locale]);
+  }, [message.message, attachment, intl.locale]);
 
   const pollHeaderActions = message.messageType === ChatMessageType.POLL ? (
     <>
@@ -852,6 +869,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
             chatId,
             emphasizedMessage: chatEmphasizedText,
             sequence: messageSequence,
+            attachment,
           },
         }),
       );
@@ -873,6 +891,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     chatId,
     chatEmphasizedText,
     messageSequence,
+    attachment,
     deactivateFocusTrap,
     keyboardFocused,
   ]);
@@ -955,6 +974,11 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     }
   }, [deactivateFocusTrap, keyboardFocused]);
 
+  const onDownload = useCallback((e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.stopPropagation();
+    if (attachment) downloadAttachment(attachment);
+  }, [attachment]);
+
   const onEmojiSelected = useCallback((emoji: { native: string }) => {
     sendReaction(emoji.native, message.chatId, message.messageId);
     setIsToolbarReactionPopoverOpen(false);
@@ -974,6 +998,9 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   } else {
     avatarDisplay = <i className={messageContent.avatarIcon} />;
   }
+
+  // A file sent with no text: the attachment is the whole message box.
+  const onlyAttachment = !!attachment && !messageContent.component && !messageReadFeedbackEnabled;
 
   const showPluginMetadataFooter = !deleteTime && isCustomMessageFromPlugin && currentUserIsModerator;
 
@@ -1010,6 +1037,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
         onDelete={onDelete}
         onEdit={onEdit}
         onReply={onReply}
+        onDownload={attachment ? onDownload : undefined}
         togglePin={togglePin}
         isPublicChat={isPublicChat}
       />
@@ -1018,6 +1046,14 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           message={message.replyToMessage.messageAsHtml || ''}
           sequence={message.replyToMessage.messageSequence}
           deletedByUser={message.replyToMessage.deletedBy?.name ?? null}
+          attachment={replyToAttachment}
+        />
+      )}
+      {!deleteTime && attachment && (
+        <ChatMessageAttachmentContent
+          attachment={attachment}
+          roundedTop={!message.replyToMessage}
+          roundedBottom={onlyAttachment}
         />
       )}
       {!deleteTime && (
@@ -1025,6 +1061,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           data-test="chatMessageContent"
           data-chat-message-id={message?.messageId}
           ref={registerMessageContent}
+          $empty={onlyAttachment}
         >
           {messageContent.component}
           {messageReadFeedbackEnabled && (

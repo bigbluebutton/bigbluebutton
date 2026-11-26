@@ -34,11 +34,13 @@ object JsonUtils {
     def write(x: Any): JsValue = x match {
       case n: Int             => JsNumber(n)
       case l: Long            => JsNumber(l)
+      case n: BigInt          => JsNumber(n)
       case n: JBigInteger     => JsNumber(BigInt(n))
       case s: String          => JsString(s)
       case b: Boolean         => JsBoolean(b)
       case f: Float           => JsNumber(f)
       case d: Double          => JsNumber(d)
+      case d: BigDecimal      => JsNumber(d)
       case d: JBigDecimal     => JsNumber(BigDecimal(d))
       case m: Map[_, _]       => JsObject(m.asInstanceOf[Map[String, Any]].map { case (k, v) => k -> write(v) })
       case l: List[_]         => JsArray(l.map(write).toVector)

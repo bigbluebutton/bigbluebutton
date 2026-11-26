@@ -16,6 +16,7 @@ fi
 PKGS="bbb-apps-akka
 bbb-config
 bbb-export-annotations
+bbb-file-upload
 bbb-freeswitch-core
 bbb-freeswitch-sounds
 bbb-fsesl-akka

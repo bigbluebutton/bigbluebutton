@@ -8,8 +8,13 @@ const usePrevious = (value) => {
   return ref.current;
 };
 
-const isValidShapeType = (shape) => {
-  const invalidTypes = ['image', 'embed', 'bookmark'];
+// `image` is only accepted when the image-paste feature is enabled for the
+// meeting; `embed`/`bookmark` render external/rich content and stay blocked
+// regardless. The server (WhiteboardModel) mirrors this allowlist.
+const isValidShapeType = (shape, imagePasteEnabled = false) => {
+  const invalidTypes = imagePasteEnabled
+    ? ['embed', 'bookmark']
+    : ['image', 'embed', 'bookmark'];
   return !invalidTypes.includes(shape?.type);
 };
 

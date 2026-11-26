@@ -1,5 +1,4 @@
 import { WebsocketRequestHandler } from "express-ws";
-import { Logger } from "../common/logger";
 import hocuspocus from "../hocuspocus";
 import { getUserInformation, validateHeaderInformation } from "./utils";
 import { handleSessionTokenConnectionLimiter } from "./handlers/sessionTokeConnectionLimiterHandler";
@@ -7,8 +6,6 @@ import { handleSessionTokenConnectionLimiter } from "./handlers/sessionTokeConne
 interface WebsocketApi {
   collaboration: WebsocketRequestHandler
 }
-
-const logger = new Logger('express-websocket-api');
 
 const websocketApi: WebsocketApi = {
   collaboration: async (websocket, request) => {

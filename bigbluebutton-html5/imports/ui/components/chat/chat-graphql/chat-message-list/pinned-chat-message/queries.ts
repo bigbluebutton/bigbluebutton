@@ -11,6 +11,7 @@ export const CHAT_PINNED_MESSAGE_PUBLIC_SUBSCRIPTION = gql`
       messageSequence
       createdAt
       messageAsHtml
+      messageMetadata
       senderName
     }
   }

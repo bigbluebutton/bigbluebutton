@@ -29,19 +29,26 @@ function deepMerge<T extends object>(base: T, override: Partial<T>): T {
 
 export interface ConfigPaths {
   defaultPath: string;
-  overridePath: string;
+  // No override file is merged when absent
+  overridePath?: string;
 }
 
-const installedPaths = (): ConfigPaths => ({
-  defaultPath: existsSync(PRODUCTION_DEFAULT_PATH) ? PRODUCTION_DEFAULT_PATH : DEV_DEFAULT_PATH,
-  overridePath: OVERRIDE_PATH,
-});
+// An explicit config path (BBB_SHARED_NOTES_SERVER_CONFIG) replaces the installed
+// lookup: no production-path preference and no /etc override merge. The tests
+// use it to stay hermetic on hosts where the deployed package config exists.
+const installedPaths = (env: NodeJS.ProcessEnv = process.env): ConfigPaths => {
+  if (env.BBB_SHARED_NOTES_SERVER_CONFIG) return { defaultPath: env.BBB_SHARED_NOTES_SERVER_CONFIG };
+  return {
+    defaultPath: existsSync(PRODUCTION_DEFAULT_PATH) ? PRODUCTION_DEFAULT_PATH : DEV_DEFAULT_PATH,
+    overridePath: OVERRIDE_PATH,
+  };
+};
 
 // The default file, then the override file, then the environment
 export function loadConfig(paths: ConfigPaths = installedPaths(), env: NodeJS.ProcessEnv = process.env): AppSettings {
   let config = load(readFileSync(paths.defaultPath, 'utf8')) as AppSettings;
 
-  if (existsSync(paths.overridePath)) {
+  if (paths.overridePath && existsSync(paths.overridePath)) {
     // an empty file is null for js-yaml
     const override = (load(readFileSync(paths.overridePath, 'utf8')) ?? {}) as Partial<AppSettings>;
     config = deepMerge(config, override);
