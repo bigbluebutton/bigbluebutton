@@ -1,8 +1,9 @@
-import React, { memo, useState } from 'react';
+import React, {
+  memo, useCallback, useEffect, useRef, useState,
+} from 'react';
 import cx from 'classnames';
 import { IntlShape, defineMessages, injectIntl } from 'react-intl';
 import deviceInfo from '/imports/utils/deviceInfo';
-import { debounce } from '/imports/utils/debounce';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Button from '/imports/ui/components/common/button/component';
 import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
@@ -53,15 +54,14 @@ const intlMessages = defineMessages({
   },
 });
 
-const JOIN_VIDEO_DELAY_MILLISECONDS = 500;
+const DISCONNECT_SAFETY_TIMEOUT_MS = 5000;
 
 interface JoinVideoButtonProps {
   cameraSettingsDropdownItems: CameraSettingsDropdownInterface[];
   hasVideoStream: boolean;
   disableReason: string | undefined;
   status: string;
-  exitVideo: () => void;
-  stopVideo: (cameraId?: string | undefined) => void;
+  exitVideo: () => Promise<boolean> | boolean;
   intl: IntlShape;
   videoConnecting: boolean;
 }
@@ -73,7 +73,6 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
   disableReason,
   cameraSettingsDropdownItems,
   exitVideo: exit,
-  stopVideo,
   videoConnecting,
 }) => {
   const { isMobile } = deviceInfo;
@@ -84,11 +83,29 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
 
   const shouldEnableWebcamSelectorButton = ENABLE_WEBCAM_SELECTOR_BUTTON
     && isDesktopSharingCamera;
-  const exitVideo = () => isDesktopSharingCamera && (!VideoService.isMultipleCamerasEnabled()
+  const shouldExitVideo = isDesktopSharingCamera && (!VideoService.isMultipleCamerasEnabled()
     || shouldEnableWebcamSelectorButton);
 
   const [propsToPassModal, setPropsToPassModal] = useState<{ isVisualEffects?: boolean }>({});
   const [forceOpen, setForceOpen] = useState(false);
+  const [isDisconnecting, setIsDisconnecting] = useState(false);
+  const disconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearDisconnectTimer = useCallback(() => {
+    if (disconnectTimerRef.current !== null) {
+      clearTimeout(disconnectTimerRef.current);
+      disconnectTimerRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!hasVideoStream) {
+      clearDisconnectTimer();
+      setIsDisconnecting(false);
+    }
+  }, [hasVideoStream, clearDisconnectTimer]);
+
+  useEffect(() => clearDisconnectTimer, [clearDisconnectTimer]);
 
   const {
     isOpen: isVideoPreviewModalOpen,
@@ -99,27 +116,48 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
     priority: 'low',
   });
 
-  const setIsVideoPreviewModalOpen = (isOpen: boolean) => {
+  const setIsVideoPreviewModalOpen = useCallback((isOpen: boolean) => {
     if (isOpen) openVideoPreviewModal();
     else closeVideoPreviewModal();
-  };
+  }, [openVideoPreviewModal, closeVideoPreviewModal]);
 
-  const handleOnClick = debounce(() => {
-    switch (status) {
-      case 'videoConnecting':
-        stopVideo();
-        break;
-      case 'connected':
-      default:
-        if (exitVideo()) {
-          PreviewService.clearStreams();
-          exit();
-        } else {
-          setForceOpen(isMobileSharingCamera);
-          setIsVideoPreviewModalOpen(true);
-        }
+  const handleOnClick = useCallback(() => {
+    if (disableReason || videoConnecting || isDisconnecting) return;
+
+    if (shouldExitVideo) {
+      setIsDisconnecting(true);
+      clearDisconnectTimer();
+      disconnectTimerRef.current = setTimeout(() => {
+        disconnectTimerRef.current = null;
+        setIsDisconnecting(false);
+      }, DISCONNECT_SAFETY_TIMEOUT_MS);
+      PreviewService.clearStreams();
+      Promise.resolve(exit())
+        .then((exited) => {
+          if (exited === false) {
+            clearDisconnectTimer();
+            setIsDisconnecting(false);
+          }
+        })
+        .catch(() => {
+          clearDisconnectTimer();
+          setIsDisconnecting(false);
+        });
+    } else if (!isVideoPreviewModalOpen) {
+      setForceOpen(isMobileSharingCamera);
+      setIsVideoPreviewModalOpen(true);
     }
-  }, JOIN_VIDEO_DELAY_MILLISECONDS);
+  }, [
+    disableReason,
+    videoConnecting,
+    isDisconnecting,
+    shouldExitVideo,
+    clearDisconnectTimer,
+    exit,
+    isVideoPreviewModalOpen,
+    isMobileSharingCamera,
+    setIsVideoPreviewModalOpen,
+  ]);
 
   const handleOpenAdvancedOptions = (callback?: () => void) => {
     if (callback) callback();
@@ -130,7 +168,7 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
   const getMessageFromStatus = () => {
     let statusMessage = status;
     if (status !== 'videoConnecting') {
-      statusMessage = exitVideo() ? 'leaveVideo' : 'joinVideo';
+      statusMessage = shouldExitVideo ? 'leaveVideo' : 'joinVideo';
     }
     return statusMessage;
   };
@@ -220,8 +258,8 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
           icon={hasVideoStream ? 'video' : 'video_off'}
           size={deviceInfo.isMobile ? 'md' : 'lg'}
           circle
-          disabled={!!disableReason}
-          loading={videoConnecting}
+          disabled={!!disableReason || videoConnecting || isDisconnecting}
+          loading={videoConnecting || isDisconnecting}
           hoverColor={listItemBgHover}
         />
         {renderUserActions()}

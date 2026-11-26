@@ -19,6 +19,7 @@ import { CAMERA_BROADCAST_START } from './mutations';
 import VideoProvider from './component';
 import LiveKitCameraBridge from '/imports/ui/components/video-provider/livekit-camera-bridge/component';
 import VideoService from './service';
+import logger from '/imports/startup/client/logger';
 import { Output } from '/imports/ui/components/layout/layoutTypes';
 import { VideoItem } from './types';
 import { debounce } from '/imports/utils/debounce';
@@ -57,6 +58,14 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
     if (VideoService.isLocalStream(cameraId)) {
       sendUserShareWebcam(cameraId).then(() => {
         VideoService.joinedVideo();
+      }).catch((error) => {
+        // Without this the connecting state never clears and the camera button,
+        // which is disabled while connecting, stays stuck until a reload.
+        logger.error({
+          logCode: 'video_provider_broadcast_start_error',
+          extraInfo: { cameraId, errorMessage: error?.message },
+        }, 'cameraBroadcastStart failed');
+        VideoService.exitedVideo();
       });
     }
   };
