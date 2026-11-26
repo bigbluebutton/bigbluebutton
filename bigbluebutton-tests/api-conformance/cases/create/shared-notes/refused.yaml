@@ -4,7 +4,8 @@
 # doesn't list is refused, and the notes start empty. Here the sink at its
 # local address (sinkLocalUrl, 127.0.0.1 on Tier 1), which the server
 # reaches but doesn't list (Tier 1 lists sink.test). A target without
-# sinkLocalUrl skips the case: a fetch that can't connect would pass it.
+# sinkLocalUrl skips the case: a fetch that can't connect, or that fails
+# the TLS handshake, would pass it.
 id: create.shared-notes.refused
 title: create refuses initial content from a local address it may not fetch from
 endpoint: create
