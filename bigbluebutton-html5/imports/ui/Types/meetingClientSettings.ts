@@ -410,6 +410,7 @@ export interface Pagination {
   pageChangeDebounceTime: number
   desktopPageSizes: DesktopPageSizes
   mobilePageSizes: MobilePageSizes
+  layoutViewMaxPageSize: number
   gridEnabled?: boolean
   desktopGridSizes: DesktopGridSizes
   mobileGridSizes: MobileGridSizes

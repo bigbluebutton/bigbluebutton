@@ -109,6 +109,7 @@ export interface Layout {
   cameraWithFocus: string;
   presentationMinimized: boolean;
   hideUsersWithoutCamera: boolean;
+  cameraPageSize: number | null;
   setByUserId: string;
 }
 

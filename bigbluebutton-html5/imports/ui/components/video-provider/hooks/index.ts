@@ -262,62 +262,80 @@ const getCountData = () => {
   return countData?.user_aggregate?.aggregate?.count || 0;
 };
 
-export const usePageSizeDictionary = () => {
+type PageSizes = DesktopPageSizes | MobilePageSizes;
+type PaginationThreshold = {
+  users: number,
+  desktopPageSizes?: DesktopPageSizes,
+  mobilePageSizes?: MobilePageSizes,
+};
+
+// The thresholds sorted by user count and the entry matching the meeting's user count, if any.
+// Null when pagination thresholds are disabled.
+const usePaginationThresholds = () => {
+  const userCount = getCountData();
+  const {
+    enabled,
+    thresholds,
+  } = window.meetingClientSettings.public.kurento.paginationThresholds;
+
+  if (!enabled || thresholds.length <= 0) return null;
+
+  const sorted: PaginationThreshold[] = [...thresholds].sort((t1, t2) => t1.users - t2.users);
+  const active = sorted.filter((threshold) => threshold.users <= userCount).pop();
+
+  return { thresholds: sorted, active };
+};
+
+export const usePageSizeDictionary = (): PageSizes => {
   const {
     desktopPageSizes: DESKTOP_PAGE_SIZES,
     mobilePageSizes: MOBILE_PAGE_SIZES,
   } = window.meetingClientSettings.public.kurento.pagination;
-  const userCount = getCountData();
+  const active = usePaginationThresholds()?.active;
 
-  const PAGINATION_THRESHOLDS_CONF = window.meetingClientSettings.public.kurento.paginationThresholds;
-  const PAGINATION_THRESHOLDS_ENABLED = PAGINATION_THRESHOLDS_CONF.enabled;
-  const PAGINATION_THRESHOLDS = PAGINATION_THRESHOLDS_CONF.thresholds.sort(
-    (t1, t2) => t1.users - t2.users,
-  );
+  // A threshold entry doesn't have to set every page size (e.g. mobile), so a
+  // missing one falls back to the stock value.
+  if (!videoService.isMobile) {
+    return active?.desktopPageSizes || DESKTOP_PAGE_SIZES;
+  }
+  return active?.mobilePageSizes || MOBILE_PAGE_SIZES;
+};
 
-  // Dynamic page sizes are disabled. Fetch the stock page sizes.
-  if (!PAGINATION_THRESHOLDS_ENABLED || PAGINATION_THRESHOLDS.length <= 0) {
-    return !videoService.isMobile ? DESKTOP_PAGE_SIZES : MOBILE_PAGE_SIZES;
+export const useMeetingCameraPageSize = () => {
+  const { data } = useMeeting((m) => ({
+    layout: m.layout,
+  }));
+
+  return data?.layout?.cameraPageSize ?? null;
+};
+
+// The largest camera page size the Layout view offers, and the size desktop viewers get from
+// config while the meeting has none.
+export const useCameraPageSizeRange = () => {
+  const {
+    desktopPageSizes,
+    layoutViewMaxPageSize,
+  } = window.meetingClientSettings.public.kurento.pagination;
+  const paginationThresholds = usePaginationThresholds();
+  const active = paginationThresholds?.active;
+  const viewerPageSize = (active?.desktopPageSizes || desktopPageSizes)?.viewer ?? 0;
+
+  if (!paginationThresholds) return { max: Math.max(layoutViewMaxPageSize, 1), viewerPageSize };
+
+  const { thresholds } = paginationThresholds;
+  const belowFirstThreshold = thresholds[0].users - 1;
+  let max;
+  if (!active) {
+    max = belowFirstThreshold;
+  } else if (viewerPageSize > 0) {
+    max = viewerPageSize;
+  } else {
+    // An entry without a limit: the largest size akka-apps accepts.
+    const sizes = thresholds.map((t) => (t.desktopPageSizes || desktopPageSizes)?.viewer ?? 0);
+    max = Math.max(belowFirstThreshold, ...sizes);
   }
 
-  // Dynamic page sizes are enabled. Get the user count, isolate the
-  // matching threshold entry, return the val.
-  let targetThreshold;
-  const processThreshold = (
-    threshold: {
-      desktopPageSizes?: DesktopPageSizes,
-      mobilePageSizes?: MobilePageSizes,
-    } = {
-      desktopPageSizes: DESKTOP_PAGE_SIZES,
-      mobilePageSizes: MOBILE_PAGE_SIZES,
-    },
-  ) => {
-    // We don't demand that all page sizes should be set in pagination profiles.
-    // That saves us some space because don't necessarily need to scale mobile
-    // endpoints.
-    // If eg mobile isn't set, then return the default value.
-    if (!videoService.isMobile) {
-      return threshold.desktopPageSizes || DESKTOP_PAGE_SIZES;
-    }
-    return threshold.mobilePageSizes || MOBILE_PAGE_SIZES;
-  };
-
-  // Short-circuit: no threshold yet, return stock values (processThreshold has a default arg)
-  if (userCount < PAGINATION_THRESHOLDS[0].users) return processThreshold();
-
-  // Reverse search for the threshold where our participant count is directly equal or great
-  // The PAGINATION_THRESHOLDS config is sorted when imported.
-  for (
-    let mapIndex = PAGINATION_THRESHOLDS.length - 1;
-    mapIndex >= 0;
-    mapIndex -= 1
-  ) {
-    targetThreshold = PAGINATION_THRESHOLDS[mapIndex];
-    if (targetThreshold.users <= userCount) {
-      return processThreshold(targetThreshold);
-    }
-  }
-  return undefined;
+  return { max: Math.max(max, 1), viewerPageSize };
 };
 
 export const useMyRole = () => {
@@ -328,6 +346,8 @@ export const useMyRole = () => {
 export const useMyPageSize = () => {
   const myRole = useMyRole();
   const pageSizes = usePageSizeDictionary();
+  const paginationThresholds = usePaginationThresholds();
+  const meetingPageSize = useMeetingCameraPageSize();
   const ROLE_MODERATOR = videoService.getRoleModerator();
   const ROLE_VIEWER = videoService.getRoleViewer();
   let size;
@@ -340,7 +360,16 @@ export const useMyPageSize = () => {
       size = pageSizes?.viewer;
   }
 
-  const actualSize = size ?? 0;
+  const configuredSize = size ?? 0;
+  let actualSize = configuredSize;
+  if (meetingPageSize) {
+    // The meeting's size replaces the configured one, except on mobile and when a pagination
+    // threshold applies: those sizes still cap it.
+    const isCapped = videoService.isMobile || !!paginationThresholds?.active;
+    actualSize = isCapped && configuredSize > 0
+      ? Math.min(meetingPageSize, configuredSize)
+      : meetingPageSize;
+  }
 
   useEffect(() => {
     setVideoState({ pageSize: actualSize });

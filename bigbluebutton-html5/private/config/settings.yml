@@ -612,6 +612,9 @@ public:
       mobilePageSizes:
         moderator: 2
         viewer: 2
+      # layoutViewMaxPageSize: the largest camera page size offered in the
+      # Layout view. With paginationThresholds enabled, the thresholds set it instead.
+      layoutViewMaxPageSize: 12
       # gridEnabled: whether the camera-less avatar grid is shown when presentation
       # is minimized. Can also be disabled per meeting with disabledFeatures=webcamGrid.
       gridEnabled: true
