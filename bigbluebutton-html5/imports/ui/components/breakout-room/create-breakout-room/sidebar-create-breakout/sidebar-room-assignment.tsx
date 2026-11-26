@@ -135,6 +135,7 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
                     onClick={() => setEditingRoom(roomNum)}
                     style={{ cursor: 'pointer' }}
                     data-test={`${roomName}`}
+                    data-telemetry-redact
                   >
                     {roomName}
                   </Styled.RoomCardName>

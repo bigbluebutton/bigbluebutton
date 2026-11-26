@@ -2,11 +2,20 @@ import { PluginApi } from 'bigbluebutton-html-plugin-sdk';
 import logger from '/imports/startup/client/logger';
 import { LoggerSettings, PluginsLoadingProgress } from './types';
 import { ClientLog } from '../../Types/meetingClientSettings';
+import { isTelemetryActive } from '/imports/ui/core/telemetry';
+import { pluginUsageStream } from '/imports/ui/core/telemetry/plugins';
+import { createPluginTelemetry, PluginTelemetryApi } from '/imports/ui/core/telemetry/pluginTelemetryApi';
 
 function setLogger(pluginApi: PluginApi, loggerSettings: LoggerSettings) {
   const overridePluginApi = pluginApi;
   const { pluginName } = pluginApi;
-  if (!overridePluginApi.logger) overridePluginApi.logger = logger.getPluginLogger(pluginName || '', loggerSettings);
+  if (!overridePluginApi.logger) {
+    overridePluginApi.logger = logger.getPluginLogger(pluginName || '', loggerSettings);
+    if (pluginName && isTelemetryActive()) overridePluginApi.logger.addStream(pluginUsageStream(pluginName));
+  }
+  // pluginApi.telemetry is not in the SDK version the client pins yet; the plugin's SDK reads it
+  const withTelemetry = overridePluginApi as PluginApi & { telemetry?: PluginTelemetryApi };
+  if (pluginName && !withTelemetry.telemetry) withTelemetry.telemetry = createPluginTelemetry(pluginName);
 }
 
 function mergeSection<T extends object>(base: T, override?: Partial<T>) {

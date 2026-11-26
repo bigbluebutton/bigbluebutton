@@ -10,6 +10,7 @@ import { DataConsumptionHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dat
 import { SubscriptionHookWithArgumentsContainerProps } from './types';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
+import { markPluginOperation } from '/imports/ui/core/telemetry/plugins';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const CustomSubscriptionHookContainer = (props: SubscriptionHookWithArgumentsContainerProps) => {
@@ -17,7 +18,10 @@ const CustomSubscriptionHookContainer = (props: SubscriptionHookWithArgumentsCon
   const { query: queryFromPlugin, variables } = hookArguments;
   const previousVersion = usePreviousValue(version);
 
-  const customSubscriptionData = useDeduplicatedSubscription(gql`${queryFromPlugin}`, {
+  const subscriptionDocument = gql`${queryFromPlugin}`;
+  // Before the subscription starts, so the timing link already sees it as plugin traffic
+  markPluginOperation(subscriptionDocument);
+  const customSubscriptionData = useDeduplicatedSubscription(subscriptionDocument, {
     variables,
   });
 

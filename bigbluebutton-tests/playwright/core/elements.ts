@@ -1032,6 +1032,12 @@ export const elements = {
   emptyPanelCloseButton: 'button[data-test="emptyPanelCloseButton"]',
   resizeSidebarContentMain: '[data-test="sidebarContentMain"] > .resizeSidebarContentWrapper > div',
   resizeSidebarContentAuxiliary: '[data-test="sidebarContentAuxiliary"] > .resizeSidebarContentWrapper > div',
+  // Debug window and client telemetry
+  debugWindow: 'div[data-test="debugWindow"]',
+  debugWindowPerformance: 'section[data-test="debugWindowPerformance"]',
+  debugWindowPerformanceSummary: 'table[data-test="debugWindowPerformanceSummary"]',
+  debugWindowRecentActions: 'table[data-test="debugWindowRecentActions"]',
+  debugWindowPlugins: 'table[data-test="debugWindowPlugins"]',
 };
 
 // Recording playback

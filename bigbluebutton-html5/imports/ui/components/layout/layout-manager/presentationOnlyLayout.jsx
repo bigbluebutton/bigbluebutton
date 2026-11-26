@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { throttle } from '/imports/utils/throttle';
+import useStableThrottle from '/imports/ui/core/hooks/useStableThrottle';
 import { layoutDispatch, layoutSelect, layoutSelectInput } from '/imports/ui/components/layout/context';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
@@ -322,11 +322,10 @@ const PresentationOnlyLayout = (props) => {
     });
   };
 
-  const throttledCalculatesLayout = throttle(() => calculatesLayout(),
-    50, { trailing: true, leading: true });
+  const throttledCalculatesLayout = useStableThrottle(() => calculatesLayout(), 50);
 
   useEffect(() => {
-    window.addEventListener('resize', () => {
+    const handleWindowResize = () => {
       layoutContextDispatch({
         type: ACTIONS.SET_BROWSER_SIZE,
         value: {
@@ -334,7 +333,10 @@ const PresentationOnlyLayout = (props) => {
           height: window.document.documentElement.clientHeight,
         },
       });
-    });
+    };
+    window.addEventListener('resize', handleWindowResize);
+    // Each layout switch mounts another layout manager; without this their listeners pile up
+    return () => window.removeEventListener('resize', handleWindowResize);
   }, []);
 
   const init = () => {

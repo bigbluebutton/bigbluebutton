@@ -3,6 +3,8 @@ import Draggable from 'react-draggable';
 import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
+import { isTelemetryActive } from '/imports/ui/core/telemetry';
+import PerformancePanel from './performance/component';
 
 const intlMessages = defineMessages({
   modalClose: {
@@ -55,7 +57,8 @@ class DebugWindow extends Component {
 
   componentDidMount() {
     const DEBUG_WINDOW_ENABLED = window.meetingClientSettings.public.app.enableDebugWindow;
-    const SHOW_DEBUG_WINDOW_ACCESSKEY = window.meetingClientSettings.public.app.shortcuts.openDebugWindow.accesskey;
+    const SHOW_DEBUG_WINDOW_ACCESSKEY = window.meetingClientSettings
+      .public.app.shortcuts.openDebugWindow.accesskey;
 
     document.addEventListener('keyup', (event) => {
       const { key, code } = event;
@@ -121,7 +124,7 @@ class DebugWindow extends Component {
             bottomRight: true,
           }}
         >
-          <Styled.DebugWindow>
+          <Styled.DebugWindow data-test="debugWindow">
             <Styled.Header id="debugWindowHeader">
               <Styled.MoveIcon iconName="fit_to_screen" />
               <Styled.Title>
@@ -194,6 +197,7 @@ class DebugWindow extends Component {
                   </Styled.TableCell>
                 </Styled.TableRow>
               </Styled.Table>
+              {isTelemetryActive() && <PerformancePanel />}
             </Styled.DebugWindowContent>
           </Styled.DebugWindow>
         </Styled.DebugWindowWrapper>

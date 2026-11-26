@@ -17,6 +17,7 @@ import {
   PLUGIN_DATA_CHANNEL_REPLACE_MUTATION, PLUGIN_DATA_CHANNEL_RESET_MUTATION,
 } from '../mutations';
 import logger from '/imports/startup/client/logger';
+import { pluginDataChannelPushed, pluginOperationContext } from '/imports/ui/core/telemetry/plugins';
 
 export interface DataChannelItemManagerWriterProps {
   pluginName: string;
@@ -52,10 +53,12 @@ const DataChannelItemManagerWriter: React.ElementType<DataChannelItemManagerWrit
     dataChannelIdentifier,
   } = props;
 
-  const [pushEntryFunctionPluginDataChannel] = useMutation(PLUGIN_DATA_CHANNEL_PUSH_MUTATION);
-  const [deleteEntryFunctionPluginDataChannel] = useMutation(PLUGIN_DATA_CHANNEL_DELETE_MUTATION);
-  const [resetFunctionPluginDataChannel] = useMutation(PLUGIN_DATA_CHANNEL_RESET_MUTATION);
-  const [replaceEntryFunctionPluginDataChannel] = useMutation(PLUGIN_DATA_CHANNEL_REPLACE_MUTATION);
+  // The client knows the plugin here, so these mutations carry its name into the telemetry
+  const mutationOptions = { context: pluginOperationContext(pluginName) };
+  const [pushEntryFunctionPluginDataChannel] = useMutation(PLUGIN_DATA_CHANNEL_PUSH_MUTATION, mutationOptions);
+  const [deleteEntryFunctionPluginDataChannel] = useMutation(PLUGIN_DATA_CHANNEL_DELETE_MUTATION, mutationOptions);
+  const [resetFunctionPluginDataChannel] = useMutation(PLUGIN_DATA_CHANNEL_RESET_MUTATION, mutationOptions);
+  const [replaceEntryFunctionPluginDataChannel] = useMutation(PLUGIN_DATA_CHANNEL_REPLACE_MUTATION, mutationOptions);
 
   const useDataChannelHandlerFunction = ((msg: object, options?: PushEntryFunctionOptionArgument) => {
     const {
@@ -104,6 +107,10 @@ const DataChannelItemManagerWriter: React.ElementType<DataChannelItemManagerWrit
       );
       if (rolesTo.length > 0) argumentsOfPushEntryFunction.variables.toRoles = rolesTo;
       if (usersTo.length > 0) argumentsOfPushEntryFunction.variables.toUserIds = usersTo;
+    }
+    const { toRoles, toUserIds } = argumentsOfPushEntryFunction.variables;
+    if (toRoles.length === 0 && toUserIds.length === 0) {
+      pluginDataChannelPushed(pluginName, channelName, subChannelName);
     }
     pushEntryFunctionPluginDataChannel(argumentsOfPushEntryFunction);
     logger.debug({

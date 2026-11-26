@@ -112,6 +112,28 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         5,
       ],
       enableDebugWindow: true,
+      telemetry: {
+        enabled: false,
+        logToServer: false,
+        exporter: 'none',
+        otlpUrl: '/api/telemetry',
+        sampleRate: 1,
+        bufferSize: 200,
+        flushIntervalMs: 30000,
+        thresholds: {
+          slowRenderMs: 16,
+          slowRequestMs: 1000,
+          slowGraphqlMs: 500,
+          longTaskMs: 50,
+          slowInteractionMs: 200,
+          slowPluginMs: 500,
+        },
+        webrtcMonitor: {
+          enabled: false,
+          collectingPeriodMs: 5000,
+          scriptUrl: 'compatibility/observertc-client-monitor.min.js',
+        },
+      },
       breakouts: {
         allowUserChooseRoomByDefault: false,
         offerRecordingForBreakouts: false,

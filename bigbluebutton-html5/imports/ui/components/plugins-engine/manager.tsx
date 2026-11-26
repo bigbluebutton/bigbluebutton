@@ -27,6 +27,8 @@ import { DataChannelEntry } from './data-channel/types';
 import createUseSubscription from '../../core/hooks/createUseSubscription';
 import { PLUGIN_DATA_CHANNEL_PUBLIC_SUBSCRIPTION, PLUGIN_DATA_CHANNEL_PRIVATE_SUBSCRIPTION } from './data-channel/subscriptions';
 import { mergeDataChannelEntries } from './data-channel/utils';
+import Auth from '/imports/ui/services/auth';
+import { pluginDataChannelEntries, pluginRejectedByServer } from '/imports/ui/core/telemetry/plugins';
 
 const PluginsEngineManager = (props: PluginsEngineManagerProps) => {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -97,6 +99,7 @@ const PluginsEngineManager = (props: PluginsEngineManagerProps) => {
   useEffect(() => {
     if (failedPlugins && failedPlugins.length > 0) {
       failedPlugins.forEach((p) => {
+        pluginRejectedByServer(p.name, p.loadFailureSource);
         logger.debug({
           logCode: 'plugin_loading_failure',
           extraInfo: {
@@ -112,6 +115,7 @@ const PluginsEngineManager = (props: PluginsEngineManagerProps) => {
 
   const {
     data: allPublicEntriesFromDataChannel,
+    loading: publicEntriesLoading,
   } = createUseSubscription<DataChannelEntry>(
     PLUGIN_DATA_CHANNEL_PUBLIC_SUBSCRIPTION,
     {}, true,
@@ -119,6 +123,7 @@ const PluginsEngineManager = (props: PluginsEngineManagerProps) => {
 
   const {
     data: allPrivateEntriesFromDataChannel,
+    loading: privateEntriesLoading,
   } = createUseSubscription<DataChannelEntry>(
     PLUGIN_DATA_CHANNEL_PRIVATE_SUBSCRIPTION,
     {}, true,
@@ -128,6 +133,11 @@ const PluginsEngineManager = (props: PluginsEngineManagerProps) => {
     allPublicEntriesFromDataChannel,
     allPrivateEntriesFromDataChannel,
   );
+
+  useEffect(() => {
+    if (publicEntriesLoading || privateEntriesLoading) return;
+    pluginDataChannelEntries(allEntriesFromDataChannel, Auth.userID as string);
+  }, [allPublicEntriesFromDataChannel, allPrivateEntriesFromDataChannel, publicEntriesLoading, privateEntriesLoading]);
 
   return (
     <>

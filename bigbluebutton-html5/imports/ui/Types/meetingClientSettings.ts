@@ -88,6 +88,7 @@ export interface App {
   remainingTimeThresholdInMinutes: number
   remainingTimeAlertThresholdArray: number[]
   enableDebugWindow: boolean
+  telemetry: Telemetry
   breakouts: Breakouts
   showAllAvailableLocales: boolean
   showAudioFilters: boolean
@@ -108,6 +109,33 @@ export interface App {
   terminateAndRetryConnection: number
   timeoutBeforeRedirectOnMeetingEnd: number | null
   showConnectionErrors: number[]
+}
+
+export interface TelemetryThresholds {
+  slowRenderMs: number
+  slowRequestMs: number
+  slowGraphqlMs: number
+  longTaskMs: number
+  slowInteractionMs: number
+  slowPluginMs: number
+}
+
+export interface TelemetryWebrtcMonitor {
+  enabled: boolean
+  collectingPeriodMs: number
+  scriptUrl: string
+}
+
+export interface Telemetry {
+  enabled: boolean
+  logToServer: boolean
+  exporter: 'none' | 'otlp'
+  otlpUrl: string
+  sampleRate: number
+  bufferSize: number
+  flushIntervalMs: number
+  thresholds: TelemetryThresholds
+  webrtcMonitor: TelemetryWebrtcMonitor
 }
 
 export interface BbbTabletApp {

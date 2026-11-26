@@ -4,6 +4,7 @@ import {
   stopTrack,
   silentConsole,
 } from '/imports/ui/services/webrtc-base/utils';
+import { withWebrtcSource } from '/imports/ui/core/telemetry/webrtcMonitor';
 
 export default class WebRtcPeer extends EventEmitter2 {
   constructor(mode, options = {}) {
@@ -316,7 +317,7 @@ export default class WebRtcPeer extends EventEmitter2 {
   start() {
     // Init PeerConnection
     if (!this.peerConnection) {
-      this.peerConnection = new RTCPeerConnection(this.configuration);
+      this.peerConnection = withWebrtcSource('sfu', () => new RTCPeerConnection(this.configuration));
     }
 
     if (this.isPeerConnectionClosed()) {
