@@ -4,6 +4,11 @@ import React, {
 import { defineMessages, useIntl } from 'react-intl';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Button from '/imports/ui/components/common/button/component';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import {
+  CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
+  CurrentPresentationPageSubscriptionResponse,
+} from '/imports/ui/components/whiteboard/queries';
 import { insertBlankPage, insertPages, InsertRequest } from './service';
 import Styled from './styles';
 
@@ -47,6 +52,11 @@ const InsertPagesButton: React.FC<InsertPagesButtonProps> = ({
   const fileInput = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const presentationConfig = window.meetingClientSettings.public.presentation;
+  const { data: currentPageData } = useDeduplicatedSubscription<CurrentPresentationPageSubscriptionResponse>(
+    CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
+  );
+  const currentPage = currentPageData?.pres_page_curr
+    ?.find((page) => page.presentationId === presentationId);
 
   // PDF and office documents: the upload types that are not images.
   const accept = useMemo(() => presentationConfig.uploadValidMimeTypes
@@ -76,6 +86,9 @@ const InsertPagesButton: React.FC<InsertPagesButtonProps> = ({
   // In a breakout room, only where the presenter may manage presentations (as the upload in the actions bar).
   const { allowPresentationManagementInBreakouts } = window.meetingClientSettings.public.app.breakouts;
   if (meetingIsBreakout && !allowPresentationManagementInBreakouts) return null;
+  // Only a presentation converted to a PDF (from a PDF or an office document) takes pages: the server refuses
+  // an insert into one made from an image.
+  if (!currentPage?.presentationFilenameConverted) return null;
 
   const disabled = busy || !isConnected || !presentationId || numberOfSlides < 1;
   const label = intl.formatMessage(intlMessages.insertPagesLabel);

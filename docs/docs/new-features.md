@@ -55,7 +55,7 @@ The keys of `presentation_text.json` follow the text file names (`slide-{pageId}
 
 ### Insert pages into a presentation
 
-The presenter can insert pages into the open presentation: a blank page, or the pages of a PDF or an office document, at a position. The existing pages keep their annotations, and the presenter is notified of the outcome. Pages can only be inserted into a presentation made from a PDF or an office document, and an image cannot be inserted.
+The presenter can insert pages into the open presentation: a blank page, or the pages of a PDF or an office document, at a position. The existing pages keep their annotations, and the presenter is notified of the outcome. Pages can only be inserted into a presentation made from a PDF or an office document (the client offers the insert only on such a presentation), and an image cannot be inserted.
 
 - The client setting `public.presentation.insertPagesEnabled` enables or blocks, on the server, any insert of pages (default `true`; absent counts as `false`). Like any client setting, it can be changed per meeting on the `create` call (`clientSettingsOverride`).
 - `maxNumPages` (bbb-web) also limits the number of pages of a presentation after an insert.

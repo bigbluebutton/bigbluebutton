@@ -57,6 +57,8 @@ export interface PresentationPage {
   totalPages: number;
   downloadable: boolean;
   presentationName: string;
+  // the PDF the presentation was converted to; empty for a presentation made from an image
+  presentationFilenameConverted: string;
   isDefaultPresentation: boolean;
   infiniteWhiteboard: boolean;
   nextPagesSvg: string;
@@ -130,6 +132,7 @@ export const CURRENT_PRESENTATION_PAGE_SUBSCRIPTION = gql`subscription CurrentPr
     totalPages
     downloadable
     presentationName
+    presentationFilenameConverted
     isDefaultPresentation
     infiniteWhiteboard
     nextPagesSvg
