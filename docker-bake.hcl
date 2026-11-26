@@ -68,10 +68,11 @@ target "web" {
   context  = "./bigbluebutton-web"
   args     = { CLIENT_BUILD = CLIENT_BUILD }
   contexts = {
-    java-base      = "target:_java-base"
-    bbb-common-web = "target:_bbb-common-web"
-    slides         = "./bigbluebutton-config/slides"
-    html5-config   = "./bigbluebutton-html5/private/config"
+    java-base          = "target:_java-base"
+    bbb-common-web     = "target:_bbb-common-web"
+    slides             = "./bigbluebutton-config/slides"
+    html5-config       = "./bigbluebutton-html5/private/config"
+    libreoffice-assets = "./bbb-libreoffice/assets"
   }
 }
 

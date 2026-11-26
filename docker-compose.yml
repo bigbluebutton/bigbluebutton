@@ -224,6 +224,9 @@ services:
       SECURITYSALT: ${BBB_SHARED_SECRET}
       PAGETOKENSECRET: ${BBB_PAGE_TOKEN_SECRET:?}
       REDISHOST: redis
+      # office documents are converted to PDF by office-conversion, with the image's client for it
+      PRESOFFICECONVERSIONEXEC: /usr/share/bbb-libreoffice-conversion/convert-cool.sh
+      COOL_URL: http://office-conversion:9980
     configs:
       - source: turn-stun-servers.xml
         target: /etc/bigbluebutton/turn-stun-servers.xml
@@ -232,6 +235,9 @@ services:
     # the default slides are fetched from https://<domain>, through the host to haproxy
     extra_hosts:
       - "${BBB_DOMAIN}:host-gateway"
+    networks:
+      - default
+      - office-conversion
     depends_on: *redis-init
 
   graphql-server:
@@ -307,6 +313,45 @@ services:
     pids_limit: 320
     volumes:
       - shared-notes-conversion:/run
+
+  # Office documents to PDF for bbb-web: Collabora Online (CODE), converting with
+  # POST /cool/convert-to/pdf; on a network with web only, without internet
+  office-conversion:
+    <<: *bbb
+    image: docker.io/collabora/code:26.04.6.2.1@sha256:a2f5d4e88addd46033d8440f7a13b82f7e6fe444bf8c6b5a3eadc789f0b5342b
+    environment:
+      # coolwsd.xml keys: plain HTTP inside the network; convert-to only from this network (the
+      # first host entry has no index, the other four defaults are emptied); no admin console
+      extra_params: >-
+        --o:ssl.enable=false
+        --o:net.post_allow.host=172.30.83.0/24
+        --o:net.post_allow.host[1]= --o:net.post_allow.host[2]= --o:net.post_allow.host[3]=
+        --o:net.post_allow.host[4]=
+        --o:admin_console.enable=false
+    # without capabilities coolwsd runs each document in a landlock jail (the host kernel needs
+    # landlock); its chroot jails would need CHOWN, FOWNER and SYS_CHROOT and no no-new-privileges
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    # the image's user, cool (1001)
+    tmpfs:
+      - /tmp:uid=1001,gid=1001
+      - /opt/cool/child-roots:uid=1001,gid=1001
+      - /opt/cool/cache:uid=1001,gid=1001
+    # 4 conversions at once (bbb-web's default) peaked at 762 MiB, including the tmpfs
+    mem_limit: 2g
+    pids_limit: 256
+    healthcheck:
+      test:
+        - CMD
+        - /usr/bin/coolwsd
+        - --probe
+        - --use-env-vars
+      interval: 10s
+    networks:
+      - office-conversion
 
   export-annotations:
     <<: *bbb
@@ -401,6 +446,15 @@ networks:
       config:
         - subnet: 172.30.82.0/24
           ip_range: 172.30.82.128/25
+  # web and office-conversion only, without a route out; the bridge gets no address, so the
+  # host's own services are not reachable from it either
+  office-conversion:
+    internal: true
+    driver_opts:
+      com.docker.network.bridge.inhibit_ipv4: "true"
+    ipam:
+      config:
+        - subnet: 172.30.83.0/24
 
 volumes:
   recording-logs:

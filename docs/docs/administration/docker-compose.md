@@ -10,9 +10,9 @@ keywords:
 - install
 ---
 
-BigBlueButton 4.1 can run on one server with Docker Compose, as an alternative to the package install with `bbb-install.sh`. `docker-compose.yml` in the repository root runs the BigBlueButton images built in this repository, official images for Redis, PostgreSQL, LiveKit, coturn, haproxy and certbot, and the configuration in `docker/compose/`, mounted at the bare-metal paths. Files that need values from `.env` are inline in `docker-compose.yml` (`configs:`). The images themselves are described in [docker/README.md](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/docker/README.md).
+BigBlueButton 4.1 can run on one server with Docker Compose, as an alternative to the package install with `bbb-install.sh`. `docker-compose.yml` in the repository root runs the BigBlueButton images built in this repository, official images for Redis, PostgreSQL, LiveKit, coturn, haproxy, certbot and Collabora Online, and the configuration in `docker/compose/`, mounted at the bare-metal paths. Files that need values from `.env` are inline in `docker-compose.yml` (`configs:`). The images themselves are described in [docker/README.md](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/docker/README.md).
 
-Not covered yet: office document conversion (bbb-web expects `/usr/share/bbb-libreoffice-conversion/convert.sh`, which no image provides yet), FreeSWITCH and dial-in, more than one server, Kubernetes, and running behind an existing reverse proxy or TLS terminator.
+Not covered yet: FreeSWITCH and dial-in, more than one server, Kubernetes, and running behind an existing reverse proxy or TLS terminator.
 
 ## Requirements
 
@@ -21,7 +21,8 @@ Not covered yet: office document conversion (bbb-web expects `/usr/share/bbb-lib
 - IPv6 not turned off in the kernel (no `ipv6.disable=1` on the kernel command line): nginx also listens on `[::]` and does not start without it. The server needs no IPv6 address;
 - open ports: 80/tcp and 443/tcp (web, Let's Encrypt, TURN over TLS), 3478/tcp and 3478/udp (TURN), 7882/udp (LiveKit media);
 - LiveKit wants larger UDP buffers than most hosts have (it warns `UDP receive buffer is too small` at start): set `net.core.rmem_max` and `net.core.wmem_max` on the host, e.g. to 5000000 (the value LiveKit suggests in that warning) in `/etc/sysctl.d/`;
-- the subnet `172.30.82.0/24` free on the host (the compose network; LiveKit has a fixed address in it, the only address coturn relays to).
+- the subnets `172.30.82.0/24` and `172.30.83.0/24` free on the host (the compose network, where LiveKit has a fixed address, the only address coturn relays to; and the network of the office conversion);
+- landlock enabled in the host kernel, for the office conversion (see [Office documents](#office-documents)).
 
 ## Install
 
@@ -147,11 +148,46 @@ Backup: `./data`, `.env` and `docker-compose.override.yml`. PostgreSQL (a volume
 - More Hasura instances: `docker compose up -d --scale graphql-server=2`. nginx balances them as on bare metal and looks up the instances every 30 s, so it follows scaling up and down within about 30 s, without a reload.
 - Logs: `docker compose logs <service>`; the logs per recording are in the `recording-logs` volume. The compose file sets the `local` logging driver, which rotates the logs; it overrides the host's Docker default (`daemon.json`). Remove it from `x-bbb` to use that default.
 
+## Office documents
+
+bbb-web converts office documents (Word, Excel, PowerPoint, OpenDocument and similar) to PDF by calling the script in its property `presOfficeConversionExec`. The bbb-web image has the sample client for Collabora Online, `/usr/share/bbb-libreoffice-conversion/convert-cool.sh`, and the compose file selects it with the environment variable `PRESOFFICECONVERSIONEXEC`. It sends the document to the `office-conversion` service with `POST /cool/convert-to/pdf`.
+
+- `office-conversion` runs Collabora Online Development Edition (CODE, image `collabora/code`, about 500 MB to download, for amd64, arm64 and ppc64le). It converts with Collabora's LibreOffice build, not with the `bbb-libreoffice` image of a package install, so results can differ.
+- It is one long-running container for all documents. Collabora starts a process per document in a landlock jail. This jail needs landlock in the host kernel. The container has no capabilities, a read-only file system and a 2 GB memory limit.
+- Its network is shared with `web` only and has no route out, so documents cannot fetch remote content. Collabora accepts conversions only from that network, and its admin console is off. It can still reach bbb-web's port 8090.
+- Collabora describes CODE as "perfect for testing, home use or small teams, but not recommended for production environments" ([collaboraonline.com/code](https://www.collaboraonline.com/code/)). For production, use a supported Collabora Online server, as below.
+
+To use your own Collabora Online server instead, set its URL in `docker-compose.override.yml` and leave `office-conversion` off by giving it a profile that is not in `COMPOSE_PROFILES`:
+
+```yaml
+services:
+  web:
+    environment:
+      COOL_URL: https://cool.example.com:9980
+  office-conversion:
+    profiles:
+      - office-conversion
+```
+
+That server must allow `convert-to` from your BigBlueButton server's address (`net.post_allow` in its `coolwsd.xml`).
+
+To use your own conversion script, mount it into `web` and point `PRESOFFICECONVERSIONEXEC` at it. bbb-web runs it as `<script> <input file> <output file> pdf <timeout in seconds>`, so it must be executable by UID 998:
+
+```yaml
+services:
+  web:
+    environment:
+      PRESOFFICECONVERSIONEXEC: /usr/local/bin/convert.sh
+    volumes:
+      - ./convert.sh:/usr/local/bin/convert.sh:ro
+```
+
 ## Differences from a package install
 
 - Media: LiveKit receives all media on one port, 7882/udp, instead of the range 16384-32768 a package install opens.
 - TURN: coturn relays only to LiveKit, inside the compose network, so its relay ports are not opened on the host.
 - There is no FreeSWITCH, so there is no dial-in.
+- Office documents are converted by Collabora Online in `office-conversion` instead of a `bbb-soffice` container per document (`bbb-libreoffice`).
 - The PDF export of the shared notes runs in the `shared-notes-conversion` service instead of the systemd units `bbb-shared-notes-conversion.socket` and `bbb-shared-notes-conversion@.service`: the same wkhtmltopdf command and 30 s limit, in a container without network that shares the socket with `shared-notes-server`. In the container all conversions run as one user and share one `/tmp`; the unit gives each conversion a user and a `/tmp` of its own.
 - The domain, the IP address and the secrets are set in `.env` instead of with `bbb-conf --setip` and `bbb-conf --setsecret`. There is no `bbb-conf` and no `apply-config.sh`.
 
