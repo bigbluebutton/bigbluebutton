@@ -1,7 +1,9 @@
 import { useEffect, useState, useRef } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 
-import { ExtensibleAreaComponentManagerProps, ExtensibleAreaComponentManager } from '../../types';
+import {
+  ExtensibleArea, ExtensibleAreaComponentManagerProps, ExtensibleAreaComponentManager,
+} from '../../types';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import { shouldPinAppsGalleryItem } from '/imports/ui/components/apps-gallery/service';
@@ -26,8 +28,18 @@ const AppsGalleryPluginStateContainer = ((
   // Sidebar apps this plugin currently has registered in the layout context.
   const registeredAppIdsRef = useRef<Set<string>>(new Set());
 
+  useEffect(() => () => {
+    registeredAppIdsRef.current.forEach((id) => {
+      layoutContextDispatch({ type: ACTIONS.UNREGISTER_SIDEBAR_APP, id });
+    });
+    registeredAppIdsRef.current = new Set();
+  }, [layoutContextDispatch]);
+
   useEffect(() => {
     if (pluginName === undefined) return;
+    if (!extensibleAreaMap[uuid]) {
+      extensibleAreaMap[uuid] = {} as ExtensibleArea;
+    }
     // Change this plugin provided apps gallery items
     extensibleAreaMap[uuid].appsGalleryItems = appsGalleryItems;
 

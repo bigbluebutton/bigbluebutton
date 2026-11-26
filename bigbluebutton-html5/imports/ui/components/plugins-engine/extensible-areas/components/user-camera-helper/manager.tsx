@@ -26,6 +26,9 @@ const UserCameraHelperPluginStateContainer = ((
   } = useContext(PluginsContext);
 
   useEffect(() => {
+    if (!extensibleAreaMap[uuid]) {
+      extensibleAreaMap[uuid] = {} as ExtensibleArea;
+    }
     extensibleAreaMap[uuid].userCameraHelperItems = userCameraHelperItems;
 
     const aggregatedUserCameraHelperItems = ([] as PluginSdk.UserCameraHelperInterface[]).concat(

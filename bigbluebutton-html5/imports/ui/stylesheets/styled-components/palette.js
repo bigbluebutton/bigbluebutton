@@ -27,7 +27,7 @@ const colorGrayLighterText = `var(--color-gray-lighter-text, ${colorGrayLighter}
 const colorGrayLightest = 'var(--color-gray-lightest, #D4D9DF)';
 const colorGrayLightestBorder = `var(--color-gray-lightest-border, ${colorGrayLightest})`;
 const colorGrayLightestText = `var(--color-gray-lightest-text, ${colorGrayLightest})`;
-const colorGrayIcons = 'var(--color-gray-icons, #909CAF)';
+const colorGrayIcons = 'var(--color-gray-icons, #717C91)';
 const colorGrayUserListToolbar = 'var(--color-gray-user-list-toolbar, #F4F6FA)';
 
 const colorBorder = 'var(--color-border, #B8C9D8)';

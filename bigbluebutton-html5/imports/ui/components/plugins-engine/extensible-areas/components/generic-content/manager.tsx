@@ -57,8 +57,23 @@ const GenericContentPluginStateContainer = ((
   // Ids of the sidekick items this plugin currently has registered as sidebar apps.
   const registeredSidekickItemIdsRef = useRef<Set<string>>(new Set());
 
+  useEffect(() => () => {
+    registeredSidekickItemIdsRef.current.forEach((itemId) => {
+      layoutContextDispatch({
+        type: ACTIONS.UNREGISTER_SIDEBAR_APP,
+        id: genericContentSidekickId(itemId),
+      });
+      removeGenericContentBadge(itemId);
+      removeGenericContentMenuName(itemId);
+    });
+    registeredSidekickItemIdsRef.current = new Set();
+  }, [layoutContextDispatch, genericContentSidekickId]);
+
   useEffect(() => {
     if (pluginName === undefined) return;
+    if (!extensibleAreaMap[uuid]) {
+      extensibleAreaMap[uuid] = {} as ExtensibleArea;
+    }
     // Change this plugin provided toolbar items
     extensibleAreaMap[uuid].genericContentItems = genericContentItems;
 

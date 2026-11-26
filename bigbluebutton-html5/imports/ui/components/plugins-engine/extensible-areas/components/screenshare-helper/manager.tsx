@@ -26,6 +26,9 @@ const ScreenshareHelperPluginStateContainer = ((
   } = useContext(PluginsContext);
 
   useEffect(() => {
+    if (!extensibleAreaMap[uuid]) {
+      extensibleAreaMap[uuid] = {} as ExtensibleArea;
+    }
     extensibleAreaMap[uuid].screenshareHelperItems = screenshareHelperItems;
 
     const aggregatedScreenshareHelperItems = ([] as PluginSdk.ScreenshareHelperInterface[]).concat(

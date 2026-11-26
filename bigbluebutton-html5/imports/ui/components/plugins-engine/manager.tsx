@@ -41,8 +41,14 @@ const PluginsEngineManager = (props: PluginsEngineManagerProps) => {
   // A ref rather than state: scripts settle in bursts that React batches into one
   // render, so a count logged per render skips values.
   const loadingProgressRef = useRef<PluginsLoadingProgress>();
+  const prevPluginConfigRef = useRef<PluginConfigFromGraphql[] | undefined>(undefined);
 
   useEffect(() => {
+    if (prevPluginConfigRef.current !== undefined && isEqual(prevPluginConfigRef.current, pluginConfig)) {
+      return;
+    }
+    prevPluginConfigRef.current = pluginConfig;
+
     const graphqlFailedPlugins = pluginConfig?.filter(
       (p) => p.loadFailureReason !== '',
     );

@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useId } from 'react';
 import { IconButton } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import Styled from './styles';
@@ -14,6 +14,8 @@ export interface MediaButtonProps {
   /** The main icon to be rendered in the button */
   icon?: React.ReactElement;
   tooltip?: string;
+  disabled?: boolean;
+  id?: string;
 }
 
 export const MediaButton: FunctionComponent<MediaButtonProps> = ({
@@ -24,7 +26,10 @@ export const MediaButton: FunctionComponent<MediaButtonProps> = ({
   onClick,
   icon,
   tooltip,
+  disabled = false,
+  id,
 }) => {
+  const labelId = useId();
   let settingsIconColor = 'inherit';
   if (color === 'active') {
     settingsIconColor = colorPrimary;
@@ -36,8 +41,17 @@ export const MediaButton: FunctionComponent<MediaButtonProps> = ({
     <Styled.MediaButtonContainer
       className={`bbb-media-sharing__option bbb-media-sharing__option--${color}`}
       data-test={dataTest}
+      $disabled={disabled}
     >
-      <Styled.ButtonFrame className="bbb-media-sharing__option-button" color={color} onClick={onClick}>
+      <Styled.ButtonFrame
+        id={id}
+        className="bbb-media-sharing__option-button"
+        color={color}
+        disabled={disabled}
+        aria-labelledby={text ? labelId : undefined}
+        aria-label={!text && tooltip ? tooltip : undefined}
+        onClick={onClick}
+      >
         {showSettingsIcon && (
           <Styled.SettingsContainer>
             <IconButton
@@ -55,7 +69,9 @@ export const MediaButton: FunctionComponent<MediaButtonProps> = ({
           </Styled.IconWrapper>
         )}
       </Styled.ButtonFrame>
-      <Styled.ButtonText className="bbb-media-sharing__option-label">{text}</Styled.ButtonText>
+      <Styled.ButtonText id={labelId} className="bbb-media-sharing__option-label">
+        {text}
+      </Styled.ButtonText>
     </Styled.MediaButtonContainer>
   );
 

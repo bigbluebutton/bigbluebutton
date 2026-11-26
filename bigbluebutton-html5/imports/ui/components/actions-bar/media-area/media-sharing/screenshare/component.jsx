@@ -209,7 +209,6 @@ const ScreenshareButton = ({
                     );
                   }
                 }}
-              id="share-screen-button"
             />
           ) : null
       }
