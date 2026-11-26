@@ -37,9 +37,9 @@ bbb_config() {
   BBB_WEB_ETC_CONFIG=/etc/bigbluebutton/bbb-web.properties
   mkdir -p /etc/bigbluebutton
   [ -f "$BBB_WEB_ETC_CONFIG" ] || touch "$BBB_WEB_ETC_CONFIG"
-  ETC_PAGE_TOKEN_SECRET=$(sed -n 's/^[[:space:]]*pageTokenSecret[[:space:]]*[=:][[:space:]]*//p' "$BBB_WEB_ETC_CONFIG" | tail -n 1)
+  ETC_PAGE_TOKEN_SECRET=$(sed -nE 's/^[[:space:]]*pageTokenSecret([[:space:]]*[=:]|[[:space:]])[[:space:]]*//p' "$BBB_WEB_ETC_CONFIG" | tail -n 1)
   if [ -z "$ETC_PAGE_TOKEN_SECRET" ] || [ "$ETC_PAGE_TOKEN_SECRET" = "CHANGE_ME_PAGE_TOKEN_SECRET" ]; then
-    sed -i '/^[[:space:]]*pageTokenSecret[[:space:]]*[=:]/d' "$BBB_WEB_ETC_CONFIG"
+    sed -i -E '/^[[:space:]]*pageTokenSecret([[:space:]]*[=:]|[[:space:]]|$)/d' "$BBB_WEB_ETC_CONFIG"
     [ -z "$(tail -c 1 "$BBB_WEB_ETC_CONFIG")" ] || echo >> "$BBB_WEB_ETC_CONFIG"
     echo "pageTokenSecret=$PAGE_TOKEN_SECRET" >> "$BBB_WEB_ETC_CONFIG"
   fi
