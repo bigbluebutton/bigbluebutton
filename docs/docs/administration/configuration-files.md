@@ -21,7 +21,7 @@ Many of the configuration files have local overrides so the administrator can sp
 
 | Package                                                                 | Override                                         | Notes                                                                            |
 | :---------------------------------------------------------------------- | :----------------------------------------------- | -------------------------------------------------------------------------------- |
-| /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties             | /etc/bigbluebutton/bbb-web.properties            | Minimum containing general configuration (`securitySalt` and `serverURL`) |
+| /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties             | /etc/bigbluebutton/bbb-web.properties            | Minimum containing general configuration (`securitySalt`, `pageTokenSecret` and `serverURL`) |
 | /etc/default/bbb-web                                                    | /etc/bigbluebutton/bbb-web.env                   | Environment of the `bbb-web` service (heap size, listen address, `JDK_JAVA_OPTIONS`) |
 | /usr/share/bbb-apps-akka/conf/application.conf                          | /etc/bigbluebutton/bbb-apps-akka.conf            |                                                                                  |
 | /usr/share/bbb-fsesl-akka/conf/application.conf                         | /etc/bigbluebutton/bbb-fsesl-akka.conf           |                                                                                  |
@@ -62,6 +62,8 @@ securitySalt=UsanRxRk938d02cTWfAqSM9Cvin7bnzsREfqFfzpf2U
 ```
 
 This override will ensure that `bbb-web` uses the above values regardless of changes the packaging scripts make to the upgrade.
+
+The packages generate `securitySalt` and `pageTokenSecret` once, in this file, and never change a value that is already set here. On an upgrade from a version that kept them only in `bigbluebutton.properties`, the values in use are copied here.
 
 Settings can also be given as `-D` system properties or environment variables. The order, highest first, is: `-D` > environment > `/etc/bigbluebutton/bbb-web.properties` > `/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties`. An environment variable uses the key in upper case with `.` as `_` (for example `BIGBLUEBUTTON_WEB_SERVERURL` or `SECURITYSALT`), or the exact key name.
 

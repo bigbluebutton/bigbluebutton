@@ -2082,7 +2082,7 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 | `pluginManifestCacheRefreshIntervalMinutes` | How often (in minutes) the plugin manifest cache refresh task runs | Integer | 60 |
 | `allowRequestsWithoutSession` | Allow requests without `JSESSIONID` to be handled (reduces security; only enable for trusted integrations like iframes) | true/false | false _`overwritable`_ |
 | `supportedChecksumAlgorithms` | Hash algorithms accepted when validating API checksums (comma-separated) | sha1, sha256, sha384, sha512 | sha1,sha256,sha384,sha512 |
-| `pageTokenSecret` | Secret used to generate per-page presentation access tokens (HMAC-SHA256). Override for additional security separation between presentation tokens and the rest of bbb-web | String | _(defaults to `${securitySalt}`)_ |
+| `pageTokenSecret` | Secret used to generate per-page presentation access tokens (HMAC-SHA256). Must be independent from `securitySalt`. The package generates it once in `/etc/bigbluebutton/bbb-web.properties` and keeps it across upgrades; bbb-web refuses to start with the `CHANGE_ME_PAGE_TOKEN_SECRET` placeholder | String | _(generated at install)_ |
 | `beans.presentationService.pageTokenSecret` | Grails bean wiring that injects `pageTokenSecret` into the presentation service. Override only if the presentation service should use a different secret than `pageTokenSecret` | String | _(defaults to `${pageTokenSecret}`)_ |
 | `allowRevealOfBBBVersion` | Allow the `getMeetings` endpoint to reveal the current BigBlueButton version | true/false | false |
 
