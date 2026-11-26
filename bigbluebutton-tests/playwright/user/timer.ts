@@ -12,15 +12,28 @@ export const TIMER_MUSIC_CLIENT_SETTINGS_OVERRIDE: ClientSettingsOverrides = {
 };
 
 // The timer music is an Audio object outside the DOM, so the page records the last play/pause
-// call on it; whether the browser lets the sound out (autoplay policy) does not matter here
+// call on it, every music element it played and how many times play() was called on each;
+// whether the browser lets the sound out (autoplay policy) does not matter here
+type TimerMusicWindow = Window & {
+  lastTimerMusicCall?: string;
+  timerMusicElements?: HTMLMediaElement[];
+  timerMusicPlayCalls?: WeakMap<HTMLMediaElement, number>;
+};
+
 async function trackTimerMusic(page: Page) {
   await page.evaluate(() => {
-    const target = window as unknown as { lastTimerMusicCall?: string };
+    const target = window as TimerMusicWindow;
+    target.timerMusicElements = [];
+    target.timerMusicPlayCalls = new WeakMap();
     const { play, pause } = HTMLMediaElement.prototype;
     const isMusic = (media: HTMLMediaElement) =>
       media.src.includes('/resources/sounds/') && !media.src.endsWith('/alarm.mp3');
     HTMLMediaElement.prototype.play = function trackedPlay(this: HTMLMediaElement) {
-      if (isMusic(this)) target.lastTimerMusicCall = 'play';
+      if (isMusic(this)) {
+        target.lastTimerMusicCall = 'play';
+        if (!target.timerMusicElements!.includes(this)) target.timerMusicElements!.push(this);
+        target.timerMusicPlayCalls!.set(this, (target.timerMusicPlayCalls!.get(this) ?? 0) + 1);
+      }
       return play.call(this);
     };
     HTMLMediaElement.prototype.pause = function trackedPause(this: HTMLMediaElement) {
@@ -31,7 +44,40 @@ async function trackTimerMusic(page: Page) {
 }
 
 function lastTimerMusicCall(page: Page) {
-  return page.evaluate(() => (window as unknown as { lastTimerMusicCall?: string }).lastTimerMusicCall);
+  return page.evaluate(() => (window as TimerMusicWindow).lastTimerMusicCall);
+}
+
+// Moves the last music element the page played to `secondsBeforeEnd` before the end of the track,
+// where the gapless loop restarts it, waits a second and reports what the loop did meanwhile
+async function seekTimerMusicNearEnd(page: Page, secondsBeforeEnd: number) {
+  const playCallsBefore = await page.evaluate(async (offset) => {
+    const target = window as TimerMusicWindow;
+    const audio = target.timerMusicElements![target.timerMusicElements!.length - 1];
+    if (audio.readyState < HTMLMediaElement.HAVE_METADATA) {
+      await new Promise((resolve) => {
+        audio.addEventListener('loadedmetadata', resolve, { once: true });
+      });
+    }
+    // counted before the seek: the loop runs on the timeupdate that the seek fires before 'seeked'
+    const playCalls = target.timerMusicPlayCalls!.get(audio) ?? 0;
+    const seeked = new Promise((resolve) => {
+      audio.addEventListener('seeked', resolve, { once: true });
+    });
+    audio.currentTime = audio.duration - offset;
+    await seeked;
+    return playCalls;
+  }, secondsBeforeEnd);
+  await page.waitForTimeout(1000);
+  return page.evaluate((before) => {
+    const target = window as TimerMusicWindow;
+    const audio = target.timerMusicElements![target.timerMusicElements!.length - 1];
+    return {
+      newPlayCalls: (target.timerMusicPlayCalls!.get(audio) ?? 0) - before,
+      paused: audio.paused,
+      currentTime: audio.currentTime,
+      duration: audio.duration,
+    };
+  }, playCallsBefore);
 }
 
 export class Timer extends MultiUsers {
@@ -318,6 +364,17 @@ export class Timer extends MultiUsers {
       .poll(() => lastTimerMusicCall(this.userPage.page), { message: 'should pause the music for the attendee' })
       .toBe('pause');
     expect(await lastTimerMusicCall(this.modPage.page), 'should keep the music playing for the moderator').toBe('play');
+    // the loop must not restart the music of an attendee who muted it, even near the end of the track
+    const mutedNearEnd = await seekTimerMusicNearEnd(this.userPage.page, 0.05);
+    await expect
+      .soft(muteButton, 'should keep the button pressed near the end of the track')
+      .toHaveAttribute('aria-pressed', 'true');
+    expect.soft(mutedNearEnd.newPlayCalls, 'should not restart the muted music at the end of the track').toBe(0);
+    expect
+      .soft(await lastTimerMusicCall(this.userPage.page), 'should leave the muted music paused at the end of the track')
+      .toBe('pause');
+    expect.soft(mutedNearEnd.paused, 'should keep the muted music element paused').toBe(true);
+
     const mutedValue = await timeInSeconds(userIndicatorLocator);
     await expect
       .poll(() => timeInSeconds(userIndicatorLocator), { message: 'should keep the timer running while muted' })
@@ -334,6 +391,16 @@ export class Timer extends MultiUsers {
       .poll(() => lastTimerMusicCall(this.modPage.page), { message: 'should stop the music for the moderator' })
       .toBe('pause');
     await this.userPage.wasRemoved(e.timerMusicMuteButton, 'should remove the mute button once the music is off');
+    // the loop must not restart the retired track (a position other than the one the mute check left it at)
+    await expect
+      .poll(() => lastTimerMusicCall(this.userPage.page), {
+        message: 'should pause the retired track for the attendee',
+      })
+      .toBe('pause');
+    const retiredNearEnd = await seekTimerMusicNearEnd(this.userPage.page, 0.1);
+    expect(retiredNearEnd.newPlayCalls, 'should not restart the music after it was turned off').toBe(0);
+    expect(retiredNearEnd.paused, 'should keep the music element paused after it was turned off').toBe(true);
+
     await this.modPage.waitAndClick(e.timerMusicSwitch);
     await expect(modSwitch, 'should turn the timer music on again while the timer runs').toBeChecked();
     await expect

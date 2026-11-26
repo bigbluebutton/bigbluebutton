@@ -51,6 +51,8 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   const [stopTimerMutation] = useMutation(TIMER_STOP);
   // Each participant can silence the music on their own device; nothing is sent to the server
   const [musicMuted, setMusicMuted] = useState<boolean>(false);
+  // Whether the current track should be heard on this device right now; read by the loop below
+  const musicShouldPlay = useRef<boolean>(false);
   const prevElapsed = usePreviousValue<boolean | undefined>(elapsed);
   const intl = useIntl();
 
@@ -84,17 +86,21 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
     }
     const audio = new Audio(`${HOST}/resources/sounds/${trackName[songTrack as ObjectKey]}.mp3`);
     audio.volume = MUSIC_VOLUME;
-    audio.addEventListener('timeupdate', () => {
+    const loopMusic = () => {
+      // pause() queues one more timeupdate, so a muted, stopped or replaced track must not restart here
+      if (music.current !== audio || !musicShouldPlay.current) return;
       const buffer = 0.19;
       // Start playing the music before it ends to make the loop gapless
       if (audio.currentTime > audio.duration - buffer) {
         audio.currentTime = 0;
         audio.play();
       }
-    });
+    };
+    audio.addEventListener('timeupdate', loopMusic);
     music.current = audio;
 
     return () => {
+      audio.removeEventListener('timeupdate', loopMusic);
       audio.pause();
       if (music.current === audio) music.current = undefined;
     };
@@ -102,8 +108,9 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
 
   // Declared after the effect above, so a track change mid-run creates the new track before it plays
   useEffect(() => {
+    musicShouldPlay.current = isMusicPlaying && !musicMuted;
     if (!music.current) return;
-    if (isMusicPlaying && !musicMuted) {
+    if (musicShouldPlay.current) {
       music.current.play().catch((error) => {
         logger.warn({
           logCode: 'timer_music_play_failed',
@@ -134,6 +141,7 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
 
   useEffect(() => {
     if (!timeRef.current) {
+      musicShouldPlay.current = false;
       if (music.current) music.current.pause();
       if (alarm.current) alarm.current.pause();
     }
