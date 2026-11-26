@@ -6,7 +6,6 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import ReloadButton from './reload-button/component';
 import Subtitles from './subtitles/component';
 import FullscreenButtonContainer from '/imports/ui/components/common/fullscreen-button/container';
-import { uniqueId } from '/imports/utils/string-utils';
 import { layoutSelect } from '../../../layout/context';
 import { Layout } from '../../../layout/layoutTypes';
 import ExternalVideoPlayerProgressBar from './progress-bar/component';
@@ -140,7 +139,6 @@ const ExternalVideoPlayerToolbar: React.FC<ExternalVideoPlayerToolbarProps> = ({
                 )}
               </Styled.ButtonsWrapper>
               <FullscreenButtonContainer
-                key={uniqueId('fullscreenButton-')}
                 elementName={intl.formatMessage(intlMessages.fullscreenLabel)}
                 fullscreenRef={playerParent}
                 elementId="ExternalVideo"
