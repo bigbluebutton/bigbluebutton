@@ -70,6 +70,7 @@ const propTypes = {
   enforceLayoutResult: PropTypes.string,
   setLocalSettings: PropTypes.func.isRequired,
   hasMeetingLayout: PropTypes.bool,
+  meetingLayoutLoaded: PropTypes.bool,
   meetingLayoutSetByUserId: PropTypes.string,
 };
 
@@ -102,6 +103,7 @@ const PushLayoutEngine = (props) => {
     setMeetingLayout,
     setPushLayout,
     hasMeetingLayout,
+    meetingLayoutLoaded,
     isChatEnabled,
     isCameraDockPropagationSuppressed,
     meetingLayoutSetByUserId,
@@ -233,9 +235,11 @@ const PushLayoutEngine = (props) => {
       }
     };
 
-    // the size is a fraction for the axis of the meeting's position: a new position needs it again
+    // The size is a fraction for the axis of the meeting's position: a new position needs it again.
+    // Only between two renders with the meeting layout loaded: before it loads, the size reads 0
+    // and there is no position, and its arrival is the join, which the join path applies.
     const replicateCameraDockSize = () => {
-      if (hasMeetingCameraDockChanged(
+      if (meetingLayoutLoaded && prevProps.meetingLayoutLoaded && hasMeetingCameraDockChanged(
         { position: meetingLayoutCameraPosition, size: meetingLayoutDockSize },
         { position: prevProps.meetingLayoutCameraPosition, size: prevProps.meetingLayoutDockSize },
       )) {
@@ -468,6 +472,7 @@ const PushLayoutEngineContainer = (props) => {
         setMeetingLayout,
         setPushLayout,
         hasMeetingLayout: !!meetingLayout,
+        meetingLayoutLoaded: !!currentMeeting?.layout,
         meetingLayoutSetByUserId,
         ...props,
       }}
