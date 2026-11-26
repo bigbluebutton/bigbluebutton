@@ -1,12 +1,14 @@
 # yaml-language-server: $schema=../../../runner/schema/case.schema.json
 # Unlike insertDocument, create doesn't refuse a body with a document whose
 # name has no extension: it skips that document, uploads the others, and
-# answers SUCCESS. The skipped document was the first, so none of those
-# uploaded is current or the default presentation.
+# answers SUCCESS. The skipped document was the first, so the first one
+# uploaded, second.pdf, should be current and the default presentation. A
+# defect: bbb-web gives both to the first document before it skips it, so
+# none of those uploaded is current (expectations/bbb-web.yaml).
 id: create.presentation.invalid-filename
-title: create skips a document whose name has no extension and uploads the others
+title: create skips a document whose name has no extension, uploads the others and makes the first of them current
 endpoint: create
-class: compat
+class: defect
 tags: [ci, conversion]
 requires: [akka, bus, callbacks, presentation-conversion]
 steps:
@@ -21,6 +23,10 @@ steps:
     select: [$.core.body.presentation.name, $.core.body.presentation.current, $.core.body.presentation.removable, $.core.body.presentation.defaultPresentation]
     expect:
       jsonpath: {$.core.body.presentation.name: "second.pdf"}
+    capture: {current: $.core.body.presentation.current, isDefault: $.core.body.presentation.defaultPresentation}
+  - check:
+      - {value: "${current}", expect: "true"}
+      - {value: "${isDefault}", expect: "true"}
   - sink: {key: "${uid}", within: 1s}
     golden: off
     expect: {count: {between: [1, 2]}}

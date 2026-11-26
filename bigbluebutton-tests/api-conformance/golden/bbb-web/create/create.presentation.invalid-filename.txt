@@ -23,7 +23,7 @@ body xml
 /response/messageKey
 /response/message
 
-== step 2: bus PresentationConversionCompletedSysPubMsg select $.core.body.presentation.name, $.core.body.presentation.current, $.core.body.presentation.removable, $.core.body.presentation.defaultPresentation
+== step 2: bus PresentationConversionCompletedSysPubMsg select $.core.body.presentation.name, $.core.body.presentation.current, $.core.body.presentation.removable, $.core.body.presentation.defaultPresentation (document)
 $.core.body.presentation.current false
 $.core.body.presentation.defaultPresentation false
 $.core.body.presentation.name "second.pdf"

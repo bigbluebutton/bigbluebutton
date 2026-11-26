@@ -31,10 +31,10 @@ steps:
     expect:
       jsonpath: {$.core.body.presentation.name: two-pages.pdf}
     capture:
-      presId: $.core.body.presentation.id
-      page1: "$.core.body.presentation.pages[?@.num==1].svgUri"
-      page2: "$.core.body.presentation.pages[?@.num==2].svgUri"
-  - url: '${baseUrl}/bigbluebutton/presentation/${intId}/${intId}/${presId}/svg/1?pageToken=${match(page1, "pageToken=([0-9a-f]+)")}&sessionToken=${annToken}'
+      svg1: "$.core.body.presentation.pages[?@.num==1].svgUri"
+      thumb1: "$.core.body.presentation.pages[?@.num==1].thumbUri"
+      txt1: "$.core.body.presentation.pages[?@.num==1].txtUri"
+  - url: '${svg1}&sessionToken=${annToken}'
     client: ann
     golden: off
     expect:
@@ -43,7 +43,8 @@ steps:
         Content-Type: image/svg+xml
         Access-Control-Allow-Origin: "*"
         Access-Control-Allow-Credentials: "true"
-  - url: '${baseUrl}/bigbluebutton/presentation/${intId}/${intId}/${presId}/thumbnail/1?pageToken=${match(page1, "pageToken=([0-9a-f]+)")}&sessionToken=${annToken}'
+      body: {contains: "<svg"}
+  - url: '${thumb1}&sessionToken=${annToken}'
     client: ann
     golden: off
     expect:
@@ -52,7 +53,7 @@ steps:
         Content-Type: image/png
         Access-Control-Allow-Origin: "*"
         Access-Control-Allow-Credentials: "true"
-  - url: '${baseUrl}/bigbluebutton/presentation/${intId}/${intId}/${presId}/textfiles/1?pageToken=${match(page1, "pageToken=([0-9a-f]+)")}&sessionToken=${annToken}'
+  - url: '${txt1}&sessionToken=${annToken}'
     client: ann
     golden: off
     expect:
@@ -61,6 +62,7 @@ steps:
         Content-Type: text/plain
         Access-Control-Allow-Origin: "*"
         Access-Control-Allow-Credentials: "true"
+      body: {contains: "Quick poll"}
 teardown:
   - call: end
     params: {meetingID: "${uid}"}

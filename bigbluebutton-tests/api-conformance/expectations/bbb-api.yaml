@@ -19,6 +19,9 @@ expected:
   - {id: insertDocument.errors.invalid-url, reason: "the case starts with create, which can't succeed yet"}
   - {id: insertDocument.errors.invalid-filename, reason: "the case starts with create, which can't succeed yet"}
   - {id: insertDocument.errors.no-documents, reason: "the case starts with create, which can't succeed yet"}
+  - {id: insertDocument.errors.rate-limit, reason: "the case starts with create, which can't succeed yet"}
+  - {id: insertDocument.errors.invalid-filename-refuses-all, reason: "the case starts with create, which can't succeed yet"}
+  - {id: insertDocument.success.documents-dropped, reason: "the case starts with create, which can't succeed yet"}
   - {id: insertDocument.compat.json-errors, reason: "the case starts with create, which can't succeed yet"}
   - {id: "join.*", reason: join isn't implemented}
   - {id: "end.*", reason: end isn't implemented}

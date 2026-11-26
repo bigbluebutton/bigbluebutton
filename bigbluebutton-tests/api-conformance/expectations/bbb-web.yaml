@@ -27,6 +27,9 @@ expected:
   - id: create.default-presentation.param-without-body
     reason: "with preUploadedPresentation, preUploadedPresentationOverrideDefault=false and no body, bbb-web marks the server's default presentation current and default as well as the param's document"
     issue: https://github.com/bigbluebutton/bigbluebutton/issues/26746
+  - id: create.presentation.invalid-filename
+    reason: "when create skips the first document for its filename, bbb-web makes none of the others current or the default presentation: it gives both to the skipped one"
+    issue: https://github.com/bigbluebutton/bigbluebutton/issues/26780
   - id: presentation.slides.list-by-kind
     reason: "the thumbnails, svgs and textfiles list routes answer 500: they build their XML from an undefined f"
     issue: https://github.com/bigbluebutton/bigbluebutton/issues/26744
