@@ -1,5 +1,7 @@
 #!/bin/bash -e
 
+BBB_WEB_ETC_CONFIG=/etc/bigbluebutton/bbb-web.properties
+
 escape_quotes() {
     cat <<EOF | sed -e "s/'/\\\\'/g"
 $1
@@ -17,22 +19,32 @@ bbb_new_properties() {
          $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties
 }
 
+bbb_ensure_secrets() {
+  #
+  # The API secrets live in /etc/bigbluebutton/bbb-web.properties, which no
+  # package ships, so upgrades keep them. A key is generated only when it is
+  # missing there; an existing one is never changed. The packaged
+  # bigbluebutton.properties keeps its CHANGE_ME placeholders.
+  #
+  mkdir -p /etc/bigbluebutton
+  if [ ! -f "$BBB_WEB_ETC_CONFIG" ]; then
+    touch "$BBB_WEB_ETC_CONFIG"
+    chmod 0644 "$BBB_WEB_ETC_CONFIG"
+  elif [ -s "$BBB_WEB_ETC_CONFIG" ] && [ -n "$(tail -c 1 "$BBB_WEB_ETC_CONFIG")" ]; then
+    echo >> "$BBB_WEB_ETC_CONFIG"  # do not glue the new key to an unterminated last line
+  fi
+
+  for key in securitySalt pageTokenSecret; do
+    if ! grep -q "^${key}[[:space:]]*=" "$BBB_WEB_ETC_CONFIG"; then
+      echo "${key}=$(openssl rand -base64 32 | sed 's/=//g' | sed 's/+//g' | sed 's/\///g')" >> "$BBB_WEB_ETC_CONFIG"
+    fi
+  done
+}
+
 bbb_config() {
 	bbb_new_properties
-	
-  #
-  # Now update the API examples
-	#
-	SECRET=$(openssl rand -base64 32 | sed 's/=//g' | sed 's/+//g' | sed 's/\///g')
-	PAGE_TOKEN_SECRET=$(openssl rand -base64 32 | sed 's/=//g' | sed 's/+//g' | sed 's/\///g')
 
-	HOST=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
-
-  sed -i "s/securitySalt=.*/securitySalt=$SECRET/g" \
-     $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties
-
-  sed -i "s/^pageTokenSecret=.*/pageTokenSecret=$PAGE_TOKEN_SECRET/g" \
-     $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties
+  bbb_ensure_secrets
 
 	#
 	# Update the placementsThreshold and imageTagThreshold
