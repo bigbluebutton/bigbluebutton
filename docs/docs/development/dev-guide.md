@@ -126,7 +126,7 @@ It includes all you need to be able to run a local BigBlueButton development env
 
 `docker-compose.yml` in the repository root runs BigBlueButton from the published container images (see [Install with Docker Compose](/administration/docker-compose) for the requirements). In a checkout of the repository, you can run it on your own machine and replace the image of the component you work on with your own build.
 
-Start from a checkout and a `.env`:
+Start from a checkout:
 
 ```bash
 git clone https://github.com/bigbluebutton/bigbluebutton.git
@@ -140,7 +140,7 @@ Run the local Docker Compose setup script:
 ./docker/compose/setup-dev.sh
 ```
 
-It fills the empty settings of `.env` (the domain, `BBB_PUBLIC_IP=127.0.0.1` and new secrets) and keeps values already set. It creates a local CA in `data/dev-ca`, limited to the domain by a name constraint, and a certificate for the domain in `data/certs`. It creates a Java truststore with the CA for `bbb-web`, and a `docker-compose.override.yml` that uses it. An existing `docker-compose.override.yml` is left unchanged; the script then prints the two settings to add. Another domain: `./docker/compose/setup-dev.sh <domain>`.
+It fills the empty settings of `.env` (the domain, `BBB_PUBLIC_IP=127.0.0.1` and new secrets) and keeps values already set. It creates a local CA in `data/dev-ca`, limited to the domain by a name constraint, and a certificate for the domain in `data/certs`. It creates a Java truststore with the CA for `bbb-web`, and a `docker-compose.override.yml` that uses it. An existing `docker-compose.override.yml` is left unchanged; the script then prints the two settings to add. Without an argument the script uses `BBB_DOMAIN` from `.env` (`bbb.localhost` when it is empty). Another domain: `./docker/compose/setup-dev.sh <domain>` on the first run; later, change `BBB_DOMAIN` in `.env` and remove `data/dev-ca` first.
 
 Add `data/dev-ca/rootCA.pem` to the trusted certificates of your browser or operating system. Running the script again keeps the CA, so you trust it only once.
 
@@ -469,29 +469,17 @@ dpkg -i ./target/bbb-fsesl-akka_<tab>.deb
 You can manually run the service.
 When running, it'll process export jobs stored in Redis containing the state of the whiteboard at the time of the request.
 
-First, stop the component so that you're not running two copies in parallel:
-
-```
-sudo systemctl stop bbb-export-annotations
-```
-
-To install the npm dependencies, run:
-
 ```
 cd ~/dev/bigbluebutton/bbb-export-annotations
-npm install
+./run-dev.sh
 ```
 
-followed by
+`run-dev.sh` installs the npm dependencies, stops the `bbb-export-annotations` service so that you're not running two copies in parallel, and starts the export with the same configuration as the service: `config/default.json`, then `/etc/bigbluebutton/bbb-export-annotations/production.json`, then the environment variables (if that file exists, your user must be able to read it, or the export stops with "cannot be read"). A plain `npm start` reads only `config/default.json` and ignores the override without a message.
 
-```
-npm start
-```
-
-to begin exporting presentations with annotations. If you run into permission issues, change `presAnnDropboxDir` in `config/default.json` to a folder in your home directory
+If you run into permission issues, set `shared.presAnnDropboxDir` in `/etc/bigbluebutton/bbb-export-annotations/production.json` to a folder in your home directory
 and make sure your user account has access to the presentation directory (see "Developing BBB-Web").
 
-Use `journalctl -u bbb-export-annotations -e` to see recent logs.
+The output goes to the terminal; `journalctl -u bbb-export-annotations -e` shows the logs of the service.
 
 ## Developing the Learning Dashboard
 

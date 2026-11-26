@@ -1,0 +1,104 @@
+name: Component unit tests
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "bbb-graphql-middleware/**"
+      - "record-and-playback/core/**"
+      - "bigbluebutton-config/cron.daily/**"
+      - "bbb-shared-notes-server/**"
+      - "bbb-export-annotations/**"
+      - "docker-compose.yml"
+      - ".env.sample"
+      - "docker/README.md"
+      - "docker/compose/**"
+      - ".github/workflows/component-unit-tests.yml"
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  graphql-middleware:
+    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-24.04' }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: bbb-graphql-middleware/go.mod
+          cache-dependency-path: bbb-graphql-middleware/go.sum
+      - name: go test
+        working-directory: bbb-graphql-middleware
+        run: go test ./...
+
+  record-and-playback:
+    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-24.04' }}
+    timeout-minutes: 15
+    env:
+      LANG: C.UTF-8
+    steps:
+      - uses: actions/checkout@v5
+      - name: Ruby and the gems' build dependencies, as the package uses them
+        run: sudo apt-get update && sudo apt-get install -y ruby ruby-dev ruby-bundler libsystemd-dev zlib1g-dev
+      - name: Gems
+        working-directory: record-and-playback/core
+        run: bundle config set --local path vendor/bundle && bundle install
+      # Only the tests of the configuration: edl/test_video.rb has a known failure
+      - name: Configuration tests
+        working-directory: record-and-playback/core
+        run: bundle exec ruby -Itest -Ilib -e 'ARGV.each { |f| require File.expand_path(f) }' test/recordandplayback/test_env_props.rb test/recordandplayback/test_config_yaml.rb test/recordandplayback/test_cron_formats.rb
+
+  shared-notes-server:
+    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-24.04' }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: bbb-shared-notes-server/package-lock.json
+      - name: npm test
+        working-directory: bbb-shared-notes-server
+        run: npm ci && npm test
+
+  export-annotations:
+    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-24.04' }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: bbb-export-annotations/package-lock.json
+      - name: npm test
+        working-directory: bbb-export-annotations
+        run: npm ci && npm test
+
+  # install.sh downloads a fixed list of files: it has to match what docker-compose.yml mounts
+  # from docker/compose/, and every file in it has to exist
+  compose-install-files:
+    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-24.04' }}
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - name: install.sh downloads what docker-compose.yml mounts
+        run: |
+          listed=$(sed -n '/^for file in/,/; do$/p' docker/compose/install.sh | grep -oE 'docker/compose/[^ \;]+' | sort -u)
+          mounted=$(grep -oE '\./docker/compose/[^: ]+' docker-compose.yml | sed 's|^\./||' | sort -u)
+          if ! diff <(echo "$mounted") <(echo "$listed"); then
+            echo "::error::docker-compose.yml mounts (<) and install.sh downloads (>) different files from docker/compose/"
+            exit 1
+          fi
+          for f in $listed; do
+            [ -f "$f" ] || { echo "::error::install.sh downloads $f, which does not exist"; exit 1; }
+          done
+      # bbb-apps-akka builds the breakout rooms' join links on BBB_WEB_API, and the browser opens them
+      - name: apps-akka gets bbb-web's public API URL
+        run: |
+          sed -E 's/^([A-Z_]+)=$/\1=x/; s/^BBB_DOMAIN=.*/BBB_DOMAIN=bbb.example.org/' .env.sample > .env
+          url=$(docker compose config --format json | jq -r '.services["apps-akka"].environment.BBB_WEB_API')
+          echo "BBB_WEB_API=$url"
+          [[ $url == https://bbb.example.org/bigbluebutton/api ]] || { echo "::error::apps-akka's BBB_WEB_API is not the public API URL"; exit 1; }

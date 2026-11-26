@@ -1,4 +1,5 @@
-# BigBlueButton on one server; see "Running with docker compose" in docker/README.md.
+# BigBlueButton on one server; see "Install with Docker Compose" in the administration
+# documentation (docs/docs/administration/docker-compose.md).
 # Configuration is mounted at the bare-metal paths: files that need values from .env are inline
 # below (configs), the others are in docker/compose/.
 name: bigbluebutton
@@ -90,7 +91,8 @@ services:
       - ./docker/compose/nginx/playback.nginx:/usr/share/bigbluebutton/nginx/playback.nginx:ro
       - acme-challenge:/var/www/bigbluebutton-default/assets/.well-known/acme-challenge:ro
       - ./data/bigbluebutton:/var/bigbluebutton:ro,z
-    # nginx resolves the names of these upstreams when it starts
+    # nginx resolves the names of these upstreams at run time, and starts after them so that the
+    # first requests find them
     depends_on:
       - web
       - graphql-middleware
@@ -134,6 +136,8 @@ services:
   redis:
     <<: *bbb
     image: docker.io/library/redis:7.4.11-alpine@sha256:57e4255cc971b1c8d6f8a6ca283ac01bc3ecdd914273ef6bfaede87aaecd6541
+    volumes:
+      - redis:/data
     healthcheck:
       test:
         - CMD
@@ -198,7 +202,8 @@ services:
     image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-apps-akka:${BBB_IMAGE_TAG}
     environment:
       SHARED_SECRET: ${BBB_SHARED_SECRET:?}
-      BBB_WEB_API: http://web:8090/bigbluebutton/api
+      # the base of the breakout rooms' join links, which the browser opens: the public address
+      BBB_WEB_API: https://${BBB_DOMAIN}/bigbluebutton/api
       GRAPHQL_MIDDLEWARE_API: http://graphql-middleware:8378
       REDIS_HOST: redis
       POSTGRES_HOST: postgres
@@ -275,14 +280,24 @@ services:
       - node
       - bbb-shared-notes-conversion.js
     init: true
-    # the unit's isolation: no network, read-only system, a private /tmp
+    # the unit's isolation: no network, read-only system, a private /tmp, no capabilities
+    # (CapabilityBoundingSet=), NoNewPrivileges
     network_mode: none
     read_only: true
     tmpfs:
       - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     # the unit allows MemoryMax=640M per conversion; this is for the whole container, with up to
     # 8 conversions at once
     mem_limit: 1g
+    # no swap on top (MemorySwapMax=0)
+    memswap_limit: 1g
+    # TasksMax=32 per conversion, times 8, plus each conversion's timeout process and the
+    # listener's tasks (8 when idle), with some room: 320. A conversion uses about 8 tasks.
+    pids_limit: 320
     volumes:
       - shared-notes-conversion:/run
 
@@ -290,7 +305,7 @@ services:
     <<: *bbb
     image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-export-annotations:${BBB_IMAGE_TAG}
     environment:
-      BBB_WEB_API: http://web:8090
+      BBB_WEB_URL: http://web:8090
       REDIS_HOST: redis
     volumes:
       - ./data/bigbluebutton:/var/bigbluebutton:z
@@ -383,6 +398,7 @@ networks:
 volumes:
   recording-logs:
   postgres:
+  redis:
   acme-challenge:
   haproxy-run:
   # the conversion socket; a tmpfs owned by the notes image's user, bigbluebutton (998)

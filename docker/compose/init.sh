@@ -7,7 +7,7 @@ cd /var/bigbluebutton
 set -- . diagnostics basic_stats captions captions/inbox deleted events unpublished published \
   recording recording/raw recording/process recording/publish recording/status
 for s in ended recorded archived processed sanity published; do set -- "$@" "recording/status/$s"; done
-for f in presentation video notes screenshare; do
+for f in presentation video notes screenshare podcast; do
   set -- "$@" "published/$f" "recording/publish/$f" "/var/log/bigbluebutton/$f"
 done
 mkdir -p "$@" /var/lib/bbb-webrtc-recorder
@@ -22,7 +22,9 @@ chmod 0700 /var/lib/bbb-webrtc-recorder
 q() { psql -v ON_ERROR_STOP=1 -qAt "$@"; }
 if ! q -c "SELECT 1" >/dev/null; then
   echo "init: cannot log in to postgres. The postgres volume keeps the POSTGRES_PASSWORD of its first start;" >&2
-  echo "init: if .env was written again since, remove the volume with 'docker compose down -v'." >&2
+  echo "init: if .env was written again since, remove the postgres volume and start again:" >&2
+  echo "init:   docker compose down && docker volume rm bigbluebutton_postgres && docker compose up -d" >&2
+  echo "init: (not 'docker compose down -v', which also removes the Redis volume)" >&2
   exit 1
 fi
 for role in bbb_core bbb_hasura hasura_app blocknote_app; do

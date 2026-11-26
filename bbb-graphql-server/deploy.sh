@@ -52,6 +52,13 @@ echo "Creating users"
   sudo -i -u postgres -- psql -q -d bbb_graphql -c "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO bbb_hasura"
 
 
+# The units of this checkout: since the metadata reads the BigBlueButton database URL from the
+# environment, an older unit without it leaves that source inconsistent
+echo "Installing the systemd units"
+sudo cp ../build/packages-template/bbb-graphql-server/bbb-graphql-server.service \
+  ../build/packages-template/bbb-graphql-server/bbb-graphql-server@.service /usr/lib/systemd/system/
+sudo systemctl daemon-reload
+
 echo "Starting Hasura"
 sudo systemctl start bbb-graphql-server
 

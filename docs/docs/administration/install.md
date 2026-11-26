@@ -361,13 +361,13 @@ To learn more about integrating BigBlueButton with your application, check out t
 
 ## Other installation options
 
+Docker Compose is maintained in the BigBlueButton repository, as the package install is. The other options here are provided by members of the community.
+
 ### Docker Compose
 
 BigBlueButton 4.1 can also run on one server with Docker Compose, with container images built from the BigBlueButton repository, where the compose setup is maintained as well. See [Install with Docker Compose](/administration/docker-compose).
 
 ### Ansible
-
-There are members of the community that provide other installation options for BigBlueButton.
 
 If you're looking to deploy a large-scale installation of BBB using [Scalelite](https://github.com/blindsidenetworks/scalelite) then your servers are best managed using tools like Ansible. A few reasons you might go with this setup are:
 

@@ -23,7 +23,7 @@ Sets up a local Docker Compose development environment: .env, a local CA with a 
 for DOMAIN, a Java truststore for bbb-web, and docker-compose.override.yml.
 
 Arguments:
-  DOMAIN        domain to serve BigBlueButton on (default: $DEFAULT_DOMAIN)
+  DOMAIN        domain to serve BigBlueButton on (default: BBB_DOMAIN in .env, else $DEFAULT_DOMAIN)
 
 Options:
   -h, --help    show this help and exit
@@ -66,6 +66,15 @@ check_tools() {
   done
 }
 
+# Without an argument, a domain already set in .env is the one to set up.
+use_env_domain() {
+  local env_domain=
+  [[ ! -e .env ]] || env_domain=$(sed -n 's/^BBB_DOMAIN=//p' .env | tail -n 1)
+  if (($# == 0)) && [[ -n $env_domain ]]; then DOMAIN=$env_domain; fi
+  [[ -z $env_domain || $env_domain == "$DOMAIN" ]] ||
+    fail ".env is set up for $env_domain, not $DOMAIN. Change BBB_DOMAIN in .env first."
+}
+
 # Fills the empty settings of .env (created from .env.sample if missing); keeps values already set.
 configure_env() {
   [[ -e .env ]] || cp .env.sample .env
@@ -74,7 +83,7 @@ configure_env() {
   local tmp line
   tmp=$(mktemp .env.XXXXXX)
   trap 'rm -f "$tmp"' EXIT
-  while IFS= read -r line; do
+  while IFS= read -r line || [[ -n $line ]]; do
     case "$line" in
       BBB_DOMAIN=) line="BBB_DOMAIN=$DOMAIN" ;;
       BBB_PUBLIC_IP=) line="BBB_PUBLIC_IP=127.0.0.1" ;;
@@ -122,11 +131,17 @@ create_certs() {
 }
 
 # bbb-web loads the default slides from https://$DOMAIN, so it has to trust the CA.
+# Only docker-compose.yml is read here: an override that already mounts the truststore would
+# make Docker create data/certs/cacerts as a directory while the file is not there yet.
+# It runs as root, so that it can replace a cacerts left by an earlier run and write to data/certs
+# with rootless Docker or Podman too. The file then gets the owner of data/certs, which this script
+# created as the caller (rootless, the container's root is already the caller).
 create_truststore() {
-  docker compose run --rm --no-deps --user 0 -v "$PWD/$CERTS:/certs" -v "$PWD/$CA/rootCA.pem:/ca.pem:ro" \
+  docker compose -f docker-compose.yml run --rm --no-deps --user 0 -v "$PWD/$CERTS:/certs" -v "$PWD/$CA/rootCA.pem:/ca.pem:ro" \
     --entrypoint sh web -c \
     'cp "$JAVA_HOME/lib/security/cacerts" /certs/cacerts &&
-     keytool -importcert -noprompt -alias local-ca -file /ca.pem -keystore /certs/cacerts -storepass changeit'
+     keytool -importcert -noprompt -alias local-ca -file /ca.pem -keystore /certs/cacerts -storepass changeit &&
+     chown --reference=/certs /certs/cacerts'
 }
 
 # Makes web use the truststore. A new override file gets only that; an existing one is left
@@ -167,6 +182,7 @@ print_final_instructions() (
 parse_args "$@"
 check_tools
 cd "$(dirname "${BASH_SOURCE[0]}")/../.."
+use_env_domain "$@"
 configure_env
 create_certs
 create_truststore
