@@ -9,7 +9,7 @@ The layout state (`context.jsx`) holds only semantic input. `LayoutLifecycle.tsx
 the former layout engine that are not geometry: it reconciles the input when a layout is first rendered
 or the device type changes (`reconcile.ts`, a pure function characterized against the old layout
 managers in `__fixtures__/reconcile`), marks the layout ready (`layoutReady`, `hasLayoutEngineLoadedOnce`),
-keeps the sidebars closed in camerasOnly and presentationOnly, and waits while an enforced layout loads
+keeps the sidebars closed in camerasOnly, presentationOnly and mediaOnly, and waits while an enforced layout loads
 (`waitLayout`). The camera dock stores its own size when a resize ends (see below).
 
 ## How it fits together

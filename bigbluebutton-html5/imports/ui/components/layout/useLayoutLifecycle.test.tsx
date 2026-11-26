@@ -129,13 +129,17 @@ describe('LayoutLifecycle', () => {
     other.unmount();
   });
 
-  it('keeps the sidebars closed in camerasOnly and presentationOnly', () => {
-    setState({ layoutType: LAYOUT_TYPE.PRESENTATION_ONLY }, {
+  it.each([
+    LAYOUT_TYPE.CAMERAS_ONLY,
+    LAYOUT_TYPE.PRESENTATION_ONLY,
+    LAYOUT_TYPE.MEDIA_ONLY,
+  ])('keeps the sidebars closed in %s', (layoutType) => {
+    setState({ layoutType }, {
       sidebarNavigation: { ...INITIAL_INPUT_STATE.sidebarNavigation, isOpen: false },
     });
     const { update } = renderLifecycle();
     fake.actions = [];
-    setState({ layoutType: LAYOUT_TYPE.PRESENTATION_ONLY }, {
+    setState({ layoutType }, {
       sidebarNavigation: { ...INITIAL_INPUT_STATE.sidebarNavigation, isOpen: true },
     });
     update();
@@ -144,5 +148,16 @@ describe('LayoutLifecycle', () => {
       [ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN, false],
       [ACTIONS.SET_SIDEBAR_CONTENT_PANEL, PANELS.NONE],
     ]);
+  });
+
+  it('leaves the sidebars as they are in unified', () => {
+    setState({ layoutType: LAYOUT_TYPE.UNIFIED_LAYOUT });
+    const { update } = renderLifecycle();
+    fake.actions = [];
+    setState({ layoutType: LAYOUT_TYPE.UNIFIED_LAYOUT }, {
+      sidebarNavigation: { ...INITIAL_INPUT_STATE.sidebarNavigation, isOpen: true },
+    });
+    update();
+    expect(fake.actions.filter((a) => a.type === ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN)).toEqual([]);
   });
 });

@@ -10,7 +10,11 @@ import { renderedLayoutType } from './shell/selectors';
 import Session from '/imports/ui/services/storage/in-memory';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 
-const LAYOUTS_WITHOUT_SIDEBARS: string[] = [LAYOUT_TYPE.CAMERAS_ONLY, LAYOUT_TYPE.PRESENTATION_ONLY];
+const LAYOUTS_WITHOUT_SIDEBARS: string[] = [
+  LAYOUT_TYPE.CAMERAS_ONLY,
+  LAYOUT_TYPE.PRESENTATION_ONLY,
+  LAYOUT_TYPE.MEDIA_ONLY,
+];
 
 /** the value before its last change (the engine's usePrevious, updated only when the value changes) */
 const usePreviousDistinct = <T, >(value: T): T | undefined => {
@@ -27,7 +31,7 @@ const usePreviousDistinct = <T, >(value: T): T | undefined => {
  *   when the device type changes, then marks the layout ready (Session layoutReady);
  * - marks the layout state as set up once (Session hasLayoutEngineLoadedOnce), from its first render;
  * - waits while an enforced layout loads (waitLayout);
- * - keeps the sidebars closed in camerasOnly and presentationOnly.
+ * - keeps the sidebars closed in camerasOnly, presentationOnly and mediaOnly.
  * The dock size the user chose is stored by the dock itself when a resize ends (layout/dockSize.ts).
  */
 const LayoutLifecycle = () => {
