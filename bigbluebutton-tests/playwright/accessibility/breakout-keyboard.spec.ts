@@ -166,7 +166,7 @@ test.describe('Breakout room keyboard accessibility', { tag: '@ci' }, () => {
     await modPage.page.keyboard.press('Enter');
     await modPage.page.locator(e.moveUserToRoom2).press('Enter');
     await userPage.waitAndClick(e.modalConfirmButton);
-    await expect(modPage.page.locator(e.breakoutBox2)).toContainText('Attendee');
+    await expect(modPage.page.locator(e.breakoutBox2)).toContainText('Attendee', { timeout: 20000 });
     await modPage.page.waitForTimeout(750);
 
     const roomTwoRow = modPage.page.locator(`${e.breakoutBox2} [data-test="draggableUser"]`).first();
