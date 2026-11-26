@@ -160,7 +160,7 @@ const Video = styled.video<{
 }>`
   position: relative;
   height: 100%;
-  width: calc(100% - 1px);
+  width: 100%;
   object-fit: contain;
   background-color: ${colorBlackSurface};
   border-radius: 10px;
