@@ -9,6 +9,7 @@ import { APICallbacks } from './callbacks';
 import { APIChecksum } from './checksum';
 import { APIDisabledFeatures } from './disabledFeatures';
 import { APIDocumentTypes } from './documentTypes';
+import { APIGuestPolicy } from './guestPolicy';
 import { APIJoin } from './join';
 import { APILifecycle } from './lifecycle';
 import { APIParameters } from './parameters';
@@ -386,6 +387,23 @@ test.describe.parallel('API', () => {
       linkIssue(26236);
       const apiParameters = new APIParameters(browser, context);
       await apiParameters.testJoinCustomUserdata(page, testInfo, request);
+    });
+  });
+
+  // What the join API decides from the meeting's guestPolicy, through
+  // redirect=false joins. Values the server does not know fall back to its
+  // default; the retired ALWAYS_ACCEPT_AUTH behaves like ASK_MODERATOR.
+  test.describe('Guest policy', { tag: '@ci' }, () => {
+    test('guestPolicyDecidesJoinStatus', async ({ request }) => {
+      await APIGuestPolicy.testPolicyDecidesJoinStatus(request);
+    });
+
+    test('guestPolicyAlwaysAcceptAuthTreatedAsAskModerator', async ({ request }) => {
+      await APIGuestPolicy.testAlwaysAcceptAuthTreatedAsAskModerator(request);
+    });
+
+    test('guestPolicyInvalidValueUsesServerDefault', async ({ request }) => {
+      await APIGuestPolicy.testInvalidValueUsesServerDefault(request);
     });
   });
 

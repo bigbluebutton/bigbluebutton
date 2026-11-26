@@ -1377,7 +1377,6 @@
     "app.lock-viewers.presentationPermissions.freeForAll.tooltip": "Any participant can take the presenter role without moderator approval.",
     "app.guest-policy.button.askModerator": "Ask moderator",
     "app.guest-policy.button.alwaysAccept": "Always accept",
-    "app.guest-policy.button.alwaysAcceptAuth": "Always accept authenticated",
     "app.guest-policy.button.alwaysDeny": "Always deny",
     "app.guest-policy.feedbackMessage": "The guest policy is now: {policy}",
     "app.connection-status.ariaTitle": "Connection status modal",

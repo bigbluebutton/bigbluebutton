@@ -333,7 +333,7 @@ const createEndpointTableData = [
     "required": false,
     "type": "Enum",
     "default": "ALWAYS_ACCEPT",
-    "description": (<>Will set the guest policy for the meeting. The guest policy determines whether or not users who send a join request with <code className="language-plaintext highlighter-rouge">guest=true</code> will be allowed to join the meeting. Possible values are ALWAYS_ACCEPT, ALWAYS_DENY, and ASK_MODERATOR.</>)
+    "description": (<>Will set the guest policy for the meeting. The guest policy determines whether or not users who send a join request with <code className="language-plaintext highlighter-rouge">guest=true</code> will be allowed to join the meeting. Possible values are ALWAYS_ACCEPT, ALWAYS_DENY, and ASK_MODERATOR. Any other value is ignored and the server default applies; the former undocumented value ALWAYS_ACCEPT_AUTH is treated as ASK_MODERATOR.</>)
   },
   {
     "name": "meetingKeepEvents",
