@@ -9,13 +9,21 @@ import styled from 'styled-components';
 // Outer container for the media button.
 // As wide as its grid cell (at least the 5rem it used to be), so the label has
 // the whole column to wrap in.
-const MediaButtonContainer = styled.div`
+interface MediaButtonContainerProps {
+  $disabled?: boolean;
+}
+
+const MediaButtonContainer = styled.div<MediaButtonContainerProps>`
   width: 100%;
   min-width: 5rem;
   display: flex;
   flex-direction: column;
   gap: 8px;
   align-items: center;
+
+  ${({ $disabled }) => $disabled && `
+    cursor: not-allowed;
+  `}
 `;
 
 // A customized Material-UI Button used as the button frame.
@@ -51,7 +59,7 @@ const ButtonFrame = styled(ButtonBase)<ButtonFrameProps>`
       box-shadow: 0 0 0 ${borderSize} ${btnPrimaryBg};
     }
 
-    &:hover {
+    &:hover:not(:disabled) {
       opacity: 0.8;
     }
   `}
@@ -69,7 +77,7 @@ const ButtonFrame = styled(ButtonBase)<ButtonFrameProps>`
       box-shadow: 0 0 0 ${borderSize} ${btnPrimaryBg};
     }
 
-    &:hover {
+    &:hover:not(:disabled) {
       opacity: 0.8;
     }
   `}
@@ -86,10 +94,14 @@ const ButtonFrame = styled(ButtonBase)<ButtonFrameProps>`
       box-shadow: 0 0 0 ${borderSize} ${btnPrimaryBg};
     }
 
-    &:hover {
+    &:hover:not(:disabled) {
       opacity: 0.8;
     }
   `}
+
+  &:disabled {
+    opacity: 0.5;
+  }
 `;
 
 // Positioned settings icon in the top right corner of the button.
