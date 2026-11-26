@@ -163,12 +163,11 @@ test.describe.parallel('Insert pages', { tag: '@ci' }, () => {
       await insertPages.fileTooLarge();
     });
 
-    // waits for the 30 s request deadline of the server
     test('Upload POST that fails', async ({ browser, context, page }, testInfo) => {
       const insertPages = new InsertPages(browser, context);
       insertPages.watchPageErrors(page);
       await insertPages.initModPage(page, { testInfo });
-      await insertPages.uploadPostFails();
+      await insertPages.uploadPostFails(false);
     });
 
     test('Upload POST answered 504 while the server takes the file', async ({ browser, context, page }, testInfo) => {
@@ -215,6 +214,17 @@ test.describe.parallel('Insert pages', { tag: '@ci' }, () => {
       await insertPages.initUserPage(context, { testInfo });
       await insertPages.insertButtonInBreakoutRoom(false, overrides);
     });
+  });
+});
+
+// At the top level so the @ci 'Insert pages' describe does not tag these: the first waits for the 30 s request
+// deadline of the server, the second for the screen reader alerts queued before it, 15 s each
+test.describe.parallel('Insert pages, server and alert timeouts', { tag: '@nightly' }, () => {
+  test('Upload POST that fails, then the timeout of the server', async ({ browser, context, page }, testInfo) => {
+    const insertPages = new InsertPages(browser, context);
+    insertPages.watchPageErrors(page);
+    await insertPages.initModPage(page, { testInfo });
+    await insertPages.uploadPostFails(true);
   });
 
   // Ac-B 44

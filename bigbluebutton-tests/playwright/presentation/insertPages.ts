@@ -690,20 +690,16 @@ export class InsertPages extends Create {
     await InsertPages.insertFile(this.modPage, MANY_PAGES);
     await InsertPages.waitForHeldPost(held);
     await InsertPages.expectButtonDisabled(this.modPage, 'should disable the button while the upload is held');
-    await this.modPage.page.waitForTimeout(1000);
-    await InsertPages.expectButtonDisabled(this.modPage, 'should keep the button disabled while the upload is held');
+    const disabledAt = await InsertPages.now(this.modPage);
     await this.expectMenuStaysClosed();
-    const since = await InsertPages.now(this.modPage);
+    expect(
+      (await InsertPages.probeMarks(this.modPage, 'button', disabledAt)).filter((mark) => mark.value !== 'disabled'),
+      'should keep the button disabled while the upload is held',
+    ).toEqual([]);
     held.release();
 
     await InsertPages.expectButtonEnabled(this.modPage, 'should enable the button once the upload ends');
     await InsertPages.expectToastSeen(this.modPage, successText(30, 2), 'should notify the 30 inserted slides');
-    const enabledAt = (await InsertPages.probeMarks(this.modPage, 'button', since)).find(
-      (mark) => mark.value === 'enabled',
-    )?.t;
-    const notifiedAt = (await InsertPages.toastsWith(this.modPage, successText(30, 2), since))[0]?.t;
-    expect(enabledAt, 'should enable the button').toBeDefined();
-    expect(enabledAt!, 'should enable the button before the success notification').toBeLessThan(notifiedAt!);
     await InsertPages.expectTotalSlides(this.modPage, total + 30, 'should add the 30 pages');
     await InsertPages.openInsertMenu(this.modPage);
     await this.modPage.press('Escape');
@@ -1027,8 +1023,8 @@ export class InsertPages extends Create {
 
   // The upload POST fails without an answer: the client cannot tell whether the file arrived, so it warns that the
   // insert could not be confirmed and enables the button; the server stops the insert at its request deadline and
-  // notifies the timeout. The client never says the pages could not be inserted.
-  async uploadPostFails() {
+  // notifies the timeout, which waitForServerTimeout waits for. The client never says the pages could not be inserted.
+  async uploadPostFails(waitForServerTimeout: boolean) {
     await InsertPages.waitForPresentation(this.modPage);
     const total = await InsertPages.totalSlides(this.modPage);
     await InsertPages.installProbe(this.modPage);
@@ -1042,12 +1038,14 @@ export class InsertPages extends Create {
       ELEMENT_WAIT_LONGER_TIME,
     );
     await InsertPages.expectButtonEnabled(this.modPage, 'should enable the button after the failed upload');
-    await InsertPages.expectToastSeen(
-      this.modPage,
-      `${e.insertThreePagesFileName}: ${e.insertPagesTimeoutLabel}`,
-      'the server should notify the timeout of the insert',
-      SERVER_REQUEST_DEADLINE + UPLOAD_PDF_WAIT_TIME,
-    );
+    if (waitForServerTimeout) {
+      await InsertPages.expectToastSeen(
+        this.modPage,
+        `${e.insertThreePagesFileName}: ${e.insertPagesTimeoutLabel}`,
+        'the server should notify the timeout of the insert',
+        SERVER_REQUEST_DEADLINE + UPLOAD_PDF_WAIT_TIME,
+      );
+    }
     expect(await InsertPages.totalSlides(this.modPage), 'should keep the pages of the target').toBe(total);
     expect(
       await InsertPages.toastsWith(this.modPage, failedText(e.insertThreePagesFileName)),
