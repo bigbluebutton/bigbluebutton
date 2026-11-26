@@ -44,7 +44,7 @@ changed() {
   [ "$(q -c "SELECT shobj_description(oid, 'pg_database') FROM pg_database WHERE datname = '$1'")" != "$sum" ]
 }
 
-if changed bbb_graphql /schema/graphql/bbb_schema.sql; then
+if changed bbb_graphql /usr/share/bbb-graphql-server/bbb_schema.sql; then
   echo "creating the database bbb_graphql"
   q <<SQL
 DROP DATABASE IF EXISTS bbb_graphql WITH (FORCE);
@@ -52,7 +52,7 @@ CREATE DATABASE bbb_graphql WITH TEMPLATE template0 LC_COLLATE 'C.UTF-8';
 ALTER DATABASE bbb_graphql SET timezone TO 'UTC';
 GRANT CONNECT ON DATABASE bbb_graphql TO bbb_core, bbb_hasura;
 SQL
-  q -d bbb_graphql -f /schema/graphql/bbb_schema.sql
+  q -d bbb_graphql -f /usr/share/bbb-graphql-server/bbb_schema.sql
   q -d bbb_graphql <<SQL
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO bbb_core;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE, SELECT ON SEQUENCES TO bbb_core;
@@ -64,11 +64,11 @@ SQL
   q -c "COMMENT ON DATABASE bbb_graphql IS '$sum'"
 fi
 
-if changed blocknote_app /schema/notes/blocknote_schema.sql; then
+if changed blocknote_app /usr/share/bbb-shared-notes-server/blocknote_schema.sql; then
   echo "creating the database blocknote_app"
   q -c "DROP DATABASE IF EXISTS blocknote_app WITH (FORCE)"
   q -c "CREATE DATABASE blocknote_app OWNER blocknote_app"
-  q -d blocknote_app -f /schema/notes/blocknote_schema.sql
+  q -d blocknote_app -f /usr/share/bbb-shared-notes-server/blocknote_schema.sql
   q -c "COMMENT ON DATABASE blocknote_app IS '$sum'"
 fi
 

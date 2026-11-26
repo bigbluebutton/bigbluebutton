@@ -53,6 +53,7 @@ commit and the dated version, `org.opencontainers.image.title` its name.
 | bbb-webrtc-recorder | `docker/bbb-webrtc-recorder/` | none | `/etc/bigbluebutton/bbb-webrtc-recorder.yml` (replaces the default) |
 | bbb-webhooks | `docker/bbb-webhooks/` | 3005 | `/etc/bigbluebutton/bbb-webhooks/production.yml` |
 | bbb-playback | `docker/bbb-playback/` | 8080 | none |
+| bbb-init | `docker/bbb-init/` | none | environment only |
 
 Third-party services (Redis, PostgreSQL, LiveKit, TURN, document conversion) are not built here;
 deployments use their official images.
@@ -71,6 +72,11 @@ deployments use their official images.
 - `/var/bigbluebutton` is shared between bbb-web, record-and-playback and nginx (presentations,
   recordings, captions, learning-dashboard reports). `/var/lib/bbb-webrtc-recorder` (recorder and
   record-and-playback) holds the recorded media; `/var/log/bigbluebutton` the recording logs.
+- bbb-init runs once before the other services, on every start or upgrade (a Kubernetes Job), as
+  root. It creates the directories in these three volumes as the packages do, the roles and the
+  databases as the packages' after-install scripts do, and recreates `bbb_graphql` or
+  `blocknote_app` when its schema in the image changed, so it must come from the same commit as
+  bbb-graphql-server and bbb-shared-notes-server.
 - bbb-web converts office documents by calling the script in `presOfficeConversionExec`
   (default `/usr/share/bbb-libreoffice-conversion/convert.sh`, which the image does not have). The
   image has the sample client for Collabora Online at
@@ -172,6 +178,9 @@ counts as not set.
   `REDIS_PASSWORD`, `POSTGRES_HOST` and `POSTGRES_PASSWORD`.
 - **bbb-html5-client**, **bbb-learning-dashboard**, **bbb-playback**: none.
 - **bbb-nginx**: the base image's `NGINX_ENTRYPOINT_LOCAL_RESOLVERS`, which the image sets.
+- **bbb-init**: psql's `PGHOST`, `PGUSER` and `PGPASSWORD` (a PostgreSQL superuser), and the
+  passwords it sets for the roles: `BBB_CORE_PASSWORD`, `BBB_HASURA_PASSWORD`,
+  `HASURA_APP_PASSWORD`, `BLOCKNOTE_PASSWORD`.
 
 On Kubernetes, a Service named `redis` makes Kubernetes set `REDIS_PORT=tcp://<address>:6379` in
 the pods of the namespace. The recording, bbb-export-annotations, bbb-shared-notes-server and

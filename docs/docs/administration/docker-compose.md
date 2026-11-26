@@ -16,7 +16,7 @@ Not covered yet: FreeSWITCH and dial-in, more than one server, Kubernetes, and r
 
 ## Requirements
 
-- one Linux server with Docker Engine 28 or later and the compose plugin 2.35 or later (`init` mounts the database schemas from the images as image volumes);
+- one Linux server with Docker Engine 28 or later and the compose plugin 2.35 or later;
 - a DNS name for it and a public IPv4 address;
 - IPv6 not turned off in the kernel (no `ipv6.disable=1` on the kernel command line): nginx also listens on `[::]` and does not start without it. The server needs no IPv6 address;
 - open ports: 80/tcp and 443/tcp (web, Let's Encrypt, TURN over TLS), 3478/tcp and 3478/udp (TURN), 7882/udp (LiveKit media);
@@ -79,17 +79,18 @@ BBB_SHARED_NOTES_SERVER_IMAGE=localhost/bbb-shared-notes-server:dev
 BBB_HTML5_CLIENT_IMAGE=ghcr.io/bigbluebutton/bigbluebutton/bbb-html5-client@sha256:<digest>
 ```
 
-then `docker compose up -d`. A variable applies wherever its image is used: in every service that runs it, and where it is mounted into another service (`init` reads the database schemas from the `bbb-graphql-server` and `bbb-shared-notes-server` images).
+then `docker compose up -d`. A variable applies to every service that runs its image.
 
 | Services | Variable |
 | --- | --- |
 | `nginx` | `BBB_NGINX_IMAGE` |
 | `apps-akka` | `BBB_APPS_AKKA_IMAGE` |
+| `init` (with the database schemas) | `BBB_INIT_IMAGE` |
 | `web` | `BBB_WEB_IMAGE` |
-| `graphql-server`, schema mount in `init` | `BBB_GRAPHQL_SERVER_IMAGE` |
+| `graphql-server` | `BBB_GRAPHQL_SERVER_IMAGE` |
 | `graphql-actions` | `BBB_GRAPHQL_ACTIONS_IMAGE` |
 | `graphql-middleware` | `BBB_GRAPHQL_MIDDLEWARE_IMAGE` |
-| `shared-notes-server`, `shared-notes-conversion`, schema mount in `init` | `BBB_SHARED_NOTES_SERVER_IMAGE` |
+| `shared-notes-server`, `shared-notes-conversion` | `BBB_SHARED_NOTES_SERVER_IMAGE` |
 | `export-annotations` | `BBB_EXPORT_ANNOTATIONS_IMAGE` |
 | `webrtc-sfu` | `BBB_WEBRTC_SFU_IMAGE` |
 | `html5-client` | `BBB_HTML5_CLIENT_IMAGE` |
@@ -196,7 +197,7 @@ services:
 | Package install | Docker Compose |
 |---|---|
 | `bbb-conf --status` | `docker compose ps` |
-| `bbb-conf --stop` / `--start` | `docker compose stop` / `docker compose up -d` (after a reboot, see [Troubleshooting](#up-fails-after-a-reboot-with-cannot-access-path)) |
+| `bbb-conf --stop` / `--start` | `docker compose stop` / `docker compose up -d` |
 | `bbb-conf --restart` | `docker compose restart` |
 | `bbb-conf --secret` | the URL is `https://<BBB_DOMAIN>/bigbluebutton/`, the secret is `BBB_SHARED_SECRET` in `.env` |
 | `bbb-conf --setsecret <secret>` | set `BBB_SHARED_SECRET` in `.env`, then `docker compose up -d --force-recreate` |
@@ -217,7 +218,3 @@ A front end such as [Greenlight](/greenlight/v3/install) needs the API URL and t
 ### Meetings start without the default slides
 
 bbb-web downloads the default slides from `https://<domain>` through the host (`extra_hosts: host-gateway`), so port 443 must be published on the host's addresses (the default). The download needs the real certificate; it fails while haproxy serves the self-signed one.
-
-### up fails after a reboot with "cannot access path"
-
-After the server or Docker restarts, `docker compose up -d` and `docker compose start` can stop at `init` with `cannot access path /var/lib/docker/rootfs/overlayfs/<id>/usr/share/bbb-graphql-server`: the stopped `init` container still points to the image volumes as they were mounted before the restart. The services that were running come back on their own; recreate `init` to start or change the setup again: `docker compose rm -f init && docker compose up -d`.

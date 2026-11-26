@@ -55,7 +55,7 @@ echo "Downloading $URL to $BBB_DIR"
 mkdir -p "$BBB_DIR/docker/compose/nginx"
 cd "$BBB_DIR"
 for file in docker-compose.yml .env.sample \
-  docker/compose/certbot.sh docker/compose/haproxy.cfg docker/compose/init.sh \
+  docker/compose/certbot.sh docker/compose/haproxy.cfg \
   docker/compose/nginx/bigbluebutton docker/compose/nginx/playback.nginx; do
   curl -fsSL -o "$file" "$URL/$file"
 done
