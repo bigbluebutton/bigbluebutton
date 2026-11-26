@@ -153,7 +153,7 @@ class ConversionRateLimitEnforcementTest extends UnitSpec {
   // would make every upload in the system look like a server capture.
   it should "take the token's userId from the message header, not the body" in {
     val header = BbbClientMsgHeader("PresentationUploadTokenSysPubMsg", "m1", "w_abcdefghijkl")
-    val body = PresentationUploadTokenSysPubMsgBody("DEFAULT_PRESENTATION_POD", "authz", "f.pdf", "m1", "p1")
+    val body = PresentationUploadTokenSysPubMsgBody("DEFAULT_PRESENTATION_POD", "authz", "f.pdf", "m1", "p1", "", 0, 0, false, "")
 
     val token = OldMeetingMsgHdlrActor.toPresentationUploadToken(PresentationUploadTokenSysPubMsg(header, body))
 
@@ -166,7 +166,7 @@ class ConversionRateLimitEnforcementTest extends UnitSpec {
 
   it should "classify a header userId of system as a system upload" in {
     val header = BbbClientMsgHeader("PresentationUploadTokenSysPubMsg", "m1", "system")
-    val body = PresentationUploadTokenSysPubMsgBody("DEFAULT_PRESENTATION_POD", "authz", "f.pdf", "m1", "p1")
+    val body = PresentationUploadTokenSysPubMsgBody("DEFAULT_PRESENTATION_POD", "authz", "f.pdf", "m1", "p1", "", 0, 0, false, "")
 
     assert(OldMeetingMsgHdlrActor.toPresentationUploadToken(PresentationUploadTokenSysPubMsg(header, body)).isSystemUpload)
   }

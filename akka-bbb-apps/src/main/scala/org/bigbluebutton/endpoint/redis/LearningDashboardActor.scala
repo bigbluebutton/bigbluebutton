@@ -189,6 +189,7 @@ class LearningDashboardActor(
       // Presentation
       case m: PresentationConversionCompletedEvtMsg => handlePresentationConversionCompletedEvtMsg(m)
       case m: SetCurrentPageEvtMsg                  => handleSetCurrentPageEvtMsg(m)
+      case m: PresentationPagesInsertedEvtMsg       => handlePresentationPagesInsertedEvtMsg(m)
       case m: RemovePresentationEvtMsg              => handleRemovePresentationEvtMsg(m)
       case m: SetCurrentPresentationEvtMsg          => handleSetCurrentPresentationEvtMsg(m)
 
@@ -329,6 +330,19 @@ class LearningDashboardActor(
       val newIds = pages.map(_.id).toSet
       val updated = presentation.copy(pages = presentation.pages.filterNot(p => newIds.contains(p.id)) ++ pages)
       meetingPresentations += (meetingId -> (presentations + (presentationId -> updated)))
+    }
+  }
+
+  // The pages from insertedAt on moved forward; the inserted pages take their place.
+  private def handlePresentationPagesInsertedEvtMsg(msg: PresentationPagesInsertedEvtMsg) {
+    for {
+      presentations <- meetingPresentations.get(msg.header.meetingId)
+      presentation <- presentations.get(msg.body.presentationId)
+    } yield {
+      val count = msg.body.pages.size
+      val moved = presentation.pages.map(p => if (p.num >= msg.body.insertedAt) p.copy(num = p.num + count) else p)
+      meetingPresentations += (msg.header.meetingId -> (presentations + (presentation.id -> presentation.copy(pages = moved))))
+      registerPages(msg.header.meetingId, msg.body.presentationId, msg.body.pages)
     }
   }
 

@@ -318,6 +318,16 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[SetPresentationDownloadablePubMsg](envelope, jsonNode)
       case PresentationUploadTokenReqMsg.NAME =>
         routeGenericMsg[PresentationUploadTokenReqMsg](envelope, jsonNode)
+      case InsertBlankPagePubMsg.NAME =>
+        routeGenericMsg[InsertBlankPagePubMsg](envelope, jsonNode)
+      case PresentationInsertPagesProgressSysMsg.NAME =>
+        routeGenericMsg[PresentationInsertPagesProgressSysMsg](envelope, jsonNode)
+      case PresentationInsertPagesPageSysMsg.NAME =>
+        routeGenericMsg[PresentationInsertPagesPageSysMsg](envelope, jsonNode)
+      case PresentationInsertPagesReadySysMsg.NAME =>
+        routeGenericMsg[PresentationInsertPagesReadySysMsg](envelope, jsonNode)
+      case PresentationInsertPagesFailedSysMsg.NAME =>
+        routeGenericMsg[PresentationInsertPagesFailedSysMsg](envelope, jsonNode)
       case GetAllPresentationPodsReqMsg.NAME =>
         routeGenericMsg[GetAllPresentationPodsReqMsg](envelope, jsonNode)
       case PreuploadedPresentationsSysPubMsg.NAME =>

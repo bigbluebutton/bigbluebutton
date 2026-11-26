@@ -434,20 +434,20 @@ async function processPresentationAnnotations() {
     if (backgroundFormat === 'svg') {
       const backgroundPng = `${bgImagePath}-bg.png`;
       const sourcePdf = path.join(
-          exportJob.presLocation, `${exportJob.presId}.pdf`);
+          exportJob.presLocation, 'pages', `page-${currentSlide.pageId}.pdf`);
       const rasterizeTimeoutMs =
         (config.process.rasterizeTimeoutSeconds || 60) * 1000;
       let rasterized = false;
 
-      // Render the page from the presentation PDF. CairoSVG cannot reproduce
+      // Render the page from its PDF (the page bbb-web extracted, downscaled
+      // when big). CairoSVG cannot reproduce
       // the soft masks the slide SVG carries and exports masked text as solid
       // bars; poppler composites them natively. See
       // rasterizeSlideBackgroundFromPdf for the mechanism.
       //
       // The collector only collects svg backgrounds for presentations that
-      // have this PDF (it aborts the job otherwise), so this is the normal
-      // path. The check keeps the SVG renderer as a fallback should the file
-      // disappear between collection and processing.
+      // have page PDFs, so this is the normal path. The check keeps the SVG
+      // renderer as a fallback for a page without its PDF.
       //
       // Slides bbb-web blanked out are rendered from the (blank) SVG instead,
       // so the export keeps showing what the meeting showed.
@@ -464,7 +464,7 @@ async function processPresentationAnnotations() {
 
           backgroundSlide = rasterizeSlideBackgroundFromPdf(
               sourcePdf,
-              currentSlide.page,
+              1,
               backgroundPng,
               {...rasterSize,
                 pdftocairo: config.shared.pdftocairo,

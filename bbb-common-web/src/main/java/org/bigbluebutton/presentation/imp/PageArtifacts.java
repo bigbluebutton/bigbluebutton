@@ -19,7 +19,10 @@ public final class PageArtifacts {
         // Only generated with generatePngs.
         PNG("pngs", "slide-", ".png", false),
         THUMBNAIL("thumbnails", "thumb-", ".png", true),
-        TEXT("textfiles", "slide-", ".txt", true);
+        TEXT("textfiles", "slide-", ".txt", true),
+        // The page extracted from the uploaded PDF (downscaled when big); only for pages that come
+        // from a PDF or an office document, and never served by URL.
+        PDF("pages", "page-", ".pdf", false);
 
         public final String directory;
         public final String prefix;

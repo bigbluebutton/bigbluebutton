@@ -44,19 +44,32 @@ module BigBlueButton
       participants_ids.length
     end
 
+    # The events that list the page ids of a presentation, in page order: its conversion, and each insert
+    # of pages into it (the list after the insert).
+    PAGE_LIST_EVENTS =
+      "/recording/event[@eventname='ConversionCompletedEvent' or @eventname='PresentationPagesInsertedEvent']"
+
+    # The presentation and the page ids an event of PAGE_LIST_EVENTS lists, or nil when it lists none
+    # (a conversion recorded before pages had ids).
+    def self.listed_page_ids(event)
+      ids = event.at_xpath('pageIds')&.text
+      return nil if ids.nil? || ids.empty?
+
+      [event.at_xpath('presentationName').text, ids.split(',')]
+    end
+
     # The pages of each presentation shown in the recording, in page order, keyed by presentation id.
     # A page is identified by an opaque string: the page id, for recordings whose ConversionCompletedEvent
     # lists them (BigBlueButton 4.1 and later); otherwise its 1-based page number, as a string, counted from
     # the files of the presentation in presentation_dir. A presentation always has at least one page: an
-    # uploaded image is one page, and older recordings may have no thumbnails for it.
+    # uploaded image is one page, and older recordings may have no thumbnails for it. A presentation with
+    # pages inserted into it has the pages listed by its last insert.
     def self.presentation_page_ids(events, presentation_dir)
       converted = {}
-      events.xpath("/recording/event[@eventname='ConversionCompletedEvent']").each do |event|
-        ids = event.at_xpath('pageIds')&.text
-        next if ids.nil? || ids.empty?
-
-        # The last conversion of a presentation wins.
-        converted[event.at_xpath('presentationName').text] = ids.split(',')
+      events.xpath(PAGE_LIST_EVENTS).each do |event|
+        presentation, ids = listed_page_ids(event)
+        # The last list of a presentation wins.
+        converted[presentation] = ids if presentation
       end
 
       page_ids = {}
@@ -70,6 +83,26 @@ module BigBlueButton
         end
       end
       page_ids
+    end
+
+    # The page each presentation starts at when the recording first shows it, keyed by presentation id: the
+    # first page in the list in force at that moment. Pages inserted at the start later on do not change it.
+    # page_ids is the result of presentation_page_ids, the fallback for recordings without page ids.
+    def self.presentation_first_pages(events, page_ids)
+      listed = {}
+      first_pages = {}
+      events.xpath("#{PAGE_LIST_EVENTS} | /recording/event[@eventname='SharePresentationEvent']").each do |event|
+        if event['eventname'] == 'SharePresentationEvent'
+          presentation = event.at_xpath('presentationName').text
+          next if first_pages.key?(presentation) || !page_ids.key?(presentation)
+
+          first_pages[presentation] = listed.fetch(presentation, page_ids[presentation]).first
+        else
+          presentation, ids = listed_page_ids(event)
+          listed[presentation] = ids if presentation
+        end
+      end
+      first_pages
     end
 
     # Get the meeting metadata

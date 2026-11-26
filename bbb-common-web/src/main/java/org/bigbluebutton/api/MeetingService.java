@@ -57,7 +57,11 @@ import org.bigbluebutton.api2.domain.UploadedTrack;
 import org.bigbluebutton.common2.redis.RedisStorageService;
 import org.bigbluebutton.presentation.PresentationUrlDownloadService;
 import org.bigbluebutton.presentation.RejectedPresentationRegistry;
+import org.bigbluebutton.presentation.imp.InsertBlankPageHandler;
+import org.bigbluebutton.presentation.imp.InsertPagesDeliveryService;
 import org.bigbluebutton.presentation.imp.SlidesGenerationProgressNotifier;
+import org.bigbluebutton.api2.MsgBuilder;
+import org.bigbluebutton.common2.msgs.BbbCommonEnvCoreMsg;
 import org.bigbluebutton.web.services.UserCleanupTimerTask;
 import org.bigbluebutton.web.services.callback.CallbackUrlService;
 import org.bigbluebutton.web.services.callback.MeetingEndedEvent;
@@ -116,6 +120,8 @@ public class MeetingService implements MessageListener {
   private final ConcurrentMap<String, PresentationUploadToken> uploadAuthzTokens;
   private long presentationUploadStartTimeout = 300000;
   private RejectedPresentationRegistry rejectedPresentations;
+  private InsertPagesDeliveryService insertPagesDeliveryService;
+  private InsertBlankPageHandler insertBlankPageHandler;
 
   ObjectMapper objectMapper = new ObjectMapper();
 
@@ -983,7 +989,7 @@ public class MeetingService implements MessageListener {
 
       presDownloadService.extractPresentationPage(message.parentMeetingId,
         message.sourcePresentationId,
-        message.sourcePresentationSlide, breakout.getInternalId(), false);
+        message.sourcePresentationSlide, message.sourcePresentationPageId, breakout.getInternalId(), false);
     } else {
       Map<String, Object> logData = new HashMap<String, Object>();
       logData.put("meetingId", message.meetingId);
@@ -1016,6 +1022,9 @@ public class MeetingService implements MessageListener {
     Meeting m = getMeeting(message.meetingId);
     if (m != null) {
       m.setForciblyEnded(true);
+      if (insertPagesDeliveryService != null) {
+        insertPagesDeliveryService.removeMeeting(m.getInternalId());
+      }
       processRecording(m);
       if (m.getMeetingKeepEvents()) {
         // The creation of the ended tag must occur after the creation of the
@@ -1061,10 +1070,36 @@ public class MeetingService implements MessageListener {
     if (rejectedPresentations != null) {
       rejectedPresentations.reject(message.meetingId, message.presentationId);
     }
+    removePendingUploadToken(message.presentationId);
   }
 
-  private void processPresentationUploadToken(PresentationUploadToken message) {
+  // A POST that arrives after the upload was refused (an insert past its deadline) must not convert.
+  void removePendingUploadToken(String presentationId) {
+    uploadAuthzTokens.values().removeIf(token -> presentationId.equals(token.presentationId));
+  }
+
+  void processPresentationUploadToken(PresentationUploadToken message) {
     uploadAuthzTokens.put(message.authzToken, message);
+  }
+
+  // ---------- the upload of an insert of pages: published to bbb-apps-akka through the gateway ----------
+
+  public void sendInsertPagesProgress(PresentationUploadToken token, String stage) {
+    gw.sendInsertPagesMessages(Collections.singletonList(MsgBuilder.buildPresentationInsertPagesProgressSysMsg(
+        token.meetingId, token.userId, token.podId, token.presentationId, stage, 0, 0)));
+  }
+
+  public void sendInsertPagesFailed(PresentationUploadToken token, String detail) {
+    gw.sendInsertPagesMessages(Collections.singletonList(MsgBuilder.buildPresentationInsertPagesFailedSysMsg(
+        token.meetingId, token.userId, token.podId, token.presentationId, InsertPagesDeliveryService.ERROR_FAILED, detail)));
+  }
+
+  public void sendInsertPagesMessages(List<BbbCommonEnvCoreMsg> messages) {
+    gw.sendInsertPagesMessages(messages);
+  }
+
+  public InsertPagesDeliveryService getInsertPagesDeliveryService() {
+    return insertPagesDeliveryService;
   }
 
   public void addUserCustomData(String meetingId, String userID,
@@ -1391,6 +1426,14 @@ public class MeetingService implements MessageListener {
     this.rejectedPresentations = rejectedPresentations;
   }
 
+  public void setInsertPagesDeliveryService(InsertPagesDeliveryService insertPagesDeliveryService) {
+    this.insertPagesDeliveryService = insertPagesDeliveryService;
+  }
+
+  public void setInsertBlankPageHandler(InsertBlankPageHandler insertBlankPageHandler) {
+    this.insertBlankPageHandler = insertBlankPageHandler;
+  }
+
   public void userJoinedVoice(UserJoinedVoice message) {
     Meeting m = getMeeting(message.meetingId);
     if (m != null) {
@@ -1539,6 +1582,13 @@ public class MeetingService implements MessageListener {
           processPresentationUploadToken((PresentationUploadToken) message);
         } else if (message instanceof PresentationConversionRejected) {
           processPresentationConversionRejected((PresentationConversionRejected) message);
+        } else if (message instanceof InsertBlankPage) {
+          if (insertBlankPageHandler != null) insertBlankPageHandler.handle((InsertBlankPage) message);
+        } else if (message instanceof InsertPagesDiscard) {
+          InsertPagesDiscard discard = (InsertPagesDiscard) message;
+          if (insertPagesDeliveryService != null) {
+            insertPagesDeliveryService.discard(discard.meetingId, discard.presentationId, discard.pageIds);
+          }
         } else if (message instanceof GuestStatusChangedEventMsg) {
           processGuestStatusChangedEventMsg((GuestStatusChangedEventMsg) message);
         } else if (message instanceof GuestPolicyChanged) {

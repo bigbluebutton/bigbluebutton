@@ -75,7 +75,9 @@ case class BreakoutRoomDetail(
     lockOnJoinConfigurable:  Boolean,
     hideViewersCursor:       Boolean,
     hideViewersAnnotation:   Boolean,
-    webcamsOnlyForModerator: Boolean
+    webcamsOnlyForModerator: Boolean,
+    // Id of the page sourcePresentationSlide names; empty when the room takes the whole presentation.
+    sourcePresentationPageId: String
 )
 
 /**

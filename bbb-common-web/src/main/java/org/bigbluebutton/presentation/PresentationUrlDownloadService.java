@@ -16,6 +16,7 @@ import org.bigbluebutton.api.service.RedirectFollowerService;
 import org.bigbluebutton.api.service.SecureUrlDownloader;
 import org.bigbluebutton.api.service.ValidatedUrl;
 import org.bigbluebutton.api.service.impl.PresRedirectValidator;
+import org.bigbluebutton.presentation.imp.PageArtifacts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,7 +73,8 @@ public class PresentationUrlDownloadService {
     }
 
     public void extractPresentationPage(final String sourceMeetingId, final String presentationId,
-                                        final Integer presentationSlide, final String destinationMeetingId, final Boolean scanUploadedPresentationFiles)  {
+                                        final Integer presentationSlide, final String presentationPageId,
+                                        final String destinationMeetingId, final Boolean scanUploadedPresentationFiles)  {
         /**
          * We delay processing of the presentation to make sure that the meeting has already been created.
          * Otherwise, the meeting won't get the conversion events.
@@ -80,14 +82,17 @@ public class PresentationUrlDownloadService {
         ScheduledFuture scheduledFuture =
                 scheduledThreadPool.schedule(new Runnable() {
                     public void run() {
-                        extractPage(sourceMeetingId, presentationId, presentationSlide, destinationMeetingId, scanUploadedPresentationFiles);
+                        extractPage(sourceMeetingId, presentationId, presentationSlide, presentationPageId, destinationMeetingId, scanUploadedPresentationFiles);
                     }
                 }, 5, TimeUnit.SECONDS);
     }
 
     // A negative presentationSlide indicates the entire presentation deck should be used.
+    // A non-empty presentationPageId names the PDF of that page (pages/page-<pageId>.pdf), which is
+    // used as the room's file when the source presentation has it.
     private void extractPage(final String sourceMeetingId, final String presentationId,
-                             final Integer presentationSlide, final String destinationMeetingId, final Boolean scanUploadedPresentationFiles) {
+                             final Integer presentationSlide, final String presentationPageId,
+                             final String destinationMeetingId, final Boolean scanUploadedPresentationFiles) {
 
         Boolean uploadFailed = false;
         ArrayList<String> uploadFailedReasons = new ArrayList<String>();
@@ -117,8 +122,11 @@ public class PresentationUrlDownloadService {
 
             matches = sourceMeetingPath.listFiles(imgFlter);
         }
+        File pagePdf = pagePdfOf(sourceMeetingPath, presentationPageId);
         File sourcePresentationFile;
-        if (matches == null || matches.length != 1) {
+        if (pagePdf != null) {
+            sourcePresentationFile = pagePdf;
+        } else if (matches == null || matches.length != 1) {
             log.warn(
                     "Not matching PDF file with prefix {} found at {}. Using the default blank PDF",
                     sourceMeetingId, sourceMeetingPath);
@@ -138,7 +146,7 @@ public class PresentationUrlDownloadService {
                 + newFilename;
         File newPresentation = new File(newFilePath);
 
-        if (sourcePresentationFile.getName().toLowerCase().endsWith("pdf") && presentationSlide >= 0) {
+        if (pagePdf == null && sourcePresentationFile.getName().toLowerCase().endsWith("pdf") && presentationSlide >= 0) {
             pageExtractor.extractPage(sourcePresentationFile, new File(
                     newFilePath), presentationSlide);
         } else {
@@ -186,6 +194,18 @@ public class PresentationUrlDownloadService {
 
         return secureUrlDownloader.downloadToFile(meetingId, validatedUrl, new File(filename),
                 presDownloadReadTimeoutInMs, maxBytes);
+    }
+
+    /**
+     * The PDF of the page with this id in the presentation directory, or null when the id is empty or
+     * invalid, or the presentation has no such file (another presentation, an image presentation).
+     */
+    static File pagePdfOf(File presentationDir, String pageId) {
+        if (!PageArtifacts.isValidPageId(pageId)) {
+            return null;
+        }
+        File pagePdf = PageArtifacts.Type.PDF.file(presentationDir, pageId);
+        return pagePdf.isFile() ? pagePdf : null;
     }
 
     public void setPageExtractor(PageExtractor extractor) {

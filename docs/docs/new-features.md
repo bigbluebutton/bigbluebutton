@@ -38,6 +38,7 @@ Each presentation page now has an id that never changes: a UUID, given to the pa
 Recordings made with BigBlueButton 4.1 identify presentation pages by their page id. They are marked with `bbb_version="4.1.0"` on the `<recording>` element. The recording processing scripts read both forms, so recordings made with earlier versions are processed as before.
 
 - `ConversionCompletedEvent`: new `pageIds` element, the comma-separated list of the page id of each page of the presentation, in page order.
+- `PresentationPagesInsertedEvent` (new): recorded when pages are inserted into a presentation; its `pageIds` element lists every page of the presentation after the insert, in page order.
 - `GotoSlideEvent`: the `id` element contains the page id; it was `<presentationName>/<pageNumber>`. The `slide` element is unchanged (0-based page number).
 - `ResizeAndMoveSlideEvent`: the `id` element contains the page id; it was `<presentationName>/<pageNumber>`.
 - Whiteboard events (`module="WHITEBOARD"`, for example `AddTldrawShapeEvent`, `DeleteTldrawShapeEvent` and `WhiteboardCursorMoveEvent`): the `whiteboardId` element contains the page id; it was `<presentationName>/<pageNumber>`. The `pageNumber` element is unchanged (0-based page number).
@@ -51,6 +52,16 @@ The presentation files of a recording are named by the page id instead of the 1-
 | Thumbnail | `presentation/{presentationName}/thumbnails/thumb-{pageId}.png` | `presentation/{presentationName}/thumbnails/thumb-{pageNumber}.png` |
 
 The keys of `presentation_text.json` follow the text file names (`slide-{pageId}`). See [Page ids in recordings](/development/recording#page-ids-in-recordings) for the details of each event.
+
+### Insert pages into a presentation
+
+The presenter can insert pages into the open presentation: a blank page, or the pages of a PDF or an office document, at a position. The existing pages keep their annotations, and the presenter is notified of the outcome. Pages can only be inserted into a presentation made from a PDF or an office document, and an image cannot be inserted.
+
+- The client setting `public.presentation.insertPagesEnabled` enables or blocks, on the server, any insert of pages (default `true`; absent counts as `false`). Like any client setting, it can be changed per meeting on the `create` call (`clientSettingsOverride`).
+- `maxNumPages` (bbb-web) also limits the number of pages of a presentation after an insert.
+- The GraphQL action `presentationRequestUploadToken` takes the optional arguments `insertIntoPresentationId`, `insertAtPosition`, `insertSeenTotalPages` and `insertNavigate`, which turn the upload into an insert into that presentation. The new action `presentationInsertBlankPage(presentationId, position, seenTotalPages, navigate)` inserts a blank page the size of the page before the position. `seenTotalPages` is the total number of pages the client saw when it read the position. The server applies the inserts of a meeting one at a time, in the order of the requests.
+- Each stage of an insert has a deadline in bbb-apps-akka; see [the configuration](/administration/customize#limit-the-time-an-insert-of-pages-may-take).
+- The PDF of each page of a presentation made from a PDF or an office document is kept, as `pages/page-<pageId>.pdf` in the directory of the presentation, and the conversion cache stores it. The annotated export and a breakout room with the current slide read the page from it; for a big page that is the downscaled version made at conversion.
 
 ### Installation
 

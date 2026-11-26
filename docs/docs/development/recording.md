@@ -989,6 +989,15 @@ Since BigBlueButton 4.1 (`bbb_version="4.1.0"` on the `<recording>` element), ev
 | originalFilename | String | Name of the uploaded file                                                                           |
 | pageIds          | String | Since 4.1: comma-separated list of the page id of each page of the presentation, in page order     |
 
+**PresentationPagesInsertedEvent** (since 4.1, recorded when pages are inserted into a presentation)
+
+| Attribute        | Type   | Description                                                                                          |
+| ---------------- | ------ | ---------------------------------------------------------------------------------------------------- |
+| presentationName | String | Id of the presentation                                                                               |
+| pageIds          | String | Comma-separated list of the page id of each page of the presentation after the insert, in page order |
+
+The pages of a presentation are listed by its last `ConversionCompletedEvent` or `PresentationPagesInsertedEvent`.
+
 **GotoSlideEvent**
 
 | Attribute        | Type    | Description                                                                         |

@@ -132,8 +132,9 @@ public class PresentationConversionCompletionService {
         notifier.sendConversionCompletedMessage(p.pres);
 
         String meetingId = p.pres.getMeetingId();
-        //Store presentation outputs in cache (if enabled)
-        if(!p.pres.getUploadedFileHash().isEmpty()) {
+        //Store presentation outputs in cache (if enabled). The upload of an insert only reads the cache: its
+        //files are moved into the target before this point could archive them.
+        if(!p.pres.getUploadedFileHash().isEmpty() && !p.pres.isInsert()) {
             try {
                 String remoteFileName = p.pres.getUploadedFileHash() + PresentationFileProcessor.CACHE_KEY_SUFFIX;
                 Meeting meeting = ServiceUtils.findMeetingFromMeetingID(meetingId);
@@ -154,18 +155,6 @@ public class PresentationConversionCompletionService {
                 }
             } catch (Exception e) {
                 log.error("Error while storing presentations outputs into cache: {}", e.getMessage());
-            }
-        }
-
-        // Remove PDF of each page (it was necessary just during conversions)
-        String presDir = p.pres.getUploadedFile().getParent();
-        for (int page = 1; page <= p.pres.getNumberOfPages(); page++) {
-            File pageFile = new File(presDir + "/page" + "-" + page + ".pdf");
-            if(pageFile.exists()) {
-                boolean deleted = pageFile.delete();
-                if (!deleted) {
-                    log.warn("Failed to delete {}", pageFile.getAbsolutePath());
-                }
             }
         }
     }

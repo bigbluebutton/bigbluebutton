@@ -4,6 +4,7 @@ import grails.testing.web.controllers.ControllerUnitTest
 import org.bigbluebutton.api.MeetingService
 import org.bigbluebutton.api.ParamsProcessorUtil
 import org.bigbluebutton.api.messaging.messages.PresentationUploadToken
+import org.bigbluebutton.presentation.InsertPagesIntent
 import spock.lang.Specification
 
 /**
@@ -15,6 +16,7 @@ class CheckPresentationBeforeUploadingSpec extends Specification implements Cont
 
   static final long MAX_UPLOAD = 30000000L
   static final String TOKEN = 'PRESUPLOADTOKEN-1'
+  static final String INSERT_TOKEN = 'PRESUPLOADTOKEN-INSERT'
 
   StubMeetingService meetingService
 
@@ -25,6 +27,8 @@ class CheckPresentationBeforeUploadingSpec extends Specification implements Cont
 
     meetingService = new StubMeetingService()
     meetingService.tokens[TOKEN] = new PresentationUploadToken('pod-1', TOKEN, 'slides.pdf', 'meeting-1', 'pres-1', 'w_uploader')
+    meetingService.tokens[INSERT_TOKEN] = new PresentationUploadToken('pod-1', INSERT_TOKEN, 'more.pdf', 'meeting-1', 'pres-2',
+        'w_uploader', new InsertPagesIntent('pres-1', 3, 10, true, 'page-of-the-request'))
     controller.meetingService = meetingService
   }
 
@@ -32,6 +36,25 @@ class CheckPresentationBeforeUploadingSpec extends Specification implements Cont
   static class StubMeetingService extends MeetingService {
     Map<String, PresentationUploadToken> tokens = [:]
     List<PresentationUploadToken> tooLargeMessages = []
+    List<String> consumed = []
+    List<List> insertProgress = []
+    List<List> insertFailed = []
+
+    @Override
+    PresentationUploadToken consumePresentationUploadToken(String authzToken) {
+      consumed << authzToken
+      authzToken == null ? null : tokens.remove(authzToken)
+    }
+
+    @Override
+    void sendInsertPagesProgress(PresentationUploadToken token, String stage) {
+      insertProgress << [token.presentationId, stage]
+    }
+
+    @Override
+    void sendInsertPagesFailed(PresentationUploadToken token, String detail) {
+      insertFailed << [token.presentationId, detail]
+    }
 
     @Override
     Boolean authzTokenIsValid(String authzToken) {
@@ -74,6 +97,40 @@ class CheckPresentationBeforeUploadingSpec extends Specification implements Cont
     response.status == 403
     response.getHeader('x-file-too-large') == '1'
     meetingService.tooLargeMessages*.presentationId == ['pres-1']
+  }
+
+  def "A token of an insert of pages with an acceptable size reports the start of the transfer"() {
+    given:
+    request.addHeader('x-presentation-token', INSERT_TOKEN)
+    request.addHeader('x-original-content-length', '1000')
+
+    when:
+    controller.checkPresentationBeforeUploading()
+
+    then:
+    response.status == 200
+    response.text == 'upload-success'
+    meetingService.insertProgress == [['pres-2', 'transfer']]
+    meetingService.insertFailed.isEmpty()
+    meetingService.consumed.isEmpty()
+  }
+
+  def "A token of an insert of pages with a file over the limit is used up and fails the insert"() {
+    given:
+    request.addHeader('x-presentation-token', INSERT_TOKEN)
+    request.addHeader('x-original-content-length', String.valueOf(MAX_UPLOAD + 1))
+
+    when:
+    controller.checkPresentationBeforeUploading()
+
+    then:
+    response.status == 403
+    response.getHeader('x-file-too-large') == '1'
+    meetingService.consumed == [INSERT_TOKEN]
+    !meetingService.tokens.containsKey(INSERT_TOKEN)
+    meetingService.insertFailed*.get(0) == ['pres-2']
+    meetingService.tooLargeMessages.isEmpty()
+    meetingService.insertProgress.isEmpty()
   }
 
   def "A missing or unknown token is refused without claiming the file is too large"() {

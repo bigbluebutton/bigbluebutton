@@ -79,6 +79,10 @@ trait SystemConfiguration {
   lazy val presUploadTokenMaxRequests = Try(config.getInt("apps.presentationUploadTokenMaxRequests")).getOrElse(20)
   lazy val presUploadTokenWindowSec = Try(config.getInt("apps.presentationUploadTokenWindowSec")).getOrElse(60)
   lazy val presMaxPerPod = Try(config.getInt("apps.presentationMaxPerPod")).getOrElse(50)
+  // Deadlines of an insert of pages, per stage (see application.conf).
+  lazy val presInsertRequestTimeoutSec = Try(config.getInt("apps.presentationInsertRequestTimeoutSec")).getOrElse(30)
+  lazy val presInsertTransferTimeoutSec = Try(config.getInt("apps.presentationInsertTransferTimeoutSec")).getOrElse(300)
+  lazy val presInsertIdleTimeoutSec = Try(config.getInt("apps.presentationInsertIdleTimeoutSec")).getOrElse(180)
 
   // Redis server configuration
   lazy val redisHost = Try(config.getString("redis.host")).getOrElse("127.0.0.1")

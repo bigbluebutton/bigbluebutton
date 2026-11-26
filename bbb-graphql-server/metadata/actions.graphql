@@ -488,6 +488,19 @@ type Mutation {
     podId: String!
     filename: String!
     uploadTemporaryId: String!
+    insertIntoPresentationId: String
+    insertAtPosition: Int
+    insertSeenTotalPages: Int
+    insertNavigate: Boolean
+  ): Boolean
+}
+
+type Mutation {
+  presentationInsertBlankPage(
+    presentationId: String!
+    position: Int!
+    seenTotalPages: Int!
+    navigate: Boolean!
   ): Boolean
 }
 

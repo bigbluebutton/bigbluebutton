@@ -63,13 +63,15 @@ async function collectAnnotationsFromRedis() {
   // Collect the presentation page files (PDF / PNG / JPEG)
   // from the presentation directory
   const presFile = path.join(exportJob.presLocation, exportJob.presId);
-  const pdfFile = `${presFile}.pdf`;
+  // Presentations converted from a PDF (or an office document) keep the PDF
+  // of each page in pages/; image presentations do not have it.
+  const pagesDir = path.join(exportJob.presLocation, 'pages');
 
   // Message to display conversion progress toast
   const statusUpdate = new PresAnnStatusMsg(exportJob);
 
-  if (fs.existsSync(pdfFile)) {
-    // If there's a PDF file, we leverage the existing converted SVG slides
+  if (fs.existsSync(pagesDir)) {
+    // If there are page PDFs, we leverage the existing converted SVG slides
     for (const p of pages) {
       const pageNumber = p.page;
       // Converted slides are named by page id; the dropbox copy keeps the position.

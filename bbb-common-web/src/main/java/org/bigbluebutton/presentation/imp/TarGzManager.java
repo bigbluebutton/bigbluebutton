@@ -18,7 +18,7 @@ import java.util.zip.GZIPInputStream;
 
 public class TarGzManager {
     private static final List<String> allowedDirs = Collections.unmodifiableList(
-            Arrays.asList("thumbnails", "textfiles", "svgs", "pngs")
+            Arrays.asList("thumbnails", "textfiles", "svgs", "pngs", PageArtifacts.Type.PDF.directory)
     );
 
     public static final String MANIFEST = "manifest.json";
@@ -45,13 +45,6 @@ public class TarGzManager {
             for (File directory : directories) {
                 if (allowedDirs.contains(directory.getName())) {
                     addDirectoryToTarGz(taos, directory, "");
-                }
-            }
-
-            for (int page = 1; page <= numOfPages; page++) {
-                File pageFile = new File(sourceDirectory + "/page" + "-" + page + ".pdf");
-                if(pageFile.exists()) {
-                    addFileToTarGz(taos, pageFile, "");
                 }
             }
         }

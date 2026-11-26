@@ -44,6 +44,8 @@ public class CreateBreakoutRoom implements IMessage {
     public final Boolean hideViewersCursor;
     public final Boolean hideViewersAnnotation;
     public final Boolean webcamsOnlyForModerator;
+    // Id of the page sourcePresentationSlide names; empty when the room takes the whole presentation.
+    public final String sourcePresentationPageId;
 
     public CreateBreakoutRoom(String meetingId,
                               String parentMeetingId,
@@ -82,7 +84,8 @@ public class CreateBreakoutRoom implements IMessage {
                               Boolean lockOnJoinConfigurable,
                               Boolean hideViewersCursor,
                               Boolean hideViewersAnnotation,
-                              Boolean webcamsOnlyForModerator) {
+                              Boolean webcamsOnlyForModerator,
+                              String sourcePresentationPageId) {
         this.meetingId = meetingId;
         this.parentMeetingId = parentMeetingId;
         this.name = name;
@@ -121,5 +124,6 @@ public class CreateBreakoutRoom implements IMessage {
         this.hideViewersCursor = hideViewersCursor;
         this.hideViewersAnnotation = hideViewersAnnotation;
         this.webcamsOnlyForModerator = webcamsOnlyForModerator;
+        this.sourcePresentationPageId = sourcePresentationPageId;
     }
 }

@@ -932,6 +932,7 @@ def process_presentation(package_dir)
   events_xml = Nokogiri::XML(File.read("#{@process_dir}/events.xml"))
   # List of slide filename keys for each presentation, in the original order.
   page_ids = BigBlueButton::Events.presentation_page_ids(events_xml, "#{@process_dir}/presentation")
+  first_pages = BigBlueButton::Events.presentation_first_pages(events_xml, page_ids)
   events_xml.xpath('/recording/event').each do |event|
     eventname = event['eventname']
     last_timestamp = timestamp =
@@ -952,8 +953,8 @@ def process_presentation(package_dir)
         current_panzoom_width = current_panzoom_height = nil
       end
       current_presentation = next_presentation
-      # A presentation shown for the first time starts at its first page.
-      current_slide = current_presentation_slide.fetch(current_presentation) { page_ids[current_presentation].first }
+      # A presentation shown for the first time starts at its first page at that moment.
+      current_slide = current_presentation_slide.fetch(current_presentation) { first_pages[current_presentation] }
       slide_changed = panzoom_changed = true
 
     when 'GotoSlideEvent'

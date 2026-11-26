@@ -52,6 +52,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="maxPageConversionTime" value="${maxPageConversionTime}"/>
     </bean>
 
+    <!-- The uploads that carry the pages of an insert into an existing presentation: their conversion
+         messages are mapped to the messages of the insert, and their files moved into the target. -->
+    <bean id="insertPagesDeliveryService" class="org.bigbluebutton.presentation.imp.InsertPagesDeliveryService">
+        <property name="presentationDir" value="${presentationDir}"/>
+        <property name="pageTokenSecret" value="${pageTokenSecret}"/>
+        <property name="rejectedPresentationRegistry" ref="rejectedPresentationRegistry"/>
+    </bean>
+
+    <!-- Makes the blank page of an insert and starts it like an inserted file. -->
+    <bean id="insertBlankPageHandler" class="org.bigbluebutton.presentation.imp.InsertBlankPageHandler"
+          destroy-method="stop">
+        <property name="documentConversionService" ref="documentConversionService"/>
+        <property name="gw" ref="bbbWebApiGWApp"/>
+        <property name="insertPagesDeliveryService" ref="insertPagesDeliveryService"/>
+        <property name="presentationDir" value="${presentationDir}"/>
+        <property name="presentationBaseURL" value="${presentationBaseURL}"/>
+    </bean>
+
     <bean id="documentConversionService" class="org.bigbluebutton.presentation.DocumentConversionServiceImp">
         <property name="bbbWebApiGWApp" ref="bbbWebApiGWApp"/>
         <property name="officeToPdfConversionService" ref="officeToPdfConversionService"/>
