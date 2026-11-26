@@ -10,7 +10,8 @@
 # through the environment and is only ever used quoted: nothing from it is evaluated or executed.
 #
 # Inputs (env):
-#   GH_TOKEN          the SYNC_TOKEN secret (GitHub App or PAT): pushes, pull requests, comments
+#   GH_TOKEN          the SYNC_TOKEN secret, a personal access token (permissions listed in
+#                     sync-v4.0-into-v4.1.yml): pushes, pull requests, comments
 #   REPO              owner/name of this repository
 #   SOURCE_PR_NUMBER, SOURCE_PR_TITLE, SOURCE_HEAD_REF, SOURCE_HEAD_REPO, SOURCE_AUTHOR
 #   SOURCE_LABELS     JSON array with the label names of the source pull request
@@ -182,7 +183,7 @@ draft=false
   printf -- '- Source commit: %s (%s)\n' "$MERGE_SHA" "$mode"
   printf -- '- Sync run: %s\n' "$RUN_URL"
   if [ "$draft" = true ]; then
-    printf '\nThe cherry-pick had conflicts in these files. They are committed with their conflict markers:\n\n'
+    printf '\nThe cherry-pick had conflicts in these files. Review each listed file: the conflicts are committed with their markers where git could write them. A file listed without markers (for example one deleted on one side and changed on the other) needs the pick redone with the command below.\n\n'
     printf -- '- `%s`\n' "${conflicts[@]}"
     printf '\nTo redo the port with a merge tool, start from `%s` and run:\n\n```\n%s\n```\n' "$TARGET_BRANCH" "$redo"
     printf '\nThis pull request needs a maintainer and is not merged automatically.\n'

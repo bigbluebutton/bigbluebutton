@@ -14,9 +14,16 @@ name: "Sync v4.0 into v4.1"
 # labels reach the script only through env.
 #
 # Configuration:
-# - SYNC_TOKEN secret: a GitHub App token or PAT with write access to contents, pull requests and
-#   workflows. It pushes the sync branches (including changes under .github/workflows/) and opens
-#   the pull requests, which then start their own checks.
+# - SYNC_TOKEN secret: a personal access token (PAT). It pushes the sync branches (including changes
+#   under .github/workflows/) and opens the pull requests, which then start their own checks.
+#   Fine-grained, on this repository: Contents, Pull requests and Workflows read and write; Actions
+#   and Commit statuses read (used only by the optional merge workflow); Metadata read comes with
+#   it. Classic: the repo and workflow scopes (public_repo instead of repo on a public repository).
+#   Check runs are not in GitHub's list of fine-grained PAT permissions; on a public repository
+#   they, the workflow runs and the commit statuses can be read with any token. A GitHub App
+#   installation token expires after an hour, so it cannot be stored as this secret; using an App
+#   would mean generating the token in each job (actions/create-github-app-token), which these
+#   workflows do not do.
 # - Public repositories: from 2026-12-02 GitHub blocks pull_request_target unless an Actions event
 #   policy allows it (as for check-merge-conflict.yml, playwright-reports-cleanup.yml, welcome.yml).
 # - It runs in bigbluebutton/bigbluebutton, and in a fork only with the repository variable

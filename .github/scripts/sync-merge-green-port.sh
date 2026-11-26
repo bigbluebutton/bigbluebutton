@@ -15,8 +15,9 @@
 # with the repository variable SYNC_V41_AUTO_MERGE=true.
 #
 # Inputs (env):
-#   GH_TOKEN          the SYNC_TOKEN secret: a merge made with it starts the push workflows of the
-#                     target branch, which a merge made with GITHUB_TOKEN would not
+#   GH_TOKEN          the SYNC_TOKEN secret, a personal access token (permissions listed in
+#                     sync-v4.0-into-v4.1.yml): a merge made with it starts the push workflows of
+#                     the target branch, which a merge made with GITHUB_TOKEN would not
 #   REPO              owner/name of this repository
 #   RUN_URL           link to this workflow run
 # Optional (env):
