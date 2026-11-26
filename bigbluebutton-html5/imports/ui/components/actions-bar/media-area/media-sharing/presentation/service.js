@@ -137,24 +137,37 @@ const requestPresentationUploadToken = (
   temporaryPresentationId,
   meetingId,
   filename,
-  insertIntent,
-) => requestPresentationUpload(temporaryPresentationId, meetingId, filename, insertIntent)
+) => requestPresentationUpload(temporaryPresentationId, meetingId, filename)
   .then(({ uploadToken }) => uploadToken);
 
-const uploadAndConvertPresentation = (
+/**
+ * Uploads a file as a presentation, or as an insert of pages with insertIntent.
+ * @param {object} upload
+ * @param {string} upload.filename
+ * @param {string} upload.temporaryPresentationId
+ * @param {File} upload.file
+ * @param {boolean} upload.downloadable
+ * @param {*} upload.meetingId
+ * @param {string} upload.endpoint
+ * @param {boolean} upload.current
+ * @param {Function} [upload.onUpload] called with the state of an upload that failed
+ * @param {Function} [upload.onProgress] the progress listener of the upload request
+ * @param {object} [upload.insertIntent] see requestPresentationUpload
+ * @param {Function} [upload.onRequested] called once the token request ends
+ */
+const uploadAndConvertPresentation = ({
   filename,
   temporaryPresentationId,
   file,
   downloadable,
   meetingId,
   endpoint,
+  current,
   onUpload,
   onProgress,
-  onConversion,
-  current,
   insertIntent,
   onRequested,
-) => {
+}) => {
   if (!file) return Promise.resolve();
 
   const data = new FormData();
@@ -226,11 +239,17 @@ const uploadAndConvertPresentations = (
   presentationsToUpload,
   meetingId,
   uploadEndpoint,
-) => Promise.all(presentationsToUpload.map((p) => uploadAndConvertPresentation(
-  p.name,
-  p.presentationId, p.file, p.downloadable, meetingId, uploadEndpoint,
-  p.onUpload, p.onProgress, p.onConversion, p.current,
-)));
+) => Promise.all(presentationsToUpload.map((p) => uploadAndConvertPresentation({
+  filename: p.name,
+  temporaryPresentationId: p.presentationId,
+  file: p.file,
+  downloadable: p.downloadable,
+  meetingId,
+  endpoint: uploadEndpoint,
+  onUpload: p.onUpload,
+  onProgress: p.onProgress,
+  current: p.current,
+})));
 
 const removePresentations = (
   presentationsToRemove,

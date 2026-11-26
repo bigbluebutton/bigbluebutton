@@ -148,19 +148,17 @@ export const insertPages = (
     insertSeenTotalPages: seenTotalPages,
     insertNavigate: navigate,
   };
-  const done = PresentationUploadService.uploadAndConvertPresentation(
-    file.name,
-    uuid(),
+  const done = PresentationUploadService.uploadAndConvertPresentation({
+    filename: file.name,
+    temporaryPresentationId: uuid(),
     file,
-    false,
-    Auth.meetingID,
-    presentationConfig().uploadEndpoint,
-    (upload: UploadState) => warnOfUpload(file.name, upload),
-    () => {},
-    () => {},
-    false,
-    intent,
-    () => markRequested(),
-  ).then(() => markRequested(), () => markRequested());
+    downloadable: false,
+    meetingId: Auth.meetingID,
+    endpoint: presentationConfig().uploadEndpoint,
+    onUpload: (upload: UploadState) => warnOfUpload(file.name, upload),
+    current: false,
+    insertIntent: intent,
+    onRequested: () => markRequested(),
+  }).then(() => markRequested(), () => markRequested());
   return { requested, done };
 };
