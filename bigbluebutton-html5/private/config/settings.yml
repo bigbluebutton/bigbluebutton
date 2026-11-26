@@ -901,8 +901,8 @@ public:
     usersPerUserListPage: 50
     syncCameraDockSizeAndPosition: true
     # layoutViewEnabled: whether moderators and the presenter get the "Layout view"
-    # button to hide participants without camera. Can also be disabled per meeting
-    # with disabledFeatures=layoutView.
+    # button to set how many cameras a page shows and to hide participants without
+    # camera. Can also be disabled per meeting with disabledFeatures=layoutView.
     layoutViewEnabled: true
   sidebarNavigation:
     # Controls which built-in sidebar navigation buttons are rendered, in

@@ -1,22 +1,23 @@
-import React, {
-  useEffect, useMemo, useRef, useState,
-} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import { MdAutoAwesomeMosaic } from 'react-icons/md';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
-import { BBBToggle } from '@bigbluebutton/bbb-ui-components-react';
-import logger from '/imports/startup/client/logger';
+import { BBBSlider, BBBToggle } from '@bigbluebutton/bbb-ui-components-react';
 import deviceInfo from '/imports/utils/deviceInfo';
-import { throttle } from '/imports/utils/throttle';
 import Button from '/imports/ui/components/common/button/component';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { useIsLayoutViewEnabled, useIsWebcamGridEnabled } from '/imports/ui/services/features';
-import { useHideUsersWithoutCamera } from '/imports/ui/components/video-provider/hooks';
-import { SET_HIDE_USERS_WITHOUT_CAMERA } from '/imports/ui/core/graphql/mutations/userMutations';
+import {
+  useCameraPageSizeRange,
+  useHideUsersWithoutCamera,
+  useMeetingCameraPageSize,
+} from '/imports/ui/components/video-provider/hooks';
+import { SET_CAMERA_PAGE_SIZE, SET_HIDE_USERS_WITHOUT_CAMERA } from '/imports/ui/core/graphql/mutations/userMutations';
 import { listItemBgHover } from '/imports/ui/stylesheets/styled-components/palette';
 import Styled from './styles';
+import { usePendingRequest } from './hooks';
 
 const intlMessages = defineMessages({
   buttonLabel: {
@@ -31,6 +32,14 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.layoutView.close',
     description: 'Label for the button that closes the layout view options popover',
   },
+  cameraPageSizeLabel: {
+    id: 'app.actionsBar.layoutView.cameraPageSize.label',
+    description: 'Label for the slider that sets how many cameras each page shows for the whole meeting',
+  },
+  cameraPageSizeDesc: {
+    id: 'app.actionsBar.layoutView.cameraPageSize.description',
+    description: 'Helper text for the slider that sets how many cameras each page shows',
+  },
   hideUsersWithoutCameraLabel: {
     id: 'app.actionsBar.layoutView.hideUsersWithoutCamera.label',
     description: 'Label for the toggle that hides participants without camera for the whole meeting',
@@ -42,9 +51,6 @@ const intlMessages = defineMessages({
 });
 
 const TITLE_ID = 'layoutViewTitle';
-const TOGGLE_THROTTLE_TIME = 300;
-// How long the requested value is shown after the server accepts it without reporting it back.
-const PENDING_VALUE_TIMEOUT = 2000;
 
 const LayoutViewButton: React.FC = () => {
   const intl = useIntl();
@@ -56,47 +62,42 @@ const LayoutViewButton: React.FC = () => {
   }));
   const isWebcamGridEnabled = useIsWebcamGridEnabled();
   const isLayoutViewEnabled = useIsLayoutViewEnabled();
+
   const hideUsersWithoutCamera = useHideUsersWithoutCamera();
   const [setHideUsersWithoutCamera] = useMutation(SET_HIDE_USERS_WITHOUT_CAMERA);
-  // Last value requested by this user, shown until the subscription catches up so
-  // quick consecutive clicks build on each other instead of on a stale server value.
-  const [pendingValue, setPendingValue] = useState<boolean | null>(null);
-  const requestedValue = useRef(false);
-  const pendingTimeout = useRef<ReturnType<typeof setTimeout>>();
-  const isChecked = pendingValue ?? hideUsersWithoutCamera;
+  const [isChecked, requestHideUsersWithoutCamera] = usePendingRequest(
+    hideUsersWithoutCamera,
+    (value) => setHideUsersWithoutCamera({ variables: { hideUsersWithoutCamera: value } }),
+    'hideUsersWithoutCamera',
+    'layout_view_hide_users_without_camera_failed',
+  );
 
-  // Throttled like the mute toggle; reads the ref so the trailing call sends the latest value.
-  const sendRequestedValue = useMemo(() => throttle(() => {
-    const value = requestedValue.current;
-    clearTimeout(pendingTimeout.current);
-    setHideUsersWithoutCamera({
-      variables: { hideUsersWithoutCamera: value },
-    }).then(() => {
-      // The subscription may never report the requested value: a quick on/off can reach the
-      // client as no change at all. Fall back to the server value so the toggle can't get stuck.
-      clearTimeout(pendingTimeout.current);
-      pendingTimeout.current = setTimeout(() => setPendingValue(null), PENDING_VALUE_TIMEOUT);
-    }).catch((error) => {
-      logger.error({
-        logCode: 'layout_view_hide_users_without_camera_failed',
-        extraInfo: { value, errorMessage: error?.message },
-      }, `Failed to set hideUsersWithoutCamera to ${value}: ${error?.message}`);
-      setPendingValue(null);
-    });
-  }, TOGGLE_THROTTLE_TIME), [setHideUsersWithoutCamera]);
+  const meetingPageSize = useMeetingCameraPageSize();
+  const { max: maxPageSize, viewerPageSize } = useCameraPageSizeRange();
+  const [setCameraPageSize] = useMutation(SET_CAMERA_PAGE_SIZE);
+  // Until someone sets it, the slider shows what viewers get from config; 0 is unlimited.
+  const [pageSize, requestPageSize] = usePendingRequest(
+    meetingPageSize ?? (viewerPageSize > 0 ? viewerPageSize : maxPageSize),
+    (value) => setCameraPageSize({ variables: { cameraPageSize: value } }),
+    'cameraPageSize',
+    'layout_view_camera_page_size_failed',
+  );
+  const [draggedPageSize, setDraggedPageSize] = useState<number | null>(null);
+  // A size set while the meeting was smaller may be above what a pagination threshold now allows.
+  const sliderValue = Math.min(draggedPageSize ?? pageSize, maxPageSize);
 
-  useEffect(() => () => {
-    sendRequestedValue.cancel();
-    clearTimeout(pendingTimeout.current);
-  }, [sendRequestedValue]);
+  const {
+    paginationToggleEnabled,
+  } = window.meetingClientSettings.public.kurento.pagination;
+  const {
+    paginationEnabled: defaultPaginationEnabled,
+  } = window.meetingClientSettings.public.app.defaultSettings.application;
+  // Without pagination for anyone, the page size changes nothing. A range of one value
+  // leaves nothing to pick.
+  const isSliderAvailable = (paginationToggleEnabled || defaultPaginationEnabled) && maxPageSize > 1;
 
-  // Only a server change can settle the request, so intermediate echoes don't flicker.
-  useEffect(() => {
-    setPendingValue((pending) => (pending === hideUsersWithoutCamera ? null : pending));
-  }, [hideUsersWithoutCamera]);
-
-  const canToggle = !!(currentUser?.presenter || currentUser?.isModerator);
-  const isAvailable = canToggle && isWebcamGridEnabled && isLayoutViewEnabled;
+  const canChange = !!(currentUser?.presenter || currentUser?.isModerator);
+  const isAvailable = canChange && isLayoutViewEnabled && (isWebcamGridEnabled || isSliderAvailable);
 
   // Don't reopen by itself if the user loses the role with the popover open and gets it back.
   useEffect(() => {
@@ -105,12 +106,12 @@ const LayoutViewButton: React.FC = () => {
 
   if (!isAvailable) return null;
 
-  const handleToggle = () => {
-    const nextValue = !isChecked;
-    requestedValue.current = nextValue;
-    clearTimeout(pendingTimeout.current);
-    setPendingValue(nextValue);
-    sendRequestedValue();
+  const formatPageSize = (value: number) => intl.formatNumber(value, { minimumIntegerDigits: 2 });
+
+  const handlePageSizeCommitted = (_event: React.SyntheticEvent | Event, value: number) => {
+    setDraggedPageSize(null);
+    // While unset, the shown value follows config, so picking it still stores it.
+    if (value !== pageSize || meetingPageSize === null) requestPageSize(value);
   };
 
   const buttonLabel = intl.formatMessage(intlMessages.buttonLabel);
@@ -158,16 +159,39 @@ const LayoutViewButton: React.FC = () => {
             <CloseIcon />
           </IconButton>
         </Styled.Header>
-        <Styled.Content>
-          <BBBToggle
-            data-test="hideUsersWithoutCameraToggle"
-            checked={isChecked}
-            onChange={handleToggle}
-            label={intl.formatMessage(intlMessages.hideUsersWithoutCameraLabel)}
-            helperText={intl.formatMessage(intlMessages.hideUsersWithoutCameraDesc)}
-            textPosition="right"
-          />
-        </Styled.Content>
+        {isSliderAvailable && (
+          <Styled.Content>
+            <BBBSlider
+              dataTest="cameraPageSizeSlider"
+              label={intl.formatMessage(intlMessages.cameraPageSizeLabel)}
+              helperText={intl.formatMessage(intlMessages.cameraPageSizeDesc)}
+              value={sliderValue}
+              min={1}
+              max={maxPageSize}
+              step={1}
+              marks={[
+                { value: 1, label: formatPageSize(1) },
+                { value: maxPageSize, label: formatPageSize(maxPageSize) },
+              ]}
+              showMarkTicks={false}
+              valueLabelFormat={formatPageSize}
+              onChange={(_event, value) => setDraggedPageSize(value)}
+              onChangeCommitted={handlePageSizeCommitted}
+            />
+          </Styled.Content>
+        )}
+        {isWebcamGridEnabled && (
+          <Styled.Content>
+            <BBBToggle
+              data-test="hideUsersWithoutCameraToggle"
+              checked={isChecked}
+              onChange={() => requestHideUsersWithoutCamera(!isChecked)}
+              label={intl.formatMessage(intlMessages.hideUsersWithoutCameraLabel)}
+              helperText={intl.formatMessage(intlMessages.hideUsersWithoutCameraDesc)}
+              textPosition="right"
+            />
+          </Styled.Content>
+        )}
       </Styled.Panel>
     </Styled.Anchor>
   );

@@ -728,6 +728,8 @@
     "app.actionsBar.layoutView.button": "Layout view",
     "app.actionsBar.layoutView.title": "Layout view",
     "app.actionsBar.layoutView.close": "Close layout view",
+    "app.actionsBar.layoutView.cameraPageSize.label": "Cameras in view",
+    "app.actionsBar.layoutView.cameraPageSize.description": "Set how many cameras each page shows in the session",
     "app.actionsBar.layoutView.hideUsersWithoutCamera.label": "Hide participants without camera",
     "app.actionsBar.layoutView.hideUsersWithoutCamera.description": "Show only active cameras",
     "app.actionsBar.actionsDropdown.restorePresentationLabel": "Restore presentation",
