@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import SettingsIcon from '@mui/icons-material/Settings';
-import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import Settings from '/imports/ui/components/settings/component';
 import { useSettingsProps } from '/imports/ui/components/settings/container';
 import { updateSettings } from '/imports/ui/components/settings/service';
@@ -49,15 +48,13 @@ const PreFlightSettings: React.FC = () => {
 
   return (
     <Styled.Footer>
-      <Styled.SettingsButtonWrapper>
-        <BBButton
-          variant="subtle"
-          label={intl.formatMessage(intlMessages.settingsLabel)}
-          iconStart={<SettingsIcon />}
-          onClick={() => setIsOpen(true)}
-          dataTest="preFlightSettingsButton"
-        />
-      </Styled.SettingsButtonWrapper>
+      <Styled.SettingsButton
+        variant="subtle"
+        label={intl.formatMessage(intlMessages.settingsLabel)}
+        iconStart={<SettingsIcon />}
+        onClick={() => setIsOpen(true)}
+        dataTest="preFlightSettingsButton"
+      />
       {isOpen && <PreFlightSettingsModal setIsOpen={setIsOpen} />}
     </Styled.Footer>
   );

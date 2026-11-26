@@ -5,6 +5,7 @@ import { User } from '/imports/ui/Types/user';
 import deviceInfo from '/imports/utils/deviceInfo';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
+import useShortcutTooltip from '/imports/ui/core/hooks/useShortcutTooltip';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import Button from '/imports/ui/components/common/button/component';
@@ -66,6 +67,7 @@ const AudioControls: React.FC<AudioControlsProps> = ({
 }) => {
   const intl = useIntl();
   const joinAudioShortcut = useShortcut('joinAudio');
+  const withShortcut = useShortcutTooltip();
   const echoTestIntervalRef = React.useRef<ReturnType<typeof setTimeout>>();
 
   const {
@@ -118,6 +120,7 @@ const AudioControls: React.FC<AudioControlsProps> = ({
           hideLabel
           aria-label={intl.formatMessage(joinAudioLabel)}
           label={intl.formatMessage(joinAudioLabel)}
+          tooltipLabel={withShortcut(intl.formatMessage(joinAudioLabel), joinAudioShortcut)}
           data-test="joinAudio"
           color="default"
           icon="no_audio"
@@ -129,7 +132,7 @@ const AudioControls: React.FC<AudioControlsProps> = ({
         />
       </Styled.Container>
     );
-  }, [isConnected, disabled, joinAudioShortcut, away, intl.locale]);
+  }, [isConnected, disabled, joinAudioShortcut, away, intl.locale, withShortcut]);
 
   useEffect(() => {
     if (isEchoTest) {

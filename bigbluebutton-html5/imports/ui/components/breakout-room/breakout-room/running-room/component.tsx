@@ -3,7 +3,6 @@ import React, {
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
-import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/component';
 import BBBMenu from '/imports/ui/components/common/menu/component';
@@ -605,24 +604,22 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
         </Styled.MegaphoneChatArea>
       )}
       <Styled.BottomBar>
-        <Styled.ButtonWrapper>
-          <BBButton
-            variant="secondary"
-            label={intl.formatMessage(intlMessages.megaphoneLabel)}
-            tooltipLabel={intl.formatMessage(intlMessages.megaphoneTooltip)}
-            onClick={() => setMegaphoneOpen(!megaphoneOpen)}
-            dataTest="megaphoneButton"
-          />
-        </Styled.ButtonWrapper>
-        <Styled.ButtonWrapper>
-          <BBButton
-            variant="primary"
-            color="danger"
-            label={intl.formatMessage(intlMessages.finishLabel)}
-            onClick={handleFinish}
-            dataTest="finishBreakoutButton"
-          />
-        </Styled.ButtonWrapper>
+        <Styled.BottomBarButton
+          labelOverflow="ellipsis"
+          variant="secondary"
+          label={intl.formatMessage(intlMessages.megaphoneLabel)}
+          tooltipLabel={intl.formatMessage(intlMessages.megaphoneTooltip)}
+          onClick={() => setMegaphoneOpen(!megaphoneOpen)}
+          dataTest="megaphoneButton"
+        />
+        <Styled.BottomBarButton
+          labelOverflow="ellipsis"
+          variant="primary"
+          color="danger"
+          label={intl.formatMessage(intlMessages.finishLabel)}
+          onClick={handleFinish}
+          dataTest="finishBreakoutButton"
+        />
       </Styled.BottomBar>
     </Styled.PanelContent>
   );

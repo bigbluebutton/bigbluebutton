@@ -1,0 +1,60 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A recorded breakout room's meeting:breakout key (create.breakout-rooms.redis)
+# names the capture settings breakoutRoomCreate asked for. A defect: bbb-web's
+# Meeting setters for captureSlides and captureNotes ignore their argument,
+# so both read false (expectations/bbb-web.yaml). akka-apps captures the
+# slides and notes from other props, so the capture itself works. akka-apps
+# wants at least two rooms.
+id: create.breakout-rooms.capture
+title: A recorded breakout room's meeting:breakout key names its capture settings
+endpoint: create
+class: defect
+tags: [ci, presence]
+requires: [akka, presence, bus, redis]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Breakout capture, record: "true", breakoutRoomsRecord: "true"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - presence:
+      action: join
+      as: ann
+      args: {meetingID: "${uid}", fullName: Ann, role: MODERATOR}
+    golden: off
+  - graphql:
+      as: ann
+      query: >-
+        mutation CreateBreakouts($record: Boolean!, $notes: Boolean!, $slides: Boolean!, $duration: Int!,
+        $invite: Boolean!, $lock: Boolean!, $rooms: [BreakoutRoom]!) {
+        breakoutRoomCreate(record: $record, captureNotes: $notes, captureSlides: $slides, durationInSeconds: $duration,
+        sendInviteToModerators: $invite, inheritLockSettings: $lock, rooms: $rooms) }
+      variables:
+        record: true
+        notes: true
+        slides: true
+        duration: 600
+        invite: false
+        lock: false
+        rooms:
+          - {name: Room 1, shortName: Room 1, sequence: 1, isDefaultName: true, freeJoin: true, users: [], captureNotesFilename: "", captureSlidesFilename: "", allPages: true, presId: ""}
+          - {name: Room 2, shortName: Room 2, sequence: 2, isDefaultName: true, freeJoin: true, users: [], captureNotesFilename: "", captureSlidesFilename: "", allPages: true, presId: ""}
+    golden: off
+  - bus: {name: BreakoutRoomStartedEvtMsg, meetingId: "${intId}", within: 15s}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.breakout.sequence: "1"}
+    capture: {room1: $.core.body.breakout.breakoutId}
+  - redis: {key: "meeting:breakout:${room1}", within: 5s}
+    expect:
+      hash: {captureSlides: "true", captureNotes: "true"}
+teardown:
+  # Ending the parent ends its rooms. Again until bbb-web no longer knows
+  # the meeting: an end that reaches akka-apps before the create does is
+  # lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A meeting that keeps its events, because it is recorded or because of
+# meetingKeepEvents (or defaultKeepEvents, which alt-defaults sets), gets
+# meeting:info:<internal ID> in redis: a hash of its metadata, each name
+# without meta_ and lower-cased, plus meetingId (the external ID),
+# meetingName and isBreakout. The recording scripts read it to write the
+# recording's metadata.xml. bbb-web writes it after create answers, and
+# sets no expiry: the recording scripts delete it.
+id: create.redis.info
+title: create stores the meeting's metadata in redis when ${why}
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, redis]
+variants:
+  - {id: record, vars: {why: it is recorded, record: "true", keep: null}}
+  - {id: keep-events, vars: {why: it keeps its events, record: null, keep: "true"}}
+  - {id: alt-defaults, vars: {why: keeping events is the default, record: null, keep: null}, profile: alt-defaults, tags: [disruptive]}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Redis info, record: "${record}", meetingKeepEvents: "${keep}", meta_Conform-Color: blue, meta_conform-shape: round}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - redis: {key: "meeting:info:${intId}", within: 5s}
+    expect:
+      hash: {meetingId: "${uid}", meetingName: Redis info, isBreakout: "false", conform-color: blue, conform-shape: round}
+      ttl: -1
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

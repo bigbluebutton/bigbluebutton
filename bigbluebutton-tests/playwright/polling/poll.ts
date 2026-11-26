@@ -549,6 +549,59 @@ export class Polling extends MultiUsers {
     ).not.toHaveValue(/longfor/, { timeout: ELEMENT_WAIT_TIME });
   }
 
+  // Regression test for issue #24230: text in a slide footer must not become an extra option. Slide 1 has
+  // "13.11.25" next to the slide number, slide 2 "13. November 2025", slide 3 lettered answers with
+  // "13.11.25" next to "S. 3". Each slide must offer exactly its two answers.
+  async footerTextNotAnOption() {
+    await this.uploadFootersAndGridDeck();
+    await this.quickPollOffersAnswers(1, 'When do you prefer to meet?', ['1. Morning', '2. Afternoon']);
+    await this.quickPollOffersAnswers(2, 'Which day suits you better?', ['1. Monday', '2. Friday']);
+    await this.quickPollOffersAnswers(3, 'Which colour do you prefer?', ['a. Blue', 'b. Green']);
+  }
+
+  // Slide 4 lays its four answers out in a 2x2 grid, so two answers share each text line.
+  async answersInGrid() {
+    await this.uploadFootersAndGridDeck();
+    await this.quickPollOffersAnswers(4, 'Which city is the capital of France?', [
+      'a) Paris',
+      'b) Rome',
+      'c) Berlin',
+      'd) Madrid',
+    ]);
+  }
+
+  private async uploadFootersAndGridDeck() {
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await util.uploadSPresentationForTestingPolls(this.modPage, e.smartSlidesFootersAndGrid);
+    // join-sync barrier: the participants panel is closed by default on 4.0,
+    // so open it before asserting the attendee's list item
+    await this.userPage.waitAndClick(e.usersListSidebarButton);
+    await this.userPage.hasElement(e.userListItem, 'should display the user list item for the attendee');
+    await this.modPage.closeAllToastNotifications();
+  }
+
+  private async quickPollOffersAnswers(slide: number, question: string, answers: string[]) {
+    await util.goToSlide(this.modPage, slide);
+    await this.modPage.hasElement(
+      e.quickPoll,
+      `should display the quick poll button on slide ${slide}`,
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+    await this.modPage.waitAndClick(e.quickPoll, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitAndClick(e.startPoll);
+    await this.modPage.hasText(
+      e.currentPollQuestion,
+      question,
+      `the quick poll should take its question from slide ${slide}`,
+    );
+    await expect(
+      this.userPage.page.locator(e.pollAnswerOptionBtn),
+      `the attendee should get exactly the answers of slide ${slide}`,
+    ).toHaveText(answers, { timeout: ELEMENT_WAIT_TIME });
+    await this.modPage.waitAndClick(e.cancelPollBtn);
+    await this.userPage.wasRemoved(e.pollingContainer, 'should remove the poll for the attendee once it is cancelled');
+  }
+
   async pollResultsOnChat() {
     const { pollChatMessage } = this.modPage.settings || {};
 

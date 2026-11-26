@@ -1,0 +1,13 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.plugins.param
+target bbb-web
+
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.pluginProp
+$.core.body.props.pluginProp.ConformBasic.manifest.content.javascriptEntrypointUrl "ConformBasic.js"
+$.core.body.props.pluginProp.ConformBasic.manifest.content.name "ConformBasic"
+$.core.body.props.pluginProp.ConformBasic.manifest.content.requiredSdkVersion "~0.1.0"
+$.core.body.props.pluginProp.ConformBasic.manifest.url "${sinkUrl}/${uid}/fixtures/plugins/basic.json"
+$.core.body.props.pluginProp.ConformSecond.manifest.content.javascriptEntrypointUrl "ConformSecond.js"
+$.core.body.props.pluginProp.ConformSecond.manifest.content.name "ConformSecond"
+$.core.body.props.pluginProp.ConformSecond.manifest.content.requiredSdkVersion "~0.1.0"
+$.core.body.props.pluginProp.ConformSecond.manifest.url "${sinkUrl}/${uid}/fixtures/plugins/second.json"

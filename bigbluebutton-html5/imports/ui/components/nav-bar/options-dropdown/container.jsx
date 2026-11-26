@@ -9,6 +9,7 @@ import { USER_LEAVE_MEETING } from '/imports/ui/core/graphql/mutations/userMutat
 import { useMutation } from '@apollo/client';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
+import useShortcutTooltip from '/imports/ui/core/hooks/useShortcutTooltip';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import Session from '/imports/ui/services/storage/in-memory';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
@@ -71,6 +72,7 @@ const OptionsDropdownContainer = (props) => {
   };
 
   const openOptions = useShortcut('openOptions');
+  const withShortcut = useShortcutTooltip();
   const audioCaptionsActive = useStorageKey('audioCaptions') || false;
   const isDropdownOpen = useStorageKey('dropdownOpen');
   const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
@@ -82,6 +84,7 @@ const OptionsDropdownContainer = (props) => {
       userLeaveMeeting,
       audioCaptionsEnabled,
       shortcuts: openOptions,
+      withShortcut,
       audioCaptionsActive,
       isDropdownOpen,
       handleToggleFullscreen: FullscreenService.toggleFullScreen,

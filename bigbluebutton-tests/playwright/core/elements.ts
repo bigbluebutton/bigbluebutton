@@ -558,6 +558,7 @@ export const elements = {
   smartSlides1: 'smartSlidesPresentation.pdf',
   smartSlides2: 'SmartSlides.pdf',
   smartSlidesBugRepro1: 'smart-slides-bug-repro-1.pdf',
+  smartSlidesFootersAndGrid: 'smart-slides-footers-and-grid.pdf',
   responsePollQuestion: 'div[data-test="pollQuestion"]',
   firstPollAnswerOptionBtn: `${pollAnswersOption}>>nth=0`,
   secondPollAnswerOptionBtn: `${pollAnswersOption}>>nth=1`,

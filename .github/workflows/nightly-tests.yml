@@ -25,18 +25,16 @@ name: "Nightly tests"
 #     whose artifact has not expired; a manual run can name another run.
 #   - Runners: 8 ubuntu-24.04 jobs per run, each installing BigBlueButton (up to about 2 hours each).
 #   - Permissions: actions: read, to find that run and download its artifact. No secrets.
-#   - Schedule: GitHub starts scheduled workflows only from the default branch, so the schedule takes
-#     effect once this file is on the default branch; it still tests the branch named below. It runs
-#     only in bigbluebutton/bigbluebutton. A manual run works on any branch and fork that has the file.
+#   - Schedule: nightly-schedule.yml, on the default branch, starts this workflow every night on each
+#     branch it lists, with that branch's copy of this file. A manual run works on any branch and fork
+#     that has the file.
 on:
-  schedule:
-    - cron: "0 2 * * *"
   workflow_dispatch:
     inputs:
       branch:
-        description: "Branch whose newest Automated tests build to test"
+        description: "Branch whose newest Automated tests build to test (default: the branch this runs on)"
         type: string
-        default: "v4.1.x-develop"
+        required: false
       build-run-id:
         description: "Automated tests run to take the packages from instead (optional)"
         type: string
@@ -45,16 +43,15 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: ${{ github.workflow }}-${{ inputs.branch || 'v4.1.x-develop' }}
+  group: ${{ github.workflow }}-${{ inputs.branch || github.ref_name }}
   cancel-in-progress: false
 env:
-  BRANCH: ${{ inputs.branch || 'v4.1.x-develop' }}
+  BRANCH: ${{ inputs.branch || github.ref_name }}
   NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
   BBB_URL: https://bbb-ci.test/bigbluebutton/
   BBB_SECRET: bbbci
 jobs:
   find-build:
-    if: github.event_name != 'schedule' || github.repository == 'bigbluebutton/bigbluebutton'
     runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-24.04' }}
     outputs:
       run-id: ${{ steps.find.outputs.run-id }}

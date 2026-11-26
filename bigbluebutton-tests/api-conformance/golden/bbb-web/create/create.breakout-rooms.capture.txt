@@ -1,0 +1,14 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.breakout-rooms.capture
+target bbb-web
+
+== step 6: redis meeting:breakout:${room1} (document)
+$.key "meeting:breakout:<sha1(?)>-<time>"
+$.ttl -1
+$.type "hash"
+$.value.captureNotes "false"
+$.value.captureSlides "false"
+$.value.freeJoin "true"
+$.value.meetingId "<sha1(?)>-<time>"
+$.value.parentMeetingId "<sha1(meetingID)>-<time>"
+$.value.sequence "1"

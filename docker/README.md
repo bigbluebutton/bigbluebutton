@@ -160,7 +160,8 @@ counts as not set.
   public domain in the playback URLs), `BN_NOTES_ENDPOINT` (the notes export of
   bbb-shared-notes-server) and `SHARED_SECRET`, which signs the callbacks and wins over
   `securitySalt` in `bbb-web.properties`. The resque queue uses `redis_workers_*` from the files
-  when they are set. Also resque's `QUEUE` and `COUNT` (preset as in the systemd unit).
+  when they are set. Also resque's `QUEUE` and `COUNT` (preset to every queue of the two systemd
+  units; docker-compose.yml runs `rap:archive` in a worker of its own, as they do).
 - **bbb-webrtc-sfu**, **bbb-webhooks**: the variables in the component's
   `config/custom-environment-variables.yml` (node-config), e.g. `REDIS_HOST`, `REDIS_PASSWORD`;
   for the SFU also `LIVEKIT_HOST`, `LIVEKIT_KEY`, `LIVEKIT_SECRET`; for webhooks `SERVER_DOMAIN`,

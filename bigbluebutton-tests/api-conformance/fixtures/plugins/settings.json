@@ -1,0 +1,1 @@
+{"requiredSdkVersion":"~0.1.0","name":"ConformSettings","javascriptEntrypointUrl":"${plugin_ConformSettings_entry:ConformSettings.js}","localesBaseUrl":"${meta_conform-locales:https://plugins.invalid/locales}"}

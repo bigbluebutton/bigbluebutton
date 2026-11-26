@@ -256,7 +256,14 @@ Internal MeetingID                   Time   APVD APVDE RAS Slides Processed Publ
    CGroup: /system.slice/bbb-rap-resque-worker.service
            ├─ /usr/bin/rake -f ../Rakefile resque:workers >> /var/log/bigbluebutton/bbb-rap-worker.log
            ├─ /usr/bin/ruby /usr/bin/rake -f ../Rakefile resque:workers
-           └─ Waiting for rap:archive,rap:publish,rap:process,rap:sanity,rap:captions,rap:events
+           └─ Waiting for rap:publish,rap:process,rap:sanity,rap:captions,rap:events
+
+● bbb-rap-archive-worker.service - BigBlueButton resque worker for recording archives
+   Loaded: loaded (/usr/lib/systemd/system/bbb-rap-archive-worker.service; enabled)
+   Active: active (running) since Tue 2022-03-01 18:27:19 CET; 2 weeks 0 days ago
+   CGroup: /system.slice/bbb-rap-archive-worker.service
+           ├─ /usr/bin/ruby /usr/bin/rake -f ../Rakefile resque:workers
+           └─ Waiting for rap:archive
 --
 ```
 
@@ -557,7 +564,7 @@ First, stop the recording service and create the required temporary directories:
 
 ```bash
 systemctl stop bbb-rap-starter
-systemctl stop bbb-rap-resque-worker
+systemctl stop bbb-rap-resque-worker bbb-rap-archive-worker
 ```
 
 ```bash
@@ -688,7 +695,7 @@ Notice we appended "presentation" to the meetingId, this will tell the script to
 You can deploy your changes by running `deploy.sh` and restarting the recording-related services:
 ```
 systemctl restart bbb-rap-starter
-systemctl restart bbb-rap-resque-worker
+systemctl restart bbb-rap-resque-worker bbb-rap-archive-worker
 ```
 
 `deploy.sh` does not install the players for recordings made with BigBlueButton 0.81 and 0.9. If you need them on a development server, build and install the `bbb-playback-presentation-legacy` package (`build/setup.sh bbb-playback-presentation-legacy`), as described in [play recordings made with BigBlueButton 0.81 or 0.9](/administration/customize#play-recordings-made-with-bigbluebutton-081-or-09).
@@ -718,7 +725,7 @@ At last, if it is the first time you set one other recording format, you may hav
 
 ```
 systemctl restart bbb-rap-starter
-systemctl restart bbb-rap-resque-worker
+systemctl restart bbb-rap-resque-worker bbb-rap-archive-worker
 systemctl reload nginx
 ```
 
@@ -768,7 +775,7 @@ Restarting the recording-related services may also help:
 
 ```bash
 systemctl restart bbb-rap-starter
-systemctl restart bbb-rap-resque-worker
+systemctl restart bbb-rap-resque-worker bbb-rap-archive-worker
 ```
 
 #### Understanding output from bbb-record --watch
