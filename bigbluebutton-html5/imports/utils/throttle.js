@@ -1,5 +1,6 @@
 export function throttle(func, delay, options = {}) {
   let timeoutId;
+  let leadingTimeoutId;
   let lastExecTime = 0;
   let leadingExec = true;
 
@@ -11,6 +12,7 @@ export function throttle(func, delay, options = {}) {
     const context = this;
     const args = arguments;
     const elapsed = Date.now() - lastExecTime;
+    cancelPendingExecution = false;
 
     function execute() {
       if (!cancelPendingExecution) { // Only execute if not cancelled
@@ -23,11 +25,12 @@ export function throttle(func, delay, options = {}) {
       execute();
       leadingExec = false;
       const nextExecDelay = elapsed < delay ? delay - elapsed : delay;
-      setTimeout(function () {
+      leadingTimeoutId = setTimeout(() => {
         leadingExec = true;
+        leadingTimeoutId = null;
       }, nextExecDelay);
     } else if (!timeoutId && trailing) {
-      timeoutId = setTimeout(function () {
+      timeoutId = setTimeout(() => {
         execute();
         timeoutId = null;
       }, delay - elapsed);
@@ -39,6 +42,9 @@ export function throttle(func, delay, options = {}) {
     cancelPendingExecution = true;
     clearTimeout(timeoutId);
     timeoutId = null;
+    clearTimeout(leadingTimeoutId);
+    leadingTimeoutId = null;
+    leadingExec = true;
   };
 
   return throttledFunction;

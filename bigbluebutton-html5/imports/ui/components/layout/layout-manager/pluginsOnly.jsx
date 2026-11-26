@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { throttle } from '/imports/utils/throttle';
 import { layoutDispatch, layoutSelect, layoutSelectInput } from '/imports/ui/components/layout/context';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
@@ -300,8 +300,13 @@ const PluginsOnlyLayout = (props) => {
     });
   };
 
-  const throttledCalculatesLayout = throttle(() => calculatesLayout(),
-    50, { trailing: true, leading: true });
+  const calculatesLayoutRef = useRef(calculatesLayout);
+  calculatesLayoutRef.current = calculatesLayout;
+
+  const throttledCalculatesLayout = useMemo(
+    () => throttle(() => calculatesLayoutRef.current?.(), 50, { trailing: true, leading: true }),
+    [],
+  );
 
   useEffect(() => {
     const handleWindowResize = () => {
@@ -316,8 +321,9 @@ const PluginsOnlyLayout = (props) => {
     window.addEventListener('resize', handleWindowResize);
     return () => {
       window.removeEventListener('resize', handleWindowResize);
+      throttledCalculatesLayout.cancel();
     };
-  }, []);
+  }, [throttledCalculatesLayout]);
 
   const init = () => {
     const hasLayoutEngineLoadedOnce = Session.getItem('hasLayoutEngineLoadedOnce');

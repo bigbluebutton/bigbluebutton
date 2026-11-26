@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { throttle } from '/imports/utils/throttle';
 import { layoutDispatch, layoutSelect, layoutSelectInput } from '/imports/ui/components/layout/context';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
@@ -44,7 +44,7 @@ const MediaOnlyLayout = (props) => {
   const { isPresentationEnabled } = props;
 
   useEffect(() => {
-    window.addEventListener('resize', () => {
+    const handleWindowResize = () => {
       layoutContextDispatch({
         type: ACTIONS.SET_BROWSER_SIZE,
         value: {
@@ -52,7 +52,12 @@ const MediaOnlyLayout = (props) => {
           height: window.document.documentElement.clientHeight,
         },
       });
-    });
+    };
+
+    window.addEventListener('resize', handleWindowResize);
+    return () => {
+      window.removeEventListener('resize', handleWindowResize);
+    };
   }, []);
 
   const calculatesSlideSize = (mediaAreaBounds) => {
@@ -439,10 +444,20 @@ const MediaOnlyLayout = (props) => {
     });
   };
 
-  const throttledCalculatesLayout = throttle(() => calculatesLayout(), 50, {
-    trailing: true,
-    leading: true,
-  });
+  const calculatesLayoutRef = useRef(calculatesLayout);
+  calculatesLayoutRef.current = calculatesLayout;
+
+  const throttledCalculatesLayout = useMemo(
+    () => throttle(() => calculatesLayoutRef.current?.(), 50, {
+      trailing: true,
+      leading: true,
+    }),
+    [],
+  );
+
+  useEffect(() => () => {
+    throttledCalculatesLayout.cancel();
+  }, [throttledCalculatesLayout]);
 
   const init = () => {
     const hasLayoutEngineLoadedOnce = Session.getItem('hasLayoutEngineLoadedOnce');

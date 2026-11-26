@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { throttle } from '/imports/utils/throttle';
 import { layoutSelect, layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
 import DEFAULT_VALUES, {
@@ -61,11 +61,14 @@ const UnifiedLayout = (props) => {
   const prevIsResizing = usePrevious(isResizing);
   const { isPresentationEnabled } = props;
 
-  const throttledCalculatesLayout = throttle(() => calculatesLayout(),
-    50, { trailing: true, leading: true });
+  const calculatesLayoutRef = useRef(null);
+  const throttledCalculatesLayout = useMemo(
+    () => throttle(() => calculatesLayoutRef.current?.(), 50, { trailing: true, leading: true }),
+    [],
+  );
 
   useEffect(() => {
-    window.addEventListener('resize', () => {
+    const handleWindowResize = () => {
       layoutContextDispatch({
         type: ACTIONS.SET_BROWSER_SIZE,
         value: {
@@ -73,8 +76,14 @@ const UnifiedLayout = (props) => {
           height: window.document.documentElement.clientHeight,
         },
       });
-    });
-  }, []);
+    };
+
+    window.addEventListener('resize', handleWindowResize);
+    return () => {
+      window.removeEventListener('resize', handleWindowResize);
+      throttledCalculatesLayout.cancel();
+    };
+  }, [throttledCalculatesLayout]);
 
   useEffect(() => {
     if (deviceType === null) return () => null;
@@ -916,6 +925,7 @@ const UnifiedLayout = (props) => {
       },
     });
   };
+  calculatesLayoutRef.current = calculatesLayout;
 
   return null;
 };
