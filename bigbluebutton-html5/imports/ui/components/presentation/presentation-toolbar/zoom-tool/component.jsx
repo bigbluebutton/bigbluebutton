@@ -176,6 +176,7 @@ class ZoomTool extends PureComponent {
             minBound={minBound}
           >
             <Styled.DecreaseZoomButton
+              className="bbb-presentation-toolbar__zoom-out"
               color="light"
               circle
               size="md"
@@ -195,6 +196,7 @@ class ZoomTool extends PureComponent {
         (
           <span key="zoom-tool-2">
             <Styled.ResetZoomButton
+              className="bbb-presentation-toolbar__zoom-reset"
               aria-label={intl.formatMessage(intlMessages.resetZoomLabel)}
               aria-describedby="resetZoomDescription"
               disabled={(stateZoomValue === HUNDRED_PERCENT) || !isConnected}
@@ -219,6 +221,7 @@ class ZoomTool extends PureComponent {
             maxBound={maxBound}
           >
             <Styled.IncreaseZoomButton
+              className="bbb-presentation-toolbar__zoom-in"
               color="light"
               circle
               size="md"

@@ -18,12 +18,17 @@ const isSafariTarget = process.env.TARGET === 'safari';
 
 process.stdout.write(`Building: ${process.env.TARGET}\n`);
 
+// With source maps on, webpack's filesystem cache stores each bundle and its
+// map under the bundle's file name. A new name per rebuild would keep every
+// old bundle and map (~100 MB each) in the cache until maxAge.
+const bundleFilename = env === prodEnv ? 'bundle.[fullhash].js' : 'bundle.js';
+
 const config = {
   entry: './client/main.tsx',
   output: {
     filename: isSafariTarget
       ? 'bundle.safari.js'
-      : 'bundle.[fullhash].js',
+      : bundleFilename,
     path: path.resolve(__dirname, 'dist'),
     publicPath: '',
   },
@@ -54,13 +59,17 @@ const config = {
   },
   devtool: 'source-map',
   plugins: [
-    new webpack.optimize.LimitChunkCountPlugin({
+    // Safari 14-15 build: one file, build.sh renames it (#22817)
+    isSafariTarget && new webpack.optimize.LimitChunkCountPlugin({
       maxChunks: 1,
     }),
     new HtmlWebpackPlugin({
       template: './client/main.html',
       filename: 'index.html',
       inject: false,
+      // Render the page on every rebuild. With the fixed dev bundle name, the
+      // plugin would keep its last page and an old build hash.
+      cache: false,
       templateParameters: (compilation, assets, assetTags, options) => {
         const fullhash = compilation.hash;
         return {
@@ -104,10 +113,34 @@ const config = {
       '/imports': path.resolve(__dirname, '/imports/'),
       '@tiptap/core/jsx-runtime': path.resolve(__dirname, 'node_modules/@tiptap/core/dist/jsx-runtime/jsx-runtime.js'),
       yjs: path.resolve(__dirname, 'node_modules/yjs'),
+      mermaid$: path.resolve(__dirname, 'imports/ui/components/bn-shared-notes/mermaid-on-demand.ts'),
     },
   },
   module: {
+    // Dynamic imports stay in the bundle (#22817), except Mermaid's (lazy)
+    parser: {
+      javascript: {
+        dynamicImportMode: 'eager',
+      },
+    },
     rules: [
+      {
+        test: /[\\/]node_modules[\\/](mermaid|@mermaid-js[\\/][^\\/]+)[\\/]/,
+        parser: {
+          dynamicImportMode: 'lazy',
+        },
+        // Mermaid ships class static blocks, which Safari parses only from 16.4:
+        // compile its syntax down to the oldest Safari the client supports.
+        use: {
+          loader: 'babel-loader',
+          options: {
+            babelrc: false,
+            configFile: false,
+            sourceType: 'unambiguous',
+            presets: [['@babel/preset-env', { targets: { safari: '14' }, modules: false }]],
+          },
+        },
+      },
       {
         test: /\.(js|jsx|ts|tsx)$/,
         resolve: {

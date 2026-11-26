@@ -1,0 +1,35 @@
+# What create and end do outside their answers, checked through the
+# target's tap: akka-apps' meeting props on the bus, bbb-web's
+# meeting:info key in redis, and the recording marker bbb-web writes
+# when a recorded meeting ends.
+id: create.side-effects.recorded
+title: A recorded meeting's props, metadata key and recording marker
+endpoint: create
+class: contract
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Props, record: "true", muteOnStart: "true", meta_Color: blue}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    expect:
+      jsonpath:
+        $.core.body.props.voiceProp.muteOnStart: "true"
+    capture: {voiceConf: $.core.body.props.voiceProp.voiceConf}
+  - redis: {key: "meeting:info:${intId}", within: 5s}
+    expect:
+      hash: {color: blue, meetingName: Props}
+      ttl: "-1"
+  - call: end
+    params: {meetingID: "${uid}"}
+  - bus: {name: MeetingEndedEvtMsg, meetingId: "${intId}", within: 5s}
+  - fs: {path: "recording/status/recorded/${intId}.done", within: 5s}
+    expect: {exists: true}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 500ms}
+    expect: {count: 1}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

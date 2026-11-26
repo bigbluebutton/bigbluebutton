@@ -4,7 +4,6 @@ import org.bigbluebutton.LockSettingsUtil
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.db.{ MeetingLockSettingsDAO, NotificationDAO }
-import org.bigbluebutton.core.graphql.GraphqlMiddleware
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.OutMsgRouter
 import org.bigbluebutton.core.running.MeetingActor
@@ -23,6 +22,11 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to change lock settings"
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
+    } else if (liveMeeting.props.meetingProp.disabledFeatures.contains("lockSettings")) {
+      log.warning(
+        "Ignoring lock settings change because the lockSettings feature is disabled for meeting {}",
+        liveMeeting.props.meetingProp.intId
+      )
     } else {
       val settings = Permissions(
         disableCam = msg.body.disableCam,
@@ -45,15 +49,9 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
 
         MeetingStatus2x.setPermissions(liveMeeting.status, settings)
 
-        //Refresh graphql session for all locked viewers
-        for {
-          user <- Users2x.findAll(liveMeeting.users2x)
-          if user.locked
-          if user.role == Roles.VIEWER_ROLE
-          regUser <- RegisteredUsers.findWithUserId(user.intId, liveMeeting.registeredUsers)
-        } yield {
-          GraphqlMiddleware.requestGraphqlReconnection(regUser.sessionToken, "lockSettings_changed")
-        }
+        // No GraphQL reconnection is required here: the Hasura permission rules read
+        // the meeting_lockSettings row directly, so updating it below is what makes
+        // the new locks effective for every connected client.
 
         //Update database
         MeetingLockSettingsDAO.update(liveMeeting.props.meetingProp.intId, settings)

@@ -1,5 +1,6 @@
 import { equals } from 'ramda';
 import {
+  DEVICE_ORIENTATION,
   DEVICE_TYPE,
   LAYOUT_ELEMENTS,
   LAYOUT_TYPE,
@@ -8,6 +9,7 @@ import {
   PRESENTATION_AREA,
 } from './enums';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const phoneUpperBoundary = 600;
 const tabletPortraitUpperBoundary = 900;
@@ -30,10 +32,12 @@ const getWaitLayout = () => {
 };
 
 /**
- * @returns {string | null} PANELS.USERLIST, PANELS.CHAT, or null.
+ * @param {boolean} isChatEnabled
+ * @returns {string | null} PANELS.USERLIST, PANELS.CHAT, or null when no panel should open.
  */
 const getInitialSidebarContentPanel = (isChatEnabled) => {
   // Safe at load time: consumers call this after window.meetingClientSettings is populated.
+  if (getFromUserSettings('bbb_hide_sidebar_navigation', false)) return null;
   const { chat, layout } = window.meetingClientSettings.public;
   const shouldOpenParticipants = getFromUserSettings(
     'bbb_show_participants_on_login',
@@ -209,8 +213,17 @@ const getDeviceType = () => {
   return deviceType;
 };
 
+// Off the browser size the layout managers lay out with, so a pass never sees an
+// orientation that disagrees with its own dimensions.
+const getDeviceOrientation = ({ width, height }) => (height > width
+  ? DEVICE_ORIENTATION.PORTRAIT
+  : DEVICE_ORIENTATION.LANDSCAPE);
+
+const isPhoneLandscape = (browser) => deviceInfo.isPhone
+  && getDeviceOrientation(browser) === DEVICE_ORIENTATION.LANDSCAPE;
+
 export {
   suportedLayouts, LAYOUTS_SYNC, getSupportedLayouts, isLayoutSupported, layoutAllowedInSettings,
   getWaitLayout, getDeviceType, getInitialSidebarContentPanel,
-  isValidSynchronizationLayout,
+  isValidSynchronizationLayout, isPhoneLandscape,
 };

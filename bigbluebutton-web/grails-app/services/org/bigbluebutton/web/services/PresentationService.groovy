@@ -22,6 +22,7 @@ import org.bigbluebutton.api.domain.Meeting
 import org.bigbluebutton.api.service.ServiceUtils
 import org.bigbluebutton.presentation.DocumentConversionService
 import org.bigbluebutton.presentation.UploadedPresentation
+import org.bigbluebutton.presentation.imp.PageArtifacts
 import org.springframework.beans.factory.annotation.Autowired
 import jakarta.annotation.PostConstruct
 import jakarta.annotation.PreDestroy
@@ -111,7 +112,7 @@ class PresentationService {
 	}
 
 	def deletePresentation = {conf, room, filename ->
-		def directory = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + filename)
+		def directory = presentationDirectory(conf, room, filename)
 		deleteDirectory(directory)
 	}
 
@@ -188,56 +189,59 @@ class PresentationService {
 		documentConversionService.sendDocConversionFailedOnMimeType(pres, fileMime, fileExtension)
 	}
 
-	def showSvgImage(String conf, String room, String presentationName, String id) {
-		new File(roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar + "svgs" + File.separatorChar + "slide${id}.svg")
+	// Page artifacts are named by page id (PageArtifacts); the callers check the id format first.
+	def showSvgImage(String conf, String room, String presentationName, String pageId) {
+		pageArtifact(conf, room, presentationName, PageArtifacts.Type.SVG, pageId)
 	}
 
-	def showThumbnail = {conf, room, presentationName, thumb ->
-		def thumbFile = roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar +
-				"thumbnails" + File.separatorChar + "thumb-${thumb}.png"
-		log.debug "showing $thumbFile"
-
-		new File(thumbFile)
+	def showThumbnail = {conf, room, presentationName, pageId ->
+		pageArtifact(conf, room, presentationName, PageArtifacts.Type.THUMBNAIL, pageId)
 	}
 
-	def showPng = {conf, room, presentationName, page ->
-		def pngFile = roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar +
-				"pngs" + File.separatorChar + "slide-${page}.png"
-		log.debug "showing $pngFile"
-
-		new File(pngFile)
+	def showPng = {conf, room, presentationName, pageId ->
+		pageArtifact(conf, room, presentationName, PageArtifacts.Type.PNG, pageId)
 	}
 
-	def showTextfile = {conf, room, presentationName, textfile ->
-		def txt = roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar +
-				"textfiles" + File.separatorChar + "slide-${textfile}.txt"
-		log.debug "showing $txt"
-
-		new File(txt)
+	def showTextfile = {conf, room, presentationName, pageId ->
+		pageArtifact(conf, room, presentationName, PageArtifacts.Type.TEXT, pageId)
 	}
 
-	def numberOfThumbnails = {conf, room, name ->
-		def thumbDir = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + name + File.separatorChar + "thumbnails")
-		thumbDir.listFiles().length
-	}
-
-	def numberOfSvgs = {conf, room, name ->
-		def SvgsDir = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + name + File.separatorChar + "svgs")
-		SvgsDir.listFiles().length
-	}
-
-	def numberOfTextfiles = {conf, room, name ->
-		log.debug roomDirectory(conf, room).absolutePath + File.separatorChar + name + File.separatorChar + "textfiles"
-		def textfilesDir = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + name + File.separatorChar + "textfiles")
-		textfilesDir.listFiles().length
+	private File pageArtifact(Object conf, Object room, Object presentationName, PageArtifacts.Type type, String pageId) {
+		resolvePresentationFile(conf, room, presentationName, type.directory, type.fileName(pageId))
 	}
 
 	def roomDirectory = {conf, room ->
-		return new File(presentationDir + File.separatorChar + conf + File.separatorChar + room)
+		File conferenceDirectory = resolveContained(new File(presentationDir as String), conf, "conference")
+		resolveContained(conferenceDirectory, room, "room")
+	}
+
+	File presentationDirectory(Object conf, Object room, Object presentationName) {
+		resolveContained(roomDirectory(conf, room), presentationName, "presentation_name")
+	}
+
+	private File resolvePresentationFile(Object conf, Object room, Object presentationName, Object... path) {
+		File current = presentationDirectory(conf, room, presentationName)
+		path.each { segment -> current = resolveContained(current, segment, "presentation path") }
+		current
+	}
+
+	private static File resolveContained(File parent, Object segment, String name) {
+		String value = segment?.toString()
+		if (!value || value == "." || value == ".." || value.contains('/') || value.contains('\\') || new File(value).isAbsolute()) {
+			throw new IllegalArgumentException("Invalid ${name}")
+		}
+
+		File canonicalParent = parent.canonicalFile
+		File canonicalTarget = new File(canonicalParent, value).canonicalFile
+		String prefix = canonicalParent.path + File.separator
+		if (!canonicalTarget.path.startsWith(prefix)) {
+			throw new IllegalArgumentException("Invalid ${name}")
+		}
+		canonicalTarget
 	}
 
 	def testConversionProcess() {
-		File presDir = new File(roomDirectory(testConferenceMock, testRoomMock).absolutePath + File.separatorChar + testPresentationName)
+		File presDir = presentationDirectory(testConferenceMock, testRoomMock, testPresentationName)
 
 		if (presDir.exists()) {
 			File pres = new File(presDir.getAbsolutePath() + File.separatorChar + testUploadedPresentation)

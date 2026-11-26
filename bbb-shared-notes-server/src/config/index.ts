@@ -27,25 +27,56 @@ function deepMerge<T extends object>(base: T, override: Partial<T>): T {
   return result;
 }
 
-// An explicit config path (BBB_SHARED_NOTES_SERVER_CONFIG) short-circuits the whole
+export interface ConfigPaths {
+  defaultPath: string;
+  // No override file is merged when absent
+  overridePath?: string;
+}
+
+// An explicit config path (BBB_SHARED_NOTES_SERVER_CONFIG) replaces the installed
 // lookup: no production-path preference and no /etc override merge. The tests
 // use it to stay hermetic on hosts where the deployed package config exists.
-const EXPLICIT_CONFIG_PATH = process.env.BBB_SHARED_NOTES_SERVER_CONFIG;
+const installedPaths = (env: NodeJS.ProcessEnv = process.env): ConfigPaths => {
+  if (env.BBB_SHARED_NOTES_SERVER_CONFIG) return { defaultPath: env.BBB_SHARED_NOTES_SERVER_CONFIG };
+  return {
+    defaultPath: existsSync(PRODUCTION_DEFAULT_PATH) ? PRODUCTION_DEFAULT_PATH : DEV_DEFAULT_PATH,
+    overridePath: OVERRIDE_PATH,
+  };
+};
 
-function loadConfig(): AppSettings {
-  if (EXPLICIT_CONFIG_PATH) {
-    return load(readFileSync(EXPLICIT_CONFIG_PATH, 'utf8')) as AppSettings;
-  }
-  const defaultPath = existsSync(PRODUCTION_DEFAULT_PATH) ? PRODUCTION_DEFAULT_PATH : DEV_DEFAULT_PATH;
-  let config = load(readFileSync(defaultPath, 'utf8')) as AppSettings;
+// The default file, then the override file, then the environment
+export function loadConfig(paths: ConfigPaths = installedPaths(), env: NodeJS.ProcessEnv = process.env): AppSettings {
+  let config = load(readFileSync(paths.defaultPath, 'utf8')) as AppSettings;
 
-  if (existsSync(OVERRIDE_PATH)) {
-    const override = load(readFileSync(OVERRIDE_PATH, 'utf8')) as Partial<AppSettings>;
+  if (paths.overridePath && existsSync(paths.overridePath)) {
+    // an empty file is null for js-yaml
+    const override = (load(readFileSync(paths.overridePath, 'utf8')) ?? {}) as Partial<AppSettings>;
     config = deepMerge(config, override);
   }
 
-  // SERVER_HOST, if set, wins over the default and the override file
-  if (process.env.SERVER_HOST) config.expressServer.host = process.env.SERVER_HOST;
+  // These variables, if set, win over the default and the override file
+  if (env.SERVER_HOST) config.expressServer.host = env.SERVER_HOST;
+  if (env.BBB_WEB_URL) {
+    // bbb-web's base URL, as for bbb-export-annotations, e.g. http://web:8090
+    const url = URL.canParse(env.BBB_WEB_URL) ? new URL(env.BBB_WEB_URL) : undefined;
+    if (url?.protocol !== 'http:' || !url.hostname) {
+      throw new Error(`BBB_WEB_URL=${env.BBB_WEB_URL} is not bbb-web's base URL: use http://host[:port], e.g. http://web:8090`);
+    }
+    if (url.pathname !== '/') {
+      console.warn(`BBB_WEB_URL=${env.BBB_WEB_URL}: only http://host[:port] is used`);
+    }
+    config.bbbWeb.host = url.hostname;
+    config.bbbWeb.port = url.port || '80';
+  }
+  if (env.REDIS_HOST) config.redis.host = env.REDIS_HOST;
+  if (env.REDIS_PASSWORD) config.redis.password = env.REDIS_PASSWORD;
+  if (env.REDIS_PORT) {
+    // Kubernetes sets REDIS_PORT=tcp://<address>:6379 for a Service named redis
+    if (/^\d+$/.test(env.REDIS_PORT)) config.redis.port = Number(env.REDIS_PORT);
+    else console.warn(`REDIS_PORT=${env.REDIS_PORT} is not a port number, using ${config.redis.port}`);
+  }
+  if (env.POSTGRES_HOST) config.postgres.host = env.POSTGRES_HOST;
+  if (env.POSTGRES_PASSWORD) config.postgres.password = env.POSTGRES_PASSWORD;
 
   return config;
 }

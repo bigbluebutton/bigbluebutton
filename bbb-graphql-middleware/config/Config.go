@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strconv"
 	"sync"
 
 	"dario.cat/mergo"
@@ -35,6 +36,7 @@ type Config struct {
 		MaxConnectionConcurrentSubscriptions int    `yaml:"max_connection_concurrent_subscriptions"`
 		MaxQueryLength                       int    `yaml:"max_query_length"`
 		MaxQueryDepth                        int    `yaml:"max_query_depth"`
+		MaxQueryVariablesLength              int    `yaml:"max_query_variables_length"`
 		MaxMutationLength                    int    `yaml:"max_mutation_length"`
 		AuthorizedCrossOrigin                string `yaml:"authorized_cross_origin"`
 		JsonPatchDisabled                    bool   `yaml:"json_patch_disabled"`
@@ -95,9 +97,29 @@ func (c *Config) loadConfigs() {
 		}
 	}
 
-	// SERVER_HOST, if set, wins over the default and the override file
-	if host := os.Getenv("SERVER_HOST"); host != "" {
-		configDefault.Server.Host = host
+	// These variables, if set, win over the default and the override file
+	for name, value := range map[string]*string{
+		"SERVER_HOST":                            &configDefault.Server.Host,
+		"REDIS_HOST":                             &configDefault.Redis.Host,
+		"REDIS_PASSWORD":                         &configDefault.Redis.Password,
+		"HASURA_URL":                             &configDefault.Hasura.Url,
+		"HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL": &configDefault.GraphqlActions.Url,
+		"AUTH_HOOK_URL":                          &configDefault.AuthHook.Url,
+		"SESSION_VARS_HOOK_URL":                  &configDefault.SessionVarsHook.Url,
+	} {
+		if env := os.Getenv(name); env != "" {
+			*value = env
+		}
+	}
+
+	// Kubernetes sets REDIS_PORT=tcp://<address>:6379 for a Service named redis: a value that is not
+	// a port number keeps the one from the files
+	if env := os.Getenv("REDIS_PORT"); env != "" {
+		if port, err := strconv.ParseInt(env, 10, 32); err == nil {
+			configDefault.Redis.Port = int32(port)
+		} else {
+			log.Warnf("REDIS_PORT=%s is not a port number, using %d", env, configDefault.Redis.Port)
+		}
 	}
 
 	// Update the singleton instance with the merged config
@@ -139,8 +161,6 @@ var AllowedSubscriptionsForNotInMeetingUsers = []string{
 var ReconnectionReasonsPreservingMembership = []string{
 	"role_changed",
 	"lock_user_changed",
-	"lockSettings_changed",
-	"webcamOnlyForMod_changed",
 	"assigned_presenter",
 	"assigned_presenter_automatically",
 }

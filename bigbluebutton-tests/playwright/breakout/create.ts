@@ -2,6 +2,7 @@ import { expect, Page as PlaywrightPage } from '@playwright/test';
 
 import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
+import { Page } from '../core/page';
 import { uploadOversizedPresentation, uploadSinglePresentation } from '../presentation/util';
 import { MultiUsers } from '../user/multiusers';
 
@@ -16,7 +17,7 @@ export class Create extends MultiUsers {
     }
   }
 
-  private static async setCheckboxChecked(page: PlaywrightPage, selector: string, checked: boolean) {
+  protected static async setCheckboxChecked(page: PlaywrightPage, selector: string, checked: boolean) {
     const checkbox = page.locator(selector);
     await checkbox.waitFor({ state: 'attached', timeout: ELEMENT_WAIT_LONGER_TIME });
     // retry the toggle: under load a single click can land before the MUI switch is wired and not register
@@ -26,7 +27,7 @@ export class Create extends MultiUsers {
     }).toPass({ timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
   }
 
-  private static async setPermissionAllowed(page: PlaywrightPage, selector: string, allowed: boolean) {
+  protected static async setPermissionAllowed(page: PlaywrightPage, selector: string, allowed: boolean) {
     await Create.setCheckboxChecked(page, selector, allowed);
   }
 
@@ -44,7 +45,7 @@ export class Create extends MultiUsers {
     return lockViewersButton;
   }
 
-  private static async openLockViewersPermissions(page: PlaywrightPage) {
+  protected static async openLockViewersPermissions(page: PlaywrightPage) {
     const lockViewersButton = await Create.getLockViewersButton(page);
     await lockViewersButton.click({ timeout: ELEMENT_WAIT_LONGER_TIME });
     await page.locator(e.participantPermissionsTab).click({ timeout: ELEMENT_WAIT_LONGER_TIME });
@@ -79,7 +80,41 @@ export class Create extends MultiUsers {
     await this.modPage.hasElement(e.roomOptions1, 'should display the first breakout room options button');
   }
 
-  private async joinFirstBreakoutRoomAsModerator() {
+  // Drags the user by name from the unassigned list into the first room
+  protected async assignToFirstRoom(username: string) {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+
+    // whole-name match: "Attendee" must not pick "Attendee2"
+    const exactName = new RegExp(`^${username.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`);
+    await this.modPage.page
+      .locator(e.unassignedUser, { hasText: exactName })
+      .dragTo(this.modPage.page.locator(e.breakoutBox1), { timeout: ELEMENT_WAIT_TIME });
+    await this.modPage.hasText(e.breakoutBox1, username, `should list ${username} in the first room`);
+  }
+
+  // Assigns the attendees to the first room and creates the rooms, leaving the attendees' invitations
+  // open. `inheritLockSettings` sets the "Propagate the current lock settings" option; left out, the
+  // panel keeps its default.
+  protected async createRoomsWith(attendees: Page[], { inheritLockSettings }: { inheritLockSettings?: boolean } = {}) {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+
+    // the panel needs a wide viewport to show the start button and the room cards side by side
+    await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 });
+    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+    await this.modPage.waitForSelector(e.attendeeNotAssigned, ELEMENT_WAIT_EXTRA_LONG_TIME);
+    for (const attendee of attendees) {
+      await this.assignToFirstRoom(attendee.username);
+    }
+    if (inheritLockSettings !== undefined) {
+      await this.modPage.waitAndClick(e.moreOptionsToggle);
+      await Create.setCheckboxChecked(this.modPage.page, e.inheritLockSettingsCheckbox, inheritLockSettings);
+    }
+    await this.modPage.waitAndClick(e.createBreakoutRoomsButton, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.hasElement(e.roomOptions1, 'should display the first room in the breakout panel');
+    await this.modPage.setHeightWidthViewPortSize(); // reset to default size
+  }
+
+  protected async joinFirstBreakoutRoomAsModerator() {
     if (!this?.modPage) throw new Error('modPage not initialized');
 
     const isRoomOptionsVisible = await this.modPage.page
@@ -109,20 +144,22 @@ export class Create extends MultiUsers {
   }
 
   // Create BreakoutRooms
-  async create(captureNotes = false, captureWhiteboard = false) {
+  async create(captureNotes = false, captureWhiteboard = false, record = false) {
     if (!this?.modPage) throw new Error('modPage not initialized');
     if (!this?.userPage) throw new Error('userPage not initialized');
 
     // needed for better create breakout rooms button disposition
     await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 });
     await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
-    await this.modPage.page.waitForTimeout(2000); // wait for the breakout sidebar to be fully loaded.
+    await this.modPage.hasElement(e.attendeeNotAssigned, 'should list the users not assigned to a room yet');
+    await this.modPage.hasElement(e.breakoutBox1, 'should display the first room to assign users to');
 
     // assign user to first room
     await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
     await this.modPage.waitAndClick(e.moreOptionsToggle);
     if (captureNotes) await this.modPage.page.check(e.captureBreakoutSharedNotes);
     if (captureWhiteboard) await this.modPage.page.check(e.captureBreakoutWhiteboard);
+    if (record) await this.modPage.page.check(e.recordBreakoutRooms);
     await this.modPage.waitAndClick(e.createBreakoutRoomsButton, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.hasElement(e.modalConfirmButton, 'should appear the modal confirm button to join breakout');
     await this.userPage.waitAndClick(e.modalDismissButton);
@@ -249,6 +286,20 @@ export class Create extends MultiUsers {
     await expect(checkbox, 'checkbox should be checked when inheritance is enabled by default').toBeChecked();
     await checkbox.uncheck();
     await expect(checkbox, 'moderator should be able to clear the checkbox').not.toBeChecked();
+    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+  }
+
+  async inheritLockSettingsCheckboxIsNotOffered() {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+
+    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+    await this.modPage.waitAndClick(e.moreOptionsToggle);
+
+    await this.modPage.hasElement(e.allowChoiceRoom, 'should display the options of the create breakout panel');
+    await this.modPage.wasRemoved(
+      e.inheritLockSettingsCheckbox,
+      'should not offer the "Propagate the current lock settings" checkbox in a meeting without lock settings',
+    );
     await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
   }
 
@@ -518,6 +569,24 @@ export class Create extends MultiUsers {
     );
   }
 
+  // lockBreakoutRecordingSetting takes the recording decision away from the moderator: the record
+  // option comes up on, whatever recordRoomByDefault says, and cannot be switched off.
+  async lockedRecordingSettingForcesRecordOn() {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+
+    await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 });
+    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+    await this.modPage.waitAndClick(e.moreOptionsToggle);
+    const recordSwitch = this.modPage.page.locator(e.recordBreakoutRooms);
+    await expect(
+      recordSwitch,
+      'should offer the record option switched on although recordRoomByDefault is false',
+    ).toBeChecked();
+    await expect(recordSwitch, 'should not let the moderator switch the locked record option off').toBeDisabled();
+    await recordSwitch.click({ force: true });
+    await expect(recordSwitch, 'should keep the record option on after a click').toBeChecked();
+  }
+
   async rejectedPresentationIsNotOfferedAsBreakoutSlide() {
     if (!this?.modPage) throw new Error('modPage not initialized');
 
@@ -538,5 +607,39 @@ export class Create extends MultiUsers {
       listbox.locator('li[role="option"]', { hasText: e.rejectedPresentationFileName }),
       'should not offer the rejected presentation as a breakout room slide',
     ).toHaveCount(0);
+  }
+
+  // breakoutRoomsCaptureSlides / breakoutRoomsCaptureNotes on the create call pre-tick the capture options
+  async captureOptionsFollowCreateParameters() {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+
+    await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 });
+    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+    await this.modPage.waitAndClick(e.moreOptionsToggle);
+    await expect(
+      this.modPage.page.locator(e.captureBreakoutWhiteboard),
+      'should pre-tick Save whiteboard when the meeting was created with breakoutRoomsCaptureSlides=true',
+    ).toBeChecked();
+    await expect(
+      this.modPage.page.locator(e.captureBreakoutSharedNotes),
+      'should pre-tick Save shared notes when the meeting was created with breakoutRoomsCaptureNotes=true',
+    ).toBeChecked();
+  }
+
+  // Creates the rooms with the capture options set to the given state, whatever they came up as
+  async createWithCaptureOptions(captureWhiteboard: boolean, captureNotes: boolean) {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+    if (!this?.userPage) throw new Error('userPage not initialized');
+
+    await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 });
+    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+    await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
+    await this.modPage.waitAndClick(e.moreOptionsToggle);
+    await Create.setCheckboxChecked(this.modPage.page, e.captureBreakoutWhiteboard, captureWhiteboard);
+    await Create.setCheckboxChecked(this.modPage.page, e.captureBreakoutSharedNotes, captureNotes);
+    await this.modPage.waitAndClick(e.createBreakoutRoomsButton, ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.hasElement(e.modalConfirmButton, 'should invite the attendee to join the breakout room');
+    await this.userPage.waitAndClick(e.modalDismissButton);
+    await this.modPage.setHeightWidthViewPortSize(); // reset to default size
   }
 }

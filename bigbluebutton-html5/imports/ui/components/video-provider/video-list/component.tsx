@@ -100,6 +100,7 @@ interface VideoListProps {
   onVideoItemUnmount: (stream: string) => void;
   onVirtualBgDrop: (stream: string, type: string, name: string, data: string) => Promise<unknown>;
   gridSize: number;
+  raisedHandPositions: Map<string, number>;
 }
 
 interface VideoListState {
@@ -453,6 +454,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
 
     return (
       <Styled.NextPageButton
+        className="bbb-webcam-pagination__next"
         role="button"
         aria-label={nextPageLabel}
         color="primary"
@@ -484,6 +486,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
 
     return (
       <Styled.PreviousPageButton
+        className="bbb-webcam-pagination__prev"
         role="button"
         aria-label={prevPageLabel}
         color="primary"
@@ -509,10 +512,14 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       isGridEnabled,
       overflowCount,
       overflowUsers,
+      raisedHandPositions,
     } = this.props;
     const numOfStreams = streams.filter(
       (item) => item.type === VIDEO_TYPES.GRID || !('render' in item) || item.render !== false,
     ).length;
+    // Tiles take the threshold, not the count: a join or leave then changes no
+    // tile's props until the count crosses it.
+    const canFocus = numOfStreams > 2;
 
     const shouldShowOverflowTile = isGridEnabled && overflowCount > 0;
 
@@ -538,7 +545,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       const isStream = item.type !== VIDEO_TYPES.GRID;
       const stream = isStream ? item.stream : null;
       const key = isStream ? stream : userId;
-      const isFocused = isStream && focusedId === stream && numOfStreams > 2;
+      const isFocused = isStream && focusedId === stream && canFocus;
       const shouldRender = item.type === VIDEO_TYPES.GRID || !('render' in item) || item.render !== false;
 
       if (!shouldRender) return null;
@@ -553,9 +560,9 @@ class VideoList extends Component<VideoListProps, VideoListState> {
         >
           <VideoListItemContainer
             pluginUserCameraHelperPerPosition={pluginUserCameraHelperPerPosition}
-            numOfStreams={numOfStreams}
+            canFocus={canFocus}
             cameraId={stream}
-            userId={userId}
+            raisedHandPosition={raisedHandPositions.get(userId) ?? 0}
             name={name}
             focused={isFocused}
             isStream={isStream}
@@ -602,9 +609,11 @@ class VideoList extends Component<VideoListProps, VideoListState> {
 
     return (
       <Styled.PaginationBar
+        className="bbb-webcam-pagination"
         data-test="mobilePaginationBar"
       >
         <Styled.PaginationArrow
+          className="bbb-webcam-pagination__prev"
           role="button"
           aria-label={prevPageLabel}
           color="primary"
@@ -619,6 +628,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
           <Styled.PaginationDots>
             {range(0, numberOfPages).map((page) => (
               <Styled.PaginationDot
+                className={`bbb-webcam-pagination__dot${page === currentVideoPageIndex ? ' bbb-webcam-pagination__dot--active' : ''}`}
                 key={`page-dot-${page}`}
                 type="button"
                 $active={page === currentVideoPageIndex}
@@ -630,11 +640,12 @@ class VideoList extends Component<VideoListProps, VideoListState> {
             ))}
           </Styled.PaginationDots>
         ) : (
-          <Styled.PaginationCounter data-test="mobilePageCounter">
+          <Styled.PaginationCounter className="bbb-webcam-pagination__counter" data-test="mobilePageCounter">
             {intl.formatMessage(intlMessages.pageOfLabel, { 0: currentPage, 1: numberOfPages })}
           </Styled.PaginationCounter>
         )}
         <Styled.PaginationArrow
+          className="bbb-webcam-pagination__next"
           role="button"
           aria-label={nextPageLabel}
           color="primary"

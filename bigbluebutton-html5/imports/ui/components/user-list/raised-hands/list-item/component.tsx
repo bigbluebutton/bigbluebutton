@@ -75,7 +75,7 @@ const RaisedHandUserName: React.FC<{ user: User; intl: IntlShape }> = ({ user, i
 
   return (
     <UserNameStyled.UserNameContainer>
-      <UserNameStyled.UserName>
+      <UserNameStyled.UserName className="bbb-user-list-item__name">
         <TooltipContainer title={user.name}>
           {isMe(user.userId) ? (
             <UserNameStyled.StrongName>
@@ -208,6 +208,7 @@ const RaisedHandsListItem: React.FC<RaisedHandsListItemProps> = ({
 
   return (
     <Styled.UserItemContents
+      className="bbb-raised-hands__item"
       id={`raised-user-${index}`}
       tabIndex={-1}
       data-test="raisedHandsListItem"
@@ -239,7 +240,7 @@ const RaisedHandsListItem: React.FC<RaisedHandsListItemProps> = ({
         animations={animations}
         avatar=""
       >
-        <RaisedHandsStyles.IndexBadge data-test="raisedHandRank">
+        <RaisedHandsStyles.IndexBadge className="bbb-raised-hands__rank" data-test="raisedHandRank">
           {index + 1}
         </RaisedHandsStyles.IndexBadge>
 

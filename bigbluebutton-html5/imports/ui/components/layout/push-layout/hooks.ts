@@ -1,8 +1,10 @@
 import { MutationFunction, useMutation } from '@apollo/client';
 import { useCallback } from 'react';
 import { SET_LAYOUT_PROPS, SET_SYNC_WITH_PRESENTER_LAYOUT } from './mutations';
-import { Input, Layout, Output } from '../layoutTypes';
-import { calculatePresentationVideoRate } from './service';
+import {
+  Input, Layout, MeetingCameraDock, Output,
+} from '../layoutTypes';
+import { getPropagatedCameraDock } from './service';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { layoutDispatch, layoutSelect } from '../context';
@@ -31,30 +33,42 @@ const usePushLayoutUpdater = (pushLayout: boolean) => {
   return setPushLayout;
 };
 
-const useMeetingLayoutUpdater = (
-  // Never the raw output: see getPropagatedCameraDock.
-  propagatedCameraDock: Output['cameraDock'],
-  cameraDockInput: Input['cameraDock'],
-  presentationInput: Input['presentation'],
-  layoutSettings: { pushLayout: boolean, selectedLayout: boolean },
-) => {
+const useMeetingLayoutUpdater = ({
+  cameraDockOutput,
+  cameraDockInput,
+  presentationInput,
+  layoutSettings,
+  isCameraDockPropagationSuppressed,
+  meetingCameraDock,
+}: {
+  cameraDockOutput: Output['cameraDock'];
+  cameraDockInput: Input['cameraDock'];
+  presentationInput: Input['presentation'];
+  layoutSettings: { selectedLayout: string };
+  isCameraDockPropagationSuppressed: boolean;
+  meetingCameraDock: MeetingCameraDock;
+}) => {
   const [setMeetingLayoutProps] = useMutation(SET_LAYOUT_PROPS);
 
-  const { focusedId, position } = propagatedCameraDock;
-  const { isResizing } = cameraDockInput;
+  const { focusedId } = cameraDockOutput;
   const { isOpen: presentationIsOpen } = presentationInput;
   const { selectedLayout } = layoutSettings;
 
   const setMeetingLayout = (pushLayout: boolean) => {
+    const cameraDock = getPropagatedCameraDock({
+      isSuppressed: isCameraDockPropagationSuppressed,
+      cameraDockOutput,
+      cameraDockInput,
+      meetingCameraDock,
+    });
+
     setMeetingLayoutProps({
       variables: {
         layout: selectedLayout,
         syncWithPresenterLayout: pushLayout,
         presentationIsOpen,
-        isResizing,
-        cameraPosition: position || 'contentTop',
         focusedCamera: focusedId || 'none',
-        presentationVideoRate: calculatePresentationVideoRate(propagatedCameraDock),
+        ...cameraDock,
       },
     }).catch((error) => {
       logger.error({
@@ -67,18 +81,14 @@ const useMeetingLayoutUpdater = (
   return setMeetingLayout;
 };
 
-const useLayoutUpdater = (fullUpdate: boolean = false) => {
+const useLayoutUpdater = () => {
   const layoutContextDispatch = layoutDispatch();
   const deviceType = layoutSelect((i: Layout) => i.deviceType);
   const layoutTypeFromContext = layoutSelect((i: Layout) => i.layoutType);
   const layoutFromSettings = useSettings(SETTINGS.LAYOUT) as {
     selectedLayout: typeof LAYOUT_TYPE[keyof typeof LAYOUT_TYPE],
-    pushLayout: boolean,
   };
-  const {
-    selectedLayout: layoutTypeFromSettings,
-    pushLayout: pushLayoutFromSettings,
-  } = layoutFromSettings;
+  const { selectedLayout: layoutTypeFromSettings } = layoutFromSettings;
 
   const applyLayoutOnly = useCallback((
     targetLayout: typeof LAYOUT_TYPE[keyof typeof LAYOUT_TYPE],
@@ -135,43 +145,7 @@ const useLayoutUpdater = (fullUpdate: boolean = false) => {
     layoutFromSettings,
   ]);
 
-  const applyLayoutAndSetPush = useCallback((
-    targetValues: {
-      targetLayout: typeof LAYOUT_TYPE[keyof typeof LAYOUT_TYPE],
-      targetPushLayout: boolean | null,
-    } = { targetLayout: layoutTypeFromSettings, targetPushLayout: pushLayoutFromSettings },
-    settingsMutation: MutationFunction,
-    message: string | null = null,
-  ): void => {
-    const { targetLayout, targetPushLayout } = targetValues;
-
-    const appliedLayout = applyLayoutOnly(targetLayout, settingsMutation, message);
-
-    if (pushLayoutFromSettings === targetPushLayout) {
-      logger.debug({
-        logCode: 'push_layout_no_change_needed',
-        extraInfo: { pushLayout: targetPushLayout },
-      }, `Target value for push layout: ${targetPushLayout} is already set. No change needed.`);
-      return;
-    }
-
-    if (targetPushLayout !== null && targetPushLayout !== undefined) {
-      logger.debug({
-        logCode: 'push_layout_applying',
-        extraInfo: { pushLayout: targetPushLayout },
-      }, `Applying push layout value: ${targetPushLayout}`);
-
-      updateSettings({
-        layout: {
-          ...layoutFromSettings,
-          selectedLayout: appliedLayout,
-          pushLayout: targetPushLayout,
-        },
-      }, message, settingsMutation);
-    }
-  }, [applyLayoutOnly, layoutFromSettings, layoutTypeFromSettings, pushLayoutFromSettings]);
-
-  return fullUpdate ? applyLayoutAndSetPush : applyLayoutOnly;
+  return applyLayoutOnly;
 };
 
 export {

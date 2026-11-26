@@ -7,8 +7,11 @@ import { ButtonBase } from '@mui/material';
 import styled from 'styled-components';
 
 // Outer container for the media button.
+// As wide as its grid cell (at least the 5rem it used to be), so the label has
+// the whole column to wrap in.
 const MediaButtonContainer = styled.div`
-  width: 5rem;
+  width: 100%;
+  min-width: 5rem;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -125,7 +128,7 @@ const ButtonText = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
 `;
 

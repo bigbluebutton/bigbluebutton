@@ -1061,6 +1061,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 
     return (
       <Styled.Form
+        className="bbb-chat-form"
         ref={formRef}
         onSubmit={handleSubmit}
         isRTL={isRTL}
@@ -1094,6 +1095,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             disabled={fileUploading}
           />
           <Styled.InputWrapper
+            className="bbb-chat-form__input"
             ref={inputWrapperRef}
             $hasAttachments={pendingFiles.length > 0}
             onClick={(e) => {
@@ -1104,6 +1106,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
           >
             <Styled.Input
               id="message-input"
+              className="bbb-chat-form__textarea"
               ref={textAreaRef}
               placeholder={intl.formatMessage(messages.inputPlaceholder, { chatName: title })}
               aria-label={intl.formatMessage(messages.inputLabel, { chatName: title })}
@@ -1228,6 +1231,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
                   variant="contained"
                   disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading || fileUploading}
                   type="submit"
+                  className="bbb-chat-form__send"
                   data-test="sendMessageButton"
                   aria-label={intl.formatMessage(messages.submitLabel)}
                 >

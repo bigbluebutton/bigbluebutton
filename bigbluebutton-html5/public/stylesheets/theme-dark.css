@@ -110,7 +110,9 @@
   --toast-info-color: var(--toast-info-color-dark-theme, #FFFFFF);
   --toast-success-color: var(--toast-success-color-dark-theme, #FFFFFF);
   --toast-error-color: var(--toast-error-color-dark-theme, #FFFFFF);
-  --toast-warning-color: var(--toast-warning-color-dark-theme, #FFFFFF);
+  /* The warning icon sits on the brand yellow, #FFC845 here too: dark like the
+     light theme's, as --btn-warning-color below. */
+  --toast-warning-color: var(--toast-warning-color-dark-theme, #393C48);
 
   /* quiz / poll -- right and wrong answer semantics */
   --color-info-box-quiz-bg: var(--color-info-box-quiz-bg-dark-theme, #133d28);
@@ -216,7 +218,10 @@
   --apps-gallery-outline-surface: var(--apps-gallery-outline-surface-dark-theme, #303334);
   --color-blue-lighter: var(--color-blue-lighter-dark-theme, #20456e);
   --color-blue-lighter-border: var(--color-blue-lighter-border-dark-theme, #214a77);
-  --btn-warning-color: var(--btn-warning-color-dark-theme, #FFFFFF);
+  /* Text on the warning yellow, which --color-warning, a brand token, keeps at
+     #FFC845 here too. White on it is 1.54:1, so the light theme draws it
+     #393C48 (7.11:1); DarkReader parity gave #FFFFFF from the old white. */
+  --btn-warning-color: var(--btn-warning-color-dark-theme, #393C48);
   --btn-warning-color-surface: var(--btn-warning-color-surface-dark-theme, #222425);
   --btn-success-color: var(--btn-success-color-dark-theme, #FFFFFF);
   --btn-success-color-surface: var(--btn-success-color-surface-dark-theme, #222425);
@@ -301,7 +306,10 @@
      --color-brand-*, --color-hover-dark) stay absent like the client's own.
      --color-neutral-white is NOT emitted: the library uses it as a surface AND
      as the label colour over a brand background. --color-background-white is
-     its surface alias, so emitting that one separates the roles. */
+     its surface alias, so emitting that one separates the roles. Since 0.9.0
+     the library's colorWhite reads --color-white first, so it takes the text
+     value above and --color-neutral-white is never reached here; the modal
+     surface that reads it is set after the tldraw rule. */
   --color-background-white: var(--color-background-white-dark-theme, var(--color-overlays-dark-theme, #2D2F38));
   --color-light-gray: var(--color-light-gray-dark-theme, var(--color-hover-bg-dark, #393C48));
   /* BBButton tertiary's ground and its hover, plus BBBHint's hover. Kept
@@ -351,6 +359,19 @@
 }
 
 /*
+ * Library modal surface. BBBModal paints its content and its sticky footer with
+ * the library's colorWhite, var(--color-white, ...), which stays the text role
+ * here because primary BBButton labels read it too. Scoped to generic-modal,
+ * the portal class only GenericModal sets: plugins render their own react-modal
+ * with the modal-low/medium/high classes too, and a priority outside those
+ * three still gets the surface.
+ */
+:root[data-theme='dark'] .generic-modal .ReactModal__Content,
+:root[data-theme='dark'] .generic-modal .ReactModal__Content > div:last-child {
+  background-color: var(--color-white-surface, #2D2F38);
+}
+
+/*
  * Base text colour, dark theme only.
  *
  * Nothing in the client sets a text colour on <body> or #app, so any element that
@@ -384,4 +405,19 @@
    the value the legacy theme used, overridable like any other token. */
 :root[data-theme='dark'] .MuiSwitch-switchBase:not(.Mui-checked) + .MuiSwitch-track {
   background-color: var(--toggle-bg-disabled-dark-theme, #909CAF);
+}
+
+/* BBBSelect: MUI's light palette otherwise. Select lists only (listbox). */
+:root[data-theme='dark'] .MuiSelect-select,
+:root[data-theme='dark'] .MuiSelect-icon {
+  color: var(--color-text, #FFFFFF);
+}
+
+:root[data-theme='dark'] .MuiMenu-paper:has(> .MuiMenu-list[role='listbox']) {
+  background-color: var(--dropdown-bg, #2D2F38);
+  color: var(--color-text, #FFFFFF);
+}
+
+:root[data-theme='dark'] .MuiMenu-list[role='listbox'] .MuiMenuItem-root:hover {
+  background-color: var(--list-item-bg-hover, #393C48);
 }

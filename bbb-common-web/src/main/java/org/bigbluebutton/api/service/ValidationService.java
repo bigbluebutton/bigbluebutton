@@ -1,5 +1,6 @@
 package org.bigbluebutton.api.service;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.bigbluebutton.api.model.request.*;
 import org.bigbluebutton.api.model.shared.Checksum;
 import org.bigbluebutton.api.model.shared.ChecksumValidationGroup;
@@ -38,12 +39,10 @@ public class ValidationService {
         GET_MEETING_INFO("getMeetingInfo", RequestType.GET),
         GET_MEETINGS("getMeetings", RequestType.GET),
         GET_SESSIONS("getSessions", RequestType.GET),
-        GUEST_WAIT("guestWait", RequestType.GET),
         STUNS("stuns", RequestType.GET),
         SIGN_OUT("signOut", RequestType.GET),
         LEARNING_DASHBOARD("learningDashboard", RequestType.GET),
         GET_JOIN_URL("getJoinUrl", RequestType.GET),
-        FEEDBACK("feedback", RequestType.GET),
         INSERT_DOCUMENT("insertDocument", RequestType.GET),
         SEND_CHAT_MESSAGE("sendChatMessage", RequestType.GET);
 
@@ -130,12 +129,10 @@ public class ValidationService {
                 case GET_MEETINGS, GET_SESSIONS -> new SimpleRequest(checksum, servletRequest);
                 case INSERT_DOCUMENT -> new InsertDocument(checksum, servletRequest);
                 case SEND_CHAT_MESSAGE -> new SendChatMessage(checksum, servletRequest);
-                case GUEST_WAIT -> new GuestWait(servletRequest);
                 case STUNS -> new Stuns(servletRequest);
                 case SIGN_OUT -> new SignOut(servletRequest);
                 case LEARNING_DASHBOARD -> new LearningDashboard(servletRequest);
                 case GET_JOIN_URL -> new GetJoinUrl(servletRequest);
-                case FEEDBACK -> new Feedback(servletRequest);
             };
         }
 
@@ -268,6 +265,29 @@ public class ValidationService {
 
     public void setSupportedChecksumAlgorithms(String supportedChecksumAlgorithms) { this.supportedChecksumAlgorithms = supportedChecksumAlgorithms; }
     public String getSupportedChecksumAlgorithms() { return supportedChecksumAlgorithms; }
+
+    /** The strongest algorithm GetChecksumValidator accepts under supportedChecksumAlgorithms; sha256 when it accepts none. */
+    public String getStrongestSupportedChecksumAlgorithm() {
+        if (supportedChecksumAlgorithms != null) {
+            for (String algorithm : new String[] { "sha512", "sha384", "sha256", "sha1" }) {
+                if (supportedChecksumAlgorithms.contains(algorithm)) {
+                    return algorithm;
+                }
+            }
+        }
+        log.warn("supportedChecksumAlgorithms ('{}') names no known algorithm; falling back to sha256", supportedChecksumAlgorithms);
+        return "sha256";
+    }
+
+    /** Hashes data with getStrongestSupportedChecksumAlgorithm(), for URLs this server signs itself. */
+    public String calculateChecksum(String data) {
+        switch (getStrongestSupportedChecksumAlgorithm()) {
+            case "sha512": return DigestUtils.sha512Hex(data);
+            case "sha384": return DigestUtils.sha384Hex(data);
+            case "sha1": return DigestUtils.sha1Hex(data);
+            default: return DigestUtils.sha256Hex(data);
+        }
+    }
 
     public void setAllowRequestsWithoutSession(Boolean allowRequestsWithoutSession) {
         this.allowRequestsWithoutSession = allowRequestsWithoutSession;

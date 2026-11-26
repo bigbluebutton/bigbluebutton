@@ -20,73 +20,66 @@ have a look at the READMEs in the respective [samples](https://github.com/bigblu
 
 ### Running the Plugin from Source
 
-For development purposes you can run a plugin locally from source.
+For development purposes you can run a plugin from source. The plugin's `npm start` brings up a development server on port `4701`, but don't use the `localhost` URL it creates for you: Akka will not be able to access your manifest files this way (even if you are developing with a local bbb-docker environment).
+
+The recommended way is to run the development server inside the BBB server or container itself (for instance, a BBB 4.0 development container) and expose it through the server's own nginx, at the fixed path `https://<your-host>/plugins/dev/`. The manifest is then fetched through the server's public hostname, just like an installed plugin.
 
 For example if you take the [`sample-action-button-dropdown-plugin`](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk/tree/v0.1.x/samples/sample-action-button-dropdown-plugin),
 you do the following:
 
-*Running from source code with local BBB-server*
+:::warning
+This technique is for **development environments only**. **Never** use it on a production server. The block below publicly exposes, without authentication, whatever is listening on `127.0.0.1:4701`; the webpack-dev-server is not hardened for production (development build, open CORS, no caching), and any process that binds to that port can inject arbitrary JavaScript into every meeting referencing this manifest. In production, use the bundled build (`npm run build-bundle`) hosted as described in [Hosting the Plugin on a BBB Server](#hosting-the-plugin-on-a-bbb-server). When you are done developing, remove `/usr/share/bigbluebutton/nginx/plugins-dev.nginx` and reload nginx.
+:::
 
-1. Start the development server:
+1. Create the file `/usr/share/bigbluebutton/nginx/plugins-dev.nginx` (every `*.nginx` file in that folder is included in the BBB nginx `server` block):
 
-   ```bash
-   cd $HOME/src/bigbluebutton-html-plugin-sdk/samples/sample-action-button-dropdown-plugin
-   npm install
-   npm start
-   ```
-
-2. Add reference to it on BigBlueButton's `/create` call or add it on `/etc/bigbluebutton/bbb-web.properties`:
-
+```nginx
+# /usr/share/bigbluebutton/nginx/plugins-dev.nginx
+# DEVELOPMENT ONLY: exposes the plugin webpack-dev-server (npm start, port 4701) at /plugins/dev/
+location ^~ /plugins/dev/ {
+    proxy_pass http://127.0.0.1:4701/;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_buffering off;
+    add_header Cache-Control "no-store" always;
+}
 ```
-pluginManifests=[{"url": "http://<your-URL>/manifest.json"}]
-```
 
-*Reminder:* Don't use the `localhost` URL that the `npm start` will create for you, Akka will not be able to access your manifest files this way (even if you are developing with a local bbb-docker environment). Therefore, what we recommend is to follow instructions on the next section to test the plugin as if it is in a remote BBB server (heads up: you'll be using NGROK).
+The trailing slash in `proxy_pass http://127.0.0.1:4701/;` strips the `/plugins/dev/` prefix before forwarding, and the `^~` modifier prevents other regex `location` blocks of the BBB site from capturing the `.js` files before this one.
 
-*Running from source code with a remote BBB-server*
-
-If you are running your BBB-server elsewhere, than you can't simply point the manifest URL to a local address, you'll need to either serve the built version into a CDN or serve the dev version using a service to make it public. And for the second option we'd recommend NGROK. Here are the instructions to do that:
-
-1. Create an account on https://ngrok.com/ (Official website of NGROK);
-
-2. Install NGROK in your computer. They have a guide for that right after you created your account;
-
-3. Start the Plugin development server:
+2. Test and reload nginx:
 
 ```bash
-cd $HOME/src/plugin-pick-random-user-plugin
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+3. Start the plugin development server, inside the BBB server/container:
+
+```bash
+cd $HOME/src/bigbluebutton-html-plugin-sdk/samples/sample-action-button-dropdown-plugin
 npm install
 npm start
 ```
 
-4. Start the NGROK server into your machine with the following command:
+If you prefer, you can keep the plugin source code on your own machine instead, so you don't need to copy or sync the project to the server and you keep your local IDE and tooling. Run the same `npm install` and `npm start` commands on your machine and, in another terminal, open an SSH reverse tunnel to the BBB server (or container), keeping it open while you develop:
 
 ```bash
-ngrok http http://172.17.0.1:4701
+ssh -N -o ExitOnForwardFailure=yes -R 4701:localhost:4701 <user>@<your-host>
 ```
 
-Make sure to point NGROK to the correct local URL (In our case - The samples are made this way, for instance - we used `http://172.17.0.1:4701`)
+This makes port `4701` on the server (bound to its `127.0.0.1` only) forward to port `4701` on your machine, which is exactly where the nginx block points to, so nothing changes on the server side. `ExitOnForwardFailure` makes `ssh` fail right away if port `4701` is already taken on the server, instead of keeping a tunnel that doesn't forward anything.
 
-Right after that, NGROK will create an interface into your terminal and will display the URL which your static files are being served.
-
-Here's an example of URL: `https://<uuid>.ngrok-free.app`
-
-You can already interact with this URL and access both
-
-`https://<uuid>.ngrok-free.app/manifest.json`
-
-or
-
-`https://<uuid>.ngrok-free.app/PickRandomUserPlugin.js`
-
-
-5. Add this create parameter into the API-mate of the server you are testing it on:
+4. Add reference to it on BigBlueButton's `/create` call or add it on `/etc/bigbluebutton/bbb-web.properties`:
 
 ```
-pluginManifests=[{"url": "https://<uuid>.ngrok-free.app/manifest.json"}]
+pluginManifests=[{"url": "https://<your-host>/plugins/dev/manifest.json"}]
 ```
 
-And there you go, you can test it freely.
+The JavaScript bundle and locales are resolved automatically, since `javascriptEntrypointUrl` and `localesBaseUrl` in the manifest are relative to the manifest URL (e.g. `https://<your-host>/plugins/dev/SampleActionButtonDropdownPlugin.js`, and `https://<your-host>/plugins/dev/locales/en.json` for plugins with locales).
+
+This serves one plugin at a time: the URL is always the same and points to whichever plugin's `npm start` is currently running. To switch plugins, stop one development server and start the other. If no development server is running (or the SSH tunnel is closed), nginx answers `502` and the plugin won't load.
+
+If you don't have SSH access to a BBB server, you can make your local development server public with NGROK instead. Check out [this guide on how to set up a development environment using NGROK](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk/blob/v0.1.x/docs/running-with-ngrok.md).
 
 ### Building the Plugin (Production)
 
@@ -103,7 +96,7 @@ npm run build-bundle
 The above command will generate the `dist` folder, containing the bundled JavaScript file named `SampleActionButtonDropdownPlugin.js` along with the `manifest.json`.
 These files can be hosted on any HTTPS server.
 
-To use the plugin with BigBlueButton, add the plugin's `manifest.json` URL to `bigbluebutton.properties` or you can simply send it via `/create` parameter:
+To use the plugin with BigBlueButton, add the plugin's `manifest.json` URL to the `pluginManifests` property in `/etc/bigbluebutton/bbb-web.properties` or you can simply send it via `/create` parameter:
 
 ```
 pluginManifests=[{"url":"<your-domain>/path/to/manifest.json"}]
@@ -384,7 +377,7 @@ This section will guide you through all the steps needed to create a functional 
 
 **1. Choose the Right SDK Version**
 
-First, select the appropriate version of the `bigbluebutton-html-plugin-sdk` based on your BigBlueButton server. Refer to the section [Plugin Versioning](#plugin-versioning) for guidance. You’ll need this information later in the tutorial.
+First, select the appropriate version of the `bigbluebutton-html-plugin-sdk` based on your BigBlueButton server. Refer to the section [SDK version compatibility](#sdk-version-compatibility) for guidance. You’ll need this information later in the tutorial.
 
 ---
 
@@ -562,7 +555,7 @@ During meeting creation:
 - Once fetched, it includes the manifest content in a CreateMeetingReqMsg, which is sent to Akka.
 - Akka stores the plugin data in the database for that meeting.
 
-One other way to send the `pluginManifests` list to `bbb-web` is to include it into `/etc/bigbluebutton/bbb-web.properties` as mentioned previously in the second point of [this section](#running-the-Plugin-from-Source). This way, `bbb-web` gets the it via config file and it will be applied to every meeting of this particular server (with no need to include it in every create call). Key point: if a different list is included in the create call along with the list in the properties file, they will be merged into one and carry on the flow.
+One other way to send the `pluginManifests` list to `bbb-web` is to include it into `/etc/bigbluebutton/bbb-web.properties` as mentioned previously in the second point of [this section](#running-the-plugin-from-source). This way, `bbb-web` gets the it via config file and it will be applied to every meeting of this particular server (with no need to include it in every create call). Key point: if a different list is included in the create call along with the list in the properties file, they will be merged into one and carry on the flow.
 
 
 
@@ -881,9 +874,9 @@ Mind that no plugin will interfere into another's extensible area. So feel free 
 
 This feature allows administrators to highlight new or featured plugins by displaying a "New" badge next to them in the Apps Gallery.
 
-To enable this badge for a specific plugin, add the `isNew: true` flag to its configuration within the `settings.yml` file.
+To enable this badge for a specific plugin, add `isNew: true` to the `settings` of the plugin's entry in the `public.plugins` client setting, in `/etc/bigbluebutton/bbb-html5.yml`. `public.plugins` is one array and the client reads it as a whole (an array in `bbb-html5.yml` replaces the shipped value instead of being merged with it), so keep every other plugin entry in it with its own settings; do not reduce the array to the plugin you are tagging.
 
-**Example (`settings.yml`):**
+**Example (`/etc/bigbluebutton/bbb-html5.yml`):**
 
 ```yml
 public:
@@ -891,9 +884,13 @@ public:
     - name: my-plugin-name
       settings:
         isNew: true
+    - name: my-other-plugin
+      settings:
+        myJson:
+          abc: my123
 ```
 
-When the client loads, the item for "my-plugin-name" will automatically display the "New" badge in the Apps Gallery.
+When the client loads, the item for "my-plugin-name" will automatically display the "New" badge in the Apps Gallery; "my-other-plugin" keeps its settings and shows no badge.
 
 #### Configurable button styles
 
@@ -924,7 +921,7 @@ export const { logger: pluginLogger } = BbbPluginSdk.getPluginApi(uuid);
 
 ### Realtime data consumption
 
-- `useCurrentPresentation` hook: provides information regarding the current presentation;
+- `useCurrentPresentation` hook: provides information regarding the current presentation. `currentPage.id` is the page id, an opaque id that does not change when pages move; `currentPage.num` is the position of the page in the presentation, which can change. Do not read the page number out of the id;
 - `useLoadedUserList` hook: provides information regarding the loaded user list (displayed in the screen);
 - `useCurrentUser` hook: provides information regarding the current user;
 - `useUsersBasicInfo` hook: provides information regarding all users (only crucial information: userId, name and role);
@@ -1529,7 +1526,7 @@ Instead, the hook provided can be used to modify how messages are presented — 
 
 ### Localization
 
-The Plugin SDK provides the `useLocaleMessages` hook, described in the [auxiliary functions](#auxiliary-functions) section. While its use is not mandatory, we highly recommend it because it handles certain edge cases that are otherwise difficult to predict.
+The Plugin SDK provides the `useLocaleMessages` hook, described in the [auxiliary functions](#auxiliaries) section. While its use is not mandatory, we highly recommend it because it handles certain edge cases that are otherwise difficult to predict.
 
 We also strongly encourage developers to include localization in their plugins. This greatly improves adoption and usability within the community.
 
@@ -1583,7 +1580,7 @@ module.exports = {
 ```
 
 **Does the builded plugin need to be in the same BBB server?**
-No, feel free to host it anywhere you want, just make sure to point the URL from `manifest.json` correctly (into the create endpoint or `bigbluebutton.properties`).
+No, feel free to host it anywhere you want, just make sure to point the URL from `manifest.json` correctly (in the `pluginManifests` create parameter or the property of the same name in `/etc/bigbluebutton/bbb-web.properties`).
 
 **I am making my plugin based on a sample inside the SDK, but somehow, the sample is not working properly, what do I do to run it in dev mode and make it work?**
 Well there are several motives to why the sample is not working properly, so I will go through each one of them briefly:

@@ -7,8 +7,8 @@ import {
 } from './types';
 import DeviceTest from './device-test/component';
 import {
-  isWasmProcessorSupported, isWasmProcessingConfigEnabled, getConstraintsForMode,
-  getEffectiveAudioProcessingMode,
+  isWasmProcessorSupported, isWasmProcessingConfigEnabled,
+  getEffectiveAudioProcessingMode, isVoiceIsolationSupported,
 } from '/imports/api/audio/client/bridge/service';
 import Tooltip from '/imports/ui/components/common/tooltip/container';
 
@@ -30,25 +30,37 @@ const intlMessages = defineMessages({
     id: 'app.submenu.audio.advancedFiltering',
     description: 'advanced audio filtering option label',
   },
-  advancedFilteringDesc: {
-    id: 'app.submenu.audio.advancedFilteringDesc',
+  advancedFilteringSummary: {
+    id: 'app.submenu.audio.advancedFilteringSummary',
     description: 'advanced audio filtering option description',
+  },
+  advancedFilteringIdealFor: {
+    id: 'app.submenu.audio.advancedFilteringIdealFor',
+    description: 'advanced audio filtering ideal use cases',
   },
   standardFilteringLabel: {
     id: 'app.submenu.audio.standardFiltering',
     description: 'standard audio filtering option label',
   },
-  standardFilteringDesc: {
-    id: 'app.submenu.audio.standardFilteringDesc',
+  standardFilteringSummary: {
+    id: 'app.submenu.audio.standardFilteringSummary',
     description: 'standard audio filtering option description',
+  },
+  standardFilteringIdealFor: {
+    id: 'app.submenu.audio.standardFilteringIdealFor',
+    description: 'standard audio filtering ideal use cases',
   },
   originalAudioLabel: {
     id: 'app.submenu.audio.originalAudio',
     description: 'original/unprocessed audio option label',
   },
-  originalAudioDesc: {
-    id: 'app.submenu.audio.originalAudioDesc',
+  originalAudioSummary: {
+    id: 'app.submenu.audio.originalAudioSummary',
     description: 'original/unprocessed audio option description',
+  },
+  originalAudioIdealFor: {
+    id: 'app.submenu.audio.originalAudioIdealFor',
+    description: 'original/unprocessed audio ideal use cases',
   },
   advancedFilteringDisabledReason: {
     id: 'app.submenu.audio.advancedFilteringDisabledReason',
@@ -65,6 +77,26 @@ const intlMessages = defineMessages({
   sectionsLabel: {
     id: 'app.submenu.audio.sectionsLabel',
     description: 'Accessible name of the audio tab section switch',
+  },
+  voiceIsolationLabel: {
+    id: 'app.submenu.audio.voiceIsolation',
+    description: 'voice isolation option label',
+  },
+  voiceIsolationSummary: {
+    id: 'app.submenu.audio.voiceIsolationSummary',
+    description: 'voice isolation option description',
+  },
+  voiceIsolationIdealFor: {
+    id: 'app.submenu.audio.voiceIsolationIdealFor',
+    description: 'voice isolation ideal use cases',
+  },
+  idealForLabel: {
+    id: 'app.submenu.audio.idealForLabel',
+    description: 'label for ideal audio option use cases',
+  },
+  experimentalBadge: {
+    id: 'app.submenu.audio.experimentalBadge',
+    description: 'badge shown on experimental audio options',
   },
 });
 
@@ -107,7 +139,13 @@ class AudioMenu extends BaseMenu {
 
   handleAudioFilterModeChange(mode: AudioFilterMode) {
     const { settings, audioSettings } = this.state;
-    settings.microphoneConstraints = getConstraintsForMode(mode);
+    // The mode is the only record of the filter choice - getAudioConstraints()
+    // derives the microphone constraints from it. Keeping a copy here would
+    // leave the choice in the application group, which follows
+    // userSettingsStorage and so can outlive the session-scoped audio group;
+    // it would also masquerade as the pre-4.0 record that same fallback
+    // exists to honour. Drop any such record: an explicit pick supersedes it.
+    delete settings.microphoneConstraints;
     audioSettings.processingMode = mode;
 
     this.handleUpdateSettings('application', settings);
@@ -128,33 +166,46 @@ class AudioMenu extends BaseMenu {
 
     const options: AudioFilterOption[] = [];
 
+    options.push(
+      {
+        value: 'original',
+        titleMsg: intlMessages.originalAudioLabel,
+        descMsg: intlMessages.originalAudioSummary,
+        idealForMsg: intlMessages.originalAudioIdealFor,
+        disabled: false,
+        dataTest: 'originalAudioRadio',
+      },
+      {
+        value: 'standard',
+        titleMsg: intlMessages.standardFilteringLabel,
+        descMsg: intlMessages.standardFilteringSummary,
+        idealForMsg: intlMessages.standardFilteringIdealFor,
+        disabled: false,
+        dataTest: 'standardFilteringRadio',
+      },
+    );
     if (wasmConfigEnabled) {
       options.push({
         value: 'advanced',
         titleMsg: intlMessages.advancedFilteringLabel,
-        descMsg: intlMessages.advancedFilteringDesc,
+        descMsg: intlMessages.advancedFilteringSummary,
+        idealForMsg: intlMessages.advancedFilteringIdealFor,
         disabled: !wasmBrowserSupported,
         disabledReasonMsg: intlMessages.advancedFilteringDisabledReason,
         dataTest: 'advancedFilteringRadio',
       });
     }
-
-    options.push(
-      {
-        value: 'standard',
-        titleMsg: intlMessages.standardFilteringLabel,
-        descMsg: intlMessages.standardFilteringDesc,
-        disabled: false,
-        dataTest: 'standardFilteringRadio',
-      },
-      {
-        value: 'original',
-        titleMsg: intlMessages.originalAudioLabel,
-        descMsg: intlMessages.originalAudioDesc,
-        disabled: false,
-        dataTest: 'originalAudioRadio',
-      },
-    );
+    if (wasmConfigEnabled && isVoiceIsolationSupported()) {
+      options.push({
+        value: 'voiceIsolation',
+        titleMsg: intlMessages.voiceIsolationLabel,
+        descMsg: intlMessages.voiceIsolationSummary,
+        idealForMsg: intlMessages.voiceIsolationIdealFor,
+        disabled: !wasmBrowserSupported,
+        disabledReasonMsg: intlMessages.advancedFilteringDisabledReason,
+        dataTest: 'voiceIsolationRadio',
+      });
+    }
 
     return (
       <Styled.FilterGroup
@@ -181,10 +232,20 @@ class AudioMenu extends BaseMenu {
                 />
                 <Styled.FilterOptionTitle>
                   {intl.formatMessage(option.titleMsg)}
+                  {['advanced', 'voiceIsolation'].includes(option.value) && (
+                    <Styled.ExperimentalBadge>
+                      {intl.formatMessage(intlMessages.experimentalBadge)}
+                    </Styled.ExperimentalBadge>
+                  )}
                 </Styled.FilterOptionTitle>
               </Styled.FilterOptionHeader>
               <Styled.FilterOptionDescription>
                 {intl.formatMessage(option.descMsg)}
+              </Styled.FilterOptionDescription>
+              <Styled.FilterOptionDescription>
+                <strong>{intl.formatMessage(intlMessages.idealForLabel)}</strong>
+                {' '}
+                {intl.formatMessage(option.idealForMsg)}
               </Styled.FilterOptionDescription>
               {showReason && option.disabledReasonMsg && (
                 <div id={reasonId} hidden>

@@ -568,6 +568,7 @@ Permission: Restricted to Presenter
 - `userCameraCap`
 - `webcamsOnlyForModerator`
 - `multiUserWhiteboardEnabled`
+- `requireUserConsentBeforeUnmuting`
 
 ## Type: chat
 ### Fields:
@@ -778,14 +779,6 @@ Permission: Restricted by Lock Settings
 ### Fields:
 - `createdAt`
 - `expiresAt`
-- `reactionEmoji`
-- `userId`
-### Relationships:
-- `user: Object` [Type User](#type-user)
-
-## Type: user_reaction_current
-Permission: Restricted by Lock Settings
-### Fields:
 - `reactionEmoji`
 - `userId`
 ### Relationships:

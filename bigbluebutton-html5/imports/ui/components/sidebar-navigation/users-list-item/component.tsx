@@ -54,7 +54,7 @@ const UsersListItem: React.FC = () => {
       dataTest="usersListSidebarButton"
       hasNotification={hasNotification}
     >
-      <Styled.GuestNumberIndicatorWrapper $count={usersCount}>
+      <Styled.GuestNumberIndicatorWrapper className="bbb-navigation__item-count" $count={usersCount}>
         <Styled.GuestNumberIndicator>
           {usersCount}
         </Styled.GuestNumberIndicator>

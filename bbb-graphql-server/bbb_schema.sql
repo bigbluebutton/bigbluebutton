@@ -1654,6 +1654,7 @@ SELECT pres_presentation."meetingId",
 	pres_presentation."downloadFileUri",
 	pres_presentation."removable",
     pres_presentation."uploadCompletionNotified",
+    pres_presentation."uploadUserId",
     pres_presentation."uploadTemporaryId",
     pres_presentation."uploadInProgress",
     pres_presentation."uploadCompleted",
@@ -2412,6 +2413,7 @@ CREATE UNLOGGED TABLE "layout" (
 	"cameraWithFocus" 		varchar(255),
 	"propagateLayout" 		boolean,
 	"screenshareAsContent" 	boolean,
+	"hideUsersWithoutCamera" boolean default false,
     "setByUserId"           varchar(50),
 	"updatedAt" 			timestamp with time zone
 );

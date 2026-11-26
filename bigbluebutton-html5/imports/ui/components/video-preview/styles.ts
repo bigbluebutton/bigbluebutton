@@ -26,8 +26,6 @@ import {
   fontSizeLarger,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import { smallOnly, mediumOnly, landscape } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import ModalSimple from '/imports/ui/components/common/modal/simple/component';
-import ModalStyles from '/imports/ui/components/common/modal/simple/styles';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 import {
   Tab, Tabs, TabList,
@@ -228,44 +226,6 @@ const ExtraActions = styled.div`
   }
 `;
 
-const VideoPreviewModal = styled(ModalSimple)<{
-  isPhone: boolean,
-  isBlurred: boolean
-}>`
-  padding: 1rem;
-  min-height: 25rem;
-  max-height: 100vh;
-
-  @media ${smallOnly} {
-    height: unset;
-    min-height: 22.5rem;
-  }
-
-  ${({ isPhone }) => isPhone && `
-    min-height: 100%;
-    min-width: 100%;
-    border-radius: 0;
-  `}
-
-  ${ModalStyles.Content} {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-  ${({ isBlurred }) => isBlurred && `
-    overlay: {
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      backdropFilter: 'blur(10px)',
-      zIndex: 998,
-    }
-  `}
-`;
-
 const ellipsis = keyframes`
   to {
     width: 1.5em;
@@ -291,12 +251,17 @@ const FetchingAnimation = styled.span<{ animations: boolean }>`
   }
 `;
 
+// Sized by the video's own aspect ratio, so the box never ends up wider than
+// the image: iOS WebKit stops painting a camera preview whose first frames are
+// pillarboxed (object-fit: contain) once the capture rotates to portrait.
 const VideoPreview = styled.video<{mirroredVideo: boolean}>`
-  height: 100%;
-  width: 100%;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
 
   @media ${smallOnly} {
-    height: 10rem;
+    max-height: 10rem;
   }
 
   ${({ mirroredVideo }) => mirroredVideo && `
@@ -392,7 +357,7 @@ const IconSvg = styled.img`
   border-radius: 5px;
   margin: 5px;
 
-  :root[data-theme='dark'] & {
+  html[data-theme='dark'] & {
     filter: invert(1);
   }
 `;
@@ -431,7 +396,6 @@ export default {
   FooterContainer,
   Actions,
   ExtraActions,
-  VideoPreviewModal,
   FetchingAnimation,
   VideoPreview,
   Marker,

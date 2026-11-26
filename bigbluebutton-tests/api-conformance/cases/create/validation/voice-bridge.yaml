@@ -1,0 +1,22 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A voiceBridge must be an integer. Integers outside the usual range are in
+# create/numeric/voice-bridge.yaml.
+id: create.validation.voice-bridge
+title: create rejects the voiceBridge ${value}
+endpoint: create
+class: contract
+tags: [ci]
+variants:
+  - {id: letters, vars: {value: abc}}
+  - {id: fraction, vars: {value: "1.5"}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Voice bridge, voiceBridge: "${value}"}
+    expect: {returncode: FAILED, messageKey: validationError}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

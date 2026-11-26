@@ -90,8 +90,6 @@ const Input = styled(TextareaAutosize)`
   &:disabled,
   &[disabled] {
     cursor: not-allowed;
-    opacity: .75;
-    background-color: rgba(167,179,189,0.25);
   }
 `;
 
@@ -220,6 +218,12 @@ const InputWrapper = styled.div<InputWrapperProps>`
     border-top-left-radius: 0;
     border-top-right-radius: 0;
   `}
+
+  &:has(> ${Input}:disabled) {
+    cursor: not-allowed;
+    opacity: .75;
+    background-color: rgba(167,179,189,0.25);
+  }
 `;
 
 export default {

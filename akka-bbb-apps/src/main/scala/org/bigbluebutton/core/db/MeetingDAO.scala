@@ -169,7 +169,7 @@ object MeetingDAO {
     MeetingWelcomeDAO.insert(meetingProps.meetingProp.intId, meetingProps.welcomeProp)
     MeetingGroupDAO.insert(meetingProps.meetingProp.intId, meetingProps.groups)
     MeetingBreakoutRoomPropsDAO.insert(meetingProps.meetingProp.intId, meetingProps.breakoutProps)
-    LayoutDAO.insert(meetingProps.meetingProp.intId, meetingProps.usersProp.meetingLayout)
+    LayoutDAO.insert(meetingProps.meetingProp.intId, meetingProps.usersProp.meetingLayout, meetingProps.usersProp.hideUsersWithoutCamera)
     PluginModel.persistPluginsForClient(meetingProps.meetingProp.intId, pluginProps)
     MeetingClientSettingsDAO.insert(meetingProps.meetingProp.intId, JsonUtils.mapToJson(clientSettings))
   }

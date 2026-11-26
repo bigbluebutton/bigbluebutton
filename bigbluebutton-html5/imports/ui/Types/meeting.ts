@@ -70,9 +70,9 @@ export interface VoiceSettings {
 
 export interface BreakoutPolicies {
   breakoutRooms: Array<unknown>;
-  captureNotes: string;
+  captureNotes: boolean;
   captureNotesFilename: string;
-  captureSlides: string;
+  captureSlides: boolean;
   captureSlidesFilename: string;
   freeJoin: boolean;
   parentMeetingId: string;
@@ -108,6 +108,7 @@ export interface Layout {
   cameraDockAspectRatio: string;
   cameraWithFocus: string;
   presentationMinimized: boolean;
+  hideUsersWithoutCamera: boolean;
   setByUserId: string;
 }
 

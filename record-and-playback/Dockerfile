@@ -1,29 +1,31 @@
-# Recording processing: bbb-record-core with the presentation, video, notes and screenshare formats,
-# as the packages install them (build/packages-template/bbb-record-core, bbb-playback-<format>).
+# Recording processing: bbb-record-core with the presentation, video, notes, screenshare and
+# podcast formats, as the packages install them (build/packages-template/bbb-record-core,
+# bbb-playback-<format>).
 # The default command runs the resque workers; the same image runs
 #   /usr/local/bigbluebutton/core/scripts/rap-starter.rb
 #   /usr/local/bigbluebutton/core/scripts/rap-caption-inbox.rb
 #   /etc/cron.daily/bigbluebutton   (the daily cleanup of bbb-config; schedule it from outside)
-FROM ubuntu:24.04@sha256:68ee22004a9109b44973313b02ff7b1de250f1de0f5ecb628d73f579aaff33ac AS build
+FROM ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852 AS build
+
+ARG MKCLEAN_VERSION=0.9.0
 
 # Versions come from the pinned base image's Ubuntu release.
 # hadolint ignore=DL3008
 RUN apt-get update \
     && apt-get install -y --no-install-recommends build-essential bzip2 ca-certificates curl \
-        libsystemd-dev ruby ruby-bundler ruby-dev unzip zlib1g-dev \
+        libsystemd-dev ruby ruby-bundler ruby-dev unzip zlib1g-dev cmake \
     && rm -rf /var/lib/apt/lists/*
 
 # As build/packages-template/bbb-mkclean/build.sh
 WORKDIR /build/mkclean
 COPY --from=bbb-mkclean mkclean.sha256sum .
-RUN curl -fsSL -o mkclean-0.8.10.tar.bz2 https://sourceforge.net/projects/matroska/files/mkclean/mkclean-0.8.10.tar.bz2/download \
+RUN curl -fsSL -o mkclean-${MKCLEAN_VERSION}.tar.bz2 https://sourceforge.net/projects/matroska/files/mkclean/mkclean-0.9.0.tar.bz2/download \
     && sha256sum -c mkclean.sha256sum \
-    && tar --no-same-owner -xjf mkclean-0.8.10.tar.bz2  # rootless builds reject the tarball's UID
-WORKDIR /build/mkclean/mkclean-0.8.10
-RUN make -C corec/tools/coremake \
-    && corec/tools/coremake/coremake "$(corec/tools/coremake/system_output.sh)" \
+    && tar --no-same-owner -xjf mkclean-${MKCLEAN_VERSION}.tar.bz2  # rootless builds reject the tarball's UID
+WORKDIR /build/mkclean/mkclean-${MKCLEAN_VERSION}
+RUN cmake . \
     && make \
-    && install -m 0755 release/*/mkclean /usr/local/bin/mkclean
+    && install -m 0755 mkclean/mkclean /usr/local/bin/mkclean
 
 # bbb-presentation-video and its python3-perfect-freehand dependency, downloaded by the script the
 # package build runs (build/get_external_dependencies.sh), so the image installs the package's release
@@ -40,7 +42,7 @@ RUN bundle config set --local deployment true \
     && rm -r vendor/bundle/ruby/*/cache \
     && find vendor/bundle -name '*.o' -delete
 
-FROM ubuntu:24.04@sha256:68ee22004a9109b44973313b02ff7b1de250f1de0f5ecb628d73f579aaff33ac
+FROM ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852
 
 # The user of bbb-record-core's before-install with the packages' UID 998, created first:
 # systemd, pulled in by the GTK dependencies, would take 998 otherwise.
@@ -65,7 +67,8 @@ COPY --from=build /usr/local/bigbluebutton/core /usr/local/bigbluebutton/core
 COPY core/Rakefile /usr/local/bigbluebutton/core/
 COPY core/lib /usr/local/bigbluebutton/core/lib
 COPY core/scripts /usr/local/bigbluebutton/core/scripts
-COPY presentation/scripts video/scripts notes/scripts screenshare/scripts /usr/local/bigbluebutton/core/scripts/
+COPY presentation/scripts video/scripts notes/scripts screenshare/scripts podcast/scripts \
+     /usr/local/bigbluebutton/core/scripts/
 COPY video/playback /usr/local/bigbluebutton/core/playback
 COPY screenshare/playback /usr/local/bigbluebutton/core/playback/screenshare
 COPY --from=bigbluebutton-config bigbluebutton-release /etc/bigbluebutton/
@@ -79,7 +82,7 @@ RUN mkdir -p /var/bigbluebutton/basic_stats /var/bigbluebutton/captions/inbox /v
         /var/bigbluebutton/recording/status/ended /var/bigbluebutton/recording/status/recorded \
         /var/bigbluebutton/recording/status/archived /var/bigbluebutton/recording/status/processed \
         /var/bigbluebutton/recording/status/sanity /var/bigbluebutton/recording/status/published \
-    && for f in presentation video notes screenshare; do \
+    && for f in presentation video notes screenshare podcast; do \
         mkdir -p "/var/bigbluebutton/published/$f" "/var/bigbluebutton/recording/publish/$f" "/var/log/bigbluebutton/$f"; \
     done \
     && chown -R bigbluebutton:bigbluebutton /var/bigbluebutton /var/log/bigbluebutton

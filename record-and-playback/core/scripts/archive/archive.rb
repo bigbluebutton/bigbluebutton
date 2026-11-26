@@ -302,8 +302,9 @@ archive_directory("#{presentation_dir}/#{meeting_id}/#{meeting_id}", "#{target_d
 # Images pasted into chat/notes/whiteboard (bbb-file-upload), including breakout rooms
 archive_uploads(meeting_id, presentation_dir, "#{target_dir}/#{UPLOADS_DIR_NAME}", raw_archive_dir)
 # Learning Analytics Dashboard JSON file
-base_id = meeting_id.split('-').first
-if (src = Dir["/var/bigbluebutton/learning-dashboard/#{base_id}-*/**/learning_dashboard_data.json"].first)
+# Match this session's directory only. Every session of an external meeting ID
+# shares the sha1 prefix, so a prefix match can pick another session's data.
+if (src = Dir["/var/bigbluebutton/learning-dashboard/#{meeting_id}/*/learning_dashboard_data.json"].first)
   FileUtils.mkdir_p("#{target_dir}/learning-dashboard")
   FileUtils.cp(src, "#{target_dir}/learning-dashboard/data.json")
   BigBlueButton.logger.info("Archived learning dashboard data for #{meeting_id}")

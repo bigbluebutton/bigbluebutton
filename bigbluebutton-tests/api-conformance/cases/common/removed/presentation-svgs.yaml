@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# presentation/.../svgs answered how many svgs a presentation had on disk. It was removed when
+# page URLs started to identify a page by its id instead of its number. The 404 is the contract;
+# the error page that carries it isn't, so the step is recorded but not compared.
+id: presentation.removed.svgs-count-not-found
+title: The removed presentation svgs count route answers 404
+endpoint: presentation
+class: contract
+tags: [ci]
+steps:
+  - route: presentation-svgs
+    pathParams: {conference: meeting-1, room: meeting-1, presentationName: pres-1}
+    golden: document
+    expect: {status: 404}

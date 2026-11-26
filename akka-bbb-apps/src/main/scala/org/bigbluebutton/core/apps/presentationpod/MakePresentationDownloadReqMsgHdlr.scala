@@ -98,18 +98,19 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
     pagesRange match {
       case (pageNumber :: pages) => {
 
-        if (pageNumber >= 1 && pageNumber <= pageCount) {
-
-          val whiteboardId = s"${presId}/${pageNumber.toString}"
-          val presentationPage: PresentationPage = currentPres.get.pages(whiteboardId)
-          val width: Double = presentationPage.width
-          val height: Double = presentationPage.height
-          val whiteboardHistory: Array[AnnotationVO] = liveMeeting.wbModel.getHistory(whiteboardId)
-
-          val page = new PresentationPageForExport(pageNumber, width, height, whiteboardHistory)
-          getPresentationPagesForExport(pages, pageCount, presId, currentPres, liveMeeting, storeAnnotationPages :+ page)
+        val presentationPage = if (pageNumber >= 1 && pageNumber <= pageCount) {
+          currentPres.flatMap(pres => PresentationInPod.pageByNum(pres, pageNumber))
         } else {
-          getPresentationPagesForExport(pages, pageCount, presId, currentPres, liveMeeting, storeAnnotationPages)
+          None
+        }
+
+        presentationPage match {
+          case Some(presPage) =>
+            val whiteboardHistory: Array[AnnotationVO] = liveMeeting.wbModel.getHistory(presPage.id)
+            val page = PresentationPageForExport(pageNumber, presPage.width, presPage.height, whiteboardHistory, presPage.id)
+            getPresentationPagesForExport(pages, pageCount, presId, currentPres, liveMeeting, storeAnnotationPages :+ page)
+          case None =>
+            getPresentationPagesForExport(pages, pageCount, presId, currentPres, liveMeeting, storeAnnotationPages)
         }
       }
 

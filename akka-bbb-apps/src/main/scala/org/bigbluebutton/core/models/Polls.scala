@@ -2,6 +2,7 @@ package org.bigbluebutton.core.models
 
 import org.bigbluebutton.common2.domain._
 import org.bigbluebutton.common2.msgs.{ AnnotationVO, BbbClientMsgHeader, BbbCommonEnvCoreMsg, BbbCoreEnvelope, MessageTypes, Routing, SendWhiteboardAnnotationsEvtMsg, SendWhiteboardAnnotationsEvtMsgBody, StartCustomPollReqMsg, StartPollReqMsg }
+import org.bigbluebutton.core.apps.presentationpod.PresentationPodsApp
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.db.{ PollDAO, PollResponseDAO }
 import org.bigbluebutton.core.domain.MeetingState2x
@@ -130,20 +131,23 @@ object Polls {
       pod <- state.presentationPodManager.getDefaultPod()
       pres <- pod.getCurrentPresentation()
       page <- PresentationInPod.getCurrentPage(pres)
-      shape = pollResultToWhiteboardShape(result, page, poll.questions(0).quiz, showAnswer)
+      shape = pollResultToWhiteboardShape(result, page, pres.id, poll.questions(0).quiz, showAnswer)
       annot <- send(result, shape)
     } yield {
-      lm.wbModel.addAnnotations(annot.wbId, lm.props.meetingProp.intId, requesterId, Array[AnnotationVO](annot), isPresenter = false, isModerator = false)
+      val storedAnnotations = lm.wbModel.addAnnotations(annot.wbId, lm.props.meetingProp.intId, requesterId, Array[AnnotationVO](annot), isPresenter = false, isModerator = false)
       showPollResult(pollId, lm.polls, showAnswer)
       // Send annotations with the result to recordings
-      val annotationRouting = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, lm.props.meetingProp.intId, requesterId)
-      val annotationEnvelope = BbbCoreEnvelope(SendWhiteboardAnnotationsEvtMsg.NAME, annotationRouting)
-      val annotationHeader = BbbClientMsgHeader(SendWhiteboardAnnotationsEvtMsg.NAME, lm.props.meetingProp.intId, requesterId)
+      if (storedAnnotations.nonEmpty) {
+        val annotationRouting = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, lm.props.meetingProp.intId, requesterId)
+        val annotationEnvelope = BbbCoreEnvelope(SendWhiteboardAnnotationsEvtMsg.NAME, annotationRouting)
+        val annotationHeader = BbbClientMsgHeader(SendWhiteboardAnnotationsEvtMsg.NAME, lm.props.meetingProp.intId, requesterId)
 
-      val annotMsgBody = SendWhiteboardAnnotationsEvtMsgBody(annot.wbId, Array[AnnotationVO](annot))
-      val annotationEvent = SendWhiteboardAnnotationsEvtMsg(annotationHeader, annotMsgBody)
-      val annotationMsgEvent = BbbCommonEnvCoreMsg(annotationEnvelope, annotationEvent)
-      bus.outGW.send(annotationMsgEvent)
+        val pageRefs = PresentationPodsApp.pageRefsFor(state, Seq(annot.wbId))
+        val annotMsgBody = SendWhiteboardAnnotationsEvtMsgBody(annot.wbId, storedAnnotations, pageRefs)
+        val annotationEvent = SendWhiteboardAnnotationsEvtMsg(annotationHeader, annotMsgBody)
+        val annotationMsgEvent = BbbCommonEnvCoreMsg(annotationEnvelope, annotationEvent)
+        bus.outGW.send(annotationMsgEvent)
+      }
     }
 
   }
@@ -292,11 +296,14 @@ object Polls {
     }
   }
 
-  private def pollResultToWhiteboardShape(
-      result:     SimplePollResultOutVO,
-      page:       PresentationPage,
-      quiz:       Boolean,
-      showAnswer: Boolean
+  // The poll result shape of a page: its parent is the page itself (page:<pageId>), and the
+  // presentation of the page travels in meta.
+  def pollResultToWhiteboardShape(
+      result:         SimplePollResultOutVO,
+      page:           PresentationPage,
+      presentationId: String,
+      quiz:           Boolean,
+      showAnswer:     Boolean
   ): scala.collection.immutable.Map[String, Object] = {
     val maxImageWidth = 1440
     val maxImageHeight = 1080
@@ -375,10 +382,11 @@ object Polls {
     shape += "isLocked" -> java.lang.Boolean.valueOf(false)
     shape += "index" -> "a1"
     shape += "rotation" -> Integer.valueOf(0)
-    shape += "parentId" -> s"page:${page.num}"
+    shape += "parentId" -> s"page:${page.id}"
     shape += "typeName" -> "shape"
     shape += "opacity" -> Integer.valueOf(1)
     shape += "id" -> s"shape:poll-result-${result.id}"
+    meta += "presentationId" -> presentationId
     shape += "meta" -> meta.toMap
     shape += "type" -> "poll"
 

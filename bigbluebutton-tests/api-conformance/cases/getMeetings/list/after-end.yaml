@@ -1,0 +1,48 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# An ended meeting leaves the list once akka-apps reports the end; the other
+# meeting stays. end waits until akka-apps has created the meeting: an end
+# that reaches akka-apps before the create does is lost.
+id: getMeetings.list.after-end
+title: getMeetings stops listing an ended meeting
+endpoint: getMeetings
+class: contract
+tags: [ci]
+requires: [akka, bus]
+steps:
+  - call: create
+    params: {meetingID: "${uid}-a", name: Meetings A}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - call: create
+    params: {meetingID: "${uid}-b", name: Meetings B}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: end
+    params: {meetingID: "${uid}-a"}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: getMeetings
+    eventually:
+      within: 5s
+      every: 100ms
+      until:
+        xpath: {"/response/meetings/meeting[meetingID='${uid}-a']": {count: 0}}
+    expect:
+      returncode: SUCCESS
+      xpath:
+        "/response/meetings/meeting[meetingID='${uid}-a']": {count: 0}
+        "/response/meetings/meeting[meetingID='${uid}-b']": {count: 1}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}-a"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}
+  - call: end
+    params: {meetingID: "${uid}-b"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

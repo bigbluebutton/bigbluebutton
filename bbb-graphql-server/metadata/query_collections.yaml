@@ -53,6 +53,7 @@
                 meetingLayout
                 moderatorsCanMuteAudio
                 moderatorsCanUnmuteAudio
+                requireUserConsentBeforeUnmuting
                 userCameraCap
               }
               breakoutPolicies {

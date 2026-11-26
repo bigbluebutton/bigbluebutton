@@ -91,8 +91,24 @@ remove_raw_of_recordings_without_marks
 # Delete old raw dirs from recordings properly published using 'presentation' scripts.
 #
 
+# The formats the recording steps publish (bigbluebutton.yml and recording.yml), one per line.
+# Only lines that are format names are kept: without a journal (e.g. in a container) the
+# recording's logger writes to stdout too, e.g. the warning about a REDIS_PORT that is not a
+# number, and such a line would be waited for as a format.
+formats_in_steps(){
+    (cd "${RAP_SCRIPTS_DIR:-/usr/local/bigbluebutton/core/scripts}" 2>/dev/null && timeout 120 bundle exec ruby -I../lib -rrecordandplayback -e '
+        steps = BigBlueButton.read_props["steps"] || {}
+        names = steps.flat_map { |step, nexts| [step, *Array(nexts)] }.map(&:to_s)
+        puts names.filter_map { |name| name[/\Apublish:(.+)\z/, 1] }.uniq' 2>/dev/null) | grep -E '^[a-z0-9_-]+$'
+}
+
 remove_raw_of_published_recordings(){
-    TYPES=$(cd /usr/local/bigbluebutton/core/scripts/process; ls *.rb | sed s/.rb//g)
+    # A format that is installed but not in the steps never gets its .done and would keep every raw dir
+    TYPES=$(formats_in_steps)
+    if [ "$TYPES" == "" ]; then
+        # the steps could not be read: every installed format, as before
+        TYPES=$(cd /usr/local/bigbluebutton/core/scripts/process; ls *.rb | sed s/.rb//g)
+    fi
     logger "Removing raw directory of old recordings:"
     if [ "$TYPES" == "" ]; then
         TYPES="presentation"

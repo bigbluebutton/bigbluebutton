@@ -70,11 +70,8 @@ export interface App {
   wakeLock: WakeLock
   allowDefaultLogoutUrl: boolean
   skipMeetingEnded: boolean
-  dynamicGuestPolicy: boolean
   enableGuestLobbyMessage: boolean
   showGuestLobbyWaitingQueuePosition: boolean
-  guestPolicyExtraAllowOptions: boolean
-  alwaysShowWaitingRoomUI: boolean
   enableLimitOfViewersInWebcam: boolean
   enableMultipleCameras: boolean
   enableCameraAsContent: boolean
@@ -96,6 +93,7 @@ export interface App {
   breakouts: Breakouts
   showAllAvailableLocales: boolean
   showAudioFilters: boolean
+  audioFilterStorage: 'session' | 'local'
   reactionsButton: ReactionsButton
   emojiRain: EmojiRain
   enableNetworkStats: boolean
@@ -142,6 +140,7 @@ export interface AudioCaptions {
   enabled: boolean
   mobile: boolean
   provider: string
+  speechProcessing: 'cloud' | 'local' | 'auto'
   showInSidebarNavigation: boolean
   microphoneAlert: MicrophoneAlert
   language: Language
@@ -202,7 +201,6 @@ export interface ReactionsButton {
 
 export interface EmojiRain {
   enabled: boolean
-  intervalEmojis: number
   numberOfEmojis: number
   emojiSize: number
 }
@@ -213,15 +211,10 @@ export interface Transcription {
 }
 
 export interface DefaultSettings {
-  layout: LayoutSettings
   application: Application
   audio: Audio
   dataSaving: DataSaving
   transcription: Transcription
-}
-export interface LayoutSettings {
-  selectedLayout: string
-  pushLayout: boolean
 }
 
 export interface Application {
@@ -241,6 +234,7 @@ export interface Application {
   paginationEnabled: boolean
   whiteboardToolbarAutoHide: boolean
   recordingIndicatorAutoCollapse: boolean
+  selfViewDisable: boolean
   pushToTalkEnabled: boolean
   autoCloseReactionsBar: boolean
   directLeaveButton: boolean
@@ -254,7 +248,7 @@ export interface Application {
 export interface Audio {
   inputDeviceId: string
   outputDeviceId: string
-  processingMode: 'advanced' | 'standard' | 'original'
+  processingMode: 'voiceIsolation' | 'advanced' | 'standard' | 'original'
 }
 
 export interface DataSaving {
@@ -263,78 +257,22 @@ export interface DataSaving {
 }
 
 export interface Shortcuts {
-  openOptions: OpenOptions
-  toggleUserList: ToggleUserList
-  openLeaveMenu: OpenLeaveMenu
-  toggleMute: ToggleMute
-  joinAudio: JoinAudio
-  leaveAudio: LeaveAudio
-  togglePublicChat: TogglePublicChat
-  hidePrivateChat: HidePrivateChat
-  closePrivateChat: ClosePrivateChat
-  raiseHand: RaiseHand
-  openActions: OpenActions
-  openDebugWindow: OpenDebugWindow
+  openOptions: ShortcutSetting
+  toggleUserList: ShortcutSetting
+  openLeaveMenu: ShortcutSetting
+  toggleMute: ShortcutSetting
+  joinAudio: ShortcutSetting
+  leaveAudio: ShortcutSetting
+  togglePublicChat: ShortcutSetting
+  hidePrivateChat: ShortcutSetting
+  closePrivateChat: ShortcutSetting
+  raiseHand: ShortcutSetting
+  openActions: ShortcutSetting
+  openDebugWindow: ShortcutSetting
 }
 
-export interface OpenOptions {
+export interface ShortcutSetting {
   accesskey: string
-  descId: string
-}
-
-export interface ToggleUserList {
-  accesskey: string
-  descId: string
-}
-
-export interface OpenLeaveMenu {
-  accesskey: string
-  descId: string
-}
-
-export interface ToggleMute {
-  accesskey: string
-  descId: string
-}
-
-export interface JoinAudio {
-  accesskey: string
-  descId: string
-}
-
-export interface LeaveAudio {
-  accesskey: string
-  descId: string
-}
-
-export interface TogglePublicChat {
-  accesskey: string
-  descId: string
-}
-
-export interface HidePrivateChat {
-  accesskey: string
-  descId: string
-}
-
-export interface ClosePrivateChat {
-  accesskey: string
-  descId: string
-}
-
-export interface RaiseHand {
-  accesskey: string
-  descId: string
-}
-
-export interface OpenActions {
-  accesskey: string
-  descId: string
-}
-
-export interface OpenDebugWindow {
-  accesskey: string
-  descId: string
 }
 
 export interface Branding {
@@ -450,9 +388,9 @@ export interface CameraProfile {
 }
 
 export interface Constraints2 {
-  width: number
-  height: number
-  frameRate?: number
+  width?: ConstrainULong
+  height?: ConstrainULong
+  frameRate?: ConstrainDouble
 }
 
 export interface CameraSortingModes {
@@ -478,6 +416,7 @@ export interface Threshold {
 
 export interface Pagination {
   paginationToggleEnabled: boolean
+  paginationToggleModeratorOnly?: boolean
   pageChangeDebounceTime: number
   desktopPageSizes: DesktopPageSizes
   mobilePageSizes: MobilePageSizes
@@ -536,6 +475,7 @@ export interface Poll {
 
 export interface Captions {
   background: string
+  maxTextLength: number
   font: Font
   lines: number
   time: number
@@ -662,6 +602,7 @@ export interface Layout {
   showSessionDetailsOnJoin: boolean
   showScreenshareQuickSwapButton: boolean
   showLeaveSessionLabel: boolean
+  layoutViewEnabled?: boolean
   usersPerUserListPage: number
   syncCameraDockSizeAndPosition: boolean
 }
@@ -740,10 +681,20 @@ export interface LiveKitAudioSettings {
   useLiveKitAudioState?: boolean
 }
 
+export type LastNAudioConfig = {
+  enabled: boolean;
+  audibleSize: number;
+  standbySize: number;
+  speechHoldMs: number;
+  minAudibleMs: number;
+  standbyGraceMs: number;
+};
+
 export type SelectiveSubscriptionConfig = {
   enabled: boolean;
   audioSubscriptionPoolSize: number;
   muteDebounceMs: number;
+  lastN?: LastNAudioConfig;
 };
 
 export interface LiveKitSettings {
@@ -764,6 +715,7 @@ export interface LiveKitSettings {
 export interface AudioWasmProcessingSettings {
   enabled: boolean
   provider?: 'bbba' | 'workadventureDtln'
+  intensity?: number
   // See: https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
   constraints?: Record<string, unknown>
 }
@@ -780,6 +732,7 @@ export interface Audio2 {
 
 export interface Screenshare2 {
   showButtonForNonPresenters: boolean
+  enableOnMobile: boolean
 }
 
 export interface LocalEchoTest {
@@ -810,7 +763,6 @@ export interface Stats {
   notification: Notification
   loss: StatsThresholds
   rtt: StatsThresholds
-  help: string
 }
 
 export interface StatsThresholds {
@@ -840,7 +792,6 @@ export interface Presentation {
   allowDownloadOriginal: boolean
   allowDownloadWithAnnotations: boolean
   allowSnapshotOfCurrentSlide: boolean
-  panZoomThrottle: number
   restoreOnUpdate: boolean
   uploadEndpoint: string
   fileUploadConstraintsHint: boolean

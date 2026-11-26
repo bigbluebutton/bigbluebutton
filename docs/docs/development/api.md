@@ -129,15 +129,15 @@ Updated in 3.0:
 - **getJoinUrl** endpoint was first introduced.
 - **enter** endpoint was removed. It was only used internally, never part of the api documentation.
 - **html5client/check** endpoint was removed. It was used for checking the health of the server returning `{"html5clientStatus":"running"}`
-- **feedback** endpoint was introduced, replacing calls to `/html5client/feedback` with `/api/feedback`
+- **html5client/feedback** endpoint was removed together with the built-in post-meeting feedback form. The `/api/feedback` endpoint that replaced it during the 3.0 release candidates was removed as well. Feedback is collected by the optional [custom-feedback](https://github.com/bigbluebutton/custom-feedback) application, which brings its own backend.
 
 Updated in 4.0:
 
 - **create**
   - **Added parameters:** `requireUserConsentBeforeUnmuting` (only relevant when `allowModsToUnmuteUsers=true`; when `true`, the user is shown a consent dialog before a moderator can unmute them), `lockSettingsPresenterPolicy` (controls the "Request to Present" policy; one of `moderatorOnly`, `requireApproval` (default), `freeForAll`), `notifyRecordingAppend` (appends optional plain text to the recording notification dialog when `notifyRecordingIsOn=true`).
-  - **Added options:** Parameter `disabledFeatures` supports new options: `multiFunctionalMode` (the auxiliary/dual sidebar panel), `pinChatMessage`, `webcamGrid`, `chatImagePaste`, `sharedNotesImagePaste`, and `whiteboardImagePaste` (per-surface toggles for the image-paste feature).
+  - **Added options:** Parameter `disabledFeatures` supports new options: `multiFunctionalMode` (the auxiliary/dual sidebar panel), `pinChatMessage`, `webcamGrid`, `lockSettings` (added in 4.0.3; no viewer restriction applies, and the `lockSettings*` and `webcamsOnlyForModerator` parameters are ignored), `chatImagePaste`, `sharedNotesImagePaste`, and `whiteboardImagePaste` (per-surface toggles for the image-paste feature).
   - **Removed parameter:** `lockSettingsDisableNote` (singular); use `lockSettingsDisableNotes` (plural) instead.
-  - **Removed parameter:** `copyright` (it had no effect; the value was stored but never propagated to the client). To customize the copyright text per meeting, override `app.copyright` through `clientSettingsOverride` / `clientSettingsOverrideJsonUrl` (requires `allowOverrideClientSettingsOnCreateCall=true`).
+  - **Removed parameter:** `copyright` (it had no effect; the value was stored but never propagated to the client). To customize the copyright text per meeting, override `app.copyright` through the `clientSettingsOverride` POST module (requires `allowOverrideClientSettingsOnCreateCall=true`) or the `clientSettingsOverrideJsonUrl` parameter (no server-side setting needed).
   - **Removed parameter:** `logoutTimer` (it had no effect; the value was stored in bbb-web but never propagated to akka-apps or the HTML5 client).
   - **Removed parameter:** `webVoice` (obsolete; it selected a separate voice conference for the old Flash client and had no downstream effect after that client was removed in BBB 2.3, always falling back to `voiceBridge`).
   - **Breaking:** With the image-paste feature, `public.chat.markdownImageAllowed=true` no longer renders external image URLs in chat messages - only same-origin upload URLs (`/bigbluebutton/fileUpload/...`) render, to prevent IP-leak / tracking-pixel attacks. Deployments relying on external image URLs in chat markdown should host those images on the BBB server instead.
@@ -146,17 +146,27 @@ Updated in 4.0:
   - **Changed:** Breakout rooms now always inherit the parent meeting's effective `meetingKeepEvents` value; an explicit `meetingKeepEvents` parameter and the server-wide `defaultKeepEvents` fallback only apply to top-level meetings (previously breakouts always fell back to `defaultKeepEvents`, even when the parent had an explicit override).
   - **Removed option:** `layouts` is no longer a valid `disabledFeatures` value (the layout selection UI was removed).
   - **Removed option:** `captions` is no longer a valid `disabledFeatures` value (it has had no effect since BBB 3.0, when typed captions moved to a plugin). Use `liveTranscription` to disable automatic transcription.
+  - **Changed:** At most `maxPresentationsPerRequest` pre-uploaded documents (10 by default; the default presentation is not counted) are uploaded per call (added in 4.0.1). The meeting is still created, and the response carries the `messageKey` `documentsDropped`; see [Pre-upload Slides](#pre-upload-slides).
+  - **Changed:** The `meetingEndedURL` callback carries the query parameters `recordingmarks` and `meetingID`, appended to the query of the URL (added in 4.0.1; 4.0.0 called the URL unchanged). See [Meeting Ended Callback URL](#meeting-ended-callback-url).
 - **join**
   - **Changed:** Parameter `enforceLayout` accepted values are now `UNIFIED_LAYOUT`, `CAMERAS_ONLY`, `PARTICIPANTS_AND_CHAT_ONLY`, `PRESENTATION_ONLY`, `MEDIA_ONLY` (the deprecated `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, `VIDEO_FOCUS` are no longer accepted).
   - **Changed:** Parameter `fullName` is now limited to 255 characters; a longer value is rejected with the `fullNameTooLong` message key (previously unbounded).
-  - **Removed parameters:** `userdata-bbb_change_layout` (redundant with `userdata-bbb_default_layout`; its legacy `smart`/`videoFocus`/`presentationFocus`/`custom` values no longer exist) and `userdata-enable-user-reaction` (redundant with the `userReactions` `disabledFeatures` option and `public.userReaction.enabled` in `settings.yml`).
+  - **Removed parameters:** `userdata-bbb_change_layout` (redundant with `userdata-bbb_default_layout`; its legacy `smart`/`videoFocus`/`presentationFocus`/`custom` values no longer exist), `userdata-enable-user-reaction` (redundant with the `userReactions` `disabledFeatures` option and `public.userReaction.enabled` in `settings.yml`) and `userdata-bbb_parent_room_moderator` (removed in 4.0.1; akka-apps no longer appends it to the breakout join URLs it generates; nothing has read it since 3.0.25, when breakout rooms started keeping the parent-room role, so the role itself tells who may remove users).
   - **Removed parameter:** `webVoiceConf` (obsolete; it set a custom Asterisk voice extension for the old Flash client and had no downstream effect, the value was never read).
+- **insertDocument**
+  - **Changed:** At most `maxPresentationsPerRequest` documents (10 by default) are uploaded per call (added in 4.0.1). The response is still `SUCCESS` and carries the `messageKey` `documentsDropped`.
+  - **Changed:** Calls are rate limited per meeting, by default to 30 calls per 60 seconds (`insertDocumentMaxRequests`, `insertDocumentRateWindowSec`); a call over the limit fails with the `messageKey` `rateLimitExceeded` (added in 4.0.1).
+  - **Changed:** Every `FAILED` response carries a `messageKey` (added in 4.0.1): an unknown meeting, an invalid filename, a disabled presentation feature and a request without documents now return `notFound`, `invalidFilename`, `presentationDisabled` and `noDocuments`, with the same messages as before. See [insertDocument](#post-insertdocument).
+- **end**
+  - **Changed:** Ending a meeting now also ends the breakout rooms created through `create` with `isBreakout=true` (previously only the rooms created from the client's breakout panel ended with their parent).
+- **getRecordingProcessingInfo** endpoint was first introduced (added in 4.0.3). It tells whether the server still has recordings to process, so that it can be taken out of service without losing any. See [getRecordingProcessingInfo](#get-post-getrecordingprocessinginfo).
 - **clientSettings** - The deprecated REST endpoint `/api/rest/clientSettings` was **removed**. Client settings are now served through the GraphQL stack.
 
 Updated in 4.1:
 
 - **create**
-  - **Added parameters:** `allowModsToRequestCameraShare` (when `true`, moderators may ask a participant to share their webcam and the participant accepts or declines).
+  - **Added parameters:** `allowModsToRequestCameraShare` (when `true`, moderators may ask a participant to share their webcam and the participant accepts or declines) and `hideUsersWithoutCamera` (when `true`, the meeting starts with participants without a camera hidden from the webcam grid).
+  - **Added options:** Parameter `disabledFeatures` supports the new option `layoutView` (hides the "Layout view" button, so the hide-participants-without-camera option keeps its initial value).
 
 ## API Data Types
 
@@ -314,6 +324,7 @@ The following section describes the monitoring calls
 | updateRecordings       | Updates metadata in a recording.                              |
 | getRecordingTextTracks | Get a list of the caption/subtitle.                           |
 | putRecordingTextTrack  | Upload a caption or subtitle file to add it to the recording. |
+| getRecordingProcessingInfo | Tell whether the server still has recordings to process.  |
 
 ## API Calls
 
@@ -524,11 +535,13 @@ In the payload the variables are passed inside each `<document>` tag of the xml,
 The first file with current="true" will be loaded in the client. If no file has current="true", the first one will be loaded in the client.
 The processing of the other documents will continue in the background and they will be available for display when the user select one of them from the client.
 
+A request may carry at most `maxPresentationsPerRequest` documents (10 by default; the default presentation is not counted); see [Limit the number of presentations per API request](/administration/customize#limit-the-number-of-presentations-per-api-request). The document that is loaded first in the client is always kept, the remaining slots go to the other documents in the order they appear in the request, and the documents beyond that are not uploaded. The meeting is still created, and the response carries the `messageKey` `documentsDropped` with a `message` saying how many documents were accepted. All document URLs are checked before the limit is applied, so a malformed URL fails the call with the `messageKey` `invalidPresentationUrl` even when its document would not have been uploaded.
+
 For more information about the pre-upload slides check the following [link](http://groups.google.com/group/bigbluebutton-dev/browse_thread/thread/d36ba6ff53e4aa79).
 
 #### clientSettingsOverride
 
-We support overriding the client settings (the entire set of options can be found in `/usr/share/bigbluebutton/html5-client/private/config/settings.yml`) as part of the CREATE call.
+We support overriding the client settings (the entire set of options can be found in `/usr/share/bigbluebutton/html5-client/private/config/settings.yml`, the shipped defaults that `/etc/bigbluebutton/bbb-html5.yml` overrides) as part of the CREATE call.
 Note that these values would have higher precedence over customizations made in `/etc/bigbluebutton/bbb-html5.yml`.
 
 By default this overriding approach on CREATE is disabled. To enable it, set `allowOverrideClientSettingsOnCreateCall=true` in `/etc/bigbluebutton/bbb-web.properties` and restart bbb-web. This is a **server-side setting only** — it is not read from the create request, so passing `allowOverrideClientSettingsOnCreateCall` as a `/create` parameter has no effect.
@@ -548,11 +561,11 @@ curl -s -X POST "$URL/$CONTROLLER?$PARAMS&checksum=$CHECKSUM" --header "Content-
                   "wsUrl": "wss://test.bigbluebutton.org/bbb-webrtc-sfu"
                },
                "app": {
-                    "appName": "Test",
+                    "clientTitle": "Test",
                     "helpLink": "https://www.bigbluebutton.org",
                     "autoJoin": false,
                     "askForConfirmationOnLeave": false,
-                    "userSettingsStorage": "localStorage",
+                    "userSettingsStorage": "local",
                     "defaultSettings": {
                      "application": {
                         "overrideLocale": "en"
@@ -568,7 +581,7 @@ curl -s -X POST "$URL/$CONTROLLER?$PARAMS&checksum=$CHECKSUM" --header "Content-
 
 #### Upload slides from external application to a live BigBlueButton session
 
-For external applications that integrate to BigBlueButton using the [insertDocument](/development/api#insertdocument) API call, `presentationUploadExternalUrl` and `presentationUploadExternalDescription` parameters can be used in the `create` API call in order to display a button and a message in the bottom of the presentation upload dialog.
+For external applications that integrate to BigBlueButton using the [insertDocument](/development/api#post-insertdocument) API call, `presentationUploadExternalUrl` and `presentationUploadExternalDescription` parameters can be used in the `create` API call in order to display a button and a message in the bottom of the presentation upload dialog.
 
 Clicking this button will open the URL in a new tab that shows the file picker for the external application. The user can then select files in the external application and they will be sent to the live session.
 
@@ -580,7 +593,9 @@ Upon receiving the callback your application could, for example, change the inte
 To specify the callback to BigBlueButton, pass a URL using the parameter `meetingEndedURL` on the `create` request.
 When the BigBlueButton server ends the meeting, it will make an HTTP GET request to the passed URL.
 
-BigBlueButton will add an additional query parameter, `recordingmarks=true|false`,
+BigBlueButton will add two query parameters to the URL:
+`meetingID`, the meeting ID that was passed on the create API call,
+and `recordingmarks=true|false`,
 which provides a hint as to whether a recording will be generated for the meeting.
 The value will be `true` if the meeting was set to be recorded
 (`record=true` was passed on the create API call)
@@ -597,10 +612,16 @@ add the following parameter to the `create` API call:
 &meetingEndedURL=https%3A%2F%2Fmyapp.example.com%2FmeetingEndedCallback%3Ftoken%3Da817dde5-0a18-43ad-9016-2d5d4c758a50
 ```
 (note the callback URL needs to be URLEncoded).
-The actual URL that the callback will be made to will look like
+The actual URL that the callback will be made to, for a meeting created with `meetingID=test01`, will look like
 ```
-https://myapp.example.com/meetingEndedCallback?token=a817dde5-0a18-43ad-9016-2d5d4c758a50&recordingmarks=true
+https://myapp.example.com/meetingEndedCallback?token=a817dde5-0a18-43ad-9016-2d5d4c758a50&recordingmarks=true&meetingID=test01
 ```
+BigBlueButton appends the parameters to the query string that your URL already has
+and does not replace a parameter of the same name:
+if your URL already contains `meetingID` or `recordingmarks`, the callback carries both values, yours first.
+Your existing parameters keep their values, but BigBlueButton may re-encode them
+(for example, `redirect=https://x/a` is sent as `redirect=https%3A%2F%2Fx%2Fa`),
+so do not rely on the raw query string, for example to verify a signature over it.
 
 For security reasons, the callback URL that your application generates should be authenticated in some way,
 to prevent malicious users from causing your application to think a meeting has ended while it is still running.
@@ -779,7 +800,110 @@ There is a XML response for this call only when the `redirect` parameter is set 
 </response>
 ```
 
-See [Passing user metadata to the client on join](/administration/customize/#passing-user-metadata-to-the-client-on-join) for additional `join` parameters that can override default settings for the user.
+#### User metadata parameters
+
+Any `join` parameter whose name starts with `userdata-` is accepted and stored as metadata of that user, the per-user counterpart of the `meta_` parameters of [`create`](#get-post-create). The name after the prefix must not contain another `-`, or bbb-web drops the parameter; `getJoinUrl` additionally only forwards names made of letters, digits, `_` and `.`. The value is kept with the user for the lifetime of the meeting and is:
+
+- delivered to that user's HTML5 client when it loads, where the `bbb_` parameters listed below change the look and default behaviour of the client for that user only;
+- available to bbb-apps-akka, which enforces the recording parameters on the server side;
+- written to the recording events (the `userdata` attribute of `ParticipantJoinEvent` in `events.xml`), where recording processing scripts can read it;
+- inherited by the user's breakout room sessions: a `userdata-` parameter passed on the parent room join also applies in the breakout rooms, unless the breakout join URL sets the same parameter explicitly.
+
+The `bbb_` prefix, that is every `userdata-bbb_*` parameter, is reserved for BigBlueButton. Integrations that attach their own per-user data must use their own prefix (for example `userdata-myapp_cohort=2026A`); such parameters are stored and passed along unchanged, and the client ignores them.
+
+Values are URL encoded. The client parses each value as JSON where possible and otherwise keeps it as a string, so booleans are written `true` or `false`, and lists are JSON arrays with double quotes: `["draw","text"]` is passed as `userdata-bbb_presenter_tools=%5B%22draw%22%2C%22text%22%5D`.
+
+Each parameter overrides one default of the client's `settings.yml`, named in the **Default** column; the same key can be changed for the whole server in `/etc/bigbluebutton/bbb-html5.yml` (see [Configuration Files](/administration/configuration-files)).
+
+[`getJoinUrl`](#get-post-getjoinurl) forwards `userdata-` parameters into the new session it creates. Moderators can pass any of them, except inside a breakout room; for viewers, and for everyone in a breakout room, the parameters named in `getJoinUrlUserdataBlocklist` in `bbb-web.properties` are dropped (by default the recording, transparent listen-only and whiteboard tool parameters). Set the list to `all` to drop every `userdata-` parameter in those cases.
+
+Tools for experimenting:
+
+- [API Mate](https://bigbluebutton.github.io/api-mate/) builds `join` URLs with user metadata interactively; `sudo bbb-conf --secret` prints a link that opens it with your server and secret filled in.
+- A URL encoder such as [this one](https://meyerweb.com/eric/tools/dencoder/) helps with values that need encoding, like CSS or JSON arrays.
+
+##### Application parameters
+
+| Parameter | Description | Default |
+| --- | --- | --- |
+| `userdata-bbb_auto_join_audio` | If `false`, the audio prompt (microphone or listen only) does not open when the client loads; the user joins audio later from the actions bar. | `true` (`public.app.autoJoin`) |
+| `userdata-bbb_pre_flight` | If `true`, the user sets up their devices in a screen shown before joining the session. It replaces the audio modal and the video preview modal, so `bbb_auto_join_audio`, `bbb_skip_check_audio` and `bbb_skip_check_audio_on_first_join` no longer apply; `bbb_auto_share_webcam` still sets the camera toggle's initial state. Added in 4.1. | `false` (`public.app.preFlight.enabled`) |
+| `userdata-bbb_client_title` | Text used as the browser tab title. | `BigBlueButton` (`public.app.clientTitle`) |
+| `userdata-bbb_force_listen_only` | If `true`, the user can only join audio in listen-only mode; the microphone option is hidden. Moderators are not affected. | `false` (`public.app.forceListenOnly`) |
+| `userdata-bbb_listen_only_mode` | If `false`, the listen-only option is removed from the audio prompt, so the user must join with a microphone. Only read when the meeting's audio bridge (`audioBridge`, default `livekit`) is `bbb-webrtc-sfu`; with `livekit` the listen-only option is not offered anyway, unless `bbb_force_listen_only` forces it, because users join through a muted microphone connection instead. | `true` (`public.app.listenOnlyMode`) |
+| `userdata-bbb_skip_check_audio` | If `true`, the echo test is skipped when the user joins with a microphone. | `false` (`public.app.skipCheck`) |
+| `userdata-bbb_skip_check_audio_on_first_join` | If `true`, the echo test is skipped the first time the user joins with a microphone in a session; it is shown again if the user leaves and rejoins audio. No effect when `bbb_skip_check_audio` is `true`. Added in 2.3. | `false` (`public.app.skipCheckOnJoin`) |
+| `userdata-bbb_skip_echotest_if_previous_device` | If `true`, the echo test is skipped when the browser has stored working input and output devices from an earlier session. Ignored on mobile devices. Added in 3.0. | `false` (`public.app.skipEchoTestIfPreviousDevice`) |
+| `userdata-bbb_override_default_locale` | Locale code (for example `de`) to use instead of the browser's preferred language. Added in 2.3. | none |
+| `userdata-bbb_direct_leave_button` | If `false`, the leave button is removed from the navigation bar and the user leaves through the options menu instead. Added in 2.7. | `true` (`public.app.defaultSettings.application.directLeaveButton`) |
+| `userdata-bbb_show_session_details_on_join` | If `true`, the session details window opens when the user joins. Added in 3.0. | `false` (`public.layout.showSessionDetailsOnJoin`) |
+| `userdata-bbb_show_animations_default` | If `false`, the animations setting (reactions, whiteboard toolbar fading and the like) starts turned off for the user. | `true` (`public.app.defaultSettings.application.animations`) |
+| `userdata-bbb_record_permission` | `true` lets the user start and stop the recording whatever their role; `false` prevents it even for a moderator. Checked by the client and enforced by bbb-apps-akka; the meeting must allow it (`allowStartStopRecording`). Added in 3.0. | none: moderators may record |
+| `userdata-bbb_record_permission_tooltip` | Text shown as the tooltip of the recording indicator for a user who is not allowed to record. Added in 3.0. | none |
+
+##### Branding parameters
+
+| Parameter | Description | Default |
+| --- | --- | --- |
+| `userdata-bbb_display_branding_area` | If `false`, the branding area (the logo in the sidebar navigation) is hidden. | `true` (`public.app.branding.displayBrandingArea`) |
+
+##### Shortcut parameters
+
+| Parameter | Description | Default |
+| --- | --- | --- |
+| `userdata-bbb_shortcuts` | JSON array of the keyboard shortcuts that stay enabled, by their name in `public.app.shortcuts`: `openOptions`, `toggleUserList`, `openLeaveMenu`, `toggleMute`, `joinAudio`, `leaveAudio`, `togglePublicChat`, `hidePrivateChat`, `closePrivateChat`, `raiseHand`, `openActions`, `openDebugWindow`. Shortcuts not listed are disabled; `%5B%5D` (an empty array) disables them all. | all shortcuts in `public.app.shortcuts` |
+
+##### Media parameters
+
+| Parameter | Description | Default |
+| --- | --- | --- |
+| `userdata-bbb_auto_share_webcam` | If `true`, the webcam sharing dialog opens automatically when the client loads, together with the audio prompt when that opens too. No effect when `bbb_enable_video` is `false`. | `false` (`public.kurento.autoShareWebcam`) |
+| `userdata-bbb_preferred_camera_profile` | Id of the camera profile preselected in the webcam dialog, out of `public.kurento.cameraProfiles` (for example `low`, `medium`, `high`). | the profile marked `default` (`medium`) |
+| `userdata-bbb_enable_video` | If `false`, the webcam sharing button is hidden and the user cannot share a webcam. | `true` (`public.kurento.enableVideo`) |
+| `userdata-bbb_record_video` | If `false`, the user's webcam is not recorded. Enforced by bbb-apps-akka. | `true` |
+| `userdata-bbb_skip_video_preview` | If `true`, the webcam preview dialog is skipped and sharing starts right away. | `false` (`public.kurento.skipVideoPreview`) |
+| `userdata-bbb_skip_video_preview_on_first_join` | If `true`, the webcam preview dialog is skipped the first time the user shares a webcam in a session; it is shown again on later shares. Added in 2.3. | `false` (`public.kurento.skipVideoPreviewOnFirstJoin`) |
+| `userdata-bbb_skip_video_preview_if_previous_device` | If `true`, the webcam preview dialog is skipped when the browser has a stored camera from an earlier session. Added in 3.0. | `false` (`public.kurento.skipVideoPreviewIfPreviousDevice`) |
+| `userdata-bbb_mirror_own_webcam` | If `false`, the user sees their own webcam unmirrored. Does not change what other users see. | `true` (`public.app.mirrorOwnWebcam`) |
+| `userdata-bbb_transparent_listen_only` | If `false`, listen-only users get a receive-only audio connection instead of a muted microphone connection that can be unmuted without rejoining. Only read when the meeting's audio bridge is `bbb-webrtc-sfu`; the `livekit` bridge always works this way. | `true` (`public.media.transparentListenOnly`) |
+| `userdata-bbb_transcription_provider` | Speech-to-text provider for live captions: `webspeech` (speech recognition in the browser) or the name of the server-side provider the transcription service is set up for, such as `gladia` or `vosk` (see [Enable live captions](/administration/customize#enable-live-captions)). Added in 3.0. | `webspeech` (`public.app.audioCaptions.provider`) |
+
+##### Presentation parameters
+
+| Parameter | Description | Default |
+| --- | --- | --- |
+| `userdata-bbb_force_restore_presentation_on_new_events` | If `false`, a presentation the user has minimized stays minimized when the presenter changes slide, zooms or draws; if `true`, it is restored on such events. | `true` (`public.presentation.restoreOnUpdate`) |
+
+##### Whiteboard parameters
+
+| Parameter | Description | Default |
+| --- | --- | --- |
+| `userdata-bbb_multi_user_pen_only` | If `true`, a user who is neither moderator nor presenter only gets the pen tool (plus the hand tool when viewers may pan) when the whiteboard is in multi-user mode. | `false` (`public.whiteboard.toolbar.multiUserPenOnly`) |
+| `userdata-bbb_presenter_tools` | JSON array of the toolbar items available to the user while they are presenter. The ids are the ones listed under `public.whiteboard.toolbar.presenterTools`: `select`, `hand`, `draw`, `eraser`, `arrow`, `text`, `note`, `rectangle`, `ellipse`, `diamond`, `triangle`, `trapezoid`, `rhombus`, `hexagon`, `cloud`, `star`, `oval`, `x-box`, `check-box`, `arrow-left`, `arrow-up`, `arrow-down`, `arrow-right`, `line`, `frame`, `highlight`, `delete-selected-items`, `more` and `actions`. | all (`public.whiteboard.toolbar.presenterTools`) |
+| `userdata-bbb_multi_user_tools` | Same as `bbb_presenter_tools`, for a user who is neither moderator nor presenter while the whiteboard is in multi-user mode. | all (`public.whiteboard.toolbar.multiUserTools`) |
+| `userdata-bbb_initial_selected_tool` | Id of the tool selected when the user's whiteboard first loads. Accepts the tool and geometric shape ids listed under `bbb_presenter_tools`, except `more`, `actions` and `delete-selected-items`. Invalid or unavailable values use the configured initial tool, then `draw`, then the first available selectable tool. If none is available, no drawing tool is selected. Tool restrictions still apply. A valid saved selection takes priority on reload; the user can pick another tool at any time. Added in 3.0. | `draw` (`public.whiteboard.toolbar.initialSelectedTool`) |
+
+##### Theming and styling parameters
+
+| Parameter | Description | Default |
+| --- | --- | --- |
+| `userdata-bbb_custom_style` | URL-encoded CSS applied to the client for this user. See [Changing the background color of the HTML client](/administration/customize#changing-the-background-color-of-the-html-client) for an example. | none |
+| `userdata-bbb_custom_style_url` | URL of a stylesheet loaded into the client for this user. | none (`public.app.customStyleUrl`) |
+| `userdata-bbb_prefer_dark_theme` | `true` starts the client in dark mode, `false` in light mode. Takes precedence over the configured default and over the operating system preference that `public.app.darkTheme.autoDetectFromSystem` follows. Added in 3.0. | `false` (`public.app.defaultSettings.application.darkTheme`) |
+
+##### Layout parameters
+
+| Parameter | Description | Default |
+| --- | --- | --- |
+| `userdata-bbb_hide_presentation_on_join` | If `true`, the presentation area starts minimized; the user can restore it. Added in 2.6. | `false` (`public.layout.hidePresentationOnJoin`) |
+| `userdata-bbb_show_participants_on_login` | If `true`, the user list panel is open when the user joins. Takes precedence over `bbb_show_public_chat_on_login`. | `false` (`public.layout.showParticipantsOnLogin`) |
+| `userdata-bbb_show_public_chat_on_login` | If `false`, the public chat panel is closed when the user joins. This does not disable chat. | `true` (the opposite of `public.chat.startClosed`) |
+| `userdata-bbb_hide_nav_bar` | If `true`, the navigation bar (the top of the client) is not shown. Added in 2.4. | `false` |
+| `userdata-bbb_hide_actions_bar` | If `true`, the actions bar (the bottom of the client) is not shown. Added in 2.4. | `false` |
+| `userdata-bbb_default_layout` | Layout the client starts in: `UNIFIED_LAYOUT`, `CAMERAS_ONLY`, `PRESENTATION_ONLY`, `PARTICIPANTS_AND_CHAT_ONLY` or `MEDIA_ONLY`. The `enforceLayout` join parameter takes precedence; without either, the meeting layout (`meetingLayout` on `create`, else `defaultMeetingLayout`) is used. Added in 3.0. | none |
+| `userdata-bbb_hide_notifications` | If `true`, all notification toasts are suppressed. Added in 3.0. | `false` |
+| `userdata-bbb_hide_controls` | If `true`, hides the actions bar and the top row of the navigation bar (sidebar toggle, meeting title, connection indicator, leave button) while keeping the row with the talking indicator and the timer. Added in 3.0. | `false` |
+| `userdata-bbb_hide_sidebar_navigation` | If `true`, the sidebar navigation column and the sidebar content panel are closed when the user joins. Added in 4.0. | `false` |
 
 ### `POST` insertDocument
 
@@ -835,6 +959,42 @@ curl -s -X POST "https://{your-host}/bigbluebutton/api/insertDocument?meetingID=
 
 There is also the possibility of passing the removable, downloadable and current variables inside the payload, they go in the `document` tag as already demonstrated. The way it works is exactly the same as in the [(POST) create endpoint](#pre-upload-slides)
 
+**Example Response:**
+
+```xml
+<response>
+  <returncode>SUCCESS</returncode>
+  <message>Presentation is being uploaded</message>
+</response>
+```
+
+When the request carries more than `maxPresentationsPerRequest` documents (10 by default), only that many are uploaded: the first document with `current="true"`, if there is one, and then the others in the order they appear in the request. The `returncode` is still `SUCCESS`, and the response adds the `messageKey` `documentsDropped`, with a `message` saying how many documents were accepted. All document URLs are checked before the limit is applied, so a malformed URL fails the call with `invalidPresentationUrl` even when its document would not have been uploaded.
+
+**Errors:**
+
+In addition to the standard BigBlueButton checksum and validation errors, this API call can return the following errors in `<messageKey>` when returncode is FAILED:
+
+notFound
+: No meeting with the given meeting ID was found.
+
+malformedXml
+: The request body is not well-formed XML.
+
+invalidPresentationUrl
+: A document URL is not valid URI syntax.
+
+invalidFilename
+: A document's filename is invalid, or no filename can be derived from its URL: the URL is not absolute (for example `url="notaurl"`), or the document has no `filename` and the URL path does not end in a name with an extension. No document from the request is uploaded.
+
+presentationDisabled
+: The presentation feature is disabled for the meeting.
+
+noDocuments
+: The request body has no `presentation` module, or the module has no document with a `url` or `name`.
+
+rateLimitExceeded
+: The meeting has made more `insertDocument` calls than `insertDocumentMaxRequests` allows within the window; see [Limit `insertDocument` API calls](/administration/customize#limit-insertdocument-api-calls). Only calls that pass the checks above count towards this limit, but once it is reached every call is refused with this error, before its body is read.
+
 ### `GET` `POST` isMeetingRunning
 
 This call enables you to simply check on whether or not a meeting is running by looking it up with your meeting ID.
@@ -866,7 +1026,7 @@ running can be “true” or “false” that signals whether a meeting with thi
 
 ### `GET` `POST` end
 
-Use this to forcibly end a meeting and kick all participants out of the meeting.
+Use this to forcibly end a meeting and kick all participants out of the meeting. Ending a meeting also ends all of its breakout rooms, including the ones created through `create` with `isBreakout=true`.
 
 **Resource URL:**
 
@@ -1456,6 +1616,65 @@ Missing parameter error
 ```
 
 
+### `GET` `POST` getRecordingProcessingInfo
+
+Tells whether this server still has recordings to process. Before a server is taken out of service (to scale in a load-balanced pool, to replace it, or for an OS upgrade), every recording on it has to finish processing: the raw data of a recording still in the pipeline is lost with the server. This call summarizes the recording pipeline, from a recorded meeting that has ended but hasn't been picked up yet to the last publish step.
+
+**Resource URL:**
+
+http&#58;//yourserver.com/bigbluebutton/api/getRecordingProcessingInfo?checksum=[checksum]
+
+**Parameters:**
+
+None. The checksum is computed over the call name and an empty query string.
+
+**Example Requests:**
+
+http&#58;//yourserver.com/bigbluebutton/api/getRecordingProcessingInfo?checksum=1234
+
+**Example Response:**
+
+```xml
+<response>
+  <returncode>SUCCESS</returncode>
+  <processing>true</processing>
+  <queuedCount>2</queuedCount>
+  <runningCount>1</runningCount>
+  <failedCount>1</failedCount>
+  <oldestQueuedTime>1763035200000</oldestQueuedTime>
+  <oldestRunningTime>1763038800000</oldestRunningTime>
+</response>
+```
+
+| Element | Meaning |
+| :--- | :--- |
+| `processing` | `true` while `queuedCount` or `runningCount` is above 0. Failed recordings don't keep it `true`. |
+| `queuedCount` | Recordings with work waiting: a recorded meeting that has ended but hasn't been picked up for archiving yet, a job waiting in a queue for its next step, a caption track upload that hasn't been processed yet, or the events of an ended meeting created with `meetingKeepEvents=true` that are still to be kept. |
+| `runningCount` | Recordings with a step running now (archive, sanity, events, captions, process or publish). This includes the post-archive, post-process and post-publish scripts, which run inside those steps. |
+| `failedCount` | Recordings stopped at a failed step that haven't been rebuilt (`bbb-record --rebuild`) or removed (`bbb-record --delete`) since. They never finish on their own, and taking the server out of service loses their raw data. `deleteRecordings` doesn't remove the marker of a failed step, so a recording deleted through the API still counts. |
+| `oldestQueuedTime` | When the oldest queued work was queued, in milliseconds since the epoch like `createTime`. Left out when `queuedCount` is 0. Only the recordings that `queuedCount` counts are included: a recording counted as running isn't, even when it also has older work queued. It helps tell a busy server from a stuck one, for example one where `bbb-rap-resque-worker` is stopped: work that has waited much longer than processing normally takes is a reason to look at the server. A job queued by a BigBlueButton older than 4.0.3 doesn't record when it was queued; the recording's start time stands in for it, which is earlier. |
+| `oldestRunningTime` | When the oldest running step started, in milliseconds since the epoch. Left out when `runningCount` is 0. A step that has run much longer than processing normally takes may be stuck, for example because its worker was killed (see below). If the time a step started can't be read, the recording's start time stands in for it. |
+
+The counts are of recordings (record IDs), not jobs: a recording whose presentation and video formats are both queued counts once, and a recording with one step running and another one queued counts as running. A failed recording that has work queued or running again, after a rebuild for example, counts as queued or running.
+
+If the server can't read the state of its recordings, for example because Redis can't be reached or the recording status directory (`/var/bigbluebutton/recording/status/recorded`) is missing, the call fails with the `messageKey` `recordingStatusUnavailable` rather than answer `processing=false`. When Redis can't be reached, that answer comes only after the Redis client's command timeout, about a minute. A caller that gives up sooner gets no answer, and should treat that as unknown too, never as `processing=false`.
+
+To take a server out of service:
+
+1. Stop sending new meetings to it, for example by disabling it in Scalelite.
+2. Wait until `getMeetings` returns no meetings. bbb-web hands an ended recorded meeting to the recording pipeline before it drops the meeting from `getMeetings`, so this call sees the recording as soon as the meeting is gone, unless bbb-web couldn't write the marker that hands it over (see below).
+3. Wait until `processing` is `false`, and confirm it with a second call a few seconds later: one call can miss a job that a worker is taking from its queue. No call sees that job if the worker stops at that moment (see below). If `oldestQueuedTime` or `oldestRunningTime` is older than processing normally takes, the pipeline may be stuck: look at the server rather than wait. Work queued behind a long recording, with a single worker, can also make it old.
+4. If `failedCount` is above 0, decide for each failed recording whether to rebuild it (`bbb-record --rebuild`) or accept losing it. The call doesn't name them: `ls /var/bigbluebutton/recording/status/*/*.fail` lists the markers of the failed steps, each named after its record ID.
+
+What the call doesn't cover:
+
+- Post-script results. A failed post-script, such as the transfer to Scalelite, is only logged, so a recording whose transfer failed counts as done.
+- A job interrupted because `bbb-rap-resque-worker` was stopped or killed while it ran, or as it took the job from its queue. When the worker is stopped or restarted, Resque moves the running job to its failed jobs without the marker of a failed step, and the recording then counts as neither running nor failed. When the worker is killed, the recording keeps counting as running, `processing` stays `true` and `oldestRunningTime` keeps getting older, until Resque removes the dead worker. Resque does that only once the dead worker's last heartbeat is more than 5 minutes old, and only when a worker starts or another recording step succeeds. On a server with nothing else to process, restart `bbb-rap-resque-worker` once those 5 minutes have passed; the recording then counts as neither running nor failed too. A job lost as the worker took it from its queue counts nowhere either. Don't stop or restart the worker while a server drains.
+- A failed events step, for a meeting created with `meetingKeepEvents=true`. Unlike the other steps, it leaves no marker of a failed step, so its meeting then counts as neither running nor failed.
+- A recorded meeting whose marker bbb-web couldn't write when the meeting ended (it logs the error). Its recording is never handed to the pipeline, so it counts nowhere.
+- Workers that use another Redis than bbb-web does (`redis_workers_host` in the recording configuration). The call reads the queues from the Redis that `bbb-web.properties` sets.
+- Meetings that are still running: `getMeetings` lists them.
+
 ### `GET` sendChatMessage
 
 This call enables you to send a message to the public chat of a running meeting. Messages are rendered as plain text: any special characters are escaped before the message is displayed, and HTML or Markdown formatting is not applied.
@@ -1535,7 +1754,7 @@ This is particularly useful for hybrid environments where multiple screens in th
 
 It also facilitates seamless user session transfers to another device. For example, a mobile device can scan a QR code displayed on a computer, instantly migrating the user’s session from one device to another.
 
-The caller must present the `sessionToken` of an existing, still-active session; the resulting `/join` URL carries a valid `checksum` and can then be opened directly by the browser.
+The caller must present the `sessionToken` of an existing, still-active session; the resulting `/join` URL carries a valid `checksum` and can then be opened directly by the browser. The checksum uses the strongest algorithm listed in `supportedChecksumAlgorithms`.
 
 **Resource URL:**
 
@@ -1743,7 +1962,6 @@ For example, the application may be able to register a URL that BigBlueButton wo
   - .jpeg
   - .png
   - .webp
-  - .svg
 
 #### Text Files
 
@@ -1752,4 +1970,4 @@ For example, the application may be able to register a URL that BigBlueButton wo
 - Plain Text:
   - .txt
 
-All these valid formats are also present in a list in the [back-end](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.10/bbb-common-web/src/main/java/org/bigbluebutton/presentation/MimeTypeUtils.java#L28-L47) and in the [front-end](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.10/bigbluebutton-html5/private/config/settings.yml#L824-L862) if more details are needed.
+All these valid formats are also present in the `EXTENSIONS_MIME` map of the [back-end](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-release/bbb-common-web/src/main/java/org/bigbluebutton/presentation/MimeTypeUtils.java) and under `uploadValidMimeTypes` in the [front-end](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-release/bigbluebutton-html5/private/config/settings.yml) if more details are needed.

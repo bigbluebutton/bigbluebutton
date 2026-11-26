@@ -3,8 +3,10 @@ import path from 'path';
 import { linkIssue } from '../core/helpers';
 import { chromiumBaseArgs } from '../core/setup/browsersConfig';
 import { test } from '../core/setup/fixtures';
+import { routeGraphqlSockets } from '../reconnection/util';
 import { ExportedAnnotationsOverlap } from './exportedAnnotationsOverlap';
 import { Presentation } from './presentation';
+import { holdUploadTokenRequest, MASK_SAMPLE_PDF_BYTES } from './util';
 
 test.describe.parallel('Presentation', { tag: '@ci' }, () => {
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#navigation-automated
@@ -20,7 +22,17 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     await presentation.navigateSlidesWithKeys();
   });
 
-  test('Share Camera As Content', { tag: '@media' }, async ({ browser }, testInfo) => {
+  test('Navigate slides with arrow keys on the whiteboard', async ({ browser, context, page }, testInfo) => {
+    const presentation = new Presentation(browser, context);
+    await presentation.initModPage(page, { testInfo });
+    await presentation.navigateSlidesWithKeysOnWhiteboard();
+  });
+
+  test('Share Camera As Content', { tag: '@media' }, async ({ browser, browserName }, testInfo) => {
+    test.skip(
+      browserName === 'firefox',
+      'Compares screenshots of a static frame fed by Chromium-only --use-file-for-fake-video-capture',
+    );
     const staticVideoBrowser = await browser.browserType().launch({
       args: [
         ...chromiumBaseArgs,
@@ -110,27 +122,25 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     await presentation.selectSlide();
   });
 
-  // All external video tests (youtube) require logged user to start external video on CI environment
-  test.describe.parallel('External Video', { tag: '@flaky' }, () => {
+  test.describe.parallel('External Video', () => {
     // https://docs.bigbluebutton.org/3.0/testing/release-testing/#start-youtube-video-sharing
     test('Start external video', async ({ browser, context, page }, testInfo) => {
-      linkIssue(21589);
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, testInfo);
       await presentation.startExternalVideo();
     });
 
-    test('External video loads correctly after new user joins the meeting', async ({
-      browser,
-      context,
-      page,
-    }, testInfo) => {
-      const presentation = new Presentation(browser, context);
-      await presentation.initPages(page, testInfo);
-      await presentation.startExternalVideo();
-      await presentation.initUserPage2(context, { testInfo });
-      await presentation.checkVideoAfterUserJoins();
-    });
+    test(
+      'External video loads correctly after new user joins the meeting',
+      { tag: '@nightly' },
+      async ({ browser, context, page }, testInfo) => {
+        const presentation = new Presentation(browser, context);
+        await presentation.initPages(page, testInfo);
+        await presentation.startExternalVideo();
+        await presentation.initUserPage2(context, { testInfo });
+        await presentation.checkVideoAfterUserJoins();
+      },
+    );
 
     test('Pause External video', async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
@@ -157,7 +167,7 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     // Regression: presenter scrubbing the external video while playing must broadcast the
     // new position. Adapters like YouTube do not emit a seek event, so before the fix the
     // viewer stayed stuck. Asserts the viewer's playhead follows the presenter's seek.
-    test('Seek external video while playing', async ({ browser, context, page }, testInfo) => {
+    test('Seek external video while playing', { tag: '@nightly' }, async ({ browser, context, page }, testInfo) => {
       linkIssue(25472);
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, testInfo);
@@ -188,7 +198,7 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       },
     );
 
-    test('Upload Other Presentations Format', async ({ browser, context, page }, testInfo) => {
+    test('Upload Other Presentations Format', { tag: '@nightly' }, async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, testInfo);
       await presentation.uploadOtherPresentationsFormat();
@@ -240,12 +250,27 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       await presentation.sendPresentationToDownload();
     });
 
-    test('Exported text annotations do not overlap', async ({ browser, context, page }, testInfo) => {
-      linkIssue(24566);
-      const exportedAnnotations = new ExportedAnnotationsOverlap(browser, context);
-      await exportedAnnotations.initModPage(page, { testInfo });
-      await exportedAnnotations.textAnnotationsDoNotOverlapInExport(testInfo);
-    });
+    test(
+      'Exported text annotations do not overlap',
+      { tag: '@nightly' },
+      async ({ browser, context, page }, testInfo) => {
+        linkIssue(24566);
+        const exportedAnnotations = new ExportedAnnotationsOverlap(browser, context);
+        await exportedAnnotations.initModPage(page, { testInfo });
+        await exportedAnnotations.textAnnotationsDoNotOverlapInExport(testInfo);
+      },
+    );
+
+    test(
+      'Exported text annotation keeps the client line breaks',
+      { tag: '@nightly' },
+      async ({ browser, context, page }, testInfo) => {
+        linkIssue(24566);
+        const exportedAnnotations = new ExportedAnnotationsOverlap(browser, context);
+        await exportedAnnotations.initModPage(page, { testInfo });
+        await exportedAnnotations.textAnnotationKeepsClientLineBreaks(testInfo);
+      },
+    );
 
     test('Remove all presentations', async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
@@ -267,12 +292,32 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       await presentation.uploadPresentationKeepsSourceDimensions();
     });
 
-    test('Upload and remove all presentations', { tag: '@flaky' }, async ({ browser, context, page }, testInfo) => {
-      // duplicate toast notification displayed
-      linkIssue(24056);
+    test('Upload and remove all presentations', async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, testInfo);
       await presentation.uploadAndRemoveAllPresentations();
+    });
+
+    test('A truncated PDF is refused', async ({ browser, context, page }, testInfo) => {
+      const presentation = new Presentation(browser, context);
+      await presentation.initModPage(page, { testInfo });
+      await presentation.truncatedPdfIsRefused();
+    });
+
+    test('A file whose content does not match its extension is refused', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      const presentation = new Presentation(browser, context);
+      await presentation.initModPage(page, { testInfo });
+      await presentation.executableNamedPdfIsRefused();
+    });
+
+    test('A PDF with more pages than allowed is refused', async ({ browser, context, page }, testInfo) => {
+      const presentation = new Presentation(browser, context);
+      await presentation.initModPage(page, { testInfo });
+      await presentation.tooManyPagesIsRefused();
     });
 
     test('Remove previous presentation from previous presenter', async ({ browser, context, page }, testInfo) => {
@@ -281,5 +326,155 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       await presentation.initUserPage(context, { testInfo });
       await presentation.removePreviousPresentationFromPreviousPresenter();
     });
+  });
+
+  // An upload exists on the server from the moment its token is issued. Each of these ends one
+  // without its file arriving, and none may leave it showing as uploading.
+  test.describe.parallel('Upload that does not complete', () => {
+    test('A refused upload is reported and can be sent again', async ({ browser, context, page }, testInfo) => {
+      linkIssue(26518);
+      const presentation = new Presentation(browser, context);
+      await presentation.initModPage(page, { testInfo });
+      await presentation.refusedUploadCanBeSentAgain();
+    });
+
+    test('An upload the server refuses is shown as failed', async ({ browser, context, page }, testInfo) => {
+      linkIssue(26518);
+      const presentation = new Presentation(browser, context);
+      await presentation.initModPage(page, { testInfo });
+      await presentation.initModPage2(context, { testInfo });
+      await presentation.uploadRefusedByServerIsShownAsFailed();
+    });
+
+    test('An upload is dropped when its uploader leaves', async ({ browser, context, page }, testInfo) => {
+      linkIssue(26518);
+      const presentation = new Presentation(browser, context);
+      await presentation.initModPage(page, { testInfo });
+      await presentation.initModPage2(context, { testInfo });
+      await presentation.uploadIsDroppedWhenItsUploaderLeaves();
+    });
+
+    test('An upload is dropped when its uploader is removed from the meeting', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      linkIssue(26518);
+      const presentation = new Presentation(browser, context);
+      await presentation.initModPage(page, { testInfo });
+      await presentation.initModPage2(context, { testInfo });
+      await presentation.uploadIsDroppedWhenItsUploaderIsRemoved();
+    });
+
+    test('An upload is kept when the connection of its uploader drops', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      linkIssue(26518);
+      const uploaderSockets = await routeGraphqlSockets(page, []);
+      const presentation = new Presentation(browser, context);
+      await presentation.initModPage(page, { testInfo });
+      await presentation.initModPage2(context, { testInfo });
+      await presentation.uploadIsKeptWhenTheConnectionOfItsUploaderDrops(uploaderSockets);
+    });
+
+    test('An upload whose token arrives after the client gave up is removed', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      linkIssue(26518);
+      const tokenRequest = await holdUploadTokenRequest(page);
+      const presentation = new Presentation(browser, context);
+      await presentation.initModPage(page, { testInfo });
+      await presentation.initModPage2(context, { testInfo });
+      await presentation.lateUploadTokenIsNotLeftUploading(tokenRequest);
+    });
+
+    test('An upload whose answer is lost is kept', async ({ browser, context, page }, testInfo) => {
+      linkIssue(26518);
+      const presentation = new Presentation(browser, context);
+      await presentation.initModPage(page, { testInfo });
+      await presentation.uploadWhoseAnswerIsLostIsKept('no answer');
+    });
+
+    test('An upload answered with a gateway timeout is kept', async ({ browser, context, page }, testInfo) => {
+      linkIssue(26518);
+      const presentation = new Presentation(browser, context);
+      await presentation.initModPage(page, { testInfo });
+      await presentation.uploadWhoseAnswerIsLostIsKept('gateway timeout');
+    });
+  });
+});
+
+// At the top level so the @ci 'Presentation' describe does not tag these: each waits for a server
+// timeout, of five minutes for the first and of about a minute for the second
+test.describe.parallel('Presentation upload timeouts', { tag: '@nightly' }, () => {
+  test('An upload that never reaches the server is shown as failed', async ({ browser, context, page }, testInfo) => {
+    test.setTimeout(480_000);
+    linkIssue(26518);
+    const presentation = new Presentation(browser, context);
+    await presentation.initModPage(page, { testInfo });
+    await presentation.initModPage2(context, { testInfo });
+    await presentation.uploadThatNeverArrivesIsShownAsFailed();
+  });
+
+  test('An upload that stalls is shown as failed and can be sent again', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    linkIssue(26518);
+    const presentation = new Presentation(browser, context);
+    await presentation.initModPage(page, { testInfo });
+    await presentation.stalledUploadIsShownAsFailed();
+  });
+});
+
+// At the top level so the @ci 'Presentation' describe does not tag these
+test.describe.parallel('Presentation upload limits', { tag: '@nightly' }, () => {
+  test('A file over uploadSizeMax is refused without being sent, one at the limit uploads', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    const presentation = new Presentation(browser, context);
+    await presentation.initModPage(page, {
+      testInfo,
+      clientSettingsOverrides: {
+        public: { presentation: { mirroredFromBBBCore: { uploadSizeMax: MASK_SAMPLE_PDF_BYTES } } },
+      },
+    });
+    await presentation.fileOverSizeLimitIsNotSent();
+  });
+
+  test('fileUploadConstraintsHint shows uploadSizeMax and uploadPagesMax', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    const presentation = new Presentation(browser, context);
+    await presentation.initModPage(page, {
+      testInfo,
+      clientSettingsOverrides: {
+        public: {
+          presentation: {
+            fileUploadConstraintsHint: true,
+            mirroredFromBBBCore: { uploadSizeMax: 50000000, uploadPagesMax: 7 },
+          },
+        },
+      },
+    });
+    await presentation.uploadConstraintsHintShowsLimits();
+  });
+
+  test('fileUploadConstraintsHint off shows no limits', async ({ browser, context, page }, testInfo) => {
+    const presentation = new Presentation(browser, context);
+    await presentation.initModPage(page, {
+      testInfo,
+      clientSettingsOverrides: { public: { presentation: { fileUploadConstraintsHint: false } } },
+    });
+    await presentation.uploadConstraintsHintIsHidden();
   });
 });

@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# The token in a getRecordingTextTracks href is good once, for that record
+# ID and that track only. Asking with another record ID or track is
+# refused and leaves the token unused; the right pair is authorized once.
+# Serial, like every case that gets tokens from getRecordingTextTracks.
+id: textTrack.authz.token
+title: validateAuthToken accepts a track's token once, for that recording and track only
+endpoint: textTrack
+class: contract
+tags: [ci, serial]
+requires: [recordings-fs]
+defs:
+  rid: &rid e633b9434f359d31c1be30832b42a91ac0fb0e92-1700000000000
+  ask: &ask
+    route: texttrack-authz
+    headers: {x-textTrack-token: '${match(href, "/textTrack/([0-9a-f]{40})/")}', x-textTrack-recordId: *rid, x-textTrack-track: subtitles_en.vtt}
+    expect: {status: 200, body: authorized}
+steps:
+  - call: getRecordingTextTracks
+    params: {recordID: *rid}
+    golden: off
+    expect: {format: json, returncode: SUCCESS}
+    capture: {href: "$.response.tracks[0].href"}
+  - <<: *ask
+    headers: {x-textTrack-token: '${match(href, "/textTrack/([0-9a-f]{40})/")}', x-textTrack-recordId: e449065b81c433bf7e5aae59e5854db148d5fa28-1700007200000, x-textTrack-track: subtitles_en.vtt}
+    expect: {status: 401, body: unauthorized}
+  - <<: *ask
+    headers: {x-textTrack-token: '${match(href, "/textTrack/([0-9a-f]{40})/")}', x-textTrack-recordId: *rid, x-textTrack-track: captions_fr-CA.vtt}
+    expect: {status: 401, body: unauthorized}
+  - *ask
+  - <<: *ask
+    expect: {status: 401, body: unauthorized}

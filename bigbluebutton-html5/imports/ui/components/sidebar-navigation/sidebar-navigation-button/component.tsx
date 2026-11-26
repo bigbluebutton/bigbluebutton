@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/no-access-key */
 import React, { useCallback, memo } from 'react';
+import cx from 'classnames';
 import KEYS from '/imports/utils/keys';
 import resolveIcon from '/imports/ui/components/plugins/plugin-icon/utils';
 import { layoutDispatch, layoutSelectInput } from '/imports/ui/components/layout/context';
@@ -93,6 +94,12 @@ const SidebarNavigationButton: React.FC<SidebarNavigationButtonProps> = ({
     >
       <Styled.ListItem
         id={id}
+        className={cx('bbb-navigation__item', {
+          'bbb-navigation__item--active': isOpened,
+          'bbb-navigation__item--notification': hasNotification || hasPrivateNotification,
+          'bbb-navigation__item--disabled': isDisabled,
+          'bbb-navigation__item--locked': isLocked,
+        })}
         accessKey={accessKey}
         aria-label={label}
         aria-describedby={ariaDescribedBy}

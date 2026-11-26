@@ -56,9 +56,10 @@ const navigationSidebarListItemsWidth = '65%';
 const navigationSidebarIconSize = 'calc(18rem / 14)';
 const navigationSidebarIconSizeSmallHeight = '1rem';
 const navigationSidebarNotificationBadgeSize = '14px';
-const navigationSidebarNotificationBadgeFontSize = '7px';
-const navigationSidebarNotificationBadgeBottom = '-3px';
-const navigationSidebarNotificationBadgeRight = '-1px';
+const navigationSidebarNotificationBadgeFontSize = '9px';
+const navigationSidebarNotificationBadgePaddingX = '3px';
+const navigationSidebarNotificationBadgeBottom = '-2px';
+const navigationSidebarNotificationBadgeRight = '-2px';
 const navigationSidebarBorderRadius = '48px';
 const navigationSidebarPaddingY = '20px';
 const navigationSidebarMargin = `${SIDEBAR_NAVIGATION_MARGIN_PERCENTAGE_WIDTH * 100}vw`;
@@ -67,6 +68,9 @@ const toastContentWidth = '98%';
 const modalMargin = '3rem';
 const settingsModalHeight = '50rem';
 const settingsModalWidth = '70rem';
+// Design System floor for the buttons of confirmation dialogs: 119px at the
+// 14px desktop root, 136px at the 16px mobile root.
+const confirmationButtonMinWidth = '8.5rem';
 const titlePositionLeft = '2.2rem';
 const userIndicatorsOffset = '-5px';
 const indicatorPadding = '.45rem'; // used to center presenter indicator icon in Chrome / Firefox / Edge
@@ -176,6 +180,7 @@ export {
   navigationSidebarIconSizeSmallHeight,
   navigationSidebarNotificationBadgeSize,
   navigationSidebarNotificationBadgeFontSize,
+  navigationSidebarNotificationBadgePaddingX,
   navigationSidebarNotificationBadgeBottom,
   navigationSidebarNotificationBadgeRight,
   navigationSidebarBorderRadius,
@@ -267,6 +272,7 @@ export {
   appsModalPaddingBottom,
   settingsModalHeight,
   settingsModalWidth,
+  confirmationButtonMinWidth,
   borderRadiusRounded,
   avatarBorderRadius,
   moderatorAvatarBorderRadius,

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useCallback } from 'react';
+import cx from 'classnames';
 import { defineMessages, useIntl } from 'react-intl';
 import KEYS from '/imports/utils/keys';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -171,6 +172,7 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
       ) : null}
       {/* eslint-disable-next-line jsx-a11y/no-access-key */}
       <Styled.MuteToggleButton
+        className={cx('bbb-mute-toggle', { 'bbb-mute-toggle--muted': muted })}
         onClick={onClickCallback}
         disabled={disabled || isAudioLocked || (mediaInterrupted && muted)}
         hideLabel

@@ -37,7 +37,7 @@ class GetJoinUrlSpec extends Specification implements ControllerUnitTest<ApiCont
 
   // Mirrors the shipped default in bigbluebutton.properties.
   static final String USERDATA_BLOCKLIST =
-      "bbb_record_permission,bbb_record_video,bbb_fullaudio_bridge,bbb_transparent_listen_only," +
+      "bbb_record_permission,bbb_record_video,bbb_transparent_listen_only," +
       "bbb_multi_user_pen_only,bbb_presenter_tools,bbb_multi_user_tools"
 
   ParamsProcessorUtil paramsProcessorUtil
@@ -76,8 +76,8 @@ class GetJoinUrlSpec extends Specification implements ControllerUnitTest<ApiCont
    * `isBreakout` matters because moderators bypass the blocklist only in
    * non-breakout meetings.
    */
-  private Meeting buildMeeting(boolean isBreakout) {
-    Meeting m = new Meeting.Builder(EXTERNAL_MEETING_ID, INTERNAL_MEETING_ID, 1531155809613L)
+  private Meeting buildMeeting(boolean isBreakout, String externalMeetingId = EXTERNAL_MEETING_ID) {
+    Meeting m = new Meeting.Builder(externalMeetingId, INTERNAL_MEETING_ID, 1531155809613L)
         .withName("Test Meeting")
         .withMaxUsers(20)
         .withLogoutUrl(SERVER_URL + "/api/logout")
@@ -146,6 +146,53 @@ class GetJoinUrlSpec extends Specification implements ControllerUnitTest<ApiCont
 
     then: "verification fails — proving the round-trip assertions above are not vacuous"
     !checksumVerifies(tampered)
+  }
+
+  @Unroll
+  def "Values with #characters are encoded once, so the meeting ID and name decode back intact"() {
+    given: "a meeting and a viewer session carrying those values"
+    meeting = buildMeeting(false, meetingId)
+    registerMeeting(meeting)
+    registerUserSession(controller.ROLE_ATTENDEE, fullName)
+
+    when: "a join URL is requested"
+    requestJoinUrl()
+
+    then: "a servlet container decodes both back to the originals, and the URL verifies"
+    def url = responseJoinUrl()
+    queryOf(url).get("meetingID") == meetingId
+    queryOf(url).get("fullName") == fullName
+    checksumVerifies(url)
+
+    where:
+    characters                 | meetingId           | fullName
+    "spaces"                   | EXTERNAL_MEETING_ID | "Test User"
+    "plus, ampersand, percent" | "Q&A 50%+1"         | "Ann+Bob & Co 100%"
+    "non-ASCII characters"     | "Réunion 東京"      | "Zoë Núñez"
+  }
+
+  @Unroll
+  def "With supportedChecksumAlgorithms=#algorithms the URL is signed with #expected"() {
+    given: "a server that accepts only the given algorithms"
+    validationService.setSupportedChecksumAlgorithms(algorithms)
+    registerUserSession(controller.ROLE_ATTENDEE)
+
+    when: "a join URL is requested"
+    requestJoinUrl()
+
+    then: "the checksum has the length of the strongest accepted algorithm and verifies on this server"
+    def url = responseJoinUrl()
+    queryOf(url).get("checksum").length() == length
+    checksumVerifies(url)
+
+    where:
+    algorithms                  | expected | length
+    "sha1,sha256,sha384,sha512" | "sha512" | 128
+    "sha1,sha256"               | "sha256" | 64
+    "sha256"                    | "sha256" | 64
+    "sha1"                      | "sha1"   | 40
+    " sha1 , sha384 "           | "sha384" | 96
+    "sha1,SHA512"               | "sha1"   | 40
   }
 
   /***********************************
@@ -456,13 +503,13 @@ class GetJoinUrlSpec extends Specification implements ControllerUnitTest<ApiCont
     meetingsField.get(meetingService).put(m.getInternalId(), m)
   }
 
-  private void registerUserSession(String role) {
+  private void registerUserSession(String role, String fullName = "Test User") {
     UserSession us = new UserSession()
     us.meetingID = INTERNAL_MEETING_ID
     us.externMeetingID = EXTERNAL_MEETING_ID
     us.internalUserId = INTERNAL_USER_ID
     us.externUserID = "u1"
-    us.fullname = "Test User"
+    us.fullname = fullName
     us.role = role
     us.authToken = SESSION_TOKEN
     us.conferencename = "Test Meeting"

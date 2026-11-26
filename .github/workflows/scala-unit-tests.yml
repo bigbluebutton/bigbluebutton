@@ -1,0 +1,54 @@
+name: Scala - unit tests
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "bbb-common-message/**"
+      - "akka-bbb-apps/**"
+      - "bbb-common-web/**"
+      - ".github/workflows/scala-unit-tests.yml"
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  scala-unit-tests:
+    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-24.04' }}
+    timeout-minutes: 20
+    steps:
+      - name: Checkout PR's source merged into its target branch
+        uses: actions/checkout@v5
+        with:
+          ref: refs/pull/${{ github.event.number }}/merge
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: sbt
+      # The sbt version itself comes from each module's project/build.properties; the runner
+      # is pinned to the same version. The action's disk cache is for sbt 2.x, so it is off and
+      # only the setup-java cache above is used.
+      - uses: sbt/setup-sbt@v1
+        with:
+          sbt-runner-version: 1.10.7
+          disk-cache: false
+      # akka-bbb-apps and bbb-common-web depend on the bbb-common-message snapshot of this
+      # checkout, so it is published to the local repository before their tests run. Each
+      # module's tests run even when an earlier module's tests fail, so one red run reports
+      # all three.
+      - name: bbb-common-message - publish locally
+        id: publish-common-message
+        working-directory: bbb-common-message
+        run: sbt publishLocal
+      - name: bbb-common-message - test
+        working-directory: bbb-common-message
+        run: sbt test
+      - name: akka-bbb-apps - test
+        if: ${{ !cancelled() && steps.publish-common-message.outcome == 'success' }}
+        working-directory: akka-bbb-apps
+        run: sbt test
+      - name: bbb-common-web - test
+        if: ${{ !cancelled() && steps.publish-common-message.outcome == 'success' }}
+        working-directory: bbb-common-web
+        run: sbt test

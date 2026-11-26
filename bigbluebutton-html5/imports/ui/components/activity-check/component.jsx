@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 
-import Button from '/imports/ui/components/common/button/component';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Styled from './styles';
 
@@ -88,24 +87,26 @@ class ActivityCheck extends Component {
 
     return (
       <ModalSimple
-        hideBorder
+        title={intl.formatMessage(intlMessages.activityCheckTitle)}
         onRequestClose={() => userActivitySign()}
         shouldCloseOnOverlayClick={false}
-        shouldShowCloseButton={false}
+        shouldCloseOnEsc={false}
+        hideCloseButton
         priority="high"
         isOpen
-      >
-        <Styled.ActivityModalContent>
-          <h1>{intl.formatMessage(intlMessages.activityCheckTitle)}</h1>
-          <p>{intl.formatMessage(intlMessages.activityCheckLabel, { responseDelay })}</p>
-          <Button
-            color="primary"
+        noFooter={false}
+        footerContent={(
+          <Styled.FooterButton
+            variant="primary"
+            dataTest="activityCheckButton"
             disabled={responseDelay <= 0}
             label={intl.formatMessage(intlMessages.activityCheckButton)}
             onClick={() => userActivitySign()}
-            role="button"
-            size="lg"
           />
+        )}
+      >
+        <Styled.ActivityModalContent>
+          <p>{intl.formatMessage(intlMessages.activityCheckLabel, { responseDelay })}</p>
         </Styled.ActivityModalContent>
       </ModalSimple>
     );

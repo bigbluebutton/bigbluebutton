@@ -1,0 +1,7 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.welcome.moderator-only-given
+target bbb-web
+
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.welcomeProp
+$.core.body.props.welcomeProp.welcomeMsg "Welcome to <b>Moderators</b>!\n<br>\n<br>\nFor help on using BigBlueButton see these (short) <a href=\"https://bigbluebutton.org/teachers/tutorials/\" target=\"_blank\"><u>tutorial videos</u></a>.\n<br>\n<br>\nTo join the audio bridge click the speaker button. Use a headset to avoid causing background noise for others.\n<br>\n<br>\nThis server is running <a href=\"https://bigbluebutton.org/\" target=\"_blank\"><u>BigBlueButton</u></a>."
+$.core.body.props.welcomeProp.welcomeMsgForModerators "For Moderators: <a href=\"https://link.example/\" target=\"_blank\">notes</a>"

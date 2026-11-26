@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A successful sendChatMessage says so in its message. A defect: bbb-web's
+# answer has an empty messageKey and message (its template reads names the
+# controller doesn't set), so this case fails on bbb-web
+# (expectations/bbb-web.yaml).
+id: sendChatMessage.response.message
+title: sendChatMessage's answer says the message was sent
+endpoint: sendChatMessage
+class: defect
+tags: [ci, presence]
+requires: [akka, presence]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Chat}
+    golden: off
+    expect: {returncode: SUCCESS}
+  # sendChatMessage needs a running meeting: someone in it.
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: moderator}}
+    golden: off
+  # bbb-web learns of the join from akka-apps a moment later.
+  - call: sendChatMessage
+    params: {meetingID: "${uid}", message: Hello}
+    eventually: {within: 10s, every: 200ms, until: {returncode: SUCCESS}}
+    expect: {returncode: SUCCESS, message: Message successfully sent}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

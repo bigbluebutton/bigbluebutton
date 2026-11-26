@@ -11,9 +11,9 @@ import {
 } from '../enums';
 import Storage from '/imports/ui/services/storage/session';
 import { defaultsDeep } from '/imports/utils/array-utils';
+import { isPhoneLandscape } from '../utils';
 import Session from '/imports/ui/services/storage/in-memory';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import deviceInfo from '/imports/utils/deviceInfo';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
@@ -294,7 +294,7 @@ const UnifiedLayout = (props) => {
       && !hasScreenShare && !isSharedNotesPinned && !genericContentId;
   };
 
-  const isSideBySideCamerasEnforced = () => deviceInfo.isPhoneLandscape()
+  const isSideBySideCamerasEnforced = () => isPhoneLandscape(input.browser)
     && cameraDockInput.numCameras > 0
     && presentationInput.isOpen
     && !isMediaContentOff();
@@ -846,6 +846,7 @@ const UnifiedLayout = (props) => {
         },
         zIndex: cameraDockBounds.zIndex,
         focusedId: input.cameraDock.focusedId,
+        isLocalOnly: isPhoneLandscape(input.browser),
       },
     });
 

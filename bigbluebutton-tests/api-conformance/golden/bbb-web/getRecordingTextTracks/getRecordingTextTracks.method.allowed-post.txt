@@ -1,0 +1,12 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case getRecordingTextTracks.method.allowed-post
+target bbb-web
+
+== step 1: call getRecordingTextTracks (POST)
+status 200
+header Cache-Control no-cache
+header Content-Type application/json;charset=utf-8
+body json
+$.response.message "No recording found for ${uid}"
+$.response.messageKey "noRecordings"
+$.response.returncode "FAILED"

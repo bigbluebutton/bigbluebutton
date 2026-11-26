@@ -1,7 +1,7 @@
 package org.bigbluebutton.endpoint.redis
 
 import org.apache.pekko.actor.{Actor, ActorLogging, ActorSystem, Props}
-import org.bigbluebutton.common2.domain.PresentationVO
+import org.bigbluebutton.common2.domain.{PageVO, PresentationVO}
 import org.bigbluebutton.common2.msgs._
 import com.fasterxml.jackson.annotation.JsonIgnore
 import org.bigbluebutton.common2.util.JsonUtil
@@ -127,6 +127,7 @@ case class PresentationSlide(
                               setOn: Long = System.currentTimeMillis(),
                               presentationName: String,
                               pageToken: String = "",
+                              pageId: String = "",
                             )
 
 
@@ -257,11 +258,14 @@ class LearningDashboardActor(
   // keystroke, while Etherpad commits at most one changeset per user every 500ms. Counting at most
   // one edit per user in that window keeps the numbers comparable with the Etherpad-era metric.
   // Server-side changes carry intUserId "SYSTEM", which matches no user and is ignored.
+  // Only the meeting's notes document counts, the counterpart of the Etherpad-era
+  // externalId == "notes" filter (prefix defined in bbb-shared-notes-server src/hocuspocus/utils.ts).
   private val sharedNotesEditCountWindowMs = 500
 
   private def handleBNSharedNotesUpdatedEvtMsg(msg: BNSharedNotesUpdatedEvtMsg) {
     for {
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
+      if msg.body.documentName == s"bn-document__${meeting.intId}"
       user <- findUserByIntId(meeting, msg.body.intUserId)
     } yield {
       val now = System.currentTimeMillis()
@@ -297,15 +301,34 @@ class LearningDashboardActor(
     for {
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
     } yield {
-      val updatedPresentations = meetingPresentations.getOrElse(meeting.intId, Map()) + (msg.body.presentation.id -> msg.body.presentation)
-      meetingPresentations += (meeting.intId -> updatedPresentations)
-      if(msg.body.presentation.current) {
+      val presentation = msg.body.presentation
+      if (meetingPresentations.getOrElse(meeting.intId, Map()).contains(presentation.id)) {
+        registerPages(meeting.intId, presentation.id, presentation.pages)
+      } else {
+        // Keep the whole VO: it carries the name that the page changes read.
+        val updatedPresentations = meetingPresentations.getOrElse(meeting.intId, Map()) + (presentation.id -> presentation)
+        meetingPresentations += (meeting.intId -> updatedPresentations)
+      }
+      if(presentation.current) {
         for {
-          page <- msg.body.presentation.pages.find(p => p.current)
+          page <- presentation.pages.find(p => p.current)
         } yield {
-          this.setPresentationSlide(meeting.intId, msg.body.presentation.id,page.num, msg.body.presentation.name, page.pageToken)
+          this.setPresentationSlide(meeting.intId, presentation.id, page.id, page.num, presentation.name, page.pageToken)
         }
       }
+    }
+  }
+
+  // Adds the given pages to the cached presentation, replacing the ones with the same id and keeping
+  // the others. Does nothing when the presentation is not cached.
+  def registerPages(meetingId: String, presentationId: String, pages: Vector[PageVO]): Unit = {
+    for {
+      presentations <- meetingPresentations.get(meetingId)
+      presentation <- presentations.get(presentationId)
+    } yield {
+      val newIds = pages.map(_.id).toSet
+      val updated = presentation.copy(pages = presentation.pages.filterNot(p => newIds.contains(p.id)) ++ pages)
+      meetingPresentations += (meetingId -> (presentations + (presentationId -> updated)))
     }
   }
 
@@ -316,7 +339,7 @@ class LearningDashboardActor(
       presentation <- presentations.get(msg.body.presentationId)
       page <- presentation.pages.find(p => p.id == msg.body.pageId)
     } yield {
-      this.setPresentationSlide(meeting.intId, msg.body.presentationId,page.num, presentation.name, page.pageToken)
+      this.setPresentationSlide(meeting.intId, msg.body.presentationId, page.id, page.num, presentation.name, page.pageToken)
     }
   }
 
@@ -326,7 +349,7 @@ class LearningDashboardActor(
     } yield {
       meeting.presentationSlides.lastOption match {
         case Some(slide) if slide.presentationId == msg.body.presentationId =>
-          this.setPresentationSlide(meeting.intId, "",0, "", "")
+          this.setPresentationSlide(meeting.intId, "", "", 0, "", "")
         case _ => // No matching current presentation slide to remove.
       }
     }
@@ -343,7 +366,7 @@ class LearningDashboardActor(
       previousSlide match {
         case Some(slide) =>
           //Set last page showed for this presentation
-          this.setPresentationSlide(meeting.intId, msg.body.presentationId, slide.pageNum, slide.presentationName, slide.pageToken)
+          this.setPresentationSlide(meeting.intId, msg.body.presentationId, slide.pageId, slide.pageNum, slide.presentationName, slide.pageToken)
         case None =>
           //If none page was showed yet, set the current page (page 1 by default)
           for {
@@ -351,23 +374,23 @@ class LearningDashboardActor(
             presentation <- presentations.get(msg.body.presentationId)
             page <- presentation.pages.find(s => s.current == true)
           } yield  {
-            this.setPresentationSlide(meeting.intId, msg.body.presentationId,page.num, presentation.name, page.pageToken)
+            this.setPresentationSlide(meeting.intId, msg.body.presentationId, page.id, page.num, presentation.name, page.pageToken)
           }
       }
     }
   }
 
-  private def setPresentationSlide(meetingId: String, presentationId: String, pageNum: Long, presentationName: String, pageToken: String) {
+  private def setPresentationSlide(meetingId: String, presentationId: String, pageId: String, pageNum: Long, presentationName: String, pageToken: String) {
     for {
       meeting <- meetings.values.find(m => m.intId == meetingId)
     } yield {
       val shouldAppendSlide = meeting.presentationSlides.lastOption match {
-        case Some(slide) => slide.presentationId != presentationId || slide.pageNum != pageNum
+        case Some(slide) => slide.presentationId != presentationId || slide.pageId != pageId
         case None => true
       }
 
       if (shouldAppendSlide) {
-        val updatedMeeting = meeting.copy(presentationSlides = meeting.presentationSlides :+ PresentationSlide(presentationId, pageNum, presentationName = presentationName, pageToken = pageToken))
+        val updatedMeeting = meeting.copy(presentationSlides = meeting.presentationSlides :+ PresentationSlide(presentationId, pageNum, presentationName = presentationName, pageToken = pageToken, pageId = pageId))
 
         meetings += (updatedMeeting.intId -> updatedMeeting)
       }

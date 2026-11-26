@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# logo and darklogo reach akka-apps' system props. Without a darklogo, the
+# dark logo is the logo; without a logo, there is only the dark one. The
+# response defaults case covers neither, under both profiles.
+id: create.strings.logos
+title: create with ${scenario}
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus]
+variants:
+  - {id: logo, vars: {scenario: a logo, logo: "https://img.example/logo.png", dark: null}}
+  - {id: darklogo, vars: {scenario: a dark logo, logo: null, dark: "https://img.example/dark.png"}}
+  - {id: both, vars: {scenario: both logos, logo: "https://img.example/logo.png", dark: "https://img.example/dark.png"}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Strings, logo: "${logo}", darklogo: "${dark}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.props.systemProps.customLogoURL, $.core.body.props.systemProps.customDarkLogoURL]
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

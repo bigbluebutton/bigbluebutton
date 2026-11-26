@@ -44,6 +44,13 @@ class ConnectionController {
     try {
       def uri = request.getHeader("x-original-uri")
       def sessionToken = ParamsUtil.getSessionToken(uri)
+      if (!sessionToken) {
+        response.setStatus(401)
+        response.addHeader("Cache-Control", "no-cache")
+        response.contentType = 'plain/text'
+        response.outputStream << 'unauthorized'
+        return
+      }
       UserSession userSession = meetingService.getUserSessionWithSessionToken(sessionToken)
       Boolean allowRequestsWithoutSession = meetingService.getAllowRequestsWithoutSession(sessionToken)
       Boolean isSessionTokenInvalid = !session[sessionToken] && !allowRequestsWithoutSession
@@ -267,6 +274,13 @@ class ConnectionController {
     try {
       def uri = request.getHeader("x-original-uri")
       def sessionToken = ParamsUtil.getSessionToken(uri)
+      if (!sessionToken) {
+        response.setStatus(401)
+        response.addHeader("Cache-Control", "no-cache")
+        response.contentType = 'plain/text'
+        response.outputStream << 'unauthorized'
+        return
+      }
       UserSession userSession = meetingService.getUserSessionWithSessionToken(sessionToken)
 
       response.addHeader("Cache-Control", "no-cache")

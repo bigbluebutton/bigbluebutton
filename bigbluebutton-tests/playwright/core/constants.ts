@@ -11,7 +11,7 @@ export const LOOP_INTERVAL: number = 1200;
 // STRESS TESTS VARS
 export const JOIN_AS_MODERATOR_TEST_ROUNDS: number = 15;
 export const MAX_JOIN_AS_MODERATOR_FAIL_RATE: number = 0.05;
-export const BREAKOUT_ROOM_INVITATION_TEST_ROUNDS: number = 20;
+export const BREAKOUT_ROOM_INVITATION_USERS: number = 20;
 export const JOIN_TWO_USERS_ROUNDS: number = 20;
 export const JOIN_TWO_USERS_KEEPING_CONNECTED_ROUNDS: number = 20;
 export const JOIN_TWO_USERS_EXCEEDING_MAX_PARTICIPANTS: number = 20;
@@ -22,4 +22,6 @@ export const VIDEO_LOADING_WAIT_TIME: number = 15000;
 export const UPLOAD_PDF_WAIT_TIME: number = 30000 * MULTIPLIER;
 // userLeftFlag expires after ~10s, audit tick runs every ~10s → notification can take up to ~20s
 export const USER_LEFT_NOTIFICATION_WAIT_TIME: number = 30000 * MULTIPLIER;
+// one rap worker processes every format of every ended meeting in turn
+export const RECORDING_PROCESSING_WAIT_TIME: number = 10 * 60000 * MULTIPLIER;
 export const CUSTOM_MEETING_ID: string = 'custom-meeting';

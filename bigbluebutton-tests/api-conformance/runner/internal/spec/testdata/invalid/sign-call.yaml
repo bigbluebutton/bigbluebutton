@@ -1,0 +1,14 @@
+# want: 10: steps[0]: sign.call is the step's own call; leave it out
+# want: 12: steps[1]: sign.call can't go with mode none
+# want: 14: steps[2]: sign.call goes with call steps only
+id: getMeetings.x.y
+title: t
+endpoint: getMeetings
+class: contract
+steps:
+  - call: getMeetings
+    sign: {call: getMeetings}
+  - call: getMeetings
+    sign: {mode: none, call: isMeetingRunning}
+  - url: "https://x.test/a"
+    sign: {mode: none, call: getMeetings}

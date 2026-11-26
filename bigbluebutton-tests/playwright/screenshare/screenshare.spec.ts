@@ -1,7 +1,15 @@
-import { linkIssue } from '../core/helpers';
+import { devices } from '@playwright/test';
+
 import { exposeLiveKitRooms, isLiveKit } from '../core/livekit';
+import { refuseMedia } from '../core/mediaPermissions';
+import { trackPeerConnections } from '../core/rtcStatsProbe';
 import { test } from '../core/setup/fixtures';
 import { ScreenShare } from './screenshare';
+
+const iPhone11 = devices['iPhone 11'];
+const MOBILE_SCREENSHARE_SETTINGS = {
+  public: { media: { screenshare: { enableOnMobile: true } } },
+};
 
 test.describe.parallel('Screenshare', { tag: ['@ci', '@media'] }, () => {
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#sharing-screen-in-full-screen-mode-automated
@@ -11,6 +19,32 @@ test.describe.parallel('Screenshare', { tag: ['@ci', '@media'] }, () => {
     await screenshare.initModPage(page, { testInfo });
     await screenshare.startSharing();
     await screenshare.stopSharing();
+  });
+
+  test('A user who joins during a screenshare receives it', async ({
+    browser,
+    context,
+    browserName,
+    page,
+  }, testInfo) => {
+    test.skip(browserName === 'firefox', 'Screenshare tests not able in Firefox browser without desktop');
+    await trackPeerConnections(context);
+    const screenshare = new ScreenShare(browser, context);
+    await screenshare.initModPage(page, { testInfo });
+    await screenshare.lateJoinerReceivesScreenshare();
+  });
+
+  test('A refused screen capture leaves the start button usable', async ({
+    browser,
+    context,
+    browserName,
+    page,
+  }, testInfo) => {
+    test.skip(browserName === 'firefox', 'Screenshare tests not able in Firefox browser without desktop');
+    await refuseMedia(page, ['display']);
+    const screenshare = new ScreenShare(browser, context);
+    await screenshare.initModPage(page, { testInfo });
+    await screenshare.refusedScreenCapture();
   });
 
   test('Webcams fill the media area after screenshare ends when no presentation is loaded', async ({
@@ -68,11 +102,44 @@ test.describe.parallel('Screenshare', { tag: ['@ci', '@media'] }, () => {
     await screenshare.presentationStaysHiddenAfterSharingWithAnnotations();
   });
 
-  test('Start screenshare stops external video', { tag: '@flaky' }, async ({ browser, context, page }, testInfo) => {
-    // requiring logged user to start external video on CI environment
-    linkIssue(21589);
+  test('Start screenshare stops external video', async ({ browser, context, page }, testInfo) => {
     const screenshare = new ScreenShare(browser, context);
     await screenshare.initModPage(page, { testInfo });
     await screenshare.screenshareStopsExternalVideo();
+  });
+
+  test('Mobile screen sharing stays hidden by default', async ({ browser, context }, testInfo) => {
+    const mobileContext = await browser.newContext({ ...iPhone11 });
+    const mobilePage = await mobileContext.newPage();
+    const screenshare = new ScreenShare(browser, context);
+    await screenshare.initModPage(mobilePage, { testInfo });
+    await screenshare.testMobileDevice();
+  });
+
+  test('Mobile presenter can share when enabled', async ({ browser, context }, testInfo) => {
+    await trackPeerConnections(context);
+    const mobileContext = await browser.newContext({ ...iPhone11 });
+    const mobilePage = await mobileContext.newPage();
+    const screenshare = new ScreenShare(browser, context);
+    await screenshare.initModPage(mobilePage, {
+      testInfo,
+      clientSettingsOverrides: MOBILE_SCREENSHARE_SETTINGS,
+    });
+    await screenshare.mobilePresenterSharesToDesktopViewer();
+  });
+
+  test('Mobile screen sharing stays hidden without browser support', async ({ browser, context }, testInfo) => {
+    const mobileContext = await browser.newContext({ ...iPhone11 });
+    await mobileContext.addInitScript(() => {
+      Object.defineProperty(navigator, 'getDisplayMedia', { value: undefined });
+      Object.defineProperty(navigator.mediaDevices, 'getDisplayMedia', { value: undefined });
+    });
+    const mobilePage = await mobileContext.newPage();
+    const screenshare = new ScreenShare(browser, context);
+    await screenshare.initModPage(mobilePage, {
+      testInfo,
+      clientSettingsOverrides: MOBILE_SCREENSHARE_SETTINGS,
+    });
+    await screenshare.testMobileDevice();
   });
 });

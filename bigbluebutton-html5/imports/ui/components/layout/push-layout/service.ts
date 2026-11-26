@@ -1,24 +1,11 @@
-import { Input, Output } from '../layoutTypes';
-import deviceInfo from '/imports/utils/deviceInfo';
+import {
+  CameraDockPropagationState, Input, MeetingCameraDock, Output,
+} from '../layoutTypes';
 
-// A device-enforced position is local to the output, so what a presenter propagates
-// comes off the input, geometry included - or the rate and the position disagree.
-const getPropagatedCameraDock = (
-  cameraDockOutput: Output['cameraDock'],
-  cameraDockInput: Input['cameraDock'],
-) => {
-  const isPositionEnforced = deviceInfo.isPhoneLandscape()
-    && !!cameraDockOutput.position
-    && cameraDockOutput.position !== cameraDockInput.position;
+const equalDouble = (n1: number, n2: number) => {
+  const precision = 0.01;
 
-  if (!isPositionEnforced) return cameraDockOutput;
-
-  return {
-    ...cameraDockOutput,
-    position: cameraDockInput.position,
-    width: cameraDockInput.width,
-    height: cameraDockInput.height,
-  };
+  return Math.abs(n1 - n2) <= precision;
 };
 
 const calculatePresentationVideoRate = (cameraDockOutput: Output['cameraDock']) => {
@@ -38,12 +25,53 @@ const calculatePresentationVideoRate = (cameraDockOutput: Output['cameraDock']) 
   return Number.isFinite(rate) ? Math.min(1, Math.max(0, rate)) : 0;
 };
 
+// No position fallback while suppressed: a changed position notifies everyone.
+const getPropagatedCameraDock = ({
+  isSuppressed,
+  cameraDockOutput,
+  cameraDockInput,
+  meetingCameraDock,
+}: {
+  isSuppressed: boolean;
+  cameraDockOutput: Output['cameraDock'];
+  cameraDockInput: Input['cameraDock'];
+  meetingCameraDock: MeetingCameraDock;
+}) => (isSuppressed
+  ? {
+    isResizing: false,
+    cameraPosition: meetingCameraDock.position ?? '',
+    presentationVideoRate: meetingCameraDock.videoRate,
+  }
+  : {
+    isResizing: cameraDockInput.isResizing,
+    cameraPosition: cameraDockOutput.position || 'contentTop',
+    presentationVideoRate: calculatePresentationVideoRate(cameraDockOutput),
+  });
+
+const hasCameraDockChanged = (
+  curr: CameraDockPropagationState,
+  prev: Partial<CameraDockPropagationState>,
+) => {
+  if (curr.isCameraDockPropagationSuppressed) return false;
+
+  const suppressionLifted = prev.isCameraDockPropagationSuppressed === true;
+  return suppressionLifted
+    || curr.cameraIsResizing !== prev.cameraIsResizing
+    || curr.cameraPosition !== prev.cameraPosition
+    || prev.presentationVideoRate === undefined
+    || !equalDouble(curr.presentationVideoRate, prev.presentationVideoRate);
+};
+
 export {
   calculatePresentationVideoRate,
+  equalDouble,
   getPropagatedCameraDock,
+  hasCameraDockChanged,
 };
 
 export default {
   calculatePresentationVideoRate,
+  equalDouble,
   getPropagatedCameraDock,
+  hasCameraDockChanged,
 };

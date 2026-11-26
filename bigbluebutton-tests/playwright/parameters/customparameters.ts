@@ -9,10 +9,15 @@ import {
 } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { checkScreenshots } from '../layouts/util';
-import { uploadSinglePresentation } from '../presentation/util';
+import {
+  EXTERNAL_VIDEO_URL,
+  routeExternalVideo,
+  uploadSinglePresentation,
+  waitForSlideToSettle,
+} from '../presentation/util';
 import * as utilScreenShare from '../screenshare/util';
 import { MultiUsers } from '../user/multiusers';
-import { constants as c, LONG_GROUP_NAMES } from './constants';
+import { constants as c, LOGOUT_URL, LONG_GROUP_NAMES } from './constants';
 import * as util from './util';
 
 export class CustomParameters extends MultiUsers {
@@ -42,6 +47,21 @@ export class CustomParameters extends MultiUsers {
 
   async hideParticipantsOnLogin() {
     await this.modPage.wasRemoved(e.usersList, 'should not display the users list');
+  }
+
+  async hideSidebarNavigation() {
+    // The whiteboard renders after the initial panel settles, avoiding a false positive between closes.
+    await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard');
+    await this.modPage.wasRemoved(e.navigationSidebarContainer, 'should not display the navigation sidebar');
+    await this.modPage.wasRemoved(e.sidebarContentMain, 'should not display the sidebar content panel');
+    await this.modPage2.hasElement(
+      e.navigationSidebarContainer,
+      'should display the navigation sidebar without the parameter',
+    );
+    await this.modPage2.hasElement(
+      e.sidebarContentMain,
+      'should display the sidebar content panel without the parameter',
+    );
   }
 
   async showParticipantsOnLoginOnTablet() {
@@ -108,16 +128,6 @@ export class CustomParameters extends MultiUsers {
       e.presentationTitle,
     );
     expect(resp, 'should display the different style on the meeting').toBeTruthy();
-  }
-
-  async autoSwapLayout() {
-    await this.modPage.hasElement(e.mediaAreaButton, 'should display the media area button');
-    await this.modPage.waitAndClick(e.minimizePresentation);
-    const resp = await this.modPage.page.evaluate(
-      (elem) => (document.querySelectorAll(elem)[0] as HTMLElement)?.offsetHeight !== 0,
-      e.restorePresentation,
-    );
-    expect(resp, 'should display the auto swap layout').toBeTruthy();
   }
 
   async autoJoin() {
@@ -269,19 +279,20 @@ export class CustomParameters extends MultiUsers {
     );
     await this.userPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the attendee');
 
+    await routeExternalVideo(this.context);
     await this.modPage.waitAndClick(e.mediaAreaButton);
     await this.modPage.waitAndClick(e.shareExternalVideoBtn);
-    await this.modPage.fill(e.videoModalInput, e.youtubeLink);
+    await this.modPage.fill(e.videoModalInput, EXTERNAL_VIDEO_URL);
     await this.modPage.waitAndClick(e.startShareVideoBtn);
+    await this.modPage.press('Escape'); // close the media sharing menu
 
-    const modFrame = await this.modPage.getYoutubeFrame();
-    await modFrame.hasElement('video', 'should display the video frame');
-
-    const userFrame = await this.userPage.getYoutubeFrame();
-    await userFrame.hasElement('video', 'should display the video frame');
+    await this.modPage.hasElement(e.externalVideo, 'should display the video frame');
+    await this.userPage.hasElement(e.externalVideo, 'should display the video frame');
 
     await this.modPage.hasElement(e.mediaAreaButton, 'should display the media area button');
-    await this.modPage.waitAndClick(e.shareExternalVideoBtn);
+    await this.modPage.closeAllToastNotifications();
+    await this.modPage.waitAndClick(e.stopExternalVideoBtn);
+    await this.userPage.wasRemoved(e.externalVideo, 'should stop the external video for the attendee');
 
     await this.modPage.hasElement(
       e.restorePresentation,
@@ -696,13 +707,6 @@ export class CustomParameters extends MultiUsers {
     );
   }
 
-  async autoShareWebcam() {
-    await this.modPage.hasElement(
-      e.webcamSettingsModal,
-      'should display the webcam settings modal when auto sharing the webcam ',
-    );
-  }
-
   async hideActionsBarTest() {
     await this.modPage.wasRemoved(e.mediaAreaButton, 'should not display the media area button');
     await this.modPage.wasRemoved(e.joinAudio, 'should not display the join audio button');
@@ -762,7 +766,9 @@ export class CustomParameters extends MultiUsers {
     await this.modPage.waitAndClick(e.directLogoutButton);
     await this.modPage.hasElement(e.meetingEndedModal, 'should display the meeting ended modal');
     await this.modPage.waitAndClick(e.redirectButton);
-    await expect(this.modPage.page.url()).toContain('google.com');
+    await expect(this.modPage.page, 'should redirect to the logout URL passed on join').toHaveURL((url) =>
+      url.href.startsWith(LOGOUT_URL),
+    );
   }
 
   async predefinedGroups() {
@@ -918,6 +924,8 @@ export class CustomParameters extends MultiUsers {
     await this.modPage.wasRemoved(e.joinVideo, 'should not display the join video button');
 
     await this.modPage.hasElement(e.chatMessages, 'should display the chat messages');
+    // the attendee joins without enforceLayout and sees the presentation
+    await waitForSlideToSettle(this.userPage);
 
     await checkScreenshots(
       this,

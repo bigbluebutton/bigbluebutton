@@ -703,7 +703,7 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
                 checked={customInput}
                 onChange={handleCustomInputToggle}
                 label={intl.formatMessage(intlMessages.customInputToggleLabel)}
-                inputProps={{ 'data-test': 'autoOptioningPollBtn' } as React.InputHTMLAttributes<HTMLInputElement>}
+                slotProps={{ input: { 'data-test': 'autoOptioningPollBtn' } as React.InputHTMLAttributes<HTMLInputElement> }}
               />
             </Styled.CustomInputRow>
           )
@@ -779,6 +779,7 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
           <Styled.PollActionsRow>
             <Styled.CancelPollBtn>
               <BBButton
+                className="bbb-action-button bbb-action-button--secondary"
                 dataTest="cancelPollCreation"
                 label={intl.formatMessage(intlMessages.cancelLabel)}
                 variant="secondary"

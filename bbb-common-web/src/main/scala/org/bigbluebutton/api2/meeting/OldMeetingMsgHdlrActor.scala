@@ -9,6 +9,13 @@ import org.bigbluebutton.common2.msgs._
 object OldMeetingMsgHdlrActor {
   def props(olgMsgGW: OldMessageReceivedGW): Props =
     Props(classOf[OldMeetingMsgHdlrActor], olgMsgGW)
+
+  def toPresentationUploadToken(msg: PresentationUploadTokenSysPubMsg): PresentationUploadToken =
+    new PresentationUploadToken(msg.body.podId, msg.body.authzToken, msg.body.filename,
+      msg.body.meetingId, msg.body.presentationId, msg.header.userId)
+
+  def toPresentationConversionRejected(msg: PresentationConversionRejectedSysMsg): PresentationConversionRejected =
+    new PresentationConversionRejected(msg.body.meetingId, msg.body.podId, msg.body.presentationId, msg.body.reason)
 }
 
 class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
@@ -37,13 +44,11 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       case m: UserBroadcastCamStoppedEvtMsg     => handleUserBroadcastCamStoppedEvtMsg(m)
       case m: CreateBreakoutRoomSysCmdMsg       => handleCreateBreakoutRoomSysCmdMsg(m)
       case m: PresentationUploadTokenSysPubMsg  => handlePresentationUploadTokenSysPubMsg(m)
+      case m: PresentationConversionRejectedSysMsg => handlePresentationConversionRejectedSysMsg(m)
       case m: GuestsWaitingApprovedEvtMsg       => handleGuestsWaitingApprovedEvtMsg(m)
-      case m: PosInWaitingQueueUpdatedRespMsg   => handlePosInWaitingQueueUpdatedRespMsg(m)
       case m: GuestPolicyChangedEvtMsg          => handleGuestPolicyChangedEvtMsg(m)
       case m: LockSettingsInMeetingChangedEvtMsg => handleLockSettingsInMeetingChangedEvtMsg(m)
       case m: WebcamsOnlyForModeratorChangedEvtMsg => handleWebcamsOnlyForModeratorChangedEvtMsg(m)
-      case m: GuestLobbyMessageChangedEvtMsg    => handleGuestLobbyMessageChangedEvtMsg(m)
-      case m: PrivateGuestLobbyMsgChangedEvtMsg => handlePrivateGuestLobbyMsgChangedEvtMsg(m)
       case m: RecordingChapterBreakSysMsg       => handleRecordingChapterBreakSysMsg(m)
       case m: SetPresentationDownloadableEvtMsg => handleSetPresentationDownloadableEvtMsg(m)
       case m: RecordingStatusChangedEvtMsg      => handleRecordingStatusChangedEvtMsg(m)
@@ -74,21 +79,6 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
 
   def handleWebcamsOnlyForModeratorChangedEvtMsg(msg: WebcamsOnlyForModeratorChangedEvtMsg): Unit = {
     olgMsgGW.handle(new WebcamsOnlyForModeratorChanged(msg.header.meetingId, msg.body.webcamsOnlyForModerator))
-  }
-
-  def handleGuestLobbyMessageChangedEvtMsg(msg: GuestLobbyMessageChangedEvtMsg): Unit = {
-    olgMsgGW.handle(new GuestLobbyMessageChanged(msg.header.meetingId, msg.body.message))
-  }
-
-  def handlePrivateGuestLobbyMsgChangedEvtMsg(msg: PrivateGuestLobbyMsgChangedEvtMsg): Unit = {
-    olgMsgGW.handle(new PrivateGuestLobbyMessageChanged(msg.header.meetingId, msg.body.guestId, msg.body.message))
-  }
-
-  def handlePosInWaitingQueueUpdatedRespMsg(msg: PosInWaitingQueueUpdatedRespMsg): Unit = {
-    val guestUsers: util.HashMap[String, String] = new util.HashMap[String, String]()
-    msg.body.guests.foreach(guest => guestUsers.put(guest.intId, guest.idx))
-    val m = new PositionInWaitingQueueUpdated(msg.header.meetingId, guestUsers)
-    olgMsgGW.handle(m)
   }
 
   def handleRecordingChapterBreakSysMsg(msg: RecordingChapterBreakSysMsg): Unit = {
@@ -210,7 +200,11 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
   }
 
   def handlePresentationUploadTokenSysPubMsg(msg: PresentationUploadTokenSysPubMsg): Unit = {
-    olgMsgGW.handle(new PresentationUploadToken(msg.body.podId, msg.body.authzToken, msg.body.filename, msg.body.meetingId, msg.body.presentationId))
+    olgMsgGW.handle(OldMeetingMsgHdlrActor.toPresentationUploadToken(msg))
+  }
+
+  def handlePresentationConversionRejectedSysMsg(msg: PresentationConversionRejectedSysMsg): Unit = {
+    olgMsgGW.handle(OldMeetingMsgHdlrActor.toPresentationConversionRejected(msg))
   }
 
   def handleGuestsWaitingApprovedEvtMsg(msg: GuestsWaitingApprovedEvtMsg): Unit = {

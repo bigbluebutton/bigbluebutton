@@ -24,6 +24,7 @@ func HandleUserVoiceStateEvtMsg(receivedMessage common.RedisMessage, browserConn
 	talking := receivedMessage.Core.Body["talking"].(bool)
 	muted := receivedMessage.Core.Body["muted"].(bool)
 	leftVoiceConf := receivedMessage.Core.Body["leftVoiceConf"].(bool)
+	hideUserList := voiceStateHideUserList(receivedMessage)
 
 	now := time.Now().UTC()
 
@@ -64,9 +65,9 @@ func HandleUserVoiceStateEvtMsg(receivedMessage common.RedisMessage, browserConn
 	browserConnectionsMutex.RLock()
 	for _, bc := range browserConnections {
 		recipient := snapshotStreamingRecipient(bc)
-		if voiceStateVisibleTo(recipient, meetingId, userId, speakerRole) {
+		if voiceStateVisibleTo(recipient, meetingId, userId, speakerRole, hideUserList) {
 			recipients = append(recipients, bc)
-		} else if exemptionWithdrawn && voiceStateVisibleTo(recipient, meetingId, userId, "MODERATOR") {
+		} else if exemptionWithdrawn && voiceStateVisibleTo(recipient, meetingId, userId, "MODERATOR", hideUserList) {
 			clearedRecipients = append(clearedRecipients, bc)
 		}
 	}
@@ -148,6 +149,19 @@ func sendUserVoiceState(browserConnections []*common.BrowserConnection, jsonData
 	}
 }
 
+// voiceStateHideUserList reads the hideUserList lock the event was produced under. An event from an
+// akka-apps that does not send it falls back to the state recorded for the meeting, which reads as
+// locked when nothing has been recorded. Recording the event's value for the replays is done by
+// RecordMeetingLocks in the Redis read loop, not here.
+func voiceStateHideUserList(receivedMessage common.RedisMessage) bool {
+	hideUserList, hasLockStateInEvent := receivedMessage.Core.Body["hideUserList"].(bool)
+	if !hasLockStateInEvent {
+		return meetingHidesUserList(receivedMessage.Core.Header.MeetingId)
+	}
+
+	return hideUserList
+}
+
 // voiceStateVisibleTo decides whether one connection may see another user's voice state.
 //
 // The payload carries the speaker's name, so it is subject to the hideUserList lock. This
@@ -157,11 +171,14 @@ func sendUserVoiceState(browserConnections []*common.BrowserConnection, jsonData
 // The rule mirrors the one Hasura puts on v_user, which is where the indicator's name and role
 // would otherwise come from:
 //
-//	meetingId = X-Hasura-MeetingId AND (isModerator OR meetingId = X-Hasura-UserListNotLockedInMeeting)
+//	meetingId = X-Hasura-MeetingId AND (isModerator OR meetingId = X-Hasura-NotLockedInMeeting
+//	  OR the meeting's lock settings row has hideUserList off)
 //
 // plus the recipient's own row, which the client needs for its own mute/talking state and which
-// Hasura serves from v_user_current rather than v_user.
-func voiceStateVisibleTo(r streamingRecipient, meetingId, speakerUserId, speakerRole string) bool {
+// Hasura serves from v_user_current rather than v_user. hideUserList is the meeting-wide lock as
+// carried by the event (or, for a replay, as last recorded for the meeting); only the recipient's
+// side - whether it is a locked viewer - comes from the session.
+func voiceStateVisibleTo(r streamingRecipient, meetingId, speakerUserId, speakerRole string, hideUserList bool) bool {
 	if !r.inMeeting(meetingId) {
 		return false
 	}
@@ -176,15 +193,19 @@ func voiceStateVisibleTo(r streamingRecipient, meetingId, speakerUserId, speaker
 		return true
 	}
 
+	if !hideUserList {
+		return true
+	}
+
 	if !r.sessionVarsSettled() {
 		return false
 	}
 
-	// Holds the meeting id while the user list is unlocked and is cleared when hideUserList is
-	// on. It is absent entirely for a not-in-meeting connection, so an empty value means
-	// "unknown" and must not be read as "unlocked": compare for equality against a non-empty
-	// meetingId rather than testing for emptiness. inMeeting above guarantees non-empty.
-	return r.sessionVar("x-hasura-userlistnotlockedinmeeting") == meetingId
+	// Holds the meeting id only while the recipient is not a locked viewer. It is absent entirely
+	// for a not-in-meeting connection, so an empty value means "unknown" and must not be read as
+	// "unlocked": compare for equality against a non-empty meetingId rather than testing for
+	// emptiness. inMeeting above guarantees non-empty.
+	return r.sessionVar("x-hasura-notlockedinmeeting") == meetingId
 }
 
 // cachedVoiceStateSpeaker pulls the speaker identity out of a cached row so the replay path can
@@ -249,12 +270,13 @@ func SendPreviousUserVoiceState(browserConnection *common.BrowserConnection, que
 	}
 
 	// Filtered per row: each row records whose voice state it is, so the live gate applies to it
-	// exactly.
+	// exactly, against the meeting's current lock state.
+	hideUserList := meetingHidesUserList(recipient.MeetingId)
 	previousMessages, _ := GetUserVoiceStatesCache(recipient.MeetingId)
 	items := make([]any, 0, len(previousMessages))
 	for _, message := range previousMessages {
 		speakerUserId, speakerRole := cachedVoiceStateSpeaker(message)
-		if !voiceStateVisibleTo(recipient, recipient.MeetingId, speakerUserId, speakerRole) {
+		if !voiceStateVisibleTo(recipient, recipient.MeetingId, speakerUserId, speakerRole, hideUserList) {
 			continue
 		}
 		items = append(items, message)

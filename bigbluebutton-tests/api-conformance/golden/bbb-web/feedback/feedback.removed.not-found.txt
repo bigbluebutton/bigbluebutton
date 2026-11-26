@@ -1,0 +1,12 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case feedback.removed.not-found
+target bbb-web
+
+== step 1: call feedback (document)
+status 404
+header Content-Type application/json
+body json
+$.error "Not Found"
+$.path "/bigbluebutton/api/feedback"
+$.status 404
+$.timestamp "<time>"

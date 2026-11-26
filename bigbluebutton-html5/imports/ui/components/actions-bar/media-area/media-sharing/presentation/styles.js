@@ -74,10 +74,14 @@ const UploaderDropzone = styled(Dropzone)`
   justify-content: center;
   align-items: center;
   gap: 1rem;
-  flex: 1 0 0;
+  flex: 0 0 auto;
   border-radius: 0.5rem;
   border: 1px dashed ${colorPrimary};
   cursor: pointer;
+
+  & + & {
+    margin-top: 0.5rem;
+  }
 
   &.dropzoneActive {
     background-color: ${colorGrayUserListToolbar};
@@ -93,6 +97,11 @@ const DropzoneMessage = styled.p`
 const DropzoneLink = styled.span`
   color: ${colorLink};
   text-decoration: underline;
+`;
+
+const ExtraHint = styled.div`
+  margin: 1rem 1.5rem 0;
+  font-weight: bold;
 `;
 
 const ExternalUpload = styled.div`
@@ -122,27 +131,46 @@ const ExternalUploadButton = styled(Button)`
   margin-left: 2rem;
 `;
 
-const PresentationsContainer = styled.div`
+// The uploader is a column that fits the media sharing modal: the share button
+// keeps its height and the rest scrolls above it.
+const UploadModal = styled.div`
   display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+`;
+
+// Everything between the sub-header and the share button scrolls as one area,
+// so the share button stays in view and the upload areas scroll away on short
+// screens instead of squeezing the list.
+const UploadScrollArea = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+`;
+
+// A two-column grid that wraps, so every presentation can be reached on a
+// narrow screen. The panel is at most 26.25rem wide, so two columns is what
+// fits at every size, including small phones and larger font sizes.
+const PresentationsContainer = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: start;
   padding-top: 1.5rem;
   padding-right: 1.5rem;
   padding-bottom: 0.5rem;
   padding-left: 1.5rem;
-  align-items: stretch;
   gap: 1rem;
-  align-self: stretch;
-  flex-wrap: nowrap;
-  overflow-x: auto;
 `;
 
 const PresentationItemContainer = styled.div`
-  width: 10rem;
-  max-height: 15rem;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: stretch;
-  flex-shrink: 0;
 `;
 
 const PresentationThumbnail = styled.button`
@@ -150,7 +178,9 @@ const PresentationThumbnail = styled.button`
   padding: 0;
   margin: 0;
   width: 100%;
-  height: auto; // Adjust height based on image aspect ratio
+  /* Every thumbnail gets the same frame, so a portrait page fits inside it
+     instead of making its row several times taller than the others. */
+  aspect-ratio: 16 / 9;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -172,7 +202,7 @@ const PresentationThumbnail = styled.button`
   img {
     max-width: 100%;
     width: 100%;
-    height: auto;
+    height: 100%;
     object-fit: contain;
     display: block; // Remove extra space below image
   }
@@ -199,6 +229,8 @@ const PresentationItemName = styled.div`
 `;
 
 export default {
+  UploadModal,
+  UploadScrollArea,
   PresentationsContainer,
   PresentationItemContainer,
   PresentationThumbnail,
@@ -209,6 +241,7 @@ export default {
   UploaderDropzone,
   DropzoneMessage,
   DropzoneLink,
+  ExtraHint,
   ExternalUpload,
   ExternalUploadTitle,
   ExternalUploadButton,

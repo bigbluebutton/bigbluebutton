@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# Methods this route doesn't map (UrlMappings.groovy), sent with the same request as
+# create-allowed.yaml. What bbb-web answers is recorded, not compared: the intended
+# answer is still to be decided (the triage tag).
+id: create.method.unmapped
+title: create called with a method its route doesn't map (${method})
+endpoint: create
+class: compat
+tags: [triage]
+variants:
+  - {id: put, vars: {method: PUT}}
+  - {id: delete, vars: {method: DELETE}}
+  - {id: head, vars: {method: HEAD}}
+steps:
+  - call: create
+    method: "${method}"
+    params: {meetingID: "${uid}"}
+    golden: document

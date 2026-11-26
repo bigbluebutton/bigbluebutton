@@ -1,4 +1,4 @@
-import { type Page as PlaywrightPage } from '@playwright/test';
+import { type BrowserContext, type Page as PlaywrightPage } from '@playwright/test';
 
 // Passed into page.evaluate rather than closed over: those callbacks are
 // serialized and run in the browser, where this module's scope does not exist.
@@ -15,17 +15,20 @@ export interface TestPublication {
 
 export interface TestRemotePublication extends TestPublication {
   isSubscribed: boolean;
+  isEnabled?: boolean;
   track?: { mediaStreamTrack?: MediaStreamTrack; receiver?: RTCRtpReceiver };
 }
 
 export interface TestRemoteParticipant {
   identity: string;
+  isSpeaking?: boolean;
   audioTrackPublications: Map<string, TestRemotePublication>;
 }
 
 export interface TestRoom {
   state: string;
   localParticipant: {
+    isSpeaking?: boolean;
     audioTrackPublications: Map<string, TestPublication>;
     setMicrophoneEnabled: (enabled: boolean) => Promise<unknown>;
     permissions?: { canPublish: boolean; canSubscribe: boolean };
@@ -65,6 +68,12 @@ export const exposeLiveKitRoom = (page: PlaywrightPage): Promise<void> =>
 
       clearInterval(wrap);
     }, 50);
+  });
+
+// Sets the opt-in room expose flag for every page the context opens.
+export const exposeLiveKitRoomInContext = (context: BrowserContext): Promise<void> =>
+  context.addInitScript(() => {
+    (window as TestWindow).BBB_EXPOSE_LIVEKIT_ROOM = true;
   });
 
 // Re-enters the LK room with the credentials the client already used.
@@ -182,8 +191,11 @@ export interface RemoteAudioState {
   micPublications: number;
   unmuted: number;
   subscribed: number;
+  // Subscribed and not paused with setEnabled(false).
+  enabled: number;
   liveTracks: number;
   packetsReceived: number;
+  trackSids: string[];
 }
 
 // What this page could hear from each remote participant. The distinctions matter:
@@ -223,8 +235,10 @@ export const getRemoteAudioStates = (page: PlaywrightPage): Promise<RemoteAudioS
           micPublications: mics.length,
           unmuted: mics.filter((pub) => !pub.isMuted).length,
           subscribed: mics.filter((pub) => pub.isSubscribed).length,
+          enabled: mics.filter((pub) => pub.isSubscribed && pub.isEnabled !== false).length,
           liveTracks: mics.filter((pub) => pub.track?.mediaStreamTrack?.readyState === 'live').length,
           packetsReceived,
+          trackSids: mics.map((pub) => pub.trackSid).filter((sid): sid is string => !!sid),
         };
       }),
     );

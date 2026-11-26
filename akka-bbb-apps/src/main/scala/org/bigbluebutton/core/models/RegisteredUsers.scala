@@ -93,7 +93,7 @@ object RegisteredUsers {
   }
 
   def numUniqueJoinedUsers(regUsers: RegisteredUsers): Int = {
-    regUsers.toVector.filter(_.joined).map(_.externId).distinct.length
+    regUsers.toVector.filter(u => u.joined && !u.banned).map(_.externId).distinct.length
   }
 
   def numRegisteredUsers(regUsers: RegisteredUsers): Int = {
@@ -245,7 +245,7 @@ class RegisteredUsers {
     revokedExtIds.contains(extId)
   }
 
-  private def save(user: RegisteredUser): Vector[RegisteredUser] = {
+  private[models] def save(user: RegisteredUser): Vector[RegisteredUser] = {
     regUsers += user.authToken -> user
     regUsers.values.toVector
   }

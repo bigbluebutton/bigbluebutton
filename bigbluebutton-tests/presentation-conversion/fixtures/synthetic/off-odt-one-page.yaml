@@ -1,0 +1,17 @@
+id: off-odt-one-page
+title: "odfpy text document: a heading and three paragraphs on A4"
+tier: synthetic
+file: off-odt-one-page.odt
+issues: []
+catalog: ["Office conversion"]
+upload:
+  method: create
+pages: 1
+expect: converted
+kind: vector
+marker: false
+aspect: 0.7071
+profiles: [defaults]
+notes: >-
+  Minimal ODF text package from odfpy (no settings.xml, no thumbnail). LibreOffice 25.8: one A4
+  page, no <image or <filter.

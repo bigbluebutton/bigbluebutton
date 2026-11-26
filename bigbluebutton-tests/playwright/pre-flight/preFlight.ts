@@ -244,10 +244,11 @@ export class PreFlight extends MultiUsers {
     await this.userPage.waitAndClick(e.preFlightSettingsButton);
     await this.userPage.waitForSelector(e.languageSelector, ELEMENT_WAIT_TIME);
     expect(
-      await this.userPage.page.locator(e.languageSelector).inputValue(),
+      await this.userPage.page.locator(e.languageSelectorInput).inputValue(),
       'should open the language dropdown on the language the pre-flight is in',
     ).toMatch(/^en/);
-    await this.userPage.page.locator(e.languageSelector).selectOption({ value: locale });
+    await this.userPage.waitAndClick(e.languageSelector);
+    await this.userPage.waitAndClick(`${e.languageSelectorOption}[data-value="${locale}"]`);
     await this.userPage.waitAndClick(e.increaseFontSize);
     await this.userPage.waitAndClick(e.darkModeToggleBtn);
     await this.userPage.waitAndClick(e.saveSettingsButton);

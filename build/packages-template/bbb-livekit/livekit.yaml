@@ -1,5 +1,6 @@
 port: 7880
-log_level: info
+logging:
+  level: info
 rtc:
   port_range_start: 16384
   port_range_end: 32768

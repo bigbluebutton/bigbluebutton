@@ -83,8 +83,6 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
 
   const currentUserId = currentUser?.userId ?? '';
   // @ts-ignore Untyped object
-  const { paginationEnabled } = useSettings(SETTINGS.APPLICATION);
-  // @ts-ignore Untyped object
   const { viewParticipantsWebcams } = useSettings(SETTINGS.DATA_SAVING);
 
   const isClientConnected = useReactiveVar(ConnectionStatus.getConnectedStatusVar());
@@ -172,7 +170,6 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
     isGridEnabled,
     isClientConnected,
     currentUserId,
-    paginationEnabled,
     viewParticipantsWebcams,
     totalNumberOfStreams,
     overflowCount,

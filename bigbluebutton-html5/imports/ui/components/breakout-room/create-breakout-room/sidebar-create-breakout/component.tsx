@@ -25,12 +25,16 @@ import { getRemainingMeetingTime, isNewTimeValid } from '/imports/ui/core/utils/
 import {
   useIsImportPresentationWithAnnotationsFromBreakoutRoomsEnabled,
   useIsImportSharedNotesFromBreakoutRoomsEnabled,
+  useIsLockSettingsEnabled,
 } from '/imports/ui/services/features';
 import PanelHeader from '/imports/ui/components/common/panel-header/component';
 
 const MIN_BREAKOUT_TIME = 300;
 const DEFAULT_SIDEBAR_BREAKOUT_TIME = 15;
 const CURRENT_SLIDE_PREFIX = 'current-';
+// Mirrors bbb-web's default for breakoutRoomsCapture*Filename (ParamsProcessorUtil CONF_NAME): the value it
+// stores when the create call gives no file name. A server value, not a client setting: keep it in sync.
+const SERVER_DEFAULT_CAPTURE_FILENAME = '%%CONFNAME%%';
 
 const intlMessages = defineMessages({
   breakoutTitle: {
@@ -290,6 +294,10 @@ interface SidebarCreateBreakoutProps {
   presentations: Presentation[];
   currentPresentation: string;
   isBreakoutRecordable: boolean;
+  meetingCapturesSlides: boolean;
+  meetingCapturesNotes: boolean;
+  meetingSlidesFilename: string;
+  meetingNotesFilename: string;
   groups: Array<{ groupId: string; name: string; usersExtId: string[] }>;
   durationInSeconds: number;
   createdTime: number;
@@ -301,6 +309,10 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
   presentations,
   currentPresentation,
   isBreakoutRecordable,
+  meetingCapturesSlides,
+  meetingCapturesNotes,
+  meetingSlidesFilename,
+  meetingNotesFilename,
   groups,
   durationInSeconds,
   createdTime,
@@ -319,17 +331,25 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
     breakoutRoomMinimum: MIN_BREAKOUT_ROOMS,
     sendInvitationToAssignedModeratorsByDefault: inviteModsByDefault,
     inheritLockSettingsByDefault,
+    lockBreakoutRecordingSetting,
   } = BREAKOUT_SETTINGS;
 
   const MAX_BREAKOUT_ROOMS = BREAKOUT_LIM > MIN_BREAKOUT_ROOMS ? BREAKOUT_LIM : MIN_BREAKOUT_ROOMS;
 
   const isImportPresentationWithAnnotationsEnabled = useIsImportPresentationWithAnnotationsFromBreakoutRoomsEnabled();
   const isImportSharedNotesEnabled = useIsImportSharedNotesFromBreakoutRoomsEnabled();
+  const isLockSettingsEnabled = useIsLockSettingsEnabled();
 
-  const captureWhiteboardByDefault = BREAKOUT_SETTINGS.captureWhiteboardByDefault
+  // breakoutRoomsCaptureSlides / breakoutRoomsCaptureNotes from the create call pre-tick the options
+  // too. bbb-web stores its fixed default (false) when they are not given, and the panel cannot tell
+  // that from an explicit false, so they can switch an option on, not off.
+  const captureWhiteboardByDefault = (BREAKOUT_SETTINGS.captureWhiteboardByDefault || meetingCapturesSlides)
     && isImportPresentationWithAnnotationsEnabled;
-  const captureSharedNotesByDefault = BREAKOUT_SETTINGS.captureSharedNotesByDefault
+  const captureSharedNotesByDefault = (BREAKOUT_SETTINGS.captureSharedNotesByDefault || meetingCapturesNotes)
     && isImportSharedNotesEnabled;
+  // lockBreakoutRecordingSetting takes the recording decision away from the moderator:
+  // the rooms are recorded whenever the meeting allows it (breakoutRoomsRecord)
+  const forceRecord = !!lockBreakoutRecordingSetting && isBreakoutRecordable;
 
   const [numberOfRooms, setNumberOfRooms] = useState(MIN_BREAKOUT_ROOMS);
   const [isDurationValid, setIsDurationValid] = useState(true);
@@ -339,7 +359,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
   const [freeJoin, setFreeJoin] = useState(allowUserChooseRoomByDefault);
   const [captureSlides, setCaptureSlides] = useState(captureWhiteboardByDefault);
   const [captureNotes, setCaptureNotes] = useState(captureSharedNotesByDefault);
-  const [record, setRecord] = useState(recordRoomByDefault || false);
+  const [record, setRecord] = useState(isBreakoutRecordable && (forceRecord || recordRoomByDefault || false));
   const [inviteMods, setInviteMods] = useState(inviteModsByDefault);
   const [leastOneUserIsValid, setLeastOneUserIsValid] = useState(false);
   const [roomPresentations, setRoomPresentations] = useState<RoomPresentations>([]);
@@ -347,6 +367,10 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
     () => (users.every((u) => u.isModerator) ? 'onlyModerators' : 'hasViewers'),
   );
   const [inheritLockSettings, setInheritLockSettings] = useState(inheritLockSettingsByDefault);
+
+  useEffect(() => {
+    if (forceRecord) setRecord(true);
+  }, [forceRecord]);
 
   const [createBreakoutRoom] = useMutation(BREAKOUT_ROOM_CREATE);
 
@@ -391,14 +415,22 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
     return `${CURRENT_SLIDE_PREFIX}${presentationToUse}`;
   };
 
-  const getCaptureFilename = (roomName: string, slides: boolean = true) => {
-    const captureType = slides
-      ? intl.formatMessage(intlMessages.captureSlidesType)
-      : intl.formatMessage(intlMessages.captureNotesType);
-    const fileName = `${roomName.replace(/\s/g, '_')}_${captureType}`.replace(/ /g, '_');
-    const fileNameDuplicatedCount = presentations.filter(
-      (pres) => pres.name?.startsWith(fileName),
-    ).length;
+  // takenNames: the names already given to the other rooms of the same batch
+  const getCaptureFilename = (roomName: string, slides: boolean, takenNames: string[]) => {
+    const meetingFilename = slides ? meetingSlidesFilename : meetingNotesFilename;
+    let fileName = meetingFilename;
+    if (!meetingFilename || meetingFilename === SERVER_DEFAULT_CAPTURE_FILENAME) {
+      const captureType = slides
+        ? intl.formatMessage(intlMessages.captureSlidesType)
+        : intl.formatMessage(intlMessages.captureNotesType);
+      fileName = `${roomName.replace(/\s/g, '_')}_${captureType}`.replace(/ /g, '_');
+    }
+    // fileName itself, its numbered copies "fileName(N)" and the uploaded "fileName.pdf", but not
+    // another name that merely starts with it ("cap-slide" for "cap")
+    const isTaken = (name?: string) => !!name?.startsWith(fileName)
+      && ['', '(', '.'].includes(name.charAt(fileName.length));
+    const fileNameDuplicatedCount = [...presentations.map((pres) => pres.name), ...takenNames]
+      .filter(isTaken).length;
     return fileNameDuplicatedCount === 0 ? fileName : `${fileName}(${fileNameDuplicatedCount + 1})`;
   };
 
@@ -419,6 +451,12 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
 
     const rooms = roomsRef.current;
     const roomsArray: RoomToWithSettings[] = [];
+    const captureFilenames: string[] = [];
+    const nextCaptureFilename = (roomName: string, slides: boolean) => {
+      const fileName = getCaptureFilename(roomName, slides, captureFilenames);
+      captureFilenames.push(fileName);
+      return fileName;
+    };
 
     for (let i = 0; i < numberOfRooms; i += 1) {
       const roomNumber = i + 1;
@@ -427,8 +465,8 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
         roomsArray.push({
           name: r.name,
           sequence: r.id,
-          captureNotesFilename: getCaptureFilename(r.name, false),
-          captureSlidesFilename: getCaptureFilename(r.name, true),
+          captureNotesFilename: nextCaptureFilename(r.name, false),
+          captureSlidesFilename: nextCaptureFilename(r.name, true),
           isDefaultName: r.name === intl.formatMessage(intlMessages.breakoutRoom, { roomNumber: r.id }),
           users: r.users.map((u) => u.userId),
           freeJoin,
@@ -441,8 +479,8 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
         roomsArray.push({
           name: defaultName,
           sequence: roomNumber,
-          captureNotesFilename: getCaptureFilename(defaultName, false),
-          captureSlidesFilename: getCaptureFilename(defaultName, true),
+          captureNotesFilename: nextCaptureFilename(defaultName, false),
+          captureSlidesFilename: nextCaptureFilename(defaultName, true),
           isDefaultName: true,
           freeJoin,
           shortName: defaultName,
@@ -460,7 +498,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
 
     createBreakoutRoom({
       variables: {
-        record,
+        record: isBreakoutRecordable && record,
         captureNotes,
         captureSlides,
         durationInSeconds: breakoutDuration,
@@ -473,8 +511,10 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
       layoutContextDispatch({ type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL, value: PANELS.BREAKOUT });
     });
   }, [
-    numberOfRooms, freeJoin, record, captureNotes,
+    numberOfRooms, freeJoin, record, isBreakoutRecordable, captureNotes,
     captureSlides, inviteMods, inheritLockSettings, roomPresentations,
+    presentations, currentPresentation, meetingSlidesFilename, meetingNotesFilename,
+    durationInSeconds, createdTime, timeSync,
   ]);
 
   const roomPadNum = (n: number) => n.toString().padStart(2, '0');
@@ -540,6 +580,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
       checked: record,
       onChange: () => setRecord(!record),
       allowed: isBreakoutRecordable && offerRecordingForBreakouts,
+      disabled: forceRecord,
     },
     {
       key: 'captureSlides',
@@ -568,11 +609,11 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
       label: intl.formatMessage(intlMessages.inheritLockSettings),
       checked: inheritLockSettings,
       onChange: () => setInheritLockSettings(!inheritLockSettings),
-      allowed: true,
+      allowed: isLockSettingsEnabled,
     },
   ], [freeJoin, record, captureSlides, captureNotes, inviteMods, inheritLockSettings,
     isBreakoutRecordable, isImportPresentationWithAnnotationsEnabled,
-    isImportSharedNotesEnabled, offerRecordingForBreakouts]);
+    isImportSharedNotesEnabled, offerRecordingForBreakouts, forceRecord, isLockSettingsEnabled]);
 
   return (
     <Styled.PanelContent>
@@ -591,7 +632,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
       <Styled.Separator />
 
       <Styled.ControlsRow>
-        <Styled.RoomCountControl>
+        <Styled.RoomCountControl className="bbb-breakout-room-count">
           <TooltipContainer title={intl.formatMessage(intlMessages.decreaseRooms)}>
             <Styled.RoomCountArrow
               onClick={decreaseRooms}
@@ -648,6 +689,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
                 id={switchId}
                 checked={opt.checked}
                 onChange={opt.onChange}
+                disabled={(opt as { disabled?: boolean }).disabled}
                 size="small"
               />
               {opt.label}
@@ -712,6 +754,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
           <Styled.StartButtonWrapper>
             <BBButton
               variant="primary"
+              className="bbb-action-button bbb-action-button--primary"
               disabled={!canStart}
               onClick={handleCreateRoom}
               label={intl.formatMessage(intlMessages.startLabel)}

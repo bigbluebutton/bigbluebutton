@@ -1,0 +1,8 @@
+# want: 8: steps[0]: check[0]: exists can't be checked on a value: compare it
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+steps:
+  - check:
+      - {value: "a", expect: {exists: true}}

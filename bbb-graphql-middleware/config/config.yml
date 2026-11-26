@@ -17,6 +17,8 @@ server:
   max_query_length: 5000
   # Maximum query depth when querying relationships.
   max_query_depth: 6
+  # Maximum encoded size of variables sent with a query.
+  max_query_variables_length: 10000
   # Maximum length of the mutation body.
   # A high number is recommended because the whiteboard annotations can be large.
   max_mutation_length: 10000
@@ -28,17 +30,17 @@ server:
   subscriptions_denied_list:
   websocket_idle_timeout_seconds: 60
 redis:
-  host: 127.0.0.1
-  port: 6379
-  password: ""
+  host: 127.0.0.1 # or REDIS_HOST from the environment
+  port: 6379 # or REDIS_PORT from the environment
+  password: "" # or REDIS_PASSWORD from the environment
 hasura:
-  url: ws://127.0.0.1:8185/v1/graphql
+  url: ws://127.0.0.1:8185/v1/graphql # or HASURA_URL from the environment
 graphql-actions:
-  url: http://127.0.0.1:8093
+  url: http://127.0.0.1:8093 # or HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL from the environment
 auth_hook:
-  url: http://127.0.0.1:8090/bigbluebutton/connection/checkGraphqlAuthorization
+  url: http://127.0.0.1:8090/bigbluebutton/connection/checkGraphqlAuthorization # or AUTH_HOOK_URL from the environment
 session_vars_hook:
-  url: http://127.0.0.1:8901/userInfo
+  url: http://127.0.0.1:8901/userInfo # or SESSION_VARS_HOOK_URL from the environment
 prometheus_advanced_metrics_enabled: false
 log_level: INFO
 # If set, all received queries will be dumped to the specified path, e.g /tmp/queries-dump

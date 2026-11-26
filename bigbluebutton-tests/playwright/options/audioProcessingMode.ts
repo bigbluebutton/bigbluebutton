@@ -14,9 +14,20 @@ export interface CapturedAudioConstraints {
   [key: string]: unknown;
 }
 
+// One message between an AudioWorkletNode and its processor. node numbers the
+// nodes in creation order, so the messages of one processor can be grouped.
+export interface ProcessorPortMessage {
+  node: number;
+  direction: 'in' | 'out';
+  type?: string;
+  index?: number;
+  value?: number;
+}
+
 declare global {
   interface Window {
     capturedAudioConstraints?: Array<CapturedAudioConstraints | boolean | null>;
+    processorPortMessages?: ProcessorPortMessage[];
   }
 }
 
@@ -44,7 +55,64 @@ export async function getCapturedAudioConstraints(
   return page.evaluate(() => window.capturedAudioConstraints ?? []);
 }
 
-export type AudioProcessingModeValue = 'advanced' | 'standard' | 'original';
+// A .wasm request only shows that a processor started to load. The worklet
+// answers with 'loaded' or 'error' on the node's port. Record that port in
+// both directions, without changing what is sent.
+// Must run before initModPage(), so it wraps AudioWorkletNode first.
+export async function observeProcessorPorts(page: PlaywrightPage): Promise<void> {
+  await page.addInitScript(() => {
+    const messages: ProcessorPortMessage[] = [];
+    window.processorPortMessages = messages;
+    const OriginalNode = window.AudioWorkletNode;
+    if (!OriginalNode) return;
+    let nodes = 0;
+    window.AudioWorkletNode = new Proxy(OriginalNode, {
+      construct(target, args, newTarget) {
+        const workletNode = Reflect.construct(target, args, newTarget) as AudioWorkletNode;
+        nodes += 1;
+        const node = nodes;
+        const record = (direction: 'in' | 'out', data: unknown) => {
+          const { type, index, value } = (data ?? {}) as Partial<ProcessorPortMessage>;
+          messages.push({ node, direction, type, index, value });
+        };
+        const { port } = workletNode;
+        port.addEventListener('message', (event) => record('in', event.data));
+        const post = port.postMessage.bind(port);
+        port.postMessage = (message: unknown, transferOrOptions?: Transferable[] | StructuredSerializeOptions) => {
+          record('out', message);
+          // Two calls so TypeScript can pick the matching postMessage overload
+          if (Array.isArray(transferOrOptions)) post(message, transferOrOptions);
+          else post(message, transferOrOptions);
+        };
+        return workletNode;
+      },
+    });
+  });
+}
+
+export async function getProcessorPortMessages(page: PlaywrightPage): Promise<ProcessorPortMessage[]> {
+  return page.evaluate(() => window.processorPortMessages ?? []);
+}
+
+// Advanced filtering runs the microphone through an AudioWorklet, so it needs an
+// AudioContext that actually starts. Headless Firefox on a host without an audio
+// output device (no PulseAudio) never starts one: resume() neither resolves nor
+// rejects. Call before initModPage(), while the page is still blank.
+export async function canStartAudioContext(page: PlaywrightPage, timeoutMs = 3000): Promise<boolean> {
+  return page.evaluate(async (timeout) => {
+    const audioContext = new AudioContext();
+    const started = await Promise.race([
+      audioContext.resume().then(() => audioContext.state === 'running'),
+      new Promise<boolean>((resolve) => {
+        setTimeout(() => resolve(false), timeout);
+      }),
+    ]);
+    audioContext.close().catch(() => {});
+    return started;
+  }, timeoutMs);
+}
+
+export type AudioProcessingModeValue = 'voiceIsolation' | 'advanced' | 'standard' | 'original';
 
 // Deep-merged into window.meetingClientSettings before the client boots (see
 // Page.applyClientSettingsOverrides) - lets a test pin the deployment
@@ -132,6 +200,7 @@ export class AudioProcessingMode extends MultiUsers {
 
   async selectProcessingMode(mode: AudioProcessingModeValue): Promise<void> {
     const radio = {
+      voiceIsolation: e.voiceIsolationRadio,
       advanced: e.advancedFilteringRadio,
       standard: e.standardFilteringRadio,
       original: e.originalAudioRadio,

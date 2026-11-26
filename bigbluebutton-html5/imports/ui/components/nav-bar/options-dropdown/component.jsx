@@ -310,6 +310,7 @@ class OptionsDropdown extends PureComponent {
           customStyles={!isMobile ? customStyles : null}
           trigger={(
             <Styled.DropdownButton
+              className="bbb-options-button"
               state={isDropdownOpen ? 'open' : 'closed'}
               label={intl.formatMessage(intlMessages.optionsLabel)}
               icon="more"

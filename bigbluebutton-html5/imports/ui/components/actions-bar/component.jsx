@@ -5,6 +5,7 @@ import Styled from './styles';
 import MediaAreaContainer from './media-area/container';
 import { PluginButtonIcon } from '/imports/ui/components/plugins/plugin-icon/styles';
 import AudioCaptionsButtonContainer from '/imports/ui/components/audio/audio-graphql/audio-captions/button/component';
+import LocatedErrorBoundary from '/imports/ui/components/common/error-boundary/located-error-boundary/component';
 import ScreenshareButtonContainer from '/imports/ui/components/actions-bar/screenshare/container';
 import AudioControlsContainer from '../audio/audio-graphql/audio-controls/component';
 import JoinVideoOptionsContainer from '../video-provider/video-button/container';
@@ -14,6 +15,7 @@ import Button from '/imports/ui/components/common/button/component';
 import { LAYOUT_TYPE } from '../layout/enums';
 import ReactionsButtonContainer from '/imports/ui/components/actions-bar/reactions-button/container';
 import RaiseHandButtonContainer from '/imports/ui/components/actions-bar/raise-hand-button/container';
+import LayoutViewButton from '/imports/ui/components/actions-bar/layout-view-button/component';
 import Selector from '/imports/ui/components/common/selector/component';
 import ToggleGroup from '/imports/ui/components/common/toggle-group/component';
 import Separator from '/imports/ui/components/common/separator/component';
@@ -25,6 +27,9 @@ const intlMessages = defineMessages({
     description: 'Aria-label for ActionsBar Section',
   },
 });
+
+// Hide the captions button rather than leaving error text in the toolbar
+const AudioCaptionsFallback = () => null;
 
 class ActionsBar extends PureComponent {
   constructor(props) {
@@ -141,7 +146,6 @@ class ActionsBar extends PureComponent {
       hasScreenshare,
       hasGenericContent,
       hasCameraAsContent,
-      stopExternalVideoShare,
       isTimerActive,
       isTimerEnabled,
       isConnected,
@@ -171,6 +175,7 @@ class ActionsBar extends PureComponent {
 
     return shouldRenderActionBar && (
       <Styled.ActionsBarWrapper
+        className="bbb-actions-bar"
         id="ActionsBar"
         role="region"
         aria-label={intl.formatMessage(intlMessages.actionsBarLabel)}
@@ -197,12 +202,14 @@ class ActionsBar extends PureComponent {
             }
           }
         >
-          <Styled.Left>
+          <Styled.Left className="bbb-actions-bar__left">
             {this.renderPluginsActionBarItems(ActionsBarPosition.LEFT)}
-            <AudioCaptionsButtonContainer />
+            <LocatedErrorBoundary Fallback={AudioCaptionsFallback}>
+              <AudioCaptionsButtonContainer />
+            </LocatedErrorBoundary>
 
           </Styled.Left>
-          <Styled.Center>
+          <Styled.Center className="bbb-actions-bar__center">
             <AudioControlsContainer />
             {shouldShowVideoButton && enableVideo
               ? (
@@ -217,11 +224,12 @@ class ActionsBar extends PureComponent {
               />
             )}
             {isReactionsButtonEnabled && this.renderReactionsButton()}
+            <LayoutViewButton />
             {isRaiseHandEnabled && <RaiseHandButtonContainer />}
             {this.renderPluginsActionBarItems(ActionsBarPosition.RIGHT)}
           </Styled.Center>
-          <Styled.Right>
-            <Styled.PresentationButtonsWrapper>
+          <Styled.Right className="bbb-actions-bar__right">
+            <Styled.PresentationButtonsWrapper className="bbb-actions-bar__media-buttons">
               {shouldShowPresentationButton && shouldShowOptionsButton
                 && (
                   <PresentationOptionsContainer
@@ -245,7 +253,6 @@ class ActionsBar extends PureComponent {
                 allowExternalVideo,
                 intl,
                 isSharingVideo,
-                stopExternalVideoShare,
                 isTimerActive,
                 isTimerEnabled,
                 isConnected,

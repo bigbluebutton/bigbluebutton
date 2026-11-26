@@ -1,0 +1,48 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A role a moderator changes in the meeting shows in getMeetingInfo: the
+# attendee's role and the moderator count.
+id: getMeetingInfo.users.role-change
+title: getMeetingInfo shows a role changed in the meeting
+endpoint: getMeetingInfo
+class: contract
+tags: [ci, presence]
+requires: [akka, presence]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Users}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: moderator, userID: ann}}
+    golden: off
+    capture: {annId: $.userId}
+  - presence: {action: join, as: vic, args: {meetingID: "${uid}", fullName: Vic, role: viewer, userID: vic}}
+    golden: off
+    capture: {vicId: $.userId}
+  # bbb-web learns of the joins from akka-apps a moment later.
+  - call: getMeetingInfo
+    params: {meetingID: "${uid}"}
+    golden: off
+    eventually: {within: 10s, every: 200ms, until: {xpath: {/response/participantCount: "2"}}}
+    expect: {xpath: {/response/participantCount: "2"}}
+  - graphql:
+      as: ann
+      query: "mutation SetRole($id: String!, $role: String!) { userSetRole(userId: $id, role: $role) }"
+      variables: {id: "${vicId}", role: MODERATOR}
+    golden: off
+  - call: getMeetingInfo
+    params: {meetingID: "${uid}"}
+    eventually: {within: 10s, every: 200ms, until: {xpath: {/response/moderatorCount: "2"}}}
+    expect:
+      xpath:
+        /response/moderatorCount: "2"
+        "/response/attendees/attendee[userID='vic']/role": MODERATOR
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

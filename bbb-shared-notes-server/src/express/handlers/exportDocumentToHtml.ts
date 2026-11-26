@@ -1,5 +1,5 @@
 import hocuspocus from "../../hocuspocus";
-import { ServerBlockNoteEditor } from "@blocknote/server-util";
+import { createServerEditor } from "../../blocknote/editor";
 import { inlineHostImages } from "./inlineHostImages";
 import { extractMeetingId } from "../../hocuspocus/utils";
 
@@ -58,7 +58,7 @@ async function exportDocumentToHtml(documentName: string): Promise<string> {
 
     if (fragment.length > 0) {
       // Create a ServerBlockNoteEditor instance
-      const editor = ServerBlockNoteEditor.create();
+      const editor = createServerEditor();
 
       // Convert Yjs XML Fragment to BlockNote blocks
       const blocks = editor.yXmlFragmentToBlocks(fragment);

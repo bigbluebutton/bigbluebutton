@@ -33,6 +33,17 @@ export const PRESENTATION_SET_PAGE = gql`
   }
 `;
 
+// Goes to the page at position pageNum; seenTotalPages is the totalPages read with that position.
+export const PRESENTATION_SET_PAGE_BY_NUM = gql`
+  mutation PresentationSetPageByNum($presentationId: String!, $pageNum: Int!, $seenTotalPages: Int!) {
+    presentationSetPageByNum(
+      presentationId: $presentationId,
+      pageNum: $pageNum,
+      seenTotalPages: $seenTotalPages,
+    )
+  }
+`;
+
 export const PRESENTATION_SET_DOWNLOADABLE = gql`
   mutation PresentationSetDownloadable(
     $presentationId: String!,
@@ -126,6 +137,7 @@ export default {
   PRESENTATION_SET_ZOOM,
   USER_SET_WHITEBOARD_WRITE_ACCESS,
   PRESENTATION_SET_PAGE,
+  PRESENTATION_SET_PAGE_BY_NUM,
   PRESENTATION_SET_DOWNLOADABLE,
   PRESENTATION_EXPORT,
   PRESENTATION_SET_CURRENT,

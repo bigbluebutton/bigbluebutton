@@ -23,6 +23,7 @@ export interface Settings {
   markdownImageAllowed?: boolean;
   // Polling
   pollEnabled?: boolean;
+  quizEnabled?: boolean;
   pollChatMessage?: boolean;
   quickPollConfirmationStep?: boolean;
   // Presentation
@@ -51,10 +52,8 @@ export interface Settings {
   multiFunctionalModeEnabled?: boolean;
 }
 
-let settings: Settings | undefined;
-
 export async function generateSettingsData(page: Page): Promise<Settings | undefined> {
-  if (settings || !page) return settings;
+  if (!page) return undefined;
 
   try {
     const settingsData = await page.evaluate(() => {
@@ -62,7 +61,7 @@ export async function generateSettingsData(page: Page): Promise<Settings | undef
       return (window as any).meetingClientSettings.public;
     });
 
-    settings = {
+    return {
       reactionsButton: settingsData.app?.reactionsButton?.enabled,
       sharedNotesEnabled: settingsData.notes?.enabled,
       sharedNotesImagePasteEnabled: settingsData.app?.sharedNotes?.imagePaste?.enabled,
@@ -85,6 +84,7 @@ export async function generateSettingsData(page: Page): Promise<Settings | undef
       markdownImageAllowed: settingsData.chat?.markdownImageAllowed,
       // Polling
       pollEnabled: settingsData.poll?.enabled,
+      quizEnabled: settingsData.poll?.quiz?.enabled,
       pollChatMessage: settingsData.poll?.chatMessage,
       quickPollConfirmationStep: settingsData.poll?.quickPollConfirmationStep,
       // Presentation
@@ -112,14 +112,7 @@ export async function generateSettingsData(page: Page): Promise<Settings | undef
       // Multifunctional mode
       multiFunctionalModeEnabled: settingsData.multiFunctionalMode?.enabled,
     };
-
-    return settings;
   } catch (err) {
-    console.log(`Unable to get public settings data: ${err}`);
-    return undefined;
+    throw new Error(`Unable to read the client settings (window.meetingClientSettings.public): ${err}`);
   }
-}
-
-export function getSettings(): Settings | undefined {
-  return settings;
 }

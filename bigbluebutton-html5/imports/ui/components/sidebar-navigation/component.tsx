@@ -5,6 +5,7 @@ import React, {
   useCallback,
   memo,
 } from 'react';
+import cx from 'classnames';
 import { defineMessages, useIntl } from 'react-intl';
 import CustomLogo from './custom-logo/component';
 import getFromUserSettings from '/imports/ui/services/users-settings';
@@ -173,12 +174,9 @@ const SidebarNavigation = ({
     return <ButtonComponent key={buttonId} />;
   }, [sidebarNavigationInput]);
 
-  const hasTopContent = showBrandingArea || topButtons.length > 0;
-  const hasCenterContent = centerButtons.length > 0;
-  const hasBottomContent = bottomButtons.length > 0;
-
   return (
     <Styled.NavigationSidebarBackdrop
+      className={cx('bbb-navigation', { 'bbb-navigation--collapsed': !isExpanded })}
       isMobile={isMobile}
       isExpanded={isExpanded}
       style={{
@@ -192,6 +190,7 @@ const SidebarNavigation = ({
       animations={animations}
     >
       <Styled.NavigationSidebar
+        className="bbb-navigation__bar"
         isExpanded={isExpanded}
         data-test="navigationSidebarContainer"
         isMobile={isMobile}
@@ -216,6 +215,7 @@ const SidebarNavigation = ({
           />
         )}
         <Styled.NavigationSidebarListItemsContainer
+          className="bbb-navigation__list"
           ref={scrollRef}
           isMobile={isMobile}
           noVirtualScrollboxBackground={noVirtualScrollboxBackground}
@@ -228,13 +228,13 @@ const SidebarNavigation = ({
             {topButtons.map((buttonId) => renderButton(buttonId))}
           </Styled.Top>
 
-          {hasTopContent && hasCenterContent && <Styled.Separator />}
+          <Styled.Separator className="bbb-navigation__separator" />
 
           <Styled.Center>
             {centerButtons.map((buttonId) => renderButton(buttonId))}
           </Styled.Center>
 
-          {hasCenterContent && hasBottomContent && <Styled.Separator />}
+          <Styled.Separator className="bbb-navigation__separator" />
 
           <Styled.Bottom>
             {bottomButtons.map((buttonId) => renderButton(buttonId))}

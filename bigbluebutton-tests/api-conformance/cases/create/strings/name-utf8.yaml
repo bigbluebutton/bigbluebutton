@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A meeting name outside ASCII comes back unchanged from getMeetingInfo and
+# reaches akka-apps' meeting props unchanged.
+id: create.strings.name-utf8
+title: create with a meeting name outside ASCII
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: "Zoë 日本 – ✓"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.props.meetingProp.name]
+  - call: getMeetingInfo
+    params: {meetingID: "${uid}"}
+    expect:
+      returncode: SUCCESS
+      xpath: {/response/meetingName: "Zoë 日本 – ✓"}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

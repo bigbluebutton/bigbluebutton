@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# With several meta_ filters, a recording is listed only when it matches
+# them all. conform-rec-a's first session is blue and large.
+id: getRecordings.filters.meta-two
+title: getRecordings with two metadata filters (${case})
+endpoint: getRecordings
+class: contract
+tags: [ci]
+requires: [recordings-fs]
+variants:
+  - {id: both-match, vars: {case: both match, size: large, count: 1}}
+  - {id: one-fails, vars: {case: one doesn't match, size: small, count: 0}}
+steps:
+  - call: getRecordings
+    params: {meetingID: conform-rec-a, meta_conform-color: blue, meta_conform-size: "${size}"}
+    expect:
+      returncode: SUCCESS
+      xpath:
+        /response/recordings/recording:
+          count: ${count}

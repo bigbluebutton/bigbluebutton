@@ -3,6 +3,7 @@ import { expect } from '@playwright/test';
 import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME, VIDEO_LOADING_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
+import { startScreenshare } from '../screenshare/util';
 import { MultiUsers } from '../user/multiusers';
 
 // Comfortably away from the 600px mobile breakpoint on both sides: getDeviceType()
@@ -67,10 +68,18 @@ async function assertDesktopLayoutActive(page: Page) {
     .toBeLessThan(0.6);
 }
 
+type LayoutMutation = {
+  presentationIsOpen: boolean;
+  cameraPosition: string;
+  presentationVideoRate: number;
+};
+
 export class Layouts extends MultiUsers {
   private layoutMutationRates: unknown[] = [];
 
   private layoutMutationErrors: string[] = [];
+
+  private layoutMutations: LayoutMutation[] = [];
 
   private injectedPresentationVideoRate = false;
 
@@ -105,6 +114,101 @@ export class Layouts extends MultiUsers {
         setTimeout(() => webSocket.send(message), delay);
       });
     });
+  }
+
+  async configureLayoutMutationProbe() {
+    await this.context.addInitScript(() => {
+      Object.defineProperty(navigator, 'userAgent', {
+        get: () => 'Mozilla/5.0 (Linux; Android 15; Pixel 7) AppleWebKit/537.36 Chrome/140.0.0.0 Mobile Safari/537.36',
+      });
+    });
+    await this.context.routeWebSocket('**/graphql**', (webSocket) => {
+      const server = webSocket.connectToServer();
+      webSocket.onMessage((message) => {
+        const serializedMessage = message.toString();
+        if (serializedMessage.includes('SetLayoutProps')) {
+          const { variables } = JSON.parse(serializedMessage).payload;
+          this.layoutMutations.push({
+            presentationIsOpen: variables.presentationIsOpen,
+            cameraPosition: variables.cameraPosition,
+            presentationVideoRate: variables.presentationVideoRate,
+          });
+        }
+        server.send(message);
+      });
+      server.onMessage((message) => {
+        const serializedMessage = message.toString();
+        if (serializedMessage.includes('Rate limit exceeded')) {
+          this.layoutMutationErrors.push(serializedMessage);
+        }
+        webSocket.send(message);
+      });
+    });
+  }
+
+  async phoneLandscapeKeepsTheMeetingCameraDock() {
+    const PORTRAIT = { width: 412, height: 915 };
+    const LANDSCAPE = { width: 915, height: 412 };
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.page.setViewportSize(PORTRAIT);
+    await this.modPage.shareWebcam();
+    await this.modPage.page.waitForTimeout(3000);
+
+    // What the meeting holds before the phone ever rotates.
+    const baseline = this.layoutMutations[this.layoutMutations.length - 1];
+    expect(baseline, 'the presenter should publish its portrait layout').toBeDefined();
+    expect(baseline!.presentationVideoRate, 'the portrait dock should publish a real rate').toBeGreaterThan(0);
+    this.layoutMutations = [];
+
+    const ROTATIONS = 6;
+    for (let rotation = 0; rotation < ROTATIONS; rotation += 1) {
+      await this.modPage.page.setViewportSize(rotation % 2 === 0 ? LANDSCAPE : PORTRAIT);
+      await this.modPage.page.waitForTimeout(1500);
+      if (rotation === 0) {
+        // The arrangement held back from the meeting is really rendered here.
+        const dock = await this.modPage.page.locator(e.cameraDock).boundingBox();
+        expect(dock, 'the camera dock should render in landscape').not.toBeNull();
+        expect(dock!.x, 'landscape should lay the cameras beside the presentation').toBeGreaterThan(
+          LANDSCAPE.width / 2,
+        );
+      }
+    }
+    const rotationMutations = this.layoutMutations.length;
+
+    // The presentation state still propagates while the dock geometry is held back.
+    await this.modPage.page.setViewportSize(LANDSCAPE);
+    await this.modPage.page.waitForTimeout(1500);
+    await this.modPage.waitAndClick(e.minimizePresentation);
+    await this.modPage.page.waitForTimeout(1500);
+
+    console.log(
+      `[layout-mutations] ${rotationMutations} mutations over ${ROTATIONS} rotations ` +
+        `| baseline: ${JSON.stringify(baseline)} | mutations: ${JSON.stringify(this.layoutMutations)}`,
+    );
+
+    expect(
+      rotationMutations,
+      'every return to portrait should lift the suppression and push the real dock',
+    ).toBeGreaterThanOrEqual(ROTATIONS / 2);
+    expect(
+      rotationMutations,
+      'entering landscape should push nothing, and a push should never repeat per layout pass',
+    ).toBeLessThanOrEqual(ROTATIONS);
+    expect(
+      this.layoutMutations.every(
+        ({ cameraPosition, presentationVideoRate }) =>
+          cameraPosition === baseline!.cameraPosition &&
+          Math.abs(presentationVideoRate - baseline!.presentationVideoRate) <= 0.01,
+      ),
+      'the landscape arrangement should never reach the meeting: every push keeps the portrait dock',
+    ).toBe(true);
+    expect(
+      this.layoutMutations[this.layoutMutations.length - 1]?.presentationIsOpen,
+      'minimizing the presentation in landscape should still be propagated',
+    ).toBe(false);
+    expect(this.layoutMutationErrors, 'the presenter should never be rate limited for layout mutations').toHaveLength(
+      0,
+    );
   }
 
   async configurePresentationVideoRateClampProbe() {
@@ -167,7 +271,12 @@ export class Layouts extends MultiUsers {
     await this.modPage.page.setViewportSize({ width: 915, height: 412 });
     await this.modPage.shareWebcam();
     // Five seconds covers the delayed update and leaves time for the resulting layout mutations to settle.
+    // Any push in landscape sends back the meeting's rate, which the delay leaves undefined.
     await this.modPage.page.waitForTimeout(5000);
+    // Portrait lifts the suppression: the rate is measured again, off a dock that has
+    // just left the enforced arrangement.
+    await this.modPage.page.setViewportSize({ width: 412, height: 915 });
+    await this.modPage.page.waitForTimeout(3000);
 
     // Fewer than 20 mutations catches a feedback loop while allowing the expected responsive layout updates.
     expect(this.layoutMutationRates.length, 'layout mutation count should stay bounded').toBeLessThan(20);
@@ -212,6 +321,28 @@ export class Layouts extends MultiUsers {
         contentType: 'video/webm',
         path: mod2VideoPath,
       });
+    }
+  }
+
+  async meetingLayoutAppliesDespiteClientLayoutDefaults() {
+    // Both pages joined with public.app.defaultSettings.layout overridden to
+    // presentationOnly / pushLayout true, in a meeting created with
+    // meetingLayout=UNIFIED_LAYOUT: the meeting's layout is the one each client starts in.
+    // A client that still read the key passed through the presentation-only layout until
+    // the meeting layout arrived; that layout renders the client without the audio
+    // container, and the audio prompt of the join was lost with it.
+    for (const page of [this.modPage, this.userPage]) {
+      await page.hasElement(
+        e.audioModal,
+        'the audio prompt should be offered on join: the presentation-only layout renders the client without it',
+      );
+      await page.closeAudioModal();
+      await page.hasElement(e.whiteboard, 'the presentation should be open, as in the unified layout');
+      await page.hasElement(e.joinVideo, 'the webcam button should be rendered: the presentation-only layout hides it');
+      await page.hasElement(
+        e.chatBox,
+        'the public chat should be open on join, as it is when the unified layout is applied',
+      );
     }
   }
 
@@ -369,6 +500,42 @@ export class Layouts extends MultiUsers {
     await this.modPage.wasRemoved(
       e.presentationContainer,
       'presentation should stay minimized for the presenter after a webcam turns on',
+    );
+
+    await this.attachPageVideos();
+  }
+
+  async unifiedLayoutNewPresenterPropagatesLocalPresentation() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.userPage.waitForSelector(e.whiteboard);
+
+    // The presenter minimizes: a genuine change in the meeting layout, so the viewer follows.
+    await this.modPage.waitAndClick(e.minimizePresentation);
+    await this.userPage.wasRemoved(e.presentationContainer, 'viewer should follow the presenter minimize');
+
+    // The viewer restores locally. Followers never propagate, so the meeting stays minimized.
+    await this.userPage.waitAndClick(e.restorePresentation);
+    await this.userPage.hasElement(e.presentationContainer, 'presentation should be restored for the viewer');
+
+    // Once presenter, what the viewer is showing becomes the meeting layout.
+    await this.makePresenter();
+    await this.modPage.hasElement(
+      e.presentationContainer,
+      'the former presenter should follow the presentation shown by the new presenter',
+    );
+
+    // Closing shared content restores the new presenter's presentation state, which
+    // must be what it showed on becoming presenter, not a stale follower value.
+    await startScreenshare(this.userPage);
+    await this.userPage.waitAndClick(e.stopScreenSharing);
+    await this.userPage.wasRemoved(e.screenShareVideo, 'screen share should stop for the new presenter');
+    await this.userPage.hasElement(
+      e.presentationContainer,
+      'presentation should be restored for the new presenter after the screen share',
+    );
+    await this.modPage.hasElement(
+      e.presentationContainer,
+      'presentation should be restored for the former presenter after the screen share',
     );
 
     await this.attachPageVideos();

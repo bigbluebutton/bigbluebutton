@@ -1,6 +1,10 @@
 import React from 'react';
 import { FormattedMessage, defineMessages } from 'react-intl';
 import Auth from '/imports/ui/services/auth';
+import {
+  makeUserSearchWhere,
+  USER_SEARCH_MAX_LENGTH,
+} from '/imports/ui/components/user-list/user-search/service';
 import Storage from '/imports/ui/services/storage/session';
 import AudioService from '/imports/ui/components/audio/service';
 import KEYS from '/imports/utils/keys';
@@ -383,14 +387,14 @@ export const getUserNamesLink = (docTitle, fnSortedLabel, lnSortedLabel, users, 
   const namesByLastName = userNamesObj.sort(sortUsersByLastName)
     .map((u) => getUsernameString(u)).join('\r\n');
 
-  const namesListsString = `${docTitle}\r\n\r\n${fnSortedLabel}\r\n${namesByFirstName}
-    \r\n\r\n${lnSortedLabel}\r\n${namesByLastName}`.replace(/ {2}/g, ' ');
+  const namesListsString = `${docTitle}\r\n\r\n${fnSortedLabel}\r\n${namesByFirstName}`
+    + `\r\n\r\n${lnSortedLabel}\r\n${namesByLastName}`;
 
   const link = document.createElement('a');
   link.setAttribute('download', `bbb-${meetingName}[users-list]_${getDateString()}.txt`);
   link.setAttribute(
     'href',
-    `data: ${mimeType};charset=utf-16,${encodeURIComponent(namesListsString)}`,
+    `data: ${mimeType};charset=utf-8,${encodeURIComponent(namesListsString)}`,
   );
   return link;
 };
@@ -485,13 +489,7 @@ export const getFilteredAvatar = (user) => (
   (user.away === true || (user.reactionEmoji && user.reactionEmoji !== 'none')) ? '' : user.avatar
 );
 
-export const makeUserSearchWhere = (searchQuery) => {
-  const searchTerms = searchQuery ? searchQuery.trim().split(/\s+/) : [];
-  const escapeTerm = (term) => term.replace(/[\\%_]/g, '\\$&');
-  return searchTerms.length > 0
-    ? { _and: searchTerms.map((term) => ({ name: { _ilike: `%${escapeTerm(term)}%` } })) }
-    : { name: { _ilike: '%' } };
-};
+export { makeUserSearchWhere, USER_SEARCH_MAX_LENGTH };
 
 export default {
   sortUsersByName,

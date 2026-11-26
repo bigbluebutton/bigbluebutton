@@ -167,10 +167,24 @@ export const useCanOnlySeeModeratorCameras = () => {
   return !!meeting?.usersPolicies?.webcamsOnlyForModerator && !!currentUser?.locked;
 };
 
-export const useVideoStreamsCount = () => {
-  const streams = useStreams();
+// Only the set of streams matters for a count: the projection drops the user
+// and voice fields, so floor changes and reactions do not re-render its readers.
+const projectStreamIdentity = (s: Partial<StreamSubscriptionData>) => ({
+  meetingId: s.meetingId,
+  streamId: s.streamId,
+});
 
-  return streams.length;
+export const useVideoStreamsCount = () => {
+  const { data: meeting } = useMeeting((m) => ({ meetingId: m.meetingId }));
+  const { data, loading } = useVideoStreamsSubscription(projectStreamIdentity);
+
+  if (loading || !meeting?.meetingId) return 0;
+
+  return filterByMeetingId(
+    data as StreamSubscriptionData[],
+    meeting.meetingId,
+    VIDEO_STREAMS_SUBSCRIPTION,
+  ).length;
 };
 
 export const useLocalVideoStreamsCount = () => {
@@ -332,10 +346,35 @@ export const useMyPageSize = () => {
   return actualSize;
 };
 
+export const useIsPaginationToggleAllowed = () => {
+  const { data: currentUser } = useCurrentUser((u) => ({ isModerator: u.isModerator }));
+  const {
+    paginationToggleEnabled,
+    paginationToggleModeratorOnly,
+  } = window.meetingClientSettings.public.kurento.pagination;
+
+  if (!paginationToggleEnabled) return false;
+
+  return !paginationToggleModeratorOnly || !!currentUser?.isModerator;
+};
+
 export const useIsPaginationEnabled = () => {
   const myPageSize = useMyPageSize();
+  const isToggleAllowed = useIsPaginationToggleAllowed();
   const { paginationEnabled } = useSettings(SETTINGS.APPLICATION) as { paginationEnabled?: boolean };
-  return myPageSize > 0 && paginationEnabled;
+  // A user without the toggle can't change a value stored while they had it
+  // (e.g. before being demoted), so the configured default applies instead.
+  const {
+    paginationEnabled: defaultPaginationEnabled,
+  } = window.meetingClientSettings.public.app.defaultSettings.application;
+  const enabled = isToggleAllowed ? paginationEnabled : defaultPaginationEnabled;
+  const isEnabled = myPageSize > 0 && !!enabled;
+
+  useEffect(() => {
+    setVideoState({ paginationEnabled: isEnabled });
+  }, [isEnabled]);
+
+  return isEnabled;
 };
 
 const OVERFLOW_TILE_PREVIEW_LIMIT = 3;
@@ -563,16 +602,26 @@ export const useGridSize = () => {
   return size;
 };
 
+export const useHideUsersWithoutCamera = () => {
+  const { data } = useMeeting((m) => ({
+    layout: m.layout,
+  }));
+
+  return !!data?.layout?.hideUsersWithoutCamera;
+};
+
 export const useIsGridEnabled = () => {
   const isGridLayout = useStorageKey('isGridEnabled');
   const isWebcamGridEnabled = useIsWebcamGridEnabled();
+  const hideUsersWithoutCamera = useHideUsersWithoutCamera();
 
-  return !!isGridLayout && isWebcamGridEnabled;
+  return !!isGridLayout && isWebcamGridEnabled && !hideUsersWithoutCamera;
 };
 
 export const useAudioOnlyUsers = (): AudioOnlyStream[] => {
   const { data: meeting } = useMeeting((m) => ({ meetingId: m.meetingId }));
   const canOnlySeeModeratorCameras = useCanOnlySeeModeratorCameras();
+  const hideUsersWithoutCamera = useHideUsersWithoutCamera();
   const layoutType = layoutSelect((i: Layout) => i.layoutType);
   const {
     showAudioOnlyOnFirstPage,
@@ -581,7 +630,7 @@ export const useAudioOnlyUsers = (): AudioOnlyStream[] => {
   const isUnifiedLayout = layoutType === LAYOUT_TYPE.UNIFIED_LAYOUT;
   // Gate on the layout, not isGridEnabled: audio-only tiles must still appear alongside a real
   // webcam over an open presentation in the unified layout (issues #25235/#25359).
-  const showAudioOnlyTiles = showAudioOnlyOnFirstPage && isUnifiedLayout;
+  const showAudioOnlyTiles = showAudioOnlyOnFirstPage && isUnifiedLayout && !hideUsersWithoutCamera;
 
   // When the user can only see moderator cameras, drop non-moderators ([true]); otherwise
   // keep everyone ([true, false]).
@@ -1040,15 +1089,6 @@ export const useStopVideo = () => {
       videoService.stopConnectingStream();
     }
   }, [cameraBroadcastStop]);
-};
-
-export const useShouldRenderPaginationToggle = () => {
-  const myPageSize = useMyPageSize();
-  const {
-    paginationToggleEnabled: PAGINATION_TOGGLE_ENABLED,
-  } = window.meetingClientSettings.public.kurento.pagination;
-
-  return PAGINATION_TOGGLE_ENABLED && myPageSize > 0;
 };
 
 export const useIsVideoPinEnabledForCurrentUser = (isModerator: boolean) => {

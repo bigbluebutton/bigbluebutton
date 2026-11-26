@@ -12,6 +12,7 @@ SyslogIdentifier=bbb-export-annotations
 User=bigbluebutton
 Group=bigbluebutton
 Environment=NODE_ENV=production
+Environment=NODE_CONFIG_DIR=/usr/local/bigbluebutton/bbb-export-annotations/config/:/etc/bigbluebutton/bbb-export-annotations/
 
 [Install]
 WantedBy=multi-user.target bigbluebutton.target

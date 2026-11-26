@@ -1,0 +1,13 @@
+# A null variant var removes the mapping entry that holds it, so the
+# "missing" variant sends no meetingID at all.
+id: create.validation.meeting-id
+title: create rejects a missing or malformed meetingID
+endpoint: create
+class: contract
+variants:
+  - {id: missing, vars: {mid: null}}
+  - {id: with-comma, vars: {mid: "a,b"}, class: compat, tags: [ci]}
+steps:
+  - call: create
+    params: {meetingID: "${mid}", name: n}
+    expect: {returncode: FAILED}

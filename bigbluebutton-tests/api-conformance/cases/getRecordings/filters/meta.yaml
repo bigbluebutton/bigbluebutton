@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A meta_<name> param keeps the recordings whose metadata has <name> with
+# that value; % at the start, the end or both matches a suffix, a prefix or
+# a substring. bbb-web lower-cases the param's name, as it does when it
+# stores meta_ params at create, so a mixed-case name matches; but the keys
+# bbb-web adds itself, meetingId, meetingName and isBreakout, are stored in
+# camel case, and no filter matches them.
+# conform-rec-a's two sessions are blue/large and green; conform-rec-b is
+# red with conform-tag alpha-beta-gamma.
+id: getRecordings.filters.meta
+title: getRecordings by metadata (${case})
+endpoint: getRecordings
+class: contract
+tags: [ci]
+requires: [recordings-fs]
+variants:
+  - {id: exact, vars: {case: a value, name: meta_conform-color, value: blue, count: 1}}
+  - {id: no-match, vars: {case: no recording with the value, name: meta_conform-color, value: purple, count: 0}}
+  - {id: missing-key, vars: {case: a key some recordings lack, name: meta_conform-size, value: large, count: 1}}
+  - {id: suffix, vars: {case: "%suffix", name: meta_conform-tag, value: "%gamma", count: 1}}
+  - {id: prefix, vars: {case: "prefix%", name: meta_conform-tag, value: "alpha%", count: 1}}
+  - {id: substring, vars: {case: "%substring%", name: meta_conform-tag, value: "%beta%", count: 1}}
+  - {id: wildcard-mismatch, vars: {case: a wildcard that doesn't match, name: meta_conform-tag, value: "beta%", count: 0}}
+  - {id: mixed-case-name, vars: {case: a mixed-case name, name: meta_Conform-Color, value: blue, count: 1}}
+  - {id: builtin-key, vars: {case: "a key bbb-web adds, meetingName", name: meta_meetingName, value: Conform Recordings A, count: 0}}
+steps:
+  - call: getRecordings
+    params: {meetingID: "conform-rec-a,conform-rec-b", "${name}": "${value}"}
+    expect:
+      returncode: SUCCESS
+      xpath:
+        /response/recordings/recording:
+          count: ${count}

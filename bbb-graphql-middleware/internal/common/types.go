@@ -51,6 +51,7 @@ type BrowserConnection struct {
 	SessionVariablesGeneration         uint64             // incremented per invalidation; a refresh result applies only while it is unchanged
 	SessionVariablesRefreshing         bool               // admits a single refresh loop per connection
 	ClientSessionUUID                  string             // self-generated unique id for this client
+	ConnectionInitSettled              bool               // init completed and the established event was published
 	Context                            context.Context    // browser connection context
 	ContextCancelFunc                  context.CancelFunc // function to cancel the browser context (and so, the browser connection)
 	BrowserRequestCookies              []*http.Cookie

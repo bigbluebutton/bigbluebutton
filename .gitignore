@@ -32,3 +32,5 @@ data/postgres
 ssl
 data/bbb-webrtc-recorder
 data/bigbluebutton
+/data/
+/docker-compose.override.yml

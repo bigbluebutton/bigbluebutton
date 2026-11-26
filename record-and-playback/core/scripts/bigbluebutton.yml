@@ -1,4 +1,5 @@
-bbb_version: '3.0.17'
+# The callbacks sign with the environment variable SHARED_SECRET, else with bbb-web's securitySalt
+bbb_version: '4.1.0'
 raw_audio_src: /var/freeswitch/meetings
 mediasoup_video_src: /var/mediasoup/recordings
 mediasoup_screenshare_src: /var/mediasoup/screenshare
@@ -7,19 +8,27 @@ webrtc_recorder_screenshare_src: /var/lib/bbb-webrtc-recorder/screenshare
 webrtc_recorder_audio_src: /var/lib/bbb-webrtc-recorder/audio
 raw_deskshare_src: /var/bigbluebutton/deskshare
 raw_presentation_src: /var/bigbluebutton
+# BN_NOTES_ENDPOINT wins over this and recording.yml
 bn_notes_endpoint: http://127.0.0.1:8787/loopback/api/documents
 # Specify the notes formats we archive. The shared notes server exports
 # html, pdf, txt, md, json and yjs.
 notes_formats:
   - html
   - pdf
+# REDIS_HOST, REDIS_PORT and REDIS_PASSWORD win over these and recording.yml, also when
+# exported in the shell that runs bbb-record (e.g. bbb-record --rebuild)
 redis_host: 127.0.0.1
 redis_port: 6379
 # Uncomment and set password if redis require it.
 # redis_password: changeme
 
+# The recording queue (resque) uses redis_workers_* when they are set in a file, whatever
+# REDIS_HOST, REDIS_PORT or REDIS_PASSWORD say; without them it follows redis_*.
+# redis_workers_password is used whenever it is set. Without it, the queue falls back to
+# redis_password only when redis_workers_host is not set: a queue on another host gets no password.
 # redis_workers_host: 127.0.0.1
 # redis_workers_port: 6379
+# redis_workers_password: changeme
 
 # Set to true to insert recording process status into
 # redis list with key "store_recording_status: true".
@@ -47,6 +56,13 @@ show_moderator_viewpoint: false
 # number of physical CPU threads that will be used will typically be 2-4 times this number.
 video_compositing_parallel_workers: 2
 
+# FreeSWITCH voice recordings can be shorter than the meeting time they
+# cover, when it drops audio frames on an overloaded server. Such a file is
+# stretched to cover that time if it misses less than this fraction of it,
+# at most 0.5. Differences under 2 s or 0.3% are left as they are. Set to 0
+# to never stretch them.
+max_audio_length_mismatch: 0.2
+
 # Sequence of recording steps. Keys are the current step, values
 # are the next step(s). Examples:
 #   current_step: next_step
@@ -66,6 +82,7 @@ events_dir: /var/bigbluebutton/events
 recording_dir: /var/bigbluebutton/recording
 published_dir: /var/bigbluebutton/published
 captions_dir: /var/bigbluebutton/captions
+# PLAYBACK_HOST wins over this and recording.yml
 playback_host: 127.0.0.1
 playback_protocol: https
 

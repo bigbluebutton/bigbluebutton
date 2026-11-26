@@ -1,0 +1,12 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case isMeetingRunning.validation.meeting-id-empty
+target bbb-web
+
+== step 1: call isMeetingRunning (document)
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "FAILED"
+/response/messageKey "sizeError"
+/response/message "Meeting ID must be between 2 and 256 characters"

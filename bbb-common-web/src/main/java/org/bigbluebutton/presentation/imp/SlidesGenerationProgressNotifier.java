@@ -64,6 +64,18 @@ public class SlidesGenerationProgressNotifier {
             maxUploadFileSize);
     messagingService.sendDocConversionMsg(progress);
   }
+
+  public void sendUploadFailedMessage(PresentationUploadToken pres, String errorDetail) {
+    PresentationUploadFailed message = new PresentationUploadFailed(
+            pres.podId,
+            pres.meetingId,
+            pres.presentationId,
+            pres.filename,
+            ConversionMessageConstants.PRESENTATION_UPLOAD_FAILED_KEY,
+            errorDetail);
+    messagingService.sendDocConversionMsg(message);
+  }
+
   public void sendInvalidMimeTypeMessage(UploadedPresentation pres, String fileMime, String fileExtension) {
     DocInvalidMimeType invalidMimeType = new DocInvalidMimeType(
             pres.getPodId(),
@@ -113,6 +125,18 @@ public class SlidesGenerationProgressNotifier {
     messagingService.sendDocConversionMsg(message);
   }
 
+  public void sendConversionRateLimited(UploadedPresentation pres) {
+    ConversionRateLimitExceeded message = new ConversionRateLimitExceeded(
+            pres.getPodId(),
+            pres.getMeetingId(),
+            pres.getId(),
+            pres.getName(),
+            ConversionMessageConstants.CONVERSION_RATE_LIMIT_EXCEEDED_KEY,
+            "Per-meeting presentation conversion rate limit exceeded"
+    );
+    messagingService.sendDocConversionMsg(message);
+  }
+
   public void sendConversionUpdateMessage(int slidesCompleted, UploadedPresentation pres, int pageGenerated) {
     log.info("Sending conversion update message for page {} of presentation [{}] in meeting [{}]", pageGenerated, pres.getId(), pres.getMeetingId());
     DocPageGeneratedProgress progress = new DocPageGeneratedProgress(pres.getPodId(),
@@ -130,7 +154,8 @@ public class SlidesGenerationProgressNotifier {
             generateBasePresUrl(pres),
             pres.getUploadedFile().getParent(),
             pageGenerated,
-            (pageGenerated == 1));
+            (pageGenerated == 1),
+            pres.pageId(pageGenerated));
     messagingService.sendDocConversionMsg(progress);
   }
 
@@ -153,7 +178,8 @@ public class SlidesGenerationProgressNotifier {
       pres.getId(), pres.getTemporaryPresentationId(), pres.getId(),
       pres.getName(), "notUsedYet", "notUsedYet",
       pres.isDownloadable(), pres.isRemovable(), ConversionMessageConstants.CONVERSION_COMPLETED_KEY,
-      pres.getNumberOfPages(), generateBasePresUrl(pres), pres.isCurrent(), pres.isDefaultPresentation(), pres.getFilenameConverted());
+      pres.getNumberOfPages(), generateBasePresUrl(pres), pres.isCurrent(), pres.isDefaultPresentation(), pres.getFilenameConverted(),
+      pres.getPageIds());
     messagingService.sendDocConversionMsg(progress);
   }
 

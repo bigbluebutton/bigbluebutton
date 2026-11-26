@@ -44,6 +44,34 @@ module BigBlueButton
       participants_ids.length
     end
 
+    # The pages of each presentation shown in the recording, in page order, keyed by presentation id.
+    # A page is identified by an opaque string: the page id, for recordings whose ConversionCompletedEvent
+    # lists them (BigBlueButton 4.1 and later); otherwise its 1-based page number, as a string, counted from
+    # the files of the presentation in presentation_dir. A presentation always has at least one page: an
+    # uploaded image is one page, and older recordings may have no thumbnails for it.
+    def self.presentation_page_ids(events, presentation_dir)
+      converted = {}
+      events.xpath("/recording/event[@eventname='ConversionCompletedEvent']").each do |event|
+        ids = event.at_xpath('pageIds')&.text
+        next if ids.nil? || ids.empty?
+
+        # The last conversion of a presentation wins.
+        converted[event.at_xpath('presentationName').text] = ids.split(',')
+      end
+
+      page_ids = {}
+      events.xpath("/recording/event[@eventname='SharePresentationEvent']").each do |event|
+        presentation = event.at_xpath('presentationName').text
+        next if page_ids.key?(presentation)
+
+        page_ids[presentation] = converted.fetch(presentation) do
+          num_pages = BigBlueButton::Presentation.get_number_of_pages_for("#{presentation_dir}/#{presentation}")
+          (1..[num_pages, 1].max).map(&:to_s)
+        end
+      end
+      page_ids
+    end
+
     # Get the meeting metadata
     def self.get_meeting_metadata(events_xml)
       BigBlueButton.logger.info("Task: Getting meeting metadata")
@@ -68,6 +96,21 @@ module BigBlueButton
       notes_id
     end
 
+
+    # Recording formats the meeting opted out of through the
+    # meta_bbb-disable-recording-formats create parameter.
+    #
+    # @param events [Nokogiri::XML::Document] the parsed events.xml
+    # @return [Array<String>] lowercased format names, empty when the meeting did not opt out
+    def self.disabled_recording_formats(events)
+      value = events.at_xpath('/recording/metadata/@bbb-disable-recording-formats')&.value
+      return [] if value.nil?
+
+      value.delete('[]')
+           .split(',')
+           .map { |format| format.strip.downcase }
+           .reject(&:empty?)
+    end
 
     # Get the external meeting id
     def self.get_external_meeting_id(events_xml)

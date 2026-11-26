@@ -19,7 +19,7 @@ If you want to see the Record and Playback (RaP) feature in action, use Greenlig
 
 Like BigBlueButton sessions, the management of recordings should be handled by [third-party software](https://bigbluebutton.org/schools/integrations/). Third-party software consumes the [BigBlueButton API](/development/api) to accomplish that. As a user, you may want to use third-party software which sets the right value to the parameter "record". As a developer, you may want to use a (not official) library that implements the API calls in your preferred language or implement it by yourself.
 
-From a technical point of view, in the BigBlueButton API, when you pass the parameter `record=true` with [create](/development/api#create), BigBlueButton will create a session that has recording enabled. In this case, it will add a new button to the toolbar at the top of the window with a circle icon which a moderator in the session can use to indicate sections of the meeting to be recorded.
+From a technical point of view, in the BigBlueButton API, when you pass the parameter `record=true` with [create](/development/api#get-post-create), BigBlueButton will create a session that has recording enabled. In this case, it will add a new button to the toolbar at the top of the window with a circle icon which a moderator in the session can use to indicate sections of the meeting to be recorded.
 
 In a session with recording enabled, BigBlueButton will save the slides, chat, audio, desktop sharing (deskshare), whiteboard events, shared notes, captions, poll results, and webcams for later processing. This is the unique way to record a meeting, because it provides the ability for different workflows to create recordings with different properties, combining the media in unique ways.
 
@@ -153,6 +153,8 @@ Monitoring:
 
 Administration:
    --rebuild <internal meetingID>      rebuild the output for the given internal meetingID
+   --format <recording format name>    with --rebuild, --rebuildall or --republish,
+                                       act on only one playback format (see --list-workflows)
    --rebuildall                        rebuild every recording
    --delete <internal meetingID>       delete one meeting and recording
    --deleteall                         delete all meetings and recordings
@@ -162,16 +164,15 @@ Administration:
    --disable <workflow>                disable a recording workflow
    --tointernal <external meetingId>   get the internal meeting ids for the given external meetingId
    --toexternal <internal meetingId>   get the external meeting id for the given internal meetingId
-   --republish <internal meetingID>    republish the recording for meetingID.
-                                       (Only for Matterhorn Integration)
+   --republish [internal meetingID]    retry the publish step for meetingID (all recordings if omitted)
 ```
 
 #### Useful settings
 
 | Name                    | Path (file)                                                 | Description |
 | :-----------------------| :-----------------------------------------------------------| :-----------|
-| webcamsOnlyForModerator | /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties | If true, only the moderator's cam will be showed in playback depending on how the `show_moderator_viewpoint`. It can be changed in the ongoing meeting|
-| show_moderator_viewpoint | /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | If false, the viewer's point of view will be showed, meaning that if the above property is set to true, only the moderator's camera will be displayed. |
+| webcamsOnlyForModerator | /etc/bigbluebutton/bbb-web.properties (override of /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties) | If true, only the moderator's cam will be showed in playback depending on how the `show_moderator_viewpoint`. It can be changed in the ongoing meeting|
+| show_moderator_viewpoint | /etc/bigbluebutton/recording/recording.yml (override of /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml) | If false, the viewer's point of view will be showed, meaning that if the above property is set to true, only the moderator's camera will be displayed. |
 
 
 #### Useful terms
@@ -259,6 +260,8 @@ Internal MeetingID                   Time   APVD APVDE RAS Slides Processed Publ
 --
 ```
 
+To check from outside the server whether it still has recordings to process, for example before taking it out of service, use the [getRecordingProcessingInfo](/development/api#get-post-getrecordingprocessinginfo) API call. It counts the recordings queued, running and failed, and needs no shell on the server.
+
 #### Rebuild a recording
 
 This options makes a recording go through the Process and Publish phases again.
@@ -268,6 +271,31 @@ If you run `bbb-record --rebuild` on a recording where the process and publish s
 ```bash
 $ sudo bbb-record --rebuild 29173583cf1ca21508b2efd7db566090bbefb36a-1647630316965
 ```
+
+#### Rebuild a single recording format
+
+Adding `--format` to `--rebuild` re-processes and re-publishes only the named
+playback format, leaving the sanity step and every other format's output alone.
+Rebuilding every format takes a long time, so this is useful when a single
+format failed, or when testing changes to one format's scripts.
+
+```bash
+$ sudo bbb-record --rebuild 29173583cf1ca21508b2efd7db566090bbefb36a-1647630316965 --format video
+```
+
+The format has to be *enabled* in the recording steps, not merely installed.
+`bbb-record --list-workflows` prints both lists, and installing a
+`bbb-playback-formatname` package does not enable the format on its own (see
+[#12241](https://github.com/bigbluebutton/bigbluebutton/issues/12241) and
+[Install additional recording processing formats](/administration/customize#install-additional-recording-processing-formats)).
+A format with no `process:formatname` step would have its existing output
+removed and never republished, so `bbb-record` refuses it and changes nothing.
+
+A format the meeting opted out of with `meta_bbb-disable-recording-formats` is
+also refused, so that a rebuild cannot undo the opt-out. A meeting without
+recording marks is refused too: rebuild it without `--format` to process it.
+
+`--format` also works with `--rebuildall` and `--republish`.
 
 #### Rebuild every recording
 
@@ -363,17 +391,24 @@ English 102" meetingName="English 102
 
 #### Republish recordings
 
-Republish recordings.
+This option makes a recording go through the Publish phase again from its processed files, for example after you fix the cause of a failed publish.
 
 ```bash
 $ sudo bbb-record --republish 29173583cf1ca21508b2efd7db566090bbefb36a-1647630316965
 ```
 
+The processed files of a format, under `/var/bigbluebutton/recording/process/<format>/<meetingId>`, are removed once that format publishes successfully. For a recording that published correctly, `bbb-record` reports that the processed files do not exist; use `--rebuild` for it instead.
+
+Without a meeting ID, `bbb-record --republish` does this for every recording in your server.
+
+Add `--format` to republish only one playback format, as described in
+[Rebuild a single recording format](#rebuild-a-single-recording-format).
+
 ### For Developers
 
 Here you will find more details about the Record and Playback scripts.
 
-The way to start a recorded session in BigBlueButton is setting the "record" parameter value to "true" in the [create API](/development/api#create) call, which usually is handled by third party software.
+The way to start a recorded session in BigBlueButton is setting the "record" parameter value to "true" in the [create API](/development/api#get-post-create) call, which usually is handled by third party software.
 
 #### Capture phase
 
@@ -755,7 +790,7 @@ Once the meeting has finished, an **_X_** should appear under **R**. If it doesn
 
 - all users left the meeting.
 
-- the parameter `meetingExpireWhenLastUserLeftInMinutes` in `/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties` is not set to a big value (defaults to 1).
+- the `bbb-web` property `meetingExpireWhenLastUserLeftInMinutes` (default 1, set in `/etc/bigbluebutton/bbb-web.properties`) is not set to a big value.
 
 - the parameter `record=true` was passed in the `create` API call; if not, the meeting was not recorded.
 
@@ -922,7 +957,7 @@ The sections that follow cover the types of events you will encounter in `events
 
 | Event                      | Attributes                                                                                                                                |
 | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| ConversionCompletedEvent   | - originalFilename<br/>- timestampUTC<br/> - presentationName<br/>- podId<br/> -share<br/>- date                                          |
+| ConversionCompletedEvent   | - originalFilename<br/>- timestampUTC<br/>- presentationName<br/>- podId<br/>- pageIds<br/>- date                                         |
 | ResizeAndMoveSlideEvent    | - timestampUTC<br/>- xOffset<br/>- presentationName<br/>- podId<br/>- heightRatio<br/>- id<br/>- date<br/>- yOffset<br/>- widthRatio      |
 | SharePresentationEvent     | - timestampUTC<br/>- presentationName<br/>- podId<br/>- share<br/>- date                                                                  |
 | GotoSlideEvent             | - timestampUTC<br/>- presentationName<br/>- podId<br/>- id<br/>- slide<br/>- date                                                         |
@@ -939,6 +974,46 @@ The sections that follow cover the types of events you will encounter in `events
 | AddShapeEvent (poll)      | - num_responders <br/>- status<br/>- userId<br/>- result<br/>- whiteboardId<br/>- position<br/>- num_respondents<br/>- id<br/>- pageNumber<br/>- presentation<br/>- dataPoints<br/>- timestampUTC<br/>- date<br/>- pollType<br/>- type<br/>- shapeId |
 | UndoAnnotationEvent       | - timestampUTC<br/>- date<br/>- whiteboardID<br/>- pageNumber<br/>- userId<br/>- shapeId<br/>- presentation                                                                                                                                          |
 | WhiteboardCursorMoveEvent | - timestampUTC<br/>- xOffset<br/>- date<br/>- whiteboardId<br/>- pageNumber<br/>- userId<br/>- yOffset<br/>- presentation                                                                                                                            |
+| AddTldrawShapeEvent       | - timestampUTC<br/>- date<br/>- presentation<br/>- pageNumber<br/>- whiteboardId<br/>- userId<br/>- shapeId<br/>- shapeData                                                                                                                          |
+| DeleteTldrawShapeEvent    | - timestampUTC<br/>- date<br/>- presentation<br/>- pageNumber<br/>- whiteboardId<br/>- userId<br/>- shapeId                                                                                                                                          |
+
+### Page ids in recordings
+
+Since BigBlueButton 4.1 (`bbb_version="4.1.0"` on the `<recording>` element), every presentation page has a page id: a string that never changes, given to the page when its presentation is converted. Events name a page by its page id; earlier recordings named it `<presentationName>/<pageNumber>`, with a 1-based page number. Treat a page id as an opaque string.
+
+**ConversionCompletedEvent**
+
+| Attribute        | Type   | Description                                                                                         |
+| ---------------- | ------ | --------------------------------------------------------------------------------------------------- |
+| presentationName | String | Id of the presentation                                                                              |
+| originalFilename | String | Name of the uploaded file                                                                           |
+| pageIds          | String | Since 4.1: comma-separated list of the page id of each page of the presentation, in page order     |
+
+**GotoSlideEvent**
+
+| Attribute        | Type    | Description                                                                         |
+| ---------------- | ------- | ----------------------------------------------------------------------------------- |
+| presentationName | String  | Id of the presentation                                                              |
+| id               | String  | Since 4.1: page id of the page shown. Before: `<presentationName>/<pageNumber>`     |
+| slide            | Integer | 0-based position of the page in the presentation when it was shown (unchanged)     |
+
+**ResizeAndMoveSlideEvent**
+
+| Attribute                                  | Type   | Description                                                                     |
+| ------------------------------------------ | ------ | ------------------------------------------------------------------------------- |
+| presentationName                           | String | Id of the presentation                                                          |
+| id                                         | String | Since 4.1: page id of the page. Before: `<presentationName>/<pageNumber>`       |
+| xOffset, yOffset, widthRatio, heightRatio  | Float  | Pan and zoom of the page (unchanged)                                            |
+
+**Whiteboard events** (`module="WHITEBOARD"`, for example `AddTldrawShapeEvent`, `DeleteTldrawShapeEvent` and `WhiteboardCursorMoveEvent`)
+
+| Attribute    | Type    | Description                                                                                    |
+| ------------ | ------- | ---------------------------------------------------------------------------------------------- |
+| presentation | String  | Id of the presentation of the page                                                             |
+| whiteboardId | String  | Since 4.1: page id of the page. Before: `<presentationName>/<pageNumber>`                      |
+| pageNumber   | Integer | 0-based position of the page in the presentation when the event happened (unchanged)          |
+
+The presentation files of a recording are named by the page id: `presentation/{presentationName}/svgs/slide{pageId}.svg`, `presentation/{presentationName}/textfiles/slide-{pageId}.txt` and `presentation/{presentationName}/thumbnails/thumb-{pageId}.png`, and the keys of `presentation_text.json` are `slide-{pageId}`. In earlier recordings the same files are named by the 1-based page number (`slide{pageNumber}.svg`, `slide-{pageNumber}.txt`, `thumb-{pageNumber}.png`).
 
 ### Voice
 

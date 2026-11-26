@@ -88,14 +88,11 @@ public class Meeting {
 	private  ArrayList<PluginManifest> pluginManifests;
 	private String html5PluginSdkVersion;
 	private String guestPolicy = GuestPolicy.ASK_MODERATOR;
-	private String guestLobbyMessage = "";
-	private Map<String,String> usersWithGuestLobbyMessages;
 	private Boolean authenticatedGuest = false;
 	private Boolean allowPromoteGuestToModerator = false;
 	private long waitingGuestUsersTimeout = 30000;
 	private String meetingLayout = MeetingLayout.SMART_LAYOUT;
 	private boolean userHasJoined = false;
-	private Map<String, String> guestUsersWithPositionInWaitingLine;
 	private Map<String, String> metadata;
 	private final Map<String, String> pluginMetadataParametersMap;
 	private Map<String, Object> userCustomData;
@@ -115,6 +112,7 @@ public class Meeting {
 	private Boolean allowRequestsWithoutSession = false;
 	private Boolean allowModsToEjectCameras = false;
 	private Boolean allowModsToRequestCameraShare = false;
+	private Boolean hideUsersWithoutCamera = false;
 	private Boolean meetingKeepEvents;
 	private String presentationUploadExternalDescription;
 	private String presentationUploadExternalUrl;
@@ -211,9 +209,7 @@ public class Meeting {
 				cameraBridge = builder.cameraBridge;
 				screenShareBridge = builder.screenShareBridge;
 				audioBridge = builder.audioBridge;
-		guestUsersWithPositionInWaitingLine = new HashMap<>();
-        userCustomData = new HashMap<>();
-		usersWithGuestLobbyMessages = new HashMap<>();
+        userCustomData = new ConcurrentHashMap<>();
 
         users = new ConcurrentHashMap<>();
         registeredUsers = new ConcurrentHashMap<>();
@@ -269,29 +265,6 @@ public class Meeting {
 		return usersWithExtId;
 	}
 
-	public void guestIsWaiting(String userId) {
-		RegisteredUser ruser = registeredUsers.get(userId);
-		if (ruser != null) {
-			ruser.updateGuestWaitedOn();
-		}
-	}
-
-	public void setLeftGuestLobby(String userId, Boolean bool) {
-		RegisteredUser ruser = registeredUsers.get(userId);
-		if (ruser != null) {
-			ruser.setLeftGuestLobby(bool);
-		}
-	}
-
-	public Boolean didGuestUserLeaveGuestLobby(String userId) {
-		RegisteredUser ruser = registeredUsers.get(userId);
-
-		if (ruser != null) {
-			return ruser.getLeftGuestLobby();
-		}
-		return true;
-	}
-
 	public void setGuestStatusWithId(String userId, String guestStatus) {
     	User user = getUserById(userId);
     	if (user != null) {
@@ -307,25 +280,6 @@ public class Meeting {
 
 	public RegisteredUser getRegisteredUserWithUserId(String userId) {
 		return registeredUsers.get(userId);
-	}
-
-	public RegisteredUser getRegisteredUserWithAuthToken(String authToken) {
-		for (RegisteredUser ruser : registeredUsers.values()) {
-			if (ruser.authToken.equals(authToken)) {
-				return ruser;
-			}
-		}
-
-		return null;
-	}
-
-	public String getGuestStatusWithAuthToken(String authToken) {
-		RegisteredUser rUser = getRegisteredUserWithAuthToken(authToken);
-		if (rUser != null) {
-			return rUser.getGuestStatus();
-		}
-
-		return GuestPolicy.DENY;
 	}
 
 	public ArrayList<Group> getGroups() { return groups; }
@@ -523,14 +477,6 @@ public class Meeting {
 		return defaultWebcamBackgroundURL;
 	}
 
-	public void setWaitingPositionsInWaitingQueue(HashMap<String, String> guestUsersWithPositionInWaitingLine) {
-		this.guestUsersWithPositionInWaitingLine = guestUsersWithPositionInWaitingLine;
-	}
-
-	public String getWaitingPositionsInWaitingQueue(String userId) {
-		return guestUsersWithPositionInWaitingLine.get(userId);
-	}
-
 	public void setGuestPolicy(String policy) {
 		guestPolicy = policy;
 	}
@@ -550,21 +496,6 @@ public class Meeting {
     public void setMultiUserWhiteboardEnabled(Boolean multiUserWhiteboardEnabled) {
         this.multiUserWhiteboardEnabled = multiUserWhiteboardEnabled;
     }
-
-	public void setGuestLobbyMessage(String message) {
-		guestLobbyMessage = message;
-	}
-
-	public String getGuestLobbyMessage(String guestId) {
-		if (usersWithGuestLobbyMessages.containsKey(guestId) && usersWithGuestLobbyMessages.get(guestId) != "") {
-			return usersWithGuestLobbyMessages.get(guestId);
-		}
-		return guestLobbyMessage;
-	}
-
-	public void setPrivateGuestLobbyMessage(String guestId, String message) {
-		usersWithGuestLobbyMessages.put(guestId, message);
-	}
 
 	public void setAuthenticatedGuest(Boolean authGuest) {
 		authenticatedGuest = authGuest;
@@ -818,6 +749,14 @@ public class Meeting {
 
   public Boolean getAllowModsToRequestCameraShare() {
     return allowModsToRequestCameraShare;
+  }
+
+  public void setHideUsersWithoutCamera(Boolean value) {
+    hideUsersWithoutCamera = value;
+  }
+
+  public Boolean getHideUsersWithoutCamera() {
+    return hideUsersWithoutCamera;
   }
 
 	public void userJoined(User user) {

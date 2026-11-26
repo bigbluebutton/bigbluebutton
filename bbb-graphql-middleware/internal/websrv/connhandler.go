@@ -169,6 +169,7 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 			errorMessageId,
 			errorOnInitConnection.Error(),
 			connectionLogger)
+		return
 	}
 
 	common.WsConnectionAcceptedCounter.Inc()
@@ -338,6 +339,21 @@ func invalidateBrowserConnectionForSessionToken(bc *common.BrowserConnection, se
 
 	// Send a reconnection confirmation message
 	go SendUserGraphqlDisconnectionForcedEvtMsg(sessionToken)
+}
+
+func replacedSessionWindowConnections(
+	connections map[string]*common.BrowserConnection,
+	current *common.BrowserConnection,
+) []*common.BrowserConnection {
+	replaced := make([]*common.BrowserConnection, 0)
+	for _, connection := range connections {
+		if connection != current && connection.ConnectionInitSettled &&
+			connection.SessionToken == current.SessionToken &&
+			connection.ClientSessionUUID != current.ClientSessionUUID {
+			replaced = append(replaced, connection)
+		}
+	}
+	return replaced
 }
 
 // refreshUserSessionVariables performs one fetch and publishes the result.
@@ -519,13 +535,27 @@ func connectionInitHandler(browserConnection *common.BrowserConnection) (error, 
 				return err, errorId
 			}
 
-			go SendUserGraphqlConnectionEstablishedSysMsg(
+			SendUserGraphqlConnectionEstablishedSysMsg(
 				sessionToken,
 				clientSessionUUID,
 				clientType,
 				strings.ToLower(clientIsMobile) == "true",
 				browserConnection.Id,
 			)
+
+			BrowserConnectionsMutex.Lock()
+			browserConnection.ConnectionInitSettled = true
+			replacedConnections := replacedSessionWindowConnections(BrowserConnections, browserConnection)
+			BrowserConnectionsMutex.Unlock()
+
+			for _, replacedConnection := range replacedConnections {
+				go invalidateBrowserConnectionForSessionToken(
+					replacedConnection,
+					sessionToken,
+					"joined_another_window_reason",
+					"This session was opened in another browser window.",
+				)
+			}
 
 			break
 		}

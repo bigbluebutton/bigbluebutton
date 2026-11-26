@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# bbb-web doesn't follow a redirect from an end callback URL: the target of
+# the Location is never called. (bbb-web counts the redirect as a failed
+# attempt and tries the URL again later; retry.yaml checks that.) api.md
+# doesn't say whether a callback follows a redirect, so this is compat.
+id: end.callbacks.redirect-not-followed
+title: An end callback that answers with a redirect isn't followed
+endpoint: end
+class: compat
+tags: [ci]
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Callback, meta_endCallbackUrl: "${sinkUrl}/${uid}/ended?_redirect=${sinkUrl}/${uid}-to/moved&_first=1"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: end
+    params: {meetingID: "${uid}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+  # The redirect's URL names the sink, so this step isn't recorded.
+  - sink: {key: "${uid}", within: 10s}
+    golden: off
+    expect:
+      method: GET
+      path: /${uid}/ended
+      query: {meetingID: "${uid}", recordingmarks: "false"}
+  - sink: {key: "${uid}-to", within: 5s}
+    expect: {absent: true}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

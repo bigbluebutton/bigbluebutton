@@ -15,19 +15,6 @@ import scala.concurrent.{ExecutionContextExecutor, Future}
 
 object UserInfoService {
   def apply(system: ActorSystem, bbbActor: ActorRef) = new UserInfoService(system, bbbActor)
-}
-
-class UserInfoService(system: ActorSystem, bbbActor: ActorRef) {
-  implicit def executionContext: ExecutionContextExecutor = system.dispatcher
-  implicit val timeout: Timeout = 5 seconds
-
-  def getUserInfo(sessionToken: String): Future[ApiResponse] = {
-    val future = bbbActor.ask(GetUserApiMsg(sessionToken)).mapTo[ApiResponse]
-
-    future.recover {
-      case e: AskTimeoutException => ApiResponseFailure("Request Timeout error", "request_timeout", Map())
-    }
-  }
 
   def generateResponseMap(userInfos: UserInfosApiMsg): Map[String, Any] = {
     val infos = userInfos.infos
@@ -52,13 +39,12 @@ class UserInfoService(system: ActorSystem, bbbActor: ActorRef) {
         "X-Hasura-MeetingId" -> meetingID,
         "X-Hasura-SessionToken" -> sessionToken,
         "X-Hasura-IsBreakout" -> conditionalValue("isBreakout", "true", ""),
-        "X-Hasura-CursorNotLockedInMeeting" -> conditionalValue("hideViewersCursor", "", meetingID),
-        "X-Hasura-CursorLockedUserId" -> conditionalValue("hideViewersCursor", userId, ""),
-        "X-Hasura-AnnotationsNotLockedInMeeting" -> conditionalValue("hideViewersAnnotation", "", meetingID),
-        "X-Hasura-AnnotationsLockedUserId" -> conditionalValue("hideViewersAnnotation", userId, ""),
-        "X-Hasura-UserListNotLockedInMeeting" -> conditionalValue("hideUserList", "", meetingID),
-        "X-Hasura-WebcamsNotLockedInMeeting" -> conditionalValue("webcamsOnlyForModerator", "", meetingID),
-        "X-Hasura-WebcamsLockedUserId" -> conditionalValue("webcamsOnlyForModerator", userId, "")
+        // Lock settings are no longer baked into the session: the permission rules
+        // read the current meeting_lockSettings row instead, so these two are the
+        // only lock-related variables and both change exclusively through per-user
+        // events (lock toggle, role change) that already refresh the session.
+        "X-Hasura-NotLockedInMeeting" -> conditionalValue("locked", "", meetingID),
+        "X-Hasura-LockedUserId" -> conditionalValue("locked", userId, "")
       )
     } else {
       Map(
@@ -71,7 +57,19 @@ class UserInfoService(system: ActorSystem, bbbActor: ActorRef) {
         "X-Hasura-SessionToken" -> sessionToken,
       )
     }
+  }
+}
 
+class UserInfoService(system: ActorSystem, bbbActor: ActorRef) {
+  implicit def executionContext: ExecutionContextExecutor = system.dispatcher
+  implicit val timeout: Timeout = 5 seconds
+
+  def getUserInfo(sessionToken: String): Future[ApiResponse] = {
+    val future = bbbActor.ask(GetUserApiMsg(sessionToken)).mapTo[ApiResponse]
+
+    future.recover {
+      case e: AskTimeoutException => ApiResponseFailure("Request Timeout error", "request_timeout", Map())
+    }
   }
 
   def createHttpResponse(status: StatusCode, response: Map[String, Any]): HttpResponse = {

@@ -64,14 +64,20 @@ meeting_events_dir = "#{events_dir}/#{meeting_id}"
 process_dir = "#{recording_dir}/process/events/#{meeting_id}"
 
 def send_data(analytics_url, secret, payload)
+  destination = BigBlueButton::CallbackDestination.check(
+    analytics_url, policy: BigBlueButton::CallbackDestination.policy_from_bbb_web
+  )
+  unless destination.admitted?
+    BigBlueButton::CallbackDestination.log_refusal(destination)
+    return
+  end
+
   # Setup a token that expires in 24hrs
   exp = Time.now.to_i + 24 * 3600
   exp_payload = { :exp => exp }
   token = JWT.encode exp_payload, secret, 'HS512', { typ: 'JWT' }
 
-  uri = URI.parse(analytics_url)
-  http = Net::HTTP.new(uri.host, uri.port)
-  http.use_ssl = (uri.scheme == 'https')
+  uri = destination.uri
 
   # Setup a request and attach our JWT token
   request = Net::HTTP::Post.new(uri.request_uri, {
@@ -86,12 +92,12 @@ def send_data(analytics_url, secret, payload)
   # Display debug results
   #http.set_debug_output($stdout)
 
-  response = http.request(request)
+  response = BigBlueButton::CallbackDestination.post(destination, request)
   code = response.code.to_i
   BigBlueButton.logger.info(response.body)
 
   if code < 200 || code >= 300
-    BigBlueButton.logger.info("Failed when calling #{uri.request_uri}")
+    BigBlueButton.logger.info("Failed when calling #{uri.path}")
   else
     BigBlueButton.logger.info("Success")
   end
@@ -149,13 +155,7 @@ begin
   # analytics_callback_url = metadata.key?("analytics-callback-url") ? metadata["analytics-callback-url"].value : nil
   unless analytics_callback_url.nil?
     BigBlueButton.logger.info("Processing events for analytics...")
-    filepathOverride = "/etc/bigbluebutton/bbb-web.properties"
-    hasOverride = File.file?(filepathOverride)
-
-    bbb_props = BigBlueButton.read_java_props("/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties")
-    bbb_props.merge!(BigBlueButton.read_java_props(filepathOverride)) if hasOverride
-
-    secret = bbb_props[:securitySalt]
+    secret = BigBlueButton.shared_secret
     external_meeting_id = metadata.attributes['meetingId']&.content
 
     # Parse the events.xml.
@@ -175,7 +175,7 @@ begin
       data: data
     }
 
-    BigBlueButton.logger.info(payload.to_json)
+    BigBlueButton.logger.info("Analytics payload ready (#{payload.to_json.bytesize} bytes)")
 
     send_data(analytics_callback_url, secret, payload)
   end

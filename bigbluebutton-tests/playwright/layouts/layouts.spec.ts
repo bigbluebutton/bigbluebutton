@@ -4,7 +4,7 @@ import { test } from '../core/setup/fixtures';
 import { Layouts, MOBILE_VIEWPORT } from './layouts';
 
 test.describe.parallel('Unified Layout - meeting create param', { tag: '@ci' }, () => {
-  test('First minimize of presentation shows participant tiles for moderator', async ({
+  test('First minimize of presentation shows participant tiles for moderator without audio', async ({
     browser,
     context,
   }, testInfo) => {
@@ -19,7 +19,7 @@ test.describe.parallel('Unified Layout - meeting create param', { tag: '@ci' }, 
   });
 });
 
-test.describe.parallel('Unified Layout - restored presentation', { tag: '@ci' }, () => {
+test.describe.parallel('Unified Layout - restored presentation', { tag: '@nightly' }, () => {
   test(
     'Restoring presentation clears participant grid avatars',
     { tag: '@media' },
@@ -39,7 +39,7 @@ test.describe.parallel('Unified Layout - restored presentation', { tag: '@ci' },
 });
 
 test.describe.parallel('Unified Layout - meeting create param - with audio', { tag: '@ci' }, () => {
-  test('First minimize of presentation shows participant tiles for moderator', async ({
+  test('First minimize of presentation shows participant tiles for moderator in audio', async ({
     browser,
     context,
   }, testInfo) => {
@@ -97,7 +97,23 @@ test.describe.parallel('Unified Layout - viewer minimize persistence', { tag: '@
   );
 });
 
-test.describe.parallel('Unified Layout - focused camera replication', { tag: '@ci' }, () => {
+test.describe.parallel('Unified Layout - new presenter propagation', { tag: '@ci' }, () => {
+  test('A viewer that restored the presentation locally pushes it once made presenter', async ({
+    browser,
+    context,
+  }, testInfo) => {
+    const layouts = new Layouts(browser, context);
+    await initializePages(layouts, browser, {
+      isMultiUser: true,
+      createParameter: 'meetingLayout=UNIFIED_LAYOUT',
+      testInfo,
+      recordVideo: true,
+    });
+    await layouts.unifiedLayoutNewPresenterPropagatesLocalPresentation();
+  });
+});
+
+test.describe.parallel('Unified Layout - focused camera replication', { tag: '@nightly' }, () => {
   test(
     'Viewer follows a camera focus and keeps a local unfocus while webcams come and go',
     { tag: '@media' },
@@ -179,12 +195,32 @@ test.describe.parallel('Unified Layout - phone landscape propagation', { tag: '@
           createParameter: 'meetingLayout=UNIFIED_LAYOUT',
           joinParameter: 'userdata-bbb_auto_join_audio=false',
           shouldCloseAudioModal: false,
-          clientSettingsOverrides: {
-            public: { app: { defaultSettings: { layout: { pushLayout: true } } } },
-          },
           testInfo,
         });
         await layouts.phoneLandscapePublishesFinitePresentationVideoRate();
+      } finally {
+        await context.close();
+      }
+    },
+  );
+
+  test(
+    'Rotating a presenting phone keeps its landscape camera dock to itself',
+    { tag: '@media' },
+    async ({ browser }, testInfo) => {
+      linkIssue(25681);
+      const context = await browser.newContext({ recordVideo: { dir: 'test-results/' } });
+      try {
+        const layouts = new Layouts(browser, context);
+        await layouts.configureLayoutMutationProbe();
+        const page = await context.newPage();
+        await layouts.initModPage(page, {
+          createParameter: 'meetingLayout=UNIFIED_LAYOUT',
+          joinParameter: 'userdata-bbb_auto_join_audio=false',
+          shouldCloseAudioModal: false,
+          testInfo,
+        });
+        await layouts.phoneLandscapeKeepsTheMeetingCameraDock();
       } finally {
         await context.close();
       }
@@ -204,9 +240,6 @@ test.describe.parallel('Unified Layout - server layout rate validation', { tag: 
         createParameter: 'meetingLayout=UNIFIED_LAYOUT',
         joinParameter: 'userdata-bbb_auto_join_audio=false',
         shouldCloseAudioModal: false,
-        clientSettingsOverrides: {
-          public: { app: { defaultSettings: { layout: { pushLayout: true } } } },
-        },
         testInfo,
       });
       await layouts.initUserPage(context, {
@@ -220,7 +253,7 @@ test.describe.parallel('Unified Layout - server layout rate validation', { tag: 
   });
 });
 
-test.describe.parallel('Unified Layout - viewer video pagination', { tag: '@ci' }, () => {
+test.describe.parallel('Unified Layout - viewer video pagination', { tag: '@nightly' }, () => {
   test(
     'Viewer pages through webcams at the default page size while the moderator sees them all',
     { tag: '@media' },
@@ -256,4 +289,33 @@ test.describe.parallel('Unified Layout - viewer video pagination', { tag: '@ci' 
       await layouts.viewerPaginationAtServerDefaults();
     },
   );
+});
+
+test.describe.parallel('Layout defaults come from the meeting', { tag: '@nightly' }, () => {
+  test('An override of the removed defaultSettings.layout keys changes nothing', async ({ browser }, testInfo) => {
+    // The values a client that still read the keys would start from: the presentation-only
+    // layout renders the client without the audio prompt, the actions bar and the sidebars.
+    // The audio modal is left open for the page object, which asserts it before closing it.
+    const staleLayoutDefaults = {
+      public: { app: { defaultSettings: { layout: { selectedLayout: 'presentationOnly', pushLayout: true } } } },
+    };
+    const context = await browser.newContext({ recordVideo: { dir: 'test-results/' } });
+    try {
+      const layouts = new Layouts(browser, context);
+      const page = await context.newPage();
+      await layouts.initModPage(page, {
+        createParameter: 'meetingLayout=UNIFIED_LAYOUT',
+        clientSettingsOverrides: staleLayoutDefaults,
+        shouldCloseAudioModal: false,
+        testInfo,
+      });
+      await layouts.initUserPage(context, {
+        clientSettingsOverrides: staleLayoutDefaults,
+        shouldCloseAudioModal: false,
+      });
+      await layouts.meetingLayoutAppliesDespiteClientLayoutDefaults();
+    } finally {
+      await context.close();
+    }
+  });
 });

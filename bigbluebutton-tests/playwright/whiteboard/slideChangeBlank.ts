@@ -3,6 +3,7 @@ import { expect, type Page } from '@playwright/test';
 import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { MultiUsers } from '../user/multiusers';
+import { getPageIdByNum } from './util';
 
 // Deferred far-slide index. Slide 1 is the initial page; the forward prefetch window is
 // only 2 slides, so a slide this far ahead is guaranteed cold.
@@ -22,11 +23,12 @@ const NET_DELAY_MS = 600;
 // if the component ignored the setting and used its own default, these tests would flake.
 const FORCED_DECODE_TIMEOUT_MS = 5000;
 
-// Note on the anchored `/svg/<n>(?:\?|["')]|$)` regex used throughout: it matches a
-// `.tl-image` background-image URL for slide <n> without also matching `/svg/20` or
-// `/svg/21` (the URL is followed by `?` for the sessionToken query, or the closing
-// quote/paren of the CSS url()). It is inlined inside each page.evaluate/waitForFunction
-// because those callbacks run in the browser and cannot close over a Node-scope helper.
+// Slide URLs name a page by its page id (`/svg/<pageId>`), read from pres_page on the presenter's
+// page before navigating. The anchored `/svg/<pageId>(?:\?|["')]|$)` regex used throughout matches a
+// `.tl-image` background-image URL for that page (the URL is followed by `?` for the sessionToken
+// query, or the closing quote/paren of the CSS url()). It is inlined inside each
+// page.evaluate/waitForFunction because those callbacks run in the browser and cannot close over a
+// Node-scope helper.
 
 // Regression tests for issue 25397 (blank presentation area on slide change).
 //
@@ -84,10 +86,10 @@ export class SlideChangeBlank extends MultiUsers {
   // background-image references `/svg/<target>`) never happens before that response.
   async noBlankOnSlideChange() {
     const { page } = this.modPage;
-    const target = TARGET;
     const delayMs = NET_DELAY_MS;
 
     await this.waitForFirstSlidePainted();
+    const target = await getPageIdByNum(page, TARGET);
     // Raise the gate timeout so the held-back response (NET_DELAY_MS) reliably wins the race
     // against the fallback timer; the assertion below then measures the gate, not the timer.
     await SlideChangeBlank.setDecodeTimeout(page, FORCED_DECODE_TIMEOUT_MS);
@@ -139,7 +141,7 @@ export class SlideChangeBlank extends MultiUsers {
       await route.continue().catch(() => {});
     });
 
-    await this.modPage.selectSlide(`Slide ${target}`);
+    await this.modPage.selectSlide(`Slide ${TARGET}`);
 
     // Wait (bounded) for BOTH the asset delivery (tResp, ~NET_DELAY_MS after the fetch
     // starts) AND the DOM swap (tSwap). Waiting for both avoids reading the probe while
@@ -166,7 +168,7 @@ export class SlideChangeBlank extends MultiUsers {
     expect(probe.tResp, 'the target slide SVG request should have been intercepted and delivered').not.toBeNull();
     expect(
       probe.tSwap,
-      `slide ${target} must not become visible before its background image is delivered/decoded ` +
+      `slide ${TARGET} must not become visible before its background image is delivered/decoded ` +
         `(swap at ${probe.tSwap}ms, asset delivered at ${probe.tResp}ms). A swap before the asset arrives ` +
         'is the white flash of issue 25397.',
     ).toBeGreaterThanOrEqual(probe.tResp as number);
@@ -178,9 +180,10 @@ export class SlideChangeBlank extends MultiUsers {
   // uncaught rejection or trip the error boundary.
   async brokenAssetDegradesWithoutHanging() {
     const { page } = this.modPage;
-    const target = TARGET;
 
     await this.waitForFirstSlidePainted();
+    const target = await getPageIdByNum(page, TARGET);
+    const slideTwo = await getPageIdByNum(page, 2);
 
     // Note: route.abort() below makes Playwright log "failed to load resource" console
     // errors for the aborted SVG. They are harmless here (that is the scenario) but would
@@ -194,7 +197,7 @@ export class SlideChangeBlank extends MultiUsers {
       // Image.decode() rejects).
       await page.route(`**/svg/${target}**`, (route) => route.abort());
 
-      await this.modPage.selectSlide(`Slide ${target}`);
+      await this.modPage.selectSlide(`Slide ${TARGET}`);
 
       // Navigation must still complete: the swap runs even though the asset is broken (there
       // is simply nothing to paint), so the `.tl-image` for the target page mounts. We assert
@@ -221,13 +224,13 @@ export class SlideChangeBlank extends MultiUsers {
       await page.unroute(`**/svg/${target}**`);
       await this.modPage.selectSlide('Slide 2');
       await page.waitForFunction(
-        () => {
+        (two) => {
           const imgs = document.querySelectorAll('.tl-image');
           return Array.from(imgs).some((el) =>
-            /\/svg\/2(?:\?|["')]|$)/.test((el as HTMLElement).style?.backgroundImage || ''),
+            new RegExp(`/svg/${two}(?:\\?|["')]|$)`).test((el as HTMLElement).style?.backgroundImage || ''),
           );
         },
-        undefined,
+        slideTwo,
         { timeout: ELEMENT_WAIT_LONGER_TIME },
       );
     } finally {
@@ -248,9 +251,9 @@ export class SlideChangeBlank extends MultiUsers {
   // adjustCameraOnMount, and thus isMountedRef flipping true - stays pending while the
   // presenter jumps to a far slide. The viewer MUST follow.
   async viewerFollowsSlideChangeDuringMount() {
-    const target = TARGET;
-
     await this.waitForFirstSlidePainted();
+    const target = await getPageIdByNum(this.modPage.page, TARGET);
+    const slideOne = await getPageIdByNum(this.modPage.page, 1);
     // Bring a viewer in; they follow the presenter's current slide.
     await this.initUserPage(this.modPage.context);
     await this.userPage.hasElement(e.whiteboard, 'viewer should see the whiteboard', ELEMENT_WAIT_LONGER_TIME);
@@ -261,7 +264,7 @@ export class SlideChangeBlank extends MultiUsers {
     // long delay is left in flight at teardown.
     await SlideChangeBlank.setDecodeTimeout(this.userPage.page, FORCED_DECODE_TIMEOUT_MS);
     let released = false;
-    await this.userPage.page.route('**/svg/1**', async (route) => {
+    await this.userPage.page.route(`**/svg/${slideOne}**`, async (route) => {
       if (released) {
         await route.continue().catch(() => {});
         return;
@@ -274,7 +277,7 @@ export class SlideChangeBlank extends MultiUsers {
 
     // Navigate immediately, while the viewer's slide-1 swap (and camera calibration) is
     // still pending. No awaited delay here: the change must land inside that window.
-    await this.modPage.selectSlide(`Slide ${target}`);
+    await this.modPage.selectSlide(`Slide ${TARGET}`);
 
     // The viewer must converge to the target slide. Since the buggy drop is permanent, a
     // generous wait still fails on unfixed code (the viewer stays on slide 1).
@@ -301,7 +304,7 @@ export class SlideChangeBlank extends MultiUsers {
     }, target);
     expect(
       onTarget,
-      `viewer must follow the presenter to slide ${target} even when the change arrives during camera ` +
+      `viewer must follow the presenter to slide ${TARGET} even when the change arrives during camera ` +
         'calibration; a permanent strand here means the swap was gated on isMountedRef again.',
     ).toBe(true);
   }

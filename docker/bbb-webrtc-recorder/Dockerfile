@@ -1,4 +1,4 @@
-FROM golang:1.27-alpine@sha256:f2c872bcee949b7be9c490efd02b48a8a2fbf947cdf533f1c58525ec9d8170fd AS build
+FROM golang:1.27.3-alpine@sha256:fa3d596898d9f126af7c01d14ee7597bab3f39cccf392ef36b69fe77cd681f18 AS build
 
 # The source at the tag the package builds, cloned by the same script (build/get_external_dependencies.sh)
 # hadolint ignore=DL3018
@@ -12,7 +12,7 @@ RUN CGO_ENABLED=0 go build -o /bbb-webrtc-recorder \
     -ldflags="-X 'github.com/bigbluebutton/bbb-webrtc-recorder/internal.AppVersion=v$(tr ' ' - < VERSION)'" \
     ./cmd/bbb-webrtc-recorder
 
-FROM alpine:3.24@sha256:294b683cb724975bec92580e1e685676bd4b50bda910ddb8c51d4cabeaec77e6
+FROM alpine:3.24.4@sha256:f59abe656b692d901e184be3445e084786602108599d2a51d229c0f5a48c71bf
 
 RUN addgroup -S -g 998 bigbluebutton && adduser -S -u 998 -G bigbluebutton bigbluebutton \
  && install -d -m 0700 -o bigbluebutton -g bigbluebutton /var/lib/bbb-webrtc-recorder

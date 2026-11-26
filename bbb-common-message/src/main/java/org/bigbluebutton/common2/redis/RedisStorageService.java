@@ -19,7 +19,9 @@
 
 package org.bigbluebutton.common2.redis;
 
-import java.util.HashMap;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -31,9 +33,10 @@ import org.slf4j.LoggerFactory;
 import io.lettuce.core.ClientOptions;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
+import io.lettuce.core.ScriptOutputType;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.RedisCommands;
-import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.codec.binary.Hex;
 
 public class RedisStorageService extends RedisAwareCommunicator {
 
@@ -65,18 +68,27 @@ public class RedisStorageService extends RedisAwareCommunicator {
         log.info("RedisStorageService Stopped");
     }
 
-    public String generateSingleUseCaptionToken(String recordId, String caption, Long expirySeconds) {
-        Map<String, String> data = new HashMap<String, String>();
-        data.put("recordId", recordId);
-        data.put("caption", caption);
+    // Each caption-token operation is a single Redis command.
+    private static final String STORE_CAPTION_TOKEN =
+            "redis.call('HSET', KEYS[1], 'recordId', ARGV[1], 'caption', ARGV[2]) " +
+            "redis.call('EXPIRE', KEYS[1], ARGV[3]) " +
+            "return 1";
 
-        String token = DigestUtils.sha1Hex(recordId + caption + System.currentTimeMillis());
+    private static final String CONSUME_CAPTION_TOKEN =
+            "local v = redis.call('HMGET', KEYS[1], 'recordId', 'caption') " +
+            "if v[1] == ARGV[1] and v[2] == ARGV[2] then return redis.call('DEL', KEYS[1]) end " +
+            "return 0";
+
+    private static final SecureRandom TOKEN_RANDOM = new SecureRandom();
+
+    public String generateSingleUseCaptionToken(String recordId, String caption, Long expirySeconds) {
+        byte[] tokenBytes = new byte[20];
+        TOKEN_RANDOM.nextBytes(tokenBytes);
+        String token = Hex.encodeHexString(tokenBytes);
         String key = "captions:" + token + ":singleusetoken";
         RedisCommands<String, String> commands = connection.sync();
-        commands.multi();
-        commands.hmset(key, data);
-        commands.expire(key, expirySeconds);
-        commands.exec();
+        commands.eval(STORE_CAPTION_TOKEN, ScriptOutputType.INTEGER, new String[] { key },
+                recordId, caption, Long.toString(expirySeconds));
 
         return token;
     }
@@ -84,16 +96,10 @@ public class RedisStorageService extends RedisAwareCommunicator {
     public Boolean validateSingleUseCaptionToken(String token, String recordId, String caption) {
         String key = "captions:" + token + ":singleusetoken";
         RedisCommands<String, String> commands = connection.sync();
-        Boolean keyExist = commands.exists(key) == 1;
-        if (keyExist) {
-            Map <String, String> data = commands.hgetall(key);
-            if (data.get("recordId").equals(recordId) && data.get("caption").equals(caption)) {
-                commands.del(key);
-                return true;
-            }
-        }
+        Long deleted = commands.eval(CONSUME_CAPTION_TOKEN, ScriptOutputType.INTEGER, new String[] { key },
+                recordId, caption);
 
-        return false;
+        return deleted != null && deleted == 1;
     }
 
     public void recordMeetingInfo(String meetingId, Map<String, String> info) {
@@ -178,6 +184,46 @@ public class RedisStorageService extends RedisAwareCommunicator {
         RedisCommands<String, String> commands = connection.sync();
         result = commands.hmset(key, info);
         return result;
+    }
+
+    // Lists the jobs in the Resque queues named with ARGV[1] as a prefix, and
+    // what every Resque worker is running. Resque's keys start with "resque:".
+    private static final String READ_RESQUE_JOBS = String.join("\n",
+            "local prefix = ARGV[1]",
+            "local queued = {}",
+            "for _, queue in ipairs(redis.call('SMEMBERS', 'resque:queues')) do",
+            "  if string.sub(queue, 1, #prefix) == prefix then",
+            "    for _, job in ipairs(redis.call('LRANGE', 'resque:queue:' .. queue, 0, -1)) do",
+            "      queued[#queued + 1] = job",
+            "    end",
+            "  end",
+            "end",
+            "local running = {}",
+            "for _, worker in ipairs(redis.call('SMEMBERS', 'resque:workers')) do",
+            "  local job = redis.call('GET', 'resque:worker:' .. worker)",
+            "  if job then running[#running + 1] = job end",
+            "end",
+            "return {queued, running}");
+
+    /**
+     * Reads the jobs queued in the Resque queues whose names start with
+     * queuePrefix, and the jobs Resque's workers are running. One script
+     * reads both, and Redis runs a script atomically, so a job a worker
+     * queues for the next step before it finishes the current one is seen
+     * in one place or the other.
+     */
+    public ResqueJobs readResqueJobs(String queuePrefix) {
+        RedisCommands<String, String> commands = connection.sync();
+        List<Object> result = commands.eval(READ_RESQUE_JOBS, ScriptOutputType.MULTI, new String[0], queuePrefix);
+        return new ResqueJobs(strings(result.get(0)), strings(result.get(1)));
+    }
+
+    private static List<String> strings(Object list) {
+        List<String> out = new ArrayList<>();
+        for (Object o : (List<?>) list) {
+            out.add((String) o);
+        }
+        return out;
     }
 
     public Boolean checkConnectionStatusBasic() {

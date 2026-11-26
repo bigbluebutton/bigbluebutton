@@ -1,0 +1,30 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A breakout room's recording says which meeting it came from, with its
+# sequence and freeJoin; its parent's lists the rooms' record IDs.
+id: getRecordings.response.breakouts
+title: getRecordings describes a breakout room and its parent
+endpoint: getRecordings
+class: contract
+tags: [ci]
+requires: [recordings-fs]
+steps:
+  - call: getRecordings
+    params: {recordID: aaf6466158b3f54add039d90754c86b695f52222-1700018011301}
+    expect:
+      returncode: SUCCESS
+      xpath:
+        /response/recordings/recording/isBreakout: "true"
+        /response/recordings/recording/name: Room 1
+        /response/recordings/recording/breakout/parentId: 18e5f907ce98e6c297471554522029c6118e2aff-1700018000000
+        /response/recordings/recording/breakout/sequence: "1"
+        /response/recordings/recording/breakout/freeJoin: "true"
+        /response/recordings/recording/breakoutRooms: {absent: true}
+  - call: getRecordings
+    params: {recordID: 18e5f907ce98e6c297471554522029c6118e2aff-1700018000000}
+    expect:
+      returncode: SUCCESS
+      xpath:
+        /response/recordings/recording/isBreakout: "false"
+        /response/recordings/recording/breakoutRooms/breakoutRoom: {count: 2}
+        /response/recordings/recording/breakoutRooms/breakoutRoom[1]: aaf6466158b3f54add039d90754c86b695f52222-1700018011301
+        /response/recordings/recording/breakoutRooms/breakoutRoom[2]: e628f5f97465b84a9a43cd4d1ff2bdf7e97a3dad-1700018011301

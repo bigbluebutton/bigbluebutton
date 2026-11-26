@@ -1,7 +1,7 @@
 # Same Hasura version as build/packages-template/bbb-graphql-server/build.sh
 FROM hasura/graphql-engine:v2.49.3-ce.cli-migrations-v3@sha256:d3889fe021838f1a200aaeac7c57b9c0245e46990305fa92e73c4d9c65676958 AS hasura
 
-FROM ubuntu:24.04@sha256:68ee22004a9109b44973313b02ff7b1de250f1de0f5ecb628d73f579aaff33ac
+FROM ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852
 
 # Libraries of the engine as in opts-noble.sh; netcat for Hasura's entrypoint; netbase for
 # /etc/protocols, without which the engine makes no outbound HTTP call (the auth hook)
@@ -14,9 +14,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends libpq5 libkrb5-
 COPY --from=hasura /usr/bin/graphql-engine /usr/bin/hasura-cli /bin/docker-entrypoint.sh /usr/bin/
 COPY bbb_schema.sql /usr/share/bbb-graphql-server/
 COPY metadata /usr/share/bbb-graphql-server/metadata
-# Read the BigBlueButton database URL from env like the default database
-RUN sed -i 's|database_url: postgres://bbb_hasura.*|database_url: { from_env: HASURA_GRAPHQL_BBB_DATABASE_URL }|' \
-    /usr/share/bbb-graphql-server/metadata/databases/databases.yaml
 
 # Defaults of build/packages-template/bbb-graphql-server/hasura-config.env and the systemd unit
 ENV HGE_BINARY=graphql-engine \

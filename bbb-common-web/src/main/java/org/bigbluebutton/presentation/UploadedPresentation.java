@@ -21,6 +21,9 @@ package org.bigbluebutton.presentation;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 import org.apache.commons.io.FilenameUtils;
 
 public final class UploadedPresentation {
@@ -46,6 +49,9 @@ public final class UploadedPresentation {
   private long maxPageConversionTime;
 
   private boolean defaultPresentation;
+  private boolean systemUpload = false;
+  // Page ids of this upload, in page order. Registered once: minted, or adopted from the conversion cache.
+  private volatile List<String> pageIds = null;
 
   public UploadedPresentation(String podId,
                               String meetingId,
@@ -225,6 +231,14 @@ public final class UploadedPresentation {
     return defaultPresentation;
   }
 
+  public boolean isSystemUpload() {
+    return systemUpload;
+  }
+
+  public void setSystemUpload(boolean systemUpload) {
+    this.systemUpload = systemUpload;
+  }
+
   public String getFilenameConverted() {
     if (filenameConverted != null) {
       return filenameConverted;
@@ -245,6 +259,42 @@ public final class UploadedPresentation {
   public void setMaxPageConversionTime(long maxPageConversionTime) {
     if (maxPageConversionTime <= 0) maxPageConversionTime = 30L;
     this.maxPageConversionTime = maxPageConversionTime;
+  }
+
+  /** Mints one new page id (UUID v4) per page. Throws if the ids were already registered. */
+  public void mintPageIds(int numberOfPages) {
+    List<String> ids = new ArrayList<>(numberOfPages);
+    for (int i = 0; i < numberOfPages; i++) {
+      ids.add(UUID.randomUUID().toString());
+    }
+    registerPageIds(ids);
+  }
+
+  /** Registers ids generated elsewhere (a conversion cache restore), in page order. Throws if already registered. */
+  public void adoptPageIds(List<String> ids) {
+    registerPageIds(new ArrayList<>(ids));
+  }
+
+  private synchronized void registerPageIds(List<String> ids) {
+    if (pageIds != null) {
+      throw new IllegalStateException("Page ids of presentation " + id + " were already registered");
+    }
+    pageIds = Collections.unmodifiableList(ids);
+  }
+
+  /** Id of page num (1-based). Throws if no id was registered for it. */
+  public String pageId(int num) {
+    List<String> ids = pageIds;
+    if (ids == null || num < 1 || num > ids.size()) {
+      throw new IllegalStateException("No page id for page " + num + " of presentation " + id);
+    }
+    return ids.get(num - 1);
+  }
+
+  /** Page ids in page order; empty before they are registered. */
+  public List<String> getPageIds() {
+    List<String> ids = pageIds;
+    return ids == null ? Collections.emptyList() : ids;
   }
 
   public long getMaxTotalConversionTime() {
