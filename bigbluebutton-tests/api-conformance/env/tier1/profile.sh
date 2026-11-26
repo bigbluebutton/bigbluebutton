@@ -4,6 +4,8 @@
 # ../bbb-web/profiles/NAME.properties: render.sh appends it to the stack's
 # bbb-web.properties, where the last value of a key wins, and bbb-web is
 # restarted, and akka-apps too when the switch changes a setting it reads.
+# NAME.akka.conf, if there is one, is appended to akka-apps' config the
+# same way.
 #
 #   profile.sh NAME      apply a profile
 #   profile.sh default   Tier 1's own settings
@@ -79,12 +81,16 @@ if [ "$name" = "$current" ] && [ "$started" -ge "$written" ] && [ ! -e "$pending
 	exit 0
 fi
 
-# akka-apps reads one of bbb-web's settings at startup
-# (SystemConfiguration.scala): a switch that changes it restarts akka-apps
-# too, and until it has been, a later switch does it. The last value of a
-# key wins.
+# akka-apps reads its own config, which a profile can add to
+# (NAME.akka.conf), and one of bbb-web's settings
+# (SystemConfiguration.scala), at startup: a switch that changes either
+# restarts akka-apps too, and until it has been, a later switch does it.
+# The last value of a key wins.
 akka_reads() {
-	grep -E '^clientSettingsOverrideStrictValidation=' "$state/conform/bbb-web.properties" 2>/dev/null | tail -n 1 || true
+	{
+		grep -E '^clientSettingsOverrideStrictValidation=' "$state/conform/bbb-web.properties" 2>/dev/null | tail -n 1 || true
+		cat "$state/conform/bbb-apps-akka.conf" 2>/dev/null || true
+	} | cksum
 }
 before=$(akka_reads)
 # The record follows the file, so a switch that fails part way is retried

@@ -1,0 +1,9 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.plugins.load-failure-no-name
+target bbb-web
+
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.pluginProp
+$.core.body.props.pluginProp['${sinkUrl}/${uid}/fixtures/plugins/no-name.json'].loadFailureReason "Plugin Manifest without a plugin name, ignoring. For more information, see bbb-web"
+$.core.body.props.pluginProp['${sinkUrl}/${uid}/fixtures/plugins/no-name.json'].loadFailureSource "bbb-web"
+$.core.body.props.pluginProp['${sinkUrl}/${uid}/fixtures/plugins/no-name.json'].manifest.content {}
+$.core.body.props.pluginProp['${sinkUrl}/${uid}/fixtures/plugins/no-name.json'].manifest.url "${sinkUrl}/${uid}/fixtures/plugins/no-name.json"

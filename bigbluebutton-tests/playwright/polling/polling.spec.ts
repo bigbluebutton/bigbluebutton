@@ -109,6 +109,14 @@ test.describe.parallel('Polling', { tag: '@ci' }, () => {
       await polling.parentheticalQuestionTypedResponse();
     });
 
+    test('Footer text is not an answer option - issue 24230', async () => {
+      await polling.footerTextNotAnOption();
+    });
+
+    test('Answers laid out in a grid', { tag: '@nightly' }, async () => {
+      await polling.answersInGrid();
+    });
+
     test('Hiding pools - Poll anywhere in the slide', async () => {
       await polling.pollAnywhereSlide();
     });

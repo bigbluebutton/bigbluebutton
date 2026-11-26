@@ -1,0 +1,25 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A recorded meeting that expires leaves the same marker as one that is
+# ended (end.markers.recorded): bbb-web writes it when akka-apps reports
+# the meeting ended, for whatever reason. With
+# meetingExpireIfNoUserJoinedInMinutes=0 the meeting ends at akka-apps'
+# first audit, about 5 seconds in (create.expiry.not-joined).
+id: end.markers.expired
+title: An expired recorded meeting leaves the recorded marker
+endpoint: end
+class: compat
+tags: [ci]
+requires: [akka, fs]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Markers, record: "true", meetingExpireIfNoUserJoinedInMinutes: "0"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - fs: {path: "recording/status/recorded/${intId}.done", within: 30s}
+    expect: {exists: true}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}
