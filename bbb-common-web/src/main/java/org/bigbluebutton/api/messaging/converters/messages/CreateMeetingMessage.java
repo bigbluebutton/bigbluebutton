@@ -31,6 +31,7 @@ public class CreateMeetingMessage {
 	public final Boolean notifyRecordingIsOn;
 	public final String presentationUploadExternalDescription;
 	public final String presentationUploadExternalUrl;
+	public final String persistentStateUrl;
 	public final Long createTime;
 	public final String createDate;
 	public final Map<String, String> metadata;
@@ -49,6 +50,7 @@ public class CreateMeetingMessage {
 						Boolean notifyRecordingIsOn,
 						String presentationUploadExternalDescription,
 						String presentationUploadExternalUrl,
+						String persistentStateUrl,
 						Long createTime, String createDate, Map<String, String> metadata) {
 		this.id = id;
 		this.externalId = externalId;
@@ -73,6 +75,7 @@ public class CreateMeetingMessage {
 		this.notifyRecordingIsOn = notifyRecordingIsOn;
 		this.presentationUploadExternalDescription = presentationUploadExternalDescription;
 		this.presentationUploadExternalUrl = presentationUploadExternalUrl;
+		this.persistentStateUrl = persistentStateUrl;
 		this.createTime = createTime;
 		this.createDate = createDate;
 		this.metadata = metadata;
