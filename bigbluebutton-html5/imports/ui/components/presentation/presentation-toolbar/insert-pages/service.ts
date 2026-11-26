@@ -1,6 +1,7 @@
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { v4 as uuid } from 'uuid';
+import type { ApolloError } from '@apollo/client';
 import Auth from '/imports/ui/services/auth';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
@@ -19,10 +20,20 @@ export interface InsertRequest {
   done: Promise<void>;
 }
 
+// What the upload service tells of an upload that failed (media-sharing/presentation/service.js).
 interface UploadState {
   error?: boolean;
+  // the server recorded the refusal of the token request and shows it
   reported?: boolean;
+  // the HTTP status of the answer; 408 when the token request got no answer, none when the upload got no answer
+  status?: number;
+  // bbb-web answered the upload with an error other than 413 and 504
+  uploadRequestFailed?: boolean;
 }
+
+// How a request ended for the presenter: done, failed for sure, or ended without knowing whether the server
+// got it (the server then reports the outcome, if it got it).
+type RequestOutcome = 'done' | 'failed' | 'notConfirmed';
 
 const presentationConfig = () => window.meetingClientSettings.public.presentation;
 
@@ -48,6 +59,32 @@ export const showInsertError = (filename: string, tooLarge = false): void => {
   );
 };
 
+// The warning of an insert that the client could not confirm: the request or the upload got no answer, so the
+// server may still apply the insert, and then notifies it.
+export const showInsertNotConfirmed = (filename: string): void => {
+  notify(
+    React.createElement(FormattedMessage, {
+      id: 'app.presentation.insertPages.error.notConfirmed',
+      values: { filename },
+    }),
+    'error',
+  );
+};
+
+// The warning of an upload that failed, unless the server reports the failure itself.
+const warnOfUpload = (filename: string, upload: UploadState) => {
+  if (!upload.error || upload.reported) return;
+  // the file was not taken: the token request got no answer, or bbb-web refused the upload
+  if (upload.uploadRequestFailed || upload.status === 408) {
+    showInsertError(filename);
+    return;
+  }
+  // bbb-web refused the upload for its size and notified the failure itself
+  if (upload.status === 413) return;
+  // no answer, or a gateway timeout: bbb-web may still have the file
+  showInsertNotConfirmed(filename);
+};
+
 // Asks the server for a blank page at position, the size of the page before it. seenTotalPages is the
 // totalPages read together with position.
 export const insertBlankPage = (
@@ -59,28 +96,31 @@ export const insertBlankPage = (
   const requested = new Promise<void>((resolve) => {
     let settled = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
-    const settle = (failed: boolean) => {
+    const settle = (outcome: RequestOutcome) => {
       if (settled) return;
       settled = true;
       clearTimeout(timer);
-      if (failed) showInsertError(BLANK_PAGE_FILENAME);
+      if (outcome === 'failed') showInsertError(BLANK_PAGE_FILENAME);
+      if (outcome === 'notConfirmed') showInsertNotConfirmed(BLANK_PAGE_FILENAME);
       resolve();
     };
     // An answer that arrives after this is ignored: the warning was already shown.
     timer = setTimeout(() => {
       logger.warn({ logCode: 'presentation_insert_blank_page_timeout', extraInfo: { presentationId } },
         'The request for a blank page got no answer in time');
-      settle(true);
+      settle('notConfirmed');
     }, PresentationUploadService.TOKEN_TIMEOUT);
     apolloContextHolder.getClient().mutate({
       mutation: PRESENTATION_INSERT_BLANK_PAGE,
       variables: {
         presentationId, position, seenTotalPages, navigate,
       },
-    }).then(() => settle(false), (error: unknown) => {
+    }).then(() => settle('done'), (error: unknown) => {
       logger.error({ logCode: 'presentation_insert_blank_page_error', extraInfo: { presentationId, error } },
         'The request for a blank page failed');
-      settle(true);
+      // An error answered by GraphQL refused the request before it reached the server; any other error (the
+      // connection dropped) leaves it unknown.
+      settle((error as ApolloError)?.graphQLErrors?.length ? 'failed' : 'notConfirmed');
     });
   });
   return { requested, done: requested };
@@ -115,8 +155,7 @@ export const insertPages = (
     false,
     Auth.meetingID,
     presentationConfig().uploadEndpoint,
-    // A refusal the server recorded is shown by the server; anything else is shown here.
-    (upload: UploadState) => { if (upload.error && !upload.reported) showInsertError(file.name); },
+    (upload: UploadState) => warnOfUpload(file.name, upload),
     () => {},
     () => {},
     false,
