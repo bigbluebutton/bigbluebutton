@@ -11,7 +11,7 @@
     "noEmit": true,
     "resolveJsonModule":true,
     "skipLibCheck": true,
-    "types": [],
+    "types": ["node"],
     "tsBuildInfoFile": "./node_modules/.cache/.tsbuildinfo",
 
     /* Strict Type-Checking Options */
@@ -39,6 +39,7 @@
   },
   "exclude": [
     "./dist/*",
+    "./vite.config.js",
     "./.meteor/**",
     "./packages/**",
     "node_modules",

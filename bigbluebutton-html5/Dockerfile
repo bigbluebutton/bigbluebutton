@@ -8,18 +8,7 @@ RUN CI=true npm ci
 COPY . .
 
 # Same steps as build/packages-template/bbb-html5/build.sh
-RUN sed -i "s/HTML5_CLIENT_VERSION/${CLIENT_BUILD}/g" private/config/settings.yml \
- && DISABLE_ESLINT_PLUGIN=true npm run build-safari && npm run build
-# Rename all safari bundles to the hash of the last bundle
-WORKDIR /app/dist
-RUN HASH=$(ls | grep -Eo 'bundle\.[a-f0-9]{20}\.js' | head -n 1 | grep -Eo '[a-f0-9]{20}'); \
-    if [ -z "$HASH" ]; then echo "Bundle hash not found."; else \
-      for FILE in *.safari.js *.safari.js.map; do \
-        [[ "$FILE" == *"$HASH"* ]] && continue; \
-        mv "$FILE" "${FILE%%.safari.js*}.${HASH}.safari.js${FILE#*.safari.js}"; \
-      done; \
-    fi \
- && sed -i "s/?v=VERSION/?v=${CLIENT_BUILD}/g" index.html stylesheets/fonts.css
+RUN CLIENT_BUILD="${CLIENT_BUILD}" ./build-client.sh
 
 FROM nginxinc/nginx-unprivileged:1.30.6-alpine@sha256:f5116ed4606f3eb015dd4a8e28cb9b351476dc0ad4bc6e9f93b19cec130cdf03
 

@@ -90,7 +90,7 @@ const UserNameWithSubs: React.FC<UserNameWithSubsProps> = ({
 
   // Labels are wrapped in <span> rather than pushed as bare strings: a bare text
   // node rendered as a sibling of element nodes is what browser translators
-  // rewrite, desyncing React and crashing the list on re-render (see main.html).
+  // rewrite, desyncing React and crashing the list on re-render (see index.html).
   if (subjectUser.presenter && LABEL.presenter) {
     subs.push(<span key="bbb-presenter">{intl.formatMessage(intlMessages.presenter)}</span>);
   }

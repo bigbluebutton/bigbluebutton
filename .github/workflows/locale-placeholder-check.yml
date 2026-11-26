@@ -4,7 +4,7 @@ on:
     types: [opened, synchronize, reopened]
     paths:
       - "bigbluebutton-html5/public/locales/*.json"
-      - "bigbluebutton-html5/scripts/check-locale-placeholders.js"
+      - "bigbluebutton-html5/scripts/check-locale-placeholders.cjs"
       - ".github/workflows/locale-placeholder-check.yml"
 permissions:
   contents: read
@@ -32,4 +32,4 @@ jobs:
             | tar -x -C "$RUNNER_TEMP/base-locales" --strip-components=3
       - name: check translation placeholders against en.json
         working-directory: bigbluebutton-html5
-        run: node scripts/check-locale-placeholders.js --base "$RUNNER_TEMP/base-locales" public/locales
+        run: node scripts/check-locale-placeholders.cjs --base "$RUNNER_TEMP/base-locales" public/locales

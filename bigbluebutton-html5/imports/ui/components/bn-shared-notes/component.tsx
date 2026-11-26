@@ -450,7 +450,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
       <style>
         {`
           /* BlockNote ships Inter and hardcodes it; inherit the client font
-             instead (body in main.html) so Shared Notes matches the rest of the
+             instead (body in index.html) so Shared Notes matches the rest of the
              UI. Both selectors are needed: '.bn-root' (toolbar and menus) sets
              the font from a '--bn-font-family' default, and '.bn-default-styles'
              (the editor content) sets Inter on its own. 'inherit' also follows

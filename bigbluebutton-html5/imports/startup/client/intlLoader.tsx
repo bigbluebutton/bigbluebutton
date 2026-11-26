@@ -78,7 +78,7 @@ const buildFetchLocale = <T = LocaleJson>(
     // the shared deadline instead of stranding the client on the loading screen.
     // Aborting attemptController (not the outer signal) keeps the outer/unmount
     // abort distinguishable from the deadline timeout in the catch below. We do not
-    // use AbortSignal.any(): Safari 16 support is required (see index.html).
+    // use AbortSignal.any(): not available on Safari 14/15 (still supported via unminified twin).
     const attemptController = new AbortController();
     const onOuterAbort = () => attemptController.abort();
     signal.addEventListener('abort', onOuterAbort, { once: true });
