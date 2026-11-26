@@ -13,6 +13,11 @@ public:
     # Per session: userdata-bbb_pre_flight.
     preFlight:
       enabled: false
+      # Room mode panel beside the setup panel, for a moderator entering a room
+      # nobody has configured yet. Needs preFlight.enabled.
+      # Per session: userdata-bbb_pre_flight_room_modes.
+      roomModes:
+        enabled: false
     # Set to false disables the listen only option in audio modal.
     listenOnlyMode: true
     forceListenOnly: false
