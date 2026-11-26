@@ -91,9 +91,11 @@ case "$1" in
       echo "Error: FreeSWITCH not installed"
     fi
 
-    systemctl enable bbb-rap-resque-worker.service
-    systemctl enable bbb-rap-starter.service
-    systemctl enable bbb-rap-caption-inbox.service
+    # Start, not restart: a running worker keeps the job it is processing. A unit that was
+    # stopped or had failed before the upgrade would otherwise stay down until the next restart.
+    startService bbb-rap-resque-worker.service || echo "bbb-rap-resque-worker.service could not be registered or started"
+    startService bbb-rap-starter.service || echo "bbb-rap-starter.service could not be registered or started"
+    startService bbb-rap-caption-inbox.service || echo "bbb-rap-caption-inbox.service could not be registered or started"
   ;;
   
   *)
