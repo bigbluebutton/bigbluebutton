@@ -1,6 +1,8 @@
 import { expect, Page as PlaywrightPage, Request, WebSocketRoute } from '@playwright/test';
+import fs from 'fs';
 import path from 'path';
 
+import { Create } from '../breakout/create';
 import {
   ELEMENT_WAIT_EXTRA_LONG_TIME,
   ELEMENT_WAIT_LONGER_TIME,
@@ -8,8 +10,7 @@ import {
   UPLOAD_PDF_WAIT_TIME,
 } from '../core/constants';
 import { elements as e } from '../core/elements';
-import { Page } from '../core/page';
-import { MultiUsers } from '../user/multiusers';
+import { applyClientSettingsOverridesToContext, ClientSettingsOverrides, Page } from '../core/page';
 import { GeneratedFile, getCurrentSlideAspectRatio, getCurrentSlideSvg, uploadSinglePresentation } from './util';
 
 // The upload POST of a presentation, after the token was received (service.js: <endpoint>/<token>/upload).
@@ -25,6 +26,7 @@ const NO_MORE_TOASTS_TIME = 3000;
 const successText = (count: number, position: number) =>
   `${count} ${count === 1 ? 'slide was' : 'slides were'} inserted at position ${position}`;
 const failedText = (filename: string) => `${filename}: ${e.insertPagesFailedLabel}`;
+const notConfirmedText = (filename: string) => `${filename}: ${e.insertPagesNotConfirmedLabel}`;
 
 type FileToInsert = string | GeneratedFile;
 
@@ -45,7 +47,8 @@ interface ProbeMark {
 // The behavior the GraphQL socket route gives to each mutation of the insert.
 type MutationMode = 'pass' | 'drop' | 'error' | 'hold';
 
-export class InsertPages extends MultiUsers {
+// Extends the breakout helpers to open a breakout room as its presenter.
+export class InsertPages extends Create {
   private uploadPosts = new Map<Page, Request[]>();
 
   private socketMode: { token: MutationMode; blank: MutationMode } = { token: 'pass', blank: 'pass' };
@@ -53,6 +56,10 @@ export class InsertPages extends MultiUsers {
   private heldMessages: (() => void)[] = [];
 
   private tokenMutationsSent = 0;
+
+  // When set, the route of the GraphQL socket drops the server's error notifications of the insert, so that any
+  // warning left on the page is the client's own.
+  private dropServerInsertErrors = false;
 
   private pageErrors: string[] = [];
 
@@ -81,7 +88,10 @@ export class InsertPages extends MultiUsers {
         }
         server.send(message);
       });
-      server.onMessage((message) => webSocket.send(message));
+      server.onMessage((message) => {
+        if (this.dropServerInsertErrors && message.toString().includes('app.presentation.insertPages.error.')) return;
+        webSocket.send(message);
+      });
     });
   }
 
@@ -687,6 +697,7 @@ export class InsertPages extends MultiUsers {
     await InsertPages.expectButtonDisabled(this.modPage, 'should disable the button while the upload is held');
     await this.modPage.page.waitForTimeout(1000);
     await InsertPages.expectButtonDisabled(this.modPage, 'should keep the button disabled while the upload is held');
+    await this.expectMenuStaysClosed();
     const since = await InsertPages.now(this.modPage);
     held.release();
 
@@ -699,6 +710,25 @@ export class InsertPages extends MultiUsers {
     expect(enabledAt, 'should enable the button').toBeDefined();
     expect(enabledAt!, 'should enable the button before the success notification').toBeLessThan(notifiedAt!);
     await InsertPages.expectTotalSlides(this.modPage, total + 30, 'should add the 30 pages');
+    await InsertPages.openInsertMenu(this.modPage);
+    await this.modPage.press('Escape');
+  }
+
+  // A click forced on the disabled button, and Enter on it, leave the menu closed: no item can start a second insert.
+  private async expectMenuStaysClosed() {
+    const trigger = this.modPage.page.locator(e.insertPagesButton);
+    const items = [e.insertBlankPage, e.insertPagesFromFile];
+    const expectClosed = async (how: string) => {
+      await InsertPages.nextRender(this.modPage);
+      for (const item of items) {
+        await expect(this.modPage.page.locator(item), `should keep the menu closed after ${how}`).toBeHidden();
+      }
+    };
+    await trigger.click({ force: true });
+    await expectClosed('a click on the disabled button');
+    await trigger.focus();
+    await this.modPage.page.keyboard.press('Enter');
+    await expectClosed('Enter on the disabled button');
   }
 
   // ---------- Ac-B 7 ----------
@@ -893,6 +923,42 @@ export class InsertPages extends MultiUsers {
     expect(this.uploadPostCount(this.modPage), 'a blank page should send no upload from the browser').toBe(0);
   }
 
+  // ---------- breakout rooms ----------
+
+  // The presenter of a breakout room is offered the button only when allowPresentationManagementInBreakouts is on,
+  // as the other entry points of presentation management (actions-bar/media-area/container.tsx).
+  async insertButtonInBreakoutRoom(allowedInRooms: boolean, overrides?: ClientSettingsOverrides) {
+    if (!this?.userPage) throw new Error('userPage not initialized');
+    // control: the setting does not apply outside a breakout room
+    await InsertPages.waitForPresentation(this.modPage);
+
+    await this.createRoomsWith([this.userPage]);
+    if (overrides) await applyClientSettingsOverridesToContext(this.modPage.page.context(), overrides);
+    const room = new Page(this.browser, await this.joinFirstBreakoutRoomAsModerator(), this.modPage.testInfo);
+    expect(
+      await room.page.evaluate(
+        () =>
+          (window as unknown as { meetingClientSettings: { public: { app: { breakouts: Record<string, unknown> } } } })
+            .meetingClientSettings.public.app.breakouts.allowPresentationManagementInBreakouts,
+      ),
+      `the breakout room should run with allowPresentationManagementInBreakouts=${allowedInRooms}`,
+    ).toBe(allowedInRooms);
+
+    // control: the moderator is the room's presenter and the toolbar of the presentation is shown
+    await room.hasElement(e.whiteboard, 'should display the whiteboard in the room', ELEMENT_WAIT_LONGER_TIME);
+    await room.hasElement(
+      e.nextSlide,
+      'should show the slide controls to the room presenter',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    if (allowedInRooms) {
+      await room.hasElement(e.insertPagesButton, 'should offer the room presenter to insert pages');
+    } else {
+      await room.wasRemoved(e.insertPagesButton, 'should not offer the room presenter to insert pages');
+    }
+    await room.page.close();
+  }
+
   // ---------- Ac-B 21 ----------
 
   // The token request gets no answer: after 5 s, the failed warning, no POST, and the button enabled.
@@ -974,8 +1040,9 @@ export class InsertPages extends MultiUsers {
     this.expectNoPageErrors();
   }
 
-  // The upload POST fails: the failed warning and the button enabled; the server stops the insert at its
-  // request deadline and notifies the timeout.
+  // The upload POST fails without an answer: the client cannot tell whether the file arrived, so it warns that the
+  // insert could not be confirmed and enables the button; the server stops the insert at its request deadline and
+  // notifies the timeout. The client never says the pages could not be inserted.
   async uploadPostFails() {
     await InsertPages.waitForPresentation(this.modPage);
     const total = await InsertPages.totalSlides(this.modPage);
@@ -985,8 +1052,8 @@ export class InsertPages extends MultiUsers {
     await InsertPages.insertFile(this.modPage, e.insertThreePagesFileName);
     await InsertPages.expectToast(
       this.modPage,
-      failedText(e.insertThreePagesFileName),
-      'should warn that the upload failed',
+      notConfirmedText(e.insertThreePagesFileName),
+      'should warn that the insert could not be confirmed',
       ELEMENT_WAIT_LONGER_TIME,
     );
     await InsertPages.expectButtonEnabled(this.modPage, 'should enable the button after the failed upload');
@@ -997,10 +1064,97 @@ export class InsertPages extends MultiUsers {
       SERVER_REQUEST_DEADLINE + UPLOAD_PDF_WAIT_TIME,
     );
     expect(await InsertPages.totalSlides(this.modPage), 'should keep the pages of the target').toBe(total);
+    expect(
+      await InsertPages.toastsWith(this.modPage, failedText(e.insertThreePagesFileName)),
+      'should not say the pages could not be inserted',
+    ).toHaveLength(0);
     this.expectNoPageErrors();
   }
 
-  // The blank-page mutation answered with an error, or not answered: after it, the failed warning of blank.pdf.
+  // nginx answers 504 while bbb-web still takes the file: the client warns that the insert could not be confirmed,
+  // and the server then applies it and notifies it; nothing says the pages could not be inserted.
+  async uploadAnswered504ThenApplied() {
+    await InsertPages.waitForPresentation(this.modPage);
+    const total = await InsertPages.totalSlides(this.modPage);
+    await InsertPages.goToSlide(this.modPage, 1);
+    await InsertPages.installProbe(this.modPage);
+    await this.modPage.page.route(UPLOAD_POST_URL, async (route) => {
+      // The intercepted request does not carry the bytes of the file, so the same form is sent again with them.
+      const form = route.request().postData() ?? '';
+      const field = (name: string) => form.match(new RegExp(`name="${name}"\\r\\n\\r\\n([^\\r]*)\\r\\n`))?.[1] ?? '';
+      const fields = ['conference', 'room', 'temporaryPresentationId', 'pod_id', 'is_downloadable', 'current'];
+      const sent = await this.modPage.page.request.post(route.request().url(), {
+        multipart: {
+          ...Object.fromEntries(fields.map((name) => [name, field(name)])),
+          fileUpload: {
+            name: e.insertThreePagesFileName,
+            mimeType: 'application/pdf',
+            buffer: fs.readFileSync(path.join(__dirname, `../core/media/${e.insertThreePagesFileName}`)),
+          },
+        },
+      });
+      expect(sent.status(), 'bbb-web should take the file').toBe(200);
+      await route.fulfill({ status: 504, contentType: 'text/html', body: '504 Gateway Time-out' });
+    });
+
+    await InsertPages.insertFile(this.modPage, e.insertThreePagesFileName);
+    await InsertPages.expectToastSeen(
+      this.modPage,
+      notConfirmedText(e.insertThreePagesFileName),
+      'should warn that the insert could not be confirmed',
+    );
+    await InsertPages.expectTotalSlides(this.modPage, total + 3, 'the server should insert the 3 pages');
+    await InsertPages.expectToastSeen(this.modPage, successText(3, 2), 'the server should notify the insert');
+    await this.modPage.page.waitForTimeout(NO_MORE_TOASTS_TIME);
+    expect(
+      await InsertPages.toastsWith(this.modPage, failedText(e.insertThreePagesFileName)),
+      'should not say the pages could not be inserted',
+    ).toHaveLength(0);
+    this.expectNoPageErrors();
+  }
+
+  // A file at the upload limit passes the client's check of its size, but its upload, a little larger with the form
+  // around it, is refused by bbb-web (413), which notifies the failure itself: with that notification dropped on
+  // the way, the page shows no warning of the client.
+  async fileAtTheLimitSilentOnClient() {
+    await InsertPages.waitForPresentation(this.modPage);
+    const total = await InsertPages.totalSlides(this.modPage);
+    const maxSize = await this.modPage.page.evaluate(
+      () =>
+        (
+          window as unknown as {
+            meetingClientSettings: { public: { presentation: { mirroredFromBBBCore: { uploadSizeMax: number } } } };
+          }
+        ).meetingClientSettings.public.presentation.mirroredFromBBBCore.uploadSizeMax,
+    );
+    const file: GeneratedFile = {
+      name: 'atTheLimit.pdf',
+      mimeType: 'application/pdf',
+      buffer: Buffer.concat([Buffer.from('%PDF-1.4\n'), Buffer.alloc(maxSize - 9, 0x25)]),
+    };
+    await InsertPages.installProbe(this.modPage);
+    this.dropServerInsertErrors = true;
+    const answered = this.modPage.page.waitForResponse(
+      (response) => UPLOAD_POST_PATH.test(new URL(response.url()).pathname),
+      { timeout: UPLOAD_PDF_WAIT_TIME },
+    );
+
+    // a file of 30 MB takes a while to reach the browser
+    await InsertPages.insertFile(this.modPage, file, UPLOAD_PDF_WAIT_TIME);
+    expect((await answered).status(), 'bbb-web should refuse the upload over the limit with 413').toBe(413);
+    await InsertPages.expectButtonEnabled(this.modPage, 'should enable the button after the refusal');
+    await this.modPage.page.waitForTimeout(NO_MORE_TOASTS_TIME);
+    expect(
+      await InsertPages.toastsWith(this.modPage, file.name),
+      'should show no warning of the client for a refusal the server reports',
+    ).toHaveLength(0);
+    this.dropServerInsertErrors = false;
+    expect(await InsertPages.totalSlides(this.modPage), 'should keep the pages of the target').toBe(total);
+    this.expectNoPageErrors();
+  }
+
+  // The blank-page mutation answered with an error: the failed warning of blank.pdf. Not answered: the client
+  // cannot tell whether the request arrived, so it warns that the insert could not be confirmed.
   async blankPageMutationFails(mode: 'error' | 'drop') {
     await InsertPages.waitForPresentation(this.modPage);
     const total = await InsertPages.totalSlides(this.modPage);
@@ -1010,8 +1164,10 @@ export class InsertPages extends MultiUsers {
     await InsertPages.insertBlankPage(this.modPage);
     await InsertPages.expectToast(
       this.modPage,
-      failedText(e.blankPageFileName),
-      'should warn that the blank page could not be inserted',
+      mode === 'error' ? failedText(e.blankPageFileName) : notConfirmedText(e.blankPageFileName),
+      mode === 'error'
+        ? 'should warn that the blank page could not be inserted'
+        : 'should warn that the insert of the blank page could not be confirmed',
       2 * CLIENT_REQUEST_TIMEOUT,
     );
     if (mode === 'drop') {
@@ -1025,8 +1181,9 @@ export class InsertPages extends MultiUsers {
     this.expectNoPageErrors();
   }
 
-  // The blank-page mutation reaches the server only after the client gave up: one warning, then the server
-  // applies the insert and notifies it; the late answer brings no second warning.
+  // The blank-page mutation reaches the server only after the client gave up: the warning that the insert could
+  // not be confirmed, then the server applies the insert and notifies it. Nothing said it failed, and the late
+  // answer brings no second warning.
   async blankPageMutationAnsweredLate() {
     await InsertPages.waitForPresentation(this.modPage);
     const total = await InsertPages.totalSlides(this.modPage);
@@ -1036,8 +1193,8 @@ export class InsertPages extends MultiUsers {
     await InsertPages.insertBlankPage(this.modPage);
     await InsertPages.expectToast(
       this.modPage,
-      failedText(e.blankPageFileName),
-      'should warn that the blank page could not be inserted',
+      notConfirmedText(e.blankPageFileName),
+      'should warn that the insert of the blank page could not be confirmed',
       2 * CLIENT_REQUEST_TIMEOUT,
     );
     expect(Date.now() - startedAt, 'should warn after the 5 s of the request').toBeGreaterThanOrEqual(
@@ -1052,9 +1209,13 @@ export class InsertPages extends MultiUsers {
     await InsertPages.expectToastSeen(this.modPage, successText(1, 2), 'the server should notify the insert');
     await this.modPage.page.waitForTimeout(NO_MORE_TOASTS_TIME);
     expect(
-      await InsertPages.toastsWith(this.modPage, failedText(e.blankPageFileName)),
+      await InsertPages.toastsWith(this.modPage, notConfirmedText(e.blankPageFileName)),
       'the late answer should bring no second warning',
     ).toHaveLength(1);
+    expect(
+      await InsertPages.toastsWith(this.modPage, failedText(e.blankPageFileName)),
+      'should not say the blank page could not be inserted',
+    ).toHaveLength(0);
     this.expectNoPageErrors();
   }
 

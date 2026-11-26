@@ -158,6 +158,51 @@ test.describe.parallel('Insert pages', { tag: '@ci' }, () => {
       await insertPages.initModPage(page, { testInfo });
       await insertPages.uploadPostFails();
     });
+
+    test('Upload POST answered 504 while the server takes the file', async ({ browser, context, page }, testInfo) => {
+      const insertPages = new InsertPages(browser, context);
+      insertPages.watchPageErrors(page);
+      await insertPages.initModPage(page, { testInfo });
+      await insertPages.uploadAnswered504ThenApplied();
+    });
+
+    test('File at the upload limit refused by the server, no warning of the client', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      const insertPages = new InsertPages(browser, context);
+      await insertPages.routeGraphqlSocket(page);
+      insertPages.watchPageErrors(page);
+      await insertPages.initModPage(page, { testInfo });
+      await insertPages.fileAtTheLimitSilentOnClient();
+    });
+  });
+
+  test.describe('Breakout rooms', () => {
+    // settings.yml ships allowPresentationManagementInBreakouts: true
+    test('Insert pages button offered to the room presenter by default', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      const insertPages = new InsertPages(browser, context);
+      await insertPages.initModPage(page, { testInfo });
+      await insertPages.initUserPage(context, { testInfo });
+      await insertPages.insertButtonInBreakoutRoom(true);
+    });
+
+    test('No insert pages button for the room presenter when allowPresentationManagementInBreakouts is false', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      const overrides = { public: { app: { breakouts: { allowPresentationManagementInBreakouts: false } } } };
+      const insertPages = new InsertPages(browser, context);
+      await insertPages.initModPage(page, { testInfo, clientSettingsOverrides: overrides });
+      await insertPages.initUserPage(context, { testInfo });
+      await insertPages.insertButtonInBreakoutRoom(false, overrides);
+    });
   });
 
   // Ac-B 44
