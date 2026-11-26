@@ -169,14 +169,18 @@ const ButtonWrapper = styled(BaseButton)`
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 
-  &:focus,
+  &:focus-visible,
   &:hover {
     outline: transparent;
     outline-style: dotted;
     outline-width: ${borderSize};
   }
 
-  &:focus {
+  &:focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  &:focus-visible {
     outline-style: solid;
   }
 
@@ -186,7 +190,7 @@ const ButtonWrapper = styled(BaseButton)`
   }
 
   &:active {
-    &:focus {
+    &:focus-visible {
       span:first-of-type::before {
         border-radius: 50%;
         outline: transparent;
@@ -396,7 +400,7 @@ const ButtonSpan = styled.span`
   }
 
   &:hover,
-  &:focus {
+  &:focus-visible {
     outline: transparent;
     outline-style: dotted;
     outline-width: ${borderSize};
@@ -406,7 +410,7 @@ const ButtonSpan = styled.span`
   }
 
   &:active,
-  &:focus {
+  &:focus-visible {
     outline: transparent;
     outline-width: ${borderSize};
     outline-style: solid;
@@ -424,7 +428,7 @@ const ButtonSpan = styled.span`
 
   &,
   &:active {
-    &:focus {
+    &:focus-visible {
       span:first-of-type::before {
         border-radius: ${borderSize};
       }
@@ -467,8 +471,8 @@ const ButtonSpan = styled.span`
   ${({ size, color }) => size === 'md' && color === 'light' && `
     color: ${colorGray};
     
-    &:focus,
-    .buttonWrapper:focus:not([aria-disabled="true"]) & {
+    &:focus-visible,
+    .buttonWrapper:focus-visible:not([aria-disabled="true"]) & {
       color: ${colorGray};
       box-shadow: 0 0 0 1px ${colorControlBorder} !important;
       background-color: ${appsGalleryOutlineColorSurface} !important;
@@ -484,13 +488,13 @@ const ButtonSpan = styled.span`
       background-color: ${colorControlActiveSurface} !important;
     }
 
-    &:focus:hover {
+    &:focus-visible:hover {
       color: ${colorControlActiveText} !important;
       box-shadow: 0 0 0 1px ${colorControlBorder} !important;
       background-color: ${appsGalleryOutlineColorSurface} !important;
     }
 
-    &:focus:active {
+    &:focus-visible:active {
       color: ${colorControlActiveText} !important;
       box-shadow: 0 0 0 1px ${colorControlBorder} !important;
       background-color: ${colorControlActiveSurface} !important;
@@ -500,14 +504,14 @@ const ButtonSpan = styled.span`
   ${({ size, color }) => size === 'md' && color === 'dark' && `
     color: ${colorWhite};
     background: none !important;
-    
-    &:focus,
-    .buttonWrapper:focus:not([aria-disabled="true"]) & {
+
+    &:focus-visible,
+    .buttonWrapper:focus-visible:not([aria-disabled="true"]) & {
       color: ${colorWhite};
       box-shadow: 0 0 0 1px ${btnDefaultGhostBorder} !important;
       background-color: ${btnDefaultGhostBg} !important;
     }
-    
+
     &:hover {
       color: hsl(0, 0%, 85%) !important;
       background-color: ${btnDefaultGhostBg} !important;
@@ -518,13 +522,13 @@ const ButtonSpan = styled.span`
       background-color: ${btnDefaultGhostActiveBg} !important;
     }
 
-    &:focus:hover {
+    &:focus-visible:hover {
       color: hsl(0, 0%, 85%) !important;
       box-shadow: 0 0 0 1px ${btnDefaultGhostBorder} !important;
       background-color: ${btnDefaultGhostBg} !important;
     }
 
-    &:focus:active {
+    &:focus-visible:active {
       color: hsl(0, 0%, 85%) !important;
       box-shadow: 0 0 0 1px ${btnDefaultGhostBorder} !important;
       background-color: ${btnDefaultGhostActiveBg} !important;

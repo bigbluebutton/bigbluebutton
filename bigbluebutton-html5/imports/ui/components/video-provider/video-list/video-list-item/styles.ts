@@ -160,7 +160,7 @@ const Video = styled.video<{
 }>`
   position: relative;
   height: 100%;
-  width: calc(100% - 1px);
+  width: 100%;
   object-fit: contain;
   background-color: ${colorBlackSurface};
   border-radius: 10px;
@@ -211,7 +211,7 @@ const BottomBar = styled.div`
   width: 100%;
   z-index: 1;
   bottom: 0;
-  padding: 1px 7px;
+  padding: 3px 7px;
   justify-content: space-between;
 `;
 

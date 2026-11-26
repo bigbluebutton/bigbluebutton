@@ -32,20 +32,17 @@ const sortPinnedStreams = (s1: StreamItem, s2: StreamItem, moderatorFirst: boole
   return getPinnedTime(s2) - getPinnedTime(s1);
 };
 
-// pin first (most recently pinned ahead), ignore connecting streams
+// pin first (most recently pinned ahead); connecting streams are treated as unpinned
 export const sortPin = (s1: StreamItem, s2: StreamItem, moderatorFirst = false) => {
-  if (s1.type === VIDEO_TYPES.CONNECTING) {
-    return 0;
-  }
-  if (s2.type === VIDEO_TYPES.CONNECTING) {
-    return 0;
-  }
-  if (s1.user?.pinned && s2.user?.pinned) {
+  const s1Pinned = s1.type !== VIDEO_TYPES.CONNECTING && !!s1.user?.pinned;
+  const s2Pinned = s2.type !== VIDEO_TYPES.CONNECTING && !!s2.user?.pinned;
+  if (s1Pinned && s2Pinned) {
     return sortPinnedStreams(s1, s2, moderatorFirst);
   }
-  if (s1.user?.pinned) {
+  if (s1Pinned) {
     return -1;
-  } if (s2.user?.pinned) {
+  }
+  if (s2Pinned) {
     return 1;
   }
   return 0;

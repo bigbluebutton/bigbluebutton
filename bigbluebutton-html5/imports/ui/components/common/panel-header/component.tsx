@@ -33,7 +33,7 @@ interface PanelHeaderProps {
    */
   onBeforeClose?: (isInAuxiliaryPanel: boolean) => void;
   /**
-   * Extra buttons rendered to the right of the MultifunctionalModeButton.
+   * Extra buttons rendered to the left of the MultifunctionalModeButton.
    * The MultifunctionalModeButton is always included automatically.
    */
   customRightButton?: React.ReactElement | null;
@@ -60,8 +60,8 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({
   const rightButton = customRightButton !== undefined
     ? (
       <>
-        {multifunctionalModeButton}
         {customRightButton}
+        {multifunctionalModeButton}
       </>
     ) : multifunctionalModeButton;
 

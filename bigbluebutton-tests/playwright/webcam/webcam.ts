@@ -219,7 +219,7 @@ export class Webcam extends Page {
     const boundingBox = await this.page.locator('video').boundingBox();
     if (!boundingBox) throw new Error('video boundingBox is null');
     const { width, height } = boundingBox;
-    await expect(width + 1, 'should the width to be the same as window width').toBe(windowWidth); // not sure why there is a difference of 1 pixel
+    await expect(width, 'should the width to be the same as window width').toBe(windowWidth);
     await expect(height, 'should the height to be the same as window height').toBe(windowHeight);
   }
 

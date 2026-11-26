@@ -52,8 +52,15 @@ export const ListItem = styled.div<ListItemProps>`
     background-color: ${listItemBgHover};
   }
 
-  &:active,
-  &:focus {
+  &:active {
+    background-color: ${listItemBgHover};
+  }
+
+  &:focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  &:focus-visible {
     outline: transparent;
     outline-width: ${borderSize};
     outline-style: solid;
