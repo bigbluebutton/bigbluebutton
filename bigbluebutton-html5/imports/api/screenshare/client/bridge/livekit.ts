@@ -176,6 +176,8 @@ export default class LiveKitScreenshareBridge {
 
   private streamId?: string;
 
+  private sessionId: number = 0;
+
   private isResyncing: boolean = false;
 
   constructor() {
@@ -636,6 +638,7 @@ export default class LiveKitScreenshareBridge {
     streamId: string,
     options: Options = { hasAudio: false, outputDeviceId: '' },
   ): Promise<void> {
+    this.sessionId += 1;
     this.streamId = streamId;
     this.role = RECV_ROLE;
     this.hasAudio = options.hasAudio || false;
@@ -734,6 +737,7 @@ export default class LiveKitScreenshareBridge {
       ...configScreenPubOpts,
     };
 
+    this.sessionId += 1;
     this.role = SEND_ROLE;
     this.hasAudio = BridgeService.streamHasAudioTrack(stream);
     this.gdmStream = stream;
@@ -776,9 +780,24 @@ export default class LiveKitScreenshareBridge {
           return () => room.localParticipant.publishTrack(track, publishOptions);
         });
 
+      // stop() or a replacement share() swaps this.gdmStream; once that happens
+      // this share must neither publish nor report a failure.
+      const isStale = () => this.gdmStream !== stream;
+
       waitForRoomConnection(this.liveKitRoom)
-        .then(() => Promise.all(publishers.map((publish) => publish())))
-        .catch(handleInitError);
+        .then(async () => {
+          if (isStale()) return;
+          await Promise.all(publishers.map((publish) => publish()));
+          // stop() ran while publishing and could not find these publications yet
+          if (isStale()) {
+            await Promise.all(
+              stream.getTracks().map((track) => room.localParticipant.unpublishTrack(track)),
+            );
+          }
+        })
+        .catch((error: Error) => {
+          if (!isStale()) handleInitError(error);
+        });
     } catch (publishError) {
       handleInitError(publishError as Error);
     }
@@ -786,12 +805,24 @@ export default class LiveKitScreenshareBridge {
 
   async stop(): Promise<void> {
     const mediaElement = document.getElementById(SCREENSHARE_VIDEO_TAG) as HTMLMediaElement;
+    const stopSessionId = this.sessionId;
+    const streamToStop = this.gdmStream;
+    const roleToStop = this.role;
+    const streamIdToStop = this.streamId;
 
-    if (this.role === SEND_ROLE) {
+    if (roleToStop === SEND_ROLE) {
       try {
         const room = this.liveKitRoom;
 
-        if (room) await room.localParticipant.setScreenShareEnabled(false);
+        if (room) {
+          if (streamToStop) {
+            await Promise.all(
+              streamToStop.getTracks().map((track) => room.localParticipant.unpublishTrack(track)),
+            );
+          } else if (this.sessionId === stopSessionId) {
+            await room.localParticipant.setScreenShareEnabled(false);
+          }
+        }
       } catch (error) {
         logger.error({
           logCode: 'livekit_screenshare_exit_error',
@@ -801,28 +832,35 @@ export default class LiveKitScreenshareBridge {
             errorMessage: (error as Error).message,
             errorStack: (error as Error).stack,
             bridgeName: this.bridgeName,
-            role: this.role,
-            streamId: this.streamId,
+            role: roleToStop,
+            streamId: streamIdToStop,
           },
         }, 'Failed to exit screenshare');
       }
-    } else if (this.role === RECV_ROLE && this.streamId) {
-      const publication = this.getPublication(this.streamId) as RemoteTrackPublication;
+    } else if (roleToStop === RECV_ROLE && streamIdToStop) {
+      const publication = this.getPublication(streamIdToStop) as RemoteTrackPublication;
 
       if (publication) this.unsubscribe(publication);
     }
 
-    if (mediaElement && typeof mediaElement.pause === 'function') {
+    const replaced = this.sessionId !== stopSessionId;
+
+    if (!replaced && mediaElement && typeof mediaElement.pause === 'function') {
       mediaElement.pause();
       mediaElement.srcObject = null;
     }
 
-    if (this.gdmStream) {
-      MediaStreamUtils.stopMediaStreamTracks(this.gdmStream);
-      this.gdmStream = undefined;
+    if (streamToStop) {
+      MediaStreamUtils.stopMediaStreamTracks(streamToStop);
+      if (this.gdmStream === streamToStop) {
+        this.gdmStream = undefined;
+      }
     }
 
-    this.outputDeviceId = undefined;
-    setLiveKitScreenshareHasAudio(false);
+    if (!replaced) {
+      this.role = undefined;
+      this.outputDeviceId = undefined;
+      setLiveKitScreenshareHasAudio(false);
+    }
   }
 }

@@ -139,7 +139,7 @@ const ScreenshareButton = ({
 
   // This is the failure callback that will be passed to the /api/screenshare/kurento.js
   // script on the presenter's call
-  const handleFailure = (error) => {
+  const handleFailure = (error, shouldEndScreenshare = true) => {
     const {
       errorCode = SCREENSHARING_ERRORS.UNKNOWN_ERROR.errorCode,
       errorMessage = error.message,
@@ -157,7 +157,9 @@ const ScreenshareButton = ({
       }, `Screenshare failed: ${errorMessage} (code=${errorCode})`);
     }
 
-    screenshareHasEnded();
+    if (shouldEndScreenshare) {
+      screenshareHasEnded();
+    }
   };
 
   const RenderScreenshareUnavailableModal = (otherProps) => (
