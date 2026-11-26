@@ -20,4 +20,24 @@ const getVirtualBackgroundAvailability = (): VirtualBackgroundAvailability => {
   };
 };
 
+/**
+ * Same rule as services/features' useIsChatEnabled, read from meetingStaticData
+ * for the same reason.
+ */
+export const isChatAvailable = (): boolean => {
+  const disabledFeatures = meetingStaticData.getMeetingData()?.disabledFeatures ?? [];
+
+  return !disabledFeatures.includes('chat') && window.meetingClientSettings.public.chat.enabled;
+};
+
+/**
+ * Same rule as services/features' useIsLockSettingsEnabled, read from
+ * meetingStaticData for the same reason.
+ */
+export const isLockSettingsAvailable = (): boolean => {
+  const disabledFeatures = meetingStaticData.getMeetingData()?.disabledFeatures ?? [];
+
+  return !disabledFeatures.includes('lockSettings');
+};
+
 export default getVirtualBackgroundAvailability;

@@ -336,6 +336,12 @@ type Mutation {
 }
 
 type Mutation {
+  meetingSetRoomMode(
+    roomMode: String!
+  ): Boolean
+}
+
+type Mutation {
   pluginDataChannelDeleteEntry(
     pluginName: String!
     channelName: String!
