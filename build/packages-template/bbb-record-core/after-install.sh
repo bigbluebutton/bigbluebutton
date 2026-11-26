@@ -15,9 +15,16 @@ case "$1" in
     sed -i 's/<policy domain="coder" rights="none" pattern="PDF" \/>/<policy domain="coder" rights="write" pattern="PDF" \/>/g' /etc/ImageMagick-6/policy.xml
   fi
 
-    if [ -f $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties ]; then
-      HOST=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
-    else
+    # The host of bbb-web as it runs: the serverURL in /etc/bigbluebutton/bbb-web.properties
+    # (written by bbb-conf --setip) wins over the shipped default. bigbluebutton.yml is replaced
+    # on every upgrade, so reading only the shipped default reset playback_host.
+    HOST=""
+    for PROPERTIES in /etc/bigbluebutton/bbb-web.properties $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties; do
+      if [ -z "$HOST" ] && [ -f $PROPERTIES ]; then
+        HOST=$(sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}' $PROPERTIES | tail -n 1)
+      fi
+    done
+    if [ -z "$HOST" ]; then
       HOST=$IP
     fi
 
