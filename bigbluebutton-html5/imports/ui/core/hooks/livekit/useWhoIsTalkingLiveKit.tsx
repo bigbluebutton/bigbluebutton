@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useReactiveVar } from '@apollo/client';
 import { isEqual } from 'radash';
 import {
   useRemoteParticipants,
@@ -7,9 +8,14 @@ import {
 } from '@livekit/components-react';
 import { ConnectionState, RoomEvent } from 'livekit-client';
 import { liveKitRoomRegistry } from '/imports/ui/services/livekit';
+import AudioManager from '/imports/ui/services/audio-manager';
 import Auth from '/imports/ui/services/auth';
 import useShouldUseLiveKitAudioState from './useShouldUseLiveKitAudioState';
 import useSubscribedAudioUsers from './useSubscribedAudioUsers';
+import {
+  isLocalParticipantSpeaking,
+  useIsLocalAudioActive,
+} from './useLocalAudioActivity';
 import useWhoIsTalkingGraphql from '../useWhoIsTalkingGraphql';
 import createReactiveRecordStateHook from '../createReactiveRecordStateHook';
 import { TalkingUsersState, TalkingUserState } from '../useWhoIsTalking';
@@ -76,6 +82,10 @@ const createUseWhoIsTalkingLiveKit = () => {
     const connectionState = useConnectionState(room);
     const subscribedAudioUsers = useSubscribedAudioUsers();
     const { data: bbbTalkingUsers } = useWhoIsTalkingGraphql();
+    const localAudioActive = useIsLocalAudioActive();
+    // @ts-ignore - JS AudioManager reactive var
+    // eslint-disable-next-line no-underscore-dangle
+    const isLocalMuted = useReactiveVar(AudioManager._isMuted.value) as boolean;
 
     useEffect(() => {
       if (!shouldUseLiveKit) return;
@@ -97,7 +107,7 @@ const createUseWhoIsTalkingLiveKit = () => {
       if (localParticipant && Auth.userID) {
         const localUserId = Auth.userID as string;
 
-        if (localParticipant.isSpeaking) {
+        if (isLocalParticipantSpeaking(localParticipant.isSpeaking, isLocalMuted, localAudioActive)) {
           newTalkingUsers[localUserId] = true;
         }
       }
@@ -123,6 +133,8 @@ const createUseWhoIsTalkingLiveKit = () => {
       shouldUseLiveKit,
       subscribedAudioUsers,
       bbbTalkingUsers,
+      localAudioActive,
+      isLocalMuted,
     ]);
   };
 

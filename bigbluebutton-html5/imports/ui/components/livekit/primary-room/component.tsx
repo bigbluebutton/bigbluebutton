@@ -45,6 +45,10 @@ import {
   useHasActiveNonPrimaryMembership,
   type LiveKitRoomRow,
 } from '/imports/ui/components/livekit/memberships-manager/hooks';
+import {
+  isLocalParticipantSpeaking,
+  useIsLocalAudioActive,
+} from '/imports/ui/core/hooks/livekit/useLocalAudioActivity';
 
 const intlMessages = defineMessages({
   mediaReconnecting: {
@@ -78,6 +82,7 @@ const PrimaryObserver: React.FC<PrimaryObserverProps> = ({ room, url, usingAudio
   const [setUserTalking] = useMutation(USER_SET_TALKING);
   const [setUserDeafened] = useMutation(USER_SET_DEAFENED);
   const isSpeaking = useIsSpeaking(localParticipant);
+  const localAudioActive = useIsLocalAudioActive();
   const connectionState = useConnectionState(room);
   const hasActiveSecondary = useHasActiveNonPrimaryMembership();
   const { quality } = useConnectionQualityIndicator({ participant: localParticipant });
@@ -94,6 +99,7 @@ const PrimaryObserver: React.FC<PrimaryObserverProps> = ({ room, url, usingAudio
   }, [connectionState, url]);
 
   const isRoomConnected = connectionState === ConnectionState.Connected;
+  const isLocallySpeaking = isLocalParticipantSpeaking(isSpeaking, isMuted, localAudioActive);
   const speakingIsFrozen = useRef(false);
 
   useEffect(() => {
@@ -112,17 +118,15 @@ const PrimaryObserver: React.FC<PrimaryObserverProps> = ({ room, url, usingAudio
     }
 
     if (speakingIsFrozen.current) {
-      if (isSpeaking) return undefined;
+      if (isLocallySpeaking) return undefined;
 
       speakingIsFrozen.current = false;
     }
 
-    // isSpeaking lags a mute by one LiveKit speaker update, so the re-run on
-    // mute would report a muted user as talking.
-    setUserTalking({ variables: { talking: isSpeaking && !isMuted } });
+    setUserTalking({ variables: { talking: isLocallySpeaking } });
 
     return undefined;
-  }, [isSpeaking, isMuted, usingAudio, isRoomConnected]);
+  }, [isLocallySpeaking, usingAudio, isRoomConnected]);
 
   const isMediaInterrupted = hasConnectedOnce(room) && connectionState !== ConnectionState.Connected;
   const isResuming = connectionState === ConnectionState.SignalReconnecting;
