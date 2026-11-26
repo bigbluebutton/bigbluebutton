@@ -21,4 +21,17 @@ describe('LayoutShellStyles', () => {
       sheet.seal();
     }
   });
+
+  it("holds a presenter's side dock 440 px and the 1% sidebar margin short of the media width", () => {
+    // the whiteboard toolbar (430 px) and a 10 px gap stay free, less the margin the stored width drops
+    const sheet = new ServerStyleSheet();
+    try {
+      renderToString(sheet.collectStyles(<LayoutShellStyles />));
+      expect(sheet.getStyleTags()).toMatch(
+        /#layout\[data-presenter\]\s*\{\s*--bbb-dock-max-w:\s*calc\(var\(--bbb-media-width\) - 440px - 1vw\);/,
+      );
+    } finally {
+      sheet.seal();
+    }
+  });
 });

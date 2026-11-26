@@ -179,7 +179,8 @@ const LayoutShellStyles = createGlobalStyle`
      layout/dockSize.ts) or 20% of it, at least 120 px and leaving 120 px; min(max()) because the formula
      inverts when the area is under 240 px. The area is the media area's height for a top or bottom dock,
      its width for a side dock, the sidebar column's height below the sidebar. A side dock is at most 80%
-     of the media area, for the presenter the area less 440 px (the whiteboard toolbar and its gap).
+     of the media area, for the presenter the area less 440 px (the whiteboard toolbar and its gap) and
+     less the 1% sidebar margin, as the engine's stored presenter width dropped it.
      Locked side by side on a phone: 25%, never under 120 px. While resizing, the live size in px
      (--bbb-camera-dock-size) is held within the dock's max size. */
   #layout {
@@ -197,7 +198,7 @@ const LayoutShellStyles = createGlobalStyle`
     --bbb-dock-h: 0px;
     --bbb-dock-w: 0px;
   }
-  #layout[data-presenter] { --bbb-dock-max-w: calc(var(--bbb-media-width) - 440px); }
+  #layout[data-presenter] { --bbb-dock-max-w: calc(var(--bbb-media-width) - 440px - 1vw); }
   #layout[data-dock-enforced] { --bbb-dock-max-w: var(--bbb-dock-w); }
   #layout[data-dock="contentTop"],
   #layout[data-dock="contentBottom"] {

@@ -118,7 +118,7 @@ The sources name the v4.0 layout engine code, removed since; the values now live
 | navigation sidebar | `60px + 2%` desktop, 48 px floating on phones | `SIDEBAR_NAVIGATION_PANEL_WIDTH`, `SIDEBAR_NAVIGATION_MARGIN_PERCENTAGE_WIDTH`, v4.0 `defaultValues.sidebarNavWidthMobile` |
 | sidebar content | 20% by default, between 283.2 and 800 px; full width on phones | `defaultValues.sidebarContentMinWidth`, `sidebarContentMaxWidth` |
 | margin to the media | 1% of the width; 4vh above and below the panel | `general.contentSidebarMarginToMedia`, `contentSidebarVerticalMargin` |
-| camera dock | 20% by default, at least 120 px, leaving 120 px; side docks at most 80% (presenter: area less 440 px); phone landscape 25% | `unifiedLayout calculatesCameraDockBounds` |
+| camera dock | 20% by default, at least 120 px, leaving 120 px; side docks at most 80% (presenter: area less 440 px and 1vw); phone landscape 25% | `unifiedLayout calculatesCameraDockBounds` |
 | dock gaps | 10 px from a top or bottom dock, 20 px from a side dock, 20 px below a side dock | `unifiedLayout calculatesMediaBounds` |
 | drop zones | 100 px bands, fixed 85 px nav bar | `unifiedLayout calculatesDropAreas` |
 | mediaOnly | 10 px margin; content up to 80%; cameras as if the content were 430 px wide | `mediaOnlyLayout` |
