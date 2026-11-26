@@ -61,6 +61,7 @@ Usage: ./bbb-dev <command> [component] [args...]
   exec <component> [cmd]  run cmd in its container, or a shell
   logs <component> [args] its logs (args as for docker compose logs, e.g. -f)
   restart <component>     restart it
+  apimate                 open API Mate for this server in the browser, or print its URL
   status                  the domain, what runs from your checkout, docker compose ps
   help                    this text
   anything else           docker compose with these arguments, e.g. up -d, pull, down
@@ -173,6 +174,18 @@ cmd_status() {
   docker compose ps
 }
 
+# Opens API Mate with this server's URL and secret; prints the link if no browser can be opened.
+cmd_apimate() {
+  local domain secret url opener=xdg-open
+  domain=$(env_value BBB_DOMAIN || true)
+  secret=$(env_value BBB_SHARED_SECRET || true)
+  [[ -n $domain && -n $secret ]] || fail "Run ./bbb-dev setup first."
+  url="https://bigbluebutton.org/api-mate/#server=https://$domain/bigbluebutton/&sharedSecret=$secret"
+  # Not `open` everywhere: on some Linux distributions it is openvt
+  [[ $(uname) != Darwin ]] || opener=open
+  "$opener" "$url" >/dev/null 2>&1 || echo "$url"
+}
+
 # setup ---------------------------------------------------------------------------------------
 
 # Without an argument, a domain already set in .env is the one to set up.
@@ -270,13 +283,15 @@ browser or system, then run:
 
   ./bbb-dev up -d
 
-Test with https://bigbluebutton.org/api-mate/#server=https://$DOMAIN/bigbluebutton/&sharedSecret=$(env_value BBB_SHARED_SECRET)
+Test with API Mate:
+
+  ./bbb-dev apimate
 EOF
 }
 
 case "${1:-help}" in
   help | -h | --help) usage ;;
-  setup | build | enable | disable | exec | status)
+  setup | build | enable | disable | exec | status | apimate)
     command=$1
     shift
     "cmd_$command" "$@"

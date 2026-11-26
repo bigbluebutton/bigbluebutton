@@ -142,6 +142,7 @@ Add `data/dev-ca/rootCA.pem` to the trusted certificates of your browser or oper
 ./bbb-dev build web      # build bbb-web from your checkout
 ./bbb-dev enable web     # and run it
 ./bbb-dev status         # what runs from your checkout
+./bbb-dev apimate        # open API Mate for your server (prints the URL if no browser opens)
 ./bbb-dev disable all    # back to the published images
 ./bbb-dev help           # all commands and components
 ```
