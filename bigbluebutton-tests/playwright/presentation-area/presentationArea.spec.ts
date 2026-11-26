@@ -11,14 +11,10 @@ import {
 
 const needsPlugin = (...contents: MediaAreaContent[]) => contents.includes('pluginContent');
 
-// With the LiveKit bridge, camera as content keeps running when a screenshare or an external
-// video starts over it. Stopping the new content then stops the camera instead. These fail before
-// #26150 too. With the bbb-webrtc-sfu bridge, the external video case passes and the screenshare
-// one is flaky.
-const KNOWN_ISSUES: [MediaAreaContent, MediaAreaContent][] = [
-  ['screenshare', 'cameraAsContent'],
-  ['externalVideo', 'cameraAsContent'],
-];
+// With the LiveKit bridge, camera as content keeps running when an external video starts over it.
+// Stopping the external video then stops the camera instead. This fails before #26150 too. With
+// the bbb-webrtc-sfu bridge, it passes.
+const KNOWN_ISSUES: [MediaAreaContent, MediaAreaContent][] = [['externalVideo', 'cameraAsContent']];
 const isKnownIssue = (next: MediaAreaContent, previous: MediaAreaContent) =>
   KNOWN_ISSUES.some(([n, p]) => n === next && p === previous);
 
@@ -286,25 +282,26 @@ test.describe.parallel('Presentation area content', { tag: ['@ci', '@media'] }, 
     await presentationArea.pluginRerenderOnTopShowsNewContent();
   });
 
-  // Fails before #26150 too: opening the camera as content view stops the screenshare, even when
-  // the presenter backs out without sharing
-  test(
-    'Opening the camera as content view without sharing keeps the screenshare',
-    { tag: '@known-issue' },
-    async ({ browser, page, context, request }, testInfo) => {
-      const presentationArea = await init(
-        {
-          browser,
-          page,
-          context,
-          request,
-        },
-        testInfo,
-        false,
-      );
-      await presentationArea.cameraPickerCancelKeepsScreenshare();
-    },
-  );
+  // Opening the camera as content view must not stop the screenshare when the presenter backs
+  // out without sharing
+  test('Opening the camera as content view without sharing keeps the screenshare', async ({
+    browser,
+    page,
+    context,
+    request,
+  }, testInfo) => {
+    const presentationArea = await init(
+      {
+        browser,
+        page,
+        context,
+        request,
+      },
+      testInfo,
+      false,
+    );
+    await presentationArea.cameraPickerCancelKeepsScreenshare();
+  });
 
   test('Viewers follow every replacement of the presentation area content', async ({
     browser,
