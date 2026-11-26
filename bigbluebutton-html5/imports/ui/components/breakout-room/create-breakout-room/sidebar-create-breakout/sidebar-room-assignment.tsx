@@ -158,8 +158,13 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
     `${name}${isMe(userId) ? ` (${intl.formatMessage(intlMessages.you)})` : ''}, ${roomName}`
   );
 
+  const moveUserLabel = (userName: string, roomName: string) => (
+    `${intl.formatMessage(intlMessages.moveUserMenu, { userName })}, ${roomName}`
+  );
+
   const unassignedRoom = rooms[0];
   const unassignedUsers = unassignedRoom?.users || [];
+  const unassignedUsersLabel = intl.formatMessage(intlMessages.unassignedUsers);
 
   return (
     <>
@@ -191,7 +196,7 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
                   aria-label={participantLabel(
                     user.name,
                     user.userId,
-                    intl.formatMessage(intlMessages.unassignedUsers),
+                    unassignedUsersLabel,
                   )}
                   onKeyDown={rover}
                   onDragStart={dragStart}
@@ -209,7 +214,7 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
                         id={`${rowId}-move-button`}
                         type="button"
                         tabIndex={-1}
-                        aria-label={intl.formatMessage(intlMessages.moveUserMenu, { userName: user.name })}
+                        aria-label={moveUserLabel(user.name, unassignedUsersLabel)}
                         aria-haspopup="menu"
                         aria-expanded={openMoveMenu === rowId}
                         data-test="moveUserMenuButton"
@@ -349,7 +354,7 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
                               id={`${rowId}-move-button`}
                               type="button"
                               tabIndex={-1}
-                              aria-label={intl.formatMessage(intlMessages.moveUserMenu, { userName: user.name })}
+                              aria-label={moveUserLabel(user.name, roomName)}
                               aria-haspopup="menu"
                               aria-expanded={openMoveMenu === rowId}
                               data-test="moveUserMenuButton"

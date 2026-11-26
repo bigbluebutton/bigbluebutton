@@ -337,6 +337,14 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
       : room.shortName
   ), [intl]);
 
+  const displayedRoomName = useCallback((room: BreakoutRoomType) => (
+    localRoomNames[room.breakoutRoomMeetingId] ?? roomDisplayName(room)
+  ), [localRoomNames, roomDisplayName]);
+
+  const moveUserLabel = useCallback((userName: string, roomName: string) => (
+    `${intl.formatMessage(intlMessages.moveUserMenu, { userName })}, ${roomName}`
+  ), [intl]);
+
   const moveUserBetweenRooms = useCallback((
     movedUserId: string,
     fromRoomMeetingId: string,
@@ -356,7 +364,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
       },
     }).then(() => {
       const targetRoom = breakouts.find((b) => b.breakoutRoomMeetingId === toRoomMeetingId);
-      const targetRoomName = targetRoom ? roomDisplayName(targetRoom) : '';
+      const targetRoomName = targetRoom ? displayedRoomName(targetRoom) : '';
       notify(intl.formatMessage(intlMessages.inviteSentToast, {
         userName: userName || movedUserId,
         roomName: targetRoomName,
@@ -365,7 +373,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
       { logCode: 'breakout_move_user_failed', extraInfo: { error: err } },
       'Failed to move user between breakout rooms',
     ));
-  }, [breakoutRoomMoveUser, handleUnassignUser, breakouts, intl, meetingId, roomDisplayName]);
+  }, [breakoutRoomMoveUser, handleUnassignUser, breakouts, displayedRoomName, intl, meetingId]);
 
   const handleDrop = useCallback((toRoomId: string) => (ev: React.DragEvent) => {
     ev.preventDefault();
@@ -494,9 +502,9 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                         id={`running-${user.userId}-main-move-button`}
                         type="button"
                         tabIndex={-1}
-                        aria-label={intl.formatMessage(
-                          intlMessages.moveUserMenu,
-                          { userName: user.name },
+                        aria-label={moveUserLabel(
+                          user.name,
+                          intl.formatMessage(intlMessages.unassignedUsers),
                         )}
                         aria-haspopup="menu"
                         aria-expanded={openMoveMenu === `running-${user.userId}-main`}
@@ -511,7 +519,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                       key: room.breakoutRoomMeetingId,
                       label: intl.formatMessage(
                         intlMessages.moveToRoom,
-                        { roomName: roomDisplayName(room) },
+                        { roomName: displayedRoomName(room) },
                       ),
                       dataTest: `moveUserToRoom${room.sequence}`,
                       onClick: () => {
@@ -689,10 +697,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                                 )}
                                 type="button"
                                 tabIndex={-1}
-                                aria-label={intl.formatMessage(
-                                  intlMessages.moveUserMenu,
-                                  { userName: participant.user.name },
-                                )}
+                                aria-label={moveUserLabel(participant.user.name, displayName)}
                                 aria-haspopup="menu"
                                 aria-expanded={openMoveMenu === (
                                   `running-${participant.userId}-${breakout.breakoutRoomMeetingId}`
@@ -717,7 +722,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                                   key: room.breakoutRoomMeetingId,
                                   label: intl.formatMessage(
                                     intlMessages.moveToRoom,
-                                    { roomName: roomDisplayName(room) },
+                                    { roomName: displayedRoomName(room) },
                                   ),
                                   dataTest: `moveUserToRoom${room.sequence}`,
                                   onClick: () => {
