@@ -16,10 +16,6 @@ interface ChatHeaderProps {
 }
 
 const intlMessages = defineMessages({
-  genericMinimizePanel: {
-    id: 'app.sidebarContent.minimizePanelLabel',
-    description: 'Generic minimize label for panels',
-  },
   messagesTitle: {
     id: 'app.userList.messagesTitle',
     description: 'Title for the messages list',

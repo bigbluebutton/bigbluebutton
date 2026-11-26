@@ -26,10 +26,6 @@ const intlMessages = defineMessages({
     id: 'app.appsGallery.title',
     description: 'Label for the apps gallery panel title',
   },
-  minimize: {
-    id: 'app.sidebarContent.minimizePanelLabel',
-    description: 'Label for the minimize apps gallery button',
-  },
   pinnedApps: {
     id: 'app.appsGallery.maxpinnedApps',
     description: 'Apps panel text that informs users about max current pinned apps and maximum allowed pinned apps',
