@@ -106,7 +106,7 @@ Backup: `./data`, `.env` and `docker-compose.override.yml`. PostgreSQL (a volume
     'process:podcast': 'publish:podcast'
   ```
 
-  Then `docker compose up -d --force-recreate recording-workers recording-starter recording-caption-inbox recording-cleanup`. New recordings get the extra formats; `getRecordings` lists them and nginx serves them.
+  Then `docker compose up -d --force-recreate recording-workers recording-starter recording-caption-inbox recording-cleanup`. New recordings get the extra formats; `getRecordings` lists them and nginx serves them. An override written for the earlier inline file (`configs:` with `recording.yml: !override`) is no longer read, and compose does not report it: move its `steps` to a mounted file as above, or recordings go back to `presentation` only.
 - To customize bbb-graphql-middleware, bbb-shared-notes-server or bbb-export-annotations, mount your file at the bare-metal path (`/etc/bigbluebutton/bbb-graphql-middleware.yml`, `/etc/bigbluebutton/bbb-shared-notes-server.yml`, `/etc/bigbluebutton/bbb-export-annotations/production.json`) in `docker-compose.override.yml`. Put only your changes in it: the addresses of the other services come from the environment and win over the file.
 - nginx uses the image's location files and upstreams, which use the default service names. The compose file mounts only its site (port 80 and haproxy's 8081) and `playback.nginx`, because `playback` runs only with the `recording` profile.
 - More Hasura instances: `docker compose up -d --scale graphql-server=2`. nginx balances them as on bare metal and looks up the instances every 30 s, so it follows scaling up and down within about 30 s, without a reload.
