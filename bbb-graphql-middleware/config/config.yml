@@ -31,8 +31,8 @@ server:
   websocket_idle_timeout_seconds: 60
 redis:
   host: 127.0.0.1 # or REDIS_HOST from the environment
-  port: 6379
-  password: ""
+  port: 6379 # or REDIS_PORT from the environment
+  password: "" # or REDIS_PASSWORD from the environment
 hasura:
   url: ws://127.0.0.1:8185/v1/graphql # or HASURA_URL from the environment
 graphql-actions:

@@ -140,7 +140,7 @@ unless FileTest.directory?(target_dir)
     BigBlueButton.logger.info('Created an updated metadata.xml with start_time and end_time')
 
     version_atleast_2_6_0 = BigBlueButton::Events.bbb_version_compare(@doc, 2, 6, 0)
-    # The pages of each presentation, in page order; the files of a page are named by its key.
+    # List of slide filename keys for each presentation, in the original order.
     page_ids = BigBlueButton::Events.presentation_page_ids(@doc, presentation_dir)
     # Start processing raw files
     presentation_text = {}

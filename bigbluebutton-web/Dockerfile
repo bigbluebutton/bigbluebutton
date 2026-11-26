@@ -35,7 +35,8 @@ COPY --from=build /dist .
 COPY --from=build /bbb-web/pres-checker/lib /usr/share/prescheck/lib
 COPY --from=build /bbb-web/pres-checker/run.sh /usr/share/prescheck/prescheck.sh
 COPY ./docker/run-in-systemd.sh /usr/share/bbb-web/run-in-systemd.sh
-# Office documents are converted by presOfficeConversionExec (/usr/share/bbb-libreoffice-conversion/convert.sh), which deployments provide
+# The sample client for Collabora Online, at its package path; presOfficeConversionExec chooses the script
+COPY --from=libreoffice-assets --chmod=755 convert-cool.sh /usr/share/bbb-libreoffice-conversion/convert-cool.sh
 COPY --from=slides / /usr/share/bigbluebutton/blank
 # gs reads it when PdfPageDownscaler rewrites a page
 COPY --from=slides nopdfmark.ps /etc/bigbluebutton/nopdfmark.ps

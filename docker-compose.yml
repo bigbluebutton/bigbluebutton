@@ -1,4 +1,5 @@
-# BigBlueButton on one server; see "Running with docker compose" in docker/README.md.
+# BigBlueButton on one server; see "Install with Docker Compose" in the administration
+# documentation (docs/docs/administration/docker-compose.md).
 # Configuration is mounted at the bare-metal paths: files that need values from .env are inline
 # below (configs), the others are in docker/compose/.
 name: bigbluebutton
@@ -14,12 +15,13 @@ x-recording: &recording
   <<: *bbb
   profiles:
     - recording
-  image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-record-and-playback:${BBB_IMAGE_TAG:?}
-  configs:
-    - source: bbb-web.properties
-      target: /etc/bigbluebutton/bbb-web.properties
-    - source: recording.yml
-      target: /etc/bigbluebutton/recording/recording.yml
+  image: ${BBB_RECORD_AND_PLAYBACK_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-record-and-playback:${BBB_IMAGE_TAG:?}}
+  environment:
+    REDIS_HOST: redis
+    BN_NOTES_ENDPOINT: http://shared-notes-server:8787/loopback/api/documents
+    PLAYBACK_HOST: ${BBB_DOMAIN}
+    # signs the recording-ready and analytics callbacks
+    SHARED_SECRET: ${BBB_SHARED_SECRET}
   volumes:
     - ./data/bigbluebutton:/var/bigbluebutton:z
     - ./data/recordings:/var/lib/bbb-webrtc-recorder:z
@@ -82,7 +84,7 @@ services:
 
   nginx:
     <<: *bbb
-    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-nginx:${BBB_IMAGE_TAG}
+    image: ${BBB_NGINX_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-nginx:${BBB_IMAGE_TAG}}
     ports:
       - "80:8080"
     volumes:
@@ -90,7 +92,8 @@ services:
       - ./docker/compose/nginx/playback.nginx:/usr/share/bigbluebutton/nginx/playback.nginx:ro
       - acme-challenge:/var/www/bigbluebutton-default/assets/.well-known/acme-challenge:ro
       - ./data/bigbluebutton:/var/bigbluebutton:ro,z
-    # nginx resolves the names of these upstreams when it starts
+    # nginx resolves the names of these upstreams at run time, and starts after them so that the
+    # first requests find them
     depends_on:
       - web
       - graphql-middleware
@@ -134,6 +137,8 @@ services:
   redis:
     <<: *bbb
     image: docker.io/library/redis:7.4.11-alpine@sha256:57e4255cc971b1c8d6f8a6ca283ac01bc3ecdd914273ef6bfaede87aaecd6541
+    volumes:
+      - redis:/data
     healthcheck:
       test:
         - CMD
@@ -159,11 +164,8 @@ services:
   # Creates the data directories and the databases, and recreates the databases when the schemas
   # in the images change
   init:
-    image: *postgres
-    command:
-      - sh
-      - /init.sh
-    # the postgres image declares a volume here; init does not need it
+    image: ${BBB_INIT_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-init:${BBB_IMAGE_TAG}}
+    # its base image, postgres, declares a volume here; init does not need it
     tmpfs:
       - /var/lib/postgresql/data
     environment:
@@ -175,30 +177,20 @@ services:
       HASURA_APP_PASSWORD: ${POSTGRES_HASURA_APP_PASSWORD:?}
       BLOCKNOTE_PASSWORD: ${POSTGRES_BLOCKNOTE_PASSWORD:?}
     volumes:
-      - ./docker/compose/init.sh:/init.sh:ro
       - ./data/bigbluebutton:/var/bigbluebutton:z
       - ./data/recordings:/var/lib/bbb-webrtc-recorder:z
       - recording-logs:/var/log/bigbluebutton
-      - type: image
-        source: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-graphql-server:${BBB_IMAGE_TAG}
-        target: /schema/graphql
-        image:
-          subpath: usr/share/bbb-graphql-server
-      - type: image
-        source: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-shared-notes-server:${BBB_IMAGE_TAG}
-        target: /schema/notes
-        image:
-          subpath: usr/share/bbb-shared-notes-server
     depends_on:
       postgres:
         condition: service_healthy
 
   apps-akka:
     <<: *bbb
-    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-apps-akka:${BBB_IMAGE_TAG}
+    image: ${BBB_APPS_AKKA_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-apps-akka:${BBB_IMAGE_TAG}}
     environment:
       SHARED_SECRET: ${BBB_SHARED_SECRET:?}
-      BBB_WEB_API: http://web:8090/bigbluebutton/api
+      # the base of the breakout rooms' join links, which the browser opens: the public address
+      BBB_WEB_API: https://${BBB_DOMAIN}/bigbluebutton/api
       GRAPHQL_MIDDLEWARE_API: http://graphql-middleware:8378
       REDIS_HOST: redis
       POSTGRES_HOST: postgres
@@ -211,13 +203,16 @@ services:
 
   web:
     <<: *bbb
-    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-web:${BBB_IMAGE_TAG}
+    image: ${BBB_WEB_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-web:${BBB_IMAGE_TAG}}
     # keys of bigbluebutton.properties, upper case with "." as "_"
     environment:
       BIGBLUEBUTTON_WEB_SERVERURL: https://${BBB_DOMAIN}
       SECURITYSALT: ${BBB_SHARED_SECRET}
       PAGETOKENSECRET: ${BBB_PAGE_TOKEN_SECRET:?}
       REDISHOST: redis
+      # office documents are converted to PDF by office-conversion, with the image's client for it
+      PRESOFFICECONVERSIONEXEC: /usr/share/bbb-libreoffice-conversion/convert-cool.sh
+      COOL_URL: http://office-conversion:9980
     configs:
       - source: turn-stun-servers.xml
         target: /etc/bigbluebutton/turn-stun-servers.xml
@@ -226,11 +221,14 @@ services:
     # the default slides are fetched from https://<domain>, through the host to haproxy
     extra_hosts:
       - "${BBB_DOMAIN}:host-gateway"
+    networks:
+      - default
+      - office-conversion
     depends_on: *redis-init
 
   graphql-server:
     <<: *bbb
-    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-graphql-server:${BBB_IMAGE_TAG}
+    image: ${BBB_GRAPHQL_SERVER_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-graphql-server:${BBB_IMAGE_TAG}}
     environment:
       HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_ADMIN_SECRET:?}
       HASURA_GRAPHQL_DATABASE_URL: postgres://hasura_app:${POSTGRES_HASURA_APP_PASSWORD}@postgres:5432/hasura_app
@@ -243,22 +241,28 @@ services:
 
   graphql-actions:
     <<: *bbb
-    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-graphql-actions:${BBB_IMAGE_TAG}
+    image: ${BBB_GRAPHQL_ACTIONS_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-graphql-actions:${BBB_IMAGE_TAG}}
     environment:
       BBB_REDIS_HOST: redis
 
   graphql-middleware:
     <<: *bbb
-    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-graphql-middleware:${BBB_IMAGE_TAG}
-    volumes:
-      - ./docker/compose/bbb-graphql-middleware.yml:/etc/bigbluebutton/bbb-graphql-middleware.yml:ro
+    image: ${BBB_GRAPHQL_MIDDLEWARE_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-graphql-middleware:${BBB_IMAGE_TAG}}
+    environment:
+      REDIS_HOST: redis
+      HASURA_URL: ws://nginx:8185/v1/graphql
+      HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL: http://graphql-actions:8093
+      AUTH_HOOK_URL: http://web:8090/bigbluebutton/connection/checkGraphqlAuthorization
+      SESSION_VARS_HOOK_URL: http://apps-akka:8901/userInfo
 
   shared-notes-server:
     <<: *bbb
-    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-shared-notes-server:${BBB_IMAGE_TAG}
-    configs:
-      - source: bbb-shared-notes-server.yml
-        target: /etc/bigbluebutton/bbb-shared-notes-server.yml
+    image: ${BBB_SHARED_NOTES_SERVER_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-shared-notes-server:${BBB_IMAGE_TAG}}
+    environment:
+      BBB_WEB_URL: http://web:8090
+      REDIS_HOST: redis
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_BLOCKNOTE_PASSWORD}
     volumes:
       - shared-notes-conversion:/run
     depends_on:
@@ -270,27 +274,76 @@ services:
   # per connection, on the socket in the volume shared with shared-notes-server
   shared-notes-conversion:
     <<: *bbb
-    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-shared-notes-server:${BBB_IMAGE_TAG}
+    image: ${BBB_SHARED_NOTES_SERVER_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-shared-notes-server:${BBB_IMAGE_TAG}}
     command:
       - node
       - bbb-shared-notes-conversion.js
     init: true
-    # the unit's isolation: no network, read-only system, a private /tmp
+    # the unit's isolation: no network, read-only system, a private /tmp, no capabilities
+    # (CapabilityBoundingSet=), NoNewPrivileges
     network_mode: none
     read_only: true
     tmpfs:
       - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     # the unit allows MemoryMax=640M per conversion; this is for the whole container, with up to
     # 8 conversions at once
     mem_limit: 1g
+    # no swap on top (MemorySwapMax=0)
+    memswap_limit: 1g
+    # TasksMax=32 per conversion, times 8, plus each conversion's timeout process and the
+    # listener's tasks (8 when idle), with some room: 320. A conversion uses about 8 tasks.
+    pids_limit: 320
     volumes:
       - shared-notes-conversion:/run
 
+  # Office documents to PDF for bbb-web: Collabora Online (CODE), converting with
+  # POST /cool/convert-to/pdf; on a network with web only, without internet
+  office-conversion:
+    <<: *bbb
+    image: docker.io/collabora/code:26.04.6.2.1@sha256:a2f5d4e88addd46033d8440f7a13b82f7e6fe444bf8c6b5a3eadc789f0b5342b
+    environment:
+      # coolwsd.xml keys: plain HTTP inside the network; convert-to only from this network (the
+      # first host entry has no index, the other four defaults are emptied); no admin console
+      extra_params: >-
+        --o:ssl.enable=false
+        --o:net.post_allow.host=172.30.83.0/24
+        --o:net.post_allow.host[1]= --o:net.post_allow.host[2]= --o:net.post_allow.host[3]=
+        --o:net.post_allow.host[4]=
+        --o:admin_console.enable=false
+    # without capabilities coolwsd runs each document in a landlock jail (the host kernel needs
+    # landlock); its chroot jails would need CHOWN, FOWNER and SYS_CHROOT and no no-new-privileges
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    # the image's user, cool (1001)
+    tmpfs:
+      - /tmp:uid=1001,gid=1001
+      - /opt/cool/child-roots:uid=1001,gid=1001
+      - /opt/cool/cache:uid=1001,gid=1001
+    # 4 conversions at once (bbb-web's default) peaked at 762 MiB, including the tmpfs
+    mem_limit: 2g
+    pids_limit: 256
+    healthcheck:
+      test:
+        - CMD
+        - /usr/bin/coolwsd
+        - --probe
+        - --use-env-vars
+      interval: 10s
+    networks:
+      - office-conversion
+
   export-annotations:
     <<: *bbb
-    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-export-annotations:${BBB_IMAGE_TAG}
+    image: ${BBB_EXPORT_ANNOTATIONS_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-export-annotations:${BBB_IMAGE_TAG}}
     environment:
-      BBB_WEB_API: http://web:8090
+      BBB_WEB_URL: http://web:8090
       REDIS_HOST: redis
     volumes:
       - ./data/bigbluebutton:/var/bigbluebutton:z
@@ -298,7 +351,7 @@ services:
 
   webrtc-sfu:
     <<: *bbb
-    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-webrtc-sfu:${BBB_IMAGE_TAG}
+    image: ${BBB_WEBRTC_SFU_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-webrtc-sfu:${BBB_IMAGE_TAG}}
     environment:
       REDIS_HOST: redis
       LIVEKIT_HOST: http://livekit:7880
@@ -311,11 +364,11 @@ services:
 
   html5-client:
     <<: *bbb
-    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-html5-client:${BBB_IMAGE_TAG}
+    image: ${BBB_HTML5_CLIENT_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-html5-client:${BBB_IMAGE_TAG}}
 
   learning-dashboard:
     <<: *bbb
-    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-learning-dashboard:${BBB_IMAGE_TAG}
+    image: ${BBB_LEARNING_DASHBOARD_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-learning-dashboard:${BBB_IMAGE_TAG}}
 
   # Profile "recording": the recorder, the processing as the systemd units of bbb-record-core
   # run it, and the player
@@ -323,7 +376,7 @@ services:
     <<: *bbb
     profiles:
       - recording
-    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-webrtc-recorder:${BBB_IMAGE_TAG}
+    image: ${BBB_WEBRTC_RECORDER_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-webrtc-recorder:${BBB_IMAGE_TAG}}
     environment:
       BBBRECORDER_PUBSUB_ADAPTERS_REDIS_ADDRESS: redis:6379
       BBBRECORDER_PUBSUB_ADAPTERS_REDIS_NETWORK: tcp
@@ -359,14 +412,14 @@ services:
     <<: *bbb
     profiles:
       - recording
-    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-playback:${BBB_IMAGE_TAG}
+    image: ${BBB_PLAYBACK_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-playback:${BBB_IMAGE_TAG}}
 
   # Profile "webhooks"
   webhooks:
     <<: *bbb
     profiles:
       - webhooks
-    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-webhooks:${BBB_IMAGE_TAG}
+    image: ${BBB_WEBHOOKS_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-webhooks:${BBB_IMAGE_TAG}}
     environment:
       SERVER_DOMAIN: ${BBB_DOMAIN}
       SHARED_SECRET: ${BBB_SHARED_SECRET}
@@ -379,10 +432,20 @@ networks:
       config:
         - subnet: 172.30.82.0/24
           ip_range: 172.30.82.128/25
+  # web and office-conversion only, without a route out; the bridge gets no address, so the
+  # host's own services are not reachable from it either
+  office-conversion:
+    internal: true
+    driver_opts:
+      com.docker.network.bridge.inhibit_ipv4: "true"
+    ipam:
+      config:
+        - subnet: 172.30.83.0/24
 
 volumes:
   recording-logs:
   postgres:
+  redis:
   acme-challenge:
   haproxy-run:
   # the conversion socket; a tmpfs owned by the notes image's user, bigbluebutton (998)
@@ -393,11 +456,6 @@ volumes:
       o: uid=998,gid=998,mode=0700
 
 configs:
-  # for the recording callbacks, which read the secret from this file
-  bbb-web.properties:
-    content: |
-      securitySalt=${BBB_SHARED_SECRET}
-
   turn-stun-servers.xml:
     content: |
       <?xml version="1.0" encoding="UTF-8"?>
@@ -457,22 +515,6 @@ configs:
           - mime: video/vp8
           - mime: video/rtx
         enable_remote_unmute: true
-
-  bbb-shared-notes-server.yml:
-    content: |
-      bbbWeb:
-        host: web
-      redis:
-        host: redis
-      postgres:
-        host: postgres
-        password: "${POSTGRES_BLOCKNOTE_PASSWORD}"
-
-  recording.yml:
-    content: |
-      redis_host: redis
-      bn_notes_endpoint: http://shared-notes-server:8787/loopback/api/documents
-      playback_host: ${BBB_DOMAIN}
 
   # Based on the turnserver.conf bbb-install writes. It differs in: no listening and relay IPs,
   # TLS terminated by haproxy on 443, relays only to LiveKit (the relay ports stay on the bbb

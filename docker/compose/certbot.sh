@@ -9,10 +9,24 @@ set -u
 bundle=/etc/letsencrypt/certbundle.pem
 live="/etc/letsencrypt/live/$BBB_DOMAIN"
 
-# Writes chain $1 and key $2 as the bundle for haproxy and reloads haproxy, if they changed
+# Writes chain $1 and key $2 as the bundle for haproxy and reloads haproxy, if they changed. A
+# chain or key that cannot be read, is not a certificate, or does not match keeps the old bundle,
+# so that haproxy still starts.
 use_certificate() {
   if ! cat "$1" "$2" | cmp -s - "$bundle"; then
-    cat "$1" "$2" > "$bundle.new"
+    if ! openssl x509 -in "$1" -noout 2>/dev/null; then
+      echo "certbot: $1 is not a certificate; keeping the current one" >&2
+      return 1
+    fi
+    if [ "$(openssl x509 -in "$1" -noout -pubkey 2>/dev/null)" != "$(openssl pkey -in "$2" -pubout 2>/dev/null)" ]; then
+      echo "certbot: the key $2 does not match the certificate $1; keeping the current one" >&2
+      return 1
+    fi
+    if ! cat "$1" "$2" > "$bundle.new"; then
+      rm -f "$bundle.new"
+      echo "certbot: cannot write $bundle.new; keeping the current certificate" >&2
+      return 1
+    fi
     chown 99 "$bundle.new" && chmod 0600 "$bundle.new" && mv "$bundle.new" "$bundle"
     python3 -c 'import socket; s = socket.socket(socket.AF_UNIX); s.connect("/var/lib/haproxy/master.sock"); s.sendall(b"reload\n"); print(s.recv(4096).decode())' 2>/dev/null \
       || echo "haproxy is not running yet; it reads the new certificate when it starts"

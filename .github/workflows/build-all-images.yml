@@ -116,9 +116,21 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Join the amd64 and arm64 images under the branch tag, the commit and the version
+      # A release tag vX.Y.Z is also pushed as vX.Y, but only if it is the newest vX.Y.Z, so a re-run
+      # of an older release does not move vX.Y back. Pre-releases (vX.Y.Z-rc.1) are not.
+      - name: Check whether the tag is the newest release of its minor version
+        id: minor
+        if: github.ref_type == 'tag'
+        run: |
+          if [[ $TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            newest=$(git ls-remote --tags --refs origin "${TAG%.*}.*" | sed 's|.*refs/tags/||' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n1)
+            if [ "$newest" = "$TAG" ]; then echo "minor=${TAG%.*}" >> "$GITHUB_OUTPUT"; fi
+          fi
+
+      - name: Join the amd64 and arm64 images under the branch tag, the commit, the version and the minor version
         env:
           TARGETS: ${{ join(fromJSON(needs.targets.outputs.targets), ' ') }}
+          MINOR: ${{ steps.minor.outputs.minor }}
         run: |
           for t in $TARGETS; do
             image="$BBB_IMAGE_REGISTRY/bbb-$t:$TAG"
@@ -126,5 +138,7 @@ jobs:
             for p in $(docker buildx bake -f docker-bake.hcl --print "$t" | jq -r ".target[\"$t\"].platforms[] | ltrimstr(\"linux/\")"); do
               sources+=("$BBB_IMAGE_REGISTRY/bbb-$t:$GITHUB_SHA-$p")
             done
-            docker buildx imagetools create -t "$image" -t "$image-${GITHUB_SHA::7}" -t "$BBB_IMAGE_REGISTRY/bbb-$t:$VERSION" "${sources[@]}"
+            tags=(-t "$image" -t "$image-${GITHUB_SHA::7}" -t "$BBB_IMAGE_REGISTRY/bbb-$t:$VERSION")
+            if [ -n "$MINOR" ]; then tags+=(-t "$BBB_IMAGE_REGISTRY/bbb-$t:$MINOR"); fi
+            docker buildx imagetools create "${tags[@]}" "${sources[@]}"
           done
