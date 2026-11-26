@@ -489,6 +489,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
     },
     captions: {
       background: '#000000',
+      maxTextLength: 8192,
       font: {
         color: '#ffffff',
         family: 'Calibri',

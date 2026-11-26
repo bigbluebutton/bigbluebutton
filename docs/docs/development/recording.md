@@ -19,7 +19,7 @@ If you want to see the Record and Playback (RaP) feature in action, use Greenlig
 
 Like BigBlueButton sessions, the management of recordings should be handled by [third-party software](https://bigbluebutton.org/schools/integrations/). Third-party software consumes the [BigBlueButton API](/development/api) to accomplish that. As a user, you may want to use third-party software which sets the right value to the parameter "record". As a developer, you may want to use a (not official) library that implements the API calls in your preferred language or implement it by yourself.
 
-From a technical point of view, in the BigBlueButton API, when you pass the parameter `record=true` with [create](/development/api#create), BigBlueButton will create a session that has recording enabled. In this case, it will add a new button to the toolbar at the top of the window with a circle icon which a moderator in the session can use to indicate sections of the meeting to be recorded.
+From a technical point of view, in the BigBlueButton API, when you pass the parameter `record=true` with [create](/development/api#get-post-create), BigBlueButton will create a session that has recording enabled. In this case, it will add a new button to the toolbar at the top of the window with a circle icon which a moderator in the session can use to indicate sections of the meeting to be recorded.
 
 In a session with recording enabled, BigBlueButton will save the slides, chat, audio, desktop sharing (deskshare), whiteboard events, shared notes, captions, poll results, and webcams for later processing. This is the unique way to record a meeting, because it provides the ability for different workflows to create recordings with different properties, combining the media in unique ways.
 
@@ -255,7 +255,14 @@ Internal MeetingID                   Time   APVD APVDE RAS Slides Processed Publ
    CGroup: /system.slice/bbb-rap-resque-worker.service
            ├─ /usr/bin/rake -f ../Rakefile resque:workers >> /var/log/bigbluebutton/bbb-rap-worker.log
            ├─ /usr/bin/ruby /usr/bin/rake -f ../Rakefile resque:workers
-           └─ Waiting for rap:archive,rap:publish,rap:process,rap:sanity,rap:captions,rap:events
+           └─ Waiting for rap:publish,rap:process,rap:sanity,rap:captions,rap:events
+
+● bbb-rap-archive-worker.service - BigBlueButton resque worker for recording archives
+   Loaded: loaded (/usr/lib/systemd/system/bbb-rap-archive-worker.service; enabled)
+   Active: active (running) since Tue 2022-03-01 18:27:19 CET; 2 weeks 0 days ago
+   CGroup: /system.slice/bbb-rap-archive-worker.service
+           ├─ /usr/bin/ruby /usr/bin/rake -f ../Rakefile resque:workers
+           └─ Waiting for rap:archive
 --
 ```
 
@@ -373,7 +380,7 @@ $ sudo bbb-record --republish 29173583cf1ca21508b2efd7db566090bbefb36a-164763031
 
 Here you will find more details about the Record and Playback scripts.
 
-The way to start a recorded session in BigBlueButton is setting the "record" parameter value to "true" in the [create API](/development/api#create) call, which usually is handled by third party software.
+The way to start a recorded session in BigBlueButton is setting the "record" parameter value to "true" in the [create API](/development/api#get-post-create) call, which usually is handled by third party software.
 
 #### Capture phase
 
@@ -522,7 +529,7 @@ First, stop the recording service and create the required temporary directories:
 
 ```bash
 systemctl stop bbb-rap-starter
-systemctl stop bbb-rap-resque-worker
+systemctl stop bbb-rap-resque-worker bbb-rap-archive-worker
 ```
 
 ```bash
@@ -653,7 +660,7 @@ Notice we appended "presentation" to the meetingId, this will tell the script to
 You can deploy your changes by running `deploy.sh` and restarting the recording-related services:
 ```
 systemctl restart bbb-rap-starter
-systemctl restart bbb-rap-resque-worker
+systemctl restart bbb-rap-resque-worker bbb-rap-archive-worker
 ```
 
 `deploy.sh` does not install the players for recordings made with BigBlueButton 0.81 and 0.9. If you need them on a development server, build and install the `bbb-playback-presentation-legacy` package (`build/setup.sh bbb-playback-presentation-legacy`), as described in [play recordings made with BigBlueButton 0.81 or 0.9](/administration/customize#play-recordings-made-with-bigbluebutton-081-or-09).
@@ -683,7 +690,7 @@ At last, if it is the first time you set one other recording format, you may hav
 
 ```
 systemctl restart bbb-rap-starter
-systemctl restart bbb-rap-resque-worker
+systemctl restart bbb-rap-resque-worker bbb-rap-archive-worker
 systemctl reload nginx
 ```
 
@@ -733,7 +740,7 @@ Restarting the recording-related services may also help:
 
 ```bash
 systemctl restart bbb-rap-starter
-systemctl restart bbb-rap-resque-worker
+systemctl restart bbb-rap-resque-worker bbb-rap-archive-worker
 ```
 
 #### Understanding output from bbb-record --watch

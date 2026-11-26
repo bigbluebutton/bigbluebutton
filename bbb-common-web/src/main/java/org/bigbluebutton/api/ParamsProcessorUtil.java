@@ -36,7 +36,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bigbluebutton.api.service.RedirectFollowerService;
 import org.bigbluebutton.api.service.RedirectValidator;
@@ -791,7 +790,7 @@ public class ParamsProcessorUtil {
         String learningDashboardAccessToken = "";
 	int learningDashboardCleanupMins = 0;
         if(listOfDisabledFeatures.contains("learningDashboard") == false) {
-            learningDashboardAccessToken = RandomStringUtils.randomAlphanumeric(12).toLowerCase();
+            learningDashboardAccessToken = Util.randomAlphanumeric(12).toLowerCase();
 
 	    learningDashboardCleanupMins = learningDashboardCleanupDelayInMinutes;
             if (!StringUtils.isEmpty(params.get(ApiParams.LEARNING_DASHBOARD_CLEANUP_DELAY_IN_MINUTES))) {
@@ -1295,7 +1294,7 @@ public class ParamsProcessorUtil {
 	}
 
     public String processPassword(String pass) {
-        return StringUtils.isEmpty(pass) ? RandomStringUtils.randomAlphanumeric(8) : pass;
+        return StringUtils.isEmpty(pass) ? Util.randomAlphanumeric(8) : pass;
     }
 
     public boolean hasChecksumAndQueryString(String checksum, String queryString) {
@@ -1303,7 +1302,7 @@ public class ParamsProcessorUtil {
 	}
 
 	public String processTelVoice(String telNum) {
-		return StringUtils.isEmpty(telNum) ? RandomStringUtils.randomNumeric(defaultNumDigitsForTelVoice) : telNum;
+		return StringUtils.isEmpty(telNum) ? Util.randomNumeric(defaultNumDigitsForTelVoice) : telNum;
 	}
 
 	public String processDialNumber(String dial) {
