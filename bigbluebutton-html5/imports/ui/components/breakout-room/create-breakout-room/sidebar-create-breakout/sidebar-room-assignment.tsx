@@ -114,11 +114,11 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
   } = useDragAndDrop(moveUser, setSelectedId);
 
   const rememberMoveFocus = useCallback((userId: string, _from: number, to: number) => {
-    pendingFocusId.current = `${userId}-${to}`;
+    pendingFocusId.current = `${userId}-${to}-move-button`;
   }, []);
 
   const moveUserAndKeepFocus = useCallback((userId: string, from: number, to: number) => {
-    pendingFocusId.current = `${userId}-${to}`;
+    pendingFocusId.current = `${userId}-${to}-move-button`;
     setOpenMoveMenu(null);
     moveUser(userId, from, to);
   }, [moveUser]);
@@ -128,32 +128,14 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
     moveUser,
     numberOfRooms,
     rememberMoveFocus,
+    true,
+    'moveUserMenuButton',
   );
-
-  const openMenuFromRow = (event: React.KeyboardEvent) => {
-    if (event.target !== event.currentTarget) return;
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      event.stopPropagation();
-      (event.currentTarget.querySelector('[data-test="moveUserMenuButton"]') as HTMLButtonElement)?.click();
-    } else if (event.key === ' ') {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-  };
-
-  const openMenuFromRowKeyUp = (event: React.KeyboardEvent) => {
-    if (event.key === ' ' && event.target === event.currentTarget) {
-      event.preventDefault();
-      event.stopPropagation();
-      (event.currentTarget.querySelector('[data-test="moveUserMenuButton"]') as HTMLButtonElement)?.click();
-    }
-  };
 
   const closeMoveMenu = (rowId: string) => {
     setOpenMoveMenu(null);
     requestAnimationFrame(() => {
-      const focusId = pendingFocusId.current || rowId;
+      const focusId = pendingFocusId.current || `${rowId}-move-button`;
       document.getElementById(focusId)?.focus();
     });
   };
@@ -206,17 +188,12 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
                   id={rowId}
                   data-test="draggableUser"
                   draggable
-                  tabIndex={-1}
                   aria-label={participantLabel(
                     user.name,
                     user.userId,
                     intl.formatMessage(intlMessages.unassignedUsers),
                   )}
-                  onKeyDown={(event) => {
-                    rover(event);
-                    openMenuFromRow(event);
-                  }}
-                  onKeyUp={openMenuFromRowKeyUp}
+                  onKeyDown={rover}
                   onDragStart={dragStart}
                   onDragEnd={dragEnd}
                 >
@@ -229,6 +206,7 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
                     onCloseCallback={() => closeMoveMenu(rowId)}
                     trigger={(
                       <Styled.MoveUserBtn
+                        id={`${rowId}-move-button`}
                         type="button"
                         tabIndex={-1}
                         aria-label={intl.formatMessage(intlMessages.moveUserMenu, { userName: user.name })}
@@ -343,13 +321,8 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
                         id={rowId}
                         data-test="draggableUser"
                         draggable
-                        tabIndex={-1}
                         aria-label={participantLabel(user.name, user.userId, roomName)}
-                        onKeyDown={(event) => {
-                          rover(event);
-                          openMenuFromRow(event);
-                        }}
-                        onKeyUp={openMenuFromRowKeyUp}
+                        onKeyDown={rover}
                         onDragStart={dragStart}
                         onDragEnd={dragEnd}
                       >
@@ -373,6 +346,7 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
                           onCloseCallback={() => closeMoveMenu(rowId)}
                           trigger={(
                             <Styled.MoveUserBtn
+                              id={`${rowId}-move-button`}
                               type="button"
                               tabIndex={-1}
                               aria-label={intl.formatMessage(intlMessages.moveUserMenu, { userName: user.name })}

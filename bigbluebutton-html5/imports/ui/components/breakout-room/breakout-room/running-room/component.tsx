@@ -385,27 +385,14 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
     moveUserBetweenRooms(droppedUserId, fromRoomMeetingId, toRoomId, userName);
   }, [moveUserBetweenRooms]);
 
-  const rover = useRoverNavigation('draggableUser', () => {}, breakouts.length, undefined, false);
-  const openMenuFromRow = (event: React.KeyboardEvent, rowId: string) => {
-    if (event.target !== event.currentTarget) return;
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      event.stopPropagation();
-      moveFocusTarget.current = rowId;
-      (event.currentTarget.querySelector('[data-test="moveUserMenuButton"]') as HTMLButtonElement)?.click();
-    } else if (event.key === ' ') {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-  };
-  const openMenuFromRowKeyUp = (event: React.KeyboardEvent, rowId: string) => {
-    if (event.key === ' ' && event.target === event.currentTarget) {
-      event.preventDefault();
-      event.stopPropagation();
-      moveFocusTarget.current = rowId;
-      (event.currentTarget.querySelector('[data-test="moveUserMenuButton"]') as HTMLButtonElement)?.click();
-    }
-  };
+  const rover = useRoverNavigation(
+    'draggableUser',
+    () => {},
+    breakouts.length,
+    undefined,
+    false,
+    'moveUserMenuButton',
+  );
   const closeMoveMenu = () => {
     setOpenMoveMenu(null);
     requestAnimationFrame(() => {
@@ -492,9 +479,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                   id={`running-${user.userId}-main`}
                   data-test="draggableUser"
                   draggable
-                  tabIndex={-1}
-                  onKeyDown={(e) => openMenuFromRow(e, `running-${user.userId}-main`)}
-                  onKeyUp={(e) => openMenuFromRowKeyUp(e, `running-${user.userId}-main`)}
+                  onKeyDown={rover}
                   onDragStart={(ev) => dragStart(ev, user.userId, meetingId, user.name)}
                 >
                   <span>
@@ -506,6 +491,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                     onCloseCallback={closeMoveMenu}
                     trigger={(
                       <Styled.MoveUserBtn
+                        id={`running-${user.userId}-main-move-button`}
                         type="button"
                         tabIndex={-1}
                         aria-label={intl.formatMessage(
@@ -516,7 +502,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                         aria-expanded={openMoveMenu === `running-${user.userId}-main`}
                         data-test="moveUserMenuButton"
                         onClick={() => {
-                          moveFocusTarget.current = `running-${user.userId}-main`;
+                          moveFocusTarget.current = `running-${user.userId}-main-move-button`;
                           setOpenMoveMenu(`running-${user.userId}-main`);
                         }}
                       />
@@ -677,15 +663,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                           id={`running-${participant.userId}-${breakout.breakoutRoomMeetingId}`}
                           data-test="draggableUser"
                           draggable
-                          tabIndex={-1}
-                          onKeyDown={(e) => openMenuFromRow(
-                            e,
-                            `running-${participant.userId}-${breakout.breakoutRoomMeetingId}`,
-                          )}
-                          onKeyUp={(e) => openMenuFromRowKeyUp(
-                            e,
-                            `running-${participant.userId}-${breakout.breakoutRoomMeetingId}`,
-                          )}
+                          onKeyDown={rover}
                           onDragStart={(ev) => dragStart(
                             ev,
                             participant.userId,
@@ -706,6 +684,9 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                             onCloseCallback={closeMoveMenu}
                             trigger={(
                               <Styled.MoveUserBtn
+                                id={(
+                                  `running-${participant.userId}-${breakout.breakoutRoomMeetingId}-move-button`
+                                )}
                                 type="button"
                                 tabIndex={-1}
                                 aria-label={intl.formatMessage(
@@ -719,7 +700,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                                 data-test="moveUserMenuButton"
                                 onClick={() => {
                                   moveFocusTarget.current = (
-                                    `running-${participant.userId}-${breakout.breakoutRoomMeetingId}`
+                                    `running-${participant.userId}-${breakout.breakoutRoomMeetingId}-move-button`
                                   );
                                   setOpenMoveMenu(
                                     `running-${participant.userId}-${breakout.breakoutRoomMeetingId}`,

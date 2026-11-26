@@ -98,34 +98,42 @@ export const useRoverNavigation = (
   numberOfRooms: number,
   afterMove?: (userId: string, from: number, to: number) => void,
   allowArrowMoves = true,
+  focusTargetSelector?: string,
 ) => {
-  const rover = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
+  const rover = useCallback((e: React.KeyboardEvent<HTMLElement>) => {
     const element = e.target as HTMLElement;
+    const focusSelector = focusTargetSelector || userItemSelector;
 
     if (element.id.includes('breakoutBox')) {
       if (e.key === KEYS.ENTER || e.key === KEYS.ARROW_DOWN) {
         e.preventDefault();
         e.stopPropagation();
         const firstChild = element.querySelector(
-          `[data-test="${userItemSelector}"]`,
+          `[data-test="${focusSelector}"]`,
         ) as HTMLElement;
         if (firstChild) firstChild.focus();
       }
       return;
     }
 
-    if (element?.dataset?.test === userItemSelector) {
-      const splitted = element.id.split('-');
+    if (element?.dataset?.test === focusSelector) {
+      const userItem = focusTargetSelector
+        ? element.closest(`[data-test="${userItemSelector}"]`) as HTMLElement
+        : element;
+      const splitted = userItem.id.split('-');
       const [userId, stringFrom] = splitted;
       const from = Number(stringFrom);
 
       if (e.key === KEYS.ARROW_DOWN || e.key === KEYS.ARROW_UP) {
         e.preventDefault();
         e.stopPropagation();
-        const nextElement = e.key === KEYS.ARROW_DOWN
-          ? element.nextElementSibling
-          : element.previousElementSibling;
-        if (nextElement) (nextElement as HTMLElement).focus();
+        const nextUserItem = e.key === KEYS.ARROW_DOWN
+          ? userItem.nextElementSibling
+          : userItem.previousElementSibling;
+        const nextFocusTarget = focusTargetSelector
+          ? nextUserItem?.querySelector(`[data-test="${focusSelector}"]`)
+          : nextUserItem;
+        if (nextFocusTarget) (nextFocusTarget as HTMLElement).focus();
       }
 
       if (allowArrowMoves && e.key === KEYS.ARROW_RIGHT) {
@@ -146,7 +154,14 @@ export const useRoverNavigation = (
         }
       }
     }
-  }, [userItemSelector, moveUser, numberOfRooms, afterMove, allowArrowMoves]);
+  }, [
+    userItemSelector,
+    moveUser,
+    numberOfRooms,
+    afterMove,
+    allowArrowMoves,
+    focusTargetSelector,
+  ]);
 
   return rover;
 };

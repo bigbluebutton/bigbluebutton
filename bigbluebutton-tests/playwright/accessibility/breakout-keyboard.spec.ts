@@ -55,41 +55,54 @@ test.describe('Breakout room keyboard accessibility', { tag: '@ci' }, () => {
     await attendee.hover();
     const attendeeMoveButton = attendee.locator('[data-test="moveUserMenuButton"]');
     await expect(attendeeMoveButton).toHaveCSS('opacity', '1');
+    await expect(attendeeMoveButton).toHaveAccessibleName('Move Attendee to…');
+    await expect(attendeeMoveButton).toHaveAttribute('aria-haspopup', 'menu');
     await attendeeMoveButton.click();
     await expect(modPage.page.locator(firstMoveItem).first()).toBeVisible();
     await modPage.page.keyboard.press('Escape');
-    await attendee.focus();
+    await attendeeMoveButton.focus();
     await modPage.page.keyboard.press('Enter');
     await expect(modPage.page.locator(firstMoveItem).first()).toBeFocused();
     await modPage.page.keyboard.press('Escape');
-    await expect(attendee).toBeFocused();
+    await expect(attendeeMoveButton).toBeFocused();
     await modPage.page.keyboard.press('ArrowRight');
-    const attendeeRoomOne = modPage.page.getByLabel('Attendee, Room 1');
+    const attendeeRoomOne = modPage.page.getByLabel('Attendee, Room 1').locator('[data-test="moveUserMenuButton"]');
     await expect(attendeeRoomOne).toBeFocused();
-    await expect(attendeeRoomOne.locator('[data-test="moveUserMenuButton"]')).toHaveCSS('opacity', '1');
+    await expect(attendeeRoomOne).toHaveCSS('opacity', '1');
     await modPage.page.keyboard.press('ArrowRight');
-    const attendeeRoomTwo = modPage.page.getByLabel('Attendee, Room 2');
+    const attendeeRoomTwo = modPage.page.getByLabel('Attendee, Room 2').locator('[data-test="moveUserMenuButton"]');
     await expect(attendeeRoomTwo).toBeFocused();
     await modPage.page.keyboard.press('ArrowLeft');
     await expect(attendeeRoomOne).toBeFocused();
 
-    const attendeeTwo = modPage.page.getByLabel('Attendee2, Unassigned Users');
+    const attendeeTwo = modPage.page
+      .getByLabel('Attendee2, Unassigned Users')
+      .locator('[data-test="moveUserMenuButton"]');
     await attendeeTwo.focus();
     await modPage.page.keyboard.press('Enter');
     await expect(modPage.page.locator(e.moveUserToRoom1)).toBeFocused();
     await modPage.page.keyboard.press('Enter');
-    await expect(modPage.page.getByLabel('Attendee2, Room 1')).toBeFocused();
+    await expect(
+      modPage.page.getByLabel('Attendee2, Room 1').locator('[data-test="moveUserMenuButton"]'),
+    ).toBeFocused();
 
     await attendeeRoomOne.focus();
     await modPage.page.keyboard.press('Space');
     await expect(modPage.page.locator(e.moveUserToUnassigned)).toBeFocused();
     await modPage.page.keyboard.press('Enter');
-    await expect(modPage.page.getByLabel('Attendee, Unassigned Users')).toBeFocused();
+    await expect(
+      modPage.page
+        .locator(e.breakoutBox0)
+        .getByLabel('Attendee, Unassigned Users')
+        .locator('[data-test="moveUserMenuButton"]'),
+    ).toBeFocused();
 
     const roomOne = modPage.page.locator(e.breakoutBox1);
     await roomOne.focus();
     await modPage.page.keyboard.press('Enter');
-    await expect(modPage.page.getByLabel('Attendee2, Room 1')).toBeFocused();
+    await expect(
+      modPage.page.getByLabel('Attendee2, Room 1').locator('[data-test="moveUserMenuButton"]'),
+    ).toBeFocused();
   });
 
   test('manages running breakout rooms with the keyboard', async ({ browser, context, page }, testInfo) => {
@@ -135,30 +148,34 @@ test.describe('Breakout room keyboard accessibility', { tag: '@ci' }, () => {
     await modPage.page.keyboard.press('ArrowDown');
     const secondRow = modPage.page.locator(`${e.breakoutBox0} [data-test="draggableUser"]`).nth(1);
     const secondRowText = (await secondRow.locator(':scope > span').innerText()).trim();
-    await expect(secondRow).toBeFocused();
+    const secondMoveButton = secondRow.locator('[data-test="moveUserMenuButton"]');
+    await expect(secondMoveButton).toBeFocused();
+    await expect(secondMoveButton).toHaveAccessibleName(`Move ${secondRowText} to…`);
+    await expect(secondMoveButton).toHaveAttribute('aria-haspopup', 'menu');
 
-    await secondRow.locator('[data-test="moveUserMenuButton"]').click();
+    await secondMoveButton.click();
     await expect(modPage.page.locator(firstMoveItem).first()).toBeVisible();
     await modPage.page.keyboard.press('Escape');
-    await secondRow.focus();
+    await secondMoveButton.focus();
     await modPage.page.keyboard.press('Enter');
     await expect(modPage.page.locator(firstMoveItem).first()).toBeFocused();
     await modPage.page.keyboard.press('Escape');
-    await expect(secondRow).toBeFocused();
+    await expect(secondMoveButton).toBeFocused();
 
     const firstRow = modPage.page.locator(`${e.breakoutBox0} [data-test="draggableUser"]`).first();
     const firstRowText = (await firstRow.locator(':scope > span').innerText()).trim();
-    await firstRow.focus();
+    const firstMoveButton = firstRow.locator('[data-test="moveUserMenuButton"]');
+    await firstMoveButton.focus();
     await modPage.page.keyboard.press('Space');
     await expect(modPage.page.locator(firstMoveItem).first()).toBeFocused();
     await expect(modPage.page.locator(e.smallToastMsg)).toHaveCount(0);
     await expect(modPage.page.locator(e.breakoutBox0)).toContainText(firstRowText);
     await modPage.page.waitForTimeout(500);
     await modPage.page.keyboard.press('Escape');
-    await expect(firstRow).toBeFocused();
+    await expect(firstMoveButton).toBeFocused();
     await modPage.page.waitForTimeout(500);
 
-    await secondRow.focus();
+    await secondMoveButton.focus();
     await modPage.page.keyboard.press('Enter');
     await modPage.page.locator(e.moveUserToRoom2).press('Enter');
     await expect(modPage.page.locator(e.smallToastMsg)).toHaveText(`${secondRowText} was invited to Room 2`);
@@ -172,9 +189,11 @@ test.describe('Breakout room keyboard accessibility', { tag: '@ci' }, () => {
     await roomOneCard.focus();
     await modPage.page.keyboard.press('ArrowDown');
     const joinedRow = modPage.page.locator(`${e.breakoutBox1} [data-test="draggableUser"]`);
+    const joinedMoveButton = joinedRow.locator('[data-test="moveUserMenuButton"]');
+    await expect(joinedMoveButton).toBeFocused();
     await modPage.page.keyboard.press('Enter');
     await modPage.page.keyboard.press('Escape');
-    await expect(joinedRow).toBeFocused();
+    await expect(joinedMoveButton).toBeFocused();
     await expect(joinedRow).toHaveAttribute('data-test', 'draggableUser');
     await expect(joinedRow.locator('[data-test="unassignUserFromBreakoutRoom"]')).not.toBeFocused();
 
@@ -188,7 +207,7 @@ test.describe('Breakout room keyboard accessibility', { tag: '@ci' }, () => {
 
     const roomTwoRow = modPage.page.locator(`${e.breakoutBox2} [data-test="draggableUser"]`).first();
     await expect(roomTwoRow.locator(':scope > span')).toHaveText('Attendee');
-    await roomTwoRow.focus();
+    await roomTwoRow.locator('[data-test="moveUserMenuButton"]').focus();
     await modPage.page.keyboard.press('Enter');
     await modPage.page.locator(e.moveUserToMainRoom).press('Enter');
     await expect(modPage.page.locator(e.breakoutBox2)).not.toContainText('Attendee');
