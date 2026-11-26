@@ -23,7 +23,7 @@ public class GetUsersStatusCommand extends FreeswitchCommand {
   private static Logger log = LoggerFactory.getLogger(GetUsersStatusCommand.class);
   private static final Pattern CALLERNAME_PATTERN = Pattern.compile("(.*)-bbbID-(.*)$");
   private static final Pattern CALLERNAME_WITH_SESS_INFO_PATTERN = Pattern.compile("^(.*)_(\\d+)-bbbID-(.*)$");
-  private static final Pattern GLOBAL_AUDION_PATTERN = Pattern.compile("(GLOBAL_AUDIO)_(.*)$");
+  private static final String GLOBAL_AUDIO_PREFIX = "GLOBAL_AUDIO_";
 
   public GetUsersStatusCommand(String room, String requesterId) {
     super(room, requesterId);
@@ -76,9 +76,7 @@ public class GetUsersStatusCommand extends FreeswitchCommand {
             String uuid = member.getUUID();
             String clientSession = "0";
 
-            Matcher gapMatcher = GLOBAL_AUDION_PATTERN.matcher(callerIdName);
-            // Ignore GLOBAL_AUDIO user.
-            if (!gapMatcher.matches()) {
+            if (!(GLOBAL_AUDIO_PREFIX + room).equals(callerIdName)) {
               Matcher matcher = CALLERNAME_PATTERN.matcher(callerIdName);
               Matcher callWithSess = CALLERNAME_WITH_SESS_INFO_PATTERN.matcher(callerIdName);
               if (callWithSess.matches()) {

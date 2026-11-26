@@ -11,7 +11,7 @@ permissions:
   contents: read
 jobs:
   ts-code-validation:
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-24.04' }}
     steps:
       - name: Checkout PR's source merged into its target branch
         if: github.event_name == 'pull_request'
@@ -23,6 +23,11 @@ jobs:
         uses: actions/checkout@v5
         with:
           ref: ${{ github.ref }}
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: bigbluebutton-html5/package-lock.json
       - name: install npm dependencies
         working-directory: bigbluebutton-html5
         run: npm ci

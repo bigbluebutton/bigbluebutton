@@ -1,0 +1,51 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# getJoinUrl signs the join URL with the strongest algorithm the server
+# accepts, so that join accepts it: with supportedChecksumAlgorithms=sha256
+# (the checksum-sha256-only profile) that is sha256, where the default list
+# gives sha512 (getJoinUrl.signed-url.parameters).
+id: getJoinUrl.signed-url.algorithm
+title: getJoinUrl signs with the strongest algorithm the server accepts
+endpoint: getJoinUrl
+class: contract
+tags: [presence, disruptive]
+requires: [akka, presence]
+profile: checksum-sha256-only
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Join URL}
+    sign: sha256
+    golden: off
+    expect: {returncode: SUCCESS}
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: viewer}}
+    golden: off
+    capture: {annToken: $.sessionToken}
+  # bbb-web learns of the join from akka-apps a moment later.
+  - call: getJoinUrl
+    client: ann
+    params: {sessionToken: "${annToken}"}
+    eventually: {within: 10s, every: 200ms, until: {returncode: SUCCESS}}
+    expect:
+      format: json
+      returncode: SUCCESS
+      jsonpath:
+        $.response.url: {regex: '&checksum=[0-9a-f]{64}$'}
+    capture: {joinUrl: $.response.url}
+  - check:
+      - value: '${match(joinUrl, "checksum=([0-9a-f]+)$")}'
+        expect: '${checksum("sha256", "join", match(joinUrl, "[?](.*)&checksum="))}'
+  - url: "${joinUrl}"
+    client: bob
+    expect:
+      status: 302
+      redirect:
+        path: {regex: /html5client/}
+        query:
+          sessionToken: {exists: true}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    sign: sha256
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

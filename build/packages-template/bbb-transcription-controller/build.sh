@@ -38,5 +38,6 @@ fpm -s dir -C ./staging -n $PACKAGE \
     --before-remove before-remove.sh \
     --description "BigBlueButton Transcription Controller" \
     $DIRECTORIES \
-    $OPTS
+    $OPTS \
+    -d 'nodejs (>= 24)' -d 'nodejs (<< 25)'
 

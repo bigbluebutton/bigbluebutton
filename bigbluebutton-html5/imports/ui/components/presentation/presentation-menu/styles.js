@@ -2,10 +2,12 @@ import styled, { css, keyframes } from 'styled-components';
 import Icon from '/imports/ui/components/common/icon/component';
 import {
   colorDanger,
-  colorGray,
-  colorSuccess,
+  colorGrayBorder,
   colorGrayLightest,
+  colorGrayLightestText,
   colorOffWhite,
+  colorSuccess,
+  colorTextStrong,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   statusIconSize,
@@ -21,7 +23,7 @@ const DropdownButton = styled.button`
   box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.16),
     0px 2px 3px rgba(0, 0, 0, 0.24),
     0px 2px 6px rgba(0, 0, 0, 0.1);
-  color: #2d2d2d;
+  color: ${colorTextStrong};
   cursor: pointer;
   padding: .3rem .5rem;
   display: flex;
@@ -108,10 +110,10 @@ const ToastIcon = styled(Icon)`
   `}
 
   ${({ loading }) => loading && css`
-    color: ${colorGrayLightest};
+    color: ${colorGrayLightestText};
     border: 1px solid;
     border-radius: 50%;
-    border-right-color: ${colorGray};
+    border-right-color: ${colorGrayBorder};
     animation: ${rotate} 1s linear infinite;
   `}
 `;

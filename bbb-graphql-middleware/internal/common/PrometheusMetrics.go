@@ -6,7 +6,14 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-var PrometheusAdvancedMetricsEnabled = config.GetConfig().PrometheusAdvancedMetricsEnabled
+// AdvancedMetricsEnabled reports whether the optional payload-length metric is collected.
+//
+// Read through config on each call rather than captured into a package variable: package
+// initialisation must not touch the config file, so that importing this package does not require
+// an installed config.
+func AdvancedMetricsEnabled() bool {
+	return config.GetConfig().PrometheusAdvancedMetricsEnabled
+}
 
 var (
 	HttpConnectionGauge = prometheus.NewGauge(prometheus.GaugeOpts{
@@ -97,7 +104,11 @@ var (
 	)
 )
 
-func init() {
+// RegisterMetrics registers the collectors with the default Prometheus registry.
+//
+// Called once from main. It is not an init() because the advanced-metrics decision below reads
+// the config, and package initialisation must stay free of file I/O.
+func RegisterMetrics() {
 	prometheus.MustRegister(HttpConnectionGauge)
 	prometheus.MustRegister(HttpConnectionCounter)
 	prometheus.MustRegister(WsConnectionAcceptedCounter)
@@ -106,7 +117,7 @@ func init() {
 	prometheus.MustRegister(GqlReceivedDataCounter)
 	prometheus.MustRegister(GqlMutationsCounter)
 	prometheus.MustRegister(GqlReceivedDataPayloadSize)
-	if PrometheusAdvancedMetricsEnabled {
+	if AdvancedMetricsEnabled() {
 		prometheus.MustRegister(GqlReceivedDataPayloadLength)
 	}
 	prometheus.MustRegister(ApplicationsLatency)

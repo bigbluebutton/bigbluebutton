@@ -19,47 +19,31 @@ class UrlMappings {
       action = [GET: 'testConversion']
     }
 
-    "/bigbluebutton/presentation/$conference/$room/$presentation_name/slides"(controller: "presentation") {
-      action = [GET: 'numberOfSlides']
-    }
-
-    "/bigbluebutton/presentation/$conference/$room/$presentation_name/thumbnails"(controller: "presentation") {
-      action = [GET: 'numberOfThumbnails']
-    }
-
     "/bigbluebutton/presentation/$conference/$room/$presentation_name/thumbnail/$id"(controller: "presentation") {
       action = [GET: 'showThumbnail']
       constraints {
-        id matches: /\d+/
+        id matches: /[0-9a-f-]{36}/
       }
     }
 
     "/bigbluebutton/presentation/$conference/$room/$presentation_name/png/$id"(controller: "presentation") {
       action = [GET: 'showPng']
       constraints {
-        id matches: /\d+/
+        id matches: /[0-9a-f-]{36}/
       }
-    }
-
-    "/bigbluebutton/presentation/$conference/$room/$presentation_name/svgs"(controller: "presentation") {
-      action = [GET: 'numberOfSvgs']
     }
 
     "/bigbluebutton/presentation/$conference/$room/$presentation_name/svg/$id"(controller: "presentation") {
       action = [GET: 'showSvgImage']
       constraints {
-        id matches: /\d+/
+        id matches: /[0-9a-f-]{36}/
       }
-    }
-
-    "/bigbluebutton/presentation/$conference/$room/$presentation_name/textfiles"(controller: "presentation") {
-      action = [GET: 'numberOfTextfiles']
     }
 
     "/bigbluebutton/presentation/$conference/$room/$presentation_name/textfiles/$id"(controller: "presentation") {
       action = [GET: 'showTextfile']
       constraints {
-        id matches: /\d+/
+        id matches: /[0-9a-f-]{36}/
       }
     }
 
@@ -124,12 +108,12 @@ class UrlMappings {
       action = [GET: 'getRecordingsHandler', POST: 'getRecordingsHandler']
     }
 
-    "/bigbluebutton/api/updateRecordings"(controller: "recording") {
-      action = [GET: 'updateRecordingsHandler', POST: 'updateRecordingsHandler']
+    "/bigbluebutton/api/getRecordingProcessingInfo"(controller: "recording") {
+      action = [GET: 'getRecordingProcessingInfoHandler', POST: 'getRecordingProcessingInfoHandler']
     }
 
-    "/bigbluebutton/api/guestWait"(controller: "api") {
-      action = [GET: 'guestWaitHandler']
+    "/bigbluebutton/api/updateRecordings"(controller: "recording") {
+      action = [GET: 'updateRecordingsHandler', POST: 'updateRecordingsHandler']
     }
 
     "/bigbluebutton/textTrack/validateAuthToken"(controller: "recording") {
@@ -162,6 +146,6 @@ class UrlMappings {
       action = [GET: 'index']
     }
 
-    "500"(view: '/error')
+    "500"(controller: "error", action: "serverError")
   }
 }

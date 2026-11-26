@@ -18,7 +18,7 @@
     </layout>
   </appender>
       
-    <logger name="akka" level="INFO" />
+    <logger name="org.apache.pekko" level="INFO" />
     <logger name="org.bigbluebutton" level="DEBUG" />
     <logger name="org.freeswitch.esl" level="WARN" />
     <logger name="io.lettuce" level="INFO" />

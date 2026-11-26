@@ -1,4 +1,6 @@
 import { expect } from '@playwright/test';
+import { readFileSync } from 'fs';
+import path from 'path';
 
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
@@ -32,6 +34,12 @@ export function hexToRgb(hex: string) {
   const b = bigint & 255;
 
   return `rgb(${r}, ${g}, ${b})`;
+}
+
+// create call POST body that pre-uploads a core/media file inline, so bbb-web does not download it from anywhere
+export function preUploadedPresentationModule(fileName: string): string {
+  const document = readFileSync(path.join(__dirname, `../core/media/${fileName}`)).toString('base64');
+  return `<modules><module name="presentation"><document name="${fileName}">${document}</document></module></modules>`;
 }
 
 export async function poll(testPage: Page, testPage2: Page) {

@@ -61,6 +61,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
   def processRequest(msg: CreateBreakoutRoomsCmdMsg, state: MeetingState2x): MeetingState2x = {
     val presId = getPresentationId(state) // The current presentation
     val presSlide = getPresentationSlide(state) // The current slide
+    val presPageId = getPresentationPageId(state) // The id of the current slide
     val parentId = liveMeeting.props.meetingProp.intId
     var rooms = new collection.immutable.HashMap[String, BreakoutRoom2x]
     val filteredPluginProp = liveMeeting.props.pluginProp.asScala
@@ -91,6 +92,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
     for (breakout <- rooms.values.toVector) {
 
       val roomSlides = if (breakout.allPages) -1 else presSlide;
+      val roomPageId = if (breakout.allPages) "" else presPageId
 
       // get lock settings from parent meeting
       val lockSettings = MeetingStatus2x.getPermissions(liveMeeting.status)
@@ -101,11 +103,13 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
             lockSettings.disableNotes, lockSettings.hideUserList, lockSettings.lockOnJoin,
             lockSettings.lockOnJoinConfigurable, lockSettings.hideViewersCursor, lockSettings.hideViewersAnnotation)
         else
-          (false, false, false, false, false, false, false, false, false, false)
+          // No restriction, but lockOnJoin stays on: it is what makes the locks a moderator
+          // applies later in the room bind the attendees (they join with locked = lockOnJoin).
+          (false, false, false, false, false, false, true, false, false, false)
 
       // webcamsOnlyForModerator ("See other viewers webcams") is not part of
       // LockSettingsProps, so propagate it from the parent's live status too.
-      // When not inheriting we send `false` explicitly (mirroring the lock-settings
+      // When not inheriting we send `false` explicitly (like the restrictions in the
       // tuple above), which overrides the bbb-web server-config default for the breakout.
       val webcamsOnlyForModerator =
         if (msg.body.inheritLockSettings)
@@ -118,7 +122,6 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
         liveMeeting.props.meetingProp.intId,
         breakout.sequence,
         breakout.shortName,
-        liveMeeting.props.meetingProp.sharedNotesEditor,
         breakout.isDefaultName,
         breakout.freeJoin,
         liveMeeting.props.voiceProp.dialNumber,
@@ -128,7 +131,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
         liveMeeting.props.password.viewerPass,
         breakout.presId,
         roomSlides,
-        msg.body.record,
+        msg.body.record && liveMeeting.props.breakoutProps.record,
         liveMeeting.props.recordProp.autoStartRecording,
         liveMeeting.props.recordProp.allowStartStopRecording,
         liveMeeting.props.breakoutProps.privateChatEnabled,
@@ -151,7 +154,8 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
         lsLockOnJoinCfg,
         lsHideCursor,
         lsHideAnnotation,
-        webcamsOnlyForModerator
+        webcamsOnlyForModerator,
+        sourcePresentationPageId = roomPageId
       )
 
       val event = buildCreateBreakoutRoomSysCmdMsg(liveMeeting.props.meetingProp.intId, roomDetail)
@@ -199,5 +203,16 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
     }
 
     currentSlide
+  }
+
+  // The id of the page getPresentationSlide returns the number of; empty when there is none.
+  def getPresentationPageId(state: MeetingState2x): String = {
+    val currentPage = for {
+      defaultPod <- state.presentationPodManager.getDefaultPod()
+      curPres <- defaultPod.getCurrentPresentation()
+      curPage <- PresentationInPod.getCurrentPage(curPres)
+    } yield curPage.id
+
+    currentPage.getOrElse("")
   }
 }

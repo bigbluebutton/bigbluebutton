@@ -22,7 +22,10 @@ const InfoBox: React.FC<InfoBoxContainerProps> = ({
 }) => {
   const intl = useIntl();
   return (
-    <Styled.InfoBoxContainer isQuiz={isQuiz}>
+    <Styled.InfoBoxContainer
+      isQuiz={isQuiz}
+      className={isQuiz ? 'bbb-poll__info bbb-poll__info--quiz' : 'bbb-poll__info'}
+    >
       {
         isQuiz ? (
           <p>{intl.formatMessage(intlMessages.quizInfo)}</p>

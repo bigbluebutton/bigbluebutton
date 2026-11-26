@@ -51,7 +51,7 @@ public class TextFileCreatorImp implements TextFileCreator {
       textfilesDir.mkdir();
 
     if (useBlank) {
-        createBlankTextFile(textfilesDir, page);
+        createBlankTextFile(textFile(pres, page));
         return true;
     }
 
@@ -63,7 +63,7 @@ public class TextFileCreatorImp implements TextFileCreator {
     }
 
     if (!success) {
-      createBlankTextFile(textfilesDir, page);
+      createBlankTextFile(textFile(pres, page));
     }
 
     return success;
@@ -81,14 +81,14 @@ public class TextFileCreatorImp implements TextFileCreator {
       }
     }
 
-    createBlankTextFile(dir, page);
+    createBlankTextFile(textFile(pres, page));
   }
 
   private boolean generateTextFile(File textfilesDir,
       UploadedPresentation pres, int page) throws InterruptedException {
     boolean success = true;
     String source = pres.getUploadedFile().getAbsolutePath();
-    String dest = textfilesDir.getAbsolutePath() + File.separatorChar + "slide-" + page + ".txt";
+    String dest = textFile(pres, page).getAbsolutePath();
     String COMMAND = "";
 
     // Skip processing if the destination file exists, as it was likely restored from the cache
@@ -97,7 +97,6 @@ public class TextFileCreatorImp implements TextFileCreator {
     }
 
     if (SupportedFileTypes.isImageFile(pres.getFileType())) {
-      dest = textfilesDir.getAbsolutePath() + File.separatorChar + "slide-1.txt";
       String text = "No text could be retrieved for the slide";
 
       File file = new File(dest);
@@ -156,8 +155,11 @@ public class TextFileCreatorImp implements TextFileCreator {
         presentationFile.getParent() + File.separatorChar + "textfiles");
   }
 
-  private void createBlankTextFile(File textFilesDir, int page) {
-    File textFile = new File(textFilesDir.getAbsolutePath() + File.separatorChar + "slide-" + page + ".txt");
+  private File textFile(UploadedPresentation pres, int page) {
+    return PageArtifacts.Type.TEXT.file(pres.getUploadedFile().getParentFile(), pres.pageId(page));
+  }
+
+  private void createBlankTextFile(File textFile) {
     try {
       boolean created = textFile.createNewFile();
       if (created) {

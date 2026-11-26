@@ -15,7 +15,6 @@ fi
 
 PKGS="bbb-apps-akka
 bbb-config
-bbb-etherpad
 bbb-export-annotations
 bbb-freeswitch-core
 bbb-freeswitch-sounds
@@ -25,7 +24,6 @@ bbb-learning-dashboard
 bbb-libreoffice-docker
 bbb-livekit
 bbb-mkclean
-bbb-pads
 bbb-shared-notes-server
 bbb-playback
 bbb-playback-presentation
@@ -73,8 +71,10 @@ Package: bigbluebutton
 Version: $VERSION
 Maintainer: ffdixon@bigbluebutton.org
 Depends: $DEPENDENCIES
+Conflicts: bbb-etherpad, bbb-pads
+Replaces: bbb-etherpad, bbb-pads
 Architecture: amd64
-Copyright: LICENSE
+Copyright: license.txt
 Description: Virtual Classroom
   BigBlueButton is a virtual classroom for online teaching and learning. It was built for online learning, has a large community of teachers and developers that constantly work to improve it, and is deeply embedded into the world’s major learning management system. Users run BigBlueButton within their browsers with no additional software to install.
 EOF

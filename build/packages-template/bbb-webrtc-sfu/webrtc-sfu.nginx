@@ -7,7 +7,7 @@ location /bbb-webrtc-sfu {
     auth_request_set $voice_bridge $sent_http_voice_bridge;
     auth_request_set $user_name $sent_http_user_name;
 
-    proxy_pass http://127.0.0.1:3008;
+    proxy_pass http://bbb-webrtc-sfu;
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "Upgrade";

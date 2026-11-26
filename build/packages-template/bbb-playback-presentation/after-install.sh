@@ -28,7 +28,9 @@ case "$1" in
     if [ -f /var/bigbluebutton/published/presentation/index.html ]; then
       rm /var/bigbluebutton/published/presentation/index.html
     fi
-    
+
+    reloadService nginx
+
   ;;
   
   failed-upgrade)

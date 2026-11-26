@@ -10,7 +10,6 @@ public class CreateBreakoutRoom implements IMessage {
     public final String name; // The name of the breakout room
     public final Integer sequence; // The sequence number of the breakout room
     public final String shortName; // Name used in breakout rooms list
-    public final String sharedNotesEditor; // Editor used for shared notes - blockNote or etherpad
     public final Boolean isDefaultName; // Inform if using default name or changed by moderator
     public final Boolean freeJoin; // Allow users to freely join the conference
                                    // in the client
@@ -45,13 +44,14 @@ public class CreateBreakoutRoom implements IMessage {
     public final Boolean hideViewersCursor;
     public final Boolean hideViewersAnnotation;
     public final Boolean webcamsOnlyForModerator;
+    // Id of the page sourcePresentationSlide names; empty when the room takes the whole presentation.
+    public final String sourcePresentationPageId;
 
     public CreateBreakoutRoom(String meetingId,
                               String parentMeetingId,
                               String name,
                               Integer sequence,
                               String shortName,
-                              String sharedNotesEditor,
                               Boolean isDefaultName,
                               Boolean freeJoin,
                               String dialNumber,
@@ -84,13 +84,13 @@ public class CreateBreakoutRoom implements IMessage {
                               Boolean lockOnJoinConfigurable,
                               Boolean hideViewersCursor,
                               Boolean hideViewersAnnotation,
-                              Boolean webcamsOnlyForModerator) {
+                              Boolean webcamsOnlyForModerator,
+                              String sourcePresentationPageId) {
         this.meetingId = meetingId;
         this.parentMeetingId = parentMeetingId;
         this.name = name;
         this.sequence = sequence;
         this.shortName = shortName;
-        this.sharedNotesEditor = sharedNotesEditor;
         this.isDefaultName = isDefaultName;
         this.freeJoin = freeJoin;
         this.dialNumber = dialNumber;
@@ -124,5 +124,6 @@ public class CreateBreakoutRoom implements IMessage {
         this.hideViewersCursor = hideViewersCursor;
         this.hideViewersAnnotation = hideViewersAnnotation;
         this.webcamsOnlyForModerator = webcamsOnlyForModerator;
+        this.sourcePresentationPageId = sourcePresentationPageId;
     }
 }

@@ -1,7 +1,7 @@
 import React, {
   useMemo,
+  useRef,
   useState,
-  useCallback,
   memo,
 } from 'react';
 import PropTypes from 'prop-types';
@@ -9,6 +9,7 @@ import { notify } from '/imports/ui/services/notification';
 import Presentation from '/imports/ui/components/presentation/component';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Auth from '/imports/ui/services/auth';
+import logger from '/imports/startup/client/logger';
 import {
   useMutation, useSubscription, useQuery,
 } from '@apollo/client';
@@ -28,7 +29,7 @@ import {
 } from '/imports/ui/components/whiteboard/queries';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import { PRESENTATION_SET_ZOOM, USER_SET_WHITEBOARD_WRITE_ACCESS } from './mutations';
+import { USER_SET_WHITEBOARD_WRITE_ACCESS } from './mutations';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
@@ -84,9 +85,15 @@ const PresentationContainer = ({
     {
       variables: { pageId: currentPageId },
       skip: !currentPageId,
+      // Fetched on every mount: the container is unmounted while a screen share
+      // or external video is displayed, and the history stream below must start
+      // from the page state at remount, not from a cached snapshot taken at join.
+      fetchPolicy: 'network-only',
     },
   );
 
+  // Erased annotations keep their row, with the time they were erased, so this
+  // is the time of the newest annotation event on the page, deletions included.
   const lastUpdatedAt = useMemo(() => {
     if (!initialPageAnnotations) return null;
 
@@ -102,20 +109,29 @@ const PresentationContainer = ({
   }, [initialPageAnnotations, currentMeeting?.createdTime]);
 
   const canStream = !!lastUpdatedAt;
+  const lastSeenEventAt = useRef(0);
 
   useSubscription(ANNOTATION_HISTORY_STREAM, {
     variables: { pageId: currentPageId, updatedAt: lastUpdatedAt },
     skip: !currentPageId || !canStream,
     onData: ({ data: subscriptionData }) => {
       const annotationStream = subscriptionData.data?.pres_annotation_history_curr_stream || [];
-      if (annotationStream.length > 0 && restoreOnUpdate && !presentationIsOpen) {
+      // A batch with nothing newer than where the stream started, or than what
+      // it already delivered, is a replay and must not restore the presentation.
+      const newestInBatch = annotationStream.reduce(
+        (latest, row) => Math.max(latest, new Date(row.updatedAt).getTime()),
+        0,
+      );
+      const streamStartedAt = new Date(lastUpdatedAt).getTime();
+      const hasNewEvent = newestInBatch > Math.max(streamStartedAt, lastSeenEventAt.current);
+      lastSeenEventAt.current = Math.max(lastSeenEventAt.current, newestInBatch);
+      if (restoreOnUpdate && !presentationIsOpen && hasNewEvent) {
         MediaService.setPresentationIsOpen(layoutContextDispatch, true);
       }
       setAnnotationStreamData(annotationStream);
     },
   });
 
-  const [presentationSetZoom] = useMutation(PRESENTATION_SET_ZOOM);
   const [fitToWidth, setPresentationFitToWidth] = usePresentationFitToWidth();
   const [userSetWhiteboardWriteAccess] = useMutation(USER_SET_WHITEBOARD_WRITE_ACCESS);
 
@@ -123,6 +139,10 @@ const PresentationContainer = ({
   const PRELOAD_NEXT_SLIDE = APP_CONFIG.preloadNextSlides;
 
   const setMultiUserWhiteboardEnabled = () => {
+    logger.info({
+      logCode: 'whiteboard_multi_user_toggle',
+      extraInfo: { logType: 'presenter_action', enabled: true },
+    }, 'presenter enabled multi-user whiteboard for the meeting');
     userSetWhiteboardWriteAccess({
       variables: {
         userIds: [],
@@ -133,6 +153,10 @@ const PresentationContainer = ({
   };
 
   const setMultiUserWhiteboardDisabled = () => {
+    logger.info({
+      logCode: 'whiteboard_multi_user_toggle',
+      extraInfo: { logType: 'presenter_action', enabled: false },
+    }, 'presenter disabled multi-user whiteboard for the meeting');
     userSetWhiteboardWriteAccess({
       variables: {
         userIds: [],
@@ -141,22 +165,6 @@ const PresentationContainer = ({
       },
     });
   };
-
-  const zoomSlide = useCallback((widthRatio, heightRatio, xOffset, yOffset) => {
-    const { presentationId, pageId, num } = currentPresentationPage;
-
-    presentationSetZoom({
-      variables: {
-        presentationId,
-        pageId,
-        pageNum: num,
-        xOffset,
-        yOffset,
-        widthRatio,
-        heightRatio,
-      },
-    });
-  }, [currentPresentationPage, presentationSetZoom]);
 
   const meeting = useMeeting((m) => ({
     lockSettings: m?.lockSettings,
@@ -279,7 +287,6 @@ const PresentationContainer = ({
           presentationBounds: presentation,
           fullscreenContext,
           fullscreenElementId,
-          isMobile: deviceType === DEVICE_TYPE.MOBILE,
           isTabledLandscape: deviceType === DEVICE_TYPE.TABLET_LANDSCAPE,
           isIphone,
           currentSlide,
@@ -294,7 +301,6 @@ const PresentationContainer = ({
           currentPresentationId: currentPresentationPage?.presentationId,
           totalPages: currentPresentationPage?.totalPages || 0,
           notify,
-          zoomSlide,
           restoreOnUpdate: shouldRestoreOnUpdate,
           setMultiUserWhiteboardEnabled,
           setMultiUserWhiteboardDisabled,

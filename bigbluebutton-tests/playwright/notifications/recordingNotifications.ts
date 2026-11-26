@@ -11,7 +11,11 @@ export class RecordingNotifications extends Page {
     await this.closeAllToastNotifications();
     await this.waitAndClick(e.recordingIndicator);
     await this.waitAndClick(e.cancelRecordingButton);
-    await this.hasNElements(e.smallToastMsg, 1, 'should display only the warning toast after canceling / closing recording notification');
+    await this.hasNElements(
+      e.smallToastMsg,
+      1,
+      'should display only the warning toast after canceling / closing recording notification',
+    );
     await util.checkNotificationText(this, e.noActiveMicrophoneToast);
   }
 

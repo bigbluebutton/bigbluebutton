@@ -22,6 +22,7 @@ import ListenOnly from './buttons/listenOnly';
 import LiveSelection from './buttons/LiveSelection';
 import useWhoIsTalking from '/imports/ui/core/hooks/useWhoIsTalking';
 import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
+import Auth from '/imports/ui/services/auth';
 import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
 import useIsAudioConnected from '/imports/ui/components/audio/audio-graphql/hooks/useIsAudioConnected';
 
@@ -71,6 +72,7 @@ interface InputStreamLiveSelectorProps extends InputStreamLiveSelectorContainerP
   inAudio: boolean;
   showMute: boolean;
   disabled: boolean;
+  mediaInterrupted: boolean;
   inputDeviceId: string;
   outputDeviceId: string;
   inputStream: string;
@@ -93,6 +95,7 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
   inAudio,
   showMute,
   disabled,
+  mediaInterrupted,
   inputDeviceId,
   outputDeviceId,
   inputStream,
@@ -200,6 +203,7 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
             talking={talking}
             muted={muted}
             disabled={disabled || isAudioLocked}
+            mediaInterrupted={mediaInterrupted}
             isAudioLocked={isAudioLocked}
             toggleMuteMicrophone={toggleMuteMicrophone}
             away={away}
@@ -214,6 +218,7 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
           <>
             {(isConnected && !listenOnly) && (
               <MuteToggle
+                mediaInterrupted={mediaInterrupted}
                 talking={talking}
                 muted={muted}
                 disabled={disabled || isAudioLocked}
@@ -266,10 +271,10 @@ const InputStreamLiveSelectorContainer: React.FC<InputStreamLiveSelectorContaine
     };
   });
 
-  const { data: talkingUsers } = useWhoIsTalking();
-  const { data: unmutedUsers } = useWhoIsUnmuted();
-  const talking = Boolean(currentUser?.userId && talkingUsers[currentUser.userId]);
-  const muted = Boolean(currentUser?.userId && !unmutedUsers[currentUser.userId]);
+  const { data: currentUserTalking } = useWhoIsTalking(Auth.userID as string);
+  const { data: currentUserUnmuted } = useWhoIsUnmuted(Auth.userID as string);
+  const talking = Boolean(currentUser?.userId && currentUserTalking);
+  const muted = Boolean(currentUser?.userId && !currentUserUnmuted);
 
   const { data: currentMeeting } = useMeeting((m) => {
     return {
@@ -293,6 +298,8 @@ const InputStreamLiveSelectorContainer: React.FC<InputStreamLiveSelectorContaine
   // @ts-ignore - temporary while hybrid (meteor+GraphQl)
   const supportsTransparentListenOnly = useReactiveVar(AudioManager._transparentListenOnlySupported.value) as boolean;
   const isConnected = useIsAudioConnected();
+  // @ts-ignore - temporary while hybrid (meteor+GraphQl)
+  const mediaInterrupted = useReactiveVar(AudioManager._isReconnecting.value) as boolean;
 
   const updateInputDevices = (devices: InputDeviceInfo[] = []) => {
     AudioManager.inputDevices = devices;
@@ -315,6 +322,7 @@ const InputStreamLiveSelectorContainer: React.FC<InputStreamLiveSelectorContaine
       showMute={(inAudio && !currentMeeting?.lockSettings?.disableMic) ?? false}
       isConnected={isConnected}
       disabled={isConnecting || isHangingUp}
+      mediaInterrupted={mediaInterrupted}
       inputDeviceId={inputDeviceId}
       outputDeviceId={outputDeviceId}
       inputStream={inputStream}

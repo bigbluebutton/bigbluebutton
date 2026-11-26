@@ -5,6 +5,7 @@ const joinEndpointTableData = [
     "name": "fullName",
     "required": true,
     "type": "String",
+    "maxLength": 255,
     "description": (<>The full name that is to be used to identify this user to other conference attendees.</>)
   },
   {
@@ -42,12 +43,6 @@ const joinEndpointTableData = [
     "required": false,
     "type": "String",
     "description": (<>An identifier for this user that will help your application to identify which person this is.  This user ID will be returned for this user in the getMeetingInfo API call so that you can check</>)
-  },
-  {
-    "name": "webVoiceConf",
-    "required": false,
-    "type": "String",
-    "description": (<>If you want to pass in a custom voice-extension when a user joins the voice conference using voip. This is useful if you want to collect more info in you Call Detail Records about the user joining the conference. You need to modify your /etc/asterisk/bbb-extensions.conf to handle this new extensions.</>)
   },
   {
     "name": "avatarURL",
@@ -119,6 +114,16 @@ const joinEndpointTableData = [
     "required": false,
     "type": "String",
     "description": (<>If passed it overrides the value of `meetingLayout` passed on CREATE or the value of `defaultMeetingLayout` read from configuration. Accepted values are: UNIFIED_LAYOUT, CAMERAS_ONLY, PARTICIPANTS_AND_CHAT_ONLY, PRESENTATION_ONLY, MEDIA_ONLY. Added in BBB 3.0</>)
+  },
+  {
+    "name": "userdata-*",
+    "required": false,
+    "type": "String",
+    "description": (
+      <>
+        <p>Any parameter prefixed with <code>userdata-</code> is stored as metadata of this user and passed on to the client, to bbb-apps-akka and to the recording events. The <code>userdata-bbb_</code> prefix is reserved for the parameters BigBlueButton itself interprets, which change the look and default behaviour of the client for this user; see <a href="#user-metadata-parameters">User metadata parameters</a> below for the list.</p>
+      </>
+    )
   }
 ];
 

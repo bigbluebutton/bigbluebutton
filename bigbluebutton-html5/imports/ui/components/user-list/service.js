@@ -1,10 +1,13 @@
 import React from 'react';
 import { FormattedMessage, defineMessages } from 'react-intl';
 import Auth from '/imports/ui/services/auth';
+import {
+  makeUserSearchWhere,
+  USER_SEARCH_MAX_LENGTH,
+} from '/imports/ui/components/user-list/user-search/service';
 import Storage from '/imports/ui/services/storage/session';
 import AudioService from '/imports/ui/components/audio/service';
 import KEYS from '/imports/utils/keys';
-import logger from '/imports/startup/client/logger';
 import Session from '/imports/ui/services/storage/in-memory';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { notify } from '/imports/ui/services/notification';
@@ -277,18 +280,6 @@ const isMeetingLocked = (lockSettings, usersPolicies) => {
   return isLocked;
 };
 
-const toggleVoice = (userId, voiceToggle) => {
-  if (userId === Auth.userID) {
-    AudioService.toggleMuteMicrophone(voiceToggle);
-  } else {
-    voiceToggle(userId);
-    logger.info({
-      logCode: 'usermenu_option_mute_toggle_audio',
-      extraInfo: { logType: 'moderator_action', userId },
-    }, 'moderator muted user microphone');
-  }
-};
-
 const focusFirstDropDownItem = () => {
   const dropdownContent = document.querySelector('div[data-test="dropdownContent"][style="visibility: visible;"]');
   if (!dropdownContent) return;
@@ -396,14 +387,14 @@ export const getUserNamesLink = (docTitle, fnSortedLabel, lnSortedLabel, users, 
   const namesByLastName = userNamesObj.sort(sortUsersByLastName)
     .map((u) => getUsernameString(u)).join('\r\n');
 
-  const namesListsString = `${docTitle}\r\n\r\n${fnSortedLabel}\r\n${namesByFirstName}
-    \r\n\r\n${lnSortedLabel}\r\n${namesByLastName}`.replace(/ {2}/g, ' ');
+  const namesListsString = `${docTitle}\r\n\r\n${fnSortedLabel}\r\n${namesByFirstName}`
+    + `\r\n\r\n${lnSortedLabel}\r\n${namesByLastName}`;
 
   const link = document.createElement('a');
   link.setAttribute('download', `bbb-${meetingName}[users-list]_${getDateString()}.txt`);
   link.setAttribute(
     'href',
-    `data: ${mimeType};charset=utf-16,${encodeURIComponent(namesListsString)}`,
+    `data: ${mimeType};charset=utf-8,${encodeURIComponent(namesListsString)}`,
   );
   return link;
 };
@@ -490,18 +481,19 @@ export const getUsersPerUserListPage = () => window.meetingClientSettings?.publi
   ?.usersPerUserListPage
   || DEFAULT_USERS_PER_USER_LIST_PAGE;
 
-export const makeUserSearchWhere = (searchQuery) => {
-  const searchTerms = searchQuery ? searchQuery.trim().split(/\s+/) : [];
-  const escapeTerm = (term) => term.replace(/[\\%_]/g, '\\$&');
-  return searchTerms.length > 0
-    ? { _and: searchTerms.map((term) => ({ name: { _ilike: `%${escapeTerm(term)}%` } })) }
-    : { name: { _ilike: '%' } };
-};
+/**
+ * The avatar image to show for a participant: a reaction or the away state takes it over.
+ * Shared so the user list, the avatar content and the mention picker can't drift apart.
+ */
+export const getFilteredAvatar = (user) => (
+  (user.away === true || (user.reactionEmoji && user.reactionEmoji !== 'none')) ? '' : user.avatar
+);
+
+export { makeUserSearchWhere, USER_SEARCH_MAX_LENGTH };
 
 export default {
   sortUsersByName,
   sortUsers,
-  toggleVoice,
   getActiveChats,
   isMeetingLocked,
   isPublicChat,
@@ -512,5 +504,6 @@ export default {
   sortUsersByCurrent,
   UserJoinedMeetingAlert,
   UserLeftMeetingAlert,
+  getFilteredAvatar,
   makeUserSearchWhere,
 };

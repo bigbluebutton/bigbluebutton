@@ -52,7 +52,7 @@ export const useDragAndDrop = (
     setSelectedId(el.id);
     const ghost = document.createElement('div');
     ghost.textContent = el.textContent || '';
-    ghost.style.cssText = 'position:absolute;top:-9999px;padding:4px 8px;background:#fff;border:1px solid #ccc;border-radius:4px;font-size:0.85rem;white-space:nowrap;';
+    ghost.style.cssText = 'position:absolute;top:-9999px;padding:4px 8px;background:var(--color-white-surface, var(--color-white, #fff));border:1px solid var(--color-border-muted, #ccc);border-radius:4px;font-size:0.85rem;white-space:nowrap;';
     document.body.appendChild(ghost);
     ev.dataTransfer.setDragImage(ghost, 0, 0);
     requestAnimationFrame(() => ghost.remove());

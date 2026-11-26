@@ -14,6 +14,8 @@ import org.bigbluebutton.api2.meeting.{OldMeetingMsgHdlrActor, RegisterUser}
 import org.bigbluebutton.common2.domain._
 import org.bigbluebutton.common2.util.JsonUtil
 import org.bigbluebutton.presentation.messages._
+import org.bigbluebutton.presentation.imp.InsertPagesDeliveryService
+import org.bigbluebutton.common2.msgs.BbbCommonEnvCoreMsg
 
 import scala.concurrent.duration._
 import org.bigbluebutton.common2.redis._
@@ -128,7 +130,6 @@ class BbbWebApiGWApp(
                     allowStartStopRecording: java.lang.Boolean,
                     sharedNotesInitialContentJson: java.util.ArrayList[AnyRef],
                     sharedNotesInitialContentMarkdown: java.lang.String,
-                    sharedNotesEditor:         java.lang.String,
                     recordFullDurationMedia: java.lang.Boolean,
                     webcamsOnlyForModerator: java.lang.Boolean,
                     multiUserWhiteboardEnabled: java.lang.Boolean,
@@ -148,6 +149,7 @@ class BbbWebApiGWApp(
                     allowPromoteGuestToModerator: java.lang.Boolean,
                     waitingGuestUsersTimeout: java.lang.Long,
                     meetingLayout: String,
+                    hideUsersWithoutCamera:                 java.lang.Boolean,
                     welcomeMsgTemplate: String, welcomeMsg: String, welcomeMsgForModerators: String,
                     dialNumber:                             String,
                     maxUsers:                               java.lang.Integer,
@@ -163,6 +165,7 @@ class BbbWebApiGWApp(
                     allowModsToUnmuteUsers:                 java.lang.Boolean,
                     requireUserConsentBeforeUnmuting:       java.lang.Boolean,
                     allowModsToEjectCameras:                java.lang.Boolean,
+                    allowModsToRequestCameraShare:  java.lang.Boolean,
                     keepEvents:                             java.lang.Boolean,
                     breakoutParams:                         BreakoutRoomsParams,
                     lockSettingsParams:                     LockSettingsParams,
@@ -175,6 +178,7 @@ class BbbWebApiGWApp(
                     groups:                                 java.util.ArrayList[Group],
                     disabledFeatures:                       java.util.ArrayList[String],
                     notifyRecordingIsOn:                    java.lang.Boolean,
+                    notifyRecordingAppend:                  String,
                     presentationUploadExternalDescription:  String,
                     presentationUploadExternalUrl:          String,
                     plugins:                                util.Map[String, AnyRef],
@@ -182,6 +186,13 @@ class BbbWebApiGWApp(
                     overrideClientSettings:                 String): Unit = {
 
     val disabledFeaturesAsVector: Vector[String] = disabledFeatures.asScala.toVector
+
+    // When lockSettings is in disabledFeatures the feature is fully off. Neutralize every lock
+    // restriction here, at the single point where the meeting props are built, so the DB row the
+    // client reads (v_meeting_lockSettings) and the akka runtime permissions share one source of
+    // truth. Overriding only akka's in-memory permissions later would leave the DB row populated
+    // from the raw create params, keeping hasActiveLockSetting true and the lock controls live.
+    val lockSettingsDisabled: Boolean = disabledFeaturesAsVector.contains("lockSettings")
 
     val sharedNotesInitialContentJsonVector: Vector[AnyRef] = sharedNotesInitialContentJson.asScala.toVector
     val meetingProp = MeetingProp(
@@ -191,7 +202,6 @@ class BbbWebApiGWApp(
       meetingCameraCap = meetingCameraCap.intValue(),
       sharedNotesInitialContentJson = sharedNotesInitialContentJsonVector,
       sharedNotesInitialContentMarkdown = sharedNotesInitialContentMarkdown,
-      sharedNotesEditor = sharedNotesEditor,
       maxPinnedCameras = maxPinnedCameras.intValue(),
       cameraBridge,
       screenShareBridge,
@@ -199,6 +209,7 @@ class BbbWebApiGWApp(
       isBreakout = isBreakout.booleanValue(),
       disabledFeaturesAsVector,
       notifyRecordingIsOn,
+      notifyRecordingAppend,
       presentationUploadExternalDescription,
       presentationUploadExternalUrl
     )
@@ -239,30 +250,50 @@ class BbbWebApiGWApp(
     val usersProp = UsersProp(
       maxUsers = maxUsers.intValue(),
       maxUserConcurrentAccesses = maxUserConcurrentAccesses,
-      webcamsOnlyForModerator = webcamsOnlyForModerator.booleanValue(),
+      webcamsOnlyForModerator = if (lockSettingsDisabled) false else webcamsOnlyForModerator.booleanValue(),
       multiUserWhiteboardEnabled = multiUserWhiteboardEnabled,
       userCameraCap = userCameraCap.intValue(),
       guestPolicy = guestPolicy, meetingLayout = meetingLayout, allowModsToUnmuteUsers = allowModsToUnmuteUsers.booleanValue(),
+      hideUsersWithoutCamera = hideUsersWithoutCamera.booleanValue(),
       requireUserConsentBeforeUnmuting = requireUserConsentBeforeUnmuting.booleanValue(), allowModsToEjectCameras = allowModsToEjectCameras.booleanValue(),
+      allowModsToRequestCameraShare = allowModsToRequestCameraShare.booleanValue(),
       authenticatedGuest = authenticatedGuest.booleanValue(),
       allowPromoteGuestToModerator = allowPromoteGuestToModerator.booleanValue(),
       waitingGuestUsersTimeout = waitingGuestUsersTimeout.longValue()
     )
     val metadataProp = MetadataProp(mapAsScalaMap(metadata).toMap)
 
-    val lockSettingsProps = LockSettingsProps(
-      disableCam = lockSettingsParams.disableCam.booleanValue(),
-      disableMic = lockSettingsParams.disableMic.booleanValue(),
-      disablePrivateChat = lockSettingsParams.disablePrivateChat.booleanValue(),
-      disablePublicChat = lockSettingsParams.disablePublicChat.booleanValue(),
-      disableNotes = lockSettingsParams.disableNotes.booleanValue(),
-      hideUserList = lockSettingsParams.hideUserList.booleanValue(),
-      lockOnJoin = lockSettingsParams.lockOnJoin.booleanValue(),
-      lockOnJoinConfigurable = lockSettingsParams.lockOnJoinConfigurable.booleanValue(),
-      hideViewersCursor = lockSettingsParams.hideViewersCursor.booleanValue(),
-      hideViewersAnnotation = lockSettingsParams.hideViewersAnnotation.booleanValue(),
-      presenterPolicy = lockSettingsParams.presenterPolicy
-    )
+    val lockSettingsProps = if (lockSettingsDisabled) {
+      // Feature disabled: every viewer lock restriction forced permissive and presenterPolicy
+      // reset to the default, so neither the stored row nor the runtime restrict viewers.
+      LockSettingsProps(
+        disableCam = false,
+        disableMic = false,
+        disablePrivateChat = false,
+        disablePublicChat = false,
+        disableNotes = false,
+        hideUserList = false,
+        lockOnJoin = false,
+        lockOnJoinConfigurable = lockSettingsParams.lockOnJoinConfigurable.booleanValue(),
+        hideViewersCursor = false,
+        hideViewersAnnotation = false,
+        presenterPolicy = "requireApproval"
+      )
+    } else {
+      LockSettingsProps(
+        disableCam = lockSettingsParams.disableCam.booleanValue(),
+        disableMic = lockSettingsParams.disableMic.booleanValue(),
+        disablePrivateChat = lockSettingsParams.disablePrivateChat.booleanValue(),
+        disablePublicChat = lockSettingsParams.disablePublicChat.booleanValue(),
+        disableNotes = lockSettingsParams.disableNotes.booleanValue(),
+        hideUserList = lockSettingsParams.hideUserList.booleanValue(),
+        lockOnJoin = lockSettingsParams.lockOnJoin.booleanValue(),
+        lockOnJoinConfigurable = lockSettingsParams.lockOnJoinConfigurable.booleanValue(),
+        hideViewersCursor = lockSettingsParams.hideViewersCursor.booleanValue(),
+        hideViewersAnnotation = lockSettingsParams.hideViewersAnnotation.booleanValue(),
+        presenterPolicy = lockSettingsParams.presenterPolicy
+      )
+    }
 
     val systemProps = SystemProps(
       loginUrl match {
@@ -383,8 +414,22 @@ class BbbWebApiGWApp(
     msgSender.send(fromBbbWebRedisChannel, JsonUtil.toJson(event))
   }
 
+  // The uploads of inserts of pages; their conversion messages never take the standard path.
+  private var insertPagesDeliveryService: InsertPagesDeliveryService = null
+
+  def setInsertPagesDeliveryService(service: InsertPagesDeliveryService): Unit = {
+    insertPagesDeliveryService = service
+  }
+
+  def sendInsertPagesMessages(messages: util.List[BbbCommonEnvCoreMsg]): Unit = {
+    messages.asScala.foreach(event => msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event)))
+  }
+
   def sendDocConversionMsg(msg: IDocConversionMsg): Unit = {
-    if (msg.isInstanceOf[DocPageGeneratedProgress]) {
+    val insertOutcome = if (insertPagesDeliveryService == null) null else insertPagesDeliveryService.outcomeFor(msg)
+    if (insertOutcome != null) {
+      sendInsertPagesMessages(insertOutcome)
+    } else if (msg.isInstanceOf[DocPageGeneratedProgress]) {
       val event = MsgBuilder.buildPresentationPageGeneratedPubMsg(msg.asInstanceOf[DocPageGeneratedProgress])
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
 
@@ -396,6 +441,12 @@ class BbbWebApiGWApp(
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     } else if (msg.isInstanceOf[OfficeToPdfConversionFailed]) {
       val event = MsgBuilder.buildOfficeToPdfConversionFailedMsg(msg.asInstanceOf[OfficeToPdfConversionFailed])
+      msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
+    } else if (msg.isInstanceOf[ConversionRateLimitExceeded]) {
+      val event = MsgBuilder.buildPresentationConversionRateLimitedMsg(msg.asInstanceOf[ConversionRateLimitExceeded])
+      msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
+    } else if (msg.isInstanceOf[PresentationUploadFailed]) {
+      val event = MsgBuilder.buildPresentationUploadFailedMsg(msg.asInstanceOf[PresentationUploadFailed])
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     } else if (msg.isInstanceOf[DocPageCompletedProgress]) {
       val event = MsgBuilder.buildPresentationConversionCompletedSysPubMsg(msg.asInstanceOf[DocPageCompletedProgress], pageTokenSecret)

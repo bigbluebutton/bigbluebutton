@@ -44,10 +44,71 @@ module BigBlueButton
       participants_ids.length
     end
 
+    # The events that list the page ids of a presentation, in page order: its conversion, and each insert
+    # of pages into it (the list after the insert).
+    PAGE_LIST_EVENTS =
+      "/recording/event[@eventname='ConversionCompletedEvent' or @eventname='PresentationPagesInsertedEvent']"
+
+    # The presentation and the page ids an event of PAGE_LIST_EVENTS lists, or nil when it lists none
+    # (a conversion recorded before pages had ids).
+    def self.listed_page_ids(event)
+      ids = event.at_xpath('pageIds')&.text
+      return nil if ids.nil? || ids.empty?
+
+      [event.at_xpath('presentationName').text, ids.split(',')]
+    end
+
+    # The pages of each presentation shown in the recording, in page order, keyed by presentation id.
+    # A page is identified by an opaque string: the page id, for recordings whose ConversionCompletedEvent
+    # lists them (BigBlueButton 4.1 and later); otherwise its 1-based page number, as a string, counted from
+    # the files of the presentation in presentation_dir. A presentation always has at least one page: an
+    # uploaded image is one page, and older recordings may have no thumbnails for it. A presentation with
+    # pages inserted into it has the pages listed by its last insert.
+    def self.presentation_page_ids(events, presentation_dir)
+      converted = {}
+      events.xpath(PAGE_LIST_EVENTS).each do |event|
+        presentation, ids = listed_page_ids(event)
+        # The last list of a presentation wins.
+        converted[presentation] = ids if presentation
+      end
+
+      page_ids = {}
+      events.xpath("/recording/event[@eventname='SharePresentationEvent']").each do |event|
+        presentation = event.at_xpath('presentationName').text
+        next if page_ids.key?(presentation)
+
+        page_ids[presentation] = converted.fetch(presentation) do
+          num_pages = BigBlueButton::Presentation.get_number_of_pages_for("#{presentation_dir}/#{presentation}")
+          (1..[num_pages, 1].max).map(&:to_s)
+        end
+      end
+      page_ids
+    end
+
+    # The page each presentation starts at when the recording first shows it, keyed by presentation id: the
+    # first page in the list in force at that moment. Pages inserted at the start later on do not change it.
+    # page_ids is the result of presentation_page_ids, the fallback for recordings without page ids.
+    def self.presentation_first_pages(events, page_ids)
+      listed = {}
+      first_pages = {}
+      events.xpath("#{PAGE_LIST_EVENTS} | /recording/event[@eventname='SharePresentationEvent']").each do |event|
+        if event['eventname'] == 'SharePresentationEvent'
+          presentation = event.at_xpath('presentationName').text
+          next if first_pages.key?(presentation) || !page_ids.key?(presentation)
+
+          first_pages[presentation] = listed.fetch(presentation, page_ids[presentation]).first
+        else
+          presentation, ids = listed_page_ids(event)
+          listed[presentation] = ids if presentation
+        end
+      end
+      first_pages
+    end
+
     # Get the meeting metadata
     def self.get_meeting_metadata(events_xml)
       BigBlueButton.logger.info("Task: Getting meeting metadata")
-      doc = Nokogiri::XML(File.open(events_xml))
+      doc = Nokogiri::XML(File.read(events_xml))
       metadata = {}
       doc.xpath("recording/metadata").each do |e|
         e.keys.each do |k|
@@ -68,16 +129,21 @@ module BigBlueButton
       notes_id
     end
 
-    def self.get_notes_editor(events)
-      BigBlueButton.logger.info("Task: Getting notes editor")
-      notes_editor = 'etherpad'
-      events.xpath("/recording/event[@eventname='AddPadEvent' or @eventname='PadCreatedEvent']").each do |pad_event|
-        editor_element = pad_event.at_xpath('sharedNotesEditor')
-        notes_editor = editor_element.text if editor_element && !editor_element.text.strip.empty?
-      end
-      notes_editor
-    end
 
+    # Recording formats the meeting opted out of through the
+    # meta_bbb-disable-recording-formats create parameter.
+    #
+    # @param events [Nokogiri::XML::Document] the parsed events.xml
+    # @return [Array<String>] lowercased format names, empty when the meeting did not opt out
+    def self.disabled_recording_formats(events)
+      value = events.at_xpath('/recording/metadata/@bbb-disable-recording-formats')&.value
+      return [] if value.nil?
+
+      value.delete('[]')
+           .split(',')
+           .map { |format| format.strip.downcase }
+           .reject(&:empty?)
+    end
 
     # Get the external meeting id
     def self.get_external_meeting_id(events_xml)
@@ -143,14 +209,15 @@ module BigBlueButton
       return filename.split("/")[-1].split("-")[1]
     end
 
-    def self.extract_filename_from_userId(userId, filenames_list)
-      filename_return = ""
-      filenames_list.each do |filename|
-        if !filename.match(userId).nil?
-          filename_return = filename
-        end
+    # Moves every video of the user, since a user can share more than one camera.
+    # Returns whether any video was moved.
+    def self.move_user_videos(user_id, from_videos, to_videos)
+      user_videos, other_videos = from_videos.partition do |filename|
+        BigBlueButton::Events.get_id_from_filename(filename) == user_id
       end
-      return filename_return
+      from_videos.replace(other_videos)
+      to_videos.concat(user_videos)
+      !user_videos.empty?
     end
 
     def self.process_webcamsOnlyForModerator(list_user_info, active_videos, inactive_videos, webcamsOnlyForModerator)
@@ -159,11 +226,7 @@ module BigBlueButton
         list_user_info.each do |user_id, user_role|
           # If the user is a viewer:
           if !BigBlueButton::Events.is_user_moderator(user_id, list_user_info)
-            filename = BigBlueButton::Events.extract_filename_from_userId(user_id, active_videos)
-            if filename != ""
-              active_videos.delete(filename)
-              inactive_videos << filename
-            end
+            BigBlueButton::Events.move_user_videos(user_id, active_videos, inactive_videos)
           end
         end
       else
@@ -282,8 +345,7 @@ module BigBlueButton
               active_videos.each do |filename|
                 edl_entry[:areas][:webcam] << {
                   :filename => filename,
-                  :timestamp => timestamp - videos[filename][:timestamp],
-                  :user_id => BigBlueButton::Events.get_id_from_filename(filename)
+                  :timestamp => timestamp - videos[filename][:timestamp]
                 }
               end
               video_edl << edl_entry
@@ -306,8 +368,7 @@ module BigBlueButton
               active_videos.each do |filename|
                 edl_entry[:areas][:webcam] << {
                   :filename => filename,
-                  :timestamp => timestamp - videos[filename][:timestamp],
-                  :user_id => BigBlueButton::Events.get_id_from_filename(filename)
+                  :timestamp => timestamp - videos[filename][:timestamp]
                 }
               end
               video_edl << edl_entry
@@ -322,17 +383,12 @@ module BigBlueButton
           when "ParticipantStatusChangeEvent"
             is_in_forbidden_period = webcamsOnlyForModerator
             userId = ""
-            filename_to_add = ""
 
             if event.at_xpath('status').text == "role" 
               userId = event.at_xpath('userId').text
 
               if is_in_forbidden_period && event.at_xpath('value').text == "MODERATOR"
-                filename_to_add = BigBlueButton::Events.extract_filename_from_userId(userId, inactive_videos)
-                if filename_to_add != ""
-                  inactive_videos.delete(filename_to_add)
-                  active_videos << filename_to_add
-
+                if BigBlueButton::Events.move_user_videos(userId, inactive_videos, active_videos)
                   edl_entry = {
                     :timestamp => timestamp,
                     :areas => { :webcam => [] }
@@ -340,18 +396,13 @@ module BigBlueButton
                   active_videos.each do |filename|
                     edl_entry[:areas][:webcam] << {
                       :filename => filename,
-                      :timestamp => timestamp - videos[filename][:timestamp],
-                      :user_id => userId
+                      :timestamp => timestamp - videos[filename][:timestamp]
                     }
                   end
                   video_edl << edl_entry
                 end
               elsif is_in_forbidden_period && event.at_xpath('value').text == "VIEWER"
-                filename_to_add = BigBlueButton::Events.extract_filename_from_userId(userId, active_videos)
-                if filename_to_add != ""
-                  active_videos.delete(filename_to_add)
-                  inactive_videos << filename_to_add
-
+                if BigBlueButton::Events.move_user_videos(userId, active_videos, inactive_videos)
                   edl_entry = {
                     :timestamp => timestamp,
                     :areas => { :webcam => [] }
@@ -359,8 +410,7 @@ module BigBlueButton
                   active_videos.each do |filename|
                     edl_entry[:areas][:webcam] << {
                       :filename => filename,
-                      :timestamp => timestamp - videos[filename][:timestamp],
-                      :user_id => userId
+                      :timestamp => timestamp - videos[filename][:timestamp]
                     }
                   end
                   video_edl << edl_entry
@@ -390,8 +440,7 @@ module BigBlueButton
             active_videos.each do |filename|
               edl_entry[:areas][:webcam] << {
                 :filename => filename,
-                :timestamp => timestamp - videos[filename][:timestamp],
-                :user_id => userId
+                :timestamp => timestamp - videos[filename][:timestamp]
               }
             end
             video_edl << edl_entry

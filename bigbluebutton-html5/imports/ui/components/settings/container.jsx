@@ -12,7 +12,7 @@ import {
   FALLBACK_LOCALES,
 } from './service';
 import useUserChangedLocalSettings from '../../services/settings/hooks/useUserChangedLocalSettings';
-import { useShouldRenderPaginationToggle } from '/imports/ui/components/video-provider/hooks';
+import { useIsPaginationToggleAllowed } from '/imports/ui/components/video-provider/hooks';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
@@ -20,10 +20,15 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
 const ASK_MODERATOR = 'ASK_MODERATOR';
 
-const SettingsContainer = (props) => {
-  const layoutContextDispatch = layoutDispatch();
-  const setLocalSettings = useUserChangedLocalSettings();
-  const paginationToggleEnabled = useShouldRenderPaginationToggle();
+export const useSettingsProps = () => {
+  const APP_CONFIG = window.meetingClientSettings.public.app;
+  const SHOW_AUDIO_FILTERS = (APP_CONFIG.showAudioFilters === undefined)
+    ? true
+    : APP_CONFIG.showAudioFilters;
+  const {
+    paginationToggleEnabled,
+  } = window.meetingClientSettings.public.kurento.pagination;
+  const isPaginationToggleAllowed = useIsPaginationToggleAllowed();
   const { data: currentUser } = useCurrentUser((u) => ({
     presenter: u.presenter,
     isModerator: u.isModerator,
@@ -48,32 +53,45 @@ const SettingsContainer = (props) => {
   const modalHeight = settingsModalHeight;
   const modalWidth = settingsModalWidth;
 
+  return {
+    updateSettings,
+    application,
+    audio,
+    dataSaving,
+    transcription,
+    availableLocales,
+    isPresenter,
+    isModerator,
+    isScreenSharingEnabled,
+    showGuestNotification,
+    isReactionsEnabled,
+    showToggleLabel: false,
+    isVideoEnabled: window.meetingClientSettings.public.kurento.enableVideo,
+    isGladiaEnabled,
+    isChatEnabled,
+    modalHeight,
+    modalWidth,
+    paginationToggleEnabled,
+    paginationToggleLocked: !isPaginationToggleAllowed,
+    fallbackLocales: FALLBACK_LOCALES,
+    isShowAudioFiltersEnabled: SHOW_AUDIO_FILTERS,
+    isAudioDeviceTestEnabled: !!navigator.mediaDevices?.enumerateDevices,
+  };
+};
+
+const SettingsContainer = (props) => {
+  const layoutContextDispatch = layoutDispatch();
+  const setLocalSettings = useUserChangedLocalSettings();
+  const settingsProps = useSettingsProps();
+
   return (
     <Settings
       {...{
         ...props,
-        updateSettings,
-        application,
-        audio,
-        dataSaving,
-        transcription,
-        availableLocales,
-        isPresenter,
-        isModerator,
-        isScreenSharingEnabled,
-        showGuestNotification,
-        isReactionsEnabled,
-        showToggleLabel: false,
-        isVideoEnabled: window.meetingClientSettings.public.kurento.enableVideo,
-        isGladiaEnabled,
-        isChatEnabled,
-        modalHeight,
-        modalWidth,
+        ...settingsProps,
       }}
       layoutContextDispatch={layoutContextDispatch}
       setLocalSettings={setLocalSettings}
-      paginationToggleEnabled={paginationToggleEnabled}
-      fallbackLocales={FALLBACK_LOCALES}
     />
   );
 };

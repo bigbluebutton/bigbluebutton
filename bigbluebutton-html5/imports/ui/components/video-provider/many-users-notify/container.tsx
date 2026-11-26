@@ -5,6 +5,7 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { SET_WEBCAM_ONLY_FOR_MODERATOR } from '/imports/ui/components/lock-viewers/mutations';
 import { useViewersInWebcamCount } from '../hooks';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import { useIsLockSettingsEnabled } from '/imports/ui/services/features';
 
 const ManyUsersContainer: React.FC = () => {
   const { data: currentUserData } = useCurrentUser((user) => ({
@@ -26,6 +27,8 @@ const ManyUsersContainer: React.FC = () => {
   };
 
   const viewersInWebcam = useViewersInWebcamCount();
+  // the notification offers to lock the viewers' webcams, which needs the lock settings
+  const isLockSettingsEnabled = useIsLockSettingsEnabled();
 
   const currentUserIsModerator = !!currentUserData?.isModerator;
 
@@ -38,7 +41,9 @@ const ManyUsersContainer: React.FC = () => {
       currentUserIsModerator={currentUserIsModerator}
       viewersInWebcam={viewersInWebcam}
       limitOfViewersInWebcam={window.meetingClientSettings.public.app.viewersInWebcam}
-      limitOfViewersInWebcamIsEnable={window.meetingClientSettings.public.app.enableLimitOfViewersInWebcam}
+      limitOfViewersInWebcamIsEnable={
+        window.meetingClientSettings.public.app.enableLimitOfViewersInWebcam && isLockSettingsEnabled
+      }
       lockSettingsDisableCam={lockSettingsDisableCam}
       webcamOnlyForModerator={webcamOnlyForModerator}
     />

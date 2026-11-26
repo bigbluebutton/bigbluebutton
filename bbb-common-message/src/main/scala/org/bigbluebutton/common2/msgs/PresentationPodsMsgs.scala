@@ -13,7 +13,18 @@ case class RemovePresentationPodPubMsgBody(podId: String)
 
 object PresentationUploadTokenReqMsg { val NAME = "PresentationUploadTokenReqMsg" }
 case class PresentationUploadTokenReqMsg(header: BbbClientMsgHeader, body: PresentationUploadTokenReqMsgBody) extends StandardMsg
-case class PresentationUploadTokenReqMsgBody(podId: String, filename: String, uploadTemporaryId: String)
+// The insert* fields are the intent of an insert of pages (insertIntoPresentationId is the presentation that
+// receives them). They are always sent, empty when the request is not an insert.
+case class PresentationUploadTokenReqMsgBody(podId: String, filename: String, uploadTemporaryId: String,
+                                             insertIntoPresentationId: String, insertAtPosition: Int,
+                                             insertSeenTotalPages: Int, insertNavigate: Boolean)
+
+// A blank page to insert into presentationId at position, sized as the page before it. seenTotalPages is the
+// totalPages the client read with position.
+object InsertBlankPagePubMsg { val NAME = "InsertBlankPagePubMsg" }
+case class InsertBlankPagePubMsg(header: BbbClientMsgHeader, body: InsertBlankPagePubMsgBody) extends StandardMsg
+case class InsertBlankPagePubMsgBody(podId: String, presentationId: String, position: Int, seenTotalPages: Int,
+                                     navigate: Boolean)
 
 object GetAllPresentationPodsReqMsg { val NAME = "GetAllPresentationPodsReqMsg" }
 case class GetAllPresentationPodsReqMsg(header: BbbClientMsgHeader, body: GetAllPresentationPodsReqMsgBody) extends StandardMsg
@@ -22,6 +33,14 @@ case class GetAllPresentationPodsReqMsgBody()
 object SetCurrentPagePubMsg { val NAME = "SetCurrentPagePubMsg" }
 case class SetCurrentPagePubMsg(header: BbbClientMsgHeader, body: SetCurrentPagePubMsgBody) extends StandardMsg
 case class SetCurrentPagePubMsgBody(podId: String, presentationId: String, pageId: String)
+
+/**
+ * Asks for the page at position pageNum. seenTotalPages is the totalPages the client read together
+ * with pageNum, so the server can convert the number if the page order changed meanwhile; 0 when unknown.
+ */
+object SetCurrentPageByNumPubMsg { val NAME = "SetCurrentPageByNumPubMsg" }
+case class SetCurrentPageByNumPubMsg(header: BbbClientMsgHeader, body: SetCurrentPageByNumPubMsgBody) extends StandardMsg
+case class SetCurrentPageByNumPubMsgBody(podId: String, presentationId: String, pageNum: Int, seenTotalPages: Int)
 
 object SetPageInfiniteWhiteboardPubMsg { val NAME = "SetPageInfiniteWhiteboardPubMsg" }
 case class SetPageInfiniteWhiteboardPubMsg(header: BbbClientMsgHeader, body: SetPageInfiniteWhiteboardPubMsgBody) extends StandardMsg
@@ -172,7 +191,8 @@ case class PresentationPageConversionStartedSysMsgBody(
     downloadable:   Boolean,
     removable:      Boolean,
     authzToken:     String,
-    numPages:       Int
+    numPages:       Int,
+    systemUpload:   Boolean
 )
 
 object PresentationConversionEndedSysMsg { val NAME = "PresentationConversionEndedSysMsg" }
@@ -397,7 +417,7 @@ case class GetAllPresentationPodsRespMsgBody(pods: Vector[PresentationPodVO])
 
 object SetCurrentPageEvtMsg { val NAME = "SetCurrentPageEvtMsg" }
 case class SetCurrentPageEvtMsg(header: BbbClientMsgHeader, body: SetCurrentPageEvtMsgBody) extends BbbCoreMsg
-case class SetCurrentPageEvtMsgBody(podId: String, presentationId: String, pageId: String)
+case class SetCurrentPageEvtMsgBody(podId: String, presentationId: String, pageId: String, pageNum: Int)
 
 object SetPageInfiniteWhiteboardEvtMsg { val NAME = "SetPageInfiniteWhiteboardEvtMsg" }
 case class SetPageInfiniteWhiteboardEvtMsg(header: BbbClientMsgHeader, body: SetPageInfiniteWhiteboardEvtMsgBody) extends BbbCoreMsg
@@ -432,7 +452,78 @@ case class SetPresentationFitToWidthCmdMsgBody(userId: String, pageId: String, f
 // ------------ akka-apps to client ------------
 
 // ------------ akka-apps to bbb-common-web ------------
+
+// ------------ bbb-common-web to akka-apps: the upload of an insert ------------
+
+// Activity of the upload of an insert. stage is "transfer" (the POST started) or "conversion".
+object PresentationInsertPagesProgressSysMsg { val NAME = "PresentationInsertPagesProgressSysMsg" }
+case class PresentationInsertPagesProgressSysMsg(header: BbbClientMsgHeader, body: PresentationInsertPagesProgressSysMsgBody) extends StandardMsg
+case class PresentationInsertPagesProgressSysMsgBody(podId: String, uploadPresentationId: String, stage: String,
+                                                     pagesCompleted: Int, totalPages: Int)
+
+// One delivered page of an insert, sent before the Ready that lists it. akka-apps ignores num and current.
+object PresentationInsertPagesPageSysMsg { val NAME = "PresentationInsertPagesPageSysMsg" }
+case class PresentationInsertPagesPageSysMsg(header: BbbClientMsgHeader, body: PresentationInsertPagesPageSysMsgBody) extends StandardMsg
+case class PresentationInsertPagesPageSysMsgBody(podId: String, uploadPresentationId: String, page: PresentationPageConvertedVO)
+
+// The pages of an insert are in the directory of insertIntoPresentationId; pageIds in the order of the file.
+object PresentationInsertPagesReadySysMsg { val NAME = "PresentationInsertPagesReadySysMsg" }
+case class PresentationInsertPagesReadySysMsg(header: BbbClientMsgHeader, body: PresentationInsertPagesReadySysMsgBody) extends StandardMsg
+case class PresentationInsertPagesReadySysMsgBody(podId: String, insertIntoPresentationId: String, uploadPresentationId: String,
+                                                  maxNumPages: Int, pageIds: Vector[String])
+
+// The upload of an insert failed. errorKey names the notification; detail only goes to the log.
+object PresentationInsertPagesFailedSysMsg { val NAME = "PresentationInsertPagesFailedSysMsg" }
+case class PresentationInsertPagesFailedSysMsg(header: BbbClientMsgHeader, body: PresentationInsertPagesFailedSysMsgBody) extends StandardMsg
+case class PresentationInsertPagesFailedSysMsgBody(podId: String, uploadPresentationId: String, errorKey: String, detail: String)
+
+// ------------ bbb-common-web to akka-apps: the upload of an insert ------------
+
+// Pages were inserted into presentationId: they take the positions insertedAt.. and the pages from insertedAt
+// on moved pages.size positions forward.
+object PresentationPagesInsertedEvtMsg { val NAME = "PresentationPagesInsertedEvtMsg" }
+case class PresentationPagesInsertedEvtMsg(header: BbbClientMsgHeader, body: PresentationPagesInsertedEvtMsgBody) extends BbbCoreMsg
+// pageIds: every page of the presentation after the insert, in page order (the recording keeps it).
+case class PresentationPagesInsertedEvtMsgBody(podId: String, presentationId: String, insertedAt: Int, pages: Vector[PageVO],
+                                               pageIds: Vector[String])
+
+// ------------ akka-apps to bbb-common-web ------------
 object PresentationUploadTokenSysPubMsg { val NAME = "PresentationUploadTokenSysPubMsg" }
 case class PresentationUploadTokenSysPubMsg(header: BbbClientMsgHeader, body: PresentationUploadTokenSysPubMsgBody) extends BbbCoreMsg
-case class PresentationUploadTokenSysPubMsgBody(podId: String, authzToken: String, filename: String, meetingId: String, presentationId: String)
+// The insert* fields carry the intent of an insert (see PresentationUploadTokenReqMsgBody); insertRequestPageId
+// is the current page of the target when the token was issued. All empty when the upload is not an insert.
+case class PresentationUploadTokenSysPubMsgBody(podId: String, authzToken: String, filename: String, meetingId: String, presentationId: String,
+                                                insertIntoPresentationId: String, insertAtPosition: Int,
+                                                insertSeenTotalPages: Int, insertNavigate: Boolean,
+                                                insertRequestPageId: String)
+
+// Asks bbb-web for a blank page of width x height for an insert into insertIntoPresentationId; the page is
+// converted and delivered as any inserted file, under uploadPresentationId.
+object PresentationInsertBlankPageSysMsg { val NAME = "PresentationInsertBlankPageSysMsg" }
+case class PresentationInsertBlankPageSysMsg(header: BbbClientMsgHeader, body: PresentationInsertBlankPageSysMsgBody) extends BbbCoreMsg
+case class PresentationInsertBlankPageSysMsgBody(
+    podId:                    String,
+    insertIntoPresentationId: String,
+    insertAtPosition:         Int,
+    insertSeenTotalPages:     Int,
+    insertNavigate:           Boolean,
+    insertRequestPageId:      String,
+    userId:                   String,
+    uploadPresentationId:     String,
+    filename:                 String,
+    width:                    Int,
+    height:                   Int
+)
+
+// Asks bbb-web to delete, from the directory of presentationId, the files of pages that were delivered
+// for an insert but not applied.
+object PresentationInsertPagesDiscardSysMsg { val NAME = "PresentationInsertPagesDiscardSysMsg" }
+case class PresentationInsertPagesDiscardSysMsg(header: BbbClientMsgHeader, body: PresentationInsertPagesDiscardSysMsgBody) extends BbbCoreMsg
+case class PresentationInsertPagesDiscardSysMsgBody(meetingId: String, presentationId: String, pageIds: Vector[String])
+
+// Sent when a presentation whose conversion bbb-web already started will not be added to a
+// pod, so bbb-web can stop converting it and delete its files.
+object PresentationConversionRejectedSysMsg { val NAME = "PresentationConversionRejectedSysMsg" }
+case class PresentationConversionRejectedSysMsg(header: BbbClientMsgHeader, body: PresentationConversionRejectedSysMsgBody) extends BbbCoreMsg
+case class PresentationConversionRejectedSysMsgBody(meetingId: String, podId: String, presentationId: String, reason: String)
 // ------------ akka-apps to bbb-common-web ------------

@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# join's excludeFromDashboard reaches akka-apps with the registration:
+# false unless the param says true.
+id: join.user-state.exclude-from-dashboard
+title: "join ${how} registers the user with excludeFromDashboard ${want}"
+endpoint: join
+class: contract
+tags: [ci]
+requires: [akka, bus]
+variants:
+  - {id: "true", vars: {how: with excludeFromDashboard=true, param: "true", want: "true"}}
+  - {id: absent, vars: {how: without excludeFromDashboard, param: null, want: "false"}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: User state}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: join
+    params: {meetingID: "${uid}", fullName: Ann, role: viewer, redirect: "false", excludeFromDashboard: "${param}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {annId: /response/user_id}
+  - bus: {name: UserRegisteredRespMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.excludeFromDashboard]
+    expect: {jsonpath: {$.core.body.userId: "${annId}", $.core.body.excludeFromDashboard: "${want}"}}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

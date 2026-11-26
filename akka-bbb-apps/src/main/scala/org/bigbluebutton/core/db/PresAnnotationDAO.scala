@@ -39,35 +39,41 @@ object PresAnnotationDAO {
 
       DatabaseConnection.enqueue(
         sqlu"""
-          WITH upsert AS (
-            UPDATE pres_annotation
-            SET
-              "annotationInfo" = ${JsonUtils.mapToJson(infoWithSyncedFlag).compactPrint},
-              "lastUpdatedAt"  = ${new java.sql.Timestamp(annotationUpdatedAt)}
-            WHERE "annotationId" = ${annotation.id}
-            RETURNING *
-          )
           INSERT INTO pres_annotation
             ("annotationId", "pageId", "meetingId", "userId", "annotationInfo", "lastUpdatedAt")
           SELECT
             ${annotation.id},
-            ${annotation.wbId},
-            $meetingId,
+            pres_page."pageId",
+            pres_presentation."meetingId",
             ${annotation.userId},
             ${JsonUtils.mapToJson(infoWithSyncedFlag).compactPrint},
             ${new java.sql.Timestamp(annotationUpdatedAt)}
-          WHERE NOT EXISTS (SELECT * FROM upsert)
+          FROM pres_page
+          JOIN pres_presentation ON pres_presentation."presentationId" = pres_page."presentationId"
+          WHERE pres_page."pageId" = ${annotation.wbId}
+            AND pres_presentation."meetingId" = $meetingId
+          ON CONFLICT ("annotationId") DO UPDATE
+            SET
+              "annotationInfo" = EXCLUDED."annotationInfo",
+              "lastUpdatedAt"  = EXCLUDED."lastUpdatedAt"
+            WHERE pres_annotation."pageId" = ${annotation.wbId}
         """
       )
     }
   }
 
-  def deleteAnnotations(meetingId: String, userId: String, annotationIds: Array[String], annotationUpdatedAt: Long) = {
+  def deleteAnnotations(meetingId: String, pageId: String, userId: String, annotationIds: Array[String], annotationUpdatedAt: Long) = {
     DatabaseConnection.enqueue(
-      TableQuery[PresAnnotationDbTableDef]
-        .filter(_.annotationId inSet annotationIds)
+      deleteAnnotationsQuery(meetingId, pageId, annotationIds)
         .map(a => (a.annotationInfo, a.meetingId, a.userId, a.lastUpdatedAt))
         .update("", meetingId, userId, new java.sql.Timestamp(annotationUpdatedAt))
     )
+  }
+
+  private[db] def deleteAnnotationsQuery(meetingId: String, pageId: String, annotationIds: Array[String]) = {
+    TableQuery[PresAnnotationDbTableDef]
+      .filter(_.annotationId inSet annotationIds)
+      .filter(_.pageId === pageId)
+      .filter(_.meetingId === meetingId)
   }
 }

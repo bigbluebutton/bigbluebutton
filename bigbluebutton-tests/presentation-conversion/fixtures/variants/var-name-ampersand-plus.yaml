@@ -1,0 +1,11 @@
+id: var-name-ampersand-plus
+title: File name with ampersand, plus, comma and percent
+tier: variant
+file: ../../../playwright/core/media/sample-with-mask.pdf
+upload: { method: insertDocument, name: "R&D + Q&A, 50% done.pdf" }
+issues: [10357, 25425]
+catalog: [Filenames]
+pages: 1
+expect: converted
+kind: vector
+checks: [outcome, pages, kind, aspect, served]

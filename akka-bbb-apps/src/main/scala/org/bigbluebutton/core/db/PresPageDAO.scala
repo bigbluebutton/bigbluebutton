@@ -88,7 +88,7 @@ object PresPageDAO {
           viewBoxHeight = 1,
 
           // These values should be kept in sync across all BBB components.
-          // See the values under "process" in bbb-export-annotations/config/settings.json
+          // See the values under "process" in bbb-export-annotations/config/default.json
           maxImageWidth = 1440,
           maxImageHeight = 1080,
 
@@ -98,6 +98,62 @@ object PresPageDAO {
         )
       )
     )
+  }
+
+  private def toDbModel(presentationId: String, page: PresentationPage): PresPageDbModel = PresPageDbModel(
+    pageId = page.id,
+    presentationId = presentationId,
+    num = page.num,
+    urlsJson = page.urls.toJson,
+    content = page.content,
+    slideRevealed = page.current,
+    current = page.current,
+    xOffset = page.xOffset,
+    yOffset = page.yOffset,
+    widthRatio = page.widthRatio,
+    heightRatio = page.heightRatio,
+    width = page.width,
+    height = page.height,
+    viewBoxWidth = 1,
+    viewBoxHeight = 1,
+    maxImageWidth = 1440,
+    maxImageHeight = 1080,
+    uploadCompleted = page.converted,
+    infiniteWhiteboard = page.infiniteWhiteboard,
+    fitToWidth = page.fitToWidth,
+  )
+
+  /**
+   * An insert of pages into a presentation, in one transaction: the pages from insertedAt on move forward,
+   * the inserted pages are added (a plain INSERT: an existing page id fails, it is never overwritten), the
+   * total changes, the first inserted page becomes current when the insert navigates, and the row of the
+   * insert in progress is deleted. Only num of the existing pages changes; their other columns stay.
+   */
+  def insertPages(meetingId: String, presentationId: String, totalPages: Int, insertedAt: Int,
+                  inserted: Seq[PresentationPage], currentPageId: Option[String], progressRowId: String) = {
+    val count = inserted.size
+    val actions = DBIO.seq(
+      sqlu"""UPDATE pres_page SET "num" = "num" + $count
+                WHERE "presentationId" = $presentationId AND "num" >= $insertedAt""",
+      TableQuery[PresPageDbTableDef] ++= inserted.map(toDbModel(presentationId, _)),
+      sqlu"""UPDATE pres_presentation SET "totalPages" = $totalPages WHERE "presentationId" = $presentationId""",
+      currentPageId match {
+        case Some(pageId) =>
+          sqlu"""UPDATE pres_page SET
+                "current" = (case when "pageId" = $pageId then true else false end),
+                "slideRevealed" = (case when "pageId" = $pageId then true else "slideRevealed" end)
+                WHERE "presentationId" = $presentationId"""
+        case None => DBIO.successful(0)
+      },
+      sqlu"""DELETE FROM pres_presentation WHERE "meetingId" = $meetingId AND "presentationId" = $progressRowId"""
+    ).transactionally
+
+    DatabaseConnection.enqueue(actions.asTry.map {
+      case Failure(e) =>
+        DatabaseConnection.logger.error(s"Insert of $count page(s) into presentation $presentationId of meeting $meetingId " +
+          s"at position $insertedAt failed in the database; the meeting state is ahead of it", e)
+      case Success(_) =>
+    })
   }
 
   def setCurrentPage(presentation: PresentationInPod, pageId: String) = {

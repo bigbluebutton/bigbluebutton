@@ -1,8 +1,23 @@
 import styled from 'styled-components';
-import { btnPrimaryBg } from '/imports/ui/stylesheets/styled-components/palette';
+import {
+  btnPrimaryBg,
+  colorSurfaceMuted,
+  colorTextEmphasis,
+  colorTextSecondary,
+} from '/imports/ui/stylesheets/styled-components/palette';
 import {
   lgBorderRadius,
+  confirmationButtonMinWidth,
 } from '/imports/ui/stylesheets/styled-components/general';
+
+// The floor as a shrinkable basis: a short label still renders at the floor,
+// and on a narrow phone the buttons shrink down to their labels instead of
+// overflowing the toast. They never wrap - the pair always stays on one row.
+const confirmationButtonFloor = `
+  flex: 0 1 ${confirmationButtonMinWidth};
+  min-width: max-content;
+  white-space: nowrap;
+`;
 
 const NotificationContent = styled.div`
   display: flex;
@@ -20,6 +35,7 @@ const NotificationActions = styled.div`
 const ConfirmationButton = styled.button`
   background-color: ${btnPrimaryBg};
   color: white;
+  ${confirmationButtonFloor}
   padding: 10px 24px;
   border: none;
   border-radius: ${lgBorderRadius};
@@ -28,8 +44,7 @@ const ConfirmationButton = styled.button`
   cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: center
-  height: 3.5rem;
+  justify-content: center;
   
   svg {
     margin-right: 0.5rem;
@@ -42,7 +57,8 @@ const ConfirmationButton = styled.button`
 
 const CancelButton = styled.button`
   background-color: transparent;
-  color: #333;
+  color: ${colorTextEmphasis};
+  ${confirmationButtonFloor}
   padding: 10px 24px;
   font-size: 1rem;
   font-weight: 400;
@@ -52,20 +68,20 @@ const CancelButton = styled.button`
   border: none;
 
   &:hover {
-    background-color: #f4f4f4;
+    background-color: ${colorSurfaceMuted};
   }
 `;
 
 const TitleText = styled.h3`
   font-size: 1.125rem;
-  color: #333;
+  color: ${colorTextEmphasis};
   font-weight: 700;
   margin-bottom: 8px;
 `;
 
 const DescriptionText = styled.p`
   font-size: 1rem;
-  color: #666;
+  color: ${colorTextSecondary};
   text-align: left;
   margin: 0;
 `;

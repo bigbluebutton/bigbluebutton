@@ -14,8 +14,12 @@ import {
   PANELS,
   HIDDEN_LAYOUTS,
 } from '../enums';
-import { isValidSynchronizationLayout, LAYOUTS_SYNC } from '../utils';
-import { updateSettings } from '/imports/ui/components/settings/service';
+import {
+  getInitialSidebarContentPanel,
+  isPhoneLandscape,
+  isValidSynchronizationLayout,
+  LAYOUTS_SYNC,
+} from '../utils';
 import Session from '/imports/ui/services/storage/in-memory';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
@@ -28,17 +32,12 @@ import {
   layoutSelectInput,
   layoutSelectOutput,
 } from '../context';
-import { calculatePresentationVideoRate } from './service';
+import { calculatePresentationVideoRate, equalDouble, hasCameraDockChanged } from './service';
 import { useMeetingLayoutUpdater, usePushLayoutUpdater, useLayoutUpdater } from './hooks';
 import { setEnforcedLayout } from '/imports/ui/components/plugins-engine/ui-commands/layout/handler';
 import { useIsChatEnabled } from '/imports/ui/services/features';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
-
-const equalDouble = (n1, n2) => {
-  const precision = 0.01;
-
-  return Math.abs(n1 - n2) <= precision;
-};
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const propTypes = {
   cameraWidth: PropTypes.number,
@@ -51,13 +50,13 @@ const propTypes = {
   isPresenter: PropTypes.bool,
   isModerator: PropTypes.bool,
   isChatEnabled: PropTypes.bool,
+  isCameraDockPropagationSuppressed: PropTypes.bool,
   layoutContextDispatch: PropTypes.func,
   meetingLayout: PropTypes.string,
   meetingLayoutCameraPosition: PropTypes.string,
   meetingLayoutFocusedCamera: PropTypes.string,
   meetingLayoutVideoRate: PropTypes.number,
   meetingPresentationIsOpen: PropTypes.bool,
-  meetingLayoutUpdatedAt: PropTypes.number,
   presentationIsOpen: PropTypes.bool,
   presentationContentUpdatedAt: PropTypes.number,
   presentationVideoRate: PropTypes.number,
@@ -72,7 +71,6 @@ const propTypes = {
   setLocalSettings: PropTypes.func.isRequired,
   hasMeetingLayout: PropTypes.bool,
   meetingLayoutSetByUserId: PropTypes.string,
-  isChatEnabled: PropTypes.bool,
 };
 
 const PushLayoutEngine = (props) => {
@@ -101,7 +99,6 @@ const PushLayoutEngine = (props) => {
     isModerator,
     isPresenter,
     layoutContextDispatch,
-    meetingLayoutUpdatedAt,
     presentationContentUpdatedAt,
     presentationIsOpen,
     presentationVideoRate,
@@ -111,6 +108,7 @@ const PushLayoutEngine = (props) => {
     setPushLayout,
     hasMeetingLayout,
     isChatEnabled,
+    isCameraDockPropagationSuppressed,
     meetingLayoutSetByUserId,
   } = props;
 
@@ -124,25 +122,28 @@ const PushLayoutEngine = (props) => {
     const contextLayout = enforcedLayout || defaultLayout
       || meetingLayout || currentLayout;
 
-    Session.setItem('isGridEnabled', currentLayout === LAYOUT_TYPE.UNIFIED_LAYOUT && !presentationIsOpen);
-
-    setLayoutType(
+    // What follows keys off the layout this pass applied, not the one in effect before
+    // it: the two differ whenever the meeting layout arrives after the mount.
+    const appliedLayout = setLayoutType(
       contextLayout,
       setLocalSettings,
     );
 
-    const HIDE_PRESENTATION = window.meetingClientSettings.public.layout.hidePresentationOnJoin;
-    const HIDE_CHAT = window.meetingClientSettings.public.chat.startClosed;
+    Session.setItem('isGridEnabled', appliedLayout === LAYOUT_TYPE.UNIFIED_LAYOUT && !presentationIsOpen);
 
+    const HIDE_PRESENTATION = window.meetingClientSettings.public.layout.hidePresentationOnJoin;
     const shouldOpenPresentation = shouldShowScreenshare || shouldShowExternalVideo;
-    const shouldOpenChat = isChatEnabled && getFromUserSettings('bbb_show_public_chat_on_login', !HIDE_CHAT);
+    const initialSidebarContentPanel = getInitialSidebarContentPanel(isChatEnabled);
+    // Same phone guard the layout observer applies: the sidebar content covers the
+    // whole screen on phones, so no panel is opened automatically on join.
+    const shouldOpenChatPanel = initialSidebarContentPanel === PANELS.CHAT && !deviceInfo.isPhone;
     let presentationLastState = !getFromUserSettings('bbb_hide_presentation_on_join', HIDE_PRESENTATION);
     presentationLastState = pushLayoutMeeting ? meetingPresentationIsOpen : presentationLastState;
     presentationLastState = shouldOpenPresentation || presentationLastState;
     MediaService.setPresentationIsOpen(layoutContextDispatch, presentationLastState);
     Session.setItem('presentationLastState', presentationLastState);
 
-    if (currentLayout === LAYOUT_TYPE.UNIFIED_LAYOUT) {
+    if (appliedLayout === LAYOUT_TYPE.UNIFIED_LAYOUT) {
       setTimeout(() => {
         layoutContextDispatch({
           type: ACTIONS.SET_FOCUSED_CAMERA_ID,
@@ -154,7 +155,7 @@ const PushLayoutEngine = (props) => {
           value: meetingLayoutCameraPosition || DEFAULT_VALUES.cameraPosition,
           isLocalChange: false,
         });
-        if (shouldOpenChat && !hasLayoutEngineLoadedOnce) {
+        if (shouldOpenChatPanel && !hasLayoutEngineLoadedOnce) {
           layoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
             value: true,
@@ -186,7 +187,7 @@ const PushLayoutEngine = (props) => {
         }
       }, 0);
     }
-    if (currentLayout === LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY) {
+    if (appliedLayout === LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY) {
       layoutContextDispatch({
         type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
         value: true,
@@ -212,7 +213,6 @@ const PushLayoutEngine = (props) => {
         || enforceLayoutDidChange;
     const layoutReplicateElements = LAYOUTS_SYNC[selectedLayout][SYNC.REPLICATE_ELEMENTS];
     const layoutPropagateElements = LAYOUTS_SYNC[selectedLayout][SYNC.PROPAGATE_ELEMENTS];
-    const Settings = getSettingsSingletonInstance();
 
     const replicateLayoutType = () => {
       const contextLayout = LAYOUT_TYPE[enforceLayoutResult] || meetingLayout;
@@ -223,8 +223,7 @@ const PushLayoutEngine = (props) => {
     };
 
     const replicatePresentationState = () => {
-      if (meetingPresentationIsOpen !== prevProps.meetingPresentationIsOpen
-        || meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
+      if (meetingPresentationIsOpen !== prevProps.meetingPresentationIsOpen) {
         layoutContextDispatch({
           type: ACTIONS.SET_PRESENTATION_IS_OPEN,
           value: meetingPresentationIsOpen,
@@ -234,8 +233,7 @@ const PushLayoutEngine = (props) => {
     };
 
     const replicateFocusedCamera = () => {
-      if (meetingLayoutFocusedCamera !== prevProps.meetingLayoutFocusedCamera
-        || meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
+      if (meetingLayoutFocusedCamera !== prevProps.meetingLayoutFocusedCamera) {
         layoutContextDispatch({
           type: ACTIONS.SET_FOCUSED_CAMERA_ID,
           value: meetingLayoutFocusedCamera,
@@ -245,8 +243,7 @@ const PushLayoutEngine = (props) => {
     };
 
     const replicateCameraDockPosition = () => {
-      if (meetingLayoutCameraPosition !== prevProps.meetingLayoutCameraPosition
-        || meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
+      if (meetingLayoutCameraPosition !== prevProps.meetingLayoutCameraPosition) {
         layoutContextDispatch({
           type: ACTIONS.SET_CAMERA_DOCK_POSITION,
           value: meetingLayoutCameraPosition || DEFAULT_VALUES.cameraPosition,
@@ -257,7 +254,7 @@ const PushLayoutEngine = (props) => {
 
     const replicateCameraDockSize = () => {
       if (!equalDouble(meetingLayoutVideoRate, prevProps.meetingLayoutVideoRate)
-        || meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
+        || isMeetingLayoutResizing !== prevProps.isMeetingLayoutResizing) {
         let w; let h;
         if (horizontalPosition) {
           w = window.innerWidth * meetingLayoutVideoRate;
@@ -287,17 +284,6 @@ const PushLayoutEngine = (props) => {
         });
       }
     };
-    // Sync local state of push layout
-    if ((isModerator || isPresenter)
-      && pushLayoutMeetingDidChange
-      && pushLayoutMeeting !== pushLayout) {
-      updateSettings({
-        layout: {
-          ...Settings.layout,
-          pushLayout: pushLayoutMeeting,
-        },
-      }, null, setLocalSettings);
-    }
 
     const notInitialValues = meetingLayoutSetByUserId && meetingLayoutSetByUserId !== 'system';
 
@@ -315,6 +301,8 @@ const PushLayoutEngine = (props) => {
         replicateFocusedCamera();
       }
 
+      // Not guarded on the enforcing device: the layout manager overrides the position
+      // it renders, and a guard here would drop the push for good, nothing replays it.
       if (syncCameraDockSizeAndPosition) {
         if (layoutReplicateElements.includes(LAYOUT_ELEMENTS.CAMERA_DOCK_POSITION)) {
           replicateCameraDockPosition();
@@ -328,12 +316,23 @@ const PushLayoutEngine = (props) => {
     // PROPAGATE LAYOUT
     const layoutChanged = presentationIsOpen !== prevProps.presentationIsOpen
       || selectedLayout !== prevProps.selectedLayout
-      || cameraIsResizing !== prevProps.cameraIsResizing
-      || cameraPosition !== prevProps.cameraPosition
+      || hasCameraDockChanged({
+        isCameraDockPropagationSuppressed,
+        cameraIsResizing,
+        cameraPosition,
+        presentationVideoRate,
+      }, prevProps)
       || focusedCamera !== prevProps.focusedCamera
       || enforceLayoutResult !== prevProps.enforceLayoutResult
-      || !equalDouble(presentationVideoRate, prevProps.presentationVideoRate)
       || presentationContentUpdatedAt !== prevProps.presentationContentUpdatedAt;
+    // A follower's presentation state is local (never propagated) and its restore
+    // memory may be stale: on becoming presenter, adopt what is being shown.
+    const becamePresenter = isPresenter && prevProps.isPresenter === false;
+    if (becamePresenter) {
+      Session.setItem('presentationLastState', presentationIsOpen);
+    }
+    const presenterStateDiverged = becamePresenter
+      && presentationIsOpen !== meetingPresentationIsOpen;
 
     if (pushLayoutMeeting !== undefined
       && pushLayout !== prevProps.pushLayout
@@ -354,7 +353,8 @@ const PushLayoutEngine = (props) => {
       // server and overwriting the meeting configured layout type.
       && hasInitiallyPropagated.current
     ) {
-      if (pushLayout && (layoutChanged || pushLayout !== prevProps.pushLayout)) {
+      if (pushLayout
+        && (layoutChanged || presenterStateDiverged || pushLayout !== prevProps.pushLayout)) {
         setMeetingLayout(pushLayout);
       }
     }
@@ -382,6 +382,7 @@ const PushLayoutEngine = (props) => {
 const PushLayoutEngineContainer = (props) => {
   const cameraDockOutput = layoutSelectOutput((i) => i.cameraDock);
   const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
+  const browserInput = layoutSelectInput((i) => i.browser);
   const presentationInput = layoutSelectInput((i) => i.presentation);
   const layoutContextDispatch = layoutDispatch();
   const isChatEnabled = useIsChatEnabled();
@@ -394,7 +395,7 @@ const PushLayoutEngineContainer = (props) => {
   const {
     width: cameraWidth,
     height: cameraHeight,
-    position: cameraPosition,
+    position: cameraDockPosition,
     focusedId: focusedCamera,
   } = cameraDockOutput;
 
@@ -415,7 +416,8 @@ const PushLayoutEngineContainer = (props) => {
     isResizing: cameraIsResizing,
   } = cameraDockInput;
 
-  const horizontalPosition = cameraPosition === 'contentLeft' || cameraPosition === 'contentRight';
+  const horizontalPosition = cameraDockPosition === 'contentLeft'
+    || cameraDockPosition === 'contentRight';
 
   const currentPluginLayoutRaw = useReactiveVar(setEnforcedLayout);
 
@@ -432,16 +434,17 @@ const PushLayoutEngineContainer = (props) => {
     layout: m.layout,
   }));
   const meetingLayout = LAYOUT_TYPE[currentMeeting?.layout?.currentLayoutType];
-  const meetingLayoutUpdatedAt = new Date(currentMeeting?.layout?.updatedAt).getTime();
   const {
     propagateLayout: pushLayoutMeeting,
     cameraDockIsResizing: isMeetingLayoutResizing,
     cameraDockPlacement: meetingLayoutCameraPosition,
-    cameraDockAspectRatio: meetingLayoutVideoRate,
+    cameraDockAspectRatio,
     cameraWithFocus: meetingLayoutFocusedCamera,
     presentationMinimized: meetingPresentationMinimized,
     setByUserId: meetingLayoutSetByUserId,
   } = (currentMeeting?.layout || {});
+  // A numeric column: it arrives as a string, or not at all while loading.
+  const meetingLayoutVideoRate = Number(cameraDockAspectRatio) || 0;
 
   const {
     isOpen: presentationIsOpen,
@@ -461,16 +464,21 @@ const PushLayoutEngineContainer = (props) => {
     });
   }, [enforcedLayoutLoading]);
 
+  // The output lags a rotation by one layout pass, in both directions.
+  const isCameraDockPropagationSuppressed = cameraDockOutput.isLocalOnly
+    || isPhoneLandscape(browserInput);
   const presentationVideoRate = calculatePresentationVideoRate(cameraDockOutput);
 
   const setLocalSettings = useUserChangedLocalSettings();
   const setPushLayout = usePushLayoutUpdater(pushLayout);
-  const setMeetingLayout = useMeetingLayoutUpdater(
+  const setMeetingLayout = useMeetingLayoutUpdater({
     cameraDockOutput,
     cameraDockInput,
     presentationInput,
     layoutSettings,
-  );
+    isCameraDockPropagationSuppressed,
+    meetingCameraDock: { position: meetingLayoutCameraPosition, videoRate: meetingLayoutVideoRate },
+  });
 
   if (!currentUserData || currentUserData === null) return null;
   const isModerator = currentUserData?.isModerator;
@@ -501,14 +509,14 @@ const PushLayoutEngineContainer = (props) => {
         setLocalSettings,
         pushLayoutMeeting,
         cameraIsResizing,
-        cameraPosition,
         focusedCamera,
         isMeetingLayoutResizing,
+        cameraPosition: cameraDockPosition,
         isModerator,
         isPresenter,
         isChatEnabled,
+        isCameraDockPropagationSuppressed,
         layoutContextDispatch,
-        meetingLayoutUpdatedAt,
         presentationContentUpdatedAt,
         presentationIsOpen,
         presentationVideoRate,

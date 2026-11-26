@@ -8,6 +8,10 @@ import (
 )
 
 func RetransmitSubscriptionStartMessages(hc *common.HasuraConnection) {
+	// Read before taking the subscriptions lock, so this pass sees one consistent value and does
+	// not nest the connection lock inside another.
+	currentlyInMeeting := hc.BrowserConn.IsCurrentlyInMeeting()
+
 	hc.BrowserConn.ActiveSubscriptionsMutex.RLock()
 	subscriptionsToProcess := make(map[string]common.GraphQlSubscription, 0)
 	for queryId, subscription := range hc.BrowserConn.ActiveSubscriptions {
@@ -17,7 +21,7 @@ func RetransmitSubscriptionStartMessages(hc *common.HasuraConnection) {
 		}
 
 		// When user left the meeting, Retransmit only Presence Manager subscriptions
-		if !hc.BrowserConn.CurrentlyInMeeting &&
+		if !currentlyInMeeting &&
 			!slices.Contains(config.AllowedSubscriptionsForNotInMeetingUsers, subscription.OperationName) {
 			hc.BrowserConn.Logger.Debugf("Skipping retransmit %s because the user is not in meeting", subscription.OperationName)
 			continue

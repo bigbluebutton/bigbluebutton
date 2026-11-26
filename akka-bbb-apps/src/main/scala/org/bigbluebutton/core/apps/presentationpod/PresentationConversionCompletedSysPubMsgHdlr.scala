@@ -8,8 +8,6 @@ import org.bigbluebutton.core.models.PresentationInPod
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
-import java.io.File
-import java.net.URI
 import java.time.{Instant, Duration}
 
 trait PresentationConversionCompletedSysPubMsgHdlr {
@@ -61,9 +59,9 @@ trait PresentationConversionCompletedSysPubMsgHdlr {
 
       PresPresentationDAO.updatePages(presWithConvertedName)
       if (pres.downloadable) {
-        val originalFilename = new URI(null, null, pres.name, null).getRawPath
-        val originalFileURI = List("presentation", "download", meetingId,
-          s"${pres.id}?presFilename=${pres.id}.${originalDownloadableExtension}&filename=$originalFilename").mkString("", File.separator, "")
+        val originalFileURI = PresentationDownloadUrlBuilder.buildFileUri(
+          meetingId, pres.id, originalDownloadableExtension, pres.name
+        )
         PresPresentationDAO.updateDownloadUri(pres.id, originalFileURI)
       }
       if(pres.current) {
@@ -79,18 +77,18 @@ trait PresentationConversionCompletedSysPubMsgHdlr {
         NotificationDAO.insert(notifyEvent)
       }
 
-      state.update(pods)
+      val stateWithPods = state.update(pods)
 
-      val conversion = state.presentationConversions.find(pres.id)
+      val conversion = stateWithPods.presentationConversions.find(pres.id)
       conversion match {
         case Some(pc) =>
           val start = Instant.ofEpochMilli(pc.startTime)
           val duration = Duration.between(start, Instant.now())
           log.info(s"Presentation ${pres.id} with ${pres.pages.size} pages finished converting after $duration")
-          val presentationConversions = state.presentationConversions.remove(pres.id)
-          state.update(presentationConversions)
+          val presentationConversions = stateWithPods.presentationConversions.remove(pres.id)
+          stateWithPods.update(presentationConversions)
         case None =>
-          state
+          stateWithPods
       }
     }
 

@@ -1,0 +1,93 @@
+                                                                                                                          Energy and Climate Courses at Stanford
+
+
+                                                                                                                                                      Measuring Sustainability is open to students in all
+                                                                                                                                                      disciplines. The goal is to prepare students for the United
+                                                                                                                                                      States Green Building Council's professional accreditation
+                                                                                                                                                      exam. Basic metrics for project certification via USGBC's
+                                                                                                                                                      LEED rating system will be discussed, as well as
+                                                                                                                                                      comparisons to other systems. Sustainability at Stanford                  Field trip,
+  CEE 248G-01      Measuring Sustainabiltiy                    1    Spr 09                                                           Jiffy Vermylen   will also be addressed. It is recommended that students     Coursework   some group
+                                                                                                                                                      have familiarity with basic design and construction                         work
+                                                                                                                                                      terminology. Application deadline: March 20th, 2009 @
+                                                                                                                                                      8:00am. The course is currently offered only spring 09. The
+                                                                                                                                                      LEED accreditation process is changing soon, and students
+                                                                                                                                                      will no longer be eligible to become LEED-APs without prior
+                                                                                                                                                      experience on a LEED certified project.
+                                                                     Fall,                                                                            Interdisciplinary exploration of current energy challenges
+    CEE 301          The Energy Seminar                        1     Win,                                                   None        Horne, R.     and opportunities, with talks by faculty, visitors, and
+                                                                     Spr                                                                              students. May be repeated for credit.
+                                                                                                                                                      Global change science as viewed using space remote
+                                                                                                                                                      sensing technology. Global warming, ozone depletion, the
+                                                                                                                                                      hydrologic and carbon cycles, topographic mapping, and
+                                                                      Aut                                    Juniors,                                 surface deformation. Physical concepts in remote sensing.
+                    The Earth from Space:                                      DB-
+                                                                    (Altern              Lecture/    Enginee Seniors,                                 EM waves and geophysical information. Sensors studied: http://www.stanford.edu/class/ee140
+     EE 140         Introduction to Remote      GEOPHYS 140    3            EngrAppSc                                        --        Zebker, H.
+                                                                      ate                  Lab         ring    Grad                                   optical, near and thermal IR, active and passive
+                           Sensing                                              i
+                                                                    years)                                   students                                 microwaves. The class is about 15-20 studnets in size and
+                                                                                                                                                      there is a team project instead of a final, and weekly
+                                                                                                                                                      homework. There is a laboratory component as well.
+                                                                                                                                                      Science, economics, and politics of international
+                                                                                                                                                      environmental policy. Current negotiations on global
+                                                                                                                Soph                                  climate change, including actors and potential solutions.
+                  International Environmental
+   MS&E 92Q                                         --         4     Win       --                    Policy   preferenc      --        Weyant, J.     Sources include briefing materials used in international
+                             Policy
+                                                                                                                  e                                   negotiations and the U.S. Congress. Classes are ~20 in
+                                                                                                                                                      size and the courseload is described as 1-5 hours a week.
+                                                                                                                                                      It meets twice a week for approximately 1.5 hours.
+                                                                                                                     ECON 50                          Economic principles in models of energy and environmental
+                                                                                                                        and                           markets Spreadsheet examples for developing insights and
+                                                                                                           Advanced knowledg                          communicating with decision makers. Market-clearing
+                                                                                                   Econom juniors       e of                          conditions, controlling emissions through fees, diffusion of
+                  Applied Modeling of Energy                                             Lecture/                                                     new technologies, resource depletion, cartel behavior, and
+   MS&E 198                                         --         1      Aut      --                    ics/     and    spreadsh        Huntington, H.
+                  and Environmental Markets                                             Discussion                                                    model evaluation. Class meets once a week with about 25
+                                                                                                    Policy  seniors,  eets, or
+                                                                                                             Grad     consent                         people. The format is lecture with some discussion. There
+                                                                                                                         of                           is no HW or projects (two years ago).
+                                                                                                                     instructor
+                                                                                                                                                      Concepts, methods, and applications.
+                                                                                                                                                      Energy/environmental policy issues such as automobile fuel
+                                                                                                                                                      economy regulation, global climate change, research and
+                                                                                                                      IPER 241                        development policy, and environmental benefit assessment.
+                  Energy and Environmental                                               Lecture
+   MS&E 243                                                    3      Spr      --                    Policy Graduates or ECON          Sweeney, J      Class meets three times a week with about 45 people in        None
+                       Policy Analysis                                                    (45)
+                                                                                                                       50, 51.                        each class. A group project comprises 40% of your grade.
+                                                                                                                                                      The project iis centered around choosing your own policy to
+                                                                                                                                                      analyze. The final is 50% of the grade, and problem sets
+                                                                                                                                                      are 10%. More focused on policy.
+                                                                                                                                                      Intertemporal economic analysis of natural resource use,
+                                                                                                                                                      particularly energy, and including air, water, and other
+                                                                                                                                                      depletable mineral and biological resources. Emphasis is
+                                                                                                                                                      on an integrating theory for depletable and renewable
+                                                                                                                                                      resources. Stock-flow relationships; optimal choices over
+                                                                                                     Econom Seniors,   MS&E                           time; short- and long-run equilibrium conditions;
+                    Economics of Natural                                                 Lecture/
+   MS&E 248                                       IPS 248     3-4     Aut      --                      ics/    Grad    241 or          Sweeney, J     depletion/extinction conditions; market failure mechanisms
+                        Resources                                                       Discussion
+                                                                                                      Policy students ECON 51                         (common-property, public goods, discount rate distortions,
+                                                                                                                                                      rule-of-capture); policy options. Class meets three times a
+                                                                                                                                                      week with about 45 students. There is a group project that
+                                                                                                                                                      requires an in-class presentation at the end of the quarter,
+                                                                                                                                                      and written paper. 40%-50$ of grade. The final exam is
+                                                                                                                                                      open notes, and open book. More quantiative.
+                                                                                                                      Backgrou                        Design and application of formal analytical methods in
+                                                                                                                        nd in                         climate policy development. Issues include instrument
+                                                                                                                      economic                        design, technology development, resource management,
+                                                                                                     Econom Seniors,                                  multiparty negotiation, and dealing with complexity and
+                                                                    Alternat                                              s,
+   MS&E 294         Climate Policy Analysis         --         3               --                      ics/    Grad                    Weyant, J.     uncertainty. Links among art, theory, and practice.
+                                                                    e years                                           optimizati
+                                                                                                      Policy students                                 Emphasis is on integrated use of modeling tools from
+                                                                                                                       on, and
+                                                                                                                       decision                       diverse methodologies and requirements for policy making
+                                                                                                                       analysis                       application.
+
+
+
+
+Last updated: March 17, 2009                                                                                                                                                                                                          Send additions and corrections to leighj@stanford.edu

@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A valid role param wins over the password: the password is then not compared
+# with the meeting's, so even a wrong one is accepted.
+id: join.role.precedence
+title: join with role=${roleParam} and the ${which} password registers a ${role}
+endpoint: join
+class: contract
+tags: [ci]
+requires: [akka, bus]
+variants:
+  - {id: viewer-moderator-password, vars: {roleParam: viewer, which: moderator, password: mp, role: VIEWER}}
+  - {id: moderator-attendee-password, vars: {roleParam: moderator, which: attendee, password: ap, role: MODERATOR}}
+  - {id: viewer-wrong-password, vars: {roleParam: viewer, which: a wrong, password: wrong, role: VIEWER}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Join role, moderatorPW: mp, attendeePW: ap}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - call: join
+    params: {meetingID: "${uid}", fullName: Ann, role: "${roleParam}", password: "${password}", redirect: "false"}
+    expect: {returncode: SUCCESS}
+  - bus: {name: UserRegisteredRespMsg, meetingId: "${intId}", within: 5s}
+    expect:
+      jsonpath: {$.core.body.role: "${role}"}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

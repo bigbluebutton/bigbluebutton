@@ -18,13 +18,14 @@
     </layout>
   </appender>
 
-  <logger name="akka" level="INFO" />
+  <logger name="org.apache.pekko" level="INFO" />
   <logger name="org.bigbluebutton" level="DEBUG" />
   <logger name="io.lettuce" level="INFO" />
   <logger name="slick" level="INFO" />
 
   <root level="DEBUG">
     <appender-ref ref="STDOUT"/>
-    <appender-ref ref="FILE" />
+    <!-- BBB_LOG_FILE_APPENDER=STDOUT logs to stdout only (no log file), e.g. in a container -->
+    <appender-ref ref="${BBB_LOG_FILE_APPENDER:-FILE}" />
   </root>
 </configuration>

@@ -2,10 +2,15 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
-import { useIsInfiniteWhiteboardEnabled, useIsPollingEnabled, useIsQuizEnabled } from '/imports/ui/services/features';
+import {
+  useIsInfiniteWhiteboardEnabled,
+  useIsInfiniteWhiteboardInBreakoutsEnabled,
+  useIsPollingEnabled,
+  useIsQuizEnabled,
+} from '/imports/ui/services/features';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { POLL_CREATE } from '/imports/ui/components/poll/mutations';
-import { PRESENTATION_SET_ZOOM, PRESENTATION_SET_PAGE, PRESENTATION_SET_PAGE_INFINITE_WHITEBOARD } from '../mutations';
+import { PRESENTATION_SET_ZOOM, PRESENTATION_SET_PAGE_BY_NUM, PRESENTATION_SET_PAGE_INFINITE_WHITEBOARD } from '../mutations';
 import PresentationToolbar from './component';
 import Session from '/imports/ui/services/storage/in-memory';
 import { useMeetingIsBreakout } from '/imports/ui/components/app/service';
@@ -105,7 +110,7 @@ const PresentationToolbarContainer = (props) => {
 
   const [createPoll] = useMutation(POLL_CREATE);
   const [presentationSetZoom] = useMutation(PRESENTATION_SET_ZOOM);
-  const [presentationSetPage] = useMutation(PRESENTATION_SET_PAGE);
+  const [presentationSetPageByNum] = useMutation(PRESENTATION_SET_PAGE_BY_NUM);
   const [presentationSetPageInfiniteWhiteboard] = useMutation(
     PRESENTATION_SET_PAGE_INFINITE_WHITEBOARD,
   );
@@ -125,17 +130,9 @@ const PresentationToolbarContainer = (props) => {
     });
   };
 
-  const setPresentationPage = (pageId) => {
-    presentationSetPage({
-      variables: {
-        presentationId,
-        pageId,
-      },
-    });
-  };
-
   const setPresentationPageInfiniteWhiteboard = (infiniteWhiteboard) => {
-    const pageId = `${presentationId}/${currentSlideNum}`;
+    const pageId = currentPresentationPage?.pageId;
+    if (!pageId) return;
     presentationSetPageInfiniteWhiteboard({
       variables: {
         pageId,
@@ -144,9 +141,16 @@ const PresentationToolbarContainer = (props) => {
     });
   };
 
+  // currentSlideNum and numberOfSlides come from the same page row: the server uses the total to
+  // follow the page if the order changed before the request arrives.
   const skipToSlide = (slideNum) => {
-    const slideId = `${presentationId}/${slideNum}`;
-    setPresentationPage(slideId);
+    presentationSetPageByNum({
+      variables: {
+        presentationId,
+        pageNum: slideNum,
+        seenTotalPages: numberOfSlides,
+      },
+    });
   };
 
   const previousSlide = () => {
@@ -208,6 +212,7 @@ const PresentationToolbarContainer = (props) => {
   const isPollingEnabled = useIsPollingEnabled();
   const meetingIsBreakout = useMeetingIsBreakout();
   const allowInfiniteWhiteboard = useIsInfiniteWhiteboardEnabled();
+  const allowInfiniteWhiteboardInBreakouts = useIsInfiniteWhiteboardInBreakoutsEnabled();
   const { data: countData } = useDeduplicatedSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION);
   const numberOfJoinedUsers = countData?.user_aggregate?.aggregate?.count || 0;
   const isMobile = layoutSelect((i) => i.deviceType) === DEVICE_TYPE.MOBILE;
@@ -224,7 +229,7 @@ const PresentationToolbarContainer = (props) => {
         {...props}
         amIPresenter={userIsPresenter}
         isPollingEnabled={isPollingEnabled}
-        allowInfiniteWhiteboardInBreakouts={WHITEBOARD_CONFIG?.allowInfiniteWhiteboardInBreakouts}
+        allowInfiniteWhiteboardInBreakouts={allowInfiniteWhiteboardInBreakouts}
         allowInfiniteWhiteboard={allowInfiniteWhiteboard}
         // TODO: Remove this
         isConnected={connected}

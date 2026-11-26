@@ -1,4 +1,4 @@
-import { useMutation } from '@apollo/client';
+import { useMutation, useReactiveVar } from '@apollo/client';
 import React, { useContext, useEffect, useState } from 'react';
 import Session from '/imports/ui/services/storage/in-memory';
 import {
@@ -14,14 +14,34 @@ import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedS
 import logger from '/imports/startup/client/logger';
 import deviceInfo from '/imports/utils/deviceInfo';
 import GuestWaitContainer, { GUEST_STATUSES } from '../guest-wait/component';
+import { useGuestDeniedRedirect } from '../guest-wait/hooks/useGuestWaitState';
+import PreFlight, { PreFlightError } from '/imports/ui/components/pre-flight/component';
+import GuestLobby from '/imports/ui/components/pre-flight/guest-lobby/component';
+import {
+  GuestDeniedActions,
+  GuestDeniedHeader,
+} from '/imports/ui/components/pre-flight/error-screen/guest-denied/component';
+import {
+  ConnectionLostActions,
+  ConnectionLostHeader,
+} from '/imports/ui/components/pre-flight/error-screen/connection-lost/component';
+import SessionInfo from '/imports/ui/components/pre-flight/session-info/component';
+import {
+  JoiningRoomActions,
+  JoiningRoomHeader,
+} from '/imports/ui/components/pre-flight/joining-room/component';
+import { isPreFlightEnabled } from '/imports/ui/components/pre-flight/service';
 import PluginTopLevelManager from '/imports/ui/components/plugin-top-level-manager/component';
 import meetingStaticData from '/imports/ui/core/singletons/meetingStaticData';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Auth from '/imports/ui/services/auth';
+import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 
 const connectionTimeout = 60000;
 const MESSAGE_TIMEOUT = 3000;
+// Well before connectionTimeout, which throws into the error boundary.
+const JOIN_RETRY_TIMEOUT = 20000;
 
 interface PresenceManagerContainerProps {
     children: React.ReactNode;
@@ -32,6 +52,7 @@ interface PresenceManagerProps extends PresenceManagerContainerProps {
     logoutUrl: string;
     meetingId: string;
     meetingName: string;
+    meetingCreatedTime: number;
     userName: string;
     extId: string;
     userId: string;
@@ -59,6 +80,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   logoutUrl,
   meetingId,
   meetingName,
+  meetingCreatedTime,
   userName,
   extId,
   userId,
@@ -86,17 +108,38 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   const [isGuestAllowed, setIsGuestAllowed] = useState(guestStatus === GUEST_STATUSES.ALLOW);
   const PUBLIC_CONFIG = window.meetingClientSettings.public;
   const CLIENT_TITLE = getFromUserSettings('bbb_client_title', PUBLIC_CONFIG.app.clientTitle);
+  // The pre-flight gates the join on a user action; bots have nobody to press
+  // the button, so they keep the automatic join.
+  const preFlightEnabled = isPreFlightEnabled() && !isBot;
+  const [joinRequested, setJoinRequested] = useState(!preFlightEnabled);
+  const [joinFailed, setJoinFailed] = useState(false);
+  const joinRetryRef = React.useRef<ReturnType<typeof setTimeout>>();
+  const preFlightCommitRef = React.useRef<(() => boolean) | null>(null);
+  const isConnected = useReactiveVar(connectionStatus.getConnectedStatusVar());
+  // A socket that stops carrying messages stays "connected" until the
+  // heartbeat watchdog terminates it, about 45 s into the silence.
+  const serverIsResponding = useReactiveVar(connectionStatus.getServerIsRespondingVar());
+  // Only a drop counts: the socket is still opening when the screen mounts.
+  const [hasConnected, setHasConnected] = useState(isConnected);
+  if (isConnected && !hasConnected) setHasConnected(true);
+  const connectionLost = hasConnected && (!isConnected || !serverIsResponding);
 
   useEffect(() => {
     const allowed = guestStatus === GUEST_STATUSES.ALLOW;
     if (allowed) {
+      // The approval message is only held on screen when nothing else holds
+      // the user in place.
+      if (preFlightEnabled) {
+        setIsGuestAllowed(true);
+        return;
+      }
       setTimeout(() => {
         setIsGuestAllowed(true);
       }, MESSAGE_TIMEOUT);
     } else {
       setIsGuestAllowed(false);
     }
-  }, [guestStatus]);
+  }, [guestStatus, preFlightEnabled]);
 
   useEffect(() => {
     const sessionToken = Auth.sessionToken as string;
@@ -125,13 +168,28 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   }, []);
 
   useEffect(() => {
-    if (isGuestAllowed) {
+    if (isGuestAllowed && joinRequested) {
       timeoutRef.current = setTimeout(() => {
         loadingContextInfo.setLoading(false);
         throw new Error('Authentication timeout');
       }, connectionTimeout);
     }
-  }, [isGuestAllowed]);
+
+    return () => clearTimeout(timeoutRef.current);
+  }, [isGuestAllowed, joinRequested]);
+
+  // Hand the join back to the user if it stalls, instead of leaving them on a
+  // spinner until connectionTimeout throws.
+  useEffect(() => {
+    if (!preFlightEnabled || !isGuestAllowed || !joinRequested || joined) return undefined;
+
+    joinRetryRef.current = setTimeout(() => {
+      setJoinFailed(true);
+      setJoinRequested(false);
+    }, JOIN_RETRY_TIMEOUT);
+
+    return () => clearTimeout(joinRetryRef.current);
+  }, [preFlightEnabled, isGuestAllowed, joinRequested, joined]);
 
   useEffect(() => {
     if (bannerColor || bannerText) {
@@ -141,7 +199,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   }, [bannerColor, bannerText]);
 
   useEffect(() => {
-    if (authToken && !joined && isGuestAllowed) {
+    if (authToken && !joined && isGuestAllowed && joinRequested) {
       dispatchUserJoin({
         variables: {
           authToken,
@@ -150,10 +208,14 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
         },
       });
     }
-  }, [joined, authToken, isGuestAllowed]);
+  }, [joined, authToken, isGuestAllowed, joinRequested]);
 
   useEffect(() => {
     if (joined) {
+      // The stalled join landed after all: the panel stayed editable under
+      // its screen, and what it shows now is what the user expects to join
+      // with. A device denied meanwhile commits nothing, as on a retry.
+      if (joinFailed) preFlightCommitRef.current?.();
       clearTimeout(timeoutRef.current);
       setAllowToRender(true);
     }
@@ -168,7 +230,87 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
 
   const errorCode = loggedOut ? 'user_logged_out_reason' : joinErrorCode || ejectReasonCode;
 
-  const userCurrentlyInMeeting = allowToRender && !(meetingEnded || joinErrorCode || ejectReasonCode || loggedOut);
+  const hasLeftMeeting = meetingEnded || !!joinErrorCode || !!ejectReasonCode || loggedOut;
+  const userCurrentlyInMeeting = allowToRender && !hasLeftMeeting;
+  const showPreFlight = preFlightEnabled && !userCurrentlyInMeeting && !hasLeftMeeting;
+  const isGuestDenied = guestStatus === GUEST_STATUSES.DENY;
+  const isSettingUp = guestStatus === GUEST_STATUSES.ALLOW || guestStatus === GUEST_STATUSES.WAIT;
+  // The panel stays up behind a denial only for the guest who was already
+  // using it: a tab that loads into the denial asks for no devices.
+  const [setupPanelShown, setSetupPanelShown] = useState(isSettingUp);
+  if (isSettingUp && !setupPanelShown) setSetupPanelShown(true);
+  const guestDeniedRedirect = useGuestDeniedRedirect(
+    logoutUrl,
+    showPreFlight && isGuestDenied,
+    { countdown: true },
+  );
+
+  // The lobby leaves the denial redirect to this component, which shows its
+  // countdown.
+  let preFlightHeader: React.ReactNode = (
+    <GuestLobby
+      meetingName={meetingName}
+      clientTitle={CLIENT_TITLE}
+      guestLobbyMessage={guestLobbyMessage}
+      guestStatus={guestStatus}
+      logoutUrl={logoutUrl}
+      positionInWaitingQueue={positionInWaitingQueue}
+      redirectOnDeny={false}
+    />
+  );
+  let preFlightActions: React.ReactNode = null;
+  let preFlightError: PreFlightError | null = null;
+
+  const retryConnection = () => {
+    // The socket reconnects on its own; a retry while it is down starts over.
+    // Offline, a reload only trades the setup for the browser's error page.
+    if (connectionLost) {
+      if (navigator.onLine) window.location.reload();
+      return;
+    }
+    // The panel stayed editable under the error: commit it again, as the
+    // join button does. A device denied meanwhile holds the join instead, and
+    // its screen takes over once this one is cleared.
+    const committed = preFlightCommitRef.current?.() ?? true;
+    setJoinFailed(false);
+    if (committed) setJoinRequested(true);
+  };
+
+  if (isGuestDenied) {
+    // The lobby stays as the header: a phone keeps it behind the dialog.
+    preFlightError = {
+      header: (
+        <GuestDeniedHeader
+          secondsLeft={guestDeniedRedirect.secondsLeft}
+          meetingName={meetingName}
+        />
+      ),
+      actions: <GuestDeniedActions onLeave={guestDeniedRedirect.redirect} />,
+      onClose: guestDeniedRedirect.redirect,
+    };
+  } else if (connectionLost || joinFailed) {
+    preFlightError = {
+      header: <ConnectionLostHeader joinStalled={!connectionLost} />,
+      actions: <ConnectionLostActions onRetry={retryConnection} />,
+      onClose: retryConnection,
+    };
+  }
+
+  if (!isGuestDenied && isGuestAllowed) {
+    preFlightHeader = (
+      <JoiningRoomHeader
+        meetingName={meetingName}
+        clientTitle={CLIENT_TITLE}
+        isJoining={joinRequested}
+      />
+    );
+    preFlightActions = (
+      <JoiningRoomActions
+        isJoining={joinRequested}
+        onJoin={() => setJoinRequested(true)}
+      />
+    );
+  }
 
   return (
     <>
@@ -177,7 +319,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
       />
       {userCurrentlyInMeeting ? children : null}
       {
-        meetingEnded || joinErrorCode || ejectReasonCode || loggedOut
+        hasLeftMeeting
           ? (
             <MeetingEndedContainer
               meetingEndedCode={endedReasonCode}
@@ -189,7 +331,23 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
           : null
       }
       {
-        !isGuestAllowed && !(meetingEnded || joinErrorCode || ejectReasonCode || loggedOut)
+        showPreFlight
+          ? (
+            <PreFlight
+              showSetupPanel={isSettingUp || (isGuestDenied && setupPanelShown)}
+              header={preFlightHeader}
+              topInfo={<SessionInfo meetingName={meetingName} createdTime={meetingCreatedTime} />}
+              headerNamesSession={!isGuestDenied && isGuestAllowed}
+              actions={preFlightActions}
+              error={preFlightError}
+              gateJoinOnDevices={isGuestAllowed && !joinRequested}
+              commitRef={preFlightCommitRef}
+            />
+          )
+          : null
+      }
+      {
+        !preFlightEnabled && !isGuestAllowed && !hasLeftMeeting
           ? (
             <GuestWaitContainer
               meetingName={meetingName}
@@ -261,6 +419,7 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
   const {
     meetingId,
     name: meetingName,
+    createdTime: meetingCreatedTime,
     bannerColor,
     bannerText,
     customLogoUrl,
@@ -273,6 +432,7 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
       logoutUrl={logoutUrl ?? ''}
       meetingId={meetingId ?? ''}
       meetingName={meetingName ?? ''}
+      meetingCreatedTime={meetingCreatedTime ?? 0}
       userName={name ?? ''}
       extId={extId ?? ''}
       userId={userId ?? ''}

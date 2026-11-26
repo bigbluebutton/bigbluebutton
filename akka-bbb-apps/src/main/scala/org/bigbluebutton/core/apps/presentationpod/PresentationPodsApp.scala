@@ -2,6 +2,7 @@ package org.bigbluebutton.core.apps.presentationpod
 
 import org.apache.commons.codec.digest.DigestUtils
 import org.bigbluebutton.common2.domain._
+import org.bigbluebutton.common2.msgs.PageRef
 import org.bigbluebutton.core.domain._
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.util.RandomStringGenerator
@@ -36,6 +37,41 @@ object PresentationPodsApp {
 
   def getAllPresentationPodsInMeeting(state: MeetingState2x): Vector[PresentationPod] = {
     state.presentationPodManager.getAllPresentationPodsInMeeting()
+  }
+
+  def findPodWithPresentation(state: MeetingState2x, presentationId: String): Option[PresentationPod] = {
+    getAllPresentationPodsInMeeting(state).find(_.getPresentation(presentationId).isDefined)
+  }
+
+  // Content the server imports from an ended breakout room may go past the cap: the room that
+  // produced it is gone, so refusing it would lose it. Twice the cap still bounds repeated rounds.
+  def maxPresentationsPerPodFor(systemUpload: Boolean, maxPerPod: Int): Int =
+    if (systemUpload) maxPerPod * 2 else maxPerPod
+
+  // A presentation already in the pod holds its slot, so it never counts against the cap.
+  // 0 disables the cap.
+  def podIsFullFor(pod: PresentationPod, presentationId: String, maxPerPod: Int): Boolean = {
+    maxPerPod > 0 && pod.getPresentation(presentationId).isEmpty && pod.getPresentationsSize() >= maxPerPod
+  }
+
+  def pageBelongsToMeeting(state: MeetingState2x, pageId: String): Boolean = {
+    state.presentationPodManager.getAllPresentationPodsInMeeting()
+      .exists(_.presentations.values.exists(_.pages.contains(pageId)))
+  }
+
+  def findPresentationPage(state: MeetingState2x, pageId: String): Option[(PresentationInPod, PresentationPage)] = {
+    state.presentationPodManager.getAllPresentationPodsInMeeting().view
+      .flatMap(_.presentations.values)
+      .flatMap(pres => pres.pages.get(pageId).map(page => (pres, page)))
+      .headOption
+  }
+
+  // Position of each page of this meeting at the time of the call. Ids that are not pages of the
+  // meeting (a poll published while screen sharing uses "deskshare") are left out.
+  def pageRefsFor(state: MeetingState2x, whiteboardIds: Iterable[String]): Map[String, PageRef] = {
+    whiteboardIds.toSet.flatMap { (wbId: String) =>
+      findPresentationPage(state, wbId).map { case (pres, page) => wbId -> PageRef(pres.id, page.num) }
+    }.toMap
   }
 
   def getNumberOfPresentationPods(state: MeetingState2x): Int = state.presentationPodManager.getNumberOfPods()
@@ -106,6 +142,11 @@ object PresentationPodsApp {
     val timestamp = System.currentTimeMillis
     DigestUtils.sha1Hex(presFilename + RandomStringGenerator.randomAlphanumericString(8)) + "-" + timestamp
   }
+
+  // The form generatePresentationId produces, which bbb-web's Util.generatePresentationId shares.
+  private val PresentationIdPattern = "^[0-9a-f]{40}-[0-9]+$".r
+
+  def isPresentationId(id: String): Boolean = PresentationIdPattern.matches(id)
 
 }
 

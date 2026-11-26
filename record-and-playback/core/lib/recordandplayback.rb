@@ -27,6 +27,7 @@ require 'recordandplayback/generators/audio'
 require 'recordandplayback/generators/video'
 require 'recordandplayback/generators/audio_processor'
 require 'recordandplayback/generators/presentation'
+require 'recordandplayback/callback_destination'
 require 'open4'
 require 'pp'
 require 'absolute_time'
@@ -84,9 +85,50 @@ module BigBlueButton
   def self.logger
     return @logger if @logger
 
-    logger = Journald::Logger.new('bbb-rap')
+    logger = system_logger('bbb-rap')
     logger.level = Logger::INFO
     @logger = logger
+  end
+
+  # Logger for a long-running recording service, tagged with +identifier+.
+  #
+  # systemd sets JOURNAL_STREAM for every unit whose stdout/stderr goes to the
+  # journal, so package installs log to journald. Without a journal (e.g. in a
+  # container) a Journald::Logger silently drops every line, so log to a synced
+  # stdout instead and let the runtime collect it.
+  def self.system_logger(identifier)
+    return Journald::Logger.new(identifier) if ENV.key?('JOURNAL_STREAM')
+
+    $stdout.sync = true
+    StdoutLogger.new($stdout, progname: identifier)
+  end
+
+  # Stdout logger with the journald-specific methods the recording scripts use.
+  class StdoutLogger < Logger
+    # Like Journald::Logger#tag: with a block the fields apply inside it only,
+    # without one they stay.
+    def tag(**fields)
+      saved = @tags
+      @tags = (saved || {}).merge(fields)
+      return unless block_given?
+
+      begin
+        yield
+      ensure
+        @tags = saved
+      end
+    end
+
+    def exception(exc)
+      error("#{exc.class}: #{exc.message}\n#{exc.backtrace&.join("\n")}")
+    end
+
+    private
+
+    def format_message(severity, time, progname, msg)
+      msg = "#{msg} #{@tags.map { |k, v| "#{k}=#{v}" }.join(' ')}" if @tags&.any?
+      super
+    end
   end
 
   def self.redis_publisher=(publisher)
@@ -145,15 +187,6 @@ module BigBlueButton
     BigBlueButton.logger.info "Downloading #{url} to #{output}"
 
     uri = URI.parse(url)
-    if ["http", "https", "ftp"].include? uri.scheme
-      response = Net::HTTP.start(uri.host, uri.port) {|http|
-        http.head(uri.request_uri)
-      }
-      unless response.is_a? Net::HTTPSuccess
-        raise "File not available: #{response.message}"
-      end
-    end
-
     if uri.scheme.nil?
       url = "file://" + url
       uri = URI.parse(url)
@@ -162,6 +195,8 @@ module BigBlueButton
     Net::HTTP.start(uri.host, uri.port) do |http|
       request = Net::HTTP::Get.new uri.request_uri
       http.request request do |response|
+        raise "File not available: #{response.code} #{response.message}" unless response.is_a? Net::HTTPSuccess
+
         open output, 'w' do |io|
           response.read_body do |chunk|
             io.write chunk
@@ -200,9 +235,7 @@ module BigBlueButton
 
       doc.at(parent_xpath) << node
 
-      xml_file = File.new(xml_filename, "w")
-      xml_file.write(doc.to_xml(:indent => 2))
-      xml_file.close
+      File.write(xml_filename, doc.to_xml(:indent => 2))
     end
   end
 
@@ -244,12 +277,79 @@ module BigBlueButton
     hasOverride = File.file?(filepathRecOverride)
     
     filepath = File.join(BigBlueButton.rap_scripts_path, 'bigbluebutton.yml')
-    @props = YAML::load(File.open(filepath))
+    @props = BigBlueButton.load_yaml(filepath)
     if (hasOverride)
-      recOverrideProps = YAML::load(File.open(filepathRecOverride))
+      recOverrideProps = BigBlueButton.load_yaml(filepathRecOverride, fallback: {})
       @props = @props.merge(recOverrideProps)
     end
+    # Environment variables win over both files
+    @props['redis_host'] = ENV['REDIS_HOST'] if env_set?('REDIS_HOST')
+    @props['redis_port'] = env_port('REDIS_PORT', @props['redis_port']) if env_set?('REDIS_PORT')
+    @props['redis_password'] = ENV['REDIS_PASSWORD'] if env_set?('REDIS_PASSWORD')
+    @props['playback_host'] = ENV['PLAYBACK_HOST'] if env_set?('PLAYBACK_HOST')
+    @props['bn_notes_endpoint'] = ENV['BN_NOTES_ENDPOINT'] if env_set?('BN_NOTES_ENDPOINT')
     @props
+  end
+
+  # The Redis of the resque queues: redis_workers_* if set, else redis_*. redis_workers_password
+  # is used whenever it is set; the password of the main Redis is not sent to a queue on another
+  # host (redis_workers_host), which then gets no password.
+  def self.resque_redis(props = BigBlueButton.read_props)
+    require 'redis'
+    password = props['redis_workers_password'] || (props['redis_workers_host'] ? nil : props['redis_password'])
+    Redis.new(host: props['redis_workers_host'] || props['redis_host'],
+              port: props['redis_workers_port'] || props['redis_port'],
+              password: password)
+  end
+
+  def self.env_set?(name)
+    !ENV.fetch(name, '').empty?
+  end
+
+  # The port in variable name, or fallback when it is not a number. Kubernetes sets
+  # REDIS_PORT=tcp://<address>:6379 for a Service named redis.
+  def self.env_port(name, fallback)
+    Integer(ENV[name], 10)
+  rescue ArgumentError
+    BigBlueButton.logger.warn("#{name}=#{ENV[name]} is not a port number, using #{fallback}")
+    fallback
+  end
+
+  # Reads a Java .properties file into a Hash with symbol keys.
+  #
+  # java_properties reads the file as UTF-8 and runs regexps over it, so a file
+  # in the .properties spec encoding (ISO-8859-1) aborts with "invalid byte
+  # sequence in UTF-8". Fall back to that encoding instead of failing.
+  def self.read_java_props(filepath)
+    require 'java_properties'
+
+    text = File.binread(filepath).force_encoding(Encoding::UTF_8)
+    unless text.valid_encoding?
+      BigBlueButton.logger.warn("#{filepath} is not valid UTF-8, reading it as ISO-8859-1")
+      text = text.force_encoding(Encoding::ISO_8859_1).encode(Encoding::UTF_8)
+    end
+
+    JavaProperties::Parser.parse(text)
+  end
+
+  # bbb-web's defaults, then the admin's overrides, as bbb-web reads them.
+  BBB_WEB_PROPERTIES = [
+    '/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties',
+    '/etc/bigbluebutton/bbb-web.properties',
+  ].freeze
+
+  def self.read_bbb_web_props(paths = BBB_WEB_PROPERTIES)
+    props = {}
+    paths.each { |path| props.merge!(BigBlueButton.read_java_props(path)) if File.file?(path) }
+    props
+  end
+
+  # The API's shared secret, which signs the callbacks. SHARED_SECRET wins over
+  # bbb-web's properties.
+  def self.shared_secret
+    return ENV['SHARED_SECRET'] if env_set?('SHARED_SECRET')
+
+    BigBlueButton.read_bbb_web_props[:securitySalt]
   end
 
   def self.create_redis_publisher

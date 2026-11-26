@@ -3,10 +3,13 @@ import pkg from 'pg'
 const { Pool } = pkg
 import config from "../../config";
 
-const connectionString = `postgres://${config.postgres.user}:${config.postgres.password}@${config.postgres.host}:${config.postgres.port}/${config.postgres.database}`
-
+// The settings one by one, not as a URL: a password with "@", ":" or "/" breaks a URL
 const pool = new Pool({
-  connectionString
+  host: config.postgres.host,
+  port: config.postgres.port,
+  user: config.postgres.user,
+  password: config.postgres.password,
+  database: config.postgres.database,
 })
 
 const postgresqlDB = new Database({

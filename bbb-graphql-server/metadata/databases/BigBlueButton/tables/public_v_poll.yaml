@@ -51,6 +51,7 @@ select_permissions:
         - createdAt
         - ended
         - multipleResponses
+        - numResponders
         - ownerId
         - pollId
         - published

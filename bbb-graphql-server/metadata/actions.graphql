@@ -57,6 +57,13 @@ type Mutation {
 }
 
 type Mutation {
+  breakoutRoomUnassignUser(
+    userId: String!
+    breakoutRoomMeetingId: String!
+  ): Boolean
+}
+
+type Mutation {
   breakoutRoomRequestJoinUrl(
     breakoutRoomMeetingId: String!
   ): Boolean
@@ -126,6 +133,7 @@ type Mutation {
     transcriptId: String!
     transcript: String!
     locale: String!
+    captionType: String!
   ): Boolean
 }
 
@@ -163,6 +171,7 @@ type Mutation {
     chatId: String!
     messageId: String!
     chatMessageInMarkdownFormat: String!
+    metadata: json
   ): Boolean
 }
 
@@ -259,6 +268,12 @@ type Mutation {
 
 type Mutation {
   meetingEnd: Boolean
+}
+
+type Mutation {
+  meetingLayoutSetHideUsersWithoutCamera(
+    hideUsersWithoutCamera: Boolean!
+  ): Boolean
 }
 
 type Mutation {
@@ -473,6 +488,19 @@ type Mutation {
     podId: String!
     filename: String!
     uploadTemporaryId: String!
+    insertIntoPresentationId: String
+    insertAtPosition: Int
+    insertSeenTotalPages: Int
+    insertNavigate: Boolean
+  ): Boolean
+}
+
+type Mutation {
+  presentationInsertBlankPage(
+    presentationId: String!
+    position: Int!
+    seenTotalPages: Int!
+    navigate: Boolean!
   ): Boolean
 }
 
@@ -494,6 +522,14 @@ type Mutation {
   presentationSetPage(
     presentationId: String!
     pageId: String!
+  ): Boolean
+}
+
+type Mutation {
+  presentationSetPageByNum(
+    presentationId: String!
+    pageNum: Int!
+    seenTotalPages: Int!
   ): Boolean
 }
 
@@ -527,12 +563,6 @@ type Mutation {
     yOffset: Float!
     widthRatio: Float!
     heightRatio: Float!
-  ): Boolean
-}
-
-type Mutation {
-  sharedNotesCreateSession(
-    sharedNotesExtId: String!
   ): Boolean
 }
 
@@ -589,6 +619,18 @@ type Mutation {
 type Mutation {
   userEjectCameras(
     userId: String!
+  ): Boolean
+}
+
+type Mutation {
+  userRequestCamera(
+    userId: String!
+  ): Boolean
+}
+
+type Mutation {
+  userCameraRequestAnswer(
+    accepted: Boolean!
   ): Boolean
 }
 

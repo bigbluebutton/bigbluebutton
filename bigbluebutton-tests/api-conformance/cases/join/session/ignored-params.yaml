@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# sessionName and replaceSessionToken belong to joins through a getJoinUrl
+# link (with existingUserID), which register a new session token with
+# akka-apps (getJoinUrl.join-url.presence). A join without existingUserID
+# accepts and ignores them: it registers the user, and no session token.
+id: join.session.ignored-params
+title: A join without existingUserID ignores sessionName and replaceSessionToken
+endpoint: join
+class: contract
+tags: [ci]
+requires: [akka, bus]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Ignored}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - call: join
+    params: {meetingID: "${uid}", fullName: Ann, role: viewer, redirect: "false", sessionName: Phone, replaceSessionToken: "${uid}"}
+    expect: {returncode: SUCCESS}
+    capture: {annId: /response/user_id}
+  - bus: {name: RegisterUserReqMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+    expect:
+      jsonpath:
+        $.core.body.intUserId: "${annId}"
+  - bus: {name: RegisterUserSessionTokenReqMsg, meetingId: "${intId}", within: 3s}
+    expect: {absent: true}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

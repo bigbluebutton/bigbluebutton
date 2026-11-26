@@ -29,7 +29,10 @@ resolvers += Resolver.sonatypeRepo("releases")
 retrieveManaged := true
 
 testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "html", "console", "junitxml")
-testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/scalatest-reports")
+// This module stays on ScalaTest 3.0.8, whose HTML reporter (-h) needs org.pegdown, which is
+// not on the test classpath, so it fails with NoClassDefFoundError. -oD reports to stdout with
+// durations.
+testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD")
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8" % "test"
 

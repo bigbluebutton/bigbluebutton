@@ -86,7 +86,7 @@ const GuestUserItem: React.FC<GuestUserItemProps> = ({
               <span>{getNameInitials(name)}</span>
             </Styled.Avatar>
           </Styled.UserAvatarContainer>
-          <Styled.UserName key={`user-name-${userId}`}>
+          <Styled.UserName key={`user-name-${userId}`} data-test="waitingUserName">
             {`[${sequence}] ${name}`}
           </Styled.UserName>
         </Styled.UserContentContainer>
@@ -140,7 +140,10 @@ const GuestUserItem: React.FC<GuestUserItemProps> = ({
       {isGuestLobbyMessageEnabled ? (
         <>
           {privateGuestLobbyMessage !== '' && (
-            <Styled.GuestLobbyMessage style={{ paddingLeft: '2.7rem', marginTop: '-0.7rem' }}>
+            <Styled.GuestLobbyMessage
+              style={{ paddingLeft: '2.7rem', marginTop: '-0.7rem' }}
+              data-test="privateLobbyMessageEcho"
+            >
               {privateGuestLobbyMessage}
             </Styled.GuestLobbyMessage>
           )}

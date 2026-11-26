@@ -44,7 +44,7 @@ export interface PostgresConfig {
 
 export interface CommandExecution {
   workDir: string
-  runnerScript: string
+  conversionSocket: string
   timeout: number;
 }
 

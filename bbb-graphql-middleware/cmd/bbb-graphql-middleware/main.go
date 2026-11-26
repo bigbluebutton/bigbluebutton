@@ -31,13 +31,21 @@ func main() {
 	log.SetFormatter(&log.JSONFormatter{})
 	log := log.WithField("_routine", "main")
 
+	// Refuse to start on a configuration that expresses the not-in-meeting rule two ways at once.
+	if err := config.ValidateSubscriptionLists(); err != nil {
+		log.Fatalf("Invalid subscription configuration: %v", err)
+	}
+
+	common.RegisterMetrics()
+
 	common.InitUniqueID()
 	log = log.WithField("graphql-middleware-uid", common.GetUniqueID())
 
 	log.Infof("Logger level=%v", log.Logger.Level)
 
-	// Listen msgs from akka (for example to invalidate connection)
-	go websrv.StartRedisListener()
+	// Keep the HTTP port closed until Redis is subscribed so clients keep retrying.
+	subscriber := websrv.WaitForRedisSubscription()
+	go websrv.ListenRedisMessages(subscriber)
 
 	if cfg.Server.JsonPatchDisabled {
 		log.Infof("Json Patch Disabled!")

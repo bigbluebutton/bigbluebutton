@@ -40,11 +40,11 @@ meeting_id = opts[:meeting_id]
 
 # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
 props = BigBlueButton.read_props
-presentation_props = YAML.safe_load(File.open('presentation.yml'))
+presentation_props = BigBlueButton.load_yaml('presentation.yml')
 filepathPresOverride = "/etc/bigbluebutton/recording/presentation.yml"
 hasOverride = File.file?(filepathPresOverride)
 if (hasOverride)
-  presOverrideProps = YAML::load(File.open(filepathPresOverride))
+  presOverrideProps = BigBlueButton.load_yaml(filepathPresOverride, fallback: {})
   presentation_props = presentation_props.merge(presOverrideProps)
 end
 
@@ -76,9 +76,7 @@ unless FileTest.directory?(target_dir)
       b.playback
       b.meta
     end
-    metadata_xml = File.new("#{target_dir}/metadata.xml", 'w')
-    metadata_xml.write(metaxml)
-    metadata_xml.close
+    File.write("#{target_dir}/metadata.xml", metaxml)
     BigBlueButton.logger.info('Created inital metadata.xml')
 
     BigBlueButton::AudioProcessor.process(raw_archive_dir, "#{target_dir}/audio")
@@ -88,7 +86,6 @@ unless FileTest.directory?(target_dir)
     FileUtils.cp(events_xml, target_dir)
 
     presentation_dir = "#{raw_archive_dir}/presentation"
-    presentations = BigBlueButton::Presentation.get_presentations(events_xml)
 
     processed_pres_dir = "#{target_dir}/presentation"
     FileUtils.mkdir_p processed_pres_dir
@@ -138,18 +135,17 @@ unless FileTest.directory?(target_dir)
       end
     end
     ## Write the new metadata.xml
-    metadata_file = File.new("#{target_dir}/metadata.xml", 'w')
     metadata = Nokogiri::XML(metadata.to_xml, &:noblanks)
-    metadata_file.write(metadata.root)
-    metadata_file.close
+    File.write("#{target_dir}/metadata.xml", metadata.root)
     BigBlueButton.logger.info('Created an updated metadata.xml with start_time and end_time')
 
     version_atleast_2_6_0 = BigBlueButton::Events.bbb_version_compare(@doc, 2, 6, 0)
+    # List of slide filename keys for each presentation, in the original order.
+    page_ids = BigBlueButton::Events.presentation_page_ids(@doc, presentation_dir)
     # Start processing raw files
     presentation_text = {}
-    presentations.each do |pres|
+    page_ids.each do |pres, pages|
       pres_dir = "#{presentation_dir}/#{pres}"
-      num_pages = BigBlueButton::Presentation.get_number_of_pages_for(pres_dir)
 
       target_pres_dir = "#{processed_pres_dir}/#{pres}"
       FileUtils.mkdir_p target_pres_dir
@@ -174,9 +170,9 @@ unless FileTest.directory?(target_dir)
 
         unless pres_pdf.empty?
           text = {}
-          1.upto(num_pages) do |page|
+          pages.each_with_index do |page, index|
             BigBlueButton::Presentation.extract_png_page_from_pdf(
-              page, pres_pdf, "#{target_pres_dir}/slide-#{page}.png", '1600x1600'
+              index + 1, pres_pdf, "#{target_pres_dir}/slide-#{page}.png", '1600x1600'
             ) if !version_atleast_2_6_0
             next unless File.exist?("#{pres_dir}/textfiles/slide-#{page}.txt")
             t = File.read("#{pres_dir}/textfiles/slide-#{page}.txt", encoding: 'UTF-8')
@@ -245,9 +241,7 @@ unless FileTest.directory?(target_dir)
     # Copy shared notes from raw files
     FileUtils.cp_r("#{raw_archive_dir}/notes", target_dir) unless Dir["#{raw_archive_dir}/notes/*"].empty?
 
-    process_done = File.new("#{recording_dir}/status/processed/#{meeting_id}-presentation.done", 'w')
-    process_done.write("Processed #{meeting_id}")
-    process_done.close
+    File.write("#{recording_dir}/status/processed/#{meeting_id}-presentation.done", "Processed #{meeting_id}")
 
     # Update state in metadata.xml
     ## Load metadata.xml
@@ -257,9 +251,7 @@ unless FileTest.directory?(target_dir)
     state = recording.at_xpath('state')
     state.content = 'processed'
     ## Write the new metadata.xml
-    metadata_file = File.new("#{target_dir}/metadata.xml", 'w')
-    metadata_file.write(metadata.root)
-    metadata_file.close
+    File.write("#{target_dir}/metadata.xml", metadata.root)
     BigBlueButton.logger.info('Created an updated metadata.xml with state=processed')
   rescue StandardError => e
     BigBlueButton.logger.error(e.message)

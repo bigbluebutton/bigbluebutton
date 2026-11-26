@@ -5,10 +5,31 @@ import org.apache.pekko.actor.{Actor, ActorLogging, Props}
 import org.bigbluebutton.api.messaging.messages._
 import org.bigbluebutton.api2.bus.OldMessageReceivedGW
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.presentation.InsertPagesIntent
+
+import scala.jdk.CollectionConverters._
 
 object OldMeetingMsgHdlrActor {
   def props(olgMsgGW: OldMessageReceivedGW): Props =
     Props(classOf[OldMeetingMsgHdlrActor], olgMsgGW)
+
+  def toPresentationUploadToken(msg: PresentationUploadTokenSysPubMsg): PresentationUploadToken =
+    new PresentationUploadToken(msg.body.podId, msg.body.authzToken, msg.body.filename,
+      msg.body.meetingId, msg.body.presentationId, msg.header.userId,
+      new InsertPagesIntent(msg.body.insertIntoPresentationId, msg.body.insertAtPosition, msg.body.insertSeenTotalPages,
+        msg.body.insertNavigate, msg.body.insertRequestPageId))
+
+  def toInsertBlankPage(msg: PresentationInsertBlankPageSysMsg): InsertBlankPage =
+    new InsertBlankPage(msg.header.meetingId, msg.body.podId,
+      new InsertPagesIntent(msg.body.insertIntoPresentationId, msg.body.insertAtPosition, msg.body.insertSeenTotalPages,
+        msg.body.insertNavigate, msg.body.insertRequestPageId),
+      msg.body.userId, msg.body.uploadPresentationId, msg.body.filename, msg.body.width, msg.body.height)
+
+  def toInsertPagesDiscard(msg: PresentationInsertPagesDiscardSysMsg): InsertPagesDiscard =
+    new InsertPagesDiscard(msg.body.meetingId, msg.body.presentationId, msg.body.pageIds.asJava)
+
+  def toPresentationConversionRejected(msg: PresentationConversionRejectedSysMsg): PresentationConversionRejected =
+    new PresentationConversionRejected(msg.body.meetingId, msg.body.podId, msg.body.presentationId, msg.body.reason)
 }
 
 class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
@@ -37,13 +58,13 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       case m: UserBroadcastCamStoppedEvtMsg     => handleUserBroadcastCamStoppedEvtMsg(m)
       case m: CreateBreakoutRoomSysCmdMsg       => handleCreateBreakoutRoomSysCmdMsg(m)
       case m: PresentationUploadTokenSysPubMsg  => handlePresentationUploadTokenSysPubMsg(m)
+      case m: PresentationConversionRejectedSysMsg => handlePresentationConversionRejectedSysMsg(m)
+      case m: PresentationInsertBlankPageSysMsg => olgMsgGW.handle(OldMeetingMsgHdlrActor.toInsertBlankPage(m))
+      case m: PresentationInsertPagesDiscardSysMsg => olgMsgGW.handle(OldMeetingMsgHdlrActor.toInsertPagesDiscard(m))
       case m: GuestsWaitingApprovedEvtMsg       => handleGuestsWaitingApprovedEvtMsg(m)
-      case m: PosInWaitingQueueUpdatedRespMsg   => handlePosInWaitingQueueUpdatedRespMsg(m)
       case m: GuestPolicyChangedEvtMsg          => handleGuestPolicyChangedEvtMsg(m)
       case m: LockSettingsInMeetingChangedEvtMsg => handleLockSettingsInMeetingChangedEvtMsg(m)
       case m: WebcamsOnlyForModeratorChangedEvtMsg => handleWebcamsOnlyForModeratorChangedEvtMsg(m)
-      case m: GuestLobbyMessageChangedEvtMsg    => handleGuestLobbyMessageChangedEvtMsg(m)
-      case m: PrivateGuestLobbyMsgChangedEvtMsg => handlePrivateGuestLobbyMsgChangedEvtMsg(m)
       case m: RecordingChapterBreakSysMsg       => handleRecordingChapterBreakSysMsg(m)
       case m: SetPresentationDownloadableEvtMsg => handleSetPresentationDownloadableEvtMsg(m)
       case m: RecordingStatusChangedEvtMsg      => handleRecordingStatusChangedEvtMsg(m)
@@ -76,21 +97,6 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
     olgMsgGW.handle(new WebcamsOnlyForModeratorChanged(msg.header.meetingId, msg.body.webcamsOnlyForModerator))
   }
 
-  def handleGuestLobbyMessageChangedEvtMsg(msg: GuestLobbyMessageChangedEvtMsg): Unit = {
-    olgMsgGW.handle(new GuestLobbyMessageChanged(msg.header.meetingId, msg.body.message))
-  }
-
-  def handlePrivateGuestLobbyMsgChangedEvtMsg(msg: PrivateGuestLobbyMsgChangedEvtMsg): Unit = {
-    olgMsgGW.handle(new PrivateGuestLobbyMessageChanged(msg.header.meetingId, msg.body.guestId, msg.body.message))
-  }
-
-  def handlePosInWaitingQueueUpdatedRespMsg(msg: PosInWaitingQueueUpdatedRespMsg): Unit = {
-    val guestUsers: util.HashMap[String, String] = new util.HashMap[String, String]()
-    msg.body.guests.foreach(guest => guestUsers.put(guest.intId, guest.idx))
-    val m = new PositionInWaitingQueueUpdated(msg.header.meetingId, guestUsers)
-    olgMsgGW.handle(m)
-  }
-
   def handleRecordingChapterBreakSysMsg(msg: RecordingChapterBreakSysMsg): Unit = {
     olgMsgGW.handle(new RecordChapterBreak(msg.body.meetingId, msg.body.timestamp))
   }
@@ -114,7 +120,6 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       msg.body.room.name,
       msg.body.room.sequence,
       msg.body.room.shortName,
-      msg.body.room.sharedNotesEditor,
       msg.body.room.isDefaultName,
       msg.body.room.freeJoin,
       msg.body.room.dialNumber,
@@ -147,7 +152,8 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       msg.body.room.lockOnJoinConfigurable,
       msg.body.room.hideViewersCursor,
       msg.body.room.hideViewersAnnotation,
-      msg.body.room.webcamsOnlyForModerator
+      msg.body.room.webcamsOnlyForModerator,
+      msg.body.room.sourcePresentationPageId
     ))
   }
 
@@ -211,7 +217,11 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
   }
 
   def handlePresentationUploadTokenSysPubMsg(msg: PresentationUploadTokenSysPubMsg): Unit = {
-    olgMsgGW.handle(new PresentationUploadToken(msg.body.podId, msg.body.authzToken, msg.body.filename, msg.body.meetingId, msg.body.presentationId))
+    olgMsgGW.handle(OldMeetingMsgHdlrActor.toPresentationUploadToken(msg))
+  }
+
+  def handlePresentationConversionRejectedSysMsg(msg: PresentationConversionRejectedSysMsg): Unit = {
+    olgMsgGW.handle(OldMeetingMsgHdlrActor.toPresentationConversionRejected(msg))
   }
 
   def handleGuestsWaitingApprovedEvtMsg(msg: GuestsWaitingApprovedEvtMsg): Unit = {

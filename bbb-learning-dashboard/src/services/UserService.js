@@ -79,6 +79,14 @@ export function getLeaveTime(eventsArr) {
   }, 0);
 }
 
+// A user is in the meeting while any of their sessions is open. The open session is not
+// necessarily on the last intId: intIds keep their first-join order (and lose any order past
+// four entries), and an earlier intId reconnects in place.
+export function isUserOnline(user) {
+  return Object.values(user.intIds)
+    .some((intId) => intId.sessions.some((session) => session.leftOn === 0));
+}
+
 export function tsToHHmmss(ts) {
   return (new Date(ts).toISOString().substr(11, 8));
 }
@@ -137,7 +145,8 @@ const tableHeaderFields = [
 export function makeUserCSVData(users, polls, intl) {
   const userRecords = {};
   const userValues = Object.values(users || {});
-  const pollValues = Object.values(polls || {});
+  // Polls are numbered in the order they were asked
+  const pollValues = Object.values(polls || {}).sort((a, b) => a.createdOn - b.createdOn);
 
   for (let i = 0; i < userValues.length; i += 1) {
     const user = userValues[i];
@@ -217,7 +226,9 @@ export function makeUserCSVData(users, polls, intl) {
     // Add the anonymous answers
     anonymousRecord += `,"${pollValues[i].anonymousAnswers.join('\r\n')}"`;
   }
-  userRecords.Anonymous = anonymousRecord;
+  if (pollValues.some((poll) => poll.anonymous)) {
+    userRecords.Anonymous = anonymousRecord;
+  }
 
   return [
     header,

@@ -10,9 +10,11 @@ PATH="/bin/:/usr/bin/"
 #         -e "username=admin" -e "password=S3cRet" --restart always collabora/code
 #   See https://sdk.collaboraonline.com/docs/installation/CODE_Docker_image.html
 #   Or you can use an existing setup you have.
-# 2 - replace the HOST information below with your server host
+# 2 - replace the HOST information below with your server host, or set COOL_URL
+#   (e.g. http://office-conversion:9980) in the environment
 
 HOST=127.0.0.1
+COOL_URL="${COOL_URL:-https://$HOST:9980}"
 
 # Set this to "-k" to allow it to work in a test environment, ie with a self signed
 # certificate
@@ -46,6 +48,10 @@ timeoutSecs="${timeoutSecs:0:3}"
 
 # The timeout is important.
 
-timeout $(printf %03d $timeoutSecs)s curl $UNSECURE -F "data=@${source}" https://$HOST:9980/cool/convert-to/$convertTo > "${dest}"
+# The PDF becomes the output file only when the conversion succeeded.
+tmp="${dest}.part"
+trap 'rm -f "${tmp}"' EXIT
+timeout $(printf %03d $timeoutSecs)s curl -fsS $UNSECURE -F "data=@${source}" -o "${tmp}" "${COOL_URL}/cool/convert-to/$convertTo"
+mv "${tmp}" "${dest}"
 
 exit 0

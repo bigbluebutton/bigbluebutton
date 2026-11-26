@@ -44,10 +44,10 @@ object PresentationInPod {
   }
 
   def makePageCurrent(pres: PresentationInPod, pageId: String): Option[PresentationInPod] = {
-    PresPageDAO.setCurrentPage(pres, pageId)
-
     pres.pages.get(pageId) match {
       case Some(newCurPage) =>
+        PresPageDAO.setCurrentPage(pres, pageId)
+
         val page = newCurPage.copy(current = true)
         val newPages = pres.pages + (page.id -> page)
         val newPres = pres.copy(pages = newPages)
@@ -59,6 +59,10 @@ object PresentationInPod {
 
   def getCurrentPage(pres: PresentationInPod): Option[PresentationPage] = {
     pres.pages.values find (p => p.current)
+  }
+
+  def pageByNum(pres: PresentationInPod, num: Int): Option[PresentationPage] = {
+    pres.pages.values find (p => p.num == num)
   }
 
 }
@@ -76,8 +80,15 @@ case class PresentationInPod(
     uploadCompleted:       Boolean,
     numPages:              Int,
     errorMsgKey:           String                                                   = "",
-    errorDetails:          scala.collection.immutable.Map[String, String]
+    errorDetails:          scala.collection.immutable.Map[String, String],
+    orderChanges:          List[OrderChange]                                        = List.empty
 )
+
+/**
+ * A change of page order: `count` pages entered at position `position` of a presentation that had
+ * `prevTotal` pages. Pages at that position or after it moved `count` positions forward.
+ */
+case class OrderChange(prevTotal: Int, position: Int, count: Int)
 
 object PresentationPod {
   val DEFAULT_PRESENTATION_POD = "DEFAULT_PRESENTATION_POD"
@@ -177,7 +188,7 @@ case class PresentationPod(id: String, currentPresenter: String,
 
   def resizePage(presentationId: String, pageId: String,
                  xOffset: Double, yOffset: Double, widthRatio: Double,
-                 heightRatio: Double, slideNumber: Int): Option[(PresentationPod, PresentationPage)] = {
+                 heightRatio: Double): Option[(PresentationPod, PresentationPage)] = {
     val minZoom = 25.0
     val maxZoom = 400.0
 
@@ -192,7 +203,7 @@ case class PresentationPod(id: String, currentPresenter: String,
       page <- pres.pages.get(pageId)
     } yield {
       val nPage = page.copy(xOffset = checkedXOffset, yOffset = checkedYOffset,
-        widthRatio = checkedWidth, heightRatio = checkedHeight, num = slideNumber)
+        widthRatio = checkedWidth, heightRatio = checkedHeight)
       val nPages = pres.pages + (nPage.id -> nPage)
       val newPres = pres.copy(pages = nPages)
       (addPresentation(newPres), nPage)

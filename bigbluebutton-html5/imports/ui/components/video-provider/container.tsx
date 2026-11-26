@@ -7,6 +7,7 @@ import {
   useCurrentVideoPageIndex,
   useExitVideo,
   useInfo,
+  useIsGridEnabled,
   useIsPaginationEnabled,
   useIsCamSharingLocked,
   useLockUser,
@@ -23,7 +24,6 @@ import { VideoItem } from './types';
 import { debounce } from '/imports/utils/debounce';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
-import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import ConnectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 import {
   useConnectingStream,
@@ -83,8 +83,6 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
 
   const currentUserId = currentUser?.userId ?? '';
   // @ts-ignore Untyped object
-  const { paginationEnabled } = useSettings(SETTINGS.APPLICATION);
-  // @ts-ignore Untyped object
   const { viewParticipantsWebcams } = useSettings(SETTINGS.DATA_SAVING);
 
   const isClientConnected = useReactiveVar(ConnectionStatus.getConnectedStatusVar());
@@ -128,7 +126,7 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
   const myPageSize = useMyPageSize();
   const { numberOfPages } = useVideoState();
   const isPaginationEnabled = useIsPaginationEnabled();
-  const isGridEnabled = useStorageKey('isGridEnabled') as boolean;
+  const isGridEnabled = useIsGridEnabled();
 
   useEffect(() => {
     if (isPaginationEnabled) {
@@ -172,7 +170,6 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
     isGridEnabled,
     isClientConnected,
     currentUserId,
-    paginationEnabled,
     viewParticipantsWebcams,
     totalNumberOfStreams,
     overflowCount,

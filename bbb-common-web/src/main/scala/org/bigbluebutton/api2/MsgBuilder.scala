@@ -6,11 +6,11 @@ import org.bigbluebutton.api.service.ServiceUtils
 import org.bigbluebutton.api2.meeting.RegisterUser
 import org.bigbluebutton.common2.domain.{ DefaultProps, PageVO, PresentationPageConvertedVO, PresentationVO }
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.presentation.imp.ImageResolutionService
+import org.bigbluebutton.presentation.imp.PageArtifacts
 import org.bigbluebutton.presentation.messages._
 import org.slf4j.{ Logger, LoggerFactory }
 
-import java.io.{ BufferedInputStream, FilterInputStream, InputStream }
+import java.io.{ BufferedInputStream, File, FilterInputStream, InputStream }
 import java.nio.charset.StandardCharsets
 import java.nio.file.{ Files, Paths }
 import javax.crypto.Mac
@@ -22,13 +22,13 @@ import scala.math.BigDecimal.RoundingMode
 import scala.util.{ Try, Using }
 
 object MsgBuilder {
-  private lazy val imageResolutionService: ImageResolutionService = new ImageResolutionService
   private lazy val logger: Logger = LoggerFactory.getLogger("msg-builder")
 
-  private def generatePageToken(presId: String, page: Int, secret: String): String = {
+  // The token binds the page to its meeting (conference and room) and presentation.
+  private def generatePageToken(conference: String, room: String, presId: String, pageId: String, secret: String): String = {
     val mac = Mac.getInstance("HmacSHA256")
     mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"))
-    mac.doFinal(s"$presId|$page".getBytes(StandardCharsets.UTF_8)).map("%02x".format(_)).mkString
+    mac.doFinal(s"$conference|$room|$presId|$pageId".getBytes(StandardCharsets.UTF_8)).map("%02x".format(_)).mkString
   }
 
   def buildDestroyMeetingSysCmdMsg(msg: DestroyMeetingMessage): BbbCommonEnvCoreMsg = {
@@ -104,40 +104,35 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
-  def generatePresentationPage(presId: String, presBaseUrl: String, presParentPath: String, page: Int, pageTokenSecret: String = ""): PresentationPageConvertedVO = {
-    val pageToken = if (pageTokenSecret.nonEmpty) generatePageToken(presId, page, pageTokenSecret) else ""
+  def generatePresentationPage(conference: String, room: String, presId: String, presBaseUrl: String, presDir: String,
+                               pageId: String, num: Int, pageTokenSecret: String = ""): PresentationPageConvertedVO = {
+    val pageToken = if (pageTokenSecret.nonEmpty) generatePageToken(conference, room, presId, pageId, pageTokenSecret) else ""
     val tokenParam = if (pageToken.nonEmpty) "?pageToken=" + pageToken else ""
-    val thumbUrl = presBaseUrl + "/thumbnail/" + page + tokenParam
-    val txtUrl = presBaseUrl + "/textfiles/" + page + tokenParam
-    val svgUrl = presBaseUrl + "/svg/" + page + tokenParam
-    val pngUrl = presBaseUrl + "/png/" + page + tokenParam
+    val thumbUrl = presBaseUrl + "/thumbnail/" + pageId + tokenParam
+    val txtUrl = presBaseUrl + "/textfiles/" + pageId + tokenParam
+    val svgUrl = presBaseUrl + "/svg/" + pageId + tokenParam
+    val pngUrl = presBaseUrl + "/png/" + pageId + tokenParam
 
     val urls = Map("thumb" -> thumbUrl, "text" -> txtUrl, "svg" -> svgUrl, "png" -> pngUrl)
 
     // get SVG dimensions
     var width = 1440D
     var height = 1080D
-    val pageAbsoluteSvgPath = presParentPath + "/svgs/slide" + page.toString + ".svg"
+    val pageAbsoluteSvgPath = PageArtifacts.Type.SVG.file(new File(presDir), pageId).getAbsolutePath
 
     val dims = readSvgDims(pageAbsoluteSvgPath)
     dims match {
       case Some(d) =>
-        logger.info("Dimensions found from probe")
         width = d.width
         height = d.height
+        logger.debug(s"SVG dims from probe: ${d.width.toInt}x${d.height.toInt} for $pageAbsoluteSvgPath")
       case None =>
-        logger.info("Falling back to image resolution service")
-
-        val imageResolution = imageResolutionService.identifyImageResolution(pageAbsoluteSvgPath)
-        if (imageResolution.getWidth != 0 && imageResolution.getHeight != 0) {
-          width = imageResolution.getWidth
-          height = imageResolution.getHeight
-        }
+        logger.warn(s"SVG dimensions unresolved from probe (width/height/viewBox absent or unparseable); using defaults ${width.toInt}x${height.toInt} for $pageAbsoluteSvgPath")
     }
 
     val content = Try {
       val maxChars: Int = 1024 * 1024 // limit ~1 MB to avoid OOM
-      val pageAbsoluteTxtPath = presParentPath + "/textfiles/slide-" + page.toString + ".txt"
+      val pageAbsoluteTxtPath = PageArtifacts.Type.TEXT.file(new File(presDir), pageId).getAbsolutePath
       Using(Source.fromFile(pageAbsoluteTxtPath, StandardCharsets.UTF_8.name())) { source =>
         val buffer = new StringBuilder
         val iter = source.iter
@@ -151,11 +146,11 @@ object MsgBuilder {
     }.getOrElse("")
 
     PresentationPageConvertedVO(
-      id = s"$presId/$page",
-      num = page,
+      id = pageId,
+      num = num,
       urls = urls,
       content = content,
-      current = page == 1,
+      current = num == 1,
       width = width,
       height = height,
       pageToken = pageToken
@@ -167,7 +162,8 @@ object MsgBuilder {
     val envelope = BbbCoreEnvelope(PresentationPageConvertedSysMsg.NAME, routing)
     val header = BbbClientMsgHeader(PresentationPageConvertedSysMsg.NAME, msg.meetingId, msg.authzToken)
 
-    val page = generatePresentationPage(msg.presId, msg.presBaseUrl, msg.presParentPath, msg.page.intValue(), pageTokenSecret)
+    val page = generatePresentationPage(msg.meetingId, msg.meetingId, msg.presId, msg.presBaseUrl, msg.presParentPath, msg.pageId,
+      msg.page.intValue(), pageTokenSecret)
 
     val body = PresentationPageConvertedSysMsgBody(
       podId = msg.podId,
@@ -227,6 +223,65 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
+  // Reuses the generic PresentationConversionFailedErrorSysPubMsg envelope; messageKey is
+  // what the client renders, so no dedicated message type is needed.
+  def buildPresentationConversionRateLimitedMsg(msg: ConversionRateLimitExceeded): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(PresentationConversionFailedErrorSysPubMsg.NAME, routing)
+    val header = BbbClientMsgHeader(PresentationConversionFailedErrorSysPubMsg.NAME, msg.meetingId, "notUsed")
+    val body = PresentationConversionFailedErrorSysPubMsgBody(podId = msg.podId, messageKey = msg.messageKey,
+      presentationId = msg.presentationId, presName = msg.filename, meetingId = msg.meetingId,
+      errorDetail = msg.errorDetail)
+    val req = PresentationConversionFailedErrorSysPubMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+
+  // As buildPresentationConversionRateLimitedMsg: bbb-apps-akka tells the two apart by messageKey.
+  def buildPresentationUploadFailedMsg(msg: PresentationUploadFailed): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(PresentationConversionFailedErrorSysPubMsg.NAME, routing)
+    val header = BbbClientMsgHeader(PresentationConversionFailedErrorSysPubMsg.NAME, msg.meetingId, "notUsed")
+    val body = PresentationConversionFailedErrorSysPubMsgBody(podId = msg.podId, messageKey = msg.messageKey,
+      presentationId = msg.presentationId, presName = msg.filename, meetingId = msg.meetingId,
+      errorDetail = msg.errorDetail)
+    val req = PresentationConversionFailedErrorSysPubMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+
+  // ---------- the upload of an insert of pages, bbb-web to akka-apps ----------
+
+  private def insertPagesEnvelope(name: String) = BbbCoreEnvelope(name, collection.immutable.HashMap("sender" -> "bbb-web"))
+
+  def buildPresentationInsertPagesProgressSysMsg(meetingId: String, userId: String, podId: String, uploadPresentationId: String,
+                                                 stage: String, pagesCompleted: Int, totalPages: Int): BbbCommonEnvCoreMsg = {
+    val header = BbbClientMsgHeader(PresentationInsertPagesProgressSysMsg.NAME, meetingId, userId)
+    val body = PresentationInsertPagesProgressSysMsgBody(podId, uploadPresentationId, stage, pagesCompleted, totalPages)
+    BbbCommonEnvCoreMsg(insertPagesEnvelope(PresentationInsertPagesProgressSysMsg.NAME), PresentationInsertPagesProgressSysMsg(header, body))
+  }
+
+  def buildPresentationInsertPagesPageSysMsg(meetingId: String, userId: String, podId: String, uploadPresentationId: String,
+                                             page: PresentationPageConvertedVO): BbbCommonEnvCoreMsg = {
+    val header = BbbClientMsgHeader(PresentationInsertPagesPageSysMsg.NAME, meetingId, userId)
+    val body = PresentationInsertPagesPageSysMsgBody(podId, uploadPresentationId, page)
+    BbbCommonEnvCoreMsg(insertPagesEnvelope(PresentationInsertPagesPageSysMsg.NAME), PresentationInsertPagesPageSysMsg(header, body))
+  }
+
+  def buildPresentationInsertPagesReadySysMsg(meetingId: String, userId: String, podId: String, insertIntoPresentationId: String,
+                                              uploadPresentationId: String, maxNumPages: Int,
+                                              pageIds: java.util.List[String]): BbbCommonEnvCoreMsg = {
+    val header = BbbClientMsgHeader(PresentationInsertPagesReadySysMsg.NAME, meetingId, userId)
+    val body = PresentationInsertPagesReadySysMsgBody(podId, insertIntoPresentationId, uploadPresentationId, maxNumPages,
+      pageIds.asScala.toVector)
+    BbbCommonEnvCoreMsg(insertPagesEnvelope(PresentationInsertPagesReadySysMsg.NAME), PresentationInsertPagesReadySysMsg(header, body))
+  }
+
+  def buildPresentationInsertPagesFailedSysMsg(meetingId: String, userId: String, podId: String, uploadPresentationId: String,
+                                               errorKey: String, detail: String): BbbCommonEnvCoreMsg = {
+    val header = BbbClientMsgHeader(PresentationInsertPagesFailedSysMsg.NAME, meetingId, userId)
+    val body = PresentationInsertPagesFailedSysMsgBody(podId, uploadPresentationId, errorKey, detail)
+    BbbCommonEnvCoreMsg(insertPagesEnvelope(PresentationInsertPagesFailedSysMsg.NAME), PresentationInsertPagesFailedSysMsg(header, body))
+  }
+
   def buildPresentationConversionEndedSysMsg(msg: DocPageCompletedProgress): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(PresentationConversionEndedSysMsg.NAME, routing)
@@ -246,7 +301,7 @@ object MsgBuilder {
     val envelope = BbbCoreEnvelope(PresentationConversionCompletedSysPubMsg.NAME, routing)
     val header = BbbClientMsgHeader(PresentationConversionCompletedSysPubMsg.NAME, msg.meetingId, msg.authzToken)
 
-    val pages = generatePresentationPages(msg.presId, msg.numPages.intValue(), msg.presBaseUrl, pageTokenSecret)
+    val pages = generatePresentationPages(msg.meetingId, msg.meetingId, msg.presId, msg.pageIds.asScala.toSeq, msg.presBaseUrl, pageTokenSecret)
     val presentation = PresentationVO(msg.presId, msg.temporaryPresentationId, msg.filename,
       current = msg.current.booleanValue(), pages.values.toVector, msg.downloadable.booleanValue(),
       msg.removable.booleanValue(),
@@ -258,18 +313,19 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
-  def generatePresentationPages(presId: String, numPages: Int, presBaseUrl: String, pageTokenSecret: String = ""): scala.collection.immutable.Map[String, PageVO] = {
+  // One page per id, numbered in the order of pageIds.
+  def generatePresentationPages(conference: String, room: String, presId: String, pageIds: Seq[String], presBaseUrl: String,
+                                pageTokenSecret: String = ""): scala.collection.immutable.Map[String, PageVO] = {
     val pages = new scala.collection.mutable.HashMap[String, PageVO]
-    for (i <- 1 to numPages) {
-      val id = presId + "/" + i
-      val num = i
-      val current = if (i == 1) true else false
-      val pageToken = if (pageTokenSecret.nonEmpty) generatePageToken(presId, i, pageTokenSecret) else ""
+    for ((id, index) <- pageIds.zipWithIndex) {
+      val num = index + 1
+      val current = num == 1
+      val pageToken = if (pageTokenSecret.nonEmpty) generatePageToken(conference, room, presId, id, pageTokenSecret) else ""
       val tokenParam = if (pageToken.nonEmpty) "?pageToken=" + pageToken else ""
-      val thumbnail = presBaseUrl + "/thumbnail/" + i + tokenParam
+      val thumbnail = presBaseUrl + "/thumbnail/" + id + tokenParam
 
-      val txtUri = presBaseUrl + "/textfiles/" + i + tokenParam
-      val svgUri = presBaseUrl + "/svg/" + i + tokenParam
+      val txtUri = presBaseUrl + "/textfiles/" + id + tokenParam
+      val svgUri = presBaseUrl + "/svg/" + id + tokenParam
 
       val p = PageVO(id = id, num = num, thumbUri = thumbnail,
         txtUri = txtUri, svgUri = svgUri, current = current, pageToken = pageToken)
@@ -346,7 +402,8 @@ object MsgBuilder {
       downloadable = msg.downloadable,
       removable = msg.removable,
       numPages = msg.numPages,
-      authzToken = msg.authzToken
+      authzToken = msg.authzToken,
+      systemUpload = msg.systemUpload
     )
     val req = PresentationPageConversionStartedSysMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
@@ -495,12 +552,26 @@ object MsgBuilder {
                 val H = roundPx(h, scale)
                 return Some(SvgDimensions(W, H))
               case _ =>
-                return None
+                // width/height absent or unparseable (e.g. percentage): fall back to the
+                // viewBox, which pdftocairo always emits ("min-x min-y width height").
+                return Option(reader.getAttributeValue(null, "viewBox")).flatMap(parseViewBoxDims(_, scale))
             }
           case _ =>
         }
       }
       None
+    }.toOption.flatten
+  }
+
+  // Derive dimensions from the SVG viewBox ("min-x min-y width height"; values separated by
+  // whitespace and/or commas). Used as a safety net when width/height are absent or unparseable.
+  private def parseViewBoxDims(viewBox: String, scale: Int): Option[SvgDimensions] = {
+    val parts = viewBox.trim.split("[\\s,]+").filter(_.nonEmpty)
+    if (parts.length != 4) return None
+    Try {
+      val w = parts(2).toDouble
+      val h = parts(3).toDouble
+      if (w > 0 && h > 0 && w.isFinite && h.isFinite) Some(SvgDimensions(roundPx(w, scale), roundPx(h, scale))) else None
     }.toOption.flatten
   }
 

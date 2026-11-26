@@ -92,20 +92,20 @@ class ReceivedJsonMsgHdlrActor(val msgFromAkkaAppsEventBus: MsgFromAkkaAppsEvent
         route[CreateBreakoutRoomSysCmdMsg](envelope, jsonNode)
       case PresentationUploadTokenSysPubMsg.NAME =>
         route[PresentationUploadTokenSysPubMsg](envelope, jsonNode)
+      case PresentationConversionRejectedSysMsg.NAME =>
+        route[PresentationConversionRejectedSysMsg](envelope, jsonNode)
+      case PresentationInsertBlankPageSysMsg.NAME =>
+        route[PresentationInsertBlankPageSysMsg](envelope, jsonNode)
+      case PresentationInsertPagesDiscardSysMsg.NAME =>
+        route[PresentationInsertPagesDiscardSysMsg](envelope, jsonNode)
       case GuestsWaitingApprovedEvtMsg.NAME =>
         route[GuestsWaitingApprovedEvtMsg](envelope, jsonNode)
-      case PosInWaitingQueueUpdatedRespMsg.NAME =>
-        route[PosInWaitingQueueUpdatedRespMsg](envelope, jsonNode)
       case GuestPolicyChangedEvtMsg.NAME =>
         route[GuestPolicyChangedEvtMsg](envelope, jsonNode)
       case LockSettingsInMeetingChangedEvtMsg.NAME =>
         route[LockSettingsInMeetingChangedEvtMsg](envelope, jsonNode)
       case WebcamsOnlyForModeratorChangedEvtMsg.NAME =>
         route[WebcamsOnlyForModeratorChangedEvtMsg](envelope, jsonNode)
-      case GuestLobbyMessageChangedEvtMsg.NAME =>
-        route[GuestLobbyMessageChangedEvtMsg](envelope, jsonNode)
-      case PrivateGuestLobbyMsgChangedEvtMsg.NAME =>
-        route[PrivateGuestLobbyMsgChangedEvtMsg](envelope, jsonNode)
       case RecordingChapterBreakSysMsg.NAME =>
         route[RecordingChapterBreakSysMsg](envelope, jsonNode)
       case SetPresentationDownloadableEvtMsg.NAME =>

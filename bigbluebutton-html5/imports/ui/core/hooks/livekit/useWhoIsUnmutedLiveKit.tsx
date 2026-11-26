@@ -1,36 +1,74 @@
 import { useEffect } from 'react';
 import { isEqual } from 'radash';
-import { makeVar, useReactiveVar } from '@apollo/client';
 import {
   useRemoteParticipants,
   useLocalParticipant,
   useConnectionState,
 } from '@livekit/components-react';
 import { ConnectionState, RoomEvent, Track } from 'livekit-client';
-import { liveKitRoom } from '/imports/ui/services/livekit';
+import { liveKitRoomRegistry } from '/imports/ui/services/livekit';
 import Auth from '/imports/ui/services/auth';
-import useShouldUseLiveKitAudioState from './useShouldUseLiveKitAudioState';
+import { useIsUsingLiveKitAudio } from './useShouldUseLiveKitAudioState';
 import useWhoIsUnmutedGraphql from '../useWhoIsUnmutedGraphql';
-import { UnmutedUsersState } from '../types';
+import createReactiveRecordStateHook from '../createReactiveRecordStateHook';
+import { UnmutedUsersState, UnmutedUserState } from '../useWhoIsUnmuted';
 
-const BASELINE_DATA: UnmutedUsersState = {
+const BASELINE_DATA: UnmutedUsersState = Object.freeze({
   data: {},
   loading: false,
+});
+
+const BASELINE_USER_DATA: UnmutedUserState = Object.freeze({
+  data: undefined,
+  loading: false,
+});
+
+type UseWhoIsUnmutedLiveKitHook = {
+  (): UnmutedUsersState;
+  (userId: string): UnmutedUserState;
+  (userId?: string): UnmutedUsersState | UnmutedUserState;
 };
 
 const createUseWhoIsUnmutedLiveKit = () => {
-  const countVar = makeVar(0);
-  const stateVar = makeVar<Record<string, boolean>>({});
-  const loadingVar = makeVar(true);
+  const {
+    useData,
+    useConsumersCount,
+    setLoading,
+    setState,
+    getState,
+  } = createReactiveRecordStateHook();
 
-  const setWhoIsUnmutedState = (newState: Record<string, boolean>) => stateVar(newState);
-  const setWhoIsUnmutedLoading = (loading: boolean) => loadingVar(loading);
-  const getWhoIsUnmuted = () => stateVar();
-  const useWhoIsUnmutedConsumersCount = () => useReactiveVar(countVar);
-  const useWhoIsUnmuted = () => {
-    const shouldUseLiveKit = useShouldUseLiveKitAudioState();
+  /**
+   * Hook to get unmuted users state from LiveKit.
+   * Supports both full state and per-user granular subscriptions.
+   *
+   * @overload useWhoIsUnmuted() - Returns all unmuted users
+   * @overload useWhoIsUnmuted(userId) - Returns single user's state
+   */
+  function useWhoIsUnmuted(): UnmutedUsersState;
+  function useWhoIsUnmuted(userId: string): UnmutedUserState;
+  function useWhoIsUnmuted(userId?: string): UnmutedUsersState | UnmutedUserState {
+    const isLiveKitActive = useIsUsingLiveKitAudio();
+    const whoIsUnmutedData = useData(userId);
+
+    if (!isLiveKitActive) return userId !== undefined ? BASELINE_USER_DATA : BASELINE_DATA;
+
+    return whoIsUnmutedData as UnmutedUsersState | UnmutedUserState;
+  }
+
+  // Writes the state every consumer above reads, from the primary room. It
+  // runs whenever LiveKit is the audio bridge, independent of the
+  // `useLiveKitAudioState` opt-in: the router (useWhoIsUnmuted) decides which
+  // source it exposes by the opt-in, but the talking-indicator hook reads this
+  // store directly to reflect the mute state of audible participants with no
+  // server voice record (e.g. a moderator transferred into a breakout to listen).
+  // Mounted once, by LiveKitVoiceActivityAdapter: the room subscriptions below
+  // re-render their host on every participant's track event.
+  const useDeriveWhoIsUnmuted = () => {
+    const isLiveKitActive = useIsUsingLiveKitAudio();
+    const room = liveKitRoomRegistry.getPrimary();
     const remoteParticipants = useRemoteParticipants({
-      room: liveKitRoom,
+      room,
       updateOnlyOn: [
         RoomEvent.ParticipantConnected,
         RoomEvent.ParticipantDisconnected,
@@ -41,42 +79,29 @@ const createUseWhoIsUnmutedLiveKit = () => {
         RoomEvent.Connected,
       ],
     });
-    const { localParticipant, microphoneTrack } = useLocalParticipant({ room: liveKitRoom });
-    const connectionState = useConnectionState(liveKitRoom);
+    const { localParticipant, microphoneTrack } = useLocalParticipant({ room });
+    const connectionState = useConnectionState(room);
     const { data: bbbUnmutedUsers } = useWhoIsUnmutedGraphql();
-    const unmutedUsers = useReactiveVar(stateVar);
-    const loading = useReactiveVar(loadingVar);
 
+    // Derive unmuted state from LiveKit participants
     useEffect(() => {
-      // Only track consumers when LiveKit is actually used
-      if (!shouldUseLiveKit) return undefined;
-
-      countVar(countVar() + 1);
-      return () => {
-        countVar(countVar() - 1);
-        if (countVar() === 0) {
-          setWhoIsUnmutedState({});
-        }
-      };
-    }, [shouldUseLiveKit]);
-
-    useEffect(() => {
-      if (!shouldUseLiveKit) return;
+      if (!isLiveKitActive) return;
 
       const isConnected = connectionState === ConnectionState.Connected;
-      setWhoIsUnmutedLoading(!isConnected);
+      setLoading(!isConnected);
 
       // When LiveKit is disconnected, use BBB state as fallback
       if (!isConnected) {
         const bbbState = bbbUnmutedUsers || {};
 
-        if (!isEqual(getWhoIsUnmuted(), bbbState)) setWhoIsUnmutedState(bbbState);
+        if (!isEqual(getState(), bbbState)) setState(bbbState);
 
         return;
       }
 
       const newUnmutedUsers: Record<string, boolean> = {};
 
+      // Handle local participant
       if (localParticipant && Auth.userID) {
         const localUserId = Auth.userID as string;
 
@@ -91,6 +116,7 @@ const createUseWhoIsUnmutedLiveKit = () => {
         }
       }
 
+      // Handle remote participants
       remoteParticipants.forEach((participant) => {
         const userId = participant.identity;
 
@@ -101,43 +127,37 @@ const createUseWhoIsUnmutedLiveKit = () => {
         });
       });
 
-      if (!isEqual(getWhoIsUnmuted(), newUnmutedUsers)) {
-        setWhoIsUnmutedState(newUnmutedUsers);
-      }
+      if (!isEqual(getState(), newUnmutedUsers)) setState(newUnmutedUsers);
     }, [
       remoteParticipants,
       localParticipant,
       connectionState,
       microphoneTrack,
-      shouldUseLiveKit,
+      isLiveKitActive,
       bbbUnmutedUsers,
     ]);
-
-    if (!shouldUseLiveKit) return BASELINE_DATA;
-
-    return {
-      data: unmutedUsers,
-      loading,
-    };
   };
 
-  return [
-    useWhoIsUnmuted,
-    useWhoIsUnmutedConsumersCount,
-    setWhoIsUnmutedLoading,
-  ] as const;
+  return {
+    useWhoIsUnmuted: useWhoIsUnmuted as UseWhoIsUnmutedLiveKitHook,
+    useWhoIsUnmutedConsumersCount: useConsumersCount,
+    setWhoIsUnmutedLoading: setLoading,
+    useDeriveWhoIsUnmuted,
+  };
 };
 
-const [
+const {
   useWhoIsUnmuted,
   useWhoIsUnmutedConsumersCount,
   setWhoIsUnmutedLoading,
-] = createUseWhoIsUnmutedLiveKit();
+  useDeriveWhoIsUnmuted,
+} = createUseWhoIsUnmutedLiveKit();
 
 export {
   useWhoIsUnmuted,
   useWhoIsUnmutedConsumersCount,
   setWhoIsUnmutedLoading,
+  useDeriveWhoIsUnmuted,
 };
 
 export default useWhoIsUnmuted;

@@ -22,7 +22,6 @@ public interface IBbbWebApiGWApp {
                      Boolean allowStartStopRecording,
                      ArrayList<Object> sharedNotesInitialContentJson,
                      String sharedNotesInitialContentMarkdown,
-                     String sharedNotesEditor,
                      Boolean recordFullDurationMedia,
                      Boolean webcamsOnlyForModerator,
                      Boolean multiUserWhiteboardEnabled,
@@ -46,6 +45,7 @@ public interface IBbbWebApiGWApp {
                      Boolean allowPromoteGuestToModerator,
                      Long waitingGuestUsersTimeout,
                      String meetingLayout,
+                     Boolean hideUsersWithoutCamera,
                      String welcomeMsgTemplate,
                      String welcomeMsg,
                      String welcomeMsgForModerators,
@@ -63,6 +63,7 @@ public interface IBbbWebApiGWApp {
                      Boolean allowModsToUnmuteUsers,
                      Boolean requireUserConsentBeforeUnmuting,
                      Boolean allowModsToEjectCameras,
+                     Boolean allowModsToRequestCameraShare,
                      Boolean keepEvents,
                      BreakoutRoomsParams breakoutParams,
                      LockSettingsParams lockSettingsParams,
@@ -75,6 +76,7 @@ public interface IBbbWebApiGWApp {
                      ArrayList<Group> groups,
                      ArrayList<String> disabledFeatures,
                      Boolean notifyRecordingIsOn,
+                     String notifyRecordingAppend,
                      String presentationUploadExternalDescription,
                      String presentationUploadExternalUrl,
                      Map<String, Object> plugins,
@@ -95,5 +97,7 @@ public interface IBbbWebApiGWApp {
   void unpublishedRecording(UnpublishedRecordingMessage msg);
   void deletedRecording(DeletedRecordingMessage msg);
   void sendDocConversionMsg(IDocConversionMsg msg);
+  // Publishes to bbb-apps-akka the messages of the upload of an insert of pages, in order.
+  void sendInsertPagesMessages(java.util.List<org.bigbluebutton.common2.msgs.BbbCommonEnvCoreMsg> messages);
   void sendChatMessage(ChatMessageFromApi msg);
 }

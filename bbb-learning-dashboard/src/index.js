@@ -3,7 +3,9 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import { IntlProvider } from 'react-intl';
 import App from './App';
+import ErrorBoundary from './components/ErrorBoundary';
 import { UserDetailsProvider } from './components/UserDetails/context';
+import { resolveLocale } from './locales';
 
 const RTL_LANGUAGES = ['ar', 'dv', 'fa', 'he'];
 
@@ -14,15 +16,6 @@ function isValidLocale(locale) {
   } catch (error) {
     return false;
   }
-}
-
-function normalizeLocale(lang) {
-  const lParts = lang.split('-');
-
-  // 'pt' returns 'pt'
-  // 'pt-br' and 'pt-BR' return 'pt_BR'
-  // 'pt_BR' returns 'pt_BR'
-  return lParts.length > 1 ? `${lParts[0]}_${lParts[1].toUpperCase()}` : lang;
 }
 
 function getLanguage() {
@@ -47,20 +40,21 @@ class Dashboard extends React.Component {
     };
 
     this.setMessages();
-    this.setRtl();
+    this.setLocaleAttributes();
   }
 
   setMessages() {
+    const { intlLocale } = this.state;
     const fetchMessages = (lang) => new Promise((resolve, reject) => {
       const localesBase = process.env.REACT_APP_STANDALONE_MODE === 'true' ? '.' : '/html5client';
-      const url = `${localesBase}/locales/${normalizeLocale(lang)}.json`;
+      const url = `${localesBase}/locales/${resolveLocale(lang)}.json`;
       fetch(url).then((response) => {
         if (!response.ok) return reject();
         return resolve(response.json());
       });
     });
 
-    Promise.all([fetchMessages('en'), fetchMessages(getLanguage())])
+    Promise.all([fetchMessages('en'), fetchMessages(intlLocale)])
       .then((values) => {
         let mergedMessages = {};
 
@@ -76,8 +70,14 @@ class Dashboard extends React.Component {
       }).catch(() => {});
   }
 
-  setRtl() {
+  setLocaleAttributes() {
     const { intlLocale } = this.state;
+
+    // index.html ships lang="en"; leaving it there while rendering another locale
+    // makes browsers offer to auto-translate the page. Update it.
+    if (isValidLocale(intlLocale)) {
+      document.body.parentNode.setAttribute('lang', intlLocale);
+    }
 
     if (RTL_LANGUAGES.includes(intlLocale.substring(0, 2))) {
       document.body.parentNode.setAttribute('dir', 'rtl');
@@ -94,7 +94,9 @@ class Dashboard extends React.Component {
     return (
       <UserDetailsProvider>
         <IntlProvider defaultLocale="en" locale={locale} messages={intlMessages}>
-          <App />
+          <ErrorBoundary>
+            <App />
+          </ErrorBoundary>
         </IntlProvider>
       </UserDetailsProvider>
     );

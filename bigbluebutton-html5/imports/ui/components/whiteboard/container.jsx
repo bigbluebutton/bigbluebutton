@@ -41,7 +41,7 @@ import {
   PRESENTATION_SET_ZOOM,
   PRES_ANNOTATION_DELETE,
   PRES_ANNOTATION_SUBMIT,
-  PRESENTATION_SET_PAGE,
+  PRESENTATION_SET_PAGE_BY_NUM,
   PRESENTATION_PUBLISH_CURSOR,
 } from '../presentation/mutations';
 import { useMergedCursorData } from './hooks.ts';
@@ -53,6 +53,65 @@ import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStat
 
 const RECONNECT_SYNC_DELAY_MS = 750;
 const VISIBILITY_REFETCH_DELAY_MS = 500;
+
+const throttleWithTrailing = (func, interval) => {
+  let pendingArgs = null;
+  let trailingTimer = null;
+  let lastInvokeTime = 0;
+
+  const throttled = throttle(
+    { interval },
+    (...args) => {
+      lastInvokeTime = performance.now();
+      func(...args);
+    },
+  );
+
+  const scheduleTrailing = () => {
+    if (trailingTimer) return;
+
+    const elapsed = performance.now() - lastInvokeTime;
+    const delay = Math.max(interval - elapsed, 1);
+
+    trailingTimer = setTimeout(() => {
+      trailingTimer = null;
+      if (!pendingArgs) return;
+
+      // Radash's internal timer may not have fired yet.
+      if (throttled.isThrottled()) {
+        scheduleTrailing();
+        return;
+      }
+      const args = pendingArgs;
+      pendingArgs = null;
+      throttled(...args);
+    }, delay);
+  };
+
+  const throttledWithTrailing = (...args) => {
+    if (!throttled.isThrottled()) {
+      pendingArgs = null;
+      if (trailingTimer) {
+        clearTimeout(trailingTimer);
+        trailingTimer = null;
+      }
+      throttled(...args);
+      return;
+    }
+    // Always keep only the latest cursor position.
+    pendingArgs = args;
+    scheduleTrailing();
+  };
+
+  throttledWithTrailing.cancel = () => {
+    pendingArgs = null;
+    if (trailingTimer) {
+      clearTimeout(trailingTimer);
+      trailingTimer = null;
+    }
+  };
+  return throttledWithTrailing;
+};
 
 const WhiteboardContainer = (props) => {
   const {
@@ -149,7 +208,6 @@ const WhiteboardContainer = (props) => {
     };
   }, []);
 
-  const curPageNum = currentPresentationPage?.num;
   const curPageId = currentPresentationPage?.pageId;
   const isInfiniteWhiteboard = currentPresentationPage?.infiniteWhiteboard;
   const curPageIdRef = useRef();
@@ -168,23 +226,23 @@ const WhiteboardContainer = (props) => {
   const wBAccessChanged = usePrevious(hasWBAccess) !== hasWBAccess;
 
   const [presentationSetZoom] = useMutation(PRESENTATION_SET_ZOOM);
-  const [presentationSetPage] = useMutation(PRESENTATION_SET_PAGE);
+  const [presentationSetPageByNum] = useMutation(PRESENTATION_SET_PAGE_BY_NUM);
   const [presentationDeleteAnnotations] = useMutation(PRES_ANNOTATION_DELETE);
   const [presentationSubmitAnnotations] = useMutation(PRES_ANNOTATION_SUBMIT);
   const [presentationPublishCursor] = useMutation(PRESENTATION_PUBLISH_CURSOR);
 
-  const setPresentationPage = (pageId) => {
-    presentationSetPage({
+  // Called from a key handler set up once: read the page row at call time, so the number is sent
+  // with the total of the same row.
+  const skipToSlide = (slideNum) => {
+    const page = currentPresentationPageRef.current;
+    if (!page) return;
+    presentationSetPageByNum({
       variables: {
-        presentationId,
-        pageId,
+        presentationId: page.presentationId,
+        pageNum: slideNum,
+        seenTotalPages: page.totalPages,
       },
     });
-  };
-
-  const skipToSlide = (slideNum) => {
-    const slideId = `${presentationId}/${slideNum}`;
-    setPresentationPage(slideId);
   };
 
   const removeShapes = (shapeIds) => {
@@ -243,20 +301,29 @@ const WhiteboardContainer = (props) => {
     });
   }, [hasWBAccess, isPresenter]);
 
-  const throttledPublishCursorUpdate = useMemo(() => {
-    return throttle(
-    { interval: WHITEBOARD_CONFIG.cursorInterval },
-    publishCursorUpdate,
+  const throttledPublishCursorUpdate = useMemo(() =>
+    throttleWithTrailing(
+      publishCursorUpdate,
+      WHITEBOARD_CONFIG.cursorInterval,
+    ),
+    [publishCursorUpdate, WHITEBOARD_CONFIG.cursorInterval, curPageId],
   );
-  }, [publishCursorUpdate]);
+
+  useEffect(() => () => {
+    throttledPublishCursorUpdate.cancel();
+  }, [throttledPublishCursorUpdate]);
 
   const isMultiUserActive = whiteboardWriters.filter((u) => !u.presenter)?.length > 0;
   const cursorArray = useMergedCursorData();
 
   const connectedStatus = useReactiveVar(connectionStatus.getConnectedStatusVar());
 
+  // Read when the sync runs: isMultiUserActive and hasWBAccess arrive in separate renders.
+  const canResyncRef = useRef(false);
+  canResyncRef.current = isMultiUserActive && hasWBAccess;
+
   useEffect(() => {
-    setTimeout(async () => {
+    const syncTimer = setTimeout(async () => {
       if (!currentPresentationPageRef.current?.pageId || !editor || !connectedStatus) return;
       try {
         const result = await refetchInitialPageAnnotations();
@@ -275,7 +342,7 @@ const WhiteboardContainer = (props) => {
           if (shape.id.startsWith('shape:BG-')) return;
           const serverAnn = serverMap.get(shape.id);
           if (!serverAnn) {
-            if (isMultiUserActive && hasWBAccess) {
+            if (canResyncRef.current) {
               shapesToResync.push(shape);
             } else {
               shapesToRemove.push(shape.id);
@@ -319,6 +386,7 @@ const WhiteboardContainer = (props) => {
         );
       }
     }, RECONNECT_SYNC_DELAY_MS);
+    return () => clearTimeout(syncTimer);
   }, [
     connectedStatus,
     isMultiUserActive,
@@ -435,7 +503,7 @@ const WhiteboardContainer = (props) => {
 
   const { isIphone, isPhone } = deviceInfo;
 
-  const assetId = AssetRecordType.createId(curPageNum);
+  const assetId = AssetRecordType.createId(curPageId);
   const assets = [{
     id: assetId,
     typeName: 'asset',
@@ -477,7 +545,7 @@ const WhiteboardContainer = (props) => {
     isLocked: true,
     opacity: 1,
     meta: {},
-    id: `shape:BG-${curPageNum}`,
+    id: `shape:BG-${curPageId}`,
     type: 'image',
     props: {
       w: currentPresentationPage?.scaledWidth + 1.5 || 1,
@@ -487,7 +555,7 @@ const WhiteboardContainer = (props) => {
       url: '',
       crop: null,
     },
-    parentId: `page:${curPageNum}`,
+    parentId: `page:${curPageId}`,
     index: 'a0',
     typeName: 'shape',
   });
@@ -545,7 +613,7 @@ const WhiteboardContainer = (props) => {
           darkTheme: Settings?.application?.darkTheme,
           selectedLayout: Settings?.layout?.selectedLayout,
           isInfiniteWhiteboard,
-          curPageNum,
+          curPageId,
           setEditor,
           layoutChanged,
         }}

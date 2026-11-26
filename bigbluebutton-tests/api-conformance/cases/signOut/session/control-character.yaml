@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# bbb-web validates a session token with its control characters removed,
+# then looks it up as sent. signOut with a control character added to a
+# live token should answer SUCCESS and end that session. A defect: bbb-web
+# answers 500 (expectations/bbb-web.yaml).
+id: signOut.session.control-character
+title: signOut ends a session given its token with a control character
+endpoint: signOut
+class: defect
+tags: [ci]
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Control}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: join
+    client: ann
+    params: {meetingID: "${uid}", fullName: Ann, role: moderator, redirect: "false"}
+    golden: off
+    capture: {annId: /response/user_id, annToken: /response/session_token}
+  - call: signOut
+    client: ann
+    raw_query: 'sessionToken=${annToken}%01'
+    expect: {status: 200, returncode: SUCCESS}
+  - call: getJoinUrl
+    client: ann
+    params: {sessionToken: "${annToken}"}
+    expect: {format: json, returncode: FAILED, message: Invalid session token}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

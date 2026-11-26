@@ -33,8 +33,11 @@ export const MediaButton: FunctionComponent<MediaButtonProps> = ({
   }
 
   const buttonContent = (
-    <Styled.MediaButtonContainer data-test={dataTest}>
-      <Styled.ButtonFrame color={color} onClick={onClick}>
+    <Styled.MediaButtonContainer
+      className={`bbb-media-sharing__option bbb-media-sharing__option--${color}`}
+      data-test={dataTest}
+    >
+      <Styled.ButtonFrame className="bbb-media-sharing__option-button" color={color} onClick={onClick}>
         {showSettingsIcon && (
           <Styled.SettingsContainer>
             <IconButton
@@ -52,7 +55,7 @@ export const MediaButton: FunctionComponent<MediaButtonProps> = ({
           </Styled.IconWrapper>
         )}
       </Styled.ButtonFrame>
-      <Styled.ButtonText>{text}</Styled.ButtonText>
+      <Styled.ButtonText className="bbb-media-sharing__option-label">{text}</Styled.ButtonText>
     </Styled.MediaButtonContainer>
   );
 

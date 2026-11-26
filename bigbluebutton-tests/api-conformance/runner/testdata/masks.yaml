@@ -1,0 +1,9 @@
+# Extra normalization rules for diff and record mode on these examples, as
+# ../../masks.yaml is for the suite's cases.
+masks:
+  # With no checksum, bbb-web answers either message at random: two checks
+  # put different messages under the same error key.
+  - field: message
+    as: regex
+    regex: '^(You must provide the checksum|Checksums do not match)$'
+    replace: '<missing-checksum message>'

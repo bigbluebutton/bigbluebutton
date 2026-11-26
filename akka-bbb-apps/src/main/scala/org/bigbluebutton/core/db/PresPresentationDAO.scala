@@ -139,6 +139,38 @@ object PresPresentationDAO {
   }
 
 
+  // As updateConversionStarted, but leaves uploadErrorMsgKey and uploadErrorDetailsJson untouched.
+  def updateConversionProgress(meetingId: String, presentation: PresentationInPod) = {
+    insertUploadTokenIfNotExists(meetingId, "", "", presentation.id, "", presentation.name)
+
+    DatabaseConnection.enqueue(
+      TableQuery[PresPresentationDbTableDef]
+        .filter(_.presentationId === presentation.id)
+        .map(p => (
+          p.name,
+          p.filenameConverted,
+          p.isDefault,
+          p.downloadable,
+          p.downloadFileExtension,
+          p.removable,
+          p.uploadInProgress,
+          p.uploadCompleted,
+          p.totalPages
+        ))
+        .update((
+          presentation.name,
+          presentation.filenameConverted,
+          presentation.default,
+          presentation.downloadable,
+          if (presentation.downloadFileExtension.isEmpty) None else Some(presentation.downloadFileExtension),
+          presentation.removable,
+          !presentation.uploadCompleted,
+          presentation.uploadCompleted,
+          presentation.numPages
+        ))
+    )
+  }
+
   def updatePages(presentation: PresentationInPod) = {
     DatabaseConnection.enqueue(
       TableQuery[PresPresentationDbTableDef]
@@ -201,10 +233,11 @@ object PresPresentationDAO {
     )
   }
 
-  def setPresentationUploadCompletionNotified(presentationId: String) = {
+  def setPresentationUploadCompletionNotified(meetingId: String, presentationId: String) = {
     DatabaseConnection.enqueue(
       TableQuery[PresPresentationDbTableDef]
         .filter(_.presentationId === presentationId)
+        .filter(_.meetingId === meetingId)
         .map(p => p.uploadCompletionNotified)
         .update(true)
     )
@@ -225,6 +258,53 @@ object PresPresentationDAO {
         .filter(_.presentationId === presentationId)
         .map(p => p.downloadFileUri)
         .update(Some(downloadFileUri))
+    )
+  }
+
+  // As insertUploadTokenIfNotExists with an empty token followed by updateErrors, in one statement,
+  // so the row never appears without its reason.
+  def insertRejectedUpload(meetingId: String, userId: String, temporaryId: String, presentationId: String,
+                           filename: String, errorMsgKey: String,
+                           errorDetails: scala.collection.immutable.Map[String, String]) = {
+    val errorDetailsJson = errorDetails.toJson.compactPrint
+    DatabaseConnection.enqueue(
+      sqlu"""
+          insert into "pres_presentation"("meetingId","presentationId","uploadUserId","uploadTemporaryId","uploadToken","name",
+          "filenameConverted","isDefault","current","downloadable","removable","uploadCompletionNotified","uploadInProgress","uploadCompleted","totalPages",
+          "uploadErrorMsgKey","uploadErrorDetailsJson")
+          values (${meetingId}, ${presentationId}, ${userId}, ${temporaryId}, '', ${filename},
+          '', false, false, false, false, false, false, false, 0,
+          ${errorMsgKey}, cast(${errorDetailsJson} as jsonb))
+          on conflict do nothing
+          """
+    )
+  }
+
+  // The row of a refused request to insert pages, in one statement. It is born notified, so it never shows in
+  // the upload toast: the refusal is a notification; the row only tells the client that requested the token
+  // (by user and temporary id) that the server reported it.
+  def insertRefusedInsertRequest(meetingId: String, userId: String, temporaryId: String, presentationId: String,
+                                 filename: String, errorMsgKey: String) = {
+    DatabaseConnection.enqueue(
+      sqlu"""
+          insert into "pres_presentation"("meetingId","presentationId","uploadUserId","uploadTemporaryId","uploadToken","name",
+          "filenameConverted","isDefault","current","downloadable","removable","uploadCompletionNotified","uploadInProgress","uploadCompleted","totalPages",
+          "uploadErrorMsgKey")
+          values (${meetingId}, ${presentationId}, ${userId}, ${temporaryId}, '', ${filename},
+          '', false, false, false, false, true, false, false, 0,
+          ${errorMsgKey})
+          on conflict do nothing
+          """
+    )
+  }
+
+  // Only an UPDATE: the row of an insert in progress must not be recreated (updateConversionStarted would).
+  def setUploadInProgress(presentationId: String) = {
+    DatabaseConnection.enqueue(
+      TableQuery[PresPresentationDbTableDef]
+        .filter(_.presentationId === presentationId)
+        .map(p => p.uploadInProgress)
+        .update(true)
     )
   }
 
@@ -252,6 +332,56 @@ object PresPresentationDAO {
         .filter(_.presentationId === presentationId)
         .map(p => p.exportToChatStatus)
         .update(Some(exportToChatStatus))
+    )
+  }
+
+  // A presentation whose upload token was issued but whose file never arrived: not converting,
+  // not completed and without an error. A converting presentation has uploadInProgress set,
+  // and a refused request has no token and carries its error.
+  private def isAwaitingUpload(p: PresPresentationDbTableDef) = {
+    p.uploadToken =!= "" &&
+      !p.uploadInProgress &&
+      !p.uploadCompleted &&
+      p.uploadErrorMsgKey.isEmpty
+  }
+
+  // Presentations of this user that are still waiting for their file.
+  def awaitingUploadQuery(meetingId: String, userId: String) = {
+    TableQuery[PresPresentationDbTableDef]
+      .filter(p => p.meetingId === meetingId &&
+        p.uploadUserId === userId &&
+        isAwaitingUpload(p))
+  }
+
+  def awaitingUploadOfPresentationQuery(meetingId: String, presentationId: String) = {
+    TableQuery[PresPresentationDbTableDef]
+      .filter(p => p.meetingId === meetingId &&
+        p.presentationId === presentationId &&
+        isAwaitingUpload(p))
+  }
+
+  // Records why the upload of a presentation failed, if it is still waiting for its file. One
+  // that is converting, done or already failed keeps its state, and one removed in the meantime
+  // is not brought back: the report of a failed upload can arrive after any of those.
+  def updateErrorsOfAwaitingUpload(meetingId: String, presentationId: String, errorMsgKey: String,
+                                   errorDetails: scala.collection.immutable.Map[String, String]) = {
+    DatabaseConnection.enqueue(
+      awaitingUploadOfPresentationQuery(meetingId, presentationId)
+        .map(p => (p.uploadErrorMsgKey, p.uploadErrorDetailsJson))
+        .update(Some(errorMsgKey), Some(errorDetails.toJson))
+    )
+  }
+
+  // Called when the uploader has left the meeting, so nothing will finish or cancel these uploads
+  // and every presenter would otherwise see them as uploading until the meeting ends. The rows
+  // are kept: should a file still arrive, updateConversionStarted clears the error and the
+  // presentation still has its uploader.
+  def updateErrorsOfAwaitingUploadsOfUser(meetingId: String, userId: String, errorMsgKey: String,
+                                          errorDetails: scala.collection.immutable.Map[String, String]) = {
+    DatabaseConnection.enqueue(
+      awaitingUploadQuery(meetingId, userId)
+        .map(p => (p.uploadErrorMsgKey, p.uploadErrorDetailsJson))
+        .update(Some(errorMsgKey), Some(errorDetails.toJson))
     )
   }
 

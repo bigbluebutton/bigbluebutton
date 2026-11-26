@@ -12,7 +12,6 @@ import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.util.RandomStringGenerator
 
 import java.io.File
-import java.net.URI
 
 trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
   this: PresentationPodHdlrs =>
@@ -20,7 +19,6 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
   object JobTypes {
     val DOWNLOAD = "PresentationWithAnnotationDownloadJob"
     val CAPTURE_PRESENTATION = "PresentationWithAnnotationExportJob"
-    val CAPTURE_NOTES = "PadCaptureJob"
   }
 
   def buildStoreAnnotationsInRedisSysMsg(annotations: StoredAnnotations, liveMeeting: LiveMeeting): BbbCommonEnvCoreMsg = {
@@ -90,7 +88,9 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
     val envelope = BbbCoreEnvelope(PresentationUploadTokenSysPubMsg.NAME, routing)
     val header = BbbClientMsgHeader(PresentationUploadTokenSysPubMsg.NAME, parentMeetingId, userId)
-    val body = PresentationUploadTokenSysPubMsgBody("DEFAULT_PRESENTATION_POD", presentationUploadToken, filename, parentMeetingId, presId)
+    // Not an insert: the intent is empty.
+    val body = PresentationUploadTokenSysPubMsgBody("DEFAULT_PRESENTATION_POD", presentationUploadToken, filename, parentMeetingId, presId,
+      "", 0, 0, false, "")
     val event = PresentationUploadTokenSysPubMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
   }
@@ -100,18 +100,19 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
     pagesRange match {
       case (pageNumber :: pages) => {
 
-        if (pageNumber >= 1 && pageNumber <= pageCount) {
-
-          val whiteboardId = s"${presId}/${pageNumber.toString}"
-          val presentationPage: PresentationPage = currentPres.get.pages(whiteboardId)
-          val width: Double = presentationPage.width
-          val height: Double = presentationPage.height
-          val whiteboardHistory: Array[AnnotationVO] = liveMeeting.wbModel.getHistory(whiteboardId)
-
-          val page = new PresentationPageForExport(pageNumber, width, height, whiteboardHistory)
-          getPresentationPagesForExport(pages, pageCount, presId, currentPres, liveMeeting, storeAnnotationPages :+ page)
+        val presentationPage = if (pageNumber >= 1 && pageNumber <= pageCount) {
+          currentPres.flatMap(pres => PresentationInPod.pageByNum(pres, pageNumber))
         } else {
-          getPresentationPagesForExport(pages, pageCount, presId, currentPres, liveMeeting, storeAnnotationPages)
+          None
+        }
+
+        presentationPage match {
+          case Some(presPage) =>
+            val whiteboardHistory: Array[AnnotationVO] = liveMeeting.wbModel.getHistory(presPage.id)
+            val page = PresentationPageForExport(pageNumber, presPage.width, presPage.height, whiteboardHistory, presPage.id)
+            getPresentationPagesForExport(pages, pageCount, presId, currentPres, liveMeeting, storeAnnotationPages :+ page)
+          case None =>
+            getPresentationPagesForExport(pages, pageCount, presId, currentPres, liveMeeting, storeAnnotationPages)
         }
       }
 
@@ -173,16 +174,18 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
         bus.outGW.send(buildStoreAnnotationsInRedisSysMsg(annotations, liveMeeting))
       } else {
         // Return existing uploaded file directly
-        val convertedFileName = new URI(null, null, currentPres.get.filenameConverted, null).getRawPath
-        val originalFilename = new URI(null, null, currentPres.get.name, null).getRawPath
+        val convertedFileName = currentPres.get.filenameConverted
+        val originalFilename = currentPres.get.name
         val originalFileExt = originalFilename.split("\\.").last
         val convertedFileExt = if (convertedFileName != "") convertedFileName.split("\\.").last else ""
 
-        val convertedFileURI = if (convertedFileName != "") List("presentation", "download", meetingId,
-          s"${presId}?presFilename=${presId}.${convertedFileExt}&filename=$convertedFileName").mkString("", File.separator, "")
+        val convertedFileURI = if (convertedFileName != "") PresentationDownloadUrlBuilder.buildFileUri(
+          meetingId, presId, convertedFileExt, convertedFileName
+        )
         else ""
-        val originalFileURI = List("presentation", "download", meetingId,
-          s"${presId}?presFilename=${presId}.${originalFileExt}&filename=$originalFilename").mkString("", File.separator, "")
+        val originalFileURI = PresentationDownloadUrlBuilder.buildFileUri(
+          meetingId, presId, originalFileExt, originalFilename
+        )
 
         val event = buildNewPresFileAvailable("", originalFileURI, convertedFileURI, presId,
           m.body.fileStateType)

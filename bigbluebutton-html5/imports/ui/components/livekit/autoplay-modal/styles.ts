@@ -1,11 +1,5 @@
 import styled from 'styled-components';
-import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
-
-const LKAutoplayModal = styled(ModalSimple)`
-  padding: 1rem;
-  min-height: 20rem;
-`;
 
 const LKAutoplayModalContent = styled.div`
   flex-grow: 1;
@@ -14,6 +8,7 @@ const LKAutoplayModalContent = styled.div`
   margin-top: auto;
   margin-bottom: auto;
   padding: 0.5rem 0;
+  min-height: 20rem;
 
   button:first-child {
     margin: 0 3rem 0 0;
@@ -41,6 +36,5 @@ const LKAutoplayModalContent = styled.div`
 `;
 
 export default {
-  LKAutoplayModal,
   LKAutoplayModalContent,
 };

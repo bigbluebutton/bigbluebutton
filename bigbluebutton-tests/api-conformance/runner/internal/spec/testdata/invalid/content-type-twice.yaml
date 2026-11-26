@@ -1,0 +1,9 @@
+# want: 8: steps[0]: set Content-Type in headers or in body.contentType, not both
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+steps:
+  - call: create
+    headers: {Content-Type: text/xml}
+    body: {raw: x, contentType: text/xml}

@@ -1,0 +1,343 @@
+import React, {
+  useCallback, useContext, useEffect, useMemo, useRef, useState,
+} from 'react';
+import { defineMessages, useIntl } from 'react-intl';
+import { ThemeProvider } from '@mui/material/styles';
+import ReactModal from 'react-modal';
+import Styled from './styles';
+import SetupPanel from './setup-panel/component';
+import { PreFlightErrorDialog } from './error-screen/component';
+import PreFlightSettings from './settings/component';
+import {
+  DevicePermissionActions,
+  DevicePermissionHeader,
+} from './error-screen/device-permission/component';
+import PreFlightContext, { AUDIO_MODES, AudioMode } from './context';
+import { setPreFlightCompleted, setPreFlightShareCamera } from './service';
+import { getAudioModeAvailability } from './audio-options';
+import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
+import AudioService, {
+  setUserSelectedListenOnly,
+  setUserSelectedMicrophone,
+} from '/imports/ui/components/audio/service';
+import Storage from '/imports/ui/services/storage/session';
+import { CustomBackgroundsProvider } from '/imports/ui/components/video-preview/virtual-background/context';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import getFromUserSettings from '/imports/ui/services/users-settings';
+import meetingStaticData from '/imports/ui/core/singletons/meetingStaticData';
+import useSettings from '/imports/ui/services/settings/hooks/useSettings';
+import { SETTINGS } from '/imports/ui/services/settings/enums';
+import { setDarkTheme } from '/imports/ui/components/app/service';
+import { getInitialFontSize } from '/imports/ui/components/settings/service';
+import GlobalStyles from '/imports/ui/stylesheets/styled-components/globalStyles';
+import useCurrentLocale from '/imports/ui/core/local-states/useCurrentLocale';
+import { applyLocaleToDocument, getRestoredLocale } from '/imports/startup/client/intlAdapter';
+import muiThemes from '/imports/ui/services/theme/mui';
+import useMediaQuery from '/imports/ui/hooks/useMediaQuery';
+import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
+
+const intlMessages = defineMessages({
+  title: {
+    id: 'app.preFlight.title',
+    description: 'Title of the pre-flight setup panel',
+  },
+});
+
+export interface PreFlightError {
+  header: React.ReactNode;
+  actions: React.ReactNode;
+  // Closing the phone dialog.
+  onClose: () => void;
+}
+
+interface PreFlightProps {
+  // The session heading and whatever states it: above the panel on a phone,
+  // beside it otherwise.
+  header: React.ReactNode;
+  // The session info above an error; left out while there is none.
+  topInfo?: React.ReactNode;
+  // The header already names the session (the join step): a phone, which
+  // keeps the header behind the error dialog, then leaves the info out rather
+  // than name the session twice.
+  headerNamesSession?: boolean;
+  // What commits the setup - the join button. Rendered after the panel in both
+  // layouts, so it never precedes the controls it commits.
+  actions?: React.ReactNode;
+  // Off for an invalid guest and for one denied before the panel came up: no
+  // camera stream and no microphone prompt.
+  showSetupPanel?: boolean;
+  // An error that interrupts the screen: it takes the header's and the
+  // actions' place beside the panel, and opens as a dialog over the unchanged
+  // screen on a phone.
+  error?: PreFlightError | null;
+  // Set to the setup's commit, for a join the screen's own button does not
+  // start: a retry after a stalled join carries what was changed meanwhile.
+  // Returns false, committing nothing, while a denied device holds the join
+  // or the browser has yet to answer for one.
+  commitRef?: React.MutableRefObject<(() => boolean) | null>;
+  // On once the user may join, until the join is underway: a denied device
+  // then holds the screen on the permission error until it is sorted out. A
+  // waiting guest keeps the lobby, with the device flagged in the panel.
+  gateJoinOnDevices?: boolean;
+}
+
+const PreFlight: React.FC<PreFlightProps> = ({
+  header,
+  topInfo = null,
+  headerNamesSession = false,
+  actions = null,
+  showSetupPanel = true,
+  error = null,
+  gateJoinOnDevices = false,
+  commitRef,
+}) => {
+  const intl = useIntl();
+  const loadingContextInfo = useContext(LoadingContext);
+  const { data: currentUserData, loading: currentUserLoading } = useCurrentUser((u) => ({
+    isModerator: u.isModerator,
+  }));
+  const isRoleLoaded = !currentUserLoading && !!currentUserData;
+  const { canUseMicrophone, canListenOnly } = getAudioModeAvailability(!!currentUserData?.isModerator);
+  // The screen mounts outside App, so nothing has resolved the theme yet: the
+  // boot script only knows what was persisted, while the setting also carries
+  // bbb_prefer_dark_theme and the system preference.
+  const { darkTheme } = useSettings(SETTINGS.APPLICATION) as { darkTheme?: boolean };
+  const isPhoneWidth = useMediaQuery(smallOnly);
+
+  const [audioMode, setAudioModeState] = useState<AudioMode>(
+    canUseMicrophone ? AUDIO_MODES.MICROPHONE : AUDIO_MODES.LISTEN_ONLY,
+  );
+  const [joinMuted, setJoinMutedState] = useState(
+    () => !!meetingStaticData.getMeetingData()?.voiceSettings?.muteOnStart,
+  );
+  const [shareCamera, setShareCamera] = useState(() => {
+    const KURENTO_CONFIG = window.meetingClientSettings.public.kurento;
+    const enableVideo = getFromUserSettings('bbb_enable_video', KURENTO_CONFIG.enableVideo);
+    const autoShareWebcam = getFromUserSettings('bbb_auto_share_webcam', KURENTO_CONFIG.autoShareWebcam);
+    return !!enableVideo && !!autoShareWebcam;
+  });
+  const [cameraFailed, setCameraFailed] = useState(false);
+  const [microphoneDenied, setMicrophoneDenied] = useState(false);
+  const [cameraDenied, setCameraDenied] = useState(false);
+  const [microphonePending, setMicrophonePending] = useState(false);
+  const [cameraPending, setCameraPending] = useState(false);
+  const [permissionRetry, setPermissionRetry] = useState(0);
+  // Where listen only is off, a denied microphone can still be passed over:
+  // the user joins without audio and can join it from the session.
+  const [microphoneSkipped, setMicrophoneSkipped] = useState(false);
+  const commitCameraRef = useRef<(() => void) | null>(null);
+  const audioModeTouched = useRef(false);
+
+  useEffect(() => {
+    setDarkTheme(darkTheme);
+  }, [darkTheme]);
+
+  const [currentLocale, setCurrentLocale] = useCurrentLocale();
+  // IntlAdapter does it after the join: without it, the pre-flight shows (and
+  // the settings save) the browser's locale over the one the user picked.
+  useEffect(() => {
+    const restoredLocale = getRestoredLocale(currentLocale);
+    if (restoredLocale) setCurrentLocale(restoredLocale);
+  }, []);
+
+  useEffect(() => {
+    if (currentLocale) applyLocaleToDocument(currentLocale);
+  }, [currentLocale]);
+
+  // Done by App after the join.
+  useEffect(() => {
+    document.getElementsByTagName('html')[0].style.fontSize = getInitialFontSize();
+    ReactModal.setAppElement('#app');
+  }, []);
+
+  useEffect(() => {
+    if (loadingContextInfo.isLoading) {
+      loadingContextInfo.setLoading(false);
+    }
+  }, [loadingContextInfo.isLoading]);
+
+  // The role only arrives on a later render, so the default is re-derived when
+  // it lands - unless the user has already picked a mode.
+  useEffect(() => {
+    if (!isRoleLoaded || audioModeTouched.current) return;
+    setAudioModeState(canUseMicrophone ? AUDIO_MODES.MICROPHONE : AUDIO_MODES.LISTEN_ONLY);
+  }, [isRoleLoaded, canUseMicrophone]);
+
+  // Keep an explicit choice within what the meeting allows.
+  useEffect(() => {
+    if (!isRoleLoaded) return;
+    if (!canUseMicrophone && audioMode === AUDIO_MODES.MICROPHONE) {
+      setAudioModeState(AUDIO_MODES.LISTEN_ONLY);
+    }
+    if (!canListenOnly && canUseMicrophone && audioMode === AUDIO_MODES.LISTEN_ONLY) {
+      setAudioModeState(AUDIO_MODES.MICROPHONE);
+    }
+  }, [isRoleLoaded, canUseMicrophone, canListenOnly, audioMode]);
+
+  const setAudioMode = useCallback((mode: AudioMode) => {
+    audioModeTouched.current = true;
+    setAudioModeState(mode);
+  }, []);
+
+  const setJoinMuted = useCallback((muted: boolean) => {
+    setJoinMutedState(muted);
+  }, []);
+
+  const joiningWithoutAudio = audioMode === AUDIO_MODES.MICROPHONE
+    && microphoneDenied && microphoneSkipped;
+  // A denial only matters for what the user is about to join with.
+  const microphoneBlocked = microphoneDenied && audioMode === AUDIO_MODES.MICROPHONE
+    && !microphoneSkipped;
+  const cameraBlocked = cameraDenied && shareCamera;
+  const devicesBlocked = microphoneBlocked || cameraBlocked;
+  const devicesPending = (microphonePending && audioMode === AUDIO_MODES.MICROPHONE
+    && !microphoneSkipped) || (cameraPending && shareCamera);
+
+  const commit = useCallback(() => {
+    const listenOnly = audioMode === AUDIO_MODES.LISTEN_ONLY;
+
+    setUserSelectedMicrophone(!listenOnly && !joiningWithoutAudio);
+    setUserSelectedListenOnly(listenOnly);
+
+    if (!listenOnly) {
+      Storage.setItem(AudioService.getStorageMuteStateKey(), joinMuted);
+    }
+
+    const willShareCamera = shareCamera && !cameraFailed;
+
+    setPreFlightShareCamera(willShareCamera);
+    if (willShareCamera) commitCameraRef.current?.();
+
+    setPreFlightCompleted(true);
+  }, [audioMode, joinMuted, shareCamera, cameraFailed, joiningWithoutAudio]);
+
+  useEffect(() => {
+    if (!commitRef) return undefined;
+    // eslint-disable-next-line no-param-reassign
+    commitRef.current = () => {
+      if (devicesBlocked || devicesPending) return false;
+      commit();
+      return true;
+    };
+
+    return () => {
+      // eslint-disable-next-line no-param-reassign
+      commitRef.current = null;
+    };
+  }, [commitRef, commit, devicesBlocked, devicesPending]);
+
+  const contextValue = useMemo(() => ({
+    audioMode,
+    setAudioMode,
+    joinMuted,
+    setJoinMuted,
+    shareCamera,
+    setShareCamera,
+    cameraFailed,
+    setCameraFailed,
+    microphoneDenied,
+    setMicrophoneDenied,
+    cameraDenied,
+    setCameraDenied,
+    setMicrophonePending,
+    setCameraPending,
+    devicesPending,
+    permissionRetry,
+    joiningWithoutAudio,
+    commitCameraRef,
+    commit,
+  }), [
+    audioMode,
+    setAudioMode,
+    joinMuted,
+    setJoinMuted,
+    shareCamera,
+    cameraFailed,
+    microphoneDenied,
+    cameraDenied,
+    devicesPending,
+    permissionRetry,
+    joiningWithoutAudio,
+    commit,
+  ]);
+
+  let activeError = error;
+  if (!activeError && gateJoinOnDevices && devicesBlocked) {
+    const retryPermissions = () => setPermissionRetry((count) => count + 1);
+    const listenOnly = microphoneBlocked && canListenOnly
+      ? () => {
+        setAudioMode(AUDIO_MODES.LISTEN_ONLY);
+        if (cameraBlocked) setShareCamera(false);
+      }
+      : null;
+    const withoutMicrophone = microphoneBlocked && !canListenOnly
+      ? () => {
+        setMicrophoneSkipped(true);
+        if (cameraBlocked) setShareCamera(false);
+      }
+      : null;
+
+    activeError = {
+      header: <DevicePermissionHeader />,
+      actions: (
+        <DevicePermissionActions
+          onListenOnly={listenOnly}
+          onContinueWithoutMicrophone={withoutMicrophone}
+          onContinueWithoutCamera={cameraBlocked ? () => setShareCamera(false) : null}
+          onRetry={retryPermissions}
+        />
+      ),
+      onClose: retryPermissions,
+    };
+  }
+
+  return (
+    <PreFlightContext.Provider value={contextValue}>
+      {/* The device selectors and the virtual background controls are MUI, whose
+          surfaces come from its own theme rather than the palette's variables. */}
+      <ThemeProvider theme={darkTheme ? muiThemes.dark : muiThemes.light}>
+        {/* Carries the modal overlay, otherwise mounted by App. */}
+        <GlobalStyles />
+        <Styled.Page data-test="preFlight">
+          {isPhoneWidth && (
+            <Styled.HeaderColumn>
+              {activeError && !headerNamesSession && topInfo}
+              {header}
+            </Styled.HeaderColumn>
+          )}
+          {showSetupPanel && (
+            <Styled.SetupColumn>
+              <Styled.PanelTitle>{intl.formatMessage(intlMessages.title)}</Styled.PanelTitle>
+              <CustomBackgroundsProvider>
+                <SetupPanel />
+              </CustomBackgroundsProvider>
+              <PreFlightSettings />
+            </Styled.SetupColumn>
+          )}
+          <Styled.ContentColumn>
+            {!isPhoneWidth && activeError && topInfo && <Styled.TopInfo>{topInfo}</Styled.TopInfo>}
+            {!isPhoneWidth && activeError ? (
+              <Styled.CenterStack>
+                {activeError.header}
+                <Styled.ActionBar>{activeError.actions}</Styled.ActionBar>
+              </Styled.CenterStack>
+            ) : (
+              <Styled.CenterStack>
+                {!isPhoneWidth && header}
+                {actions && <Styled.ActionBar>{actions}</Styled.ActionBar>}
+              </Styled.CenterStack>
+            )}
+          </Styled.ContentColumn>
+        </Styled.Page>
+        {isPhoneWidth && activeError && (
+          <PreFlightErrorDialog onClose={activeError.onClose}>
+            {activeError.header}
+            {activeError.actions}
+          </PreFlightErrorDialog>
+        )}
+      </ThemeProvider>
+    </PreFlightContext.Provider>
+  );
+};
+
+export default PreFlight;

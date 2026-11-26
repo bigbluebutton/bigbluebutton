@@ -1,0 +1,10 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case signOut.method.allowed-post
+target bbb-web
+
+== step 1: call signOut (POST)
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "SUCCESS"

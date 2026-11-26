@@ -22,9 +22,20 @@ import org.bigbluebutton.api.domain.Meeting
 import org.bigbluebutton.api.service.ServiceUtils
 import org.bigbluebutton.presentation.DocumentConversionService
 import org.bigbluebutton.presentation.UploadedPresentation
+import org.bigbluebutton.api2.IBbbWebApiGWApp
+import org.bigbluebutton.presentation.imp.InsertPagesDeliveryService
+import org.bigbluebutton.presentation.imp.PageArtifacts
 import org.springframework.beans.factory.annotation.Autowired
+import jakarta.annotation.PostConstruct
+import jakarta.annotation.PreDestroy
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.RejectedExecutionException
+import java.util.concurrent.ThreadFactory
+import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 
 class PresentationService {
 
@@ -41,9 +52,72 @@ class PresentationService {
 	def preUploadedPresentationOverrideDefault
 	def scanUploadedPresentationFiles
 	def pageTokenSecret
+	def numDownloadThreads
+	// The upload of an insert of pages fails through them when its conversion throws.
+	InsertPagesDeliveryService insertPagesDeliveryService
+	IBbbWebApiGWApp bbbWebApiGWApp
+
+	// Bounds how many tasks may wait for a free download thread, as a multiple of
+	// the pool size. Keeps a burst of create/insertDocument requests from queueing
+	// without limit (each raw-bytes task can hold a whole file in memory).
+	private static final int DOWNLOAD_QUEUE_CAPACITY_PER_THREAD = 20
+
+	private ExecutorService downloadExecutor
+
+	@PostConstruct
+	void initDownloadExecutor() {
+		// Clamp to at least 1: a configured 0 or negative would make the
+		// ThreadPoolExecutor constructor throw and fail bean initialization.
+		// (numDownloadThreads is injected as a String, so "0" is truthy here and
+		// slips past the Elvis default — only null/empty falls back to 5.)
+		int threads = Math.max(1, (numDownloadThreads ?: 5) as int)
+		AtomicInteger threadSeq = new AtomicInteger()
+		ThreadFactory threadFactory = { Runnable r ->
+			Thread t = new Thread(r, "pres-download-" + threadSeq.incrementAndGet())
+			t.daemon = true
+			return t
+		} as ThreadFactory
+		// Fixed pool with a *bounded* queue. Executors.newFixedThreadPool would use an
+		// unbounded queue, letting bursts pile up until the heap is exhausted; here
+		// excess tasks are rejected (see submitPresentationTask) instead.
+		downloadExecutor = new ThreadPoolExecutor(
+				threads, threads,
+				0L, TimeUnit.MILLISECONDS,
+				new LinkedBlockingQueue<Runnable>(threads * DOWNLOAD_QUEUE_CAPACITY_PER_THREAD),
+				threadFactory,
+				new ThreadPoolExecutor.AbortPolicy())
+	}
+
+	@PreDestroy
+	void shutdownDownloadExecutor() {
+		downloadExecutor?.shutdownNow()
+	}
+
+	/**
+	 * Runs presentation download/processing off the request thread so API responses
+	 * are not delayed by it. The pool is bounded (numPresentationDownloadThreads) and
+	 * backed by a bounded queue; if it is saturated the task is rejected and logged
+	 * rather than queued without limit. Any failure escaping the work closure is
+	 * logged with meeting context. Returns false when the task could not be accepted.
+	 */
+	boolean submitPresentationTask(String meetingId, String source, Closure work) {
+		try {
+			downloadExecutor.submit({
+				try {
+					work()
+				} catch (Throwable t) {
+					log.error("Failed to process pre-uploaded presentation for meeting [${meetingId}], source [${source}]", t)
+				}
+			} as Runnable)
+			return true
+		} catch (RejectedExecutionException e) {
+			log.error("Rejected pre-uploaded presentation task, download pool saturated for meeting [${meetingId}], source [${source}]", e)
+			return false
+		}
+	}
 
 	def deletePresentation = {conf, room, filename ->
-		def directory = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + filename)
+		def directory = presentationDirectory(conf, room, filename)
 		deleteDirectory(directory)
 	}
 
@@ -107,6 +181,10 @@ class PresentationService {
 					documentConversionService.processDocument(uploadedPres, Boolean.parseBoolean(scanUploadedPresentationFiles))
 				} catch (Throwable e) {
 					log.error "Error in Presentation service:", e
+					if (insertPagesDeliveryService != null && bbbWebApiGWApp != null) {
+						def failure = insertPagesDeliveryService.failureFor(uploadedPres.getId(), e.toString())
+						if (failure != null) bbbWebApiGWApp.sendInsertPagesMessages(failure)
+					}
 				} finally {
 					scheduler.shutdown()
 				}
@@ -120,56 +198,59 @@ class PresentationService {
 		documentConversionService.sendDocConversionFailedOnMimeType(pres, fileMime, fileExtension)
 	}
 
-	def showSvgImage(String conf, String room, String presentationName, String id) {
-		new File(roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar + "svgs" + File.separatorChar + "slide${id}.svg")
+	// Page artifacts are named by page id (PageArtifacts); the callers check the id format first.
+	def showSvgImage(String conf, String room, String presentationName, String pageId) {
+		pageArtifact(conf, room, presentationName, PageArtifacts.Type.SVG, pageId)
 	}
 
-	def showThumbnail = {conf, room, presentationName, thumb ->
-		def thumbFile = roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar +
-				"thumbnails" + File.separatorChar + "thumb-${thumb}.png"
-		log.debug "showing $thumbFile"
-
-		new File(thumbFile)
+	def showThumbnail = {conf, room, presentationName, pageId ->
+		pageArtifact(conf, room, presentationName, PageArtifacts.Type.THUMBNAIL, pageId)
 	}
 
-	def showPng = {conf, room, presentationName, page ->
-		def pngFile = roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar +
-				"pngs" + File.separatorChar + "slide-${page}.png"
-		log.debug "showing $pngFile"
-
-		new File(pngFile)
+	def showPng = {conf, room, presentationName, pageId ->
+		pageArtifact(conf, room, presentationName, PageArtifacts.Type.PNG, pageId)
 	}
 
-	def showTextfile = {conf, room, presentationName, textfile ->
-		def txt = roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar +
-				"textfiles" + File.separatorChar + "slide-${textfile}.txt"
-		log.debug "showing $txt"
-
-		new File(txt)
+	def showTextfile = {conf, room, presentationName, pageId ->
+		pageArtifact(conf, room, presentationName, PageArtifacts.Type.TEXT, pageId)
 	}
 
-	def numberOfThumbnails = {conf, room, name ->
-		def thumbDir = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + name + File.separatorChar + "thumbnails")
-		thumbDir.listFiles().length
-	}
-
-	def numberOfSvgs = {conf, room, name ->
-		def SvgsDir = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + name + File.separatorChar + "svgs")
-		SvgsDir.listFiles().length
-	}
-
-	def numberOfTextfiles = {conf, room, name ->
-		log.debug roomDirectory(conf, room).absolutePath + File.separatorChar + name + File.separatorChar + "textfiles"
-		def textfilesDir = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + name + File.separatorChar + "textfiles")
-		textfilesDir.listFiles().length
+	private File pageArtifact(Object conf, Object room, Object presentationName, PageArtifacts.Type type, String pageId) {
+		resolvePresentationFile(conf, room, presentationName, type.directory, type.fileName(pageId))
 	}
 
 	def roomDirectory = {conf, room ->
-		return new File(presentationDir + File.separatorChar + conf + File.separatorChar + room)
+		File conferenceDirectory = resolveContained(new File(presentationDir as String), conf, "conference")
+		resolveContained(conferenceDirectory, room, "room")
+	}
+
+	File presentationDirectory(Object conf, Object room, Object presentationName) {
+		resolveContained(roomDirectory(conf, room), presentationName, "presentation_name")
+	}
+
+	private File resolvePresentationFile(Object conf, Object room, Object presentationName, Object... path) {
+		File current = presentationDirectory(conf, room, presentationName)
+		path.each { segment -> current = resolveContained(current, segment, "presentation path") }
+		current
+	}
+
+	private static File resolveContained(File parent, Object segment, String name) {
+		String value = segment?.toString()
+		if (!value || value == "." || value == ".." || value.contains('/') || value.contains('\\') || new File(value).isAbsolute()) {
+			throw new IllegalArgumentException("Invalid ${name}")
+		}
+
+		File canonicalParent = parent.canonicalFile
+		File canonicalTarget = new File(canonicalParent, value).canonicalFile
+		String prefix = canonicalParent.path + File.separator
+		if (!canonicalTarget.path.startsWith(prefix)) {
+			throw new IllegalArgumentException("Invalid ${name}")
+		}
+		canonicalTarget
 	}
 
 	def testConversionProcess() {
-		File presDir = new File(roomDirectory(testConferenceMock, testRoomMock).absolutePath + File.separatorChar + testPresentationName)
+		File presDir = presentationDirectory(testConferenceMock, testRoomMock, testPresentationName)
 
 		if (presDir.exists()) {
 			File pres = new File(presDir.getAbsolutePath() + File.separatorChar + testUploadedPresentation)

@@ -1,8 +1,9 @@
 package org.bigbluebutton.endpoint.redis
 
 import org.apache.pekko.actor.{Actor, ActorLogging, ActorSystem, Props}
-import org.bigbluebutton.common2.domain.PresentationVO
+import org.bigbluebutton.common2.domain.{PageVO, PresentationVO}
 import org.bigbluebutton.common2.msgs._
+import com.fasterxml.jackson.annotation.JsonIgnore
 import org.bigbluebutton.common2.util.JsonUtil
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
@@ -11,6 +12,7 @@ import org.bigbluebutton.core.models._
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 import java.security.MessageDigest
+import scala.annotation.meta.field
 import scala.concurrent.duration._
 import scala.concurrent._
 import ExecutionContext.Implicits.global
@@ -106,6 +108,10 @@ case class Away(
                )
 
 case class Webcam(
+                   // Server-side correlation key only: it matches a cam-stopped event to the entry
+                   // it closes. No dashboard consumer reads it, and it carries the publisher's
+                   // client session id and browser device id, so keep it out of the published report.
+                   @(JsonIgnore @field) stream: String = null,
                    startedOn: Long = System.currentTimeMillis(),
                    stoppedOn: Long = 0,
                  )
@@ -121,6 +127,7 @@ case class PresentationSlide(
                               setOn: Long = System.currentTimeMillis(),
                               presentationName: String,
                               pageToken: String = "",
+                              pageId: String = "",
                             )
 
 
@@ -146,6 +153,8 @@ class LearningDashboardActor(
   private var meetingsLastJsonHash : Map[String,String] = Map()
   private var meetingPresentations : Map[String,Map[String,PresentationVO]] = Map()
   private var meetingExcludedFromDashboardUserIds : Map[String,Vector[String]] = Map()
+  // Last time a BlockNote edit was counted, per meeting and user (see handleBNSharedNotesUpdatedEvtMsg)
+  private var meetingSharedNotesEditCountedOn : Map[String,Map[String,Long]] = Map()
 
   system.scheduler.scheduleWithFixedDelay(0.seconds, 5.seconds, self, SendPeriodicReport)
 
@@ -172,7 +181,7 @@ class LearningDashboardActor(
       case m: GroupChatMessageBroadcastEvtMsg       => handleGroupChatMessageBroadcastEvtMsg(m)
 
       // SharedNotes
-      case m: PadUpdatedEvtMsg       => handlePadUpdatedEvtMsg(m)
+      case m: BNSharedNotesUpdatedEvtMsg => handleBNSharedNotesUpdatedEvtMsg(m)
 
       // Whiteboard
       case m: SendWhiteboardAnnotationsEvtMsg       => handleSendWhiteboardAnnotationsEvtMsg(m)
@@ -180,6 +189,7 @@ class LearningDashboardActor(
       // Presentation
       case m: PresentationConversionCompletedEvtMsg => handlePresentationConversionCompletedEvtMsg(m)
       case m: SetCurrentPageEvtMsg                  => handleSetCurrentPageEvtMsg(m)
+      case m: PresentationPagesInsertedEvtMsg       => handlePresentationPagesInsertedEvtMsg(m)
       case m: RemovePresentationEvtMsg              => handleRemovePresentationEvtMsg(m)
       case m: SetCurrentPresentationEvtMsg          => handleSetCurrentPresentationEvtMsg(m)
 
@@ -245,18 +255,31 @@ class LearningDashboardActor(
     }
   }
 
-  private def handlePadUpdatedEvtMsg(msg: PadUpdatedEvtMsg) {
-    if (msg.body.externalId == "notes") {
-      for {
-        meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
-        user <- findUserByIntId(meeting, msg.body.userId)
-      } yield {
+  // bbb-shared-notes-server sends one BNSharedNotesUpdatedEvtMsg per Yjs update, i.e. roughly per
+  // keystroke, while Etherpad commits at most one changeset per user every 500ms. Counting at most
+  // one edit per user in that window keeps the numbers comparable with the Etherpad-era metric.
+  // Server-side changes carry intUserId "SYSTEM", which matches no user and is ignored.
+  // Only the meeting's notes document counts, the counterpart of the Etherpad-era
+  // externalId == "notes" filter (prefix defined in bbb-shared-notes-server src/hocuspocus/utils.ts).
+  private val sharedNotesEditCountWindowMs = 500
+
+  private def handleBNSharedNotesUpdatedEvtMsg(msg: BNSharedNotesUpdatedEvtMsg) {
+    for {
+      meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
+      if msg.body.documentName == s"bn-document__${meeting.intId}"
+      user <- findUserByIntId(meeting, msg.body.intUserId)
+    } yield {
+      val now = System.currentTimeMillis()
+      val countedOn = meetingSharedNotesEditCountedOn.getOrElse(meeting.intId, Map())
+      if (now - countedOn.getOrElse(user.userKey, 0L) >= sharedNotesEditCountWindowMs) {
+        meetingSharedNotesEditCountedOn += (meeting.intId -> (countedOn + (user.userKey -> now)))
+
         val updatedUser = user.copy(totalOfSharedNotes = user.totalOfSharedNotes + 1)
         val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
 
         meetings += (updatedMeeting.intId -> updatedMeeting)
 
-        UserActivityDAO.insert(msg.header.meetingId, msg.body.userId, "shared-notes")
+        UserActivityDAO.insert(msg.header.meetingId, msg.body.intUserId, "shared-notes")
       }
     }
   }
@@ -279,15 +302,47 @@ class LearningDashboardActor(
     for {
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
     } yield {
-      val updatedPresentations = meetingPresentations.getOrElse(meeting.intId, Map()) + (msg.body.presentation.id -> msg.body.presentation)
-      meetingPresentations += (meeting.intId -> updatedPresentations)
-      if(msg.body.presentation.current) {
+      val presentation = msg.body.presentation
+      if (meetingPresentations.getOrElse(meeting.intId, Map()).contains(presentation.id)) {
+        registerPages(meeting.intId, presentation.id, presentation.pages)
+      } else {
+        // Keep the whole VO: it carries the name that the page changes read.
+        val updatedPresentations = meetingPresentations.getOrElse(meeting.intId, Map()) + (presentation.id -> presentation)
+        meetingPresentations += (meeting.intId -> updatedPresentations)
+      }
+      if(presentation.current) {
         for {
-          page <- msg.body.presentation.pages.find(p => p.current)
+          page <- presentation.pages.find(p => p.current)
         } yield {
-          this.setPresentationSlide(meeting.intId, msg.body.presentation.id,page.num, msg.body.presentation.name, page.pageToken)
+          this.setPresentationSlide(meeting.intId, presentation.id, page.id, page.num, presentation.name, page.pageToken)
         }
       }
+    }
+  }
+
+  // Adds the given pages to the cached presentation, replacing the ones with the same id and keeping
+  // the others. Does nothing when the presentation is not cached.
+  def registerPages(meetingId: String, presentationId: String, pages: Vector[PageVO]): Unit = {
+    for {
+      presentations <- meetingPresentations.get(meetingId)
+      presentation <- presentations.get(presentationId)
+    } yield {
+      val newIds = pages.map(_.id).toSet
+      val updated = presentation.copy(pages = presentation.pages.filterNot(p => newIds.contains(p.id)) ++ pages)
+      meetingPresentations += (meetingId -> (presentations + (presentationId -> updated)))
+    }
+  }
+
+  // The pages from insertedAt on moved forward; the inserted pages take their place.
+  private def handlePresentationPagesInsertedEvtMsg(msg: PresentationPagesInsertedEvtMsg) {
+    for {
+      presentations <- meetingPresentations.get(msg.header.meetingId)
+      presentation <- presentations.get(msg.body.presentationId)
+    } yield {
+      val count = msg.body.pages.size
+      val moved = presentation.pages.map(p => if (p.num >= msg.body.insertedAt) p.copy(num = p.num + count) else p)
+      meetingPresentations += (msg.header.meetingId -> (presentations + (presentation.id -> presentation.copy(pages = moved))))
+      registerPages(msg.header.meetingId, msg.body.presentationId, msg.body.pages)
     }
   }
 
@@ -298,7 +353,7 @@ class LearningDashboardActor(
       presentation <- presentations.get(msg.body.presentationId)
       page <- presentation.pages.find(p => p.id == msg.body.pageId)
     } yield {
-      this.setPresentationSlide(meeting.intId, msg.body.presentationId,page.num, presentation.name, page.pageToken)
+      this.setPresentationSlide(meeting.intId, msg.body.presentationId, page.id, page.num, presentation.name, page.pageToken)
     }
   }
 
@@ -308,7 +363,7 @@ class LearningDashboardActor(
     } yield {
       meeting.presentationSlides.lastOption match {
         case Some(slide) if slide.presentationId == msg.body.presentationId =>
-          this.setPresentationSlide(meeting.intId, "",0, "", "")
+          this.setPresentationSlide(meeting.intId, "", "", 0, "", "")
         case _ => // No matching current presentation slide to remove.
       }
     }
@@ -325,7 +380,7 @@ class LearningDashboardActor(
       previousSlide match {
         case Some(slide) =>
           //Set last page showed for this presentation
-          this.setPresentationSlide(meeting.intId, msg.body.presentationId, slide.pageNum, slide.presentationName, slide.pageToken)
+          this.setPresentationSlide(meeting.intId, msg.body.presentationId, slide.pageId, slide.pageNum, slide.presentationName, slide.pageToken)
         case None =>
           //If none page was showed yet, set the current page (page 1 by default)
           for {
@@ -333,23 +388,23 @@ class LearningDashboardActor(
             presentation <- presentations.get(msg.body.presentationId)
             page <- presentation.pages.find(s => s.current == true)
           } yield  {
-            this.setPresentationSlide(meeting.intId, msg.body.presentationId,page.num, presentation.name, page.pageToken)
+            this.setPresentationSlide(meeting.intId, msg.body.presentationId, page.id, page.num, presentation.name, page.pageToken)
           }
       }
     }
   }
 
-  private def setPresentationSlide(meetingId: String, presentationId: String, pageNum: Long, presentationName: String, pageToken: String) {
+  private def setPresentationSlide(meetingId: String, presentationId: String, pageId: String, pageNum: Long, presentationName: String, pageToken: String) {
     for {
       meeting <- meetings.values.find(m => m.intId == meetingId)
     } yield {
       val shouldAppendSlide = meeting.presentationSlides.lastOption match {
-        case Some(slide) => slide.presentationId != presentationId || slide.pageNum != pageNum
+        case Some(slide) => slide.presentationId != presentationId || slide.pageId != pageId
         case None => true
       }
 
       if (shouldAppendSlide) {
-        val updatedMeeting = meeting.copy(presentationSlides = meeting.presentationSlides :+ PresentationSlide(presentationId, pageNum, presentationName = presentationName, pageToken = pageToken))
+        val updatedMeeting = meeting.copy(presentationSlides = meeting.presentationSlides :+ PresentationSlide(presentationId, pageNum, presentationName = presentationName, pageToken = pageToken, pageId = pageId))
 
         meetings += (updatedMeeting.intId -> updatedMeeting)
       }
@@ -395,6 +450,14 @@ class LearningDashboardActor(
     } else {
       latestUserWithExtId
     }
+  }
+
+  // The open entry for the stream that stopped. Every entry has one: the dashboard keeps its
+  // meetings in memory only, so none of them predates this process.
+  private def findOpenWebcamIndex(user: User, stream: String): Option[Int] = {
+    val index = user.webcams.lastIndexWhere(w => w.stoppedOn == 0 && w.stream == stream)
+
+    if (index >= 0) Some(index) else None
   }
 
   private def replaceLastItem[T](items: Vector[T], replacement: T): Vector[T] = {
@@ -649,7 +712,7 @@ class LearningDashboardActor(
       user <- findUserByIntId(meeting, msg.body.userId)
     } yield {
 
-      val updatedUser = user.copy(webcams = user.webcams :+ Webcam())
+      val updatedUser = user.copy(webcams = user.webcams :+ Webcam(stream = msg.body.stream))
       val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
       meetings += (updatedMeeting.intId -> updatedMeeting)
 
@@ -667,13 +730,13 @@ class LearningDashboardActor(
       user <- findUserByIntId(meeting, msg.body.userId)
         .orElse(findUserByAnyIntId(meeting, msg.body.userId))
     } yield {
-      user.webcams.lastOption match {
-        case Some(webcam) if webcam.stoppedOn == 0 =>
-          val stoppedWebcam: Webcam = webcam.copy(stoppedOn = System.currentTimeMillis())
-          val updatedUser = user.copy(webcams = replaceLastItem(user.webcams, stoppedWebcam))
+      findOpenWebcamIndex(user, msg.body.stream) match {
+        case Some(index) =>
+          val stoppedWebcam: Webcam = user.webcams(index).copy(stoppedOn = System.currentTimeMillis())
+          val updatedUser = user.copy(webcams = user.webcams.updated(index, stoppedWebcam))
           val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
           meetings += (updatedMeeting.intId -> updatedMeeting)
-        case _ => // No active webcam to stop.
+        case None => // No active webcam to stop.
       }
     }
   }
@@ -1148,6 +1211,7 @@ class LearningDashboardActor(
       meetingPresentations = meetingPresentations.-(updatedMeeting.intId)
       meetingAccessTokens = meetingAccessTokens.-(updatedMeeting.intId)
       meetingExcludedFromDashboardUserIds = meetingExcludedFromDashboardUserIds.-(updatedMeeting.intId)
+      meetingSharedNotesEditCountedOn = meetingSharedNotesEditCountedOn.-(updatedMeeting.intId)
       meetingsLastJsonHash = meetingsLastJsonHash.-(updatedMeeting.intId)
       log.info(" removed for meeting {}.",updatedMeeting.intId)
     }

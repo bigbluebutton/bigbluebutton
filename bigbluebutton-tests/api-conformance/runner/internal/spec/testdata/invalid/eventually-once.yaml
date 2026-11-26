@@ -1,0 +1,16 @@
+# want: 11: steps[0]: eventually.every must be shorter than within, 1s, or it tries only once
+# want: 15: steps[1]: eventually.every (the default) must be shorter than within, 500ms, or it tries only once
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+steps:
+  - call: isMeetingRunning
+    eventually:
+      within: 1s
+      every: 2s
+      until: {returncode: SUCCESS}
+  - call: isMeetingRunning
+    eventually:
+      within: 500ms
+      until: {returncode: SUCCESS}

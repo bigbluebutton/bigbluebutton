@@ -1,0 +1,13 @@
+id: rt-png-4000x3000
+title: 4000x3000 PNG (a 12-megapixel photo size) with marker bands, resized to maxImageWidth x maxImageHeight
+tier: runtime
+generate: { kind: gradient-png, width: 4000, height: 3000 }
+upload: { method: create-url }
+issues: [10611, 14056, 16022, 22003]
+catalog: [Huge images]
+pages: 1
+expect: converted
+kind: vector
+marker: true
+profiles: [defaults, tight-limits]
+goldenProfiles: [defaults, tight-limits]

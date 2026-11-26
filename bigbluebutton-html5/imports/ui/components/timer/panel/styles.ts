@@ -1,4 +1,5 @@
 import styled, { css } from 'styled-components';
+import ButtonWrappers from '/imports/ui/components/common/button-wrapper/styles';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 import { styled as materialStyled } from '@mui/material/styles';
@@ -12,13 +13,14 @@ import {
   contentSidebarPadding,
 } from '../../../stylesheets/styled-components/general';
 import {
-  colorGrayDark,
-  colorBorder,
-  colorWhite,
-  colorPrimary,
   colorBlueLighter,
-  colorText,
+  colorBlueLighterBorder,
+  colorBorder,
   colorGray,
+  colorGrayDark,
+  colorPrimary,
+  colorText,
+  colorWhiteSurface,
 } from '../../../stylesheets/styled-components/palette';
 import { TextElipsis } from '../../../stylesheets/styled-components/placeholders';
 import Button from '/imports/ui/components/common/button/component';
@@ -44,7 +46,7 @@ const TimerTitle = styled.div`
 // @ts-ignore - JS code
 const TimerMinimizeButton = styled(Button)`
   position: relative;
-  background-color: ${colorWhite};
+  background-color: ${colorWhiteSurface};
   display: block;
   margin: ${borderSizeLarge};
   margin-bottom: ${borderSize};
@@ -70,7 +72,7 @@ const TimerMinimizeButton = styled(Button)`
   }
 
   &:hover {
-    background-color: ${colorWhite};
+    background-color: ${colorWhiteSurface};
   }
 `;
 
@@ -144,7 +146,7 @@ const TimerSongsWrapper = styled.div`
   margin-top: 2rem;
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid color-mix(in srgb, ${colorBlueLighter} 50%, transparent);
+  border: 1px solid color-mix(in srgb, ${colorBlueLighterBorder} 50%, transparent);
   border-radius: 0.5rem;
 `;
 
@@ -511,9 +513,10 @@ const TimerAddButton = styled.button<{disabled?: boolean}>`
 const ControlsContainer = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   width: 100%;
   padding-top: 1rem;
+  gap: 0.75rem;
 `;
 
 const ButtonRow = styled.div`
@@ -522,28 +525,7 @@ const ButtonRow = styled.div`
   gap: 1rem;
 `;
 
-// @ts-ignore - JS code
-const ControlButton = styled(Button)`
-  flex-grow: 1;
-  border-radius: ${lgBorderRadius};
-  height: 3rem;
-  width: 100%;
-  font-size: ${fontSizeBase};
-`;
-
-const ResetButton = styled(ControlButton)`
-  border: ${borderSize} solid ${colorPrimary};
-`;
-
-const DeactivateButton = styled(ControlButton)`
-  background: transparent;
-  color: ${colorGrayDark};
-
-  &:hover, &:focus {
-    background: transparent;
-    border-color: transparent !important;
-  }
-`;
+const ButtonWrapper = ButtonWrappers.FullWidthFlexItem;
 
 const FooterSeparator = styled(BaseSeparator)`
   margin-top: auto;
@@ -575,9 +557,7 @@ export default {
   MaterialSwitch,
   ControlsContainer,
   ButtonRow,
-  ControlButton,
-  ResetButton,
-  DeactivateButton,
+  ButtonWrapper,
   FooterSeparator,
   TimerPresetsRow,
   TimerPresetButton,

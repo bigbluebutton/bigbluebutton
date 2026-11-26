@@ -121,6 +121,26 @@ case class EjectUserCamerasCmdMsg(
 case class EjectUserCamerasCmdMsgBody(userId: String)
 
 /**
+ * Sent by a moderator to ask user #userId to share their camera
+ */
+object RequestUserCameraCmdMsg { val NAME = "RequestUserCameraCmdMsg" }
+case class RequestUserCameraCmdMsg(
+    header: BbbClientMsgHeader,
+    body:   RequestUserCameraCmdMsgBody
+) extends StandardMsg
+case class RequestUserCameraCmdMsgBody(userId: String)
+
+/**
+ * Sent by the client with the user's answer to a camera share request
+ */
+object CameraRequestAnswerReqMsg { val NAME = "CameraRequestAnswerReqMsg" }
+case class CameraRequestAnswerReqMsg(
+    header: BbbClientMsgHeader,
+    body:   CameraRequestAnswerReqMsgBody
+) extends StandardMsg
+case class CameraRequestAnswerReqMsgBody(accepted: Boolean)
+
+/**
  * Sent to bbb-webrtc-sfu to tear down broadcaster stream #streamId
  */
 object CamBroadcastStopSysMsg { val NAME = "CamBroadcastStopSysMsg" }

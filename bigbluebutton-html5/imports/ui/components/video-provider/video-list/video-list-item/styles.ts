@@ -2,11 +2,12 @@
 /* eslint-disable */
 import styled, { keyframes, css } from 'styled-components';
 import {
+  colorBlackBorder,
+  colorBlackSurface,
+  colorDanger,
   colorPrimary,
-  colorBlack,
   colorWhite,
   webcamBackgroundColor,
-  colorDanger,
   webcamPlaceholderBorder,
   webcamTalkingBackgroundColor,
 } from '/imports/ui/stylesheets/styled-components/palette';
@@ -52,7 +53,7 @@ const Content = styled.div<{
     bottom: 0;
     left: 0;
     pointer-events: none;
-    border: 2px solid ${colorBlack};
+    border: 2px solid ${colorBlackBorder};
     border-radius: 10px;
 
     ${({ isStream }) => !isStream && `
@@ -161,7 +162,7 @@ const Video = styled.video<{
   height: 100%;
   width: calc(100% - 1px);
   object-fit: contain;
-  background-color: ${colorBlack};
+  background-color: ${colorBlackSurface};
   border-radius: 10px;
 
   ${({ mirrored }) => mirrored && `

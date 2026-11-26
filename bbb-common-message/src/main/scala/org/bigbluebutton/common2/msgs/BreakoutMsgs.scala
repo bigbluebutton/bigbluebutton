@@ -43,7 +43,6 @@ case class BreakoutRoomDetail(
     parentId:                String,
     sequence:                Integer,
     shortName:               String,
-    sharedNotesEditor:       String,
     isDefaultName:           Boolean,
     freeJoin:                Boolean,
     dialNumber:              String,
@@ -76,7 +75,9 @@ case class BreakoutRoomDetail(
     lockOnJoinConfigurable:  Boolean,
     hideViewersCursor:       Boolean,
     hideViewersAnnotation:   Boolean,
-    webcamsOnlyForModerator: Boolean
+    webcamsOnlyForModerator: Boolean,
+    // Id of the page sourcePresentationSlide names; empty when the room takes the whole presentation.
+    sourcePresentationPageId: String
 )
 
 /**
@@ -135,6 +136,10 @@ case class ChangeUserBreakoutReqMsgBody(meetingId: String, userId: String, fromB
 object ChangeUserBreakoutEvtMsg { val NAME = "ChangeUserBreakoutEvtMsg" }
 case class ChangeUserBreakoutEvtMsg(header: BbbClientMsgHeader, body: ChangeUserBreakoutEvtMsgBody) extends BbbCoreMsg
 case class ChangeUserBreakoutEvtMsgBody(meetingId: String, userId: String, fromBreakoutId: String, toBreakoutId: String, redirectToHtml5JoinURL: String)
+
+object UnassignUserFromBreakoutReqMsg { val NAME = "UnassignUserFromBreakoutReqMsg" }
+case class UnassignUserFromBreakoutReqMsg(header: BbbClientMsgHeader, body: UnassignUserFromBreakoutReqMsgBody) extends StandardMsg
+case class UnassignUserFromBreakoutReqMsgBody(meetingId: String, userId: String, breakoutId: String)
 
 object BreakoutRoomCallModeratorReqMsg { val NAME = "BreakoutRoomCallModeratorReqMsg" }
 case class BreakoutRoomCallModeratorReqMsg(header: BbbClientMsgHeader, body: BreakoutRoomCallModeratorReqMsgBody) extends StandardMsg

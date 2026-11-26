@@ -3,11 +3,13 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 import { styled as materialStyled } from '@mui/material/styles';
 import {
-  colorWhite, colorPrimary,
-  colorGrayDark, colorBorder,
-  colorLink,
-  colorBlueAux,
   appsPanelTextColor,
+  colorBlueAux,
+  colorBorder,
+  colorGrayDark,
+  colorLink,
+  colorPrimary,
+  colorWhiteSurface,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   smPadding,
@@ -30,7 +32,7 @@ const AudioCaptions = styled(ScrollboxVertical)`
   flex-direction: column;
   gap: ${contentSidebarGap};
   border-radius: ${contentSidebarBorderRadius};
-  background: ${colorWhite};
+  background: ${colorWhiteSurface};
   overflow-y: auto;
   overflow-x: hidden;
 `;

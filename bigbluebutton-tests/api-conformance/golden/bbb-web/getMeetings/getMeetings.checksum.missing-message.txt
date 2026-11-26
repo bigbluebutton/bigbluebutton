@@ -1,0 +1,147 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case getMeetings.checksum.missing-message
+target bbb-web
+
+== step 1: call getMeetings (document)
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "FAILED"
+/response/messageKey "checksumError"
+/response/message "<missing-checksum message>"
+
+== step 2: call getMeetings (document)
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "FAILED"
+/response/messageKey "checksumError"
+/response/message "<missing-checksum message>"
+
+== step 3: call getMeetings (document)
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "FAILED"
+/response/messageKey "checksumError"
+/response/message "<missing-checksum message>"
+
+== step 4: call getMeetings (document)
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "FAILED"
+/response/messageKey "checksumError"
+/response/message "<missing-checksum message>"
+
+== step 5: call getMeetings (document)
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "FAILED"
+/response/messageKey "checksumError"
+/response/message "<missing-checksum message>"
+
+== step 6: call getMeetings (document)
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "FAILED"
+/response/messageKey "checksumError"
+/response/message "<missing-checksum message>"
+
+== step 7: call getMeetings (document)
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "FAILED"
+/response/messageKey "checksumError"
+/response/message "<missing-checksum message>"
+
+== step 8: call getMeetings (document)
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "FAILED"
+/response/messageKey "checksumError"
+/response/message "<missing-checksum message>"
+
+== step 9: call getMeetings (document)
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "FAILED"
+/response/messageKey "checksumError"
+/response/message "<missing-checksum message>"
+
+== step 10: call getMeetings (document)
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "FAILED"
+/response/messageKey "checksumError"
+/response/message "<missing-checksum message>"
+
+== step 11: call getMeetings (document)
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "FAILED"
+/response/messageKey "checksumError"
+/response/message "<missing-checksum message>"
+
+== step 12: call getMeetings (document)
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "FAILED"
+/response/messageKey "checksumError"
+/response/message "<missing-checksum message>"
+
+== step 13: call getMeetings (document)
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "FAILED"
+/response/messageKey "checksumError"
+/response/message "<missing-checksum message>"
+
+== step 14: call getMeetings (document)
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "FAILED"
+/response/messageKey "checksumError"
+/response/message "<missing-checksum message>"
+
+== step 15: call getMeetings (document)
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "FAILED"
+/response/messageKey "checksumError"
+/response/message "<missing-checksum message>"
+
+== step 16: call getMeetings (document)
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "FAILED"
+/response/messageKey "checksumError"
+/response/message "<missing-checksum message>"

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/etc/bigbluebutton/turn-stun-servers.xml on the Tier 1 stack, shaped like the
+one bbb-install writes for a server with a TURN server (bbb-install -c).
+turn.test needn't exist: bbb-web only hands out its URLs and credentials.
+The secret is a test value, published on purpose; recordings mask the
+credentials.
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+            https://www.springframework.org/schema/beans/spring-beans.xsd
+            ">
+    <bean id="stun0" class="org.bigbluebutton.web.services.turn.StunServer">
+        <constructor-arg index="0" value="stun:turn.test"/>
+    </bean>
+    <bean id="turn0" class="org.bigbluebutton.web.services.turn.TurnServer">
+        <constructor-arg index="0" value="tier1-turn-secret"/>
+        <constructor-arg index="1" value="turns:turn.test:443?transport=tcp"/>
+        <constructor-arg index="2" value="86400"/>
+    </bean>
+    <bean id="turn1" class="org.bigbluebutton.web.services.turn.TurnServer">
+        <constructor-arg index="0" value="tier1-turn-secret"/>
+        <constructor-arg index="1" value="turn:turn.test:3478"/>
+        <constructor-arg index="2" value="86400"/>
+    </bean>
+    <bean id="stunTurnService" class="org.bigbluebutton.web.services.turn.StunTurnService">
+        <property name="stunServers">
+            <set>
+                <ref bean="stun0" />
+            </set>
+        </property>
+        <property name="turnServers">
+            <set>
+                <ref bean="turn0" />
+                <ref bean="turn1" />
+            </set>
+        </property>
+    </bean>
+</beans>

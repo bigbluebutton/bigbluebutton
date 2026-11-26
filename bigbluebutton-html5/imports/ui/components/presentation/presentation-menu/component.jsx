@@ -144,7 +144,6 @@ const PresentationMenu = (props) => {
     setIsToolbarVisible,
     allowSnapshotOfCurrentSlide = false,
     presentationDropdownItems,
-    slideNum,
     currentUser,
     whiteboardId,
     persistShape,
@@ -159,7 +158,7 @@ const PresentationMenu = (props) => {
   const extractSlideContentToImage = async () => {
     const { isIos } = deviceInfo;
     const { isSafari } = browserInfo;
-    const backgroundShape = tldrawAPI.getCurrentPageShapes().find((s) => s.id === `shape:BG-${slideNum}`);
+    const backgroundShape = tldrawAPI.getCurrentPageShapes().find((s) => s.id === `shape:BG-${whiteboardId}`);
     const shapes = tldrawAPI.getCurrentPageShapes();
     const pollShape = shapes.find((shape) => shape.type === 'poll');
     const svgElem = await tldrawAPI.getSvg(
@@ -272,7 +271,7 @@ const PresentationMenu = (props) => {
         updateUiDataHookPCurrentWhiteboardSVGWithAnnotationsForPlugin,
       );
     };
-  }, [tldrawAPI, slideNum]);
+  }, [tldrawAPI, whiteboardId]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const toastId = useRef('presentation-menu-toast');
   const dropdownRef = useRef(null);
@@ -347,7 +346,7 @@ const PresentationMenu = (props) => {
         dataArray.forEach((originalShape) => {
           const shape = {
             ...originalShape,
-            parentId: `page:${slideNum}`,
+            parentId: `page:${whiteboardId}`,
             meta: {
               ...originalShape.meta,
               createdBy: currentUser.userId,
@@ -437,6 +436,7 @@ const PresentationMenu = (props) => {
           key: 'list-item-screenshot',
           label: intl.formatMessage(intlMessages.snapshotLabel),
           dataTest: 'presentationSnapshot',
+          className: 'bbb-menu__item--snapshot',
           icon: 'video',
           onClick: async () => {
             setState({
@@ -491,6 +491,7 @@ const PresentationMenu = (props) => {
         {
           key: 'list-item-toolvisibility',
           dataTest: 'toolVisibility',
+          className: 'bbb-menu__item--toolbar-visibility',
           label: formattedVisibilityLabel(isToolbarVisible),
           icon: isToolbarVisible ? 'close' : 'pen_tool',
           onClick: () => {

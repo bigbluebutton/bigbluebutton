@@ -2,9 +2,16 @@ package org.bigbluebutton.presentation.imp;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamReader;
 
 import org.apache.commons.io.FileUtils;
 import org.bigbluebutton.presentation.*;
@@ -13,6 +20,7 @@ import org.bigbluebutton.presentation.handlers.Pdf2PngPageConverterHandler;
 import org.bigbluebutton.presentation.handlers.Png2SvgConversionHandler;
 import org.bigbluebutton.presentation.handlers.SvgConversionHandler;
 import org.bigbluebutton.presentation.handlers.PdfFontType3DetectorHandler;
+import org.bigbluebutton.presentation.handlers.PdfPageBoxHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,9 +30,12 @@ import com.zaxxer.nuprocess.NuProcessBuilder;
 
 public class SvgImageCreatorImp implements SvgImageCreator {
     // These values should be kept in sync across all BBB components.
-    // See the values under "process" in bbb-export-annotations/config/settings.json
+    // See the values under "process" in bbb-export-annotations/config/default.json
     private static final int MAX_SVG_WIDTH = 1440;
     private static final int MAX_SVG_HEIGHT = 1080;
+
+    // Size (longest side, in pixels) of the renders compared to find the slides pdftocairo gets wrong
+    private static final int RENDER_COMPARISON_SIZE = 400;
 
     private static Logger log = LoggerFactory.getLogger(SvgImageCreatorImp.class);
 
@@ -32,6 +43,8 @@ public class SvgImageCreatorImp implements SvgImageCreator {
     private long imageTagThreshold;
     private long useTagThreshold;
     private long pathsThreshold;
+    private long maskTagThreshold = 0;
+    private long filterTagThreshold = 1;
     private int convPdfToSvgTimeout = 60;
     private int pdfFontsTimeout = 3;
     private int svgResolutionPpi = 300;
@@ -51,10 +64,10 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         if (!svgImagesPresentationDir.exists())
             svgImagesPresentationDir.mkdir();
 
-        File destSvg = new File(svgImagesPresentationDir.getAbsolutePath() + File.separatorChar + "slide" + page + ".svg");
+        File destSvg = PageArtifacts.Type.SVG.file(pres.getUploadedFile().getParentFile(), pres.pageId(page));
 
         if (useBlank) {
-            copyBlankSvg(destSvg);
+            writeBlankSvg(destSvg, pres, page, null);
             return true;
         }
 
@@ -66,10 +79,8 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         }
 
         if (!success) {
-            if (destSvg.exists()) {
-                destSvg.delete();
-            }
-            copyBlankSvg(destSvg);
+            // The SVG being discarded (too large, or a partial write) still tells the page's size.
+            writeBlankSvg(destSvg, pres, page, destSvg.exists() ? destSvg : null);
         }
 
 
@@ -88,8 +99,8 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             }
         }
 
-        File destSvg = new File(dir.getAbsolutePath() + File.separatorChar + "slide" + page + ".svg");
-        copyBlankSvg(destSvg);
+        File destSvg = PageArtifacts.Type.SVG.file(pres.getUploadedFile().getParentFile(), pres.pageId(page));
+        writeBlankSvg(destSvg, pres, page, null);
     }
 
     private PdfFontType3DetectorHandler createDetectFontType3tHandler(boolean done, int page, String source, UploadedPresentation pres) {
@@ -132,7 +143,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         String dest;
 
         // Skip processing if the destination file exists, as it was likely restored from the cache
-        File destsvg = new File(imagePresentationDir.getAbsolutePath() + File.separatorChar + "slide" + page + ".svg");
+        File destsvg = PageArtifacts.Type.SVG.file(pres.getUploadedFile().getParentFile(), pres.pageId(page));
         if(destsvg.exists()) {
             return true;
         }
@@ -222,15 +233,30 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             }
         }
 
-        if (destsvg.length() == 0 ||
-                pHandler.numberOfImageTags() > imageTagThreshold ||
+        boolean svgTooComplex = pHandler.numberOfImageTags() > imageTagThreshold ||
                 pHandler.numberOfPaths() > pathsThreshold ||
-                pHandler.numberOfUseTags() > useTagThreshold ||
+                pHandler.numberOfUseTags() > useTagThreshold;
+
+        // <filter> tags only tell that the slide has soft masks, which are common and mostly convert
+        // fine. Rasterize just the slides where the cairo backend (the one generating the svg) renders
+        // something noticeably different from the splash backend. See issue #23953.
+        boolean softMaskRenderMismatch = false;
+        if (destsvg.length() > 0 && !svgTooComplex &&
+                filterTagThreshold > 0 && pHandler.numberOfFilterTags() >= filterTagThreshold) {
+            softMaskRenderMismatch = cairoRenderDiffersFromSplash(pres, page, source, convPdfToSvgTimeout);
+        }
+
+        if (destsvg.length() == 0 ||
+                svgTooComplex ||
+                (maskTagThreshold > 0 && pHandler.numberOfMaskTags() >= maskTagThreshold) ||
+                softMaskRenderMismatch ||
                 rasterizeCurrSlide) {
 
-            // We need t delete the destination file as we are starting a
-            // new conversion process
-            if (destsvg.exists()) {
+            // The vector svg is kept when only its soft masks asked for the rasterization: if the
+            // raster cannot be embedded it is a better fallback than a blank slide. Otherwise we need
+            // to delete the destination file as we are starting a new conversion process
+            boolean vectorFallback = destsvg.length() > 0 && !svgTooComplex;
+            if (destsvg.exists() && !vectorFallback) {
                 destsvg.delete();
             }
 
@@ -246,6 +272,10 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                 logData.put("fileExists", destsvg.exists());
                 logData.put("numberOfImages", pHandler.numberOfImageTags());
                 logData.put("numberOfPaths", pHandler.numberOfPaths());
+                logData.put("numberOfUseTags", pHandler.numberOfUseTags());
+                logData.put("numberOfMasks", pHandler.numberOfMaskTags());
+                logData.put("numberOfFilters", pHandler.numberOfFilterTags());
+                logData.put("softMaskRenderMismatch", softMaskRenderMismatch);
                 logData.put("logCode", "potential_problem_with_svg");
                 logData.put("message", "Potential problem with generated SVG");
                 Gson gson = new Gson();
@@ -258,7 +288,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             File tempPng = null;
             String basePresentationame = UUID.randomUUID().toString();
             try {
-                tempPng = File.createTempFile(basePresentationame + "-" + page, ".png");
+                tempPng = createSandboxTempPng(pres, basePresentationame + "-" + page);
             } catch (IOException ioException) {
                 // We should never fall into this if the server is correctly
                 // configured
@@ -274,9 +304,12 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                 log.error(" --analytics-- data={}", logStr, ioException);
             }
 
-            // Step 1: Convert a PDF page to PNG using a raw pdftocairo
-            NuProcessBuilder convertPdfToPng = createConversionProcess("-png", page, source,
-                        tempPng.getAbsolutePath().substring(0, tempPng.getAbsolutePath().lastIndexOf('.')), false,
+            // Step 1: Rasterize the PDF page to PNG using poppler's splash backend (pdftoppm).
+            // We intentionally avoid pdftocairo (cairo backend) here: it misplaces an alpha soft
+            // mask (SMask) whose transparency group carries a /Matrix, dropping the masked content
+            // from the raster as well. The splash backend renders it correctly. See issue #23953.
+            NuProcessBuilder convertPdfToPng = createRasterizationProcess(page, source,
+                        tempPng.getAbsolutePath().substring(0, tempPng.getAbsolutePath().lastIndexOf('.')),
                     convPdfToSvgTimeout);
 
             Pdf2PngPageConverterHandler pngHandler = new Pdf2PngPageConverterHandler("pdf2png-" + pres.getMeetingId() + "-" + pres.getId() + "-" + page);
@@ -293,6 +326,8 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                 log.error("Command execution (convertPdfToPng) exceeded the {} secs timeout for {} page {}.", convPdfToSvgTimeout, pres.getName(), page);
             }
 
+            boolean rasterWritten = false;
+
             if(tempPng.length() > 0) {
                 try  {
                     byte[] pngData = readFileToByteArray(tempPng);
@@ -302,43 +337,51 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                     // Maximum base64 encoded PNG size to embed in the SVG (currently 4MB)
                     int browserLimit = 2 * 2 * 1024 * 1024;
 
-                    if (base64Size > browserLimit) {
-                        log.error("Encoded PNG is too large for the browser");
-                    } else {
-                        int width = MAX_SVG_WIDTH;
-                        int height = MAX_SVG_HEIGHT;
+                    int width = MAX_SVG_WIDTH;
+                    int height = MAX_SVG_HEIGHT;
 
-                        ImageResolution imageResolution = imageResolutionService.identifyImageResolution(tempPng);
-                        log.debug("Identified page {} image {} width={} and height={}", page, pres.getName(), imageResolution.getWidth(), imageResolution.getHeight());
+                    ImageResolution imageResolution = imageResolutionService.identifyImageResolution(tempPng);
+                    log.debug("Identified page {} image {} width={} and height={}", page, pres.getName(), imageResolution.getWidth(), imageResolution.getHeight());
 
+                    if (imageResolution.getWidth() != 0 && imageResolution.getHeight() != 0) {
+                        width = imageResolution.getWidth();
+                        height = imageResolution.getHeight();
+                    }
+
+                    if(imageResolution.getWidth() > MAX_SVG_WIDTH || imageResolution.getHeight() > MAX_SVG_HEIGHT) {
+                        log.info("The image exceeds max dimension allowed, it will be resized.");
+                        imageResizer.resize(tempPng, MAX_SVG_WIDTH + "x" + MAX_SVG_HEIGHT);
+                        imageResolution = imageResolutionService.identifyImageResolution(tempPng);
                         if (imageResolution.getWidth() != 0 && imageResolution.getHeight() != 0) {
                             width = imageResolution.getWidth();
                             height = imageResolution.getHeight();
+                        } else {
+                            log.warn("Image resolution after resize returned 0 for page {} of {}, using defaults {}x{}",
+                                     page, pres.getName(), width, height);
                         }
 
-                        if(imageResolution.getWidth() > MAX_SVG_WIDTH || imageResolution.getHeight() > MAX_SVG_HEIGHT) {
-                            log.info("The image exceeds max dimension allowed, it will be resized.");
-                            imageResizer.resize(tempPng, MAX_SVG_WIDTH + "x" + MAX_SVG_HEIGHT);
-                            imageResolution = imageResolutionService.identifyImageResolution(tempPng);
-                            if (imageResolution.getWidth() != 0 && imageResolution.getHeight() != 0) {
-                                width = imageResolution.getWidth();
-                                height = imageResolution.getHeight();
-                            } else {
-                                log.warn("Image resolution after resize returned 0 for page {} of {}, using defaults {}x{}",
-                                         page, pres.getName(), width, height);
-                            }
+                        // The full size render is the one embedded, shown at the resized dimensions.
+                        // When it is too large, settle for the resized render before giving up.
+                        if (base64Size > browserLimit) {
+                            base64encodedPng = Base64.getEncoder().encodeToString(readFileToByteArray(tempPng));
+                            base64Size = base64encodedPng.getBytes(StandardCharsets.UTF_8).length;
                         }
+                    }
 
+                    if (base64Size > browserLimit) {
+                        log.error("Encoded PNG is too large for the browser");
+                    } else {
                         String svg = createSvgWithEmbeddedPng(base64encodedPng, width, height);
-                        try (FileWriter writer = new FileWriter(destsvg)) {
-                            writer.write(svg);
-                        }
+                        replaceFile(destsvg, svg);
+                        // From here on the vector svg is gone
+                        vectorFallback = false;
+                        rasterWritten = true;
                     }
                 } catch (IOException e) {
                     log.error("Error during conversion from PNG to SVG: {}", e.getMessage());
                 }
 
-                if(destsvg.length() > 0) {
+                if(rasterWritten) {
                     // Step 3: Add SVG namespace to the destination file
                     // Check : https://phabricator.wikimedia.org/T43174
                     NuProcessBuilder addNameSpaceToSVG = new NuProcessBuilder(Arrays.asList(
@@ -369,6 +412,11 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             if(tempPng.exists()) {
                 tempPng.delete();
             }
+
+            if (!done && vectorFallback && destsvg.length() > 0) {
+                log.warn("Rasterization failed for {} page {}, keeping the vector SVG.", pres.getName(), page);
+                done = true;
+            }
         }
 
 
@@ -384,7 +432,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             return true;
         }
 
-        copyBlankSvg(destsvg);
+        writeBlankSvg(destsvg, pres, page, destsvg.length() > 0 ? destsvg : null);
 
         Map<String, Object> logData = new HashMap<String, Object>();
         logData.put("meetingId", pres.getMeetingId());
@@ -412,10 +460,95 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
         rawCommand  += " -q -f " + String.valueOf(page) + " -l " + String.valueOf(page) + " " + source + " " + destFile;
         if (analyze) {
-            rawCommand += " && grep -oE '<image|<path|<use' "+destFile+" | sort | uniq -c ";
+            rawCommand += " && grep -oE '<image|<path|<use|<mask|<filter' "+destFile+" | sort | uniq -c ";
         }
 
         return new NuProcessBuilder(Arrays.asList("/usr/share/bbb-web/run-in-systemd.sh", timeout + "s", "/bin/sh", "-c", rawCommand));
+    }
+
+    // Rasterizes a single PDF page to PNG using poppler's splash backend (pdftoppm) instead of
+    // the cairo backend (pdftocairo -png). The cairo backend drops the content behind some soft
+    // masks (an alpha SMask whose transparency group carries a /Matrix), whereas the splash
+    // backend composites it correctly. "-singlefile" makes pdftoppm write exactly
+    // "<destFileRoot>.png" (no page number suffix), matching the temp file the caller created.
+    // See issue #23953. "-cropbox" renders the page's CropBox, as pdftocairo -svg does for the
+    // vector slides, instead of the whole MediaBox (issue #26507).
+    private NuProcessBuilder createRasterizationProcess(int page, String source, String destFileRoot, long timeout) {
+        String rawCommand = "pdftoppm -cropbox -q -png -singlefile -r " + this.svgResolutionPpi;
+
+        //Resize png resolution to avoid too large files
+        if (this.pngWidthRasterizedSlides != 0) {
+            rawCommand += " -scale-to-x " + this.pngWidthRasterizedSlides + " -scale-to-y -1";
+        }
+
+        rawCommand += " -f " + String.valueOf(page) + " -l " + String.valueOf(page) + " " + source + " " + destFileRoot;
+
+        return new NuProcessBuilder(Arrays.asList("/usr/share/bbb-web/run-in-systemd.sh", timeout + "s", "/bin/sh", "-c", rawCommand));
+    }
+
+    // Renders a single PDF page at low resolution with both poppler backends, cairo (pdftocairo)
+    // and splash (pdftoppm), so the two results can be compared.
+    private NuProcessBuilder createRenderComparisonProcess(int page, String source, String cairoFileRoot,
+            String splashFileRoot, long timeout) {
+        String pageArgs = " -cropbox -q -png -singlefile -scale-to " + RENDER_COMPARISON_SIZE
+                + " -f " + String.valueOf(page) + " -l " + String.valueOf(page) + " " + source + " ";
+        String rawCommand = "pdftocairo" + pageArgs + cairoFileRoot + " && pdftoppm" + pageArgs + splashFileRoot;
+
+        return new NuProcessBuilder(Arrays.asList("/usr/share/bbb-web/run-in-systemd.sh", timeout + "s", "/bin/sh", "-c", rawCommand));
+    }
+
+    // The renders run in run-in-systemd.sh, whose PrivateTmp hides the server's /tmp wherever
+    // systemd can apply it, so a file created there stays empty. Create it next to the uploaded
+    // file instead, under the presentation dir the sandbox can write.
+    private File createSandboxTempPng(UploadedPresentation pres, String prefix) throws IOException {
+        return File.createTempFile(prefix, ".png", pres.getUploadedFile().getParentFile());
+    }
+
+    // Tells whether the cairo backend, the one generating the svg, renders the page noticeably
+    // different from the splash backend. The svg is kept whenever that cannot be determined.
+    private boolean cairoRenderDiffersFromSplash(UploadedPresentation pres, int page, String source, long timeout)
+            throws InterruptedException {
+        File cairoPng = null;
+        File splashPng = null;
+        try {
+            cairoPng = createSandboxTempPng(pres, "cairo-" + page + "-");
+            splashPng = createSandboxTempPng(pres, "splash-" + page + "-");
+
+            NuProcessBuilder renderBoth = createRenderComparisonProcess(page, source,
+                    cairoPng.getAbsolutePath().substring(0, cairoPng.getAbsolutePath().lastIndexOf('.')),
+                    splashPng.getAbsolutePath().substring(0, splashPng.getAbsolutePath().lastIndexOf('.')),
+                    timeout);
+
+            Pdf2PngPageConverterHandler handler = new Pdf2PngPageConverterHandler("pdf2png-compare-" + pres.getMeetingId() + "-" + pres.getId() + "-" + page);
+            renderBoth.setProcessListener(handler);
+            NuProcess process = renderBoth.start();
+            process.waitFor(timeout + 1, TimeUnit.SECONDS);
+
+            if (handler.isCommandTimeout()) {
+                log.error("Command execution (renderComparison) exceeded the {} secs timeout for {} page {}.", timeout, pres.getName(), page);
+            }
+
+            if (cairoPng.length() == 0 || splashPng.length() == 0) {
+                log.warn("Unable to render {} page {} with both backends, keeping the SVG.", pres.getName(), page);
+                return false;
+            }
+
+            boolean differ = SlideRenderComparator.differ(cairoPng, splashPng);
+            if (differ) {
+                log.info("pdftocairo renders {} page {} differently from pdftoppm, slide will be rasterized.", pres.getName(), page);
+            }
+            return differ;
+        } catch (IOException e) {
+            log.warn("Unable to compare the renders of {} page {}, keeping the SVG: {}", pres.getName(), page, e.getMessage());
+            return false;
+        } finally {
+            if (cairoPng != null) {
+                cairoPng.delete();
+            }
+            if (splashPng != null) {
+                splashPng.delete();
+            }
+        }
     }
 
     private NuProcessBuilder createDetectFontType3Process(String source, int page, long timeout) {
@@ -430,20 +563,6 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         return new File(presentationFile.getParent() + File.separatorChar + "svgs");
     }
 
-    private void copyBlankSvgs(File svgssDir, int pageCount) {
-    	File[] svgs = svgssDir.listFiles();
-
-		if (svgs.length != pageCount) {
-			for (int i = 1; i <= pageCount; i++) {
-				File svg = new File(svgssDir.getAbsolutePath() + File.separator + "slide" + i + ".svg");
-				if (!svg.exists()) {
-					log.info("Copying blank svg for slide {}", i);
-					copyBlankSvg(svg);
-				}
-			}
-		}
-    }
-
 	private void copyBlankSvg(File svg) {
 		try {
             log.info("Copying blank SVG to {}", svg);
@@ -452,6 +571,105 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 			log.error("IOException while copying blank SVG.");
 		}
 	}
+
+
+    private static final int PAGE_BOX_TIMEOUT = 5;
+
+    // Writes an empty SVG with the page's own size over `svg`, so a page that falls back to blank keeps its
+    // proportions in the client and in pres_page (issue #26509). The size comes from the SVG being discarded
+    // when there is one (pdftocairo's root carries width, height and viewBox), else from the page box pdfinfo
+    // reports; the packaged A4 blank-svg.svg stays the last resort.
+    private void writeBlankSvg(File svg, UploadedPresentation pres, int page, File discardedSvg) {
+        String[] size = null;
+        if (discardedSvg != null && discardedSvg.isFile() && discardedSvg.length() > 0) {
+            size = readSvgRootSize(discardedSvg);
+        }
+        if (size == null && pres != null) {
+            size = readPdfPageBox(pres, page);
+        }
+        if (size == null) {
+            copyBlankSvg(svg);
+            return;
+        }
+        String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                + "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\""
+                + " width=\"" + size[0] + "\" height=\"" + size[1] + "\" viewBox=\"" + size[2] + "\">\n</svg>\n";
+        try {
+            log.info("Writing blank SVG ({} x {}) to {}", size[0], size[1], svg);
+            replaceFile(svg, content);
+        } catch (IOException e) {
+            log.error("IOException while writing blank SVG {}, using the packaged blank instead", svg, e);
+            copyBlankSvg(svg);
+        }
+    }
+
+    // {width, height, viewBox} of the root <svg> element, or null when they cannot be read.
+    private String[] readSvgRootSize(File svg) {
+        XMLInputFactory factory = XMLInputFactory.newFactory();
+        factory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
+        factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
+        try (InputStream in = new BufferedInputStream(new FileInputStream(svg))) {
+            XMLStreamReader reader = factory.createXMLStreamReader(in);
+            try {
+                while (reader.hasNext()) {
+                    if (reader.next() != XMLStreamConstants.START_ELEMENT) {
+                        continue;
+                    }
+                    if (!"svg".equalsIgnoreCase(reader.getLocalName())) {
+                        return null;
+                    }
+                    String width = reader.getAttributeValue(null, "width");
+                    String height = reader.getAttributeValue(null, "height");
+                    String viewBox = reader.getAttributeValue(null, "viewBox");
+                    if (width == null || height == null || width.isEmpty() || height.isEmpty()) {
+                        return null;
+                    }
+                    if (viewBox == null || viewBox.isEmpty()) {
+                        viewBox = "0 0 " + width.replaceAll("[^0-9.]", "") + " " + height.replaceAll("[^0-9.]", "");
+                    }
+                    return new String[] { width, height, viewBox };
+                }
+            } finally {
+                reader.close();
+            }
+        } catch (Exception e) {
+            log.warn("Could not read the size of {}: {}", svg, e.toString());
+        }
+        return null;
+    }
+
+    // The displayed size of a PDF page in points (its CropBox, rotation applied) from pdfinfo, or null.
+    private String[] readPdfPageBox(UploadedPresentation pres, int page) {
+        File pdf = pres.getUploadedFile();
+        if (pdf == null || !pdf.isFile()) {
+            return null;
+        }
+        NuProcessBuilder pdfInfo = new NuProcessBuilder(Arrays.asList("/usr/share/bbb-web/run-in-systemd.sh",
+                String.valueOf(PAGE_BOX_TIMEOUT), "pdfinfo", "-f", String.valueOf(page), "-l", String.valueOf(page),
+                "-box", pdf.getAbsolutePath()));
+        PdfPageBoxHandler handler = new PdfPageBoxHandler("pdfpagebox-" + pres.getMeetingId() + "-" + pres.getId() + "-" + page, page);
+        pdfInfo.setProcessListener(handler);
+        NuProcess process = pdfInfo.start();
+        try {
+            process.waitFor(PAGE_BOX_TIMEOUT + 1, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            log.error("InterruptedException while reading the page box of {} page {}", pres.getName(), page, e);
+            return null;
+        }
+        double[] points = handler.pageSize();
+        if (points == null) {
+            return null;
+        }
+        String width = formatPoints(points[0]);
+        String height = formatPoints(points[1]);
+        return new String[] { width, height, "0 0 " + width + " " + height };
+    }
+
+    // "960" for 960.0 and "595.28" for 595.28, the way pdftocairo writes its root attributes.
+    private static String formatPoints(double value) {
+        String s = String.format(Locale.ROOT, "%.2f", value);
+        return s.replaceAll("0+$", "").replaceAll("\\.$", "");
+    }
 
     private byte[] readFileToByteArray(File file) throws IOException {
         try (FileInputStream fis = new FileInputStream(file);
@@ -462,6 +680,18 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                 bos.write(buffer, 0, bytesRead);
             }
             return bos.toByteArray();
+        }
+    }
+
+    // Writes the content next to the file and moves it over the file only once complete, so
+    // that a failed write leaves the file as it was
+    static void replaceFile(File file, String content) throws IOException {
+        Path temp = Paths.get(file.getAbsolutePath() + ".tmp");
+        try {
+            Files.writeString(temp, content);
+            Files.move(temp, file.toPath(), StandardCopyOption.ATOMIC_MOVE);
+        } finally {
+            temp.toFile().delete();
         }
     }
 
@@ -493,6 +723,14 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
     public void setPathsThreshold(long threshold) {
         pathsThreshold = threshold;
+    }
+
+    public void setMaskTagThreshold(long threshold) {
+        maskTagThreshold = threshold;
+    }
+
+    public void setFilterTagThreshold(long threshold) {
+        filterTagThreshold = threshold;
     }
     
     public void setSlidesGenerationProgressNotifier(

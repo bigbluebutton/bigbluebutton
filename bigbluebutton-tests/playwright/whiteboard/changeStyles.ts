@@ -19,6 +19,10 @@ export class ChangeStyles extends DrawShape {
       await this.modPage.page.$eval(referenceDrawnShape, (element) => getComputedStyle(element).stroke),
       'should the color of the shape be red',
     ).toBe('rgb(224, 49, 49)');
+    await expect(
+      this.userPage.page.locator(referenceDrawnShape).first(),
+      'should the color of the shape be red for the viewer',
+    ).toHaveCSS('stroke', 'rgb(224, 49, 49)');
     await snapshotComparison(this.modPage, this.userPage, 'change-color');
   }
 
@@ -34,6 +38,10 @@ export class ChangeStyles extends DrawShape {
       await this.modPage.page.$eval(referenceDrawnShape, (element) => getComputedStyle(element).fill),
       'should the inner color of the shape be gray',
     ).toBe('rgb(232, 232, 232)');
+    await expect(
+      this.userPage.page.locator(referenceDrawnShape).first(),
+      'should the inner color of the shape be gray for the viewer',
+    ).toHaveCSS('fill', 'rgb(232, 232, 232)');
     await snapshotComparison(this.modPage, this.userPage, 'fill-drawing');
   }
 
@@ -49,6 +57,10 @@ export class ChangeStyles extends DrawShape {
       await this.modPage.page.$eval(referenceDrawnShape, (element) => getComputedStyle(element).strokeDasharray),
       'should the shape be dashed',
     ).not.toBe('none');
+    await expect(
+      this.userPage.page.locator(referenceDrawnShape).first(),
+      'should the shape be dashed for the viewer',
+    ).not.toHaveCSS('stroke-dasharray', 'none');
     await snapshotComparison(this.modPage, this.userPage, 'dash-drawing');
   }
 
@@ -64,6 +76,10 @@ export class ChangeStyles extends DrawShape {
       await this.modPage.page.$eval(referenceDrawnShape, (element) => getComputedStyle(element).strokeWidth),
       'should the shape be with a larger stroke',
     ).toBe('5px');
+    await expect(
+      this.userPage.page.locator(referenceDrawnShape).first(),
+      'should the shape be with a larger stroke for the viewer',
+    ).toHaveCSS('stroke-width', '5px');
     await snapshotComparison(this.modPage, this.userPage, 'size-drawing');
   }
 }

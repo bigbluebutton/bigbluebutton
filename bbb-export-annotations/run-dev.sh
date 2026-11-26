@@ -15,4 +15,8 @@ if [ ! -d ./node_modules ] || ! npm ls --depth=0 >/dev/null 2>&1; then
 fi
 
 sudo systemctl stop bbb-export-annotations
+
+# Same config lookup as the systemd unit
+export NODE_ENV=production
+export NODE_CONFIG_DIR=$PWD/config/:/etc/bigbluebutton/bbb-export-annotations/
 npm start

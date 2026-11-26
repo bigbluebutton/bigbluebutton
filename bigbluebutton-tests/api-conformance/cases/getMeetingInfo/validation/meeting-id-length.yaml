@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A meetingID outside 2 to 256 characters also names no meeting, so it fails
+# two checks and bbb-web reports one of them. Which one is recorded, not
+# compared: the intended answer is still to be decided (the triage tag).
+id: getMeetingInfo.validation.meeting-id-length
+title: getMeetingInfo with a meetingID of ${len} characters
+endpoint: getMeetingInfo
+class: compat
+tags: [triage]
+variants:
+  - {id: too-short, vars: {len: 1}}
+  - {id: too-long, vars: {len: 257}}
+steps:
+  - call: getMeetingInfo
+    params: {meetingID: '${repeat("z", len)}'}
+    golden: document
+    expect: {returncode: FAILED, messageKey: {regex: '^(notFound|sizeError)$'}}

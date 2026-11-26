@@ -1,0 +1,27 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# notifyRecordingAppend, the text added to the recording notice, reaches
+# akka-apps' meeting props trimmed.
+id: create.strings.notify-recording-append
+title: create with notifyRecordingAppend ${scenario}
+endpoint: create
+class: compat
+tags: [ci]
+requires: [akka, bus]
+variants:
+  - {id: given, vars: {scenario: given, text: Recorded for review}, class: contract}
+  - {id: padded, vars: {scenario: padded with spaces, text: "  Recorded for review  "}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Strings, notifyRecordingAppend: "${text}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.props.meetingProp.notifyRecordingAppend]
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

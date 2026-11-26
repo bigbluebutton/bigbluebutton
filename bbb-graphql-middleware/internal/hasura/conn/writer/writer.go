@@ -13,6 +13,7 @@ import (
 
 	"bbb-graphql-middleware/config"
 	"bbb-graphql-middleware/internal/common"
+	"bbb-graphql-middleware/internal/subscriptionlimit"
 
 	"github.com/coder/websocket"
 	"github.com/graphql-go/graphql/language/ast"
@@ -90,8 +91,10 @@ RangeLoop:
 					queryId := browserMessage.ID
 
 					// Rate limiter from config max_connection_queries_per_minute
-					ctxRateLimiter, _ := context.WithTimeout(hc.Context, 30*time.Second)
-					if err := hc.BrowserConn.FromBrowserToHasuraRateLimiter.Wait(ctxRateLimiter); err != nil {
+					ctxRateLimiter, cancelRateLimiter := context.WithTimeout(hc.Context, 30*time.Second)
+					errRateLimiter := hc.BrowserConn.FromBrowserToHasuraRateLimiter.Wait(ctxRateLimiter)
+					cancelRateLimiter()
+					if errRateLimiter != nil {
 						sendErrorMessage(
 							browserConnection,
 							queryId,
@@ -133,14 +136,57 @@ RangeLoop:
 						}
 					}
 
+					if len(browserMessage.Payload.Variables) > 0 {
+						variablesLength, variablesErr := validateOperationVariablesLength(
+							query,
+							browserMessage.Payload.OperationName,
+							browserMessage.Payload.Variables,
+							config.GetConfig().Server.MaxQueryVariablesLength,
+						)
+						if variablesErr != nil {
+							sendErrorMessage(
+								browserConnection,
+								queryId,
+								fmt.Sprintf(
+									"Query %s is not valid with variables length %d and the max allowed is %d",
+									browserMessage.Payload.OperationName,
+									variablesLength,
+									config.GetConfig().Server.MaxQueryVariablesLength,
+								),
+							)
+							continue
+						}
+					}
+
 					if query != "" {
 						if strings.HasPrefix(query, "subscription") {
-							if config.GetConfig().Server.MaxConnectionConcurrentSubscriptions > 0 {
+							browserConnection.ActiveSubscriptionsMutex.RLock()
+							existingSubscriptionData, queryIdExists := browserConnection.ActiveSubscriptions[queryId]
+							browserConnection.ActiveSubscriptionsMutex.RUnlock()
+
+							if !queryIdExists && config.GetConfig().Server.MaxConnectionConcurrentSubscriptions > 0 {
 								browserConnection.ActiveSubscriptionsMutex.RLock()
 								totalOfActiveSubscriptions := len(browserConnection.ActiveSubscriptions)
 								browserConnection.ActiveSubscriptionsMutex.RUnlock()
 
 								if totalOfActiveSubscriptions >= config.GetConfig().Server.MaxConnectionConcurrentSubscriptions {
+									// Log what is holding the slots once per connection, so the cause can be
+									// identified without flooding the log on every rejected subscription.
+									if browserConnection.SubscriptionLimitLogged.CompareAndSwap(false, true) {
+										browserConnection.ActiveSubscriptionsMutex.RLock()
+										operationNames := make([]string, 0, len(browserConnection.ActiveSubscriptions))
+										for _, subscription := range browserConnection.ActiveSubscriptions {
+											operationNames = append(operationNames, subscription.OperationName)
+										}
+										browserConnection.ActiveSubscriptionsMutex.RUnlock()
+
+										browserConnection.Logger.
+											WithField("rejectedOperation", browserMessage.Payload.OperationName).
+											WithField("activeSubscriptions", len(operationNames)).
+											WithField("activeSubscriptionsByOperation", subscriptionlimit.SummarizeByOperation(operationNames)).
+											Warn("Concurrent subscription limit reached")
+									}
+
 									sendErrorMessage(
 										browserConnection,
 										queryId,
@@ -173,9 +219,6 @@ RangeLoop:
 
 							messageType = common.Subscription
 
-							browserConnection.ActiveSubscriptionsMutex.RLock()
-							existingSubscriptionData, queryIdExists := browserConnection.ActiveSubscriptions[queryId]
-							browserConnection.ActiveSubscriptionsMutex.RUnlock()
 							if queryIdExists {
 								lastReceivedDataChecksum = existingSubscriptionData.LastReceivedDataChecksum
 								lastReceivedData = existingSubscriptionData.LastReceivedData
@@ -268,15 +311,13 @@ RangeLoop:
 					// hc.BrowserConn.Logger.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
 					browserConnection.ActiveSubscriptionsMutex.Unlock()
 
+					// Iterate the canonical list rather than naming the streams here, so a stream
+					// cannot be added to the list and missed in this teardown.
 					browserConnection.ActiveStreamingsMutex.Lock()
-					if removed, newActiveStreamings := removeValueFromSlice(browserConnection.ActiveStreamings, "getCursorCoordinatesStream", browserMessage.ID); removed {
-						browserConnection.ActiveStreamings = newActiveStreamings
-					}
-					if removed, newActiveStreamings := removeValueFromSlice(browserConnection.ActiveStreamings, "getNotificationStream", browserMessage.ID); removed {
-						browserConnection.ActiveStreamings = newActiveStreamings
-					}
-					if removed, newActiveStreamings := removeValueFromSlice(browserConnection.ActiveStreamings, "getChatMessageStream", browserMessage.ID); removed {
-						browserConnection.ActiveStreamings = newActiveStreamings
+					for _, operationName := range config.StreamingSubscriptionsManagedByMiddleware {
+						if removed, newActiveStreamings := removeValueFromSlice(browserConnection.ActiveStreamings, operationName, browserMessage.ID); removed {
+							browserConnection.ActiveStreamings = newActiveStreamings
+						}
 					}
 					browserConnection.ActiveStreamingsMutex.Unlock()
 				}
@@ -287,7 +328,7 @@ RangeLoop:
 					continue
 				}
 
-				if !hc.BrowserConn.CurrentlyInMeeting && // avoid sending to Hasura subscriptions that user doesn't have permission
+				if !hc.BrowserConn.IsCurrentlyInMeeting() && // avoid sending to Hasura subscriptions that user doesn't have permission
 					browserMessage.Type == "subscribe" &&
 					!slices.Contains(config.AllowedSubscriptionsForNotInMeetingUsers, browserMessage.Payload.OperationName) {
 					hc.BrowserConn.Logger.Debugf("Not sending to Hasura %s because the user is not in meeting", browserMessage.Payload.OperationName)
@@ -306,6 +347,52 @@ RangeLoop:
 			}
 		}
 	}
+}
+
+func validateQueryVariablesLength(variables map[string]interface{}, maxLength int) (int, error) {
+	encoded, err := json.Marshal(variables)
+	if err != nil {
+		return 0, fmt.Errorf("failed to encode variables: %w", err)
+	}
+
+	length := len(encoded)
+	if maxLength > 0 && length > maxLength {
+		return length, fmt.Errorf("variables length %d exceeds maximum %d", length, maxLength)
+	}
+
+	return length, nil
+}
+
+func validateOperationVariablesLength(query string, operationName string, variables map[string]interface{}, maxLength int) (int, error) {
+	if selectedOperationIsMutation(query, operationName) {
+		return 0, nil
+	}
+
+	return validateQueryVariablesLength(variables, maxLength)
+}
+
+func selectedOperationIsMutation(query string, operationName string) bool {
+	src := source.NewSource(&source.Source{
+		Body: []byte(query),
+		Name: "GraphQL query",
+	})
+	astDoc, err := parser.Parse(parser.ParseParams{Source: src})
+	if err != nil {
+		return false
+	}
+
+	operations := make([]*ast.OperationDefinition, 0)
+	for _, definition := range astDoc.Definitions {
+		operation, ok := definition.(*ast.OperationDefinition)
+		if !ok {
+			continue
+		}
+		if operationName == "" || operation.Name != nil && operation.Name.Value == operationName {
+			operations = append(operations, operation)
+		}
+	}
+
+	return len(operations) == 1 && operations[0].Operation == ast.OperationTypeMutation
 }
 
 func saveContentToFile(subDir string, filename string, contentInBytes []byte) error {
@@ -389,7 +476,7 @@ func traverseSelectionSet(selectionSet *ast.SelectionSet, currentDepth int) int 
 }
 
 func sendErrorMessage(browserConnection *common.BrowserConnection, messageId string, errorMessage string) {
-	browserConnection.Logger.Errorf(errorMessage)
+	browserConnection.Logger.Error(errorMessage)
 
 	// Error on sending action, return error msg to client
 	browserResponseData := map[string]interface{}{

@@ -345,13 +345,17 @@ The easiest way to get your own BigBlueButton server under OS X is to install VM
 
 BigBlueButton runs within the default Chrome browser (no app to install) on Android 6.0+. You can test this at [https://demo.bigbluebutton.org/](https://demo.bigbluebutton.org/).
 
-All the features of BigBlueButton are available on Android except screen sharing (Chrome does not support screen sharing on Android).
+All the features of BigBlueButton are available on Android except screen sharing. Administrators can opt in to
+experimental mobile screen sharing with `public.media.screenshare.enableOnMobile`, but the button is only shown
+when the browser exposes the required screen capture API. Chrome on Android does not currently expose that API.
 
 #### iOS
 
-BigBlueButton runs within the default Safari Mobile browser (no app to install) on iOS 12.2+. You can test this at [https://demo.bigbluebutton.org/](https://demo.bigbluebutton.org/).
+BigBlueButton runs within the default Safari Mobile browser (no app to install) on iOS 14.5+.
 
-All the features of BigBlueButton are available on iOS except screen sharing (Safari Mobile does not support screen sharing on iOS).
+Screen sharing on iOS and iPadOS is experimental. Administrators can enable it with
+`public.media.screenshare.enableOnMobile`; the screen sharing button is then shown when Safari exposes the required
+screen capture API. The setting is disabled by default.
 
 ### Bandwidth Requirements
 
@@ -563,7 +567,9 @@ We designed BigBlueButton to be accessible to users with visual and/or audible d
 
 BigBlueButton supports both JAWS and NVDA screen readers. When using a screen reader, we recommend using Internet Explorer or the 32-bit version of FireFox. The 64-bit versions of FireFox and Chrome make it harder for screen readers to interact with the BigBlueButton client.
 
-BigBlueButton supports [live closed captioning](https://www.youtube.com/watch?time_continue=1&v=feC_zm1y3N4). A stenographer can join the session and provide a live caption stream to all users (you can have multiple stenographers simultaneously providing captioning in multiple languages). Later on, when BigBlueButton processes the recording, it will convert the closed captions to subtitles in the playback.
+BigBlueButton supports automatic live captions. When they are enabled on the server, users can choose a transcription language when joining audio, and their speech is captioned for the other users in the session (see [Enable live captions](/administration/customize#enable-live-captions)). Later on, when BigBlueButton processes the recording, it will convert these captions to subtitles in the playback. A panel with the full running transcript is available through the [Live Transcription plugin](https://github.com/bigbluebutton/bbb-plugin-live-transcription).
+
+Captions typed by a person, such as a stenographer, are no longer built in as of BigBlueButton 3.0. They are available through the [Typed captions plugin](https://github.com/bigbluebutton/bbb-plugin-typed-captions).
 
 For a full statement on our accessibility see [https://bigbluebutton.org/accessibility/](https://bigbluebutton.org/accessibility/).
 
@@ -573,7 +579,9 @@ For a full statement on our accessibility see [https://bigbluebutton.org/accessi
 
 BigBlueButton using WebRTC for sharing audio, video, and screen. You should be able to share your screen using Chrome, FireFox, and the newest version of Edge (based on Chromium). You don't need to install any plugin or download any additional binary to share your screen.
 
-At the time of this writing, you can view the presenter's screen on mobile devices, but not share the mobile screen.
+You can view the presenter's screen on mobile devices. Sharing from a mobile device is experimental and disabled by
+default; administrators can opt in with `public.media.screenshare.enableOnMobile` on browsers that expose the
+required screen capture API.
 
 #### Can I share a specific window when sharing my desktop?
 
@@ -595,7 +603,7 @@ When you upload a PowerPoint document, BigBlueButton will convert it to PDF (usi
 
 The conversion to PDF will remove any animations (visual or audio), links, and embedded content. At the end of the conversion, you'll see the final slide within BigBlueButton. Splitting the animated slide into multiple slides with intermediate animation steps using plugins such as [PPspliT](https://github.com/maxonthegit/PPspliT) would be a good option. Alternatively, you can share the screen showing a PowerPoint presentation; BBB can share not only the animation and video, but also the audio for most of the compatible browsers.
 
-As the presenter, if you want to share a YouTube or Vimeo video, use the built-in `Share an external video` feature (Select the '+' button to see this option).
+As the presenter, if you want to share a YouTube, Vimeo or Panopto video, use the built-in `Share an external video` feature (Select the '+' button to see this option).
 
 #### I uploaded a document but some fonts are missing after conversion
 
@@ -668,11 +676,11 @@ Both these browsers support web real-time communications (WebRTC) audio. BigBlue
 
 #### Where is the record button?
 
-In BigBlueButton, the external application that uses the BigBlueButton API can now pass an additional parameter `record=true` when creating a session. This additional parameter instructs the BigBlueButton server to record the session and make a recording available through subsequent [getRecordings](/development/api#getrecordings) calls.
+In BigBlueButton, the external application that uses the BigBlueButton API can now pass an additional parameter `record=true` when creating a session. This additional parameter instructs the BigBlueButton server to record the session and make a recording available through subsequent [getRecordings](/development/api#get-getrecordings) calls.
 
 There is no user interface for the presenter to turn on or turn off a recording.
 
-When instructed through the API call, the BigBlueButton server will record all of the meeting, from the time the first person joins to when the last person leaves. A meeting may also end when it reaches its duration or the [end](/development/api#end) is called on the meeting.
+When instructed through the API call, the BigBlueButton server will record all of the meeting, from the time the first person joins to when the last person leaves. A meeting may also end when it reaches its duration or the [end](/development/api#get-post-end) is called on the meeting.
 
 #### What parts of the session does BigBlueButton record?
 
@@ -775,7 +783,7 @@ You can checkout the latest code from Git. See [BigBlueButton GitHub repository]
 
 #### Users do not appear in the listeners window
 
-For a user to appear in the listener's window, the 3rd party application using the BigBlueButton API to create a room must pass a `voiceBridge` parameter with the `create` call. See [create meeting](/development/api#create) call.
+For a user to appear in the listener's window, the 3rd party application using the BigBlueButton API to create a room must pass a `voiceBridge` parameter with the `create` call. See [create meeting](/development/api#get-post-create) call.
 
 Next, BigBlueButton must successfully connect to FreeSWITCH's SIP port and FreeSWITCH's Event Socket Layer. To resolve connection problems, see question below.
 

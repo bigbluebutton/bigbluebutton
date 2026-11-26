@@ -1,0 +1,10 @@
+# want: 8: steps[0]: tag a case with restore steps serial
+# want: 10: teardown[0]: tag a case with restore steps serial
+id: getRecordings.x.y
+title: t
+endpoint: getRecordings
+class: contract
+steps:
+  - restore: {recordings: [rec-a]}
+teardown:
+  - restore: {recordings: [rec-a]}

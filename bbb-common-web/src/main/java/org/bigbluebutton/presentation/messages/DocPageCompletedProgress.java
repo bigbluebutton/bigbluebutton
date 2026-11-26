@@ -1,5 +1,7 @@
 package org.bigbluebutton.presentation.messages;
 
+import java.util.List;
+
 public class DocPageCompletedProgress implements IDocConversionMsg {
   public final String podId;
   public final String meetingId;
@@ -17,13 +19,15 @@ public class DocPageCompletedProgress implements IDocConversionMsg {
   public final Boolean current;
   public final Boolean defaultPresentation;
   public final String filenameConverted;
+  // Ids of the pages, in page order; empty when the upload produced no page.
+  public final List<String> pageIds;
 
 
   public DocPageCompletedProgress(String podId, String meetingId, String presId, String temporaryPresentationId, String presInstance,
                                   String filename, String uploaderId, String authzToken,
                                   Boolean downloadable, Boolean removable, String key,
                                   Integer numPages, String presBaseUrl, Boolean current, 
-                                  Boolean defaultPresentation, String filenameConverted) {
+                                  Boolean defaultPresentation, String filenameConverted, List<String> pageIds) {
     this.podId = podId;
     this.meetingId = meetingId;
     this.presId = presId;
@@ -40,5 +44,6 @@ public class DocPageCompletedProgress implements IDocConversionMsg {
     this.current = current;
     this.defaultPresentation = defaultPresentation;
     this.filenameConverted = filenameConverted;
+    this.pageIds = pageIds;
   }
 }

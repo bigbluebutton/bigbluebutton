@@ -1,5 +1,7 @@
-import React, { useCallback, useEffect, useRef } from 'react';
-import { makeVar, useReactiveVar } from '@apollo/client';
+import React, {
+  useCallback, useEffect, useRef, useState, useSyncExternalStore,
+} from 'react';
+import { makeVar } from '@apollo/client';
 
 export type ModalPriority =
   | 'critical'
@@ -67,8 +69,8 @@ class ModalController {
     let createdUniqueId = '';
     updateState((prev) => {
       const now = Date.now();
-      const seq = this.requestSeq + 1;
-      const uniqueId = ModalController.buildUniqueId(id, now, seq);
+      this.requestSeq += 1;
+      const uniqueId = ModalController.buildUniqueId(id, now, this.requestSeq);
       const reg: ModalRegistration = {
         id,
         uniqueId,
@@ -102,11 +104,12 @@ class ModalController {
       if (!m) return prev;
 
       const isFirstOpenAsk = desired && !m.desiredOpen;
+      if (isFirstOpenAsk) this.requestSeq += 1;
       const nextM: ModalRegistration = {
         ...m,
         desiredOpen: desired,
         requestedAt: isFirstOpenAsk ? Date.now() : m.requestedAt,
-        requestedSeq: isFirstOpenAsk ? this.requestSeq + 1 : m.requestedSeq,
+        requestedSeq: isFirstOpenAsk ? this.requestSeq : m.requestedSeq,
       };
 
       return this.compute(prev, { byKey: { ...prev.byKey, [uniqueId]: nextM } });
@@ -167,11 +170,18 @@ class ModalController {
       const isOpen = openKeys.includes(m.uniqueId);
       const stackIndex = isOpen ? openKeys.indexOf(m.uniqueId) : null;
       const qPos = m.desiredOpen ? (candidateIndex[m.uniqueId] ?? null) : null;
+      const position = m.desiredOpen ? ((isOpen && (stackIndex as number)) || (qPos as number)) : null;
 
-      newByKey[m.uniqueId] = {
+      const unchanged = m.actualOpen === isOpen
+        && m.position === position
+        && m.queuedPosition === qPos;
+
+      // An unchanged registration keeps its object, which is how a hook tells
+      // that its own modal changed.
+      newByKey[m.uniqueId] = unchanged ? m : {
         ...m,
         actualOpen: isOpen,
-        position: m.desiredOpen ? ((isOpen && (stackIndex as number)) || (qPos as number)) : null,
+        position,
         queuedPosition: qPos,
       };
     });
@@ -182,6 +192,16 @@ class ModalController {
 
 // Singleton instance using static weights
 export const controller = new ModalController(PRIORITY_WEIGHTS);
+
+// onNextChange calls a listener once, so it re-adds itself; being the same
+// function, the remover returned by the first call still removes it.
+const subscribeToModalState = (onStoreChange: () => void) => {
+  const onNext = () => {
+    onStoreChange();
+    modalStateVar.onNextChange(onNext);
+  };
+  return modalStateVar.onNextChange(onNext);
+};
 
 /**
  * useModalRegistration
@@ -206,20 +226,26 @@ export function useModalRegistration({
   setPriority: (p: ModalPriority) => void;
 } {
   const uniqueRef = useRef<string | null>(null);
+  // register() notifies subscribers before it returns the id, so the selector
+  // takes the id from state; the callbacks keep reading the ref.
+  const [registeredId, setRegisteredId] = useState<string | null>(null);
   const previousFocusRef = useRef<Element | null>(null);
 
   useEffect(() => {
     const uniqueId = controller.register(id, priority);
     uniqueRef.current = uniqueId;
+    setRegisteredId(uniqueId);
     return () => {
       if (uniqueRef.current) controller.unregister(uniqueRef.current);
       uniqueRef.current = null;
     };
   }, [id, priority]);
 
-  const slice = useReactiveVar(modalStateVar);
-  const uniqueId = uniqueRef.current;
-  const my = uniqueId ? slice.byKey[uniqueId] : undefined;
+  const getMyRegistration = useCallback(
+    () => (registeredId ? modalStateVar().byKey[registeredId] : undefined),
+    [registeredId],
+  );
+  const my = useSyncExternalStore(subscribeToModalState, getMyRegistration);
 
   const open = useCallback(() => {
     previousFocusRef.current = document.activeElement;

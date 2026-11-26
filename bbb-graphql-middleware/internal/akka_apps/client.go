@@ -3,11 +3,13 @@ package akka_apps
 import (
 	"bbb-graphql-middleware/config"
 	"encoding/json"
+	"errors"
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"time"
 )
 
 var sessionVarsHookUrl = config.GetConfig().SessionVarsHook.Url
@@ -24,8 +26,8 @@ func AkkaAppsGetSessionVariablesFrom(browserConnectionId string, sessionToken st
 	logger.Debug("Starting AkkaAppsClient")
 	defer logger.Debug("Finished AkkaAppsClient")
 
-	// Create a new HTTP client with a cookie jar.
-	client := &http.Client{}
+	// The timeout is required: the caller cannot settle its session variables until this returns.
+	client := &http.Client{Timeout: 5 * time.Second}
 
 	// Check if the session_vars hook URL is set.
 	if sessionVarsHookUrl == "" {
@@ -71,7 +73,7 @@ func AkkaAppsGetSessionVariablesFrom(browserConnectionId string, sessionToken st
 	}
 	if response != "authorized" {
 		logger.Errorf("not authorized: Response: %s, Message: %s, MessageId: %s", response, message, messageId)
-		return nil, fmt.Errorf(message), messageId
+		return nil, errors.New(message), messageId
 	}
 
 	// Normalize the response header keys.

@@ -1,16 +1,17 @@
 import {
   colorGrayUserListToolbar, btnDefaultColor, btnPrimaryBg, btnPrimaryColor,
-  colorText, colorBlueAux,
+  colorText, colorBlueAux, defaultBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { borderSize, borderSizeLarge } from '/imports/ui/stylesheets/styled-components/general';
 import { ButtonBase } from '@mui/material';
 import styled from 'styled-components';
 
-const btnBorder = 'var(--btn-default-border, #B0BDC9)';
-
 // Outer container for the media button.
+// As wide as its grid cell (at least the 5rem it used to be), so the label has
+// the whole column to wrap in.
 const MediaButtonContainer = styled.div`
-  width: 5rem;
+  width: 100%;
+  min-width: 5rem;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -26,7 +27,7 @@ const ButtonFrame = styled(ButtonBase)<ButtonFrameProps>`
   width: 4.5rem;
   height: 4.5rem;
   border-radius: 16px !important;
-  border: 1px solid ${btnBorder} !important;
+  border: 1px solid var(--btn-default-border, ${defaultBorder}) !important;
   padding: 0.5rem !important;
   box-sizing: border-box;
   display: flex;
@@ -127,7 +128,7 @@ const ButtonText = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
 `;
 

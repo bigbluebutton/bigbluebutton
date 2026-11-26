@@ -3,6 +3,7 @@ package org.bigbluebutton.core.apps.users
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.models.{ VoiceUserState, VoiceUsers }
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
+import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait UserDisconnectedFromGlobalAudioMsgHdlr {
@@ -37,7 +38,8 @@ trait UserDisconnectedFromGlobalAudioMsgHdlr {
         liveMeeting.props.voiceProp.voiceConf,
         user.intId,
         None,
-        leftVoiceConf = true
+        leftVoiceConf = true,
+        hideUserList = MeetingStatus2x.getPermissions(liveMeeting.status).hideUserList
       )
       outGW.send(eventUserVoiceStatus)
     }

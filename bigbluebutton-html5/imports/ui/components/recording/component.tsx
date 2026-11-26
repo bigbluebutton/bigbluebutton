@@ -99,6 +99,9 @@ const RecordingComponent: React.FC<RecordingComponentProps> = ({
         autoClose: false,
         closeButton: false,
         closeOnClick: false,
+        // Only its buttons may close it: a swipe would skip onRequestClose and
+        // leave the recording button held open.
+        draggable: false,
         disablePointer: true,
         toastId: recordingToastId,
       },

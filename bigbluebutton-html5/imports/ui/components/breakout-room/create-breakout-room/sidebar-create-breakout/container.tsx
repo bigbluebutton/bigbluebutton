@@ -52,6 +52,7 @@ const SidebarCreateBreakoutContainer: React.FC = () => {
   const { data: presentationData } = useDeduplicatedSubscription<
     PresentationsSubscriptionResponse>(PRESENTATIONS_SUBSCRIPTION);
   const presentations = presentationData?.pres_presentation || [];
+  // Unfiltered on purpose: `current` is only set after conversion completes, so a rejected upload is never current.
   const currentPresentation = presentations.find(
     (p: Presentation) => p.current,
   )?.presentationId || '';
@@ -86,9 +87,13 @@ const SidebarCreateBreakoutContainer: React.FC = () => {
   return (
     <SidebarCreateBreakout
       users={(usersData?.filter((u) => !u.bot) ?? []) as BreakoutUser[]}
-      presentations={presentations}
+      presentations={presentations.filter((p) => p && p.uploadCompleted)}
       currentPresentation={currentPresentation}
       isBreakoutRecordable={currentMeeting?.breakoutPolicies?.record ?? true}
+      meetingCapturesSlides={currentMeeting?.breakoutPolicies?.captureSlides ?? false}
+      meetingCapturesNotes={currentMeeting?.breakoutPolicies?.captureNotes ?? false}
+      meetingSlidesFilename={currentMeeting?.breakoutPolicies?.captureSlidesFilename ?? ''}
+      meetingNotesFilename={currentMeeting?.breakoutPolicies?.captureNotesFilename ?? ''}
       groups={meetingGroupData?.meeting_group ?? []}
       durationInSeconds={currentMeeting?.durationInSeconds ?? 0}
       createdTime={currentMeeting?.createdTime ?? 0}

@@ -7,10 +7,12 @@ import {
   toastMargin,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  colorWhite,
+  colorBlack,
   colorGrayLighter,
-  colorGrayLight,
+  colorGrayLightSurface,
   colorPrimary,
+  colorWhite,
+  colorWhiteBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   fontSizeXL,
@@ -28,14 +30,14 @@ const ButtonAvatar = styled.div`
   width: ${avatarSide};
   height: ${avatarSide};
   color: ${colorWhite};
-  border: solid ${borderSize} ${colorWhite};
+  border: solid ${borderSize} ${colorWhiteBorder};
   margin-left: ${avatarInset};
   text-align: center;
 `;
 
 const Avatar = styled(UserAvatar)`
   padding: 0.75rem 0;
-  border: solid ${borderSize} ${colorWhite};
+  border: solid ${borderSize} ${colorWhiteBorder};
   &:hover,
   &:focus {
     border: solid ${borderSize} ${colorGrayLighter};
@@ -43,7 +45,7 @@ const Avatar = styled(UserAvatar)`
 `;
 
 const AvatarsExtra = styled.div`
-  background-color: ${colorGrayLight};
+  background-color: ${colorGrayLightSurface};
   outline: transparent;
   outline-style: dotted;
   outline-width: ${borderSize};
@@ -51,7 +53,7 @@ const AvatarsExtra = styled.div`
   height: ${avatarSide};
   color: ${colorWhite};
   border-radius: 50%;
-  border: solid ${borderSize} ${colorWhite};
+  border: solid ${borderSize} ${colorWhiteBorder};
   margin-left: ${avatarInset};
   text-align: center;
   padding: 0.75rem 0;
@@ -86,7 +88,7 @@ const IconWrapper = styled.div`
 const ToastMessage = styled.div`
   font-size: ${fontSizeSmall};
   margin-top: ${toastMargin};
-  color: black;
+  color: ${colorBlack};
 
   & > div {
     font-weight: bold;

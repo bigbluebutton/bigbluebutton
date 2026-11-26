@@ -219,9 +219,17 @@ object MediaGroupApp {
         .filter(mg => PublicMediaGroupIds.isPublicGroup(mg.id))
         .foreach(mg => MediaGroupDAO.insert(meetingId, mg))
 
-      Users2x.findAll(liveMeeting.users2x).foldLeft(withGroups) { (acc, user) =>
+      val enrolled = Users2x.findAll(liveMeeting.users2x).foldLeft(withGroups) { (acc, user) =>
         enrollUserInPublicGroups(liveMeeting, user.intId, acc)
       }
+
+      // Audio-only transferred listeners are signaled via postgres only (not in
+      // Users2x), Enroll them into the public audio group DB-side now that its row exists. Idempotent.
+      // FWIW: we should streamline both this and enrollment (for transfer) to go through the actual
+      // akka models in the future, but keeping the pre-existing pattern for now - prlanzarin
+      MediaGroupUserDAO.insertTransferredUsersIntoGroup(meetingId, PublicMediaGroupIds.AUDIO)
+
+      enrolled
     }
   }
 
