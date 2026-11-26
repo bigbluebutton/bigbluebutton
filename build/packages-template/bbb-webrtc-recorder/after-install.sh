@@ -59,7 +59,9 @@ case "$1" in
       fi
     done
 
-    systemctl enable bbb-webrtc-recorder
+    # The prerm stops and disables the recorder on upgrade too: start it again here, or no
+    # camera or screen share is recorded until the next restart.
+    startService bbb-webrtc-recorder || echo "bbb-webrtc-recorder could not be registered or started"
   ;;
 
   *)
