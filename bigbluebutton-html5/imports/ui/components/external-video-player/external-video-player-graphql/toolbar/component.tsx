@@ -37,6 +37,14 @@ const intlMessages = defineMessages({
     id: 'app.externalVideo.volumeLabel',
     description: 'Label of the shared external video volume slider',
   },
+  overlayLabel: {
+    id: 'app.externalVideo.overlayLabel',
+    description: 'Accessible name of the focusable area over the shared external video',
+  },
+  overlayKeyboardHint: {
+    id: 'app.externalVideo.overlayKeyboardHint',
+    description: 'Describes the keyboard shortcut that moves focus to the external video volume slider',
+  },
 });
 
 interface ExternalVideoPlayerToolbarProps {
@@ -90,6 +98,19 @@ const ExternalVideoPlayerToolbar: React.FC<ExternalVideoPlayerToolbarProps> = ({
     <>
       {
         [
+          // The overlay comes first so that Tab moves from it into the toolbar
+          // controls instead of leaving the player.
+          (!showUnsynchedMsg && (
+            <ExternalVideoOverlay
+              key="external-video-overlay"
+              label={intl.formatMessage(intlMessages.overlayLabel)}
+              keyboardHint={intl.formatMessage(intlMessages.overlayKeyboardHint)}
+              hasVolumeControl={!hideVolume}
+              onVerticalArrow={() => {
+                volumeSliderRef.current?.focus();
+              }}
+            />
+          )),
           (
             <Styled.HoverToolbar toolbarStyle={toolbarStyle} key="hover-toolbar-external-video">
               <VolumeSlide
@@ -148,14 +169,6 @@ const ExternalVideoPlayerToolbar: React.FC<ExternalVideoPlayerToolbarProps> = ({
                 }}
               />
           ),
-          (!showUnsynchedMsg && (
-            <ExternalVideoOverlay
-              key="external-video-overlay"
-              onVerticalArrow={() => {
-                volumeSliderRef.current?.focus();
-              }}
-            />
-          )),
         ]
       }
     </>

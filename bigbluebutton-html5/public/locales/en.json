@@ -1664,6 +1664,8 @@
     "app.externalVideo.muteLabel": "Mute video",
     "app.externalVideo.unmuteLabel": "Unmute video",
     "app.externalVideo.volumeLabel": "Video volume",
+    "app.externalVideo.overlayLabel": "External video",
+    "app.externalVideo.overlayKeyboardHint": "Use the Up and Down arrow keys to change the volume",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "Share an external video",
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Stop sharing external video",
     "app.legacy.unsupportedBrowser": "It looks like you're using a browser that is not supported. Please use a recent version of either {supportedBrowser1} or {supportedBrowser2} for full support.",
