@@ -1,0 +1,10 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.plugins.content-placeholders-defaults
+target bbb-web
+
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.pluginProp
+$.core.body.props.pluginProp.ConformSettings.manifest.content.javascriptEntrypointUrl "ConformSettings.js"
+$.core.body.props.pluginProp.ConformSettings.manifest.content.localesBaseUrl "https://plugins.invalid/locales"
+$.core.body.props.pluginProp.ConformSettings.manifest.content.name "ConformSettings"
+$.core.body.props.pluginProp.ConformSettings.manifest.content.requiredSdkVersion "~0.1.0"
+$.core.body.props.pluginProp.ConformSettings.manifest.url "${sinkUrl}/${uid}/fixtures/plugins/settings.json"

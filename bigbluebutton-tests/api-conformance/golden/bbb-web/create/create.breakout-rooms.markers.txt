@@ -1,0 +1,7 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.breakout-rooms.markers
+target bbb-web
+
+== step 7: fs recording/status/recorded/${room1}.done
+$.found true
+$.path "recording/status/recorded/<sha1(?)>-<time>.done"

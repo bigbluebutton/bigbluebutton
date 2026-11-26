@@ -1,0 +1,47 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# Initial content bbb-web can't fetch or read leaves the notes empty, and
+# create succeeds: the JSON must be an array, the markdown no larger than
+# maxSharedNotesInitialContentUrlPayloadSize (shipped 1024 KiB), and each
+# answer must come within 6 seconds (not a setting). A markdown URL that
+# fails leaves the markdown empty: the sharedNotesInitialContentMarkdown
+# param, given too, isn't used instead. The fetch rules
+# (create.fetch.*) refuse a URL the same way. _after=1 lets bbb-web's
+# check of a URL through and fails the download, a failure only its two
+# requests have (create.fetch.two-requests): compat.
+id: create.shared-notes.failed
+title: create leaves the shared notes empty when it can't fetch their content (${case})
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus, callbacks]
+variants:
+  - {id: not-found, vars: {case: 404, json: shared-notes/missing.json, md: shared-notes/missing.md}}
+  - {id: invalid-json, vars: {case: not JSON, json: shared-notes/invalid.json, md: "shared-notes/initial.md?_status=500"}}
+  - {id: not-array, vars: {case: JSON that isn't an array, json: shared-notes/not-array.json, md: "generated/big.md?_size=1048577"}}
+  - {id: download-error, vars: {case: an error downloading them after their check, json: "shared-notes/initial.json?_status=500&_after=1", md: "shared-notes/initial.md?_status=500&_after=1"}, class: compat}
+  # Runs alone: it waits for the fetches to time out.
+  - {id: slow, vars: {case: too slow, json: "shared-notes/initial.json?_delay=7s", md: "shared-notes/initial.md?_delay=7s"}, tags: [serial]}
+steps:
+  - call: create
+    params:
+      meetingID: "${uid}"
+      name: Shared notes
+      sharedNotesInitialContentJsonUrl: "${sinkUrl}/${uid}/fixtures/${json}"
+      sharedNotesInitialContentMarkdownUrl: "${sinkUrl}/${uid}/fixtures/${md}"
+      sharedNotesInitialContentMarkdown: "# Not this"
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 10s}
+    select: [$.core.body.props.meetingProp.sharedNotesInitialContentJson, $.core.body.props.meetingProp.sharedNotesInitialContentMarkdown]
+    expect:
+      jsonpath:
+        $.core.body.props.meetingProp.sharedNotesInitialContentJson[*]: {absent: true}
+        $.core.body.props.meetingProp.sharedNotesInitialContentMarkdown: ""
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

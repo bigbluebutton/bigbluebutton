@@ -620,8 +620,8 @@ func (d *decoder) sinkKey(n *yaml.Node, key, where string) {
 }
 
 // sinkURLKey finds the sink keys a case's URLs send requests to: the
-// first path segment after ${sinkUrl}/ or ${sinkHttpUrl}/.
-var sinkURLKey = regexp.MustCompile(`\$\{(?:sinkUrl|sinkHttpUrl)\}/([^/?&#\s"]+)`)
+// first path segment after ${sinkUrl}/, ${sinkHttpUrl}/ or ${sinkLocalUrl}/.
+var sinkURLKey = regexp.MustCompile(`\$\{(?:sinkUrl|sinkHttpUrl|sinkLocalUrl)\}/([^/?&#\s"]+)`)
 
 // sinkKeysUsed checks that a sink step that expects nothing (absent, or a
 // count of 0) watches a key a URL in the case sends requests to, written

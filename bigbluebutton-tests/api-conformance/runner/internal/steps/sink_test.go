@@ -207,6 +207,52 @@ func TestSinkHTTPURL(t *testing.T) {
 	}
 }
 
+// ${sinkLocalUrl} is the sink at a local IP address: a case that uses it is
+// skipped on a target that doesn't name one, since a fetch that can't
+// connect would pass a case that checks the server refuses it.
+func TestSinkLocalURL(t *testing.T) {
+	cases, probs := spec.LoadBytes("case.yaml", []byte(header(`steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Callback, meta_endCallbackUrl: "${sinkLocalUrl}/${uid}/end"}
+  - call: end
+    params: {meetingID: "${uid}"}
+  - sink: {key: "${uid}", within: 3s}
+    expect: {path: "/${uid}/end"}
+`)), spec.Options{})
+	if len(probs) > 0 {
+		t.Fatalf("problems: %v", probs)
+	}
+	if got := strings.Join(cases[0].Uses, ","); got != "sinkLocalUrl" {
+		t.Errorf("uses %q", got)
+	}
+	for _, tt := range []struct {
+		name     string
+		localURL bool // the target names the sink's URL as sinkLocalUrl
+		status   report.Status
+		reason   string
+	}{
+		{"unset", false, report.Skip, "not-configured: sinkLocalUrl"},
+		{"set", true, report.Pass, ""},
+	} {
+		w := startSink(t, nil)
+		srv := httptest.NewServer(w.fake)
+		tg := w.target(srv.URL)
+		if tt.localURL {
+			tg.SinkLocalURL = w.sinkURL
+		}
+		r, err := NewRunner(tg, "", "test")
+		if err != nil {
+			t.Fatal(err)
+		}
+		res := r.RunAll(context.Background(), cases, 1).Cases[0]
+		if res.Status != tt.status || !strings.Contains(res.Reason, tt.reason) {
+			logSteps(t, res)
+			t.Errorf("%s: %s %q, want %s %q", tt.name, res.Status, res.Reason, tt.status, tt.reason)
+		}
+		srv.Close()
+	}
+}
+
 func TestSinkStepFailures(t *testing.T) {
 	w := startSink(t, nil)
 	for _, tt := range []struct {

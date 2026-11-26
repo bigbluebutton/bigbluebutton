@@ -1,0 +1,9 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.plugins.load-failure-missing-metadata
+target bbb-web
+
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.pluginProp
+$.core.body.props.pluginProp.ConformRequired.loadFailureReason "Missing required metadata (meta_ or plugin_ parameter) for plugin [ConformRequired]. Plugin not loaded. For more information, see bbb-web"
+$.core.body.props.pluginProp.ConformRequired.loadFailureSource "bbb-web"
+$.core.body.props.pluginProp.ConformRequired.manifest.content {}
+$.core.body.props.pluginProp.ConformRequired.manifest.url "${sinkUrl}/${uid}/fixtures/plugins/required.json"

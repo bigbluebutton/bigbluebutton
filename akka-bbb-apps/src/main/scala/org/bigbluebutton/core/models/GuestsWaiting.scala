@@ -7,6 +7,8 @@ object GuestsWaiting {
     guests.toVector find (u => u.intId == intId)
   }
 
+  def findAll(guests: GuestsWaiting): Vector[GuestWaiting] = guests.toVector
+
   def add(guests: GuestsWaiting, user: GuestWaiting): Option[GuestWaiting] = {
     guests.save(user)
     Some(user)

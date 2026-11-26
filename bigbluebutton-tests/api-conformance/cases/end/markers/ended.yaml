@@ -1,0 +1,38 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# When a meeting that keeps its events ends, bbb-web writes
+# recording/status/ended/<internal ID>.done, whether or not the meeting
+# is recorded: record-and-playback archives the events of a meeting that
+# kept them. Under alt-defaults, keeping events is the default
+# (defaultKeepEvents) and record=true is ignored (disableRecordingDefault),
+# so a meeting that asks to be recorded gets the ended marker only.
+id: end.markers.ended
+title: An ended meeting that keeps its events leaves the ended marker${but}
+endpoint: end
+class: contract
+tags: [ci]
+requires: [akka, bus, fs]
+variants:
+  - {id: keep-events, vars: {but: "", record: "false", keep: "true"}}
+  - {id: alt-defaults, vars: {but: ", not the recorded one, when recording is disabled", record: "true", keep: null}, profile: alt-defaults, tags: [disruptive]}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Markers, record: "${record}", meetingKeepEvents: "${keep}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  # An end that reaches akka-apps before it has the meeting is lost.
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    golden: off
+  - fs: {path: "recording/status/ended/${intId}.done", within: 10s}
+    expect: {exists: true}
+  - fs: {path: "recording/status/recorded/${intId}.done", within: 2s}
+    expect: {absent: true}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

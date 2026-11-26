@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# bbb-web gives up on a client settings override that doesn't come within
+# clientSettingsOverrideJsonUrlResponseTimeout seconds (shipped 15; 1
+# under the short-fetch-timeouts profile), and leaves the override empty.
+id: create.fetch.timeout
+title: create ${what}
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus, callbacks]
+variants:
+  - {id: in-time, vars: {what: waits for an override within the timeout, delay: 2s, want: '^\{"public":'}}
+  - {id: short, vars: {what: gives up on an override after a short timeout, delay: 3s, want: '^$'}, profile: short-fetch-timeouts, tags: [disruptive]}
+  # Runs alone: it waits for the shipped timeout.
+  - {id: shipped, vars: {what: gives up on an override after the shipped timeout, delay: 17s, want: '^$'}, tags: [slow, serial]}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Fetch rules, clientSettingsOverrideJsonUrl: "${sinkUrl}/${uid}/fixtures/client-settings/override.json?_delay=${delay}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 30s}
+    select: [$.core.body.props.overrideClientSettings]
+    expect:
+      jsonpath:
+        $.core.body.props.overrideClientSettings: {regex: "${want}"}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

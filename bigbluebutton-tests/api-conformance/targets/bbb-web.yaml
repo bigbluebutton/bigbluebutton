@@ -4,8 +4,9 @@
 # server's tap (bbb-conform tap), for the bus, fs and redis steps, and
 # BBB_SINK_URL the sink (bbb-conform sink) as the server reaches it, for the
 # sink steps (BBB_SINK_READ_URL when the runner reaches it otherwise), with
-# BBB_SINK_HTTP_URL for its plain-HTTP listener and BBB_FIXTURE_URL for the
-# fixtures it serves: without them, those cases are skipped. On the Tier 1
+# BBB_SINK_HTTP_URL for its plain-HTTP listener, BBB_SINK_LOCAL_URL for it
+# at a local IP address the server reaches it by, and BBB_FIXTURE_URL for
+# the fixtures it serves: without them, those cases are skipped. On the Tier 1
 # stack (make -C env up), eval "$(make -s -C env env)" sets all of them.
 name: bbb-web
 capabilities: [akka, presence, presentation-conversion]
@@ -60,4 +61,9 @@ profiles:
   userdata-blocklist-padded: {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" userdata-blocklist-padded'}
   userdata-blocklist-all: {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" userdata-blocklist-all'}
   short-http-session:    {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" short-http-session'}
+  chapter-breaks:        {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" chapter-breaks'}
+  plugin-manifest-cache: {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" plugin-manifest-cache'}
+  client-settings-strict: {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" client-settings-strict'}
+  fetch-blocked-host:    {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" fetch-blocked-host'}
+  short-fetch-timeouts:  {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" short-fetch-timeouts'}
   default:               {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" default'}

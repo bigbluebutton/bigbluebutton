@@ -1,0 +1,43 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# create's pluginManifests param lists plugin manifests by URL, as JSON.
+# bbb-web fetches each manifest (checking its URL with a request of its
+# own first, create.fetch.two-requests) and hands it to akka-apps in the
+# meeting's pluginProp, under the manifest's name, with the URL it came
+# from.
+id: create.plugins.param
+title: create fetches the plugin manifests its pluginManifests param lists
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus, callbacks]
+steps:
+  - call: create
+    params:
+      meetingID: "${uid}"
+      name: Plugins
+      pluginManifests: '[{"url":"${sinkUrl}/${uid}/fixtures/plugins/basic.json"},{"url":"${sinkUrl}/${uid}/fixtures/plugins/second.json"}]'
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.props.pluginProp]
+    expect:
+      jsonpath:
+        $.core.body.props.pluginProp.ConformBasic.manifest.url: "${sinkUrl}/${uid}/fixtures/plugins/basic.json"
+        $.core.body.props.pluginProp.ConformBasic.manifest.content.javascriptEntrypointUrl: ConformBasic.js
+        $.core.body.props.pluginProp.ConformSecond.manifest.url: "${sinkUrl}/${uid}/fixtures/plugins/second.json"
+        $.core.body.props.pluginProp.ConformSecond.manifest.content.name: ConformSecond
+  # Each URL once, or twice as bbb-web does.
+  - sink: {key: "${uid}", within: 2s}
+    golden: off
+    expect: {path: "/${uid}/fixtures/plugins/basic.json", count: {between: [1, 2]}}
+  - sink: {key: "${uid}", within: 0s}
+    golden: off
+    expect: {path: "/${uid}/fixtures/plugins/second.json", count: {between: [1, 2]}}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}
