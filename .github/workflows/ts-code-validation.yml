@@ -2,7 +2,6 @@ name: Typescript - validate code (eslint)
 on:
   push:
     branches:
-      - "develop"
       - "v2.[5-9].x-release"
       - "v[3-9].*.x-release"
     paths:
@@ -23,7 +22,7 @@ jobs:
   ts-code-validation:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 1
       - name: Merge branches
