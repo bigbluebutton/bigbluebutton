@@ -1,0 +1,295 @@
+#!/usr/bin/env bash
+# Development with Docker Compose: runs BigBlueButton from the published images, with the
+# components you work on from your checkout. `./bbb-dev help` lists the commands.
+#
+# A component is enabled by its file in docker/compose/dev/, which compose merges into its
+# service. The list of files is COMPOSE_FILE in .env, so `docker compose` alone runs the same
+# stack; docker-compose.override.yml is yours and always read last.
+set -euo pipefail
+cd "$(dirname "${BASH_SOURCE[0]}")"
+
+DEFAULT_DOMAIN=bbb.localhost
+CERTS=data/certs
+# The CA stays out of data/certs, which is mounted into the certbot container
+CA=data/dev-ca
+DEV=docker/compose/dev
+OVERRIDE=docker-compose.override.yml
+COMPONENTS="html5 dashboard actions notes export web akka graphql-server graphql-middleware recording recorder sfu playback webhooks nginx init"
+
+fail() {
+  echo "$*" >&2
+  exit 1
+}
+
+# Sets for component $1: its bake target, its services, how it runs live from the checkout (empty
+# for a local image), and the directories its volumes are mounted on: the source is mounted
+# read-only, so they have to exist in the checkout (all ignored by git).
+component() {
+  target=$1 services=$1 live='' dirs=''
+  case "$1" in
+    html5) target=html5-client services=html5-client live='webpack dev server' dirs=bigbluebutton-html5/node_modules ;;
+    dashboard) target=learning-dashboard services=learning-dashboard live='webpack dev server' dirs=bbb-learning-dashboard/node_modules ;;
+    actions) target=graphql-actions services=graphql-actions live='nodemon and ts-node' dirs=bbb-graphql-actions/node_modules ;;
+    notes)
+      target=shared-notes-server services=shared-notes-server live='nodemon and tsx'
+      dirs='bbb-shared-notes-server/node_modules bbb-shared-notes-server/assets/twemoji'
+      ;;
+    export) target=export-annotations services=export-annotations live='node --watch' ;;
+    akka) target=apps-akka services=apps-akka ;;
+    recording) target=record-and-playback services='recording-workers recording-starter recording-caption-inbox recording-cleanup' ;;
+    recorder) target=webrtc-recorder services=webrtc-recorder ;;
+    sfu) target=webrtc-sfu services=webrtc-sfu ;;
+    web | graphql-server | graphql-middleware | playback | webhooks | nginx | init) ;;
+    *) return 1 ;;
+  esac
+}
+
+need_component() {
+  [[ -n ${1:-} ]] || fail "Name a component: $COMPONENTS"
+  component "$1" || fail "Unknown component: $1. Components: $COMPONENTS"
+}
+
+usage() {
+  cat <<EOF
+Usage: ./bbb-dev <command> [component] [args...]
+
+  setup [domain]          once: .env, a local CA and certificate, the truststore for bbb-web
+                          (domain: BBB_DOMAIN in .env, else $DEFAULT_DOMAIN)
+  build <component>       build its image from your checkout (localhost/bbb-<target>:dev)
+  enable <component>      run it from your checkout: live, or the image of build
+  disable <component>|all run the published image again
+  exec <component> [cmd]  run cmd in its container, or a shell
+  logs <component> [args] its logs (args as for docker compose logs, e.g. -f)
+  restart <component>     restart it
+  status                  the domain, what runs from your checkout, docker compose ps
+  help                    this text
+  anything else           docker compose with these arguments, e.g. up -d, pull, down
+
+Components (bake target; live from the checkout, or the local image of build):
+EOF
+  local c
+  for c in $COMPONENTS; do
+    component "$c"
+    printf '  %-20s %-21s %s\n' "$c" "$target" "${live:-local image}"
+  done
+  cat <<EOF
+
+Your own settings go in $OVERRIDE, which is read after the files of enable.
+EOF
+}
+
+# Prints the value of key $1 in .env (.env is not sourced: it is not a shell script)
+env_value() {
+  [[ -e .env ]] && sed -n "s/^$1=//p" .env | tail -n 1
+}
+
+# Sets key $1 to $2 in .env, replacing it or appending it
+set_env() {
+  local tmp
+  tmp=$(mktemp .env.XXXXXX)
+  awk -v key="$1" -v value="$2" -F = '
+    $1 == key { if (!done) print key "=" value; done = 1; next }
+    { print }
+    END { if (!done) print key "=" value }' .env > "$tmp"
+  mv "$tmp" .env
+}
+
+# The components in COMPOSE_FILE
+enabled() {
+  env_value COMPOSE_FILE | tr ':' '\n' | sed -n "s|^$DEV/\(.*\)\.yml$|\1|p" | grep -vx base || true
+}
+
+# COMPOSE_FILE for the components given, in a fixed order
+compose_file() {
+  local files c
+  files=docker-compose.yml:$DEV/base.yml
+  for c in $(printf '%s\n' "$@" | sort -u); do files=$files:$DEV/$c.yml; done
+  echo "$files:$OVERRIDE"
+}
+
+# Switches to the components given: checks the new set of files, writes it to .env and starts it
+switch_to() {
+  local files errors
+  [[ -e .env ]] || fail "Run ./bbb-dev setup first."
+  files=$(compose_file "$@")
+  # COMPOSE_FILE from the environment wins over .env, so .env is written only if the files are valid
+  if ! errors=$(COMPOSE_FILE=$files docker compose config -q 2>&1); then
+    echo "$errors" >&2
+    fail "Not switched: docker compose rejects COMPOSE_FILE=$files"
+  fi
+  set_env COMPOSE_FILE "$files"
+  docker compose up -d --remove-orphans
+}
+
+cmd_enable() {
+  local dir
+  need_component "${1:-}"
+  if [[ -z $live ]] && ! docker image inspect "localhost/bbb-$target:dev" >/dev/null 2>&1; then
+    fail "No local image localhost/bbb-$target:dev. Run ./bbb-dev build $1 first."
+  fi
+  for dir in $dirs; do mkdir -p "$dir"; done
+  # shellcheck disable=SC2046 # one component per line
+  switch_to $(enabled) "$1"
+}
+
+cmd_disable() {
+  if [[ ${1:-} == all ]]; then
+    switch_to
+  else
+    need_component "${1:-}"
+    # shellcheck disable=SC2046
+    switch_to $(enabled | grep -vx "$1" || true)
+  fi
+}
+
+cmd_build() {
+  local arch
+  need_component "${1:-}"
+  arch=$(docker version -f '{{.Server.Arch}}')
+  BBB_IMAGE_REGISTRY=localhost BBB_IMAGE_TAG=dev \
+    docker buildx bake -f docker-bake.hcl --load --set "*.platform=linux/$arch" "$target"
+}
+
+cmd_exec() {
+  local service
+  need_component "${1:-}"
+  shift
+  service=${services%% *}
+  if (($#)); then
+    docker compose exec "$service" "$@"
+  else
+    docker compose exec "$service" sh -c 'if command -v bash >/dev/null; then exec bash; else exec sh; fi'
+  fi
+}
+
+cmd_status() {
+  local c
+  echo "Domain: $(env_value BBB_DOMAIN)"
+  echo "From your checkout:"
+  for c in $(enabled); do
+    component "$c" || continue
+    echo "  $c: ${live:-localhost/bbb-$target:dev}"
+  done
+  docker compose ps
+}
+
+# setup ---------------------------------------------------------------------------------------
+
+# Without an argument, a domain already set in .env is the one to set up.
+setup_domain() {
+  local env_domain
+  env_domain=$(env_value BBB_DOMAIN || true)
+  DOMAIN=${1:-${env_domain:-$DEFAULT_DOMAIN}}
+  [[ -z $env_domain || $env_domain == "$DOMAIN" ]] ||
+    fail ".env is set up for $env_domain, not $DOMAIN. Change BBB_DOMAIN in .env first."
+}
+
+# Fills the empty settings of .env (created from .env.sample if missing); keeps values already set.
+setup_env() {
+  local tmp line
+  [[ -e .env ]] || cp .env.sample .env
+  chmod 600 .env
+  tmp=$(mktemp .env.XXXXXX)
+  while IFS= read -r line || [[ -n $line ]]; do
+    case "$line" in
+      BBB_DOMAIN=) line="BBB_DOMAIN=$DOMAIN" ;;
+      BBB_PUBLIC_IP=) line="BBB_PUBLIC_IP=127.0.0.1" ;;
+      *_SECRET= | *_PASSWORD= | LIVEKIT_API_KEY=) line+=$(openssl rand -hex 32) ;;
+    esac
+    printf '%s\n' "$line"
+  done < .env > "$tmp"
+  mv "$tmp" .env
+}
+
+# The CA is kept between runs so that browsers only need to trust it once. Its name constraint
+# limits it to DOMAIN, so the trusted CA can't issue certificates for other sites.
+setup_ca() {
+  if [[ -e $CA/rootCA.pem && -e $CA/rootCA.key ]]; then
+    openssl x509 -in "$CA/rootCA.pem" -noout -ext nameConstraints | grep -qF "DNS:$DOMAIN" ||
+      fail "The CA in $CA is not for $DOMAIN. Remove $CA (and the CA from your browser) and run again."
+    return
+  fi
+  mkdir -p "$CA"
+  openssl req -x509 -newkey rsa:2048 -nodes -days 3650 \
+    -subj "/CN=BigBlueButton local development CA for $DOMAIN" \
+    -addext "basicConstraints=critical,CA:TRUE" \
+    -addext "keyUsage=critical,keyCertSign,cRLSign" \
+    -addext "nameConstraints=critical,permitted;DNS:$DOMAIN" \
+    -keyout "$CA/rootCA.key" -out "$CA/rootCA.pem"
+  chmod 600 "$CA/rootCA.key"
+}
+
+setup_cert() {
+  mkdir -p "$CERTS"
+  openssl req -new -newkey rsa:2048 -nodes -subj "/CN=$DOMAIN" \
+    -keyout "$CERTS/privkey.pem" -out "$CERTS/server.csr"
+  printf 'subjectAltName=DNS:%s\nbasicConstraints=CA:FALSE\nextendedKeyUsage=serverAuth\n' \
+    "$DOMAIN" > "$CERTS/server.ext"
+  openssl x509 -req -days 365 -in "$CERTS/server.csr" -extfile "$CERTS/server.ext" \
+    -CA "$CA/rootCA.pem" -CAkey "$CA/rootCA.key" -CAcreateserial -out "$CERTS/fullchain.pem"
+  rm -f "$CERTS/server.csr" "$CERTS/server.ext"
+  chmod 600 "$CERTS/privkey.pem"
+}
+
+# bbb-web loads the default slides from https://$DOMAIN, so it has to trust the CA
+# ($DEV/base.yml mounts this truststore). Only docker-compose.yml is read here: base.yml would
+# make Docker create data/certs/cacerts as a directory while the file is not there yet.
+# It runs as root, so that it can replace a cacerts left by an earlier run and write to data/certs
+# with rootless Docker or Podman too. The file then gets the owner of data/certs, which this script
+# created as the caller (rootless, the container's root is already the caller).
+setup_truststore() {
+  docker compose -f docker-compose.yml run --rm --no-deps --user 0 -v "$PWD/$CERTS:/certs" -v "$PWD/$CA/rootCA.pem:/ca.pem:ro" \
+    --entrypoint sh web -c \
+    'cp "$JAVA_HOME/lib/security/cacerts" /certs/cacerts &&
+     keytool -importcert -noprompt -alias local-ca -file /ca.pem -keystore /certs/cacerts -storepass changeit &&
+     chown --reference=/certs /certs/cacerts'
+}
+
+cmd_setup() {
+  (($# <= 1)) || fail "Usage: ./bbb-dev setup [domain]"
+  local tool
+  for tool in docker openssl; do
+    command -v "$tool" >/dev/null || fail "$tool is not installed."
+  done
+  setup_domain "$@"
+  setup_env
+  setup_ca
+  setup_cert
+  setup_truststore
+  # COMPOSE_FILE lists the override, so it has to exist
+  [[ -e $OVERRIDE ]] || cat > "$OVERRIDE" <<'YAML'
+# Your own settings for docker compose, read after the files of ./bbb-dev enable. bbb-dev does not
+# change this file.
+services: {}
+YAML
+  # shellcheck disable=SC2046
+  set_env COMPOSE_FILE "$(compose_file $(enabled))"
+  cat <<EOF
+Set up https://$DOMAIN. Trust the presented certificate or import $CA/rootCA.pem in your
+browser or system, then run:
+
+  ./bbb-dev up -d
+
+Test with https://bigbluebutton.org/api-mate/#server=https://$DOMAIN/bigbluebutton/&sharedSecret=$(env_value BBB_SHARED_SECRET)
+EOF
+}
+
+case "${1:-help}" in
+  help | -h | --help) usage ;;
+  setup | build | enable | disable | exec | status)
+    command=$1
+    shift
+    "cmd_$command" "$@"
+    ;;
+  logs | restart)
+    if component "${2:-}"; then
+      command=$1
+      shift 2
+      # shellcheck disable=SC2086 # one service per word
+      docker compose "$command" "$@" $services
+    else
+      docker compose "$@"
+    fi
+    ;;
+  *) docker compose "$@" ;;
+esac

@@ -1,0 +1,5 @@
+# ./bbb-dev enable graphql-server: the image of ./bbb-dev build graphql-server
+services:
+  graphql-server:
+    image: localhost/bbb-graphql-server:dev
+    pull_policy: never

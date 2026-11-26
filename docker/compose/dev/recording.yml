@@ -1,0 +1,14 @@
+# ./bbb-dev enable recording: the image of ./bbb-dev build recording
+services:
+  recording-workers:
+    image: localhost/bbb-record-and-playback:dev
+    pull_policy: never
+  recording-starter:
+    image: localhost/bbb-record-and-playback:dev
+    pull_policy: never
+  recording-caption-inbox:
+    image: localhost/bbb-record-and-playback:dev
+    pull_policy: never
+  recording-cleanup:
+    image: localhost/bbb-record-and-playback:dev
+    pull_policy: never

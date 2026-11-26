@@ -1,0 +1,5 @@
+# ./bbb-dev enable recorder: the image of ./bbb-dev build recorder
+services:
+  webrtc-recorder:
+    image: localhost/bbb-webrtc-recorder:dev
+    pull_policy: never

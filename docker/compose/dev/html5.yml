@@ -1,0 +1,47 @@
+# ./bbb-dev enable html5: the HTML5 client from the webpack dev server, live from
+# bigbluebutton-html5/ (npm start, without --open, on the image's port 8080). nginx serves
+# /html5client/ from it as bbb-html5.nginx.dev does on a package install, and the locales from
+# the checkout.
+services:
+  html5-client:
+    image: node:24.22.3@sha256:9d266751ca3d7fdbe651c878ffd5ad0a42fed49a18c283509267c97f025b7496
+    working_dir: /app
+    environment:
+      NODE_ENV: development
+      DETAILED_LOGS: "true"
+      HOT_RELOAD: "true"
+    # npm ci into the volume on the first start, or when package-lock.json changed
+    command:
+      - sh
+      - -ec
+      - npm ls --depth=0 >/dev/null 2>&1 || npm ci; exec npx webpack serve --config webpack.config.js --port 8080
+    volumes:
+      - ./bigbluebutton-html5:/app:ro
+      - html5-node-modules:/app/node_modules
+  nginx:
+    configs:
+      - source: bbb-html5-dev.nginx
+        target: /usr/share/bigbluebutton/nginx/bbb-html5.nginx
+    volumes:
+      - ./bigbluebutton-html5/public/locales:/usr/share/bigbluebutton/html5-client/locales:ro
+
+volumes:
+  html5-node-modules:
+
+configs:
+  bbb-html5-dev.nginx:
+    content: |
+      location /html5client/ {
+        proxy_pass http://bbb-html5-client/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $$http_upgrade;
+        proxy_set_header Connection "Upgrade";
+        proxy_set_header Host $$host;
+      }
+      # the client lists the locales from nginx's JSON index
+      location /html5client/locales {
+        alias /usr/share/bigbluebutton/html5-client/locales;
+        autoindex on;
+        autoindex_format json;
+        add_header Cache-Control "no-store";
+      }

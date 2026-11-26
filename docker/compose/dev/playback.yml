@@ -1,0 +1,5 @@
+# ./bbb-dev enable playback: the image of ./bbb-dev build playback
+services:
+  playback:
+    image: localhost/bbb-playback:dev
+    pull_policy: never

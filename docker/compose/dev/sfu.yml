@@ -1,0 +1,5 @@
+# ./bbb-dev enable sfu: the image of ./bbb-dev build sfu
+services:
+  webrtc-sfu:
+    image: localhost/bbb-webrtc-sfu:dev
+    pull_policy: never

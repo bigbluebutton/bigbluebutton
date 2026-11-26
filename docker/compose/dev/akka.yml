@@ -1,0 +1,5 @@
+# ./bbb-dev enable akka: the image of ./bbb-dev build akka
+services:
+  apps-akka:
+    image: localhost/bbb-apps-akka:dev
+    pull_policy: never

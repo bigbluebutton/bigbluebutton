@@ -1,0 +1,20 @@
+# ./bbb-dev enable actions: bbb-graphql-actions live from bbb-graphql-actions/ (npm start:
+# nodemon restarts ts-node on a change in src/). Its settings come from the environment, as in
+# the image.
+services:
+  graphql-actions:
+    image: node:24.22.3@sha256:9d266751ca3d7fdbe651c878ffd5ad0a42fed49a18c283509267c97f025b7496
+    working_dir: /app
+    environment:
+      SERVER_HOST: 0.0.0.0
+    # npm ci into the volume on the first start, or when package-lock.json changed
+    command:
+      - sh
+      - -ec
+      - npm ls --depth=0 >/dev/null 2>&1 || npm ci; exec npm start
+    volumes:
+      - ./bbb-graphql-actions:/app:ro
+      - actions-node-modules:/app/node_modules
+
+volumes:
+  actions-node-modules:

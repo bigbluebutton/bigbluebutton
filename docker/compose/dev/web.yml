@@ -1,0 +1,5 @@
+# ./bbb-dev enable web: the image of ./bbb-dev build web
+services:
+  web:
+    image: localhost/bbb-web:dev
+    pull_policy: never

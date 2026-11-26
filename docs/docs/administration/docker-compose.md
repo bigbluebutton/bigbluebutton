@@ -100,7 +100,7 @@ then `docker compose up -d`. A variable applies to every service that runs its i
 | `playback` | `BBB_PLAYBACK_IMAGE` |
 | `webhooks` | `BBB_WEBHOOKS_IMAGE` |
 
-`docker compose pull` tries to pull a local image too and reports an error for it. To skip it, set `pull_policy: never` for that service in a `docker-compose.override.yml` (see `docker-compose.override.sample.yml`), or run `docker compose pull --ignore-pull-failures`.
+`docker compose pull` tries to pull a local image too and reports an error for it. To skip it, set `pull_policy: never` for that service in a `docker-compose.override.yml`, or run `docker compose pull --ignore-pull-failures`.
 
 ## Data and backup
 

@@ -1,0 +1,5 @@
+# ./bbb-dev enable nginx: the image of ./bbb-dev build nginx
+services:
+  nginx:
+    image: localhost/bbb-nginx:dev
+    pull_policy: never

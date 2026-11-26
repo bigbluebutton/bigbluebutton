@@ -1,0 +1,5 @@
+# ./bbb-dev enable graphql-middleware: the image of ./bbb-dev build graphql-middleware
+services:
+  graphql-middleware:
+    image: localhost/bbb-graphql-middleware:dev
+    pull_policy: never

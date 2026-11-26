@@ -1,0 +1,5 @@
+# ./bbb-dev enable webhooks: the image of ./bbb-dev build webhooks
+services:
+  webhooks:
+    image: localhost/bbb-webhooks:dev
+    pull_policy: never
