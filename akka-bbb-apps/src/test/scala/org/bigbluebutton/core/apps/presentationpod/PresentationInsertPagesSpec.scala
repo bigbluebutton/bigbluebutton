@@ -618,25 +618,79 @@ class PresentationInsertPagesSpec extends AnyFlatSpec {
     assert(result.queue.entries.isEmpty)
   }
 
-  it should "Ac-B 20: keep advancing past a stored Ready whose target was removed" in {
+  it should "Ac-B 20: refuse with targetNotFound the stored Ready of a removed presentation, leaving the others" in {
+    val pods = podsWith(presentation(targetId, 3), presentation(otherId, 2))
+    val p2 = uuids(1).map(vo(_))
+    val q1 = withEntry(InsertPagesQueue.empty, "upload-1", intent(1, 2, target = otherId), Seq(vo(uuid())))
+    val q2 = withEntry(q1, "upload-2", intent(1, 2, target = otherId), p2)
+    // Enqueued later: its conversion has not passed idleMs at the tick.
+    val q = withEntry(q2, "upload-3", intent(1, 3), Seq(vo(uuid())), now = t0 + 2000)
+    val s2 = onReady(q, pods, "upload-2", otherId, InsertReady(p2.map(_.id), 100))
+    assert(s2.outcomes.isEmpty)
+    val removed = s2.pods.removePresentationInPod(podId, otherId)
+    val tick = onTick(s2.queue, removed, t0 + 3000, deadlines)
+    assert(tick.outcomes.size == 2)
+    val t = as[TimedOut](tick.outcomes(0))
+    val r = as[Refused](tick.outcomes(1))
+    assert(t.entry.uploadPresentationId == "upload-1")
+    assert(r.entry.uploadPresentationId == "upload-2" && r.key == ErrorKey.TargetNotFound)
+    assert(tick.queue.entries.map(_.uploadPresentationId) == Vector("upload-3"))
+  }
+
+  it should "Ac-B 20: apply the Ready of an insert into another presentation while the first is still converting" in {
+    val pods = podsWith(presentation(targetId, 3), presentation(otherId, 2))
+    val other = uuids(1).map(vo(_))
+    val q1 = withEntry(InsertPagesQueue.empty, "upload-1", intent(1, 3), Seq(vo(uuid())))
+    val q = withEntry(q1, "upload-2", intent(1, 2, target = otherId), other)
+    val result = onReady(q, pods, "upload-2", otherId, InsertReady(other.map(_.id), 100))
+    val a = applied(result)
+    assert(a.entry.uploadPresentationId == "upload-2" && a.target.id == otherId)
+    assert(targetOf(result.pods, otherId).numPages == 3)
+    assert(targetOf(result.pods).numPages == 3)
+    assert(result.queue.entries.map(_.uploadPresentationId) == Vector("upload-1"))
+  }
+
+  it should "Ac-B 20: keep the inserts into one presentation in order while another presentation moves on" in {
     val pods = podsWith(presentation(targetId, 3), presentation(otherId, 2))
     val p2 = uuids(1).map(vo(_))
     val p3 = uuids(1).map(vo(_))
     val q = withEntry(withEntry(
       withEntry(InsertPagesQueue.empty, "upload-1", intent(1, 3), Seq(vo(uuid()))),
-      "upload-2", intent(1, 2, target = otherId), p2
-    ), "upload-3", intent(1, 3), p3)
-    val s2 = onReady(q, pods, "upload-2", otherId, InsertReady(p2.map(_.id), 100))
-    val s3 = onReady(s2.queue, s2.pods, "upload-3", targetId, InsertReady(p3.map(_.id), 100))
-    val removed = s3.pods.removePresentationInPod(podId, otherId)
-    val tick = onTick(s3.queue, removed, t0 + 3000, deadlines)
-    assert(tick.outcomes.size == 3)
-    val t = as[TimedOut](tick.outcomes(0))
-    val r = as[Refused](tick.outcomes(1))
-    val a = as[Applied](tick.outcomes(2))
-    assert(t.entry.uploadPresentationId == "upload-1")
-    assert(r.entry.uploadPresentationId == "upload-2" && r.key == ErrorKey.TargetNotFound)
-    assert(a.entry.uploadPresentationId == "upload-3")
+      "upload-2", intent(1, 3), p2
+    ), "upload-3", intent(1, 2, target = otherId), p3)
+    val s2 = onReady(q, pods, "upload-2", targetId, InsertReady(p2.map(_.id), 100))
+    assert(s2.outcomes.isEmpty)
+    val s3 = onReady(s2.queue, s2.pods, "upload-3", otherId, InsertReady(p3.map(_.id), 100))
+    assert(applied(s3).entry.uploadPresentationId == "upload-3")
+    assert(s3.queue.entries.map(_.uploadPresentationId) == Vector("upload-1", "upload-2"))
+    assert(s3.queue.find("upload-2").get.stage == InsertStage.Ready)
+    assert(!targetOf(s3.pods).pages.contains(p2.head.id))
+
+    val failed = onFailed(s3.queue, s3.pods, "upload-1", ErrorKey.Failed, "")
+    assert(failed.outcomes.size == 2)
+    assert(as[Failed](failed.outcomes(0)).entry.uploadPresentationId == "upload-1")
+    assert(as[Applied](failed.outcomes(1)).entry.uploadPresentationId == "upload-2")
+    assert(failed.queue.entries.isEmpty)
+  }
+
+  it should "Ac-B 20: after a tick, apply the waiting first insert of each presentation, in the order of the requests" in {
+    val pods = podsWith(presentation(targetId, 3), presentation(otherId, 2))
+    val p3 = uuids(1).map(vo(_))
+    val p4 = uuids(1).map(vo(_))
+    val q1 = withEntry(InsertPagesQueue.empty, "upload-1", intent(1, 3), Seq(vo(uuid())))
+    val q2 = withEntry(q1, "upload-2", intent(1, 2, target = otherId), Seq(vo(uuid())))
+    val q3 = withEntry(q2, "upload-3", intent(1, 3), p3)
+    val q = withEntry(q3, "upload-4", intent(1, 2, target = otherId), p4)
+    val s3 = onReady(q, pods, "upload-3", targetId, InsertReady(p3.map(_.id), 100))
+    val s4 = onReady(s3.queue, s3.pods, "upload-4", otherId, InsertReady(p4.map(_.id), 100))
+    assert(s3.outcomes.isEmpty && s4.outcomes.isEmpty)
+    val tick = onTick(s4.queue, s4.pods, t0 + 3000, deadlines)
+    assert(tick.outcomes.size == 4)
+    assert(as[TimedOut](tick.outcomes(0)).entry.uploadPresentationId == "upload-1")
+    assert(as[TimedOut](tick.outcomes(1)).entry.uploadPresentationId == "upload-2")
+    assert(as[Applied](tick.outcomes(2)).entry.uploadPresentationId == "upload-3")
+    assert(as[Applied](tick.outcomes(3)).entry.uploadPresentationId == "upload-4")
+    assert(targetOf(tick.pods).numPages == 4 && targetOf(tick.pods, otherId).numPages == 3)
     assert(tick.queue.entries.isEmpty)
   }
 

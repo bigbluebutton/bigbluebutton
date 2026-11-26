@@ -1641,7 +1641,6 @@ CREATE UNLOGGED TABLE "pres_page" (
     -- A position holds one page. Deferrable: an insert moves the pages after it in one UPDATE.
     UNIQUE("presentationId","num") DEFERRABLE
 );
-CREATE INDEX "idx_pres_page_presentationId" ON "pres_page"("presentationId");
 CREATE INDEX "idx_pres_page_presentationId_curr" ON "pres_page"("presentationId") where "current" is true;
 
 CREATE OR REPLACE VIEW public.v_pres_presentation AS

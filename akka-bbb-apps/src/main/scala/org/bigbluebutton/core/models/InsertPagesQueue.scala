@@ -30,7 +30,7 @@ object InsertStage {
   case object Transfer extends InsertStage(1)
   /** The conversion, watched for inactivity. */
   case object Conversion extends InsertStage(2)
-  /** Converted and delivered, waiting for the inserts requested before it. No deadline. */
+  /** Converted and delivered, waiting for the inserts into the same presentation requested before it. No deadline. */
   case object Ready extends InsertStage(3)
 }
 
@@ -52,13 +52,18 @@ case class InsertEntry(
 )
 
 /**
- * The inserts of a meeting in progress, in the order their requests were accepted. They are applied one at
- * a time, in that order; uploads and conversions run in parallel.
+ * The inserts of a meeting in progress, in the order their requests were accepted. The inserts into a
+ * presentation are applied one at a time, in that order; inserts into different presentations do not wait
+ * for each other, and uploads and conversions run in parallel.
  */
 case class InsertPagesQueue(entries: Vector[InsertEntry]) {
   def find(uploadPresentationId: String): Option[InsertEntry] = entries.find(_.uploadPresentationId == uploadPresentationId)
 
-  def isFirst(uploadPresentationId: String): Boolean = entries.headOption.exists(_.uploadPresentationId == uploadPresentationId)
+  /** The first insert into each presentation, in queue order: the one to apply next there. */
+  def firstOfEachTarget: Vector[InsertEntry] = entries.distinctBy(_.intent.targetId)
+
+  /** Whether the insert is the first one in progress into its presentation. */
+  def isFirst(uploadPresentationId: String): Boolean = firstOfEachTarget.exists(_.uploadPresentationId == uploadPresentationId)
 
   def replace(entry: InsertEntry): InsertPagesQueue =
     copy(entries = entries.map(e => if (e.uploadPresentationId == entry.uploadPresentationId) entry else e))
