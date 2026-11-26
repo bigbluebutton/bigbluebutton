@@ -91,7 +91,7 @@ Backup: `./data`, `.env` and `docker-compose.override.yml`. PostgreSQL (a volume
   ```
 
   A file is used as it is; `${…}` from `.env` is only filled in under `content:`. After changing an inline file, run `docker compose up -d --force-recreate <service>`: a plain `up -d` does not recreate a service when only the content of its config changed.
-- Recording formats: as on a package install, recordings are processed as `presentation` only. The recording image also has `video`, `notes`, `screenshare` and `podcast`. To enable them, add the `steps` to your own `recording.yml` (as above, starting from the one in `docker-compose.yml`), e.g. for notes and podcast:
+- Recording formats: as on a package install, recordings are processed as `presentation` only. The recording image also has `video`, `notes`, `screenshare` and `podcast`. To enable them, add the `steps` to your own `recording.yml` and mount it at `/etc/bigbluebutton/recording/recording.yml` in the recording services in `docker-compose.override.yml`. It holds only your changes, e.g. for notes and podcast:
 
   ```yaml
   steps:
