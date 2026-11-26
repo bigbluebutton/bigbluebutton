@@ -409,6 +409,7 @@
     "app.presentation.insertPages.buttonDesc": "Insert pages after the current slide",
     "app.presentation.insertPages.blankPage": "Insert blank page",
     "app.presentation.insertPages.fromFile": "Insert pages from a file...",
+    "app.presentation.insertPages.blankPageName": "Blank page",
     "app.presentation.insertPages.success": "{count, plural, one {# slide was inserted} other {# slides were inserted}} at position {position}",
     "app.presentation.insertPages.error.disabled": "{filename}: inserting pages is disabled in this meeting",
     "app.presentation.insertPages.error.targetNotFound": "{filename}: the presentation is no longer available for inserting pages",

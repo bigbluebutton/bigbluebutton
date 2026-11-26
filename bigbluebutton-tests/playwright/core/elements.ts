@@ -652,7 +652,8 @@ export const elements = {
   insertSquareFileName: 'insertSquare.pdf', // 2 pages of 600x600
   insertEmptyFileName: 'vazio.pdf', // 0 bytes
   insertTruncatedFileName: 'truncado.pdf', // the first 2 KB of a 30-page PDF: pdfinfo fails on it
-  blankPageFileName: 'blank.pdf', // the name of a blank page in the notifications and the upload toast
+  blankPageFileName: 'blank.pdf', // the name of a blank page in the upload toast
+  blankPageNameLabel: 'Blank page', // the name of a blank page in the warnings and the notifications
 
   // Toasts
   statingUploadPresentationToast: 'To be uploaded ...',
@@ -670,6 +671,7 @@ export const elements = {
   insertPagesFailedLabel: 'the pages could not be inserted',
   insertPagesNotConfirmedLabel: 'the insert of the pages could not be confirmed',
   insertPagesTimeoutLabel: 'inserting the pages took too long and was stopped',
+  insertPagesTargetNotFoundLabel: 'the presentation is no longer available for inserting pages',
   insertPagesUnsupportedTargetLabel:
     'pages can only be inserted into a presentation made from a PDF or an office document',
   presentationChangedSlideLabel: 'Presentation changed to slide:',

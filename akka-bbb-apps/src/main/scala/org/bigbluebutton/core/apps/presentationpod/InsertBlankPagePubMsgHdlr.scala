@@ -85,13 +85,13 @@ trait InsertBlankPagePubMsgHdlr extends RightsManagementTrait {
           case Some(key) =>
             log.info(s"Refusing blank page request: $key. meetingId=$meetingId userId=$userId presentationId=${msg.body.presentationId}")
             notifyInsertPages(meetingId, userId, "error", s"app.presentation.insertPages.error.$key",
-              Map("filename" -> BlankPageFilename), bus)
+              Map("filename" -> BlankPageNameKey), bus)
             state
           case None if reference.isEmpty =>
             log.warning(s"Refusing blank page request: the target has no page. meetingId=$meetingId " +
               s"presentationId=${msg.body.presentationId}")
             notifyInsertPages(meetingId, userId, "error", s"app.presentation.insertPages.error.${ErrorKey.Failed}",
-              Map("filename" -> BlankPageFilename), bus)
+              Map("filename" -> BlankPageNameKey), bus)
             state
           case None =>
             val t = target.get
@@ -104,7 +104,7 @@ trait InsertBlankPagePubMsgHdlr extends RightsManagementTrait {
             PresPresentationDAO.setUploadInProgress(uploadPresentationId)
 
             val queue = enqueue(state.insertPagesQueue, uploadPresentationId, userId, msg.body.podId,
-              BlankPageFilename, intent, InsertStage.Conversion, System.currentTimeMillis())
+              BlankPageNameKey, intent, InsertStage.Conversion, System.currentTimeMillis())
             sendToBbbWeb(t, intent, uploadPresentationId, reference.get)
             state.update(queue)
         }

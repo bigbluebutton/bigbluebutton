@@ -10,8 +10,8 @@ import getSizeWithUnit from '/imports/utils/getSizeWithUnit';
 import PresentationUploadService from '/imports/ui/components/actions-bar/media-area/media-sharing/presentation/service';
 import { PRESENTATION_INSERT_BLANK_PAGE } from '/imports/ui/components/presentation/mutations';
 
-// The name of a blank page in the warnings, as the server names it in its notifications.
-export const BLANK_PAGE_FILENAME = 'blank.pdf';
+// The name of a blank page in the warnings: a message id, translated here and in the server's notifications.
+export const BLANK_PAGE_NAME = 'app.presentation.insertPages.blankPageName';
 
 // requested ends when the request ended (accepted, refused or timed out); done when the upload of the file
 // ended, never before requested. Neither rejects. The outcome of the insert comes as a server notification.
@@ -37,6 +37,11 @@ type RequestOutcome = 'done' | 'failed' | 'notConfirmed';
 
 const presentationConfig = () => window.meetingClientSettings.public.presentation;
 
+// The name of the file in a warning: the translated name of a blank page, or the name of the file.
+const nameOf = (filename: string): React.ReactNode => (filename === BLANK_PAGE_NAME
+  ? React.createElement(FormattedMessage, { id: BLANK_PAGE_NAME })
+  : filename);
+
 // The warning of an insert that failed before the server could report it: the file was too large to send,
 // or the request or the upload failed on the way.
 export const showInsertError = (filename: string, tooLarge = false): void => {
@@ -46,7 +51,8 @@ export const showInsertError = (filename: string, tooLarge = false): void => {
       React.createElement(
         React.Fragment,
         null,
-        `${filename}: `,
+        nameOf(filename),
+        ': ',
         React.createElement(FormattedMessage, { id: 'app.presentationUploder.upload.413', values: { maxFileSize } }),
       ),
       'error',
@@ -54,7 +60,10 @@ export const showInsertError = (filename: string, tooLarge = false): void => {
     return;
   }
   notify(
-    React.createElement(FormattedMessage, { id: 'app.presentation.insertPages.error.failed', values: { filename } }),
+    React.createElement(FormattedMessage, {
+      id: 'app.presentation.insertPages.error.failed',
+      values: { filename: nameOf(filename) },
+    }),
     'error',
   );
 };
@@ -65,7 +74,7 @@ export const showInsertNotConfirmed = (filename: string): void => {
   notify(
     React.createElement(FormattedMessage, {
       id: 'app.presentation.insertPages.error.notConfirmed',
-      values: { filename },
+      values: { filename: nameOf(filename) },
     }),
     'error',
   );
@@ -100,8 +109,8 @@ export const insertBlankPage = (
       if (settled) return;
       settled = true;
       clearTimeout(timer);
-      if (outcome === 'failed') showInsertError(BLANK_PAGE_FILENAME);
-      if (outcome === 'notConfirmed') showInsertNotConfirmed(BLANK_PAGE_FILENAME);
+      if (outcome === 'failed') showInsertError(BLANK_PAGE_NAME);
+      if (outcome === 'notConfirmed') showInsertNotConfirmed(BLANK_PAGE_NAME);
       resolve();
     };
     // An answer that arrives after this is ignored: the warning was already shown.

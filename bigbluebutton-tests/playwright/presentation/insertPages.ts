@@ -61,6 +61,9 @@ export class InsertPages extends Create {
   // warning left on the page is the client's own.
   private dropServerInsertErrors = false;
 
+  // When set, the route of the GraphQL socket sends the blank-page mutation for this presentation id instead.
+  private blankPageTarget: string | null = null;
+
   private pageErrors: string[] = [];
 
   // ---------- setup ----------
@@ -84,6 +87,12 @@ export class InsertPages extends Create {
         }
         if (mode === 'hold') {
           this.heldMessages.push(() => server.send(message));
+          return;
+        }
+        if (isBlank && this.blankPageTarget) {
+          const request = JSON.parse(text);
+          request.payload.variables.presentationId = this.blankPageTarget;
+          server.send(JSON.stringify(request));
           return;
         }
         server.send(message);
@@ -1153,7 +1162,7 @@ export class InsertPages extends Create {
     this.expectNoPageErrors();
   }
 
-  // The blank-page mutation answered with an error: the failed warning of blank.pdf. Not answered: the client
+  // The blank-page mutation answered with an error: the failed warning of the blank page. Not answered: the client
   // cannot tell whether the request arrived, so it warns that the insert could not be confirmed.
   async blankPageMutationFails(mode: 'error' | 'drop') {
     await InsertPages.waitForPresentation(this.modPage);
@@ -1164,7 +1173,7 @@ export class InsertPages extends Create {
     await InsertPages.insertBlankPage(this.modPage);
     await InsertPages.expectToast(
       this.modPage,
-      mode === 'error' ? failedText(e.blankPageFileName) : notConfirmedText(e.blankPageFileName),
+      mode === 'error' ? failedText(e.blankPageNameLabel) : notConfirmedText(e.blankPageNameLabel),
       mode === 'error'
         ? 'should warn that the blank page could not be inserted'
         : 'should warn that the insert of the blank page could not be confirmed',
@@ -1193,7 +1202,7 @@ export class InsertPages extends Create {
     await InsertPages.insertBlankPage(this.modPage);
     await InsertPages.expectToast(
       this.modPage,
-      notConfirmedText(e.blankPageFileName),
+      notConfirmedText(e.blankPageNameLabel),
       'should warn that the insert of the blank page could not be confirmed',
       2 * CLIENT_REQUEST_TIMEOUT,
     );
@@ -1209,13 +1218,34 @@ export class InsertPages extends Create {
     await InsertPages.expectToastSeen(this.modPage, successText(1, 2), 'the server should notify the insert');
     await this.modPage.page.waitForTimeout(NO_MORE_TOASTS_TIME);
     expect(
-      await InsertPages.toastsWith(this.modPage, notConfirmedText(e.blankPageFileName)),
+      await InsertPages.toastsWith(this.modPage, notConfirmedText(e.blankPageNameLabel)),
       'the late answer should bring no second warning',
     ).toHaveLength(1);
     expect(
-      await InsertPages.toastsWith(this.modPage, failedText(e.blankPageFileName)),
+      await InsertPages.toastsWith(this.modPage, failedText(e.blankPageNameLabel)),
       'should not say the blank page could not be inserted',
     ).toHaveLength(0);
+    this.expectNoPageErrors();
+  }
+
+  // The server refuses a blank page (here, for a presentation it does not have): its notification names the blank
+  // page in the language of the user, not by the name of its file.
+  async blankPageRefusedByServer() {
+    await InsertPages.waitForPresentation(this.modPage);
+    const total = await InsertPages.totalSlides(this.modPage);
+    await InsertPages.installProbe(this.modPage);
+    this.blankPageTarget = 'no-such-presentation';
+    await InsertPages.insertBlankPage(this.modPage);
+    await InsertPages.expectToastSeen(
+      this.modPage,
+      `${e.blankPageNameLabel}: ${e.insertPagesTargetNotFoundLabel}`,
+      'the server should notify the refusal of the blank page by its translated name',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    this.blankPageTarget = null;
+    await InsertPages.expectButtonEnabled(this.modPage, 'should enable the button after the refusal');
+    expect(await InsertPages.toastsWith(this.modPage, e.blankPageFileName), 'should not name the file').toHaveLength(0);
+    expect(await InsertPages.totalSlides(this.modPage), 'should keep the pages').toBe(total);
     this.expectNoPageErrors();
   }
 

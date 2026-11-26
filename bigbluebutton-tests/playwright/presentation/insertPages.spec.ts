@@ -135,6 +135,18 @@ test.describe.parallel('Insert pages', { tag: '@ci' }, () => {
       await insertPages.blankPageMutationFails('drop');
     });
 
+    test('Blank page refused by the server, named in the language of the user', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      const insertPages = new InsertPages(browser, context);
+      await insertPages.routeGraphqlSocket(page);
+      insertPages.watchPageErrors(page);
+      await insertPages.initModPage(page, { testInfo });
+      await insertPages.blankPageRefusedByServer();
+    });
+
     test('Blank page mutation answered late', async ({ browser, context, page }, testInfo) => {
       const insertPages = new InsertPages(browser, context);
       await insertPages.routeGraphqlSocket(page);
