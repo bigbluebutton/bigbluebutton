@@ -774,6 +774,7 @@ export interface Presentation {
   restoreOnUpdate: boolean
   uploadEndpoint: string
   fileUploadConstraintsHint: boolean
+  insertPagesEnabled: boolean
   mirroredFromBBBCore: MirroredFromBbbcore
   uploadValidMimeTypes: UploadValidMimeType[]
 }

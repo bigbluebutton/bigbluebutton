@@ -638,6 +638,21 @@ export const elements = {
   confirmClearAnnotationsButton: 'div[id="simpleModal"] button:has-text("Clear")',
   modClearAnnotationsDescription: 'Are you sure you want to clear all whiteboard annotations?',
   viewerClearAnnotationsDescription: 'Are you sure you want to clear all of your whiteboard annotations?',
+  // Insert pages (presentation toolbar)
+  insertPagesButton: 'button[data-test="insertPagesButton"]',
+  insertBlankPage: 'li[data-test="insertBlankPage"]',
+  insertPagesFromFile: 'li[data-test="insertPagesFromFile"]',
+  insertPagesFileInput: 'input[data-test="insertPagesFileInput"]',
+  ariaPoliteAlert: 'div#aria-polite-alert',
+  // core/media fixtures for the insert of pages
+  insertThreePagesFileName: 'insertThreePages.pdf', // 1024x768, 1280x720 (16:9) and 1024x768
+  insertDeck4x3FileName: 'insertDeck4x3.pdf', // 3 pages of 1024x768 (4:3)
+  insertManyPagesFileName: 'insertManyPages.pdf', // 30 pages of 1024x768
+  insertPortraitA4FileName: 'insertPortraitA4.pdf', // 2 pages of 595.28x841.89 (fractional A4)
+  insertSquareFileName: 'insertSquare.pdf', // 2 pages of 600x600
+  insertEmptyFileName: 'vazio.pdf', // 0 bytes
+  insertTruncatedFileName: 'truncado.pdf', // the first 2 KB of a 30-page PDF: pdfinfo fails on it
+  blankPageFileName: 'blank.pdf', // the name of a blank page in the notifications and the upload toast
 
   // Toasts
   statingUploadPresentationToast: 'To be uploaded ...',
@@ -652,6 +667,12 @@ export const elements = {
   presentationPageCountExceededLabel: 'Number of pages exceeded maximum of 200',
   presentationUploadFailedLabel: 'The upload failed. Please try again.',
   presentationUploadCouldNotStartLabel: 'The upload could not start.',
+  insertPagesFailedLabel: 'the pages could not be inserted',
+  insertPagesNotConfirmedLabel: 'the insert of the pages could not be confirmed',
+  insertPagesTimeoutLabel: 'inserting the pages took too long and was stopped',
+  insertPagesUnsupportedTargetLabel:
+    'pages can only be inserted into a presentation made from a PDF or an office document',
+  presentationChangedSlideLabel: 'Presentation changed to slide:',
   screenCapturePermissionErrorLabel: 'Code 1136. Permission to capture the screen needs to be granted.',
   helpLinkToastButton: 'button[data-test="helpLinkToastButton"]',
 

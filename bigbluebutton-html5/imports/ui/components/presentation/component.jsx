@@ -237,10 +237,12 @@ class Presentation extends PureComponent {
       });
     }
 
+    // Another page, not another position: an insert moves the current page without changing it, and
+    // another presentation can show a page at the same position.
     if (
-      currentSlide?.num != null
-      && prevProps?.currentSlide?.num != null
-      && currentSlide?.num !== prevProps.currentSlide?.num
+      currentSlide?.id != null
+      && prevProps?.currentSlide?.id != null
+      && currentSlide.id !== prevProps.currentSlide.id
     ) {
       addAlert(
         intl.formatMessage(intlMessages.slideContentChanged, {

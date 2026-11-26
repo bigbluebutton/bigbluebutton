@@ -133,11 +133,30 @@ export const PRESENTATION_SET_FIT_TO_WIDTH = gql`
 }
 `;
 
+// Inserts a blank page into presentationId at position, sized as the page before it.
+// seenTotalPages is the totalPages read with that position.
+export const PRESENTATION_INSERT_BLANK_PAGE = gql`
+  mutation PresentationInsertBlankPage(
+    $presentationId: String!,
+    $position: Int!,
+    $seenTotalPages: Int!,
+    $navigate: Boolean!,
+  ) {
+    presentationInsertBlankPage(
+      presentationId: $presentationId,
+      position: $position,
+      seenTotalPages: $seenTotalPages,
+      navigate: $navigate,
+    )
+  }
+`;
+
 export default {
   PRESENTATION_SET_ZOOM,
   USER_SET_WHITEBOARD_WRITE_ACCESS,
   PRESENTATION_SET_PAGE,
   PRESENTATION_SET_PAGE_BY_NUM,
+  PRESENTATION_INSERT_BLANK_PAGE,
   PRESENTATION_SET_DOWNLOADABLE,
   PRESENTATION_EXPORT,
   PRESENTATION_SET_CURRENT,
