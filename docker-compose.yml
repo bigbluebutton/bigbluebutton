@@ -266,7 +266,7 @@ services:
     <<: *bbb
     image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-shared-notes-server:${BBB_IMAGE_TAG}
     environment:
-      BBB_WEB_HOST: web
+      BBB_WEB_URL: http://web:8090
       REDIS_HOST: redis
       POSTGRES_HOST: postgres
       POSTGRES_PASSWORD: ${POSTGRES_BLOCKNOTE_PASSWORD}
