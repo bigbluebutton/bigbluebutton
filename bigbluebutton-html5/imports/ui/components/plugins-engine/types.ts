@@ -1,6 +1,11 @@
 import * as React from 'react';
 import * as ReactDOMClient from 'react-dom/client';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
+import * as ReactIntl from 'react-intl';
+import * as StyledComponents from 'styled-components';
+import * as MaterialUI from '@mui/material';
+import * as EmotionReact from '@emotion/react';
+import * as EmotionStyled from '@emotion/styled';
 
 import { Console, External } from '/imports/ui/Types/meetingClientSettings';
 
@@ -52,5 +57,10 @@ declare global {
   interface Window {
     ReactDOMClient: typeof ReactDOMClient;
     BbbPluginSdk: typeof PluginSdk;
+    ReactIntl: typeof ReactIntl;
+    StyledComponents: typeof StyledComponents;
+    MaterialUI: typeof MaterialUI;
+    EmotionReact: typeof EmotionReact;
+    EmotionStyled: typeof EmotionStyled;
   }
 }

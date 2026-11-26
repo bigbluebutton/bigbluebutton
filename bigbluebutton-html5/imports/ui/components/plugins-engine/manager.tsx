@@ -3,6 +3,11 @@ import React, {
 } from 'react';
 import * as ReactDOM from 'react-dom';
 import * as ReactDOMClient from 'react-dom/client';
+import * as ReactIntl from 'react-intl';
+import * as StyledComponents from 'styled-components';
+import * as MaterialUI from '@mui/material';
+import * as EmotionReact from '@emotion/react';
+import * as EmotionStyled from '@emotion/styled';
 import logger from '/imports/startup/client/logger';
 import {
   BbbPluginSdk,
@@ -83,6 +88,13 @@ const PluginsEngineManager = (props: PluginsEngineManagerProps) => {
   window.ReactDOM = ReactDOM;
   window.ReactDOMClient = ReactDOMClient;
   window.BbbPluginSdk = PluginSdk;
+  // Libraries plugins commonly use, directly or through
+  // @bigbluebutton/bbb-ui-components-react.
+  window.ReactIntl = ReactIntl;
+  window.StyledComponents = StyledComponents;
+  window.MaterialUI = MaterialUI;
+  window.EmotionReact = EmotionReact;
+  window.EmotionStyled = EmotionStyled;
 
   const handlePluginLoadSettled = useCallback((uuid: string, loaded: boolean) => {
     const progress = loadingProgressRef.current;
