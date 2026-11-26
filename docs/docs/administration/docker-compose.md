@@ -82,7 +82,7 @@ Backup: `./data`, `.env` and `docker-compose.override.yml`. PostgreSQL (a volume
 - Local changes go in `docker-compose.override.yml` next to `docker-compose.yml` (compose reads it automatically), not in `docker-compose.yml` or `docker/compose/`: `install.sh` replaces those on an upgrade and never touches the override.
 - bbb-web and bbb-apps-akka get their settings from environment variables in `docker-compose.yml` (see [Environment variables](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/docker/README.md#environment-variables)); bbb-web takes any key of `bigbluebutton.properties` this way.
 - bbb-graphql-middleware, bbb-shared-notes-server and bbb-export-annotations get the addresses of the other services (and the notes' database password) from environment variables as well.
-- Other bare-metal settings are in the inline files (`livekit.yaml`, `recording.yml`) and in `docker/compose/`. To change one, use your own version in `docker-compose.override.yml`: mount your file at the same path as a file of `docker/compose/` (further files can be mounted there at their bare-metal paths, see [Images](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/docker/README.md#images), e.g. `/etc/bigbluebutton/bbb-apps-akka.conf`), or replace an inline file, which needs `!override` (without it compose merges both definitions and rejects `content` and `file` together):
+- Other bare-metal settings are in the inline `livekit.yaml` and in `docker/compose/`. To change one, use your own version in `docker-compose.override.yml`: mount your file at the same path as a file of `docker/compose/` (further files can be mounted there at their bare-metal paths, see [Images](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/docker/README.md#images), e.g. `/etc/bigbluebutton/bbb-apps-akka.conf` or `/etc/bigbluebutton/recording/recording.yml`), or replace an inline file, which needs `!override` (without it compose merges both definitions and rejects `content` and `file` together):
 
   ```yaml
   configs:
@@ -91,7 +91,7 @@ Backup: `./data`, `.env` and `docker-compose.override.yml`. PostgreSQL (a volume
   ```
 
   A file is used as it is; `${…}` from `.env` is only filled in under `content:`. After changing an inline file, run `docker compose up -d --force-recreate <service>`: a plain `up -d` does not recreate a service when only the content of its config changed.
-- Recording formats: as on a package install, recordings are processed as `presentation` only. The recording image also has `video`, `notes`, `screenshare` and `podcast`. To enable them, add the `steps` to your own `recording.yml` (as above, starting from the one in `docker-compose.yml`), e.g. for notes and podcast:
+- Recording formats: as on a package install, recordings are processed as `presentation` only. The recording image also has `video`, `notes`, `screenshare` and `podcast`. To enable them, add the `steps` to your own `recording.yml` and mount it at `/etc/bigbluebutton/recording/recording.yml` in the recording services in `docker-compose.override.yml`. It holds only your changes, e.g. for notes and podcast:
 
   ```yaml
   steps:
@@ -106,7 +106,7 @@ Backup: `./data`, `.env` and `docker-compose.override.yml`. PostgreSQL (a volume
     'process:podcast': 'publish:podcast'
   ```
 
-  Then `docker compose up -d --force-recreate recording-workers recording-starter recording-caption-inbox recording-cleanup`. New recordings get the extra formats; `getRecordings` lists them and nginx serves them.
+  Then `docker compose up -d --force-recreate recording-workers recording-starter recording-caption-inbox recording-cleanup`. New recordings get the extra formats; `getRecordings` lists them and nginx serves them. An override written for the earlier inline file (`configs:` with `recording.yml: !override`) is no longer read, and compose does not report it: move its `steps` to a mounted file as above, or recordings go back to `presentation` only.
 - To customize bbb-graphql-middleware, bbb-shared-notes-server or bbb-export-annotations, mount your file at the bare-metal path (`/etc/bigbluebutton/bbb-graphql-middleware.yml`, `/etc/bigbluebutton/bbb-shared-notes-server.yml`, `/etc/bigbluebutton/bbb-export-annotations/production.json`) in `docker-compose.override.yml`. Put only your changes in it: the addresses of the other services come from the environment and win over the file.
 - nginx uses the image's location files and upstreams, which use the default service names. The compose file mounts only its site (port 80 and haproxy's 8081) and `playback.nginx`, because `playback` runs only with the `recording` profile.
 - More Hasura instances: `docker compose up -d --scale graphql-server=2`. nginx balances them as on bare metal and looks up the instances every 30 s, so it follows scaling up and down within about 30 s, without a reload.

@@ -16,11 +16,12 @@ x-recording: &recording
   profiles:
     - recording
   image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-record-and-playback:${BBB_IMAGE_TAG:?}
-  configs:
-    - source: bbb-web.properties
-      target: /etc/bigbluebutton/bbb-web.properties
-    - source: recording.yml
-      target: /etc/bigbluebutton/recording/recording.yml
+  environment:
+    REDIS_HOST: redis
+    BN_NOTES_ENDPOINT: http://shared-notes-server:8787/loopback/api/documents
+    PLAYBACK_HOST: ${BBB_DOMAIN}
+    # signs the recording-ready and analytics callbacks
+    SHARED_SECRET: ${BBB_SHARED_SECRET}
   volumes:
     - ./data/bigbluebutton:/var/bigbluebutton:z
     - ./data/recordings:/var/lib/bbb-webrtc-recorder:z
@@ -415,11 +416,6 @@ volumes:
       o: uid=998,gid=998,mode=0700
 
 configs:
-  # for the recording callbacks, which read the secret from this file
-  bbb-web.properties:
-    content: |
-      securitySalt=${BBB_SHARED_SECRET}
-
   turn-stun-servers.xml:
     content: |
       <?xml version="1.0" encoding="UTF-8"?>
@@ -479,12 +475,6 @@ configs:
           - mime: video/vp8
           - mime: video/rtx
         enable_remote_unmute: true
-
-  recording.yml:
-    content: |
-      redis_host: redis
-      bn_notes_endpoint: http://shared-notes-server:8787/loopback/api/documents
-      playback_host: ${BBB_DOMAIN}
 
   # Based on the turnserver.conf bbb-install writes. It differs in: no listening and relay IPs,
   # TLS terminated by haproxy on 443, relays only to LiveKit (the relay ports stay on the bbb
