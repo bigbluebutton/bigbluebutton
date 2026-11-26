@@ -672,6 +672,8 @@ public:
                 users: 100
 ```
 
+Moderators and the presenter can also set the page size for the whole meeting from "Layout view" in the actions bar, and it replaces the configured desktop sizes. While a threshold applies, its sizes still cap it. Below the first threshold, the size can go up to one less than that threshold's `users`: 29 in the example above, instead of the viewers' 5. With thresholds disabled, it can go up to `public.kurento.pagination.layoutViewMaxPageSize` (default 12). To keep a stream budget, start the thresholds at a lower user count, lower `layoutViewMaxPageSize` when thresholds are disabled, or turn the Layout view off with `public.layout.layoutViewEnabled: false`.
+
 In the example above, `paginationToggleEnabled: false` hides the "Video pagination" switch in Settings, so no user can turn pagination off. To let only moderators change it, leave `paginationToggleEnabled: true` and set `paginationToggleModeratorOnly: true`:
 
 ```

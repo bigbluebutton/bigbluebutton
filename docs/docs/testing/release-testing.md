@@ -440,13 +440,42 @@ Webcams will be moved when mouse is released. (Note: When only one webcam is sha
 
 4. Create a meeting with `disabledFeatures=webcamGrid` and join as moderator.
 
-    - The "Layout view" button shouldn't be shown.
+    - The "Layout view" button should show only the "Cameras in view" slider, without the toggle.
 
 5. Create a meeting with `disabledFeatures=layoutView` and join as moderator with a viewer. Minimize the presentation.
 
     - The "Layout view" button shouldn't be shown, and the viewer's avatar tile should still be in the grid.
     - With `hideUsersWithoutCamera=true` added to the create call, the avatar tiles should stay hidden for the whole meeting.
     - Setting `public.layout.layoutViewEnabled: false` in `/etc/bigbluebutton/bbb-html5.yml` instead should have the same effect in every meeting.
+
+### Cameras in view
+
+1. Join a meeting with a moderator and a viewer, and 4 more users sharing a webcam. Minimize the presentation.
+
+2. Moderator: open "Layout view". The "Cameras in view" slider should go from 01 to 12 and start at 05, the viewers' page size.
+
+3. Moderator: set it to 2.
+
+    - Both the moderator and the viewer should see 2 remote webcams per page and the page arrows. Moderators are no longer unlimited.
+    - A user who joins now, or reloads, should get the same page size.
+    - A viewer shouldn't see the "Layout view" button.
+
+4. Viewer: turn "Paginate webcams" off in Settings.
+
+    - The viewer should see every webcam again, while the moderator keeps 2 per page.
+
+5. Moderator: go to the last page and set the slider to 12.
+
+    - Every webcam should fit in one page, with no empty page left.
+
+6. On a mobile device, join the meeting as a viewer.
+
+    - The viewer should see at most 2 webcams per page (`mobilePageSizes`), even with the slider at 12.
+
+7. Enable `public.kurento.paginationThresholds` with a first entry of 4 users and viewer page size 3, and join with 4 users.
+
+    - The slider should go from 01 to 03, and pages should hold at most 3 webcams.
+    - With fewer than 4 users, the slider should go up to 03 (one less than the entry's user count) and the size set before should apply again.
 
 ### Share camera as content [(Partially automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/presentation/presentation.spec.ts)
 
