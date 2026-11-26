@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { setUserSettings } from '/imports/ui/core/local-states/useUserSettings';
+import { setUserSettings, setUserSettingsReady } from '/imports/ui/core/local-states/useUserSettings';
 import { setUseCurrentLocale } from '/imports/ui/core/local-states/useCurrentLocale';
 import BBBWeb from '/imports/api/bbb-web-api';
 import Session from '/imports/ui/services/storage/in-memory';
@@ -71,6 +71,10 @@ const CustomUsersSettings: React.FC<CustomUsersSettingsProps> = ({
             });
             const mergedSettings = filteredData.reduce((acc, item) => Object.assign(acc, item), {});
             setUserSettings(mergedSettings);
+            // Signal that per-user settings are resolved. Consumers gated on this
+            // (e.g. the audio auto-join deafen decision) can now safely read them
+            // instead of falling back to defaults.
+            setUserSettingsReady(true);
             if (typeof mergedSettings.bbb_override_default_locale === 'string') {
               setUseCurrentLocale(mergedSettings.bbb_override_default_locale);
             }
