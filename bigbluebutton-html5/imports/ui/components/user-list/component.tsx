@@ -53,9 +53,9 @@ const intlMessages = defineMessages({
     id: 'app.userList.usersStaticTitle',
     description: 'Users title without the count of participants',
   },
-  minimize: {
-    id: 'app.sidebarContent.minimizePanelLabel',
-    description: 'Label for the minimize button in the user list panel',
+  close: {
+    id: 'app.sidebarContent.closePanelLabel',
+    description: 'Label for the close button in the user list panel',
   },
   saveUsersNames: {
     id: 'app.actionsBar.actionsDropdown.saveUserNames',
@@ -171,7 +171,7 @@ const UserList: React.FC<UserListComponentProps> = () => {
         title={title}
         dataTest="userListTitle"
         closeButtonLabel={intl.formatMessage(
-          intlMessages.minimize,
+          intlMessages.close,
           { panelName: intl.formatMessage(intlMessages.usersStaticTitle) },
         )}
         closeButtonDataTest="closeUserList"

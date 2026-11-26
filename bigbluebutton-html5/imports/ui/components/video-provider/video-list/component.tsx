@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { IntlShape, defineMessages, injectIntl } from 'react-intl';
 import { UpdatedDataForUserCameraDomElement } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/user-camera/types';
-import { throttle } from '/imports/utils/throttle';
 import { range } from '/imports/utils/array-utils';
 import deviceInfo from '/imports/utils/deviceInfo';
+import { mediumUp } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import Styled, { MOBILE_PAGINATION_BAR_HEIGHT } from './styles';
 import VideoListItemContainer from './video-list-item/container';
 import OverflowTile from './overflow-tile/component';
@@ -82,7 +82,6 @@ const MOBILE_PAGE_ANIM_OFFSET = 24;
 
 interface VideoListProps {
   pluginUserCameraHelperPerPosition: UserCameraHelperAreas;
-  layoutType: string;
   isRTL: boolean;
   layoutContextDispatch: (...args: unknown[]) => void;
   numberOfPages: number;
@@ -103,23 +102,34 @@ interface VideoListProps {
   raisedHandPositions: Map<string, number>;
 }
 
+interface OptimalGrid {
+  rows: number;
+  filledArea: number;
+  width: number;
+  height: number;
+  columns: number;
+}
+
+const EMPTY_OPTIMAL_GRID: OptimalGrid = {
+  rows: 1,
+  filledArea: 0,
+  columns: 0,
+  height: 0,
+  width: 0,
+};
+
 interface VideoListState {
-  optimalGrid: {
-    rows: number,
-    filledArea: number,
-    width: number;
-    height: number;
-    columns: number;
-  },
-  autoplayBlocked: boolean,
+  autoplayBlocked: boolean;
 }
 
 class VideoList extends Component<VideoListProps, VideoListState> {
-  private ticking: boolean;
-
   private grid: HTMLDivElement | null;
 
-  private canvas: HTMLDivElement | null;
+  private lastDispatchedGridSize: { width: number; height: number } | null;
+
+  private lastComputedOptimalGrid: OptimalGrid;
+
+  private lastGridGutter: number;
 
   private failedMediaElements: unknown[];
 
@@ -133,26 +143,15 @@ class VideoList extends Component<VideoListProps, VideoListState> {
     super(props);
 
     this.state = {
-      optimalGrid: {
-        rows: 1,
-        filledArea: 0,
-        columns: 0,
-        height: 0,
-        width: 0,
-      },
       autoplayBlocked: false,
     };
 
-    this.ticking = false;
     this.grid = null;
-    this.canvas = null;
+    this.lastDispatchedGridSize = null;
+    this.lastComputedOptimalGrid = EMPTY_OPTIMAL_GRID;
+    this.lastGridGutter = globalThis.matchMedia?.(mediumUp).matches ? 2 : 1;
     this.failedMediaElements = [];
-    this.handleCanvasResize = throttle(this.handleCanvasResize.bind(this), 66,
-      {
-        leading: true,
-        trailing: true,
-      });
-    this.setOptimalGrid = this.setOptimalGrid.bind(this);
+    this.handleWindowResize = this.handleWindowResize.bind(this);
     this.handleAllowAutoplay = this.handleAllowAutoplay.bind(this);
     this.handlePlayElementFailed = this.handlePlayElementFailed.bind(this);
     this.handleTouchStart = this.handleTouchStart.bind(this);
@@ -165,39 +164,26 @@ class VideoList extends Component<VideoListProps, VideoListState> {
   }
 
   componentDidMount() {
-    this.handleCanvasResize();
-    window.addEventListener('resize', this.handleCanvasResize, false);
+    const measuredGutter = this.readGridGutter();
+    if (measuredGutter !== this.lastGridGutter) {
+      this.lastGridGutter = measuredGutter;
+      this.forceUpdate();
+    } else {
+      this.syncOptimalGridToLayout(this.lastComputedOptimalGrid);
+    }
+    window.addEventListener('resize', this.handleWindowResize, false);
     window.addEventListener('videoPlayFailed', this.handlePlayElementFailed);
   }
 
   componentDidUpdate(prevProps: VideoListProps) {
     const {
-      layoutType, cameraDock, streams, focusedId, overflowCount, numberOfPages, currentVideoPageIndex,
+      numberOfPages, currentVideoPageIndex,
     } = this.props;
-    const { width: cameraDockWidth, height: cameraDockHeight } = cameraDock;
     const {
-      layoutType: prevLayoutType,
-      cameraDock: prevCameraDock,
-      streams: prevStreams,
-      focusedId: prevFocusedId,
-      overflowCount: prevOverflowCount,
-      numberOfPages: prevNumberOfPages,
       currentVideoPageIndex: prevVideoPageIndex,
     } = prevProps;
-    const { width: prevCameraDockWidth, height: prevCameraDockHeight } = prevCameraDock;
 
-    // The overflow tile can mount/unmount without a stream-count change (users
-    // joining or leaving with no camera), and a tile the grid template was not
-    // computed for lands in an implicit auto-height row.
-    if (layoutType !== prevLayoutType
-      || focusedId !== prevFocusedId
-      || cameraDockWidth !== prevCameraDockWidth
-      || cameraDockHeight !== prevCameraDockHeight
-      || streams.length !== prevStreams.length
-      || overflowCount !== prevOverflowCount
-      || numberOfPages !== prevNumberOfPages) {
-      this.handleCanvasResize();
-    }
+    this.syncOptimalGridToLayout(this.lastComputedOptimalGrid);
 
     if (deviceInfo.isMobile
       && numberOfPages > 1
@@ -207,7 +193,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
   }
 
   componentWillUnmount() {
-    window.removeEventListener('resize', this.handleCanvasResize, false);
+    window.removeEventListener('resize', this.handleWindowResize, false);
     window.removeEventListener('videoPlayFailed', this.handlePlayElementFailed);
   }
 
@@ -328,7 +314,6 @@ class VideoList extends Component<VideoListProps, VideoListState> {
   handleVideoItemMount(stream: string | null, videoRef: HTMLVideoElement) {
     const { onVideoItemMount } = this.props;
 
-    this.handleCanvasResize();
     if (stream !== null) onVideoItemMount(stream, videoRef);
   }
 
@@ -338,49 +323,59 @@ class VideoList extends Component<VideoListProps, VideoListState> {
     return stream !== null ? onVirtualBgDrop(stream, type, name, data) : Promise.resolve(null);
   }
 
-  handleCanvasResize() {
-    if (!this.ticking) {
-      window.requestAnimationFrame(() => {
-        this.ticking = false;
-        this.setOptimalGrid();
-      });
+  readGridGutter(): number {
+    if (this.grid) {
+      const computedGutter = parseInt(
+        window.getComputedStyle(this.grid).getPropertyValue('grid-row-gap'),
+        10,
+      );
+      if (!Number.isNaN(computedGutter)) return computedGutter;
     }
-    this.ticking = true;
+    return globalThis.matchMedia?.(mediumUp).matches ? 2 : 1;
   }
 
-  setOptimalGrid() {
+  handleWindowResize() {
+    const nextGutter = this.readGridGutter();
+    if (nextGutter !== this.lastGridGutter) {
+      this.lastGridGutter = nextGutter;
+      this.forceUpdate();
+    }
+  }
+
+  computeOptimalGrid(): OptimalGrid {
     const {
       streams,
       cameraDock,
-      layoutContextDispatch,
       isGridEnabled,
       gridSize,
       overflowCount,
+      focusedId,
     } = this.props;
     const visibleStreams = streams.filter(
       (item) => item.type === VIDEO_TYPES.GRID || !('render' in item) || item.render !== false,
     );
     const videoCount = visibleStreams.filter((item) => item.type !== VIDEO_TYPES.GRID).length;
-    const hasGridItems = visibleStreams.length > videoCount;
+    const hasReplaceableGridItems = visibleStreams.some(
+      (item) => item.type === VIDEO_TYPES.GRID && !item.pinned,
+    );
     const overflowTileShown = isGridEnabled && overflowCount > 0;
     // "grid == page": cameras always get their slots, so capacity grows to the
     // page when cameras alone meet/exceed the grid size. The overflow tile
-    // consumes an extra slot only when there is no avatar for it to replace.
+    // consumes an extra slot only when there is no unpinned avatar for it to replace.
     let numItems = isGridEnabled
       ? Math.min(Math.max(gridSize, videoCount), visibleStreams.length)
       : visibleStreams.length;
-    if (overflowTileShown && !hasGridItems) numItems += 1;
+    if (overflowTileShown && !hasReplaceableGridItems) numItems += 1;
 
-    if (numItems < 1 || !this.canvas || !this.grid) {
-      return;
-    }
-    const { focusedId } = this.props;
-    const canvasWidth = cameraDock?.width;
-    const canvasHeight = cameraDock?.height
+    const canvasWidth = cameraDock?.width ?? 0;
+    const canvasHeight = (cameraDock?.height ?? 0)
       - (this.displayMobilePaginationBar() ? MOBILE_PAGINATION_BAR_HEIGHT : 0);
 
-    const gridGutter = parseInt(window.getComputedStyle(this.grid)
-      .getPropertyValue('grid-row-gap'), 10);
+    if (numItems < 1 || canvasWidth <= 0 || canvasHeight <= 0) {
+      return EMPTY_OPTIMAL_GRID;
+    }
+
+    const gridGutter = this.lastGridGutter;
 
     const hasFocusedItem = visibleStreams.filter(
       (s) => s.type !== VIDEO_TYPES.GRID && s.stream === focusedId,
@@ -390,7 +385,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
     if (hasFocusedItem) {
       numItems += 3;
     }
-    const optimalGrid = range(1, numItems + 1)
+    return range(1, numItems + 1)
       .reduce((currentGrid, col) => {
         const testGrid = findOptimalGrid(
           canvasWidth, canvasHeight, gridGutter,
@@ -400,22 +395,31 @@ class VideoList extends Component<VideoListProps, VideoListState> {
         const focusedConstraint = hasFocusedItem ? testGrid.rows > 1 && testGrid.columns > 1 : true;
         const betterThanCurrent = testGrid.filledArea > currentGrid.filledArea;
         return focusedConstraint && betterThanCurrent ? testGrid : currentGrid;
-      }, { filledArea: 0 } as {
-        columns: number;
-        rows: number;
-        width: number;
-        height: number;
-        filledArea: number;
-    });
+      }, { ...EMPTY_OPTIMAL_GRID });
+  }
+
+  syncOptimalGridToLayout(optimalGrid: OptimalGrid) {
+    const { layoutContextDispatch } = this.props;
+    if (optimalGrid.columns < 1 || optimalGrid.width <= 0 || optimalGrid.height <= 0) {
+      return;
+    }
+    if (
+      this.lastDispatchedGridSize
+      && this.lastDispatchedGridSize.width === optimalGrid.width
+      && this.lastDispatchedGridSize.height === optimalGrid.height
+    ) {
+      return;
+    }
+    this.lastDispatchedGridSize = {
+      width: optimalGrid.width,
+      height: optimalGrid.height,
+    };
     layoutContextDispatch({
       type: ACTIONS.SET_CAMERA_DOCK_OPTIMAL_GRID_SIZE,
       value: {
         width: optimalGrid.width,
         height: optimalGrid.height,
       },
-    });
-    this.setState({
-      optimalGrid,
     });
   }
 
@@ -523,14 +527,13 @@ class VideoList extends Component<VideoListProps, VideoListState> {
 
     const shouldShowOverflowTile = isGridEnabled && overflowCount > 0;
 
-    // The overflow tile may only take an avatar's slot, never a camera's.
-    // Avatars (GRID items) are appended after video streams, so remove the last
-    // GRID item; on a full-camera page there is none and the tile gets its own
-    // slot ("grid == page" keeps every camera of the page visible).
+    // The overflow tile may only take an unpinned avatar's slot, never a camera's
+    // or a pinned avatar's. Unpinned avatars sit at the tail, so scan backwards.
     let lastGridUserIndex = -1;
     if (shouldShowOverflowTile) {
       for (let i = streams.length - 1; i >= 0; i -= 1) {
-        if (streams[i].type === VIDEO_TYPES.GRID) {
+        const item = streams[i];
+        if (item.type === VIDEO_TYPES.GRID && !item.pinned) {
           lastGridUserIndex = i;
           break;
         }
@@ -667,7 +670,9 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       cameraDock,
       isGridEnabled,
     } = this.props;
-    const { optimalGrid, autoplayBlocked } = this.state;
+    const { autoplayBlocked } = this.state;
+    const optimalGrid = this.computeOptimalGrid();
+    this.lastComputedOptimalGrid = optimalGrid;
     const { position } = cameraDock;
     const { isMobile } = deviceInfo;
 
@@ -675,9 +680,6 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       <Styled.VideoCanvas
         $position={position}
         $stacked={this.displayMobilePaginationBar()}
-        ref={(ref) => {
-          this.canvas = ref;
-        }}
         style={{
           minHeight: 'inherit',
         }}

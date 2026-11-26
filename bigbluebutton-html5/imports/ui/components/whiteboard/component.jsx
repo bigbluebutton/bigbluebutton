@@ -255,6 +255,9 @@ const Whiteboard = React.memo((props) => {
   const presentationIdRef = React.useRef(presentationId);
   const innerWrapperPollingFrameRef = React.useRef(null);
   const isMountedPollingFrameRef = React.useRef(null);
+  // Separate from innerWrapperPollingFrameRef: the presentation-area effect cancels that
+  // one on every run, which would drop the initial/restore camera fit.
+  const adjustCameraPollingFrameRef = React.useRef(null);
   const hasZoomSyncedRef = useRef(false);
   const lastForcedViewRef = useRef(null);
   const currentUserRef = useRef(currentUser);
@@ -1863,9 +1866,15 @@ const Whiteboard = React.memo((props) => {
       setInitialWhiteboardTool(editor, toolbarSavedState);
     }
 
+    if (adjustCameraPollingFrameRef.current !== null) {
+      cancelAnimationFrame(adjustCameraPollingFrameRef.current);
+    }
     pollInnerWrapperDimensionsUntilStable(() => {
       adjustCameraOnMount(!isPresenterRef.current);
-    });
+    }, {
+      maxTries: 60,
+      stabilityFrames: 3,
+    }, adjustCameraPollingFrameRef);
 
     // New cursor hint shape: circle scaled by pointerDiameter, centered at (0,0)
     // so that useTransform's translate(x,y) places the circle center exactly on
@@ -2298,7 +2307,25 @@ const Whiteboard = React.memo((props) => {
         );
       }, isMountedPollingFrameRef);
     });
+
+    return () => {
+      if (isMountedPollingFrameRef.current !== null) {
+        cancelAnimationFrame(isMountedPollingFrameRef.current);
+        isMountedPollingFrameRef.current = null;
+      }
+      if (innerWrapperPollingFrameRef.current !== null) {
+        cancelAnimationFrame(innerWrapperPollingFrameRef.current);
+        innerWrapperPollingFrameRef.current = null;
+      }
+    };
   }, [presentationHeight, presentationWidth, presentationAreaHeight, presentationAreaWidth, curPageId, presentationId]);
+
+  React.useEffect(() => () => {
+    if (adjustCameraPollingFrameRef.current !== null) {
+      cancelAnimationFrame(adjustCameraPollingFrameRef.current);
+      adjustCameraPollingFrameRef.current = null;
+    }
+  }, []);
 
   React.useEffect(() => {
     if (!isPresenter
@@ -2505,9 +2532,15 @@ const Whiteboard = React.memo((props) => {
         syncCameraOnPresenterZoom(incomingPageZoom);
         incomingPageZoomRef.current = null;
       } else {
+        if (adjustCameraPollingFrameRef.current !== null) {
+          cancelAnimationFrame(adjustCameraPollingFrameRef.current);
+        }
         pollInnerWrapperDimensionsUntilStable(() => {
           adjustCameraOnMount(true);
-        });
+        }, {
+          maxTries: 120,
+          stabilityFrames: 50,
+        }, adjustCameraPollingFrameRef);
       }
     };
 

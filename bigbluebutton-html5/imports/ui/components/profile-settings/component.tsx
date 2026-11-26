@@ -47,10 +47,6 @@ const intlMessages: { [key: string]: { id: string; description?: string } } = de
     id: 'app.profileSettings.title',
     description: 'Label for the profile settings panel title',
   },
-  minimize: {
-    id: 'app.sidebarContent.minimizePanelLabel',
-    description: 'Minimize button label',
-  },
   username: {
     id: 'app.profileSettings.usernameTitle',
     description: 'Label for the username title in profile settings',

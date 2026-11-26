@@ -1,6 +1,6 @@
 {
     "app.home.greeting": "Your presentation will begin shortly ...",
-    "app.sidebarContent.minimizePanelLabel": "Minimize {panelName}",
+    "app.sidebarContent.closePanelLabel": "Close {panelName}",
     "app.chat.submitLabel": "Send message",
     "app.chat.errorMaxMessageLength": "The message is too long, exceeded the maximum of {maxMessageLength} characters",
     "app.chat.errorMinMessageLength": "The message did not reach the minimum of {minMessageLength} characters",

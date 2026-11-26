@@ -7,9 +7,9 @@ import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 
 const intlMessages = defineMessages({
-  minimize: {
-    id: 'app.sidebarContent.minimizePanelLabel',
-    description: 'Generic minimize label for panels',
+  close: {
+    id: 'app.sidebarContent.closePanelLabel',
+    description: 'Generic close label for panels',
   },
 });
 
@@ -54,7 +54,7 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
 
   const resolvedCloseLabel = closeButtonLabel
-    ?? intl.formatMessage(intlMessages.minimize, { panelName: title });
+    ?? intl.formatMessage(intlMessages.close, { panelName: title });
 
   const multifunctionalModeButton = <MultifunctionalModeButton panelId={panelId} />;
   const rightButton = customRightButton !== undefined
@@ -73,7 +73,7 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({
       rightButtonProps={{
         'aria-label': resolvedCloseLabel,
         'data-test': closeButtonDataTest,
-        icon: 'minus',
+        icon: 'close',
         label: resolvedCloseLabel,
         onClick: closePanel,
         ...closeButtonProps,

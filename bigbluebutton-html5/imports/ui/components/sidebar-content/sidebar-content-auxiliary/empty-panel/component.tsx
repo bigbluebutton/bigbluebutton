@@ -21,9 +21,9 @@ const intlMessages = defineMessages({
     id: 'app.emptyPanel.multifunctionalDescription',
     description: 'Description shown in the empty panel body',
   },
-  minimize: {
-    id: 'app.sidebarContent.minimizePanelLabel',
-    description: 'Generic minimize label for panels',
+  close: {
+    id: 'app.sidebarContent.closePanelLabel',
+    description: 'Generic close label for panels',
   },
 });
 
@@ -39,7 +39,7 @@ const EmptyPanel: React.FC = () => {
         closeButtonDataTest="emptyPanelCloseButton"
         closeButtonLabel={
           intl.formatMessage(
-            intlMessages.minimize,
+            intlMessages.close,
             { panelName: intl.formatMessage(intlMessages.multifunctionalPanelTitle) },
           )
         }

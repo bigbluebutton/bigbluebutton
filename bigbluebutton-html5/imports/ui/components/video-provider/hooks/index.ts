@@ -378,8 +378,16 @@ export const useIsPaginationEnabled = () => {
 };
 
 const OVERFLOW_TILE_PREVIEW_LIMIT = 3;
+// How long a user who left the grid subscription (camera starting) keeps their avatar
+// while their stream has not reached this client yet.
+const GRID_USER_HOLD_MS = 3000;
 
-export const useGridUsers = (visibleStreamCount: number, visibleUserCount: number) => {
+export const useGridUsers = (
+  visibleStreamCount: number,
+  visibleUserCount: number,
+  streamUserIds: Set<string>,
+  totalCameraUserCount: number,
+) => {
   const gridSize = useGridSize();
   const isGridEnabled = useIsGridEnabled();
   const { data: countData } = useDeduplicatedSubscription<UsersCountSubscriptionResponse>(
@@ -391,6 +399,11 @@ export const useGridUsers = (visibleStreamCount: number, visibleUserCount: numbe
   const gridItems = useRef<GridItem[]>([]);
   const overflowCount = useRef<number>(0);
   const overflowUsers = useRef<GridItem[]>([]);
+  const prevGridUsers = useRef<GridItem[]>([]);
+  const prevUserCount = useRef<number>(0);
+  const heldGridUsers = useRef<Map<string, {
+    user: GridItem, index: number, since: number, userCount: number,
+  }>>(new Map());
 
   const { data: meeting } = useMeeting((m) => ({
     meetingId: m.meetingId,
@@ -420,6 +433,10 @@ export const useGridUsers = (visibleStreamCount: number, visibleUserCount: numbe
   const baseGridUserLimit = Math.max(gridSize - visibleStreamCount, 0);
   const hasOverflow = userCount > gridSize;
 
+  const gridQueryLimit = hasOverflow
+    ? baseGridUserLimit + OVERFLOW_TILE_PREVIEW_LIMIT
+    : baseGridUserLimit;
+
   const {
     data: gridData,
     error: gridError,
@@ -431,7 +448,7 @@ export const useGridUsers = (visibleStreamCount: number, visibleUserCount: numbe
       // otherwise keep everyone ([true, false]). The current user is re-added client-side
       // below (the query can't reference it without breaking Hasura multiplexing).
       variables: {
-        limit: hasOverflow ? baseGridUserLimit + OVERFLOW_TILE_PREVIEW_LIMIT : baseGridUserLimit,
+        limit: gridQueryLimit,
         moderatorValues: canOnlySeeModeratorCameras ? [true] : [true, false],
       },
       skip: !isGridEnabled,
@@ -443,6 +460,8 @@ export const useGridUsers = (visibleStreamCount: number, visibleUserCount: numbe
     gridItems.current = [];
     overflowCount.current = 0;
     overflowUsers.current = [];
+    prevGridUsers.current = [];
+    heldGridUsers.current.clear();
     return {
       gridUsers: gridItems.current,
       overflowCount: overflowCount.current,
@@ -514,13 +533,16 @@ export const useGridUsers = (visibleStreamCount: number, visibleUserCount: numbe
         type: VIDEO_TYPES.GRID,
       };
 
-      // Insert the current user at the position the query's ordering (nameSortable, then
-      // userId) would have placed them, instead of appending last.
-      const insertAt = newGridUsers.findIndex((u) => (
-        u.nameSortable.localeCompare(selfGridUser.nameSortable) > 0
-        || (u.nameSortable === selfGridUser.nameSortable
-          && u.userId.localeCompare(selfGridUser.userId) > 0)
-      ));
+      // Insert the current user at the position the query's ordering (pinned desc,
+      // nameSortable asc, userId asc) would have placed them.
+      const insertAt = newGridUsers.findIndex((u) => {
+        if (u.pinned !== selfGridUser.pinned) return !u.pinned && selfGridUser.pinned;
+        return (
+          u.nameSortable.localeCompare(selfGridUser.nameSortable) > 0
+          || (u.nameSortable === selfGridUser.nameSortable
+            && u.userId.localeCompare(selfGridUser.userId) > 0)
+        );
+      });
       if (insertAt === -1) {
         newGridUsers.push(selfGridUser);
       } else {
@@ -528,21 +550,58 @@ export const useGridUsers = (visibleStreamCount: number, visibleUserCount: numbe
       }
     }
 
+    // A user who starts a camera leaves GRID_USERS_SUBSCRIPTION before their stream reaches
+    // this client. Keep their avatar in place until the stream shows up, so the tile neither
+    // disappears nor turns into a "+N" flash. Someone leaving lowers userCount, which drops
+    // the hold; a truncated result (limit reached) can't tell a camera from paging, so skip it.
+    const now = Date.now();
+    const newGridUserIds = new Set(newGridUsers.map((u) => u.userId));
+    const resultTruncated = filteredUsers.length >= gridQueryLimit;
+    prevGridUsers.current.forEach((u, index) => {
+      if (newGridUserIds.has(u.userId) || streamUserIds.has(u.userId)) return;
+      if (resultTruncated || heldGridUsers.current.has(u.userId)) return;
+      if (userCount < prevUserCount.current) return;
+      heldGridUsers.current.set(u.userId, {
+        user: u, index, since: now, userCount,
+      });
+    });
+    heldGridUsers.current.forEach((held, userId) => {
+      if (
+        newGridUserIds.has(userId)
+        || streamUserIds.has(userId)
+        || userCount < held.userCount
+        || now - held.since > GRID_USER_HOLD_MS
+      ) {
+        heldGridUsers.current.delete(userId);
+        return;
+      }
+      newGridUsers.splice(Math.min(held.index, newGridUsers.length), 0, held.user);
+    });
+    prevGridUsers.current = newGridUsers;
+    prevUserCount.current = userCount;
+
+    // Exclude users already rendered as streams before slicing.
+    // Otherwise a starting camera briefly takes an avatar slot.
+    const nonStreamingGridUsers = newGridUsers.filter((u) => !streamUserIds.has(u.userId));
+
     // The grid page shows at most baseGridUserLimit avatar users. When there is
     // overflow we over-fetch a few extra users (OVERFLOW_TILE_PREVIEW_LIMIT) purely
     // to preview their avatars inside the overflow tile — those extras must not
     // land in the grid itself, so keep the grid slice and the preview slice apart.
-    gridItems.current = newGridUsers.slice(0, baseGridUserLimit);
-    // The tile replaces the last grid avatar, so preview that user too
-    overflowUsers.current = newGridUsers.slice(Math.max(gridItems.current.length - 1, 0));
+    gridItems.current = nonStreamingGridUsers.slice(0, baseGridUserLimit);
+    const hasReplaceableAvatar = gridItems.current.some((u) => !u.pinned);
+    // When an unpinned avatar is replaced by the overflow tile, preview that user too.
+    const previewStartIndex = hasReplaceableAvatar
+      ? Math.max(gridItems.current.length - 1, 0)
+      : gridItems.current.length;
+    overflowUsers.current = nonStreamingGridUsers.slice(previewStartIndex);
 
-    // Hidden users = grid participants not visible on this page. Count in USERS, not
-    // stream tiles as a user with several cameras holds several tiles. The
-    // overflow tile replaces the last avatar when avatars exist (+1: the
-    // replaced user joins the count); on a full-camera page it takes a new
-    // slot instead and replaces no one.
-    const hidden = Math.max(userCount - visibleUserCount - gridItems.current.length, 0);
-    const replacedAvatar = gridItems.current.length > 0 ? 1 : 0;
+    // Bound avatar occupancy by actual non-camera users. This keeps off-page
+    // cameras counted as hidden while preventing subscription-skew "+N" flashes.
+    const totalNonCameraUsers = Math.max(userCount - totalCameraUserCount, 0);
+    const expectedVisibleGridUsers = Math.min(totalNonCameraUsers, baseGridUserLimit);
+    const hidden = Math.max(userCount - visibleUserCount - expectedVisibleGridUsers, 0);
+    const replacedAvatar = hasReplaceableAvatar ? 1 : 0;
     overflowCount.current = hidden > 0 ? hidden + replacedAvatar : 0;
   } else {
     gridItems.current = [];
@@ -943,9 +1002,17 @@ export const useVideoStreams = () => {
   // hidden math is per-user (distinct userIds).
   const renderedStreams = streams.filter((s) => !('render' in s) || s.render !== false);
   const renderedUserIds = new Set(renderedStreams.map((s) => s.userId));
+  const allStreamUserIds = new Set(streams.map((s) => s.userId));
+  const totalCameraUserIds = new Set(
+    allowedStreams
+      .filter((s) => s.type === VIDEO_TYPES.STREAM)
+      .map((s) => s.userId),
+  );
   const { gridUsers, overflowCount, overflowUsers } = useGridUsers(
     renderedStreams.length,
     renderedUserIds.size,
+    allStreamUserIds,
+    totalCameraUserIds.size,
   );
 
   // GRID_USERS_SUBSCRIPTION excludes camera-sharers, so hidden webcam users never reach
@@ -1021,6 +1088,11 @@ export const useExitVideo = (forceExit = false) => {
         return cameraBroadcastStop({ variables: { cameraId } });
       };
 
+      if (ownStreamsRef.current.length === 0) {
+        videoService.exitedVideo();
+        return false;
+      }
+
       const results = ownStreamsRef.current.map((streamId) => {
         if (expected) expectStreamStop(streamId);
 
@@ -1041,7 +1113,7 @@ export const useExitVideo = (forceExit = false) => {
         return false;
       });
     }
-    return true;
+    return false;
   }, [cameraBroadcastStop]);
 
   return exitVideo;

@@ -1,4 +1,4 @@
-import { StreamItem } from './types';
+import { GridItem, StreamItem, VideoItem } from './types';
 import UserListService from '/imports/ui/components/user-list/service';
 import Auth from '/imports/ui/services/auth';
 import VideoService from './service';
@@ -198,6 +198,51 @@ const SORTING_METHODS = Object.freeze({
 
 export const getSortingMethod = (identifier: string): SortingMethodConfig => {
   return SORTING_METHODS[identifier as keyof typeof SORTING_METHODS] || SORTING_METHODS[DEFAULT_SORTING_MODE];
+};
+
+const getVideoItemPinnedTime = (item: VideoItem): number => {
+  if (item.type === VIDEO_TYPES.CONNECTING) return 0;
+  const pinnedTime = item.type === VIDEO_TYPES.GRID ? item.pinnedTime : item.user?.pinnedTime;
+  return pinnedTime ? new Date(pinnedTime).getTime() : 0;
+};
+
+const isVideoItemModerator = (item: VideoItem): boolean => {
+  if (item.type === VIDEO_TYPES.CONNECTING) return false;
+  return item.type === VIDEO_TYPES.GRID ? !!item.isModerator : !!item.user?.isModerator;
+};
+
+export const isVideoItemPinned = (item: VideoItem): boolean => {
+  if (item.type === VIDEO_TYPES.CONNECTING) return false;
+  return item.type === VIDEO_TYPES.GRID ? !!item.pinned : !!item.user?.pinned;
+};
+
+export const mergePinnedGridUsers = (
+  streams: StreamItem[],
+  gridUsers: GridItem[],
+  moderatorFirst = false,
+): VideoItem[] => {
+  const pinnedGridUsers = gridUsers.filter((u) => u.pinned);
+  const hasPinnedAudioOnly = streams.some(
+    (s) => s.type === VIDEO_TYPES.AUDIO_ONLY && isVideoItemPinned(s),
+  );
+  if (pinnedGridUsers.length === 0 && !hasPinnedAudioOnly) {
+    return gridUsers.length > 0 ? [...streams, ...gridUsers] : streams;
+  }
+
+  const unpinnedGridUsers = gridUsers.filter((u) => !u.pinned);
+  const pinnedStreams = streams.filter((s) => isVideoItemPinned(s));
+  const unpinnedStreams = streams.filter((s) => !isVideoItemPinned(s));
+
+  const allPinned: VideoItem[] = [...pinnedStreams, ...pinnedGridUsers].sort((a, b) => {
+    if (moderatorFirst) {
+      const m1 = isVideoItemModerator(a);
+      const m2 = isVideoItemModerator(b);
+      if (m1 !== m2) return m1 ? -1 : 1;
+    }
+    return getVideoItemPinnedTime(b) - getVideoItemPinnedTime(a);
+  });
+
+  return [...allPinned, ...unpinnedStreams, ...unpinnedGridUsers];
 };
 
 export const sortVideoStreams = (streams: StreamItem[], mode: string, moderatorFirst = false) => {
