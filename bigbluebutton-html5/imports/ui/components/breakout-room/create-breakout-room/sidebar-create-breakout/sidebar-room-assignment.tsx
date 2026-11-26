@@ -130,23 +130,23 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
     rememberMoveFocus,
   );
 
-  const openMenuFromRow = (event: React.KeyboardEvent, rowId: string) => {
+  const openMenuFromRow = (event: React.KeyboardEvent) => {
     if (event.target !== event.currentTarget) return;
     if (event.key === 'Enter') {
       event.preventDefault();
       event.stopPropagation();
-      setOpenMoveMenu(rowId);
+      (event.currentTarget.querySelector('[data-test="moveUserMenuButton"]') as HTMLButtonElement)?.click();
     } else if (event.key === ' ') {
       event.preventDefault();
       event.stopPropagation();
     }
   };
 
-  const openMenuFromRowKeyUp = (event: React.KeyboardEvent, rowId: string) => {
+  const openMenuFromRowKeyUp = (event: React.KeyboardEvent) => {
     if (event.key === ' ' && event.target === event.currentTarget) {
       event.preventDefault();
       event.stopPropagation();
-      setOpenMoveMenu(rowId);
+      (event.currentTarget.querySelector('[data-test="moveUserMenuButton"]') as HTMLButtonElement)?.click();
     }
   };
 
@@ -214,9 +214,9 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
                   )}
                   onKeyDown={(event) => {
                     rover(event);
-                    openMenuFromRow(event, rowId);
+                    openMenuFromRow(event);
                   }}
-                  onKeyUp={(event) => openMenuFromRowKeyUp(event, rowId)}
+                  onKeyUp={openMenuFromRowKeyUp}
                   onDragStart={dragStart}
                   onDragEnd={dragEnd}
                 >
@@ -347,9 +347,9 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
                         aria-label={participantLabel(user.name, user.userId, roomName)}
                         onKeyDown={(event) => {
                           rover(event);
-                          openMenuFromRow(event, rowId);
+                          openMenuFromRow(event);
                         }}
-                        onKeyUp={(event) => openMenuFromRowKeyUp(event, rowId)}
+                        onKeyUp={openMenuFromRowKeyUp}
                         onDragStart={dragStart}
                         onDragEnd={dragEnd}
                       >

@@ -392,7 +392,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
       event.preventDefault();
       event.stopPropagation();
       moveFocusTarget.current = rowId;
-      setOpenMoveMenu(rowId);
+      (event.currentTarget.querySelector('[data-test="moveUserMenuButton"]') as HTMLButtonElement)?.click();
     } else if (event.key === ' ') {
       event.preventDefault();
       event.stopPropagation();
@@ -403,7 +403,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
       event.preventDefault();
       event.stopPropagation();
       moveFocusTarget.current = rowId;
-      setOpenMoveMenu(rowId);
+      (event.currentTarget.querySelector('[data-test="moveUserMenuButton"]') as HTMLButtonElement)?.click();
     }
   };
   const closeMoveMenu = () => {
