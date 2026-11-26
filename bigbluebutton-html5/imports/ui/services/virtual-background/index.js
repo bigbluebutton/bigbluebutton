@@ -374,13 +374,17 @@ export async function createVirtualBackgroundService(parameters = null) {
     const simdSupported = await simd();
 
     const BASE_PATH = getBasePath();
+    // the wasm binaries and the models are requested by name: add the client
+    // build, so that a new build does not get a browser's cached copies
+    const VERSION = '?v=' + window.meetingClientSettings.public.app.html5ClientBuild;
+    const locateFile = (file, directory) => directory + file + VERSION;
 
     if (simdSupported) {
-        tflite = await window.createTFLiteSIMDModule();
-        modelResponse = await fetch(BASE_PATH+MODELS.model144.path);
+        tflite = await window.createTFLiteSIMDModule({ locateFile });
+        modelResponse = await fetch(BASE_PATH+MODELS.model144.path+VERSION);
     } else {
-        tflite = await window.createTFLiteModule();
-        modelResponse = await fetch(BASE_PATH+MODELS.model96.path);
+        tflite = await window.createTFLiteModule({ locateFile });
+        modelResponse = await fetch(BASE_PATH+MODELS.model96.path+VERSION);
     }
 
     const modelBufferOffset = tflite._getModelBufferMemoryOffset();
