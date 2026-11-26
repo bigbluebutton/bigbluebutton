@@ -10,7 +10,9 @@ COPY . .
 # Same steps as build/packages-template/bbb-html5/build.sh
 RUN sed -i "s/HTML5_CLIENT_VERSION/${CLIENT_BUILD}/g" private/config/settings.yml \
  && DISABLE_ESLINT_PLUGIN=true npm run build-safari && npm run build
-# Rename all safari bundles to the hash of the last bundle
+# Rename all safari bundles to the hash of the last bundle. Set the build id in index.html and
+# fonts.css, and compress them again: webpack wrote their .gz before, and nginx serves those
+# (gzip_static)
 WORKDIR /app/dist
 RUN HASH=$(ls | grep -Eo 'bundle\.[a-f0-9]{20}\.js' | head -n 1 | grep -Eo '[a-f0-9]{20}'); \
     if [ -z "$HASH" ]; then echo "Bundle hash not found."; else \
@@ -19,7 +21,8 @@ RUN HASH=$(ls | grep -Eo 'bundle\.[a-f0-9]{20}\.js' | head -n 1 | grep -Eo '[a-f
         mv "$FILE" "${FILE%%.safari.js*}.${HASH}.safari.js${FILE#*.safari.js}"; \
       done; \
     fi \
- && sed -i "s/?v=VERSION/?v=${CLIENT_BUILD}/g" index.html stylesheets/fonts.css
+ && sed -i "s/?v=VERSION/?v=${CLIENT_BUILD}/g" index.html stylesheets/fonts.css \
+ && for f in index.html stylesheets/fonts.css; do [ ! -e "$f.gz" ] || gzip -9 -n -k -f "$f"; done
 
 FROM nginxinc/nginx-unprivileged:1.30.6-alpine@sha256:f5116ed4606f3eb015dd4a8e28cb9b351476dc0ad4bc6e9f93b19cec130cdf03
 
