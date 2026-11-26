@@ -362,6 +362,18 @@ class ScreenshareComponent extends React.Component {
     });
   }
 
+  // The attendee volume control shows while focus is inside the screenshare. Its usual way in is
+  // the fullscreen button; with fullscreen disabled and no plugin button there is no Tab stop
+  // inside, so the screenshare itself becomes one.
+  needsKeyboardEntryPoint() {
+    const { isPresenter, isBot, enableVolumeControl } = this.props;
+    const { loaded } = this.state;
+    const ALLOW_FULLSCREEN = window.meetingClientSettings.public.app.allowFullscreen;
+
+    if (isPresenter || isBot || !loaded || !enableVolumeControl || ALLOW_FULLSCREEN) return false;
+    return Object.values(this.splitPluginItems()).every((items) => items.length === 0);
+  }
+
   renderFullscreenButton() {
     const {
       intl,
@@ -609,6 +621,7 @@ class ScreenshareComponent extends React.Component {
       zIndex,
       fullscreenContext,
       shouldShowScreenshare,
+      intl,
     } = this.props;
 
     // Conditions to render the connecting animation
@@ -618,6 +631,7 @@ class ScreenshareComponent extends React.Component {
       || (isPresenter && !isGloballyBroadcasting);
 
     const display = (width > 0 && height > 0) && shouldShowScreenshare ? 'inherit' : 'none';
+    const keyboardEntryPoint = this.needsKeyboardEntryPoint();
     const Settings = getSettingsSingletonInstance();
     const { animations } = Settings.application;
 
@@ -664,6 +678,9 @@ class ScreenshareComponent extends React.Component {
             }
           }}
           id="screenshareContainer"
+          tabIndex={keyboardEntryPoint ? 0 : undefined}
+          role={keyboardEntryPoint ? 'group' : undefined}
+          aria-label={keyboardEntryPoint ? intl.formatMessage(this.locales.label) : undefined}
         >
           {this.renderScreenshareButtons()}
           {isPresenter
