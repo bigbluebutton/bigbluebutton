@@ -27,7 +27,9 @@ const intlMessages = defineMessages({
   },
 });
 
-const UnsavedChangesModal = ({ isOpen, onCancel, onConfirm }) => {
+const UnsavedChangesModal = ({
+  isOpen, onCancel, onConfirm, message, ignoreMessage,
+}) => {
   const intl = useIntl();
 
   return (
@@ -54,10 +56,10 @@ const UnsavedChangesModal = ({ isOpen, onCancel, onConfirm }) => {
       )}
     >
       <Styled.Text>
-        {intl.formatMessage(intlMessages.message)}
+        {intl.formatMessage(message ?? intlMessages.message)}
       </Styled.Text>
       <Styled.IgnoreText>
-        {intl.formatMessage(intlMessages.ignoreMessage)}
+        {intl.formatMessage(ignoreMessage ?? intlMessages.ignoreMessage)}
       </Styled.IgnoreText>
     </ModalSimple>
   );
@@ -67,6 +69,14 @@ UnsavedChangesModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onCancel: PropTypes.func.isRequired,
   onConfirm: PropTypes.func.isRequired,
+  // What the unsaved changes are and what ignoring them does, when not the default.
+  message: PropTypes.shape({ id: PropTypes.string }),
+  ignoreMessage: PropTypes.shape({ id: PropTypes.string }),
+};
+
+UnsavedChangesModal.defaultProps = {
+  message: null,
+  ignoreMessage: null,
 };
 
 export default UnsavedChangesModal;
