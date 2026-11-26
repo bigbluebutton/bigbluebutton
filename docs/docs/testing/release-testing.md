@@ -448,7 +448,7 @@ Webcams will be moved when mouse is released. (Note: When only one webcam is sha
     - With `hideUsersWithoutCamera=true` added to the create call, the avatar tiles should stay hidden for the whole meeting.
     - Setting `public.layout.layoutViewEnabled: false` in `/etc/bigbluebutton/bbb-html5.yml` instead should have the same effect in every meeting.
 
-### Cameras in view
+### Cameras in view [(Partially automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/webcam/cameraPageSize.spec.ts)
 
 1. Join a meeting with a moderator and a viewer, and 4 more users sharing a webcam. Minimize the presentation.
 

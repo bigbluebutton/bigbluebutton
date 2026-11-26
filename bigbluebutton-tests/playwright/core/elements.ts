@@ -873,6 +873,7 @@ export const elements = {
   layoutViewPanel: 'div[data-test="layoutViewPanel"]',
   closeLayoutViewPanel: 'button[data-test="closeLayoutViewPanel"]',
   hideUsersWithoutCameraToggle: '[data-test="hideUsersWithoutCameraToggle"] input',
+  cameraPageSizeSlider: 'input[data-test="cameraPageSizeSlider-input"]',
   webcamVideoList: 'div[data-test="webcamVideoList"]',
   overflowTile: 'div[data-test="overflowTile"]',
   videoDropdownMenu: 'button[data-test="videoDropdownMenu"]',
