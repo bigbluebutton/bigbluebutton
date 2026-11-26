@@ -496,6 +496,7 @@ export const elements = {
   pollPublishedToast: 'Poll results were published',
   startScreenshareToast: 'Screenshare has started',
   endScreenshareToast: 'Screenshare has ended',
+  layoutUpdateToast: 'Layout updates applied to everyone',
   attendeeJoinedToast: 'Attendee joined the session',
   cameraRequestSentToast: 'Camera request sent to Attendee',
   raisingHandToast: 'You have raised your hand',

@@ -404,11 +404,32 @@ Webcams will be moved when mouse is released. (Note: When only one webcam is sha
 
     - Avatar tiles should be hidden from the start, and the "Layout view" toggle should be on.
 
+### Hide participants without camera: restore the presentation [(Partially automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/webcam/hideUsersWithoutCamera.spec.ts)
+
+1. Join the presenter first: a moderator with `userdata-bbb_skip_video_preview=true`. Then join a second moderator and a viewer, nobody sharing a webcam. Presenter: minimize the presentation.
+
+2. Second moderator: turn on "Hide participants without camera".
+
+    - The presentation should be restored for everyone, instead of leaving an empty grid.
+    - The second moderator should get a "Layout updates applied to everyone" notification.
+
+3. Presenter: minimize the presentation again.
+
+    - It should still be minimized after 5 seconds.
+
+4. Presenter: share a webcam, then stop it.
+
+    - About 3 seconds after the webcam stops, the presentation should be restored for everyone.
+
+5. Presenter: share the webcam again and minimize the presentation. Then stop the webcam and share it again as soon as its tile disappears.
+
+    - The presentation should stay minimized.
+
 ### Hide participants without camera: late join, presenter and audio-only tiles
 
 1. Join a meeting with a moderator and 2 viewers, nobody sharing a webcam. Minimize the presentation.
 
-2. Moderator: turn on "Hide participants without camera".
+2. Moderator: turn on "Hide participants without camera", then minimize the restored presentation.
 
     - A viewer who joins now, or reloads, should also see no avatar tiles.
     - A viewer speaking without a webcam shouldn't get an audio-only tile.

@@ -174,11 +174,12 @@ const projectStreamIdentity = (s: Partial<StreamSubscriptionData>) => ({
   streamId: s.streamId,
 });
 
-export const useVideoStreamsCount = () => {
+// undefined while loading, for callers that must not read loading as "no camera".
+export const useLoadedVideoStreamsCount = (): number | undefined => {
   const { data: meeting } = useMeeting((m) => ({ meetingId: m.meetingId }));
   const { data, loading } = useVideoStreamsSubscription(projectStreamIdentity);
 
-  if (loading || !meeting?.meetingId) return 0;
+  if (loading || !meeting?.meetingId) return undefined;
 
   return filterByMeetingId(
     data as StreamSubscriptionData[],
@@ -186,6 +187,8 @@ export const useVideoStreamsCount = () => {
     VIDEO_STREAMS_SUBSCRIPTION,
   ).length;
 };
+
+export const useVideoStreamsCount = () => useLoadedVideoStreamsCount() ?? 0;
 
 export const useLocalVideoStreamsCount = () => {
   const streams = useStreams();
