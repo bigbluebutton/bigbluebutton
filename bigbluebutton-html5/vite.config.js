@@ -180,7 +180,8 @@ export default defineConfig(({ command, mode }) => {
       emptyOutDir: isSafariTarget || process.env.BBB_DUAL_BUILD !== '1',
 
       sourcemap: true,
-      // Also compiles dependency syntax (e.g. Mermaid's class static blocks) down.
+      // Checked before loading the client, see bigbluebutton-html5/public/boot.js
+      // Note: Keep in sync with bbb-learning-dashboard/vite.config.js
       target: ['chrome87', 'edge88', 'firefox80', 'safari14'],
       cssCodeSplit: false,
       // Safari 14/15 mis-parse some minified JS; ship an unminified twin.

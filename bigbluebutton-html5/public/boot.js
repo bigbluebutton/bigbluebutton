@@ -16,6 +16,7 @@
   var versionQuery = ownSrc.indexOf('?') === -1 ? '' : ownSrc.slice(ownSrc.indexOf('?'));
   var isSafari = /^((?!chrome|android).)*safari/i.test(ua);
 
+  // If adjusted, also update in bigbluebutton-html5/vite.config.js
   var MIN_VERSIONS = {
     safari: 14, // hasWeakRef below may raise the real floor to 14.1
     chrome: 87,

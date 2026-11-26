@@ -50,7 +50,7 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: 'build',
       sourcemap: true,
-      // Same floor as the HTML5 client; also keeps media queries readable by Safari < 16.4.
+      // Note: Keep in sync with bigbluebutton-html5/vite.config.js
       target: ['chrome87', 'edge88', 'firefox80', 'safari14'],
       emptyOutDir: true,
       assetsDir: 'static',
