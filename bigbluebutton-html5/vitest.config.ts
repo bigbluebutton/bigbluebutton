@@ -2,7 +2,9 @@ import path from 'path';
 import { transformWithEsbuild } from 'vite';
 import { defineConfig } from 'vitest/config';
 
-const projectJs = /\/bigbluebutton-html5\/(imports|client)\/.*\.js$/;
+// the client's own .js files, wherever the checkout lives and whatever its folder is called
+const escapeRegExp = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const projectJs = new RegExp(`^${escapeRegExp(path.resolve(__dirname))}/(imports|client)/.*\\.js$`);
 
 // Unit tests for the html5 client. The client resolves `/imports/...` and `/client/...` from the
 // project root (webpack resolve.roots), so the same absolute paths are mapped here.
