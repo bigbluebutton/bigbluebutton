@@ -197,7 +197,7 @@ services:
 | Package install | Docker Compose |
 |---|---|
 | `bbb-conf --status` | `docker compose ps` |
-| `bbb-conf --stop` / `--start` | `docker compose stop` / `docker compose up -d` (after a reboot, see [Troubleshooting](#up-fails-after-a-reboot-with-cannot-access-path)) |
+| `bbb-conf --stop` / `--start` | `docker compose stop` / `docker compose up -d` |
 | `bbb-conf --restart` | `docker compose restart` |
 | `bbb-conf --secret` | the URL is `https://<BBB_DOMAIN>/bigbluebutton/`, the secret is `BBB_SHARED_SECRET` in `.env` |
 | `bbb-conf --setsecret <secret>` | set `BBB_SHARED_SECRET` in `.env`, then `docker compose up -d --force-recreate` |
@@ -218,7 +218,3 @@ A front end such as [Greenlight](/greenlight/v3/install) needs the API URL and t
 ### Meetings start without the default slides
 
 bbb-web downloads the default slides from `https://<domain>` through the host (`extra_hosts: host-gateway`), so port 443 must be published on the host's addresses (the default). The download needs the real certificate; it fails while haproxy serves the self-signed one.
-
-### up fails after a reboot with "cannot access path"
-
-After the server or Docker restarts, `docker compose up -d` and `docker compose start` can stop at `init` with `cannot access path /var/lib/docker/rootfs/overlayfs/<id>/usr/share/bbb-graphql-server`: the stopped `init` container still points to the image volumes as they were mounted before the restart. The services that were running come back on their own; recreate `init` to start or change the setup again: `docker compose rm -f init && docker compose up -d`.
