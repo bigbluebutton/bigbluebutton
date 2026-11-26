@@ -6,7 +6,10 @@ import React, {
   useState,
 } from 'react';
 import cx from 'classnames';
+import { useReactiveVar } from '@apollo/client';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import AudioManager from '/imports/ui/services/audio-manager';
+import useIsAudioConnected from '/imports/ui/components/audio/audio-graphql/hooks/useIsAudioConnected';
 import KEYS from '/imports/utils/keys';
 import deviceInfo, { isMobile } from '/imports/utils/deviceInfo';
 import { defineMessages, useIntl } from 'react-intl';
@@ -455,6 +458,18 @@ const RecordingIndicatorContainer: React.FC = () => {
   }));
 
   const [timeSync] = useTimeSync();
+  const isAudioConnected = useIsAudioConnected();
+  // @ts-ignore - JS AudioManager reactive var
+  // eslint-disable-next-line no-underscore-dangle
+  const isAudioConnecting = useReactiveVar(AudioManager._isConnecting.value) as boolean;
+  // @ts-ignore - JS AudioManager reactive var
+  // eslint-disable-next-line no-underscore-dangle
+  const isListenOnly = useReactiveVar(AudioManager._isListenOnly.value) as boolean;
+  // @ts-ignore - JS AudioManager reactive var
+  // eslint-disable-next-line no-underscore-dangle
+  const isEchoTest = useReactiveVar(AudioManager._isEchoTest.value) as boolean;
+  // The echo test connects audio but is not the conference, so it must not count.
+  const localMicActive = (isAudioConnected || isAudioConnecting) && !isListenOnly && !isEchoTest;
   const Settings = getSettingsSingletonInstance();
   const animations = Settings?.application?.animations;
 
@@ -502,7 +517,7 @@ const RecordingIndicatorContainer: React.FC = () => {
       autoStartRecording={currentMeeting?.recordingPolicies?.autoStartRecording ?? false}
       record={currentMeeting?.recordingPolicies?.record ?? false}
       recording={meetingRecording?.isRecording ?? false}
-      micUser={(currentUser?.voice && !currentUser?.voice.listenOnly) ?? false}
+      micUser={Boolean((currentUser?.voice && !currentUser?.voice.listenOnly) || localMicActive)}
       isPhone={isMobile}
       recordingNotificationEnabled={
         (meetingRecording?.startedBy !== currentUser?.userId
