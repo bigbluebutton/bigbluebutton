@@ -19,7 +19,7 @@ import {
 } from './constants';
 import { elements as e } from './elements';
 import * as helpers from './helpers';
-import { getMediaBridgeCreateParam, isLiveKit } from './livekit';
+import { isLiveKit, withMediaBridgeCreateParam } from './livekit';
 import Logger from './logger';
 import { parameters } from './parameters';
 import { generateSettingsData, Settings } from './settings';
@@ -200,14 +200,7 @@ export class Page {
       testInfo,
     } = initOptions || {};
 
-    // Route meeting creation through the configured media bridge. On the default
-    // (LiveKit) run no extra params are needed - LiveKit is the server default.
-    // The legacy run appends explicit bbb-webrtc-sfu bridge params to override it.
-    const bridgeParam = getMediaBridgeCreateParam();
-    const createParameter =
-      callerCreateParameter && bridgeParam
-        ? `${callerCreateParameter}&${bridgeParam}`
-        : (callerCreateParameter ?? bridgeParam);
+    const createParameter = withMediaBridgeCreateParam(callerCreateParameter);
 
     if (!this.testInfo && testInfo) this.testInfo = testInfo;
 
