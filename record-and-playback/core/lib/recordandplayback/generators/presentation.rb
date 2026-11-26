@@ -97,7 +97,7 @@ module BigBlueButton
       end
     end
 
-    # Gathers the text from the slide; slide is the key of the page (see Events.presentation_page_ids)
+    # Gathers the text from a page; slide_num is the key of the page
     def self.get_text_from_slide(textfiles_dir, slide_num)
       text_from_slide = nil
       begin

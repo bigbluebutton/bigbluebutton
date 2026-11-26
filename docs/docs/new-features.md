@@ -63,6 +63,24 @@ The presenter can insert pages into the open presentation: a blank page, or the 
 - Each stage of an insert has a deadline in bbb-apps-akka; see [the configuration](/administration/customize#limit-the-time-an-insert-of-pages-may-take).
 - The PDF of each page of a presentation made from a PDF or an office document is kept, as `pages/page-<pageId>.pdf` in the directory of the presentation, and the conversion cache stores it. The annotated export and a breakout room with the current slide read the page from it; for a big page that is the downscaled version made at conversion.
 
+### Installation
+
+#### Docker Compose
+
+BigBlueButton 4.1 can run on one server with Docker Compose, from container images built in the BigBlueButton repository, as an alternative to the package install. See [Install with Docker Compose](/administration/docker-compose).
+
+#### Environment variables
+
+bbb-graphql-middleware, bbb-shared-notes-server, bbb-export-annotations and the recording processing read their addresses, ports and passwords also from environment variables, which win over their configuration files. On a package install they are unset and nothing changes; the variables are listed in [docker/README.md](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/docker/README.md#environment-variables).
+
+### Removal of old raw recordings
+
+On a package install, the daily cleanup (`/etc/cron.daily/bigbluebutton`) removes the raw files of a recording after `published_days` once every format in the recording `steps` is published. Before, it waited for every installed format, so a playback format that was installed but not in the steps kept every raw recording. A server that has such a format now removes the raw files of recordings published only in the formats of the steps; to keep them, add the format to the steps or raise `published_days`.
+
+### bbb-graphql-server unit
+
+The unit `bbb-graphql-server@.service` now sets `HASURA_GRAPHQL_BBB_DATABASE_URL`, the database of the BigBlueButton source in Hasura's metadata. If you keep a copy of the unit in `/etc/systemd/system`, it hides the packaged one and the metadata is inconsistent after the upgrade: remove the copy, or set the variable in `/etc/bigbluebutton/bbb-graphql-server.env`. `bbb-conf --check` warns about it.
+
 ### bbb-web properties changes
 
 #### Added
@@ -71,7 +89,7 @@ The presenter can insert pages into the open presentation: a blank page, or the 
 
 ### Override file location changes
 
-- The override file for bbb-export-annotations was moved from `/etc/bigbluebutton/bbb-export-annotations.json` to `/etc/bigbluebutton/bbb-export-annotations/production.json`
+- bbb-export-annotations now reads its settings from `config/default.json`, then the override `/etc/bigbluebutton/bbb-export-annotations/production.json`, then environment variables. In 4.0 there was no override file: a change made in `/usr/local/bigbluebutton/bbb-export-annotations/config/settings.json` is replaced on the upgrade to 4.1, so make it again in `/etc/bigbluebutton/bbb-export-annotations/production.json`. (Development builds of 4.1 had the override at `/etc/bigbluebutton/bbb-export-annotations.json`; the package moves it.)
 
 ## Development
 

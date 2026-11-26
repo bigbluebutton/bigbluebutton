@@ -166,7 +166,7 @@ func SendGqlActionsRequest(funcName string, inputs map[string]interface{}, sessi
 	}
 
 	if graphqlActionsUrl == "" {
-		return fmt.Errorf("No Graphql Actions Url (BBB_GRAPHQL_MIDDLEWARE_GRAPHQL_ACTIONS_URL) set, aborting")
+		return fmt.Errorf("no graphql-actions URL set (graphql-actions.url in the configuration or HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL), aborting")
 	}
 
 	startedAt := time.Now()

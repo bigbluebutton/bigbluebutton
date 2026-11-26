@@ -45,9 +45,7 @@ begin
 
   props = BigBlueButton.read_props
 
-  redis_host = props['redis_workers_host'] || props['redis_host']
-  redis_port = props['redis_workers_port'] || props['redis_port']
-  Resque.redis = "#{redis_host}:#{redis_port}"
+  Resque.redis = BigBlueButton.resque_redis(props)
 
   common_opts = {
     'single_step': false

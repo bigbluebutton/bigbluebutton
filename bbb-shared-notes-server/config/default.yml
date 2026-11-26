@@ -17,7 +17,8 @@ commandExecution:
   timeout: 30
 
 bbbWeb:
-  host: 127.0.0.1 # or BBB_WEB_HOST from the environment
+  # host and port: or BBB_WEB_URL from the environment, bbb-web's base URL (http://web:8090)
+  host: 127.0.0.1
   port: 8090
   presentationEndpoint: /bigbluebutton/presentation
   checkAuthorizationEndpoint: /bigbluebutton/connection/checkGraphqlAuthorization
@@ -27,8 +28,8 @@ log:
 
 redis:
   host: 127.0.0.1 # or REDIS_HOST from the environment
-  port: 6379
-  password: null
+  port: 6379 # or REDIS_PORT from the environment
+  password: null # or REDIS_PASSWORD from the environment
   channels:
     publish:
       - to-akka-apps-redis-channel

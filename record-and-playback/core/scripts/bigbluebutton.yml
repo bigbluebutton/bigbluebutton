@@ -15,14 +15,20 @@ bn_notes_endpoint: http://127.0.0.1:8787/loopback/api/documents
 notes_formats:
   - html
   - pdf
-# REDIS_HOST and REDIS_PORT win over these and recording.yml
+# REDIS_HOST, REDIS_PORT and REDIS_PASSWORD win over these and recording.yml, also when
+# exported in the shell that runs bbb-record (e.g. bbb-record --rebuild)
 redis_host: 127.0.0.1
 redis_port: 6379
 # Uncomment and set password if redis require it.
 # redis_password: changeme
 
+# The recording queue (resque) uses redis_workers_* when they are set in a file, whatever
+# REDIS_HOST, REDIS_PORT or REDIS_PASSWORD say; without them it follows redis_*.
+# redis_workers_password is used whenever it is set. Without it, the queue falls back to
+# redis_password only when redis_workers_host is not set: a queue on another host gets no password.
 # redis_workers_host: 127.0.0.1
 # redis_workers_port: 6379
+# redis_workers_password: changeme
 
 # Set to true to insert recording process status into
 # redis list with key "store_recording_status: true".

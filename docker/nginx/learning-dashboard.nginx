@@ -4,5 +4,5 @@ location ~ ^/learning-analytics-dashboard/([^/]+)/([^/]+)/learning_dashboard_dat
 }
 
 location /learning-analytics-dashboard/ {
-    proxy_pass http://learning-dashboard:8080;
+    proxy_pass http://bbb-learning-dashboard;
 }

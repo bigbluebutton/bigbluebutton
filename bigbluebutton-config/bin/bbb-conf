@@ -849,10 +849,38 @@ check_configuration() {
         echo
     fi
 
+    EXPORT_OVERRIDE=/etc/bigbluebutton/bbb-export-annotations/production.json
     if [ -f /etc/bigbluebutton/bbb-export-annotations.json ]; then
         echo
         echo "# Warning: /etc/bigbluebutton/bbb-export-annotations.json is no longer read by bbb-export-annotations."
-        echo "#   Move it to /etc/bigbluebutton/bbb-export-annotations/production.json"
+        if [ -f $EXPORT_OVERRIDE ]; then
+            echo "#   Merge it into $EXPORT_OVERRIDE and remove it"
+        else
+            echo "#   Move it to $EXPORT_OVERRIDE"
+        fi
+        echo
+    fi
+    # Since 4.1 the database URL of the BigBlueButton source comes from the packaged unit; a copy
+    # of an older unit in /etc/systemd/system hides it and the metadata turns inconsistent
+    GQL_PID=$(systemctl show -p MainPID --value bbb-graphql-server@8085 2>/dev/null)
+    if [ -n "$GQL_PID" ] && [ "$GQL_PID" != 0 ] && ! tr '\0' '\n' < "/proc/$GQL_PID/environ" | grep -q '^HASURA_GRAPHQL_BBB_DATABASE_URL='; then
+        echo
+        echo "# Warning: bbb-graphql-server runs without HASURA_GRAPHQL_BBB_DATABASE_URL"
+        echo "#   ($(systemctl show -p FragmentPath --value bbb-graphql-server@8085)). Remove a copy of the unit in"
+        echo "#   /etc/systemd/system, or set the variable in /etc/bigbluebutton/bbb-graphql-server.env"
+        echo
+    fi
+
+    if [ -f $EXPORT_OVERRIDE ] && ! sudo -u bigbluebutton test -r $EXPORT_OVERRIDE; then
+        echo
+        if ! sudo -u bigbluebutton test -x "$(dirname "$EXPORT_OVERRIDE")"; then
+            echo "# Warning: bbb-export-annotations (user bigbluebutton) cannot open $(dirname "$EXPORT_OVERRIDE"),"
+            echo "#   so it skips $EXPORT_OVERRIDE and runs with its defaults."
+        else
+            echo "# Warning: bbb-export-annotations (user bigbluebutton) cannot read $EXPORT_OVERRIDE"
+            echo "#   and stops at start."
+        fi
+        echo "#   The file and its directory must be readable by bigbluebutton."
         echo
     fi
 
