@@ -255,15 +255,21 @@ services:
   graphql-middleware:
     <<: *bbb
     image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-graphql-middleware:${BBB_IMAGE_TAG}
-    volumes:
-      - ./docker/compose/bbb-graphql-middleware.yml:/etc/bigbluebutton/bbb-graphql-middleware.yml:ro
+    environment:
+      REDIS_HOST: redis
+      HASURA_URL: ws://nginx:8185/v1/graphql
+      HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL: http://graphql-actions:8093
+      AUTH_HOOK_URL: http://web:8090/bigbluebutton/connection/checkGraphqlAuthorization
+      SESSION_VARS_HOOK_URL: http://apps-akka:8901/userInfo
 
   shared-notes-server:
     <<: *bbb
     image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-shared-notes-server:${BBB_IMAGE_TAG}
-    configs:
-      - source: bbb-shared-notes-server.yml
-        target: /etc/bigbluebutton/bbb-shared-notes-server.yml
+    environment:
+      BBB_WEB_URL: http://web:8090
+      REDIS_HOST: redis
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_BLOCKNOTE_PASSWORD}
     volumes:
       - shared-notes-conversion:/run
     depends_on:
@@ -473,16 +479,6 @@ configs:
           - mime: video/vp8
           - mime: video/rtx
         enable_remote_unmute: true
-
-  bbb-shared-notes-server.yml:
-    content: |
-      bbbWeb:
-        host: web
-      redis:
-        host: redis
-      postgres:
-        host: postgres
-        password: "${POSTGRES_BLOCKNOTE_PASSWORD}"
 
   recording.yml:
     content: |
