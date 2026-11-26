@@ -1,6 +1,8 @@
 import * as React from 'react';
+import { useContext, useEffect } from 'react';
 import { PluginProvidedUiItemDescriptor } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/base';
 import * as uuidLib from 'uuid';
+import { PluginsContext } from '../../components-data/plugin-context/context';
 
 import PresentationToolbarPluginStateContainer from './components/presentation-toolbar/manager';
 import UserListDropdownPluginStateContainer from './components/user-list-dropdown/manager';
@@ -53,14 +55,51 @@ function generateItemWithId<T extends PluginProvidedUiItemDescriptor>(
   return item;
 }
 
+function aggregateExtensibleAreas(map: ExtensibleAreaMap): ExtensibleArea {
+  const entries = Object.values(map);
+  return {
+    presentationToolbarItems: entries.flatMap((area) => area.presentationToolbarItems ?? []),
+    userListDropdownItems: entries.flatMap((area) => area.userListDropdownItems ?? []),
+    mediaAreaItems: entries.flatMap((area) => area.mediaAreaItems ?? []),
+    audioSettingsDropdownItems: entries.flatMap((area) => area.audioSettingsDropdownItems ?? []),
+    actionsBarItems: entries.flatMap((area) => area.actionsBarItems ?? []),
+    appsGalleryItems: entries.flatMap((area) => area.appsGalleryItems ?? []),
+    presentationDropdownItems: entries.flatMap((area) => area.presentationDropdownItems ?? []),
+    navBarItems: entries.flatMap((area) => area.navBarItems ?? []),
+    screenshareHelperItems: entries.flatMap((area) => area.screenshareHelperItems ?? []),
+    optionsDropdownItems: entries.flatMap((area) => area.optionsDropdownItems ?? []),
+    cameraSettingsDropdownItems: entries.flatMap((area) => area.cameraSettingsDropdownItems ?? []),
+    userCameraDropdownItems: entries.flatMap((area) => area.userCameraDropdownItems ?? []),
+    userCameraHelperItems: entries.flatMap((area) => area.userCameraHelperItems ?? []),
+    userListItemAdditionalInformation: entries.flatMap(
+      (area) => area.userListItemAdditionalInformation ?? [],
+    ),
+    floatingWindows: entries.flatMap((area) => area.floatingWindows ?? []),
+    genericContentItems: entries.flatMap((area) => area.genericContentItems ?? []),
+  };
+}
+
 const ExtensibleAreaStateManager = (props: ExtensibleAreaStateManagerProps) => {
   const {
     uuid,
     pluginApi,
   } = props;
+  const { setPluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
+
   if (!extensibleAreaMap[uuid]) {
     extensibleAreaMap[uuid] = {} as ExtensibleArea;
   }
+
+  useEffect(() => {
+    if (!extensibleAreaMap[uuid]) {
+      extensibleAreaMap[uuid] = {} as ExtensibleArea;
+    }
+
+    return () => {
+      delete extensibleAreaMap[uuid];
+      setPluginsExtensibleAreasAggregatedState(aggregateExtensibleAreas(extensibleAreaMap));
+    };
+  }, [uuid, setPluginsExtensibleAreasAggregatedState]);
 
   return (
     <>

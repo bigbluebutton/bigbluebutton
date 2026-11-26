@@ -26,6 +26,9 @@ const FloatingWindowPluginStateContainer = ((
   } = useContext(PluginsContext);
 
   useEffect(() => {
+    if (!extensibleAreaMap[uuid]) {
+      extensibleAreaMap[uuid] = {} as ExtensibleArea;
+    }
     // Change this plugin provided toolbar items
     extensibleAreaMap[uuid].floatingWindows = floatingWindows;
 

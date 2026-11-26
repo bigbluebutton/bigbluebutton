@@ -22,7 +22,7 @@ const PluginLoaderManager = (props: PluginLoaderManagerProps) => {
 
   useEffect(() => {
     if (!plugin || !containerRef || !isLoggerLoaded) {
-      return;
+      return undefined;
     }
 
     const div = document.createElement('div');
@@ -59,6 +59,13 @@ const PluginLoaderManager = (props: PluginLoaderManagerProps) => {
       script.setAttribute('integrity', plugin.javascriptEntrypointIntegrity);
     }
     document.head.appendChild(script);
+
+    return () => {
+      script.onload = null;
+      script.onerror = null;
+      script.remove();
+      div.remove();
+    };
   }, [plugin, containerRef, isLoggerLoaded]);
   return null;
 };
