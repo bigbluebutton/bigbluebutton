@@ -43,9 +43,8 @@ const MEETING_SUBSCRIPTION = gql`
           multiUserWhiteboardEnabled
         }
         layout {
-          cameraDockAspectRatio
-          cameraDockIsResizing
           cameraDockPlacement
+          cameraDockSize
           cameraWithFocus
           currentLayoutType
           hideUsersWithoutCamera

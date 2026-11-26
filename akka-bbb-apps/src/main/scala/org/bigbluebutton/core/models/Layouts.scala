@@ -27,14 +27,6 @@ object Layouts {
     instance.presentationIsOpen
   }
 
-  def setCameraDockIsResizing(instance: Layouts, p: Boolean) = {
-    instance.isResizing = p
-  }
-
-  def getCameraDockIsResizing(instance: Layouts): Boolean = {
-    instance.isResizing
-  }
-
   def setCameraPosition(instance: Layouts, cp: String) = {
     instance.cameraPosition = cp
   }
@@ -51,12 +43,13 @@ object Layouts {
     instance.focusedCamera
   }
 
-  def setPresentationVideoRate(instance: Layouts, pvr: Double) = {
-    instance.presentationVideoRate = pvr
+  // the dock size as a fraction (0-1) of the area it sits in, along its axis; 0 = not set
+  def setCameraDockSize(instance: Layouts, size: Double) = {
+    instance.cameraDockSize = size
   }
 
-  def getPresentationVideoRate(instance: Layouts): Double = {
-    instance.presentationVideoRate
+  def getCameraDockSize(instance: Layouts): Double = {
+    instance.cameraDockSize
   }
 
   def setScreenshareAsContent(instance: Layouts, screenshareAsContent: Boolean) = {
@@ -89,10 +82,9 @@ class Layouts {
   private var currentLayout = "";
   private var pushLayout: Boolean = false;
   private var presentationIsOpen: Boolean = true;
-  private var isResizing: Boolean = false;
   private var cameraPosition: String = "";
   private var focusedCamera: String = "none";
-  private var presentationVideoRate: Double = 0;
+  private var cameraDockSize: Double = 0;
   private var screenshareAsContent: Boolean = false;
   private var hideUsersWithoutCamera: Boolean = false;
 }

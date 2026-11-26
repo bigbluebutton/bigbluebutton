@@ -8,8 +8,6 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { splitTranscript, captionLimit } from '../service';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
-import { layoutSelectOutput } from '/imports/ui/components/layout/context';
-import { Output } from '/imports/ui/components/layout/layoutTypes';
 
 interface AudioCaptionsLiveProps {
   captions: Caption[];
@@ -75,7 +73,6 @@ const AudioCaptionsLiveContainer: React.FC = () => {
     captionLocale: u.captionLocale,
   }));
   const [audioCaptionsEnable] = useAudioCaptionEnable();
-  const captionsStyle = layoutSelectOutput((i: Output) => i.captions);
 
   const {
     data: AudioCaptionsLiveData,
@@ -112,12 +109,7 @@ const AudioCaptionsLiveContainer: React.FC = () => {
     <Styled.CaptionsContainer
       as="section"
       aria-label={intl.formatMessage(messages.captions)}
-      style={{
-        position: 'absolute',
-        left: captionsStyle.left,
-        right: captionsStyle.right,
-        maxWidth: captionsStyle.maxWidth,
-      }}
+      data-layout-region="captions"
     >
       <AudioCaptionsLive
         captions={AudioCaptionsLiveData.caption.map((c) => {

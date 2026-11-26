@@ -6,20 +6,10 @@ import GenericContentItem from '../generic-content-item/component';
 const GenericMainContent: React.FC<GenericContentMainAreaProps> = ({
   isResizing,
   isLocalChange,
-  genericContentLayoutInformation,
+  isMinimized,
   renderFunctionComponents,
   genericContentId,
 }) => {
-  const {
-    height,
-    width,
-    top,
-    left,
-    right,
-  } = genericContentLayoutInformation;
-
-  const isMinimized = width === 0 && height === 0;
-
   const componentToRender = renderFunctionComponents.filter((g) => genericContentId === g.id)[0];
   let dataTest: string = genericContentId;
   if (componentToRender) {
@@ -27,13 +17,7 @@ const GenericMainContent: React.FC<GenericContentMainAreaProps> = ({
   }
   return (
     <Styled.Container
-      style={{
-        height,
-        width,
-        top,
-        left,
-        right,
-      }}
+      data-layout-region="generic-content"
       preventInteraction={isResizing && isLocalChange}
       data-test={`container-${dataTest}`}
       isMinimized={isMinimized}

@@ -23,15 +23,13 @@ import {
   layoutDispatch,
   layoutSelect,
   layoutSelectInput,
-  layoutSelectOutput,
 } from '../../layout/context';
 import Styled from './styles';
 import {
-  ExternalVideo,
   Input,
   Layout,
-  Output,
 } from '../../layout/layoutTypes';
+import { useMediaBoxCollapse } from '../../layout/shell/context';
 import { uniqueId } from '/imports/utils/string-utils';
 import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
 import ExternalVideoPlayerToolbar from './toolbar/component';
@@ -129,7 +127,8 @@ interface ExternalVideoPlayerProps {
   isResizing: boolean;
   isLocalChange: boolean;
   fullscreenContext: boolean;
-  externalVideo: ExternalVideo;
+  /** the media box has no area: the player hides, as it did with a zero width and height */
+  isMinimized: boolean;
   playing: boolean;
   playerPlaybackRate: number;
   playerKey: string;
@@ -157,7 +156,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   isMuted,
   isResizing,
   isLocalChange,
-  externalVideo,
+  isMinimized,
   fullscreenContext,
   videoUrl,
   isPresenter,
@@ -173,13 +172,6 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
 }) => {
   const intl = useIntl();
   const storage = getStorageSingletonInstance();
-  const {
-    height,
-    width,
-    top,
-    left,
-    right,
-  } = externalVideo;
 
   const hideVolume = useMemo(() => ({
     Vimeo: true,
@@ -917,8 +909,6 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     }
   };
 
-  const isMinimized = width === 0 && height === 0;
-
   let toolbarStyle = 'hoverToolbar';
 
   if (deviceInfo.isMobile && !showHoverToolBar) {
@@ -939,13 +929,10 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
 
   return (
     <Styled.Container
+      data-layout-region="external-video"
       style={{
-        height,
-        width,
-        top,
-        left,
-        right,
-        zIndex: externalVideo.zIndex,
+        // the engine never dispatched a z-index for the external video: the initial 1
+        zIndex: 1,
       }}
       preventInteraction={isResizing && isLocalChange}
       isMinimized={isMinimized}
@@ -1161,7 +1148,7 @@ const ExternalVideoPlayerContainer: React.FC = () => {
   const [timeSync] = useTimeSync();
 
   const fullscreenElementId = 'ExternalVideo';
-  const externalVideo: ExternalVideo = layoutSelectOutput((i: Output) => i.externalVideo);
+  const mediaBoxCollapse = useMediaBoxCollapse();
   const hasExternalVideoOnLayout: boolean = layoutSelectInput((i: Input) => i.externalVideo?.hasExternalVideo);
   const cameraDock = layoutSelectInput((i: Input) => i.cameraDock);
   const { isResizing, isLocalChange } = cameraDock;
@@ -1170,7 +1157,9 @@ const ExternalVideoPlayerContainer: React.FC = () => {
   const { element } = fullscreen;
   const fullscreenContext = (element === fullscreenElementId);
   const [key, setKey] = React.useState(uniqueId('react-player'));
-  if (!currentUser || !currentMeeting?.externalVideo || !externalVideo?.display) return null;
+  // the engine showed the player while the layout input has an external video (forced off in
+  // camerasOnly and participantsAndChatOnly)
+  if (!currentUser || !currentMeeting?.externalVideo) return null;
   if (!hasExternalVideoOnLayout) return null;
   const isPresenter = currentUser.presenter ?? false;
   const isBot = currentUser.bot ?? false;
@@ -1195,7 +1184,7 @@ const ExternalVideoPlayerContainer: React.FC = () => {
       isResizing={isResizing}
       isLocalChange={isLocalChange}
       fullscreenContext={fullscreenContext}
-      externalVideo={externalVideo}
+      isMinimized={mediaBoxCollapse === 'zero'}
       getServerCurrentTime={getServerCurrentTime}
       playerKey={key}
       setPlayerKey={setKey}

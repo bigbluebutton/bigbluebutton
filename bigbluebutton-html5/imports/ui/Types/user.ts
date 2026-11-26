@@ -52,7 +52,8 @@ export interface userLockSettings {
 }
 
 export interface sessionCurrent {
-  enforceLayout: boolean;
+  /** the layout type the moderator enforced on this user (a LAYOUT_TYPE key), or null */
+  enforceLayout: string | null;
 }
 
 export interface LiveKitRoomMembership {

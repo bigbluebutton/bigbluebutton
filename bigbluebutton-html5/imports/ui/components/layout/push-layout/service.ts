@@ -1,51 +1,35 @@
-import {
-  CameraDockPropagationState, Input, MeetingCameraDock, Output,
-} from '../layoutTypes';
+import { CameraDockPropagationState, MeetingCameraDock } from '../layoutTypes';
 
-const equalDouble = (n1: number, n2: number) => {
-  const precision = 0.01;
+/** The dock as the presenter pushes it: where it is drawn and the size the user stored for that axis. */
+export interface PushedCameraDock {
+  position?: string;
+  /** a fraction (0-1) of the dock's area along its axis; 0 = not set */
+  size: number;
+}
 
-  return Math.abs(n1 - n2) <= precision;
-};
-
-const calculatePresentationVideoRate = (cameraDockOutput: Output['cameraDock']) => {
-  const {
-    position,
-    height,
-    width,
-  } = cameraDockOutput;
-  const horizontalPosition = position === 'contentLeft' || position === 'contentRight';
-  let presentationVideoRate;
-  if (horizontalPosition) {
-    presentationVideoRate = width / window.innerWidth;
-  } else {
-    presentationVideoRate = height / window.innerHeight;
-  }
-  const rate = parseFloat(presentationVideoRate.toFixed(2));
-  return Number.isFinite(rate) ? Math.min(1, Math.max(0, rate)) : 0;
+/** The meeting's dock size (Hasura returns numeric columns as strings): a fraction, or 0 (not set). */
+const meetingCameraDockSize = (raw: unknown) => {
+  const size = typeof raw === 'string' ? Number(raw) : raw;
+  return typeof size === 'number' && Number.isFinite(size) && size >= 0 && size <= 1 ? size : 0;
 };
 
 // No position fallback while suppressed: a changed position notifies everyone.
 const getPropagatedCameraDock = ({
   isSuppressed,
-  cameraDockOutput,
-  cameraDockInput,
+  cameraDock,
   meetingCameraDock,
 }: {
   isSuppressed: boolean;
-  cameraDockOutput: Output['cameraDock'];
-  cameraDockInput: Input['cameraDock'];
+  cameraDock: PushedCameraDock;
   meetingCameraDock: MeetingCameraDock;
 }) => (isSuppressed
   ? {
-    isResizing: false,
     cameraPosition: meetingCameraDock.position ?? '',
-    presentationVideoRate: meetingCameraDock.videoRate,
+    cameraDockSize: meetingCameraDock.size,
   }
   : {
-    isResizing: cameraDockInput.isResizing,
-    cameraPosition: cameraDockOutput.position || 'contentTop',
-    presentationVideoRate: calculatePresentationVideoRate(cameraDockOutput),
+    cameraPosition: cameraDock.position || 'contentTop',
+    cameraDockSize: cameraDock.size,
   });
 
 const hasCameraDockChanged = (
@@ -56,22 +40,31 @@ const hasCameraDockChanged = (
 
   const suppressionLifted = prev.isCameraDockPropagationSuppressed === true;
   return suppressionLifted
-    || curr.cameraIsResizing !== prev.cameraIsResizing
     || curr.cameraPosition !== prev.cameraPosition
-    || prev.presentationVideoRate === undefined
-    || !equalDouble(curr.presentationVideoRate, prev.presentationVideoRate);
+    || curr.cameraDockSize !== prev.cameraDockSize;
 };
 
+/**
+ * Whether a follower applies the meeting's dock size again: when it or the meeting's position (whose axis
+ * the size belongs to) changed since the last render. Never on the first render: the join applies the
+ * meeting's size there, and keeps the user's own while the meeting has none (0).
+ */
+const hasMeetingCameraDockChanged = (
+  curr: MeetingCameraDock,
+  prev: Partial<MeetingCameraDock>,
+) => prev.size !== undefined
+  && (curr.size !== prev.size || curr.position !== prev.position);
+
 export {
-  calculatePresentationVideoRate,
-  equalDouble,
   getPropagatedCameraDock,
   hasCameraDockChanged,
+  hasMeetingCameraDockChanged,
+  meetingCameraDockSize,
 };
 
 export default {
-  calculatePresentationVideoRate,
-  equalDouble,
   getPropagatedCameraDock,
   hasCameraDockChanged,
+  hasMeetingCameraDockChanged,
+  meetingCameraDockSize,
 };

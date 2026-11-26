@@ -9,7 +9,7 @@ import VideoList from '/imports/ui/components/video-provider/video-list/componen
 import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
 import { useNumberOfPages, useGridSize } from '/imports/ui/components/video-provider/hooks';
 import { GridItem, VideoItem } from '/imports/ui/components/video-provider/types';
-import { Layout, Output } from '/imports/ui/components/layout/layoutTypes';
+import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { UpdatedDataForUserCameraDomElement } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/user-camera/types';
 import { HookEvents } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
@@ -24,11 +24,12 @@ import { Meeting } from '/imports/ui/Types/meeting';
 import { RAISED_HAND_USERS } from '/imports/ui/core/graphql/queries/users';
 import { filterByMeetingId } from '/imports/ui/core/utils/subscriptionFilters';
 import propsEqualIgnoringFloor from './utils';
+import useElementSize from '/imports/ui/core/hooks/useElementSize';
 
 interface VideoListContainerProps {
   streams: VideoItem[];
   currentVideoPageIndex: number;
-  cameraDock: Output['cameraDock'];
+  cameraDock: { position: string };
   focusedId: string;
   handleVideoFocus: (id: string) => void;
   isGridEnabled: boolean;
@@ -64,6 +65,8 @@ const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
   } = props;
   const numberOfPages = useNumberOfPages();
   const gridSize = useGridSize();
+  // the grid fills the canvas: its measured box, not the dock size the layout engine computed
+  const [canvasRef, canvasSize] = useElementSize<HTMLDivElement>();
 
   // Read once here rather than per tile: a hand toggle then re-renders only the
   // tiles whose position changed, not every tile's container.
@@ -163,6 +166,8 @@ const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
           onVirtualBgDrop={onVirtualBgDrop}
           gridSize={gridSize}
           raisedHandPositions={raisedHandPositions}
+          canvasRef={canvasRef}
+          canvasSize={canvasSize}
         />
       )
   );

@@ -38,7 +38,6 @@ const Overlay = styled.div`
 const ModalContainer = styled.div<{
   isMobile: boolean,
   isRTL: boolean,
-  actionsBarHeight: number,
 }>`
   position: fixed;
   background: ${colorWhiteSurface};
@@ -46,16 +45,17 @@ const ModalContainer = styled.div<{
   display: flex;
   flex-direction: column;
   z-index: 1100;
-  bottom: ${({ actionsBarHeight }) => actionsBarHeight}px;
+  /* above the actions bar, whose height the CSS layout keeps in --bbb-actionbar-height */
+  bottom: var(--bbb-actionbar-height);
   border-radius: ${lgBorderRadius};
   /* Never taller than the space above the actions bar: the content scrolls
      inside instead of pushing the header off the top of the screen. dvh is
      what the mobile browser bars leave visible; vh is the fallback. */
-  max-height: calc(100vh - ${({ actionsBarHeight }) => actionsBarHeight}px - ${MODAL_VIEWPORT_MARGIN});
-  max-height: calc(100dvh - ${({ actionsBarHeight }) => actionsBarHeight}px - ${MODAL_VIEWPORT_MARGIN});
+  max-height: calc(100vh - var(--bbb-actionbar-height) - ${MODAL_VIEWPORT_MARGIN});
+  max-height: calc(100dvh - var(--bbb-actionbar-height) - ${MODAL_VIEWPORT_MARGIN});
 
   ${({
-    isMobile, isRTL, actionsBarHeight,
+    isMobile, isRTL,
   }) => (isMobile ? `
     width: min(${MODAL_WIDTH}, 92%);
     ${isRTL ? `
@@ -67,8 +67,8 @@ const ModalContainer = styled.div<{
     `}
   ` : `
     width: ${MODAL_WIDTH};
-    max-height: min(calc(100vh - ${actionsBarHeight}px - ${MODAL_VIEWPORT_MARGIN}), ${MODAL_DESKTOP_MAX_HEIGHT});
-    max-height: min(calc(100dvh - ${actionsBarHeight}px - ${MODAL_VIEWPORT_MARGIN}), ${MODAL_DESKTOP_MAX_HEIGHT});
+    max-height: min(calc(100vh - var(--bbb-actionbar-height) - ${MODAL_VIEWPORT_MARGIN}), ${MODAL_DESKTOP_MAX_HEIGHT});
+    max-height: min(calc(100dvh - var(--bbb-actionbar-height) - ${MODAL_VIEWPORT_MARGIN}), ${MODAL_DESKTOP_MAX_HEIGHT});
     ${isRTL ? `
       left: 24px;
       right: auto;

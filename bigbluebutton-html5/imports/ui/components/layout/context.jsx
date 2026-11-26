@@ -8,7 +8,7 @@ import {
   CAMERADOCK_POSITION, LAYOUT_ELEMENTS, SYNC,
 } from '/imports/ui/components/layout/enums';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
-import { INITIAL_INPUT_STATE, INITIAL_OUTPUT_STATE } from './initState';
+import { INITIAL_INPUT_STATE } from './initState';
 import useUpdatePresentationAreaContentForPlugin from '/imports/ui/components/plugins-engine/ui-data-hooks/layout/presentation-area/utils';
 import { useIsPresentationEnabled } from '/imports/ui/services/features';
 import { usePrevious } from '../whiteboard/utils';
@@ -68,7 +68,6 @@ const initState = {
     group: '',
   },
   input: INITIAL_INPUT_STATE,
-  output: INITIAL_OUTPUT_STATE,
 };
 
 let _cachedPinnedApps;
@@ -130,7 +129,7 @@ const reducer = (state, action) => {
     // LAYOUT TYPE
     // using to load a different layout manager
     case ACTIONS.SET_LAYOUT_TYPE: {
-      const { layoutType } = state.input;
+      const { layoutType } = state;
       if (layoutType === action.value) return state;
       return {
         ...state,
@@ -261,14 +260,14 @@ const reducer = (state, action) => {
     }
 
     case ACTIONS.SET_HIDE_NAVBAR_TOP_ROW: {
-      const { navBar } = state.output;
+      const { navBar } = state.input;
       if (navBar.hideTopRow === action.value) {
         return state;
       }
       return {
         ...state,
-        output: {
-          ...state.output,
+        input: {
+          ...state.input,
           navBar: {
             ...navBar,
             hideTopRow: action.value,
@@ -277,39 +276,6 @@ const reducer = (state, action) => {
       };
     }
 
-    case ACTIONS.SET_NAVBAR_OUTPUT: {
-      const {
-        display, width, height, top, left, tabOrder, zIndex,
-      } = action.value;
-      const { navBar } = state.output;
-      if (navBar.display === display
-        && navBar.width === width
-        && navBar.height === height
-        && navBar.top === top
-        && navBar.left === left
-        && navBar.zIndex === zIndex
-        && navBar.tabOrder === tabOrder) {
-        return state;
-      }
-      return {
-        ...state,
-        output: {
-          ...state.output,
-          navBar: {
-            ...navBar,
-            display,
-            width,
-            height,
-            top,
-            left,
-            tabOrder,
-            zIndex,
-          },
-        },
-      };
-    }
-
-    // ACTION BAR
     case ACTIONS.SET_HAS_ACTIONBAR: {
       const { actionBar } = state.input;
       if (actionBar.hasActionBar === action.value) {
@@ -327,68 +293,6 @@ const reducer = (state, action) => {
       };
     }
 
-    case ACTIONS.SET_ACTIONBAR_OUTPUT: {
-      const {
-        display, width, height, innerHeight, top, left, padding, tabOrder, zIndex,
-      } = action.value;
-      const { actionBar } = state.output;
-      if (actionBar.display === display
-        && actionBar.width === width
-        && actionBar.height === height
-        && actionBar.innerHeight === innerHeight
-        && actionBar.top === top
-        && actionBar.left === left
-        && actionBar.padding === padding
-        && actionBar.zIndex === zIndex
-        && actionBar.tabOrder === tabOrder) {
-        return state;
-      }
-      return {
-        ...state,
-        output: {
-          ...state.output,
-          actionBar: {
-            ...actionBar,
-            display,
-            width,
-            height,
-            innerHeight,
-            top,
-            left,
-            padding,
-            tabOrder,
-            zIndex,
-          },
-        },
-      };
-    }
-
-    // CAPTIONS
-    case ACTIONS.SET_CAPTIONS_OUTPUT: {
-      const {
-        left, right, maxWidth,
-      } = action.value;
-      const { captions } = state.output;
-      if (captions.left === left
-        && captions.right === right
-        && captions.maxWidth === maxWidth) {
-        return state;
-      }
-      return {
-        ...state,
-        output: {
-          ...state.output,
-          captions: {
-            ...captions,
-            left,
-            right,
-            maxWidth,
-          },
-        },
-      };
-    }
-
-    // SIDEBAR NAVIGATION
     case ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN: {
       const { sidebarNavigation } = state.input;
       if (sidebarNavigation.isOpen === action.value) {
@@ -401,25 +305,6 @@ const reducer = (state, action) => {
           sidebarNavigation: {
             ...sidebarNavigation,
             isOpen: action.value,
-          },
-        },
-      };
-    }
-    case ACTIONS.SET_SIDEBAR_NAVIGATION_SIZE: {
-      const { width, browserWidth } = action.value;
-      const { sidebarNavigation } = state.input;
-      if (sidebarNavigation.width === width
-        && sidebarNavigation.browserWidth === browserWidth) {
-        return state;
-      }
-      return {
-        ...state,
-        input: {
-          ...state.input,
-          sidebarNavigation: {
-            ...sidebarNavigation,
-            width,
-            browserWidth,
           },
         },
       };
@@ -616,47 +501,6 @@ const reducer = (state, action) => {
         },
       };
     }
-    case ACTIONS.SET_SIDEBAR_NAVIGATION_OUTPUT: {
-      const {
-        display,
-        width,
-        height,
-        top,
-        left,
-        right,
-        tabOrder,
-        zIndex,
-      } = action.value;
-      const { sidebarNavigation } = state.output;
-      if (sidebarNavigation.display === display
-        && sidebarNavigation.width === width
-        && sidebarNavigation.height === height
-        && sidebarNavigation.left === left
-        && sidebarNavigation.right === right
-        && sidebarNavigation.tabOrder === tabOrder
-        && sidebarNavigation.zIndex === zIndex) {
-        return state;
-      }
-      return {
-        ...state,
-        output: {
-          ...state.output,
-          sidebarNavigation: {
-            ...sidebarNavigation,
-            display,
-            width,
-            height,
-            top,
-            left,
-            right,
-            tabOrder,
-            zIndex,
-          },
-        },
-      };
-    }
-
-    // SIDEBAR CONTENT AUXILIARY
     case ACTIONS.SET_SIDEBAR_CONTENT_AUXILIARY_IS_OPEN: {
       const CHAT_CONFIG = window.meetingClientSettings.public.chat;
       const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
@@ -721,15 +565,11 @@ const reducer = (state, action) => {
     case ACTIONS.SET_SIDEBAR_CONTENT_AUXILIARY_SIZE: {
       const {
         width,
-        browserWidth,
         height,
-        browserHeight,
       } = action.value;
       const { sidebarContentAuxiliary } = state.input;
       if (sidebarContentAuxiliary.width === width
-        && sidebarContentAuxiliary.browserWidth === browserWidth
-        && sidebarContentAuxiliary.height === height
-        && sidebarContentAuxiliary.browserHeight === browserHeight) {
+        && sidebarContentAuxiliary.height === height) {
         return state;
       }
       return {
@@ -739,101 +579,12 @@ const reducer = (state, action) => {
           sidebarContentAuxiliary: {
             ...sidebarContentAuxiliary,
             width,
-            browserWidth,
             height,
-            browserHeight,
           },
         },
       };
     }
 
-    case ACTIONS.SET_SIDEBAR_CONTENT_AUXILIARY_OUTPUT: {
-      const {
-        display,
-        minWidth,
-        width,
-        maxWidth,
-        minHeight,
-        height,
-        maxHeight,
-        top,
-        left,
-        right,
-        currentPanelType,
-        tabOrder,
-        isResizable,
-        zIndex,
-      } = action.value;
-      const { sidebarContentAuxiliary } = state.output;
-      if (sidebarContentAuxiliary.display === display
-        && sidebarContentAuxiliary.minWidth === minWidth
-        && sidebarContentAuxiliary.width === width
-        && sidebarContentAuxiliary.maxWidth === maxWidth
-        && sidebarContentAuxiliary.minHeight === minHeight
-        && sidebarContentAuxiliary.height === height
-        && sidebarContentAuxiliary.maxHeight === maxHeight
-        && sidebarContentAuxiliary.top === top
-        && sidebarContentAuxiliary.left === left
-        && sidebarContentAuxiliary.right === right
-        && sidebarContentAuxiliary.tabOrder === tabOrder
-        && sidebarContentAuxiliary.zIndex === zIndex
-        && sidebarContentAuxiliary.isResizable === isResizable) {
-        return state;
-      }
-      return {
-        ...state,
-        output: {
-          ...state.output,
-          sidebarContentAuxiliary: {
-            ...sidebarContentAuxiliary,
-            display,
-            minWidth,
-            width,
-            maxWidth,
-            minHeight,
-            height,
-            maxHeight,
-            top,
-            left,
-            right,
-            currentPanelType,
-            tabOrder,
-            isResizable,
-            zIndex,
-          },
-        },
-      };
-    }
-
-    case ACTIONS.SET_SIDEBAR_CONTENT_AUXILIARY_RESIZABLE_EDGE: {
-      const {
-        top, right, bottom, left,
-      } = action.value;
-      const { sidebarContentAuxiliary } = state.output;
-      if (sidebarContentAuxiliary.resizableEdge.top === top
-        && sidebarContentAuxiliary.resizableEdge.right === right
-        && sidebarContentAuxiliary.resizableEdge.bottom === bottom
-        && sidebarContentAuxiliary.resizableEdge.left === left) {
-        return state;
-      }
-      return {
-        ...state,
-        output: {
-          ...state.output,
-          sidebarContentAuxiliary: {
-            ...sidebarContentAuxiliary,
-            resizableEdge: {
-              top,
-              right,
-              bottom,
-              left,
-            },
-          },
-        },
-      };
-    }
-
-    // SIDEBAR CONTENT
     case ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN: {
       const {
         sidebarContent,
@@ -895,15 +646,11 @@ const reducer = (state, action) => {
     case ACTIONS.SET_SIDEBAR_CONTENT_SIZE: {
       const {
         width,
-        browserWidth,
         height,
-        browserHeight,
       } = action.value;
       const { sidebarContent } = state.input;
       if (sidebarContent.width === width
-        && sidebarContent.browserWidth === browserWidth
-        && sidebarContent.height === height
-        && sidebarContent.browserHeight === browserHeight) {
+        && sidebarContent.height === height) {
         return state;
       }
       return {
@@ -913,120 +660,11 @@ const reducer = (state, action) => {
           sidebarContent: {
             ...sidebarContent,
             width,
-            browserWidth,
-            height,
-            browserHeight,
-          },
-        },
-      };
-    }
-    case ACTIONS.SET_SIDEBAR_CONTENT_OUTPUT: {
-      const {
-        display,
-        minWidth,
-        width,
-        maxWidth,
-        minHeight,
-        height,
-        maxHeight,
-        top,
-        left,
-        right,
-        currentPanelType,
-        tabOrder,
-        isResizable,
-        zIndex,
-      } = action.value;
-      const { sidebarContent } = state.output;
-      if (sidebarContent.display === display
-        && sidebarContent.minWidth === minWidth
-        && sidebarContent.width === width
-        && sidebarContent.maxWidth === maxWidth
-        && sidebarContent.minHeight === minHeight
-        && sidebarContent.height === height
-        && sidebarContent.maxHeight === maxHeight
-        && sidebarContent.top === top
-        && sidebarContent.left === left
-        && sidebarContent.right === right
-        && sidebarContent.tabOrder === tabOrder
-        && sidebarContent.zIndex === zIndex
-        && sidebarContent.isResizable === isResizable) {
-        return state;
-      }
-      return {
-        ...state,
-        output: {
-          ...state.output,
-          sidebarContent: {
-            ...sidebarContent,
-            display,
-            minWidth,
-            width,
-            maxWidth,
-            minHeight,
-            height,
-            maxHeight,
-            top,
-            left,
-            right,
-            currentPanelType,
-            tabOrder,
-            isResizable,
-            zIndex,
-          },
-        },
-      };
-    }
-    case ACTIONS.SET_SIDEBAR_CONTENT_RESIZABLE_EDGE: {
-      const {
-        top, right, bottom, left,
-      } = action.value;
-      const { sidebarContent } = state.output;
-      if (sidebarContent.resizableEdge.top === top
-        && sidebarContent.resizableEdge.right === right
-        && sidebarContent.resizableEdge.bottom === bottom
-        && sidebarContent.resizableEdge.left === left) {
-        return state;
-      }
-      return {
-        ...state,
-        output: {
-          ...state.output,
-          sidebarContent: {
-            ...sidebarContent,
-            resizableEdge: {
-              top,
-              right,
-              bottom,
-              left,
-            },
-          },
-        },
-      };
-    }
-
-    // MEDIA
-    case ACTIONS.SET_MEDIA_AREA_SIZE: {
-      const { width, height } = action.value;
-      const { mediaArea } = state.output;
-      if (mediaArea.width === width
-        && mediaArea.height === height) {
-        return state;
-      }
-      return {
-        ...state,
-        output: {
-          ...state.output,
-          mediaArea: {
-            ...mediaArea,
-            width,
             height,
           },
         },
       };
     }
-
-    // WEBCAMS
     case ACTIONS.SET_NUM_CAMERAS: {
       const { cameraDock } = state.input;
       if (cameraDock.numCameras === action.value) {
@@ -1098,13 +736,11 @@ const reducer = (state, action) => {
     case ACTIONS.SET_CAMERA_DOCK_SIZE: {
       const { value, isLocalChange = true } = action;
       const {
-        width, height, browserWidth, browserHeight,
+        width, height,
       } = value;
       const { cameraDock } = state.input;
       if (cameraDock.width === width
-        && cameraDock.height === height
-        && cameraDock.browserWidth === browserWidth
-        && cameraDock.browserHeight === browserHeight) {
+        && cameraDock.height === height) {
         return state;
       }
       return {
@@ -1115,8 +751,6 @@ const reducer = (state, action) => {
             ...cameraDock,
             width,
             height,
-            browserWidth,
-            browserHeight,
             isLocalChange,
           },
         },
@@ -1144,107 +778,6 @@ const reducer = (state, action) => {
         },
       };
     }
-    case ACTIONS.SET_CAMERA_DOCK_OUTPUT: {
-      const {
-        display,
-        position,
-        minWidth,
-        width,
-        maxWidth,
-        presenterMaxWidth,
-        minHeight,
-        height,
-        maxHeight,
-        top,
-        left,
-        right,
-        tabOrder,
-        isDraggable,
-        resizableEdge,
-        zIndex,
-        focusedId,
-        isLocalOnly = false,
-      } = action.value;
-      const { cameraDock } = state.output;
-      if (cameraDock.display === display
-        && cameraDock.position === position
-        && cameraDock.width === width
-        && cameraDock.maxWidth === maxWidth
-        && cameraDock.presenterMaxWidth === presenterMaxWidth
-        && cameraDock.height === height
-        && cameraDock.maxHeight === maxHeight
-        && cameraDock.top === top
-        && cameraDock.left === left
-        && cameraDock.right === right
-        && cameraDock.tabOrder === tabOrder
-        && cameraDock.isDraggable === isDraggable
-        && cameraDock.zIndex === zIndex
-        && cameraDock.resizableEdge === resizableEdge
-        && cameraDock.focusedId === focusedId
-        && cameraDock.isLocalOnly === isLocalOnly) {
-        return state;
-      }
-      return {
-        ...state,
-        output: {
-          ...state.output,
-          cameraDock: {
-            ...cameraDock,
-            display,
-            position,
-            minWidth,
-            width,
-            maxWidth,
-            presenterMaxWidth,
-            minHeight,
-            height,
-            maxHeight,
-            top,
-            left,
-            right,
-            tabOrder,
-            isDraggable,
-            resizableEdge,
-            zIndex,
-            focusedId,
-            isLocalOnly,
-          },
-        },
-      };
-    }
-    case ACTIONS.SET_CAMERA_DOCK_IS_DRAGGABLE: {
-      const { cameraDock } = state.output;
-      if (cameraDock.isDraggable === action.value) {
-        return state;
-      }
-      return {
-        ...state,
-        output: {
-          ...state.output,
-          cameraDock: {
-            ...cameraDock,
-            isDraggable: action.value,
-          },
-        },
-      };
-    }
-
-    // WEBCAMS DROP AREAS
-    case ACTIONS.SET_DROP_AREAS: {
-      const { dropZoneAreas } = state.output;
-      if (dropZoneAreas === action.value) {
-        return state;
-      }
-      return {
-        ...state,
-        output: {
-          ...state.output,
-          dropZoneAreas: action.value,
-        },
-      };
-    }
-
-    // PRESENTATION
     case ACTIONS.SET_PRESENTATION_CONTENT_UPDATED: {
       const { presentation } = state.input;
       return {
@@ -1294,25 +827,6 @@ const reducer = (state, action) => {
         },
       };
     }
-    case ACTIONS.SET_PRESENTATION_NUM_CURRENT_SLIDE: {
-      const { presentation } = state.input;
-      if (presentation.currentSlide.num === action.value) {
-        return state;
-      }
-      return {
-        ...state,
-        input: {
-          ...state.input,
-          presentation: {
-            ...presentation,
-            currentSlide: {
-              ...presentation.currentSlide,
-              num: action.value,
-            },
-          },
-        },
-      };
-    }
     case ACTIONS.SET_PRESENTATION_CURRENT_SLIDE_SIZE: {
       const { width, height } = action.value;
       const { presentation } = state.input;
@@ -1338,116 +852,6 @@ const reducer = (state, action) => {
         },
       };
     }
-    case ACTIONS.SET_PRESENTATION_RESIZABLE_EDGE: {
-      const {
-        top, right, bottom, left,
-      } = action.value;
-      const { presentation } = state.output;
-      const { resizableEdge } = presentation;
-      if (resizableEdge.top === top
-        && resizableEdge.right === right
-        && resizableEdge.bottom === bottom
-        && resizableEdge.left === left) {
-        return state;
-      }
-      return {
-        ...state,
-        output: {
-          ...state.output,
-          presentation: {
-            ...presentation,
-            resizableEdge: {
-              top,
-              right,
-              bottom,
-              left,
-            },
-          },
-        },
-      };
-    }
-    case ACTIONS.SET_PRESENTATION_SIZE: {
-      const {
-        width, height, browserWidth, browserHeight,
-      } = action.value;
-      const { presentation } = state.input;
-      if (presentation.width === width
-        && presentation.height === height
-        && presentation.browserWidth === browserWidth
-        && presentation.browserHeight === browserHeight) {
-        return state;
-      }
-      return {
-        ...state,
-        input: {
-          ...state.input,
-          presentation: {
-            ...presentation,
-            width,
-            height,
-            browserWidth,
-            browserHeight,
-          },
-        },
-      };
-    }
-    case ACTIONS.SET_PRESENTATION_OUTPUT: {
-      const {
-        display,
-        minWidth,
-        width,
-        maxWidth,
-        minHeight,
-        height,
-        maxHeight,
-        top,
-        left,
-        right,
-        tabOrder,
-        isResizable,
-        zIndex,
-      } = action.value;
-      const { presentation } = state.output;
-      if (presentation.display === display
-        && presentation.minWidth === minWidth
-        && presentation.width === width
-        && presentation.maxWidth === maxWidth
-        && presentation.minHeight === minHeight
-        && presentation.height === height
-        && presentation.maxHeight === maxHeight
-        && presentation.top === top
-        && presentation.left === left
-        && presentation.right === right
-        && presentation.tabOrder === tabOrder
-        && presentation.zIndex === zIndex
-        && presentation.isResizable === isResizable) {
-        return state;
-      }
-      return {
-        ...state,
-        output: {
-          ...state.output,
-          presentation: {
-            ...presentation,
-            display,
-            minWidth,
-            width,
-            maxWidth,
-            minHeight,
-            height,
-            maxHeight,
-            top,
-            left,
-            right,
-            tabOrder,
-            isResizable,
-            zIndex,
-          },
-        },
-      };
-    }
-
-    // FULLSCREEN
     case ACTIONS.SET_FULLSCREEN_ELEMENT: {
       const { fullscreen } = state;
       if (fullscreen.element === action.value.element
@@ -1482,13 +886,11 @@ const reducer = (state, action) => {
     }
     case ACTIONS.SET_SCREEN_SHARE_SIZE: {
       const {
-        width, height, browserWidth, browserHeight,
+        width, height,
       } = action.value;
       const { screenShare } = state.input;
       if (screenShare.width === width
-        && screenShare.height === height
-        && screenShare.browserWidth === browserWidth
-        && screenShare.browserHeight === browserHeight) {
+        && screenShare.height === height) {
         return state;
       }
       return {
@@ -1499,48 +901,10 @@ const reducer = (state, action) => {
             ...screenShare,
             width,
             height,
-            browserWidth,
-            browserHeight,
           },
         },
       };
     }
-    case ACTIONS.SET_SCREEN_SHARE_OUTPUT: {
-      const {
-        width,
-        height,
-        top,
-        left,
-        right,
-        zIndex,
-      } = action.value;
-      const { screenShare } = state.output;
-      if (screenShare.width === width
-        && screenShare.height === height
-        && screenShare.top === top
-        && screenShare.left === left
-        && screenShare.right === right
-        && screenShare.zIndex === zIndex) {
-        return state;
-      }
-      return {
-        ...state,
-        output: {
-          ...state.output,
-          screenShare: {
-            ...screenShare,
-            width,
-            height,
-            top,
-            left,
-            right,
-            zIndex,
-          },
-        },
-      };
-    }
-
-    // EXTERNAL VIDEO
     case ACTIONS.SET_HAS_EXTERNAL_VIDEO: {
       const { externalVideo } = state.input;
       if (externalVideo?.hasExternalVideo === action.value) {
@@ -1557,67 +921,6 @@ const reducer = (state, action) => {
         },
       };
     }
-    case ACTIONS.SET_EXTERNAL_VIDEO_SIZE: {
-      const {
-        width, height, browserWidth, browserHeight,
-      } = action.value;
-      const { externalVideo } = state.input;
-      if (externalVideo.width === width
-        && externalVideo.height === height
-        && externalVideo.browserWidth === browserWidth
-        && externalVideo.browserHeight === browserHeight) {
-        return state;
-      }
-      return {
-        ...state,
-        input: {
-          ...state.input,
-          externalVideo: {
-            ...externalVideo,
-            width,
-            height,
-            browserWidth,
-            browserHeight,
-          },
-        },
-      };
-    }
-    case ACTIONS.SET_EXTERNAL_VIDEO_OUTPUT: {
-      const {
-        width,
-        height,
-        top,
-        left,
-        right,
-        display,
-      } = action.value;
-      const { externalVideo } = state.output;
-      if (externalVideo.width === width
-        && externalVideo.height === height
-        && externalVideo.top === top
-        && externalVideo.left === left
-        && externalVideo.right === right
-        && externalVideo.display === display) {
-        return state;
-      }
-      return {
-        ...state,
-        output: {
-          ...state.output,
-          externalVideo: {
-            ...externalVideo,
-            width,
-            height,
-            top,
-            left,
-            right,
-            display,
-          },
-        },
-      };
-    }
-
-    // LAYOUT TYPE MANAGEMENT
     case ACTIONS.SET_LAYOUT_LOADING: {
       const { layoutLoading } = state;
       if (layoutLoading === action.value) {
@@ -1647,70 +950,6 @@ const reducer = (state, action) => {
       };
     }
 
-    case ACTIONS.SET_GENERIC_CONTENT_OUTPUT: {
-      const {
-        width,
-        height,
-        top,
-        left,
-        right,
-      } = action.value;
-      const { genericMainContent } = state.output;
-      if (genericMainContent.width === width
-        && genericMainContent.height === height
-        && genericMainContent.top === top
-        && genericMainContent.left === left
-        && genericMainContent.right === right) {
-        return state;
-      }
-      return {
-        ...state,
-        output: {
-          ...state.output,
-          genericMainContent: {
-            ...genericMainContent,
-            width,
-            height,
-            top,
-            left,
-            right,
-          },
-        },
-      };
-    }
-
-    // NOTES
-    case ACTIONS.SET_SHARED_NOTES_OUTPUT: {
-      const {
-        width,
-        height,
-        top,
-        left,
-        right,
-      } = action.value;
-      const { sharedNotes } = state.output;
-      if (sharedNotes.width === width
-        && sharedNotes.height === height
-        && sharedNotes.top === top
-        && sharedNotes.left === left
-        && sharedNotes.right === right) {
-        return state;
-      }
-      return {
-        ...state,
-        output: {
-          ...state.output,
-          sharedNotes: {
-            ...sharedNotes,
-            width,
-            height,
-            top,
-            left,
-            right,
-          },
-        },
-      };
-    }
     case ACTIONS.SET_NOTES_IS_PINNED: {
       const { sharedNotes } = state.input;
       if (sharedNotes.isPinned === action.value) {
@@ -2054,15 +1293,12 @@ const layoutSelect = (
 const layoutSelectInput = (
   selector,
 ) => useContextSelector(LayoutContextSelector, (layout) => selector(layout[0].input));
-const layoutSelectOutput = (
-  selector,
-) => useContextSelector(LayoutContextSelector, (layout) => selector(layout[0].output));
 const layoutDispatch = () => useContextSelector(LayoutContextSelector, (layout) => layout[1]);
 
 export {
   LayoutContextProvider,
+  reducer,
   layoutSelect,
   layoutSelectInput,
-  layoutSelectOutput,
   layoutDispatch,
 };

@@ -1,0 +1,71 @@
+{
+  "scenario": {
+    "id": "participants-and-chat-only-1366",
+    "profile": {
+      "width": 1366,
+      "height": 768
+    },
+    "layout": "PARTICIPANTS_AND_CHAT_ONLY"
+  },
+  "capturedWith": "dist-base (bundle.8184c460488bf2b301d9.js)",
+  "geometry": {
+    "viewport": {
+      "width": 1366,
+      "height": 768
+    },
+    "attributes": {
+      "layout": "participantsAndChatOnly"
+    },
+    "regions": {
+      "navBar": {
+        "x": 0,
+        "y": 0,
+        "width": 1366,
+        "height": 85,
+        "visible": true,
+        "id": "Navbar"
+      },
+      "actionsBar": {
+        "x": 0,
+        "y": 704,
+        "width": 1366,
+        "height": 64,
+        "visible": true,
+        "id": "ActionsBar"
+      },
+      "sidebarNavigation": {
+        "x": 14,
+        "y": 99,
+        "width": 60,
+        "height": 591,
+        "visible": true
+      },
+      "sidebarContent": {
+        "x": 87,
+        "y": 85,
+        "width": 1279,
+        "height": 619,
+        "visible": true
+      },
+      "sidebarContentPanel": {
+        "x": 87,
+        "y": 116,
+        "width": 1265,
+        "height": 557,
+        "visible": true
+      },
+      "sidebarContentAuxiliary": null,
+      "sidebarContentAuxiliaryPanel": null,
+      "cameraDock": null,
+      "presentation": null,
+      "screenShare": null,
+      "externalVideo": null,
+      "genericContent": null,
+      "pinnedNotes": null
+    },
+    "multi": {
+      "banners": [],
+      "dropZones": []
+    }
+  }
+}

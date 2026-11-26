@@ -13,19 +13,17 @@ export const SET_LAYOUT_PROPS = gql`
     $layout: String!,
     $syncWithPresenterLayout: Boolean!,
     $presentationIsOpen: Boolean!,
-    $isResizing: Boolean!,
     $cameraPosition: String!,
     $focusedCamera: String!,
-    $presentationVideoRate: Float!
+    $cameraDockSize: Float!
   ) {
     meetingLayoutSetProps(
       layout: $layout,
       syncWithPresenterLayout: $syncWithPresenterLayout,
       presentationIsOpen: $presentationIsOpen,
-      isResizing: $isResizing,
       cameraPosition: $cameraPosition,
       focusedCamera: $focusedCamera,
-      presentationVideoRate: $presentationVideoRate,
+      cameraDockSize: $cameraDockSize,
     )
   }
 `;

@@ -1,0 +1,45 @@
+{
+  "scenario": {
+    "id": "presentation-only-1366",
+    "profile": {
+      "width": 1366,
+      "height": 768
+    },
+    "layout": "PRESENTATION_ONLY"
+  },
+  "capturedWith": "dist-base (bundle.8184c460488bf2b301d9.js)",
+  "geometry": {
+    "viewport": {
+      "width": 1366,
+      "height": 768
+    },
+    "attributes": {
+      "layout": "presentationOnly"
+    },
+    "regions": {
+      "navBar": null,
+      "actionsBar": null,
+      "sidebarNavigation": null,
+      "sidebarContent": null,
+      "sidebarContentPanel": null,
+      "sidebarContentAuxiliary": null,
+      "sidebarContentAuxiliaryPanel": null,
+      "cameraDock": null,
+      "presentation": {
+        "x": 0,
+        "y": 0,
+        "width": 1366,
+        "height": 768,
+        "visible": true
+      },
+      "screenShare": null,
+      "externalVideo": null,
+      "genericContent": null,
+      "pinnedNotes": null
+    },
+    "multi": {
+      "banners": [],
+      "dropZones": []
+    }
+  }
+}

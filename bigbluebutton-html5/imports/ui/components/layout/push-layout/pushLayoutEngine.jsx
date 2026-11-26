@@ -30,23 +30,24 @@ import { SETTINGS } from '/imports/ui/services/settings/enums';
 import {
   layoutDispatch,
   layoutSelectInput,
-  layoutSelectOutput,
 } from '../context';
-import { calculatePresentationVideoRate, equalDouble, hasCameraDockChanged } from './service';
+import { useShellState } from '../shell/context';
+import { cameraDockPosition as reportedCameraDockPosition } from '../shell/selectors';
+import { hasCameraDockChanged, hasMeetingCameraDockChanged, meetingCameraDockSize } from './service';
 import { useMeetingLayoutUpdater, usePushLayoutUpdater, useLayoutUpdater } from './hooks';
+import {
+  applyMeetingDockSize, DOCK_SIZE_STORAGE_KEY, fractionFor, readStoredDockSize,
+} from '../dockSize';
+import { useStorageKey, STORAGES } from '/imports/ui/services/storage/hooks';
 import { setEnforcedLayout } from '/imports/ui/components/plugins-engine/ui-commands/layout/handler';
 import { useIsChatEnabled } from '/imports/ui/services/features';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import deviceInfo from '/imports/utils/deviceInfo';
 
 const propTypes = {
-  cameraWidth: PropTypes.number,
-  cameraHeight: PropTypes.number,
-  cameraIsResizing: PropTypes.bool,
+  cameraDockSize: PropTypes.number,
   cameraPosition: PropTypes.string,
   focusedCamera: PropTypes.string,
-  horizontalPosition: PropTypes.bool,
-  isMeetingLayoutResizing: PropTypes.bool,
   isPresenter: PropTypes.bool,
   isModerator: PropTypes.bool,
   isChatEnabled: PropTypes.bool,
@@ -55,11 +56,10 @@ const propTypes = {
   meetingLayout: PropTypes.string,
   meetingLayoutCameraPosition: PropTypes.string,
   meetingLayoutFocusedCamera: PropTypes.string,
-  meetingLayoutVideoRate: PropTypes.number,
+  meetingLayoutDockSize: PropTypes.number,
   meetingPresentationIsOpen: PropTypes.bool,
   presentationIsOpen: PropTypes.bool,
   presentationContentUpdatedAt: PropTypes.number,
-  presentationVideoRate: PropTypes.number,
   pushLayout: PropTypes.bool,
   pushLayoutMeeting: PropTypes.bool,
   selectedLayout: PropTypes.string,
@@ -70,6 +70,7 @@ const propTypes = {
   enforceLayoutResult: PropTypes.string,
   setLocalSettings: PropTypes.func.isRequired,
   hasMeetingLayout: PropTypes.bool,
+  meetingLayoutLoaded: PropTypes.bool,
   meetingLayoutSetByUserId: PropTypes.string,
 };
 
@@ -79,34 +80,30 @@ const PushLayoutEngine = (props) => {
   const hasInitiallyPropagated = useRef(false);
 
   const {
-    cameraWidth,
-    cameraHeight,
-    horizontalPosition,
+    cameraDockSize,
     meetingLayout,
     meetingLayoutCameraPosition,
     meetingLayoutFocusedCamera,
-    meetingLayoutVideoRate,
+    meetingLayoutDockSize,
     meetingPresentationIsOpen,
     shouldShowScreenshare,
     shouldShowExternalVideo,
     enforceLayoutResult,
     setLocalSettings,
     pushLayoutMeeting,
-    cameraIsResizing,
     cameraPosition,
     focusedCamera,
-    isMeetingLayoutResizing,
     isModerator,
     isPresenter,
     layoutContextDispatch,
     presentationContentUpdatedAt,
     presentationIsOpen,
-    presentationVideoRate,
     pushLayout,
     selectedLayout,
     setMeetingLayout,
     setPushLayout,
     hasMeetingLayout,
+    meetingLayoutLoaded,
     isChatEnabled,
     isCameraDockPropagationSuppressed,
     meetingLayoutSetByUserId,
@@ -165,25 +162,11 @@ const PushLayoutEngine = (props) => {
             value: PANELS.CHAT,
           });
         }
-        if (!equalDouble(meetingLayoutVideoRate, 0)) {
-          let w; let h;
-          if (horizontalPosition) {
-            w = window.innerWidth * meetingLayoutVideoRate;
-            h = cameraHeight;
-          } else {
-            w = cameraWidth;
-            h = window.innerHeight * meetingLayoutVideoRate;
-          }
-
-          layoutContextDispatch({
-            type: ACTIONS.SET_CAMERA_DOCK_SIZE,
-            value: {
-              width: w,
-              height: h,
-              browserWidth: window.innerWidth,
-              browserHeight: window.innerHeight,
-            },
-          });
+        // a joiner takes the size the presenter set, under the same conditions as a follower
+        const { syncCameraDockSizeAndPosition } = window.meetingClientSettings.public.layout;
+        if (meetingLayoutDockSize !== 0 && !isPresenter && syncCameraDockSizeAndPosition
+          && meetingLayoutSetByUserId && meetingLayoutSetByUserId !== 'system') {
+          applyMeetingDockSize(meetingLayoutCameraPosition, meetingLayoutDockSize);
         }
       }, 0);
     }
@@ -252,36 +235,15 @@ const PushLayoutEngine = (props) => {
       }
     };
 
+    // The size is a fraction for the axis of the meeting's position: a new position needs it again.
+    // Only between two renders with the meeting layout loaded: before it loads, the size reads 0
+    // and there is no position, and its arrival is the join, which the join path applies.
     const replicateCameraDockSize = () => {
-      if (!equalDouble(meetingLayoutVideoRate, prevProps.meetingLayoutVideoRate)
-        || isMeetingLayoutResizing !== prevProps.isMeetingLayoutResizing) {
-        let w; let h;
-        if (horizontalPosition) {
-          w = window.innerWidth * meetingLayoutVideoRate;
-          h = cameraHeight;
-        } else {
-          w = cameraWidth;
-          h = window.innerHeight * meetingLayoutVideoRate;
-        }
-
-        if (isMeetingLayoutResizing !== prevProps.isMeetingLayoutResizing) {
-          layoutContextDispatch({
-            type: ACTIONS.SET_CAMERA_DOCK_IS_RESIZING,
-            value: isMeetingLayoutResizing,
-            isLocalChange: false,
-          });
-        }
-
-        layoutContextDispatch({
-          type: ACTIONS.SET_CAMERA_DOCK_SIZE,
-          value: {
-            width: w,
-            height: h,
-            browserWidth: window.innerWidth,
-            browserHeight: window.innerHeight,
-          },
-          isLocalChange: false,
-        });
+      if (meetingLayoutLoaded && prevProps.meetingLayoutLoaded && hasMeetingCameraDockChanged(
+        { position: meetingLayoutCameraPosition, size: meetingLayoutDockSize },
+        { position: prevProps.meetingLayoutCameraPosition, size: prevProps.meetingLayoutDockSize },
+      )) {
+        applyMeetingDockSize(meetingLayoutCameraPosition, meetingLayoutDockSize);
       }
     };
 
@@ -318,9 +280,8 @@ const PushLayoutEngine = (props) => {
       || selectedLayout !== prevProps.selectedLayout
       || hasCameraDockChanged({
         isCameraDockPropagationSuppressed,
-        cameraIsResizing,
         cameraPosition,
-        presentationVideoRate,
+        cameraDockSize,
       }, prevProps)
       || focusedCamera !== prevProps.focusedCamera
       || enforceLayoutResult !== prevProps.enforceLayoutResult
@@ -380,7 +341,7 @@ const PushLayoutEngine = (props) => {
 };
 
 const PushLayoutEngineContainer = (props) => {
-  const cameraDockOutput = layoutSelectOutput((i) => i.cameraDock);
+  const shell = useShellState();
   const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
   const browserInput = layoutSelectInput((i) => i.browser);
   const presentationInput = layoutSelectInput((i) => i.presentation);
@@ -392,12 +353,13 @@ const PushLayoutEngineContainer = (props) => {
     selectedLayout,
   } = layoutSettings;
 
-  const {
-    width: cameraWidth,
-    height: cameraHeight,
-    position: cameraDockPosition,
-    focusedId: focusedCamera,
-  } = cameraDockOutput;
+  // where the dock is drawn (the layout state, as the CSS layout reads it)
+  const cameraDockPosition = shell && reportedCameraDockPosition(shell);
+  const { focusedId: focusedCamera } = cameraDockInput;
+  // the size the user stored on release, for the dock's axis (a fraction of its area; 0 = not set)
+  const storedDockSize = readStoredDockSize(useStorageKey(DOCK_SIZE_STORAGE_KEY, STORAGES.SESSION));
+  const cameraDockSize = fractionFor(storedDockSize, cameraDockPosition);
+  const cameraDock = { position: cameraDockPosition, size: cameraDockSize };
 
   const getKeepPushingLayout = () => {
     // check if current layout is a hidden layout
@@ -411,13 +373,6 @@ const PushLayoutEngineContainer = (props) => {
   };
 
   const pushLayout = getKeepPushingLayout();
-
-  const {
-    isResizing: cameraIsResizing,
-  } = cameraDockInput;
-
-  const horizontalPosition = cameraDockPosition === 'contentLeft'
-    || cameraDockPosition === 'contentRight';
 
   const currentPluginLayoutRaw = useReactiveVar(setEnforcedLayout);
 
@@ -436,15 +391,14 @@ const PushLayoutEngineContainer = (props) => {
   const meetingLayout = LAYOUT_TYPE[currentMeeting?.layout?.currentLayoutType];
   const {
     propagateLayout: pushLayoutMeeting,
-    cameraDockIsResizing: isMeetingLayoutResizing,
     cameraDockPlacement: meetingLayoutCameraPosition,
-    cameraDockAspectRatio,
+    cameraDockSize: meetingCameraDockSizeRaw,
     cameraWithFocus: meetingLayoutFocusedCamera,
     presentationMinimized: meetingPresentationMinimized,
     setByUserId: meetingLayoutSetByUserId,
   } = (currentMeeting?.layout || {});
   // A numeric column: it arrives as a string, or not at all while loading.
-  const meetingLayoutVideoRate = Number(cameraDockAspectRatio) || 0;
+  const meetingLayoutDockSize = meetingCameraDockSize(meetingCameraDockSizeRaw);
 
   const {
     isOpen: presentationIsOpen,
@@ -464,20 +418,18 @@ const PushLayoutEngineContainer = (props) => {
     });
   }, [enforcedLayoutLoading]);
 
-  // The output lags a rotation by one layout pass, in both directions.
-  const isCameraDockPropagationSuppressed = cameraDockOutput.isLocalOnly
-    || isPhoneLandscape(browserInput);
-  const presentationVideoRate = calculatePresentationVideoRate(cameraDockOutput);
+  // A phone in landscape locks the dock beside the media for this user only (isLocalOnly).
+  const isCameraDockPropagationSuppressed = isPhoneLandscape(browserInput);
 
   const setLocalSettings = useUserChangedLocalSettings();
   const setPushLayout = usePushLayoutUpdater(pushLayout);
   const setMeetingLayout = useMeetingLayoutUpdater({
-    cameraDockOutput,
+    cameraDock,
     cameraDockInput,
     presentationInput,
     layoutSettings,
     isCameraDockPropagationSuppressed,
-    meetingCameraDock: { position: meetingLayoutCameraPosition, videoRate: meetingLayoutVideoRate },
+    meetingCameraDock: { position: meetingLayoutCameraPosition, size: meetingLayoutDockSize },
   });
 
   if (!currentUserData || currentUserData === null) return null;
@@ -497,20 +449,16 @@ const PushLayoutEngineContainer = (props) => {
   return (
     <PushLayoutEngine
       {...{
-        cameraWidth,
-        cameraHeight,
-        horizontalPosition,
+        cameraDockSize,
         meetingLayout,
         meetingLayoutCameraPosition,
         meetingLayoutFocusedCamera,
-        meetingLayoutVideoRate,
+        meetingLayoutDockSize,
         meetingPresentationIsOpen,
         enforceLayoutResult,
         setLocalSettings,
         pushLayoutMeeting,
-        cameraIsResizing,
         focusedCamera,
-        isMeetingLayoutResizing,
         cameraPosition: cameraDockPosition,
         isModerator,
         isPresenter,
@@ -519,12 +467,12 @@ const PushLayoutEngineContainer = (props) => {
         layoutContextDispatch,
         presentationContentUpdatedAt,
         presentationIsOpen,
-        presentationVideoRate,
         pushLayout,
         selectedLayout,
         setMeetingLayout,
         setPushLayout,
         hasMeetingLayout: !!meetingLayout,
+        meetingLayoutLoaded: !!currentMeeting?.layout,
         meetingLayoutSetByUserId,
         ...props,
       }}

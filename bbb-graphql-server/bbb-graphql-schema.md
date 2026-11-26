@@ -636,9 +636,8 @@ Permission: Restricted to Presenter
 
 ## Type: layout
 ### Fields:
-- `cameraDockAspectRatio`
-- `cameraDockIsResizing`
 - `cameraDockPlacement`
+- `cameraDockSize`
 - `cameraWithFocus`
 - `currentLayoutType`
 - `presentationMinimized`

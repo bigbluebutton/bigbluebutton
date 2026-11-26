@@ -281,10 +281,9 @@ type Mutation {
     layout: String!
     syncWithPresenterLayout: Boolean!
     presentationIsOpen: Boolean!
-    isResizing: Boolean!
     cameraPosition: String
     focusedCamera: String!
-    presentationVideoRate: Float!
+    cameraDockSize: Float!
   ): Boolean
 }
 

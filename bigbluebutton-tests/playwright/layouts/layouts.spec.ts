@@ -182,7 +182,7 @@ test.describe.parallel('Device type breakpoint crossing', { tag: '@ci' }, () => 
 
 test.describe.parallel('Unified Layout - phone landscape propagation', { tag: '@ci' }, () => {
   test(
-    'Presenter shares a webcam without publishing an invalid presentation video rate',
+    'Presenter shares a webcam without publishing an invalid camera dock size',
     { tag: '@media' },
     async ({ browser }, testInfo) => {
       linkIssue(25681);
@@ -197,7 +197,7 @@ test.describe.parallel('Unified Layout - phone landscape propagation', { tag: '@
           shouldCloseAudioModal: false,
           testInfo,
         });
-        await layouts.phoneLandscapePublishesFinitePresentationVideoRate();
+        await layouts.phoneLandscapePublishesFiniteCameraDockSize();
       } finally {
         await context.close();
       }
@@ -228,13 +228,13 @@ test.describe.parallel('Unified Layout - phone landscape propagation', { tag: '@
   );
 });
 
-test.describe.parallel('Unified Layout - server layout rate validation', { tag: '@ci' }, () => {
-  test('Server clamps an out-of-range presentation video rate', async ({ browser }, testInfo) => {
+test.describe.parallel('Unified Layout - server camera dock size validation', { tag: '@ci' }, () => {
+  test('Server clamps an out-of-range camera dock size', async ({ browser }, testInfo) => {
     linkIssue(25681);
     const context = await browser.newContext({ recordVideo: { dir: 'test-results/' } });
     try {
       const layouts = new Layouts(browser, context);
-      await layouts.configurePresentationVideoRateClampProbe();
+      await layouts.configureCameraDockSizeClampProbe();
       const page = await context.newPage();
       await layouts.initModPage(page, {
         createParameter: 'meetingLayout=UNIFIED_LAYOUT',
@@ -246,7 +246,7 @@ test.describe.parallel('Unified Layout - server layout rate validation', { tag: 
         joinParameter: 'userdata-bbb_auto_join_audio=false',
         shouldCloseAudioModal: false,
       });
-      await layouts.serverClampsPresentationVideoRate();
+      await layouts.serverClampsCameraDockSize();
     } finally {
       await context.close();
     }

@@ -17,7 +17,6 @@ import BBBVideoStream from '/imports/ui/services/webrtc-base/bbb-video-stream';
 import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
 import WebRtcPeer from '/imports/ui/services/webrtc-base/peer';
 import { GridItem, VideoItem } from './types';
-import { Output } from '/imports/ui/components/layout/layoutTypes';
 import { VIDEO_TYPES } from './enums';
 
 const intlClientErrors = defineMessages({
@@ -91,7 +90,7 @@ interface VideoProviderState {
 }
 
 interface VideoProviderProps {
-  cameraDock: Output['cameraDock'];
+  cameraDock: { position: string };
   focusedId: string;
   handleVideoFocus: (id: string) => void;
   isGridEnabled: boolean;

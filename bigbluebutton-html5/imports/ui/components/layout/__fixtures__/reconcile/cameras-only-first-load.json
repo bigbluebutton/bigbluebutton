@@ -1,0 +1,84 @@
+{
+  "browser": "<window>",
+  "bannerBar": {
+    "hasBanner": false
+  },
+  "notificationsBar": {
+    "hasNotification": false,
+    "hideNotificationToasts": false
+  },
+  "navBar": {
+    "hasNavBar": true,
+    "hideTopRow": false,
+    "height": 85
+  },
+  "actionBar": {
+    "hasActionBar": true,
+    "height": 42
+  },
+  "sidebarNavigation": {
+    "isOpen": false,
+    "width": 0,
+    "height": 0,
+    "registeredApps": {},
+    "pinnedApps": []
+  },
+  "sidebarContent": {
+    "isOpen": false,
+    "width": 0,
+    "height": 0,
+    "sidebarContentPanel": "none"
+  },
+  "sidebarContentAuxiliary": {
+    "isOpen": false,
+    "width": 0,
+    "height": 0,
+    "sidebarContentPanel": "none"
+  },
+  "cameraDock": {
+    "numCameras": 2,
+    "position": "contentTop",
+    "width": 0,
+    "height": 0,
+    "isDragging": false,
+    "isResizing": false,
+    "isLocalChange": true,
+    "cameraOptimalGridSize": {
+      "width": 0,
+      "height": 0
+    },
+    "focusedId": "none"
+  },
+  "presentation": {
+    "contentUpdatedAt": 0,
+    "isOpen": false,
+    "slidesLength": 0,
+    "currentSlide": {
+      "size": {
+        "width": 0,
+        "height": 0
+      }
+    },
+    "width": 0,
+    "height": 0
+  },
+  "screenShare": {
+    "hasScreenShare": false,
+    "width": 0,
+    "height": 0
+  },
+  "externalVideo": {
+    "hasExternalVideo": false,
+    "width": 0,
+    "height": 0
+  },
+  "genericMainContent": {
+    "width": 0,
+    "height": 0
+  },
+  "sharedNotes": {
+    "isPinned": false,
+    "width": 0,
+    "height": 0
+  }
+}

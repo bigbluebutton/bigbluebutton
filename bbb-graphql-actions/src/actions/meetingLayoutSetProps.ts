@@ -8,10 +8,10 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
         {name: 'layout', type: 'string', required: true},
         {name: 'syncWithPresenterLayout', type: 'boolean', required: true},
         {name: 'presentationIsOpen', type: 'boolean', required: true},
-        {name: 'isResizing', type: 'boolean', required: true},
         {name: 'cameraPosition', type: 'string', required: false},
         {name: 'focusedCamera', type: 'string', required: true},
-        {name: 'presentationVideoRate', type: 'number', required: true},
+        // the dock size as a fraction (0-1) of the area it sits in, along its axis; 0 = not set
+        {name: 'cameraDockSize', type: 'number', required: true},
       ]
   )
 
@@ -32,10 +32,9 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     layout: input.layout,
     pushLayout: input.syncWithPresenterLayout,
     presentationIsOpen: input.presentationIsOpen,
-    isResizing: input.isResizing,
     cameraPosition: input.cameraPosition || "",
     focusedCamera: input.focusedCamera,
-    presentationVideoRate: input.presentationVideoRate
+    cameraDockSize: input.cameraDockSize
   };
 
   return { eventName, routing, header, body };

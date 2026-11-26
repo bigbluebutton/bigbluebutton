@@ -19,7 +19,8 @@ import {
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import ScreenshareComponent from './component';
-import { layoutSelect, layoutSelectOutput, layoutDispatch } from '../layout/context';
+import { layoutSelect, layoutDispatch } from '../layout/context';
+import { useMediaBoxCollapse } from '../layout/shell/context';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import AudioManager from '/imports/ui/services/audio-manager';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
@@ -96,7 +97,7 @@ const cameraAsContentIntlMessages = defineMessages({
 
 const ScreenshareContainer = (props) => {
   const { shouldShowScreenshare } = props;
-  const screenShare = layoutSelectOutput((i) => i.screenShare);
+  const mediaBoxCollapse = useMediaBoxCollapse();
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const layoutContextDispatch = layoutDispatch();
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
@@ -169,7 +170,7 @@ const ScreenshareContainer = (props) => {
           pluginScreenshareHelperItems,
           layoutContextDispatch,
           ...props,
-          ...screenShare,
+          mediaBoxCollapse,
           fullscreenContext,
           fullscreenElementId,
           outputDeviceId,

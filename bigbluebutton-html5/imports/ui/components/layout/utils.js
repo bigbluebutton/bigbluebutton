@@ -22,8 +22,6 @@ const isTabletPortrait = () => windowSize() >= phoneUpperBoundary
   && windowSize() <= (tabletPortraitUpperBoundary - 1);
 const isTabletLandscape = () => windowSize() >= tabletPortraitUpperBoundary
   && windowSize() <= (tabletLandscapeUpperBoundary - 1);
-const isTablet = () => windowSize() >= phoneUpperBoundary
-  && windowSize() <= (tabletLandscapeUpperBoundary - 1);
 const isDesktop = () => windowSize() >= tabletLandscapeUpperBoundary;
 
 const getWaitLayout = () => {
@@ -52,13 +50,8 @@ const getInitialSidebarContentPanel = (isChatEnabled) => {
   return null;
 };
 
-const device = {
-  isMobile, isTablet, isTabletPortrait, isTabletLandscape, isDesktop,
-};
-
-export default device;
 export {
-  isMobile, isTablet, isTabletPortrait, isTabletLandscape, isDesktop,
+  isMobile,
 };
 
 const hasGenericContentChanged = (current, previous) => !equals(
@@ -85,7 +78,6 @@ const suportedLayouts = [
     layoutName: 'Cameras Only',
     suportedDevices: [
       DEVICE_TYPE.MOBILE,
-      DEVICE_TYPE.TABLET,
       DEVICE_TYPE.TABLET_PORTRAIT,
       DEVICE_TYPE.TABLET_LANDSCAPE,
       DEVICE_TYPE.DESKTOP,
@@ -96,7 +88,6 @@ const suportedLayouts = [
     layoutName: 'Presentation Only',
     suportedDevices: [
       DEVICE_TYPE.MOBILE,
-      DEVICE_TYPE.TABLET,
       DEVICE_TYPE.TABLET_PORTRAIT,
       DEVICE_TYPE.TABLET_LANDSCAPE,
       DEVICE_TYPE.DESKTOP,
@@ -107,7 +98,6 @@ const suportedLayouts = [
     layoutName: 'Participants and Chat Only',
     suportedDevices: [
       DEVICE_TYPE.MOBILE,
-      DEVICE_TYPE.TABLET,
       DEVICE_TYPE.TABLET_PORTRAIT,
       DEVICE_TYPE.TABLET_LANDSCAPE,
       DEVICE_TYPE.DESKTOP,
@@ -118,7 +108,6 @@ const suportedLayouts = [
     layoutName: 'Media Only',
     suportedDevices: [
       DEVICE_TYPE.MOBILE,
-      DEVICE_TYPE.TABLET,
       DEVICE_TYPE.TABLET_PORTRAIT,
       DEVICE_TYPE.TABLET_LANDSCAPE,
       DEVICE_TYPE.DESKTOP,
@@ -129,7 +118,6 @@ const suportedLayouts = [
     layoutName: 'Unified Layout',
     suportedDevices: [
       DEVICE_TYPE.MOBILE,
-      DEVICE_TYPE.TABLET,
       DEVICE_TYPE.TABLET_PORTRAIT,
       DEVICE_TYPE.TABLET_LANDSCAPE,
       DEVICE_TYPE.DESKTOP,
@@ -191,22 +179,11 @@ const isLayoutSupported = (deviceType, givenLayout) => {
   return layout.suportedDevices.includes(deviceType);
 };
 
-const getSupportedLayouts = (deviceType) => suportedLayouts.filter(
-  (layout) => layout.suportedDevices.includes(deviceType),
-);
-
 const isValidSynchronizationLayout = (layout) => layout && LAYOUTS_SYNC[layout] != null;
-
-const layoutAllowedInSettings = (layout) => layout !== LAYOUT_TYPE.CAMERAS_ONLY
-  && layout !== LAYOUT_TYPE.PRESENTATION_ONLY
-  && layout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY
-  && layout !== LAYOUT_TYPE.MEDIA_ONLY
-  && layout !== LAYOUT_TYPE.UNIFIED_LAYOUT;
 
 const getDeviceType = () => {
   let deviceType = null;
   if (isMobile()) deviceType = DEVICE_TYPE.MOBILE;
-  if (isTablet()) deviceType = DEVICE_TYPE.TABLET;
   if (isTabletPortrait()) deviceType = DEVICE_TYPE.TABLET_PORTRAIT;
   if (isTabletLandscape()) deviceType = DEVICE_TYPE.TABLET_LANDSCAPE;
   if (isDesktop()) deviceType = DEVICE_TYPE.DESKTOP;
@@ -223,7 +200,7 @@ const isPhoneLandscape = (browser) => deviceInfo.isPhone
   && getDeviceOrientation(browser) === DEVICE_ORIENTATION.LANDSCAPE;
 
 export {
-  suportedLayouts, LAYOUTS_SYNC, getSupportedLayouts, isLayoutSupported, layoutAllowedInSettings,
+  LAYOUTS_SYNC, isLayoutSupported,
   getWaitLayout, getDeviceType, getInitialSidebarContentPanel,
   isValidSynchronizationLayout, isPhoneLandscape,
 };

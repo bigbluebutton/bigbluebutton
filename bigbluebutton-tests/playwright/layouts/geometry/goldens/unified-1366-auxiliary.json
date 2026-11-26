@@ -1,0 +1,89 @@
+{
+  "scenario": {
+    "id": "unified-1366-auxiliary",
+    "profile": {
+      "width": 1366,
+      "height": 768
+    },
+    "sidebar": "auxiliary"
+  },
+  "capturedWith": "dist-base (bundle.8184c460488bf2b301d9.js)",
+  "geometry": {
+    "viewport": {
+      "width": 1366,
+      "height": 768
+    },
+    "attributes": {
+      "layout": "unified"
+    },
+    "regions": {
+      "navBar": {
+        "x": 654,
+        "y": 0,
+        "width": 699,
+        "height": 85,
+        "visible": true,
+        "id": "Navbar"
+      },
+      "actionsBar": {
+        "x": 654,
+        "y": 704,
+        "width": 699,
+        "height": 64,
+        "visible": true,
+        "id": "ActionsBar"
+      },
+      "sidebarNavigation": {
+        "x": 14,
+        "y": 14,
+        "width": 60,
+        "height": 741,
+        "visible": true
+      },
+      "sidebarContent": {
+        "x": 87,
+        "y": 0,
+        "width": 283,
+        "height": 768,
+        "visible": true
+      },
+      "sidebarContentPanel": {
+        "x": 87,
+        "y": 31,
+        "width": 270,
+        "height": 707,
+        "visible": true
+      },
+      "sidebarContentAuxiliary": {
+        "x": 371,
+        "y": 0,
+        "width": 283,
+        "height": 768,
+        "visible": true
+      },
+      "sidebarContentAuxiliaryPanel": {
+        "x": 371,
+        "y": 31,
+        "width": 270,
+        "height": 707,
+        "visible": true
+      },
+      "cameraDock": null,
+      "presentation": {
+        "x": 654,
+        "y": 85,
+        "width": 699,
+        "height": 619,
+        "visible": true
+      },
+      "screenShare": null,
+      "externalVideo": null,
+      "genericContent": null,
+      "pinnedNotes": null
+    },
+    "multi": {
+      "banners": [],
+      "dropZones": []
+    }
+  }
+}

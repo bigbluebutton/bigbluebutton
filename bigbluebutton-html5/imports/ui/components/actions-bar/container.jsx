@@ -8,7 +8,6 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import Auth from '/imports/ui/services/auth';
 import ActionsBar from './component';
 import {
-  layoutSelectOutput,
   layoutSelectInput,
   layoutDispatch,
   layoutSelect,
@@ -40,7 +39,7 @@ const isLayeredView = window.matchMedia(`(max-width: ${SMALL_VIEWPORT_BREAKPOINT
 
 const ActionsBarContainer = (props) => {
   const { presentationIsOpen } = props;
-  const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
+  const hasActionBar = layoutSelectInput((i) => i.actionBar.hasActionBar);
   const layoutContextDispatch = layoutDispatch();
   const sidebarNavigation = layoutSelectInput((i) => i.sidebarNavigation);
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
@@ -100,7 +99,7 @@ const ActionsBarContainer = (props) => {
     && sidebarContentIsOpen
     && (deviceInfo.isPhone || isLayeredView.matches);
 
-  if (actionsBarStyle.display === false) return null;
+  if (hasActionBar === false) return null;
   if (!currentMeeting) return null;
 
   const isSharedNotesPinnedFromGraphql = currentMeeting?.componentsFlags?.isSharedNotesPinned;
@@ -128,7 +127,6 @@ const ActionsBarContainer = (props) => {
         currentUser,
         amIModerator,
         layoutContextDispatch,
-        actionsBarStyle,
         amIPresenter,
         actionBarItems,
         isThereCurrentPresentation,

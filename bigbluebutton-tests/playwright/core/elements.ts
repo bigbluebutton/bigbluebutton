@@ -910,7 +910,8 @@ export const elements = {
   webcamMirroredVideoPreview: 'video[data-test="mirroredVideoPreview"]',
   cancelSharingWebcam: 'button[data-test="cancelSharingWebcam"]',
   webcamPermissionErrorLabel: 'Permission to access webcams needs to be granted',
-  resizeWebcamHandler: 'div#cameraDock + div > div[style*="user-select: none"]',
+  // the stable handle hooks first, then the re-resizable markup they replace
+  resizeWebcamHandler: '[data-test^="cameraDockResizeHandle-"], div#cameraDock + div > div[style*="user-select: none"]',
 
   // Whiteboard
   whiteboard: 'div[data-testid="canvas"]',
@@ -985,7 +986,7 @@ export const elements = {
 
   // Layout
   cameraDock: 'div#cameraDock',
-  // the client writes the layout it is in on this element, as data-layout (layoutEngine.jsx)
+  // the client writes the layout it is in on this element, as data-layout (layout/shell/shellState.ts)
   layoutContainer: 'div#layout',
 
   // Font size
@@ -1030,8 +1031,11 @@ export const elements = {
   enableMultiFunctionalMode: 'button[data-test="enableMultiFunctionalMode"]',
   emptyPanelTitle: '[data-test="emptyPanelTitle"]',
   emptyPanelCloseButton: 'button[data-test="emptyPanelCloseButton"]',
-  resizeSidebarContentMain: '[data-test="sidebarContentMain"] > .resizeSidebarContentWrapper > div',
-  resizeSidebarContentAuxiliary: '[data-test="sidebarContentAuxiliary"] > .resizeSidebarContentWrapper > div',
+  resizeSidebarContentMain:
+    '[data-test="sidebarContentResizeHandle"], [data-test="sidebarContentMain"] > .resizeSidebarContentWrapper > div',
+  resizeSidebarContentAuxiliary:
+    '[data-test="sidebarContentAuxiliaryResizeHandle"], ' +
+    '[data-test="sidebarContentAuxiliary"] > .resizeSidebarContentWrapper > div',
 };
 
 // Recording playback

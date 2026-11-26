@@ -1,0 +1,76 @@
+{
+  "scenario": {
+    "id": "unified-800x1000",
+    "profile": {
+      "width": 800,
+      "height": 1000
+    }
+  },
+  "capturedWith": "dist-base (bundle.8184c460488bf2b301d9.js)",
+  "geometry": {
+    "viewport": {
+      "width": 800,
+      "height": 1000
+    },
+    "attributes": {
+      "layout": "unified"
+    },
+    "regions": {
+      "navBar": {
+        "x": 359,
+        "y": 0,
+        "width": 433,
+        "height": 85,
+        "visible": true,
+        "id": "Navbar"
+      },
+      "actionsBar": {
+        "x": 359,
+        "y": 936,
+        "width": 433,
+        "height": 64,
+        "visible": true,
+        "id": "ActionsBar"
+      },
+      "sidebarNavigation": {
+        "x": 8,
+        "y": 8,
+        "width": 60,
+        "height": 984,
+        "visible": true
+      },
+      "sidebarContent": {
+        "x": 76,
+        "y": 0,
+        "width": 283,
+        "height": 1000,
+        "visible": true
+      },
+      "sidebarContentPanel": {
+        "x": 76,
+        "y": 40,
+        "width": 275,
+        "height": 920,
+        "visible": true
+      },
+      "sidebarContentAuxiliary": null,
+      "sidebarContentAuxiliaryPanel": null,
+      "cameraDock": null,
+      "presentation": {
+        "x": 359,
+        "y": 85,
+        "width": 433,
+        "height": 851,
+        "visible": true
+      },
+      "screenShare": null,
+      "externalVideo": null,
+      "genericContent": null,
+      "pinnedNotes": null
+    },
+    "multi": {
+      "banners": [],
+      "dropZones": []
+    }
+  }
+}

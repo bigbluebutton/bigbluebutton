@@ -13,10 +13,10 @@ import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import VideoService from '/imports/ui/components/video-provider/service';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
-import { Output } from '/imports/ui/components/layout/layoutTypes';
 import { GridItem, VideoItem } from '/imports/ui/components/video-provider/types';
 import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
 import { UserCameraHelperAreas } from '../../plugins-engine/extensible-areas/components/user-camera-helper/types';
+import { ElementSize } from '/imports/ui/core/hooks/useElementSize';
 
 const intlMessages = defineMessages({
   autoplayBlockedDesc: {
@@ -87,7 +87,7 @@ interface VideoListProps {
   layoutContextDispatch: (...args: unknown[]) => void;
   numberOfPages: number;
   currentVideoPageIndex: number;
-  cameraDock: Output['cameraDock'];
+  cameraDock: { position: string };
   focusedId: string;
   handleVideoFocus: (id: string) => void;
   isGridEnabled: boolean;
@@ -101,6 +101,9 @@ interface VideoListProps {
   onVirtualBgDrop: (stream: string, type: string, name: string, data: string) => Promise<unknown>;
   gridSize: number;
   raisedHandPositions: Map<string, number>;
+  /** attaches the canvas element whose measured box the grid fills */
+  canvasRef: (element: HTMLDivElement | null) => void;
+  canvasSize: ElementSize | null;
 }
 
 interface VideoListState {
@@ -153,6 +156,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
         trailing: true,
       });
     this.setOptimalGrid = this.setOptimalGrid.bind(this);
+    this.setCanvas = this.setCanvas.bind(this);
     this.handleAllowAutoplay = this.handleAllowAutoplay.bind(this);
     this.handlePlayElementFailed = this.handlePlayElementFailed.bind(this);
     this.handleTouchStart = this.handleTouchStart.bind(this);
@@ -172,27 +176,25 @@ class VideoList extends Component<VideoListProps, VideoListState> {
 
   componentDidUpdate(prevProps: VideoListProps) {
     const {
-      layoutType, cameraDock, streams, focusedId, overflowCount, numberOfPages, currentVideoPageIndex,
+      layoutType, canvasSize, streams, focusedId, overflowCount, numberOfPages, currentVideoPageIndex,
     } = this.props;
-    const { width: cameraDockWidth, height: cameraDockHeight } = cameraDock;
     const {
       layoutType: prevLayoutType,
-      cameraDock: prevCameraDock,
+      canvasSize: prevCanvasSize,
       streams: prevStreams,
       focusedId: prevFocusedId,
       overflowCount: prevOverflowCount,
       numberOfPages: prevNumberOfPages,
       currentVideoPageIndex: prevVideoPageIndex,
     } = prevProps;
-    const { width: prevCameraDockWidth, height: prevCameraDockHeight } = prevCameraDock;
 
     // The overflow tile can mount/unmount without a stream-count change (users
     // joining or leaving with no camera), and a tile the grid template was not
     // computed for lands in an implicit auto-height row.
     if (layoutType !== prevLayoutType
       || focusedId !== prevFocusedId
-      || cameraDockWidth !== prevCameraDockWidth
-      || cameraDockHeight !== prevCameraDockHeight
+      || canvasSize?.width !== prevCanvasSize?.width
+      || canvasSize?.height !== prevCanvasSize?.height
       || streams.length !== prevStreams.length
       || overflowCount !== prevOverflowCount
       || numberOfPages !== prevNumberOfPages) {
@@ -351,7 +353,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
   setOptimalGrid() {
     const {
       streams,
-      cameraDock,
+      canvasSize,
       layoutContextDispatch,
       isGridEnabled,
       gridSize,
@@ -375,8 +377,8 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       return;
     }
     const { focusedId } = this.props;
-    const canvasWidth = cameraDock?.width;
-    const canvasHeight = cameraDock?.height
+    const canvasWidth = canvasSize?.width ?? 0;
+    const canvasHeight = (canvasSize?.height ?? 0)
       - (this.displayMobilePaginationBar() ? MOBILE_PAGINATION_BAR_HEIGHT : 0);
 
     const gridGutter = parseInt(window.getComputedStyle(this.grid)
@@ -419,11 +421,16 @@ class VideoList extends Component<VideoListProps, VideoListState> {
     });
   }
 
-  displayPageButtons() {
-    const { numberOfPages, cameraDock } = this.props;
-    const { width: cameraDockWidth } = cameraDock;
+  setCanvas(ref: HTMLDivElement | null) {
+    const { canvasRef } = this.props;
+    this.canvas = ref;
+    canvasRef(ref);
+  }
 
-    if (!VideoService.isPaginationEnabled() || numberOfPages <= 1 || cameraDockWidth === 0) {
+  displayPageButtons() {
+    const { numberOfPages, canvasSize } = this.props;
+
+    if (!VideoService.isPaginationEnabled() || numberOfPages <= 1 || !canvasSize?.width) {
       return false;
     }
 
@@ -431,10 +438,9 @@ class VideoList extends Component<VideoListProps, VideoListState> {
   }
 
   displayMobilePaginationBar() {
-    const { numberOfPages, cameraDock } = this.props;
-    const { width: cameraDockWidth } = cameraDock;
+    const { numberOfPages, canvasSize } = this.props;
 
-    return deviceInfo.isMobile && numberOfPages > 1 && cameraDockWidth !== 0;
+    return deviceInfo.isMobile && numberOfPages > 1 && !!canvasSize?.width;
   }
 
   renderNextPageButton() {
@@ -675,9 +681,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       <Styled.VideoCanvas
         $position={position}
         $stacked={this.displayMobilePaginationBar()}
-        ref={(ref) => {
-          this.canvas = ref;
-        }}
+        ref={this.setCanvas}
         style={{
           minHeight: 'inherit',
         }}

@@ -1,0 +1,75 @@
+{
+  "scenario": {
+    "id": "dock-bottom-1280-sidebar-closed",
+    "profile": {
+      "width": 1280,
+      "height": 720
+    },
+    "cameras": 1,
+    "dock": "contentBottom",
+    "sidebar": "closed"
+  },
+  "capturedWith": "dist-base (bundle.8184c460488bf2b301d9.js)",
+  "geometry": {
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "attributes": {
+      "layout": "unified",
+      "camPosition": "contentBottom"
+    },
+    "regions": {
+      "navBar": {
+        "x": 86,
+        "y": 0,
+        "width": 1182,
+        "height": 85,
+        "visible": true,
+        "id": "Navbar"
+      },
+      "actionsBar": {
+        "x": 86,
+        "y": 656,
+        "width": 1182,
+        "height": 64,
+        "visible": true,
+        "id": "ActionsBar"
+      },
+      "sidebarNavigation": {
+        "x": 13,
+        "y": 13,
+        "width": 60,
+        "height": 694,
+        "visible": true
+      },
+      "sidebarContent": null,
+      "sidebarContentPanel": null,
+      "sidebarContentAuxiliary": null,
+      "sidebarContentAuxiliaryPanel": null,
+      "cameraDock": {
+        "x": 86,
+        "y": 536,
+        "width": 1182,
+        "height": 120,
+        "visible": true,
+        "id": "cameraDock"
+      },
+      "presentation": {
+        "x": 86,
+        "y": 75,
+        "width": 1182,
+        "height": 441,
+        "visible": true
+      },
+      "screenShare": null,
+      "externalVideo": null,
+      "genericContent": null,
+      "pinnedNotes": null
+    },
+    "multi": {
+      "banners": [],
+      "dropZones": []
+    }
+  }
+}

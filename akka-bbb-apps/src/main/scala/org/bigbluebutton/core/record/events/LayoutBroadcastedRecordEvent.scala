@@ -32,10 +32,6 @@ class LayoutBroadcastedRecordEvent extends AbstractParticipantRecordEvent {
     eventMap.put(PRESENTATION_IS_OPEN, isOpen.toString)
   }
 
-  def setIsResizing(isResizing: Boolean) {
-    eventMap.put(IS_RESIZING, isResizing.toString)
-  }
-
   def setCameraPosition(cameraPosition: String) {
     eventMap.put(CAMERA_POSITION, cameraPosition)
   }
@@ -44,8 +40,8 @@ class LayoutBroadcastedRecordEvent extends AbstractParticipantRecordEvent {
     eventMap.put(FOCUSED_CAMERA, focusedCamera)
   }
 
-  def setPresentationVideoRate(presentationVideoRate: Double) {
-    eventMap.put(PRESENTATION_VIDEO_RATE, presentationVideoRate.toString)
+  def setCameraDockSize(cameraDockSize: Double) {
+    eventMap.put(CAMERA_DOCK_SIZE, cameraDockSize.toString)
   }
 
 }
@@ -53,8 +49,7 @@ class LayoutBroadcastedRecordEvent extends AbstractParticipantRecordEvent {
 object LayoutBroadcastedRecordEvent {
   protected final val PRESENTATION_IS_OPEN = "presentationIsOpen"
   protected final val LAYOUT = "layout"
-  protected final val IS_RESIZING = "isResizing"
   protected final val CAMERA_POSITION = "cameraPosition"
   protected final val FOCUSED_CAMERA = "focusedCamera"
-  protected final val PRESENTATION_VIDEO_RATE = "presentationVideoRate"
+  protected final val CAMERA_DOCK_SIZE = "cameraDockSize"
 }

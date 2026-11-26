@@ -1,0 +1,88 @@
+{
+  "scenario": {
+    "id": "rtl-1920-userlist-dock-sidebar",
+    "profile": {
+      "width": 1920,
+      "height": 1080
+    },
+    "rtl": true,
+    "sidebar": "userList",
+    "cameras": 1,
+    "dock": "sidebarContentBottom"
+  },
+  "capturedWith": "dist-base (bundle.8184c460488bf2b301d9.js)",
+  "geometry": {
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "attributes": {
+      "layout": "unified",
+      "camPosition": "sidebarContentBottom"
+    },
+    "regions": {
+      "navBar": {
+        "x": 0,
+        "y": 0,
+        "width": 1418,
+        "height": 85,
+        "visible": true,
+        "id": "Navbar"
+      },
+      "actionsBar": {
+        "x": 0,
+        "y": 1016,
+        "width": 1418,
+        "height": 64,
+        "visible": true,
+        "id": "ActionsBar"
+      },
+      "sidebarNavigation": {
+        "x": 1841,
+        "y": 19,
+        "width": 60,
+        "height": 1042,
+        "visible": true
+      },
+      "sidebarContent": {
+        "x": 1438,
+        "y": 0,
+        "width": 384,
+        "height": 864,
+        "visible": true
+      },
+      "sidebarContentPanel": {
+        "x": 1457,
+        "y": 43,
+        "width": 365,
+        "height": 778,
+        "visible": true
+      },
+      "sidebarContentAuxiliary": null,
+      "sidebarContentAuxiliaryPanel": null,
+      "cameraDock": {
+        "x": 1457,
+        "y": 840,
+        "width": 365,
+        "height": 216,
+        "visible": true,
+        "id": "cameraDock"
+      },
+      "presentation": {
+        "x": 19,
+        "y": 85,
+        "width": 1418,
+        "height": 931,
+        "visible": true
+      },
+      "screenShare": null,
+      "externalVideo": null,
+      "genericContent": null,
+      "pinnedNotes": null
+    },
+    "multi": {
+      "banners": [],
+      "dropZones": []
+    }
+  }
+}

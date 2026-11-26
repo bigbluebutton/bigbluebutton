@@ -3,14 +3,6 @@ import * as ReactDOM from 'react-dom/client';
 interface ActionBar {
     hasActionBar?: boolean;
     height: number;
-    width?: number;
-    display?: boolean;
-    innerHeight?: number;
-    left?: number;
-    padding?: number;
-    tabOrder?: number;
-    top?: number;
-    zIndex?: number
 }
 
 interface PresentationAreaContentActions {
@@ -20,13 +12,6 @@ interface PresentationAreaContentActions {
         open: boolean,
         genericContentId?: string;
     },
-}
-
-interface ResizableEdge {
-    bottom: boolean;
-    left: boolean;
-    right: boolean;
-    top: boolean;
 }
 
 interface BannerBar {
@@ -44,70 +29,34 @@ interface CameraOptimalGridSize {
 }
 
 interface CameraDock {
-    browserHeight?: number;
-    browserWidth?: number;
     cameraOptimalGridSize?: CameraOptimalGridSize;
     focusedId: string;
     isDragging?: boolean;
     isResizing?: boolean;
-    isLocalOnly?: boolean;
+    isLocalChange?: boolean;
     numCameras?: number;
     position: string;
+    /** the dock size the user is dragging to (input), used while resizing */
     width: number;
     height: number;
-    display?: boolean;
-    isDraggable?: boolean;
-    isResizable?: boolean;
-    resizableEdge?: ResizableEdge;
-    tabOrder?: number;
-    presenterMaxWidth: number;
-    maxWidth: number;
-    maxHeight: number;
-    minHeight: number;
-    minWidth: number;
-    left: number;
-    top: number;
-    right: number;
-    zIndex: number;
 }
 
-export interface ExternalVideo {
-    browserHeight?: number;
-    browserWidth?: number;
+interface ExternalVideo {
     hasExternalVideo?: boolean;
     height: number;
     width: number;
-    display?: boolean;
-    left?: number;
-    tabOrder?: number;
-    top?: number;
-    zIndex?: number;
-    right?: number;
 }
 
-export interface GenericContentMainArea {
+interface GenericContentMainArea {
     genericContentId?: string;
-    browserHeight?: number;
-    browserWidth?: number;
     height: number;
     width: number;
-    display?: boolean;
-    left?: number;
-    tabOrder?: number;
-    top?: number;
-    zIndex?: number;
-    right?: number;
 }
+
 interface NavBar {
     hasNavBar?: boolean;
-    hideTopRow: boolean;
+    hideTopRow?: boolean;
     height: number;
-    display?: boolean;
-    left?: number;
-    tabOrder?: number;
-    top?: number;
-    width?: number;
-    zIndex?: number;
 }
 
 interface NotificationsBar {
@@ -121,79 +70,36 @@ interface Size {
 }
 
 interface CurrentSlide {
-    num: number;
     size: Size;
 }
 
 interface Presentation {
-    browserHeight?: number;
-    browserWidth?: number;
     contentUpdatedAt?: number;
     currentSlide?: CurrentSlide;
     isOpen?: boolean;
     slidesLength?: number;
     width: number;
     height: number;
-    display?: boolean;
-    isResizable?: boolean;
-    left?: number;
-    presentationOrientation?: string;
-    resizableEdge?: ResizableEdge;
-    tabOrder?: number;
-    top?: number;
-    zIndex?: number;
 }
 
 interface ScreenShare {
-    browserHeight?: number;
-    browserWidth?: number;
     hasScreenShare?: boolean;
     height: number;
     width: number;
-    display?: boolean;
-    left?: number;
-    top?: number;
-    zIndex?: number;
 }
 
-export interface SharedNotes {
-    browserHeight?: number;
-    browserWidth?: number;
+interface SharedNotes {
     isPinned?: boolean;
     height: number;
     width: number;
-    display?: boolean;
-    left?: number;
-    right?: number;
-    tabOrder?: number;
-    top?: number;
-    zIndex?: number;
 }
 
 interface SidebarContent {
-    browserWidth?: number;
-    currentPanelType?: string;
     isOpen?: boolean;
-    resizableEdge: ResizableEdge; //---
     sidebarContentPanel?: string
-    width: number; //---
-    height: number; //---
-    display?: boolean;
-    isResizable?: boolean;
-    left?: number;
-    maxWidth?: number;
-    minWidth?: number;
-    tabOrder?: number;
-    top?: number;
-    zIndex?: number;
-}
-
-interface SidebarContentHorizontalResizer {
-    browserWidth: number;
-    currentPanelType: string;
-    height: number;
-    isOpen: boolean;
+    /** the width the user dragged the panel to */
     width: number;
+    height: number;
 }
 
 interface Widget {
@@ -220,15 +126,9 @@ export interface registeredApps {
 }
 
 export interface SidebarNavigation {
-    browserWidth?: number;
     isOpen?: boolean;
     width: number;
     height: number;
-    display?: boolean;
-    left?: number;
-    tabOrder?: number;
-    top?: number;
-    zIndex?: number;
     registeredApps?: registeredApps;
     pinnedApps?: string[];
 }
@@ -238,62 +138,15 @@ interface Fullscreen {
     group: string;
 }
 
-interface Captions {
-    left: number;
-    maxWidth: number;
-    right?: boolean;
-}
-
-interface ContentPosition {
-    height: number;
-    left: number;
-    top: number;
-    width: number;
-}
-
-interface DropzoneAreas {
-    ContentBottom: {
-        height: number;
-        left: number;
-        top: number;
-        width: number;
-    }
-    contentBottom: ContentPosition;
-    contentLeft: ContentPosition;
-    contentRight: ContentPosition;
-    contentTop: ContentPosition;
-    sidebarContentBottom: ContentPosition;
-}
-
 interface Input {
     actionBar: ActionBar;
-    autoarrAngeLayout: boolean;
     bannerBar: BannerBar;
     browser: Browser;
     cameraDock: CameraDock
-    userMetadata: NonNullable<unknown>;
     externalVideo: ExternalVideo;
     genericMainContent: GenericContentMainArea;
     navBar: NavBar;
     notificationsBar: NotificationsBar;
-    presentation: Presentation;
-    screenShare: ScreenShare;
-    sharedNotes: SharedNotes;
-    sidebarContent: SidebarContent;
-    sidebarContentHorizontalResizer: SidebarContentHorizontalResizer;
-    sidebarContentAuxiliary: SidebarContent;
-    sidebarNavigation: SidebarNavigation;
-}
-
-interface Output {
-    actionBar: ActionBar;
-    cameraDock: CameraDock;
-    captions: Captions;
-    dropZoneAreas: DropzoneAreas;
-    externalVideo: ExternalVideo;
-    genericMainContent: GenericContentMainArea;
-    mediaArea: Size;
-    navBar: NavBar;
     presentation: Presentation;
     screenShare: ScreenShare;
     sharedNotes: SharedNotes;
@@ -311,19 +164,18 @@ interface Layout {
     input: Input;
     isRTL: boolean;
     layoutType: string;
-    output: Output;
 }
 
 interface MeetingCameraDock {
     position?: string;
-    videoRate: number;
+    /** a fraction (0-1) of the dock's area along its axis; 0 = not set */
+    size: number;
 }
 
 interface CameraDockPropagationState {
     isCameraDockPropagationSuppressed: boolean;
-    cameraIsResizing?: boolean;
     cameraPosition: string;
-    presentationVideoRate: number;
+    cameraDockSize: number;
 }
 
 interface ActionForDispatcher {
@@ -338,6 +190,5 @@ export {
   Input,
   Layout,
   MeetingCameraDock,
-  Output,
   DispatcherFunction,
 };

@@ -35,19 +35,18 @@ trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
         Layouts.setCurrentLayout(liveMeeting.layouts, newlayout)
         Layouts.setPushLayout(liveMeeting.layouts, msg.body.pushLayout)
         Layouts.setPresentationIsOpen(liveMeeting.layouts, msg.body.presentationIsOpen)
-        Layouts.setCameraDockIsResizing(liveMeeting.layouts, msg.body.isResizing)
         Layouts.setCameraPosition(liveMeeting.layouts, msg.body.cameraPosition)
         Layouts.setFocusedCamera(liveMeeting.layouts, msg.body.focusedCamera)
-        val presentationVideoRate = LayoutHdlrHelpers.clampPresentationVideoRate(msg.body.presentationVideoRate)
-        if (presentationVideoRate != msg.body.presentationVideoRate) {
+        val cameraDockSize = LayoutHdlrHelpers.clampCameraDockSize(msg.body.cameraDockSize)
+        if (cameraDockSize != msg.body.cameraDockSize) {
           log.warning(
-            "Clamped invalid presentation video rate {} from user {} in meeting {}",
-            msg.body.presentationVideoRate,
+            "Clamped invalid camera dock size {} from user {} in meeting {}",
+            msg.body.cameraDockSize,
             msg.header.userId,
             liveMeeting.props.meetingProp.intId
           )
         }
-        Layouts.setPresentationVideoRate(liveMeeting.layouts, presentationVideoRate)
+        Layouts.setCameraDockSize(liveMeeting.layouts, cameraDockSize)
         Layouts.setRequestedBy(liveMeeting.layouts, msg.header.userId)
 
         LayoutDAO.insertOrUpdate(liveMeeting.props.meetingProp.intId, liveMeeting.layouts)
@@ -65,10 +64,9 @@ trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
       Layouts.getCurrentLayout(liveMeeting.layouts),
       Layouts.getPushLayout(liveMeeting.layouts),
       Layouts.getPresentationIsOpen(liveMeeting.layouts),
-      Layouts.getCameraDockIsResizing(liveMeeting.layouts),
       Layouts.getCameraPosition(liveMeeting.layouts),
       Layouts.getFocusedCamera(liveMeeting.layouts),
-      Layouts.getPresentationVideoRate(liveMeeting.layouts),
+      Layouts.getCameraDockSize(liveMeeting.layouts),
       Layouts.getLayoutSetter(liveMeeting.layouts)
     )
     val event = BroadcastLayoutEvtMsg(header, body)

@@ -1,6 +1,5 @@
 import * as ReactDOM from 'react-dom/client';
 import { GenericContentMainArea } from 'bigbluebutton-html-plugin-sdk';
-import { GenericContentMainArea as GenericContentMainAreaLayout } from '../layout/layoutTypes';
 
 export interface GenericContentMainAreaContainerProps {
     genericMainContentId: string;
@@ -10,7 +9,8 @@ export interface GenericContentMainAreaProps {
     isResizing: boolean;
     isLocalChange: boolean;
     genericContentId: string;
-    genericContentLayoutInformation: GenericContentMainAreaLayout;
+    /** the media box has no area: the content hides, as it did with a zero width and height */
+    isMinimized: boolean;
     renderFunctionComponents: GenericContentMainArea[];
 }
 

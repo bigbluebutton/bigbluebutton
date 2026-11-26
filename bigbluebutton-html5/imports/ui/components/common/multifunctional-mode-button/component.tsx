@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import cx from 'classnames';
-import { layoutDispatch, layoutSelectInput, layoutSelectOutput } from '/imports/ui/components/layout/context';
-import { Input, Output } from '/imports/ui/components/layout/layoutTypes';
+import { layoutDispatch, layoutSelectInput } from '/imports/ui/components/layout/context';
+import { Input } from '/imports/ui/components/layout/layoutTypes';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import { isMobile } from '/imports/utils/deviceInfo';
 import Styled from './styles';
@@ -32,8 +32,8 @@ const MultifunctionalModeButton: React.FC<MultifunctionalModeButtonProps> = ({ p
     isOpen: isAuxiliaryOpen,
   } = sidebarContentAuxiliaryInput;
   const beingRenderedInAuxiliaryPanel = isAuxiliaryOpen && sidebarContentPanelAuxiliary === panelId;
-  const sidebarContentAuxiliaryOutput = layoutSelectOutput((i: Output) => i.sidebarContentAuxiliary);
-  const { display } = sidebarContentAuxiliaryOutput;
+  // the auxiliary panel shows while it is open (the engine's display flag followed the input)
+  const display = isAuxiliaryOpen;
   const isFeatureEnabled = useIsMultiFunctionalModeEnabled();
   const isEnabled = isAuxiliaryOpen && display;
 

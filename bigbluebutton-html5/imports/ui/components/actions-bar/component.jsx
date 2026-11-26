@@ -153,7 +153,6 @@ class ActionsBar extends PureComponent {
       isThereCurrentPresentation,
       allowExternalVideo,
       layoutContextDispatch,
-      actionsBarStyle,
       setPresentationFitToWidth,
       isPresentationEnabled,
       ariaHidden,
@@ -180,27 +179,14 @@ class ActionsBar extends PureComponent {
         role="region"
         aria-label={intl.formatMessage(intlMessages.actionsBarLabel)}
         aria-hidden={ariaHidden}
-        style={
-          {
-            position: 'absolute',
-            top: actionsBarStyle.top,
-            left: actionsBarStyle.left,
-            height: actionsBarStyle.height,
-            width: actionsBarStyle.width,
-            padding: actionsBarStyle.padding,
-            ...(isMobile && { overflowX: 'auto' }),
-            ...(isMobile && { overflowY: 'hidden' }),
-          }
-        }
+        // its box comes from the CSS layout (layout/shell/styles.ts)
+        data-layout-region="actionbar"
+        style={isMobile ? { overflowX: 'auto', overflowY: 'hidden' } : undefined}
       >
         <h2 className="sr-only">{intl.formatMessage(intlMessages.actionsBarLabel)}</h2>
         <Styled.ActionsBar
           ref={this.actionsBarRef}
-          style={
-            {
-              height: actionsBarStyle.innerHeight,
-            }
-          }
+          data-layout-region="actionbar-inner"
         >
           <Styled.Left className="bbb-actions-bar__left">
             {this.renderPluginsActionBarItems(ActionsBarPosition.LEFT)}

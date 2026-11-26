@@ -788,10 +788,9 @@ class RedisRecorderActor(
     ev.setMeetingId(msg.header.meetingId)
     ev.setLayout(msg.body.layout)
     ev.setPresentationIsOpen(msg.body.presentationIsOpen)
-    ev.setIsResizing(msg.body.isResizing)
     ev.setCameraPosition(msg.body.cameraPosition)
     ev.setFocusedCamera(msg.body.focusedCamera)
-    ev.setPresentationVideoRate(msg.body.presentationVideoRate)
+    ev.setCameraDockSize(msg.body.cameraDockSize)
     record(msg.header.meetingId, ev.toMap().asJava)
   }
 

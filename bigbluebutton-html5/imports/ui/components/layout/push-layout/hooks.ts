@@ -2,9 +2,9 @@ import { MutationFunction, useMutation } from '@apollo/client';
 import { useCallback } from 'react';
 import { SET_LAYOUT_PROPS, SET_SYNC_WITH_PRESENTER_LAYOUT } from './mutations';
 import {
-  Input, Layout, MeetingCameraDock, Output,
+  Input, Layout, MeetingCameraDock,
 } from '../layoutTypes';
-import { getPropagatedCameraDock } from './service';
+import { getPropagatedCameraDock, PushedCameraDock } from './service';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { layoutDispatch, layoutSelect } from '../context';
@@ -34,14 +34,14 @@ const usePushLayoutUpdater = (pushLayout: boolean) => {
 };
 
 const useMeetingLayoutUpdater = ({
-  cameraDockOutput,
+  cameraDock: pushedCameraDock,
   cameraDockInput,
   presentationInput,
   layoutSettings,
   isCameraDockPropagationSuppressed,
   meetingCameraDock,
 }: {
-  cameraDockOutput: Output['cameraDock'];
+  cameraDock: PushedCameraDock;
   cameraDockInput: Input['cameraDock'];
   presentationInput: Input['presentation'];
   layoutSettings: { selectedLayout: string };
@@ -50,15 +50,14 @@ const useMeetingLayoutUpdater = ({
 }) => {
   const [setMeetingLayoutProps] = useMutation(SET_LAYOUT_PROPS);
 
-  const { focusedId } = cameraDockOutput;
+  const { focusedId } = cameraDockInput;
   const { isOpen: presentationIsOpen } = presentationInput;
   const { selectedLayout } = layoutSettings;
 
   const setMeetingLayout = (pushLayout: boolean) => {
     const cameraDock = getPropagatedCameraDock({
       isSuppressed: isCameraDockPropagationSuppressed,
-      cameraDockOutput,
-      cameraDockInput,
+      cameraDock: pushedCameraDock,
       meetingCameraDock,
     });
 

@@ -308,8 +308,6 @@ class ScreenshareComponent extends React.Component {
     const value = {
       width,
       height,
-      browserWidth: window.innerWidth,
-      browserHeight: window.innerHeight,
     };
 
     layoutContextDispatch({
@@ -581,14 +579,9 @@ class ScreenshareComponent extends React.Component {
     const {
       isPresenter,
       isGloballyBroadcasting,
-      top,
-      left,
-      right,
-      width,
-      height,
-      zIndex,
       fullscreenContext,
       shouldShowScreenshare,
+      mediaBoxCollapse,
     } = this.props;
 
     // Conditions to render the connecting animation
@@ -597,22 +590,19 @@ class ScreenshareComponent extends React.Component {
     const shouldRenderConnectingState = !loaded
       || (isPresenter && !isGloballyBroadcasting);
 
-    const display = (width > 0 && height > 0) && shouldShowScreenshare ? 'inherit' : 'none';
+    // hidden, as with a zero width or height from the engine, while the media box has no area
+    const display = mediaBoxCollapse !== 'zero' && shouldShowScreenshare ? 'inherit' : 'none';
     const Settings = getSettingsSingletonInstance();
     const { animations } = Settings.application;
 
     return (
       <div
+        data-layout-region="screenshare"
         style={
           {
-            position: 'absolute',
             display,
-            top,
-            left,
-            right,
-            height,
-            width,
-            zIndex: fullscreenContext ? zIndex : undefined,
+            // the media box is raised to 99 in fullscreen, applied only by the fullscreen element
+            zIndex: fullscreenContext ? 99 : undefined,
             backgroundColor: colorBackground,
           }
         }
@@ -670,4 +660,5 @@ ScreenshareComponent.propTypes = {
   outputDeviceId: PropTypes.string,
   streamId: PropTypes.string.isRequired,
   isBot: PropTypes.bool.isRequired,
+  mediaBoxCollapse: PropTypes.oneOf(['none', 'zero', 'negative']).isRequired,
 };
