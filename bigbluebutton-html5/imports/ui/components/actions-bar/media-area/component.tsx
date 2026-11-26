@@ -70,18 +70,22 @@ const MediaArea = (props: MediaAreaProps) => {
   }, [menuOpen]);
 
   const handleCloseMenu = useCallback(() => {
+    const mediaSharingElement = document.getElementById('mediaAreaDropUp');
     const focusedOnClose = document.activeElement;
+    const shouldRestoreFocus = focusedOnClose instanceof HTMLElement
+      && mediaSharingElement?.contains(focusedOnClose);
     setMenuOpen(false);
 
-    setTimeout(() => {
-      const { activeElement } = document;
-      const focusUnclaimed = !activeElement || activeElement === document.body
-        || activeElement === focusedOnClose
-        || document.getElementById('mediaAreaDropUp')?.contains(activeElement);
-      if (focusUnclaimed) {
-        mediaAreaButtonRef.current?.focus();
-      }
-    }, 0);
+    if (shouldRestoreFocus) {
+      setTimeout(() => {
+        const { activeElement } = document;
+        const focusUnclaimed = !activeElement || activeElement === document.body
+          || activeElement === focusedOnClose || mediaSharingElement?.contains(activeElement);
+        if (focusUnclaimed) {
+          mediaAreaButtonRef.current?.focus();
+        }
+      }, 0);
+    }
   }, []);
 
   if (!isConnected) {

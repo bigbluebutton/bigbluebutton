@@ -28,6 +28,7 @@ test.describe.parallel('Focus order', { tag: '@ci' }, () => {
     await session.initModPage(page, { testInfo });
     const { modPage } = session;
     const mediaAreaButton = modPage.page.locator(e.mediaAreaButton);
+    const optionsButton = modPage.page.locator(e.optionsButton);
 
     await mediaAreaButton.click();
     await modPage.page.locator(e.mediaAreaCloseButton).click();
@@ -37,5 +38,11 @@ test.describe.parallel('Focus order', { tag: '@ci' }, () => {
     await modPage.page.locator(e.mediaAreaCloseButton).focus();
     await modPage.page.keyboard.press('Escape');
     await expect(mediaAreaButton).toBeFocused();
+
+    await mediaAreaButton.click();
+    await optionsButton.focus();
+    await modPage.page.keyboard.press('Escape');
+    await expect(modPage.page.locator(e.mediaAreaCloseButton)).not.toBeVisible();
+    await expect(optionsButton).toBeFocused();
   });
 });
