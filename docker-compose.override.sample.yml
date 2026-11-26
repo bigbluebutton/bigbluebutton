@@ -59,9 +59,10 @@
   # webrtc-recorder:
   #   pull_policy: never
 
-  # bake target record-and-playback, used by four services
+  # bake target record-and-playback, used by five services
   # recording-workers: &recording
   #   pull_policy: never
+  # recording-archive-worker: *recording
   # recording-starter: *recording
   # recording-caption-inbox: *recording
   # recording-cleanup: *recording

@@ -35,7 +35,7 @@ cd bigbluebutton && docker compose up -d
 
 The images come from the registry (`docker compose pull`, or the first `up`); no local build is needed. `BBB_IMAGE_TAG` is a branch tag such as `v4.1.x-develop`, or `v4.1.x-develop-<commit>` to pin a set of images built together. `BBB_IMAGE_REGISTRY` (default `ghcr.io/bigbluebutton/bigbluebutton`) points to another registry with the same image names, e.g. a mirror.
 
-`COMPOSE_PROFILES` in `.env` selects the optional parts: `recording` (on by default, as in a bare-metal install: the recorder, the processing and the player) and `webhooks`. Without `recording`, meetings are not recorded, even when they are created with `record=true`. To turn a profile off, remove it from `COMPOSE_PROFILES` and remove its containers, which `up -d` leaves running, e.g. for webhooks `docker compose rm -sf webhooks`, for recording `docker compose rm -sf webrtc-recorder recording-workers recording-starter recording-caption-inbox recording-cleanup playback`.
+`COMPOSE_PROFILES` in `.env` selects the optional parts: `recording` (on by default, as in a bare-metal install: the recorder, the processing and the player) and `webhooks`. Without `recording`, meetings are not recorded, even when they are created with `record=true`. To turn a profile off, remove it from `COMPOSE_PROFILES` and remove its containers, which `up -d` leaves running, e.g. for webhooks `docker compose rm -sf webhooks`, for recording `docker compose rm -sf webrtc-recorder recording-workers recording-archive-worker recording-starter recording-caption-inbox recording-cleanup playback`.
 
 ### What happens on the first start
 
@@ -96,7 +96,7 @@ then `docker compose up -d`. A variable applies to every service that runs its i
 | `html5-client` | `BBB_HTML5_CLIENT_IMAGE` |
 | `learning-dashboard` | `BBB_LEARNING_DASHBOARD_IMAGE` |
 | `webrtc-recorder` | `BBB_WEBRTC_RECORDER_IMAGE` |
-| `recording-workers`, `recording-starter`, `recording-caption-inbox`, `recording-cleanup` | `BBB_RECORD_AND_PLAYBACK_IMAGE` |
+| `recording-workers`, `recording-archive-worker`, `recording-starter`, `recording-caption-inbox`, `recording-cleanup` | `BBB_RECORD_AND_PLAYBACK_IMAGE` |
 | `playback` | `BBB_PLAYBACK_IMAGE` |
 | `webhooks` | `BBB_WEBHOOKS_IMAGE` |
 

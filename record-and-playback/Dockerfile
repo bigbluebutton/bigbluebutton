@@ -89,7 +89,7 @@ RUN mkdir -p /var/bigbluebutton/basic_stats /var/bigbluebutton/captions/inbox /v
 
 # Ruby reads events.xml and the yml files with the locale's encoding.
 ENV LANG=C.UTF-8
-# From bbb-rap-resque-worker.service
+# Every queue of bbb-rap-resque-worker.service and bbb-rap-archive-worker.service
 ENV QUEUE=rap:archive,rap:publish,rap:process,rap:sanity,rap:captions,rap:events COUNT=1
 
 USER 998:998

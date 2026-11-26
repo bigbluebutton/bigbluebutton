@@ -16,7 +16,7 @@ x-recording: &recording
   profiles:
     - recording
   image: ${BBB_RECORD_AND_PLAYBACK_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-record-and-playback:${BBB_IMAGE_TAG:?}}
-  environment:
+  environment: &recording-env
     REDIS_HOST: redis
     BN_NOTES_ENDPOINT: http://shared-notes-server:8787/loopback/api/documents
     PLAYBACK_HOST: ${BBB_DOMAIN}
@@ -387,7 +387,20 @@ services:
       - ./data/recordings:/var/lib/bbb-webrtc-recorder:z
     depends_on: *redis-init
 
-  recording-workers: *recording # the image's default command: the resque workers
+  # the image's default command: the resque workers, split as bbb-rap-resque-worker.service and
+  # bbb-rap-archive-worker.service, so archives do not wait behind processing
+  recording-workers:
+    <<: *recording
+    environment:
+      <<: *recording-env
+      QUEUE: rap:publish,rap:process,rap:sanity,rap:captions,rap:events
+
+  # one worker: two archives of the same meeting must not run at the same time
+  recording-archive-worker:
+    <<: *recording
+    environment:
+      <<: *recording-env
+      QUEUE: rap:archive
 
   recording-starter:
     <<: *recording
