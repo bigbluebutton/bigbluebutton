@@ -58,6 +58,7 @@ test.describe('Breakout room keyboard accessibility', { tag: '@ci' }, () => {
     await modPage.page.keyboard.press('ArrowRight');
     const attendeeRoomOne = modPage.page.getByLabel('Attendee, Room 1');
     await expect(attendeeRoomOne).toBeFocused();
+    await expect(attendeeRoomOne.locator('[data-test="moveUserMenuButton"]')).toHaveCSS('opacity', '1');
     await modPage.page.keyboard.press('ArrowRight');
     const attendeeRoomTwo = modPage.page.getByLabel('Attendee, Room 2');
     await expect(attendeeRoomTwo).toBeFocused();
