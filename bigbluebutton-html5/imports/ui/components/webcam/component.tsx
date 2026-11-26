@@ -209,6 +209,7 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
   // area along its axis (layout/dockSize.ts), which the CSS layout renders and the presenter pushes.
   const storeSettledSize = (height?: number) => {
     const dock = dockSize();
+    if (dock.width === 0 || dock.height === 0) return;
     const areaRect = areaRef.current?.getBoundingClientRect();
     const area = { width: areaRect?.width ?? 0, height: areaRect?.height ?? 0 };
     const fraction = fractionOfBox(position, { ...dock, height: height ?? dock.height }, area);
@@ -217,7 +218,7 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
   };
 
   const onResizeEnd = () => {
-    // a dock no longer drawn (its cameras gone mid-resize) has no size to settle at
+    // a dock no longer drawn (its cameras gone mid-resize) has no size to settle at, nor to store
     const settled = dockSize();
     if (settled.width > 0 && settled.height > 0) setDockSize(settled.width, settled.height);
     setTimeout(() => setIsResizing(false), 500);
