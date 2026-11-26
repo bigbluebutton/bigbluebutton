@@ -3,24 +3,21 @@
 #
 # To run your own build of a component, build its image with bake, e.g. for bbb-web:
 #   BBB_IMAGE_REGISTRY=localhost BBB_IMAGE_TAG=dev docker buildx bake -f docker-bake.hcl --load --set '*.platform=linux/amd64' web
-# uncomment its service below, then run `docker compose up -d web`. The bake target is the
-# image name without "bbb-". pull_policy: never lets `docker compose pull` skip the local image.
+# set its image in .env (BBB_WEB_IMAGE=localhost/bbb-web:dev; all names: "Run another version of
+# one component" in the docs), uncomment its service below, then run `docker compose up -d web`.
+# The bake target is the image name without "bbb-". The image in .env is enough to run it;
+# pull_policy: never below lets `docker compose pull` skip the local image.
 #
-# For the HTML5 client, docker/compose/dev/html5.yml runs the webpack dev server instead of an
-# image (see "Develop with Docker Compose" in the development guide). With COMPOSE_FILE set in
-# .env, compose reads this file only when COMPOSE_FILE lists it.
+# For the HTML5 client from the webpack dev server instead of an image, uncomment the HTML5 block
+# at the end (see "Develop with Docker Compose" in the development guide).
 
 # services:
-  # nginx:
-  #   image: localhost/bbb-nginx:dev
-  #   pull_policy: never
+  # nginx: at the end, with the HTML5 block
 
   # apps-akka:
-  #   image: localhost/bbb-apps-akka:dev
   #   pull_policy: never
 
   # web:
-  #   image: localhost/bbb-web:dev
   #   pull_policy: never
   #   # with a certificate from a local CA: a Java truststore with that CA (development guide)
   #   environment:
@@ -29,58 +26,91 @@
   #     - ./data/certs/cacerts:/etc/ssl/local/cacerts:ro
 
   # html5-client:
-  #   image: localhost/bbb-html5-client:dev
   #   pull_policy: never
 
   # learning-dashboard:
-  #   image: localhost/bbb-learning-dashboard:dev
   #   pull_policy: never
 
-  # init reads the database schema from the graphql-server and shared-notes-server images set
-  # by BBB_IMAGE_REGISTRY and BBB_IMAGE_TAG in .env, not from the ones below
   # graphql-server:
-  #   image: localhost/bbb-graphql-server:dev
   #   pull_policy: never
 
   # graphql-actions:
-  #   image: localhost/bbb-graphql-actions:dev
   #   pull_policy: never
 
   # graphql-middleware:
-  #   image: localhost/bbb-graphql-middleware:dev
   #   pull_policy: never
 
   # shared-notes-server:
-  #   image: localhost/bbb-shared-notes-server:dev
   #   pull_policy: never
   # shared-notes-conversion: # the same image
-  #   image: localhost/bbb-shared-notes-server:dev
   #   pull_policy: never
 
   # export-annotations:
-  #   image: localhost/bbb-export-annotations:dev
   #   pull_policy: never
 
   # webrtc-sfu:
-  #   image: localhost/bbb-webrtc-sfu:dev
   #   pull_policy: never
 
   # webrtc-recorder:
-  #   image: localhost/bbb-webrtc-recorder:dev
   #   pull_policy: never
 
   # bake target record-and-playback, used by four services
   # recording-workers: &recording
-  #   image: localhost/bbb-record-and-playback:dev
   #   pull_policy: never
   # recording-starter: *recording
   # recording-caption-inbox: *recording
   # recording-cleanup: *recording
 
   # playback:
-  #   image: localhost/bbb-playback:dev
   #   pull_policy: never
 
   # webhooks:
-  #   image: localhost/bbb-webhooks:dev
   #   pull_policy: never
+
+  # nginx:
+  #   pull_policy: never # only with a local nginx image
+  #
+  #   # HTML5 block: nginx serves /html5client/ from the webpack dev server and the locales from
+  #   # the source tree. The html5-client image keeps running (nginx depends on it) but gets no
+  #   # requests.
+  #   configs:
+  #     - source: bbb-html5.nginx
+  #       target: /usr/share/bigbluebutton/nginx/bbb-html5.nginx
+  #   volumes:
+  #     - ./bigbluebutton-html5/public/locales:/usr/share/bigbluebutton/html5-client/locales:ro
+  #   # (a) dev server on your machine (cd bigbluebutton-html5 && npm ci && npm start)
+  #   extra_hosts:
+  #     - html5-dev:host-gateway
+  #   # (b) dev server in a container, without Node on your machine: instead of (a)
+  #   depends_on:
+  #     - html5-dev
+  # (b) also this service and the volume below
+  # html5-dev:
+  #   image: node:24@sha256:14078204b6bb268c107ceff6d3c43f45a888105e5c2b18b14c32b3409d93a1b0
+  #   working_dir: /app
+  #   # node_modules is a volume, not in the source tree
+  #   command: sh -ec 'npm ls --depth=0 >/dev/null 2>&1 || npm ci; exec npm start'
+  #   volumes:
+  #     - ./bigbluebutton-html5:/app
+  #     - html5-node-modules:/app/node_modules
+
+# volumes: # (b)
+#   html5-node-modules:
+
+# configs:
+#   bbb-html5.nginx:
+#     content: |
+#       # as build/packages-template/bbb-html5/bbb-html5.nginx.dev
+#       location /html5client/ {
+#         proxy_pass http://html5-dev:3000/;
+#         proxy_http_version 1.1;
+#         proxy_set_header Upgrade $$http_upgrade;
+#         proxy_set_header Connection "Upgrade";
+#         proxy_set_header Host $$host;
+#       }
+#       # the client lists the locales from nginx's JSON index
+#       location /html5client/locales {
+#         alias /usr/share/bigbluebutton/html5-client/locales;
+#         autoindex on;
+#         autoindex_format json;
+#       }

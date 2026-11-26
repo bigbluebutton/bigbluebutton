@@ -152,20 +152,20 @@ docker compose up -d
 
 and open `https://bbb.localhost` (browsers resolve `*.localhost` to the loopback address).
 
-To run your own build of a component, build its image and add its service to `docker-compose.override.yml` (`docker-compose.override.sample.yml` has a block for each), e.g. for bbb-web:
+To run your own build of a component, build its image, set it in `.env` and add its service to `docker-compose.override.yml` (`docker-compose.override.sample.yml` has a block for each), e.g. for bbb-web:
 
 ```bash
 BBB_IMAGE_REGISTRY=localhost BBB_IMAGE_TAG=dev docker buildx bake -f docker-bake.hcl --load --set '*.platform=linux/amd64' web
+echo BBB_WEB_IMAGE=localhost/bbb-web:dev >> .env
 ```
 
 ```yaml
 services:
   web:
-    image: localhost/bbb-web:dev
     pull_policy: never
 ```
 
-Then `docker compose up -d web`.
+`pull_policy: never` lets `docker compose pull` skip the local image. Then `docker compose up -d web`. The variable names of all images are in "Run another version of one component" on the Docker Compose page.
 
 For the HTML5 client, run the webpack dev server on your machine (Node 24), as `bigbluebutton-html5/run-dev.sh` does: a changed source file is recompiled and reloaded in the browser without a restart.
 
@@ -173,15 +173,9 @@ For the HTML5 client, run the webpack dev server on your machine (Node 24), as `
 cd bigbluebutton-html5 && npm ci && npm start
 ```
 
-`docker/compose/dev/html5.yml` makes nginx proxy `/html5client/` to port 3000 of your machine. Add it in `.env`:
+Then uncomment the HTML5 block at the end of `docker-compose.override.yml` (from `docker-compose.override.sample.yml`), with variant (a), and run `docker compose up -d nginx`. nginx then proxies `/html5client/` to port 3000 of your machine and serves the locales from the source tree. The dev server listens on all interfaces, so it is reachable from your network. If a firewall denies incoming connections, allow port 3000 from the compose network (172.30.82.0/24), e.g. `ufw allow from 172.30.82.0/24 to any port 3000 proto tcp`.
 
-```bash
-COMPOSE_FILE=docker-compose.yml:docker/compose/dev/html5.yml:docker-compose.override.yml
-```
-
-With `COMPOSE_FILE` set, compose reads `docker-compose.override.yml` only when it is listed (and then it must exist). The dev server listens on all interfaces, so it is reachable from your network. If a firewall denies incoming connections, allow port 3000 from the compose network (172.30.82.0/24), e.g. `ufw allow from 172.30.82.0/24 to any port 3000 proto tcp`.
-
-Without Node on your machine, use `docker/compose/dev/html5-container.yml` instead: it runs the dev server in a container. The first start runs `npm ci` into a volume and compiles (about two minutes; until then `/html5client` answers 502).
+Without Node on your machine, use variant (b) instead: it runs the dev server in a container. The first start runs `npm ci` into a volume and compiles (about two minutes; until then `/html5client` answers 502).
 
 #### Alternative - add a development environment to a [locally running] working BigBlueButton server
 

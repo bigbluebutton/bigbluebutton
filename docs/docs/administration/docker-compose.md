@@ -65,6 +65,41 @@ A newer `docker-compose.yml` can need a new value in `.env`; compose then stops 
 echo "BBB_PAGE_TOKEN_SECRET=$(openssl rand -hex 32)" >> .env
 ```
 
+## Run another version of one component
+
+`BBB_IMAGE_TAG` selects the version of all images. To run another image for one component, set its variable in `.env` to a full image reference: `BBB_<IMAGE>_IMAGE`, the image name in upper case with `_` for `-`. Examples:
+
+```bash
+# a pull request build
+BBB_WEB_IMAGE=ghcr.io/bigbluebutton/bigbluebutton/bbb-web:pr-12345
+# a local build (docker buildx bake, see the development guide)
+BBB_SHARED_NOTES_SERVER_IMAGE=localhost/bbb-shared-notes-server:dev
+# a fixed image by digest
+BBB_HTML5_CLIENT_IMAGE=ghcr.io/bigbluebutton/bigbluebutton/bbb-html5-client@sha256:<digest>
+```
+
+then `docker compose up -d`. A variable applies wherever its image is used: in every service that runs it, and where it is mounted into another service (`init` reads the database schemas from the `bbb-graphql-server` and `bbb-shared-notes-server` images).
+
+| Services | Variable |
+| --- | --- |
+| `nginx` | `BBB_NGINX_IMAGE` |
+| `apps-akka` | `BBB_APPS_AKKA_IMAGE` |
+| `web` | `BBB_WEB_IMAGE` |
+| `graphql-server`, schema mount in `init` | `BBB_GRAPHQL_SERVER_IMAGE` |
+| `graphql-actions` | `BBB_GRAPHQL_ACTIONS_IMAGE` |
+| `graphql-middleware` | `BBB_GRAPHQL_MIDDLEWARE_IMAGE` |
+| `shared-notes-server`, `shared-notes-conversion`, schema mount in `init` | `BBB_SHARED_NOTES_SERVER_IMAGE` |
+| `export-annotations` | `BBB_EXPORT_ANNOTATIONS_IMAGE` |
+| `webrtc-sfu` | `BBB_WEBRTC_SFU_IMAGE` |
+| `html5-client` | `BBB_HTML5_CLIENT_IMAGE` |
+| `learning-dashboard` | `BBB_LEARNING_DASHBOARD_IMAGE` |
+| `webrtc-recorder` | `BBB_WEBRTC_RECORDER_IMAGE` |
+| `recording-workers`, `recording-starter`, `recording-caption-inbox`, `recording-cleanup` | `BBB_RECORD_AND_PLAYBACK_IMAGE` |
+| `playback` | `BBB_PLAYBACK_IMAGE` |
+| `webhooks` | `BBB_WEBHOOKS_IMAGE` |
+
+`docker compose pull` tries to pull a local image too and reports an error for it. To skip it, set `pull_policy: never` for that service in a `docker-compose.override.yml` (see `docker-compose.override.sample.yml`), or run `docker compose pull --ignore-pull-failures`.
+
 ## Data and backup
 
 Data, in `./data` next to `docker-compose.yml`:

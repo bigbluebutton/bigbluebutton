@@ -15,7 +15,7 @@ x-recording: &recording
   <<: *bbb
   profiles:
     - recording
-  image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-record-and-playback:${BBB_IMAGE_TAG:?}
+  image: ${BBB_RECORD_AND_PLAYBACK_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-record-and-playback:${BBB_IMAGE_TAG:?}}
   environment:
     REDIS_HOST: redis
     BN_NOTES_ENDPOINT: http://shared-notes-server:8787/loopback/api/documents
@@ -84,7 +84,7 @@ services:
 
   nginx:
     <<: *bbb
-    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-nginx:${BBB_IMAGE_TAG}
+    image: ${BBB_NGINX_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-nginx:${BBB_IMAGE_TAG}}
     ports:
       - "80:8080"
     volumes:
@@ -185,12 +185,12 @@ services:
       - ./data/recordings:/var/lib/bbb-webrtc-recorder:z
       - recording-logs:/var/log/bigbluebutton
       - type: image
-        source: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-graphql-server:${BBB_IMAGE_TAG}
+        source: ${BBB_GRAPHQL_SERVER_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-graphql-server:${BBB_IMAGE_TAG}}
         target: /schema/graphql
         image:
           subpath: usr/share/bbb-graphql-server
       - type: image
-        source: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-shared-notes-server:${BBB_IMAGE_TAG}
+        source: ${BBB_SHARED_NOTES_SERVER_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-shared-notes-server:${BBB_IMAGE_TAG}}
         target: /schema/notes
         image:
           subpath: usr/share/bbb-shared-notes-server
@@ -200,7 +200,7 @@ services:
 
   apps-akka:
     <<: *bbb
-    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-apps-akka:${BBB_IMAGE_TAG}
+    image: ${BBB_APPS_AKKA_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-apps-akka:${BBB_IMAGE_TAG}}
     environment:
       SHARED_SECRET: ${BBB_SHARED_SECRET:?}
       # the base of the breakout rooms' join links, which the browser opens: the public address
@@ -217,7 +217,7 @@ services:
 
   web:
     <<: *bbb
-    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-web:${BBB_IMAGE_TAG}
+    image: ${BBB_WEB_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-web:${BBB_IMAGE_TAG}}
     # keys of bigbluebutton.properties, upper case with "." as "_"
     environment:
       BIGBLUEBUTTON_WEB_SERVERURL: https://${BBB_DOMAIN}
@@ -236,7 +236,7 @@ services:
 
   graphql-server:
     <<: *bbb
-    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-graphql-server:${BBB_IMAGE_TAG}
+    image: ${BBB_GRAPHQL_SERVER_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-graphql-server:${BBB_IMAGE_TAG}}
     environment:
       HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_ADMIN_SECRET:?}
       HASURA_GRAPHQL_DATABASE_URL: postgres://hasura_app:${POSTGRES_HASURA_APP_PASSWORD}@postgres:5432/hasura_app
@@ -249,13 +249,13 @@ services:
 
   graphql-actions:
     <<: *bbb
-    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-graphql-actions:${BBB_IMAGE_TAG}
+    image: ${BBB_GRAPHQL_ACTIONS_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-graphql-actions:${BBB_IMAGE_TAG}}
     environment:
       BBB_REDIS_HOST: redis
 
   graphql-middleware:
     <<: *bbb
-    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-graphql-middleware:${BBB_IMAGE_TAG}
+    image: ${BBB_GRAPHQL_MIDDLEWARE_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-graphql-middleware:${BBB_IMAGE_TAG}}
     environment:
       REDIS_HOST: redis
       HASURA_URL: ws://nginx:8185/v1/graphql
@@ -265,7 +265,7 @@ services:
 
   shared-notes-server:
     <<: *bbb
-    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-shared-notes-server:${BBB_IMAGE_TAG}
+    image: ${BBB_SHARED_NOTES_SERVER_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-shared-notes-server:${BBB_IMAGE_TAG}}
     environment:
       BBB_WEB_URL: http://web:8090
       REDIS_HOST: redis
@@ -282,7 +282,7 @@ services:
   # per connection, on the socket in the volume shared with shared-notes-server
   shared-notes-conversion:
     <<: *bbb
-    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-shared-notes-server:${BBB_IMAGE_TAG}
+    image: ${BBB_SHARED_NOTES_SERVER_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-shared-notes-server:${BBB_IMAGE_TAG}}
     command:
       - node
       - bbb-shared-notes-conversion.js
@@ -310,7 +310,7 @@ services:
 
   export-annotations:
     <<: *bbb
-    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-export-annotations:${BBB_IMAGE_TAG}
+    image: ${BBB_EXPORT_ANNOTATIONS_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-export-annotations:${BBB_IMAGE_TAG}}
     environment:
       BBB_WEB_URL: http://web:8090
       REDIS_HOST: redis
@@ -320,7 +320,7 @@ services:
 
   webrtc-sfu:
     <<: *bbb
-    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-webrtc-sfu:${BBB_IMAGE_TAG}
+    image: ${BBB_WEBRTC_SFU_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-webrtc-sfu:${BBB_IMAGE_TAG}}
     environment:
       REDIS_HOST: redis
       LIVEKIT_HOST: http://livekit:7880
@@ -333,11 +333,11 @@ services:
 
   html5-client:
     <<: *bbb
-    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-html5-client:${BBB_IMAGE_TAG}
+    image: ${BBB_HTML5_CLIENT_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-html5-client:${BBB_IMAGE_TAG}}
 
   learning-dashboard:
     <<: *bbb
-    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-learning-dashboard:${BBB_IMAGE_TAG}
+    image: ${BBB_LEARNING_DASHBOARD_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-learning-dashboard:${BBB_IMAGE_TAG}}
 
   # Profile "recording": the recorder, the processing as the systemd units of bbb-record-core
   # run it, and the player
@@ -345,7 +345,7 @@ services:
     <<: *bbb
     profiles:
       - recording
-    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-webrtc-recorder:${BBB_IMAGE_TAG}
+    image: ${BBB_WEBRTC_RECORDER_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-webrtc-recorder:${BBB_IMAGE_TAG}}
     environment:
       BBBRECORDER_PUBSUB_ADAPTERS_REDIS_ADDRESS: redis:6379
       BBBRECORDER_PUBSUB_ADAPTERS_REDIS_NETWORK: tcp
@@ -381,14 +381,14 @@ services:
     <<: *bbb
     profiles:
       - recording
-    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-playback:${BBB_IMAGE_TAG}
+    image: ${BBB_PLAYBACK_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-playback:${BBB_IMAGE_TAG}}
 
   # Profile "webhooks"
   webhooks:
     <<: *bbb
     profiles:
       - webhooks
-    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-webhooks:${BBB_IMAGE_TAG}
+    image: ${BBB_WEBHOOKS_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-webhooks:${BBB_IMAGE_TAG}}
     environment:
       SERVER_DOMAIN: ${BBB_DOMAIN}
       SHARED_SECRET: ${BBB_SHARED_SECRET}
