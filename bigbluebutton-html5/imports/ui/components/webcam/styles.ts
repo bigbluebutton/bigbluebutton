@@ -4,6 +4,8 @@ const Draggable = styled.div<{
   $isDraggable: boolean;
   $isDragging: boolean;
 }>`
+  position: relative;
+
   ${({ $isDraggable }) => $isDraggable && css`
     & > video {
       cursor: grabbing;
