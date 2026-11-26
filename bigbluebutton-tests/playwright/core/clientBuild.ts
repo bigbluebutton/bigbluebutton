@@ -5,7 +5,7 @@ import path from 'path';
 /**
  * Serves a locally built html5 client (a `dist/` folder) to a page, without touching the server.
  * Active when `BBB_CLIENT_DIST=<dir>` is set, or per page through `serveClientBuild(page, dir)`
- * (the mixed-version tests give each page its own build). With nothing set it is a no-op.
+ * (the perf harness gives each build variant its own pages). With nothing set it is a no-op.
  *
  * - The join API answers a 302 to `/html5client/?sessionToken=...`, and Playwright calls a route
  *   handler only for the FIRST url of a redirect chain, so the redirect target would never be
