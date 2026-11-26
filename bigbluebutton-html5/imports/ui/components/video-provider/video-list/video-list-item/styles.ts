@@ -211,7 +211,7 @@ const BottomBar = styled.div`
   width: 100%;
   z-index: 1;
   bottom: 0;
-  padding: 1px 7px;
+  padding: 3px 7px;
   justify-content: space-between;
 `;
 
