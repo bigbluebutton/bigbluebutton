@@ -164,7 +164,7 @@ services:
   # Creates the data directories and the databases, and recreates the databases when the schemas
   # in the images change
   init:
-    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-init:${BBB_IMAGE_TAG}
+    image: ${BBB_INIT_IMAGE:-${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-init:${BBB_IMAGE_TAG}}
     # its base image, postgres, declares a volume here; init does not need it
     tmpfs:
       - /var/lib/postgresql/data

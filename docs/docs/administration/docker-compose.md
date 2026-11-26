@@ -79,17 +79,18 @@ BBB_SHARED_NOTES_SERVER_IMAGE=localhost/bbb-shared-notes-server:dev
 BBB_HTML5_CLIENT_IMAGE=ghcr.io/bigbluebutton/bigbluebutton/bbb-html5-client@sha256:<digest>
 ```
 
-then `docker compose up -d`. A variable applies wherever its image is used: in every service that runs it, and where it is mounted into another service (`init` reads the database schemas from the `bbb-graphql-server` and `bbb-shared-notes-server` images).
+then `docker compose up -d`. A variable applies to every service that runs its image.
 
 | Services | Variable |
 | --- | --- |
 | `nginx` | `BBB_NGINX_IMAGE` |
 | `apps-akka` | `BBB_APPS_AKKA_IMAGE` |
+| `init` (with the database schemas) | `BBB_INIT_IMAGE` |
 | `web` | `BBB_WEB_IMAGE` |
-| `graphql-server`, schema mount in `init` | `BBB_GRAPHQL_SERVER_IMAGE` |
+| `graphql-server` | `BBB_GRAPHQL_SERVER_IMAGE` |
 | `graphql-actions` | `BBB_GRAPHQL_ACTIONS_IMAGE` |
 | `graphql-middleware` | `BBB_GRAPHQL_MIDDLEWARE_IMAGE` |
-| `shared-notes-server`, `shared-notes-conversion`, schema mount in `init` | `BBB_SHARED_NOTES_SERVER_IMAGE` |
+| `shared-notes-server`, `shared-notes-conversion` | `BBB_SHARED_NOTES_SERVER_IMAGE` |
 | `export-annotations` | `BBB_EXPORT_ANNOTATIONS_IMAGE` |
 | `webrtc-sfu` | `BBB_WEBRTC_SFU_IMAGE` |
 | `html5-client` | `BBB_HTML5_CLIENT_IMAGE` |
