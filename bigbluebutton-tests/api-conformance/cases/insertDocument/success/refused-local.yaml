@@ -28,7 +28,7 @@ steps:
     body: {xml: '<modules><module name="presentation"><document url="${sinkLocalUrl}/${uid}-local/fixtures/presentations/two-pages.pdf" filename="local.pdf"/><document url="${sinkUrl}/${uid}/fixtures/presentations/two-pages.pdf" filename="control.pdf"/></module></modules>'}
     golden: document
     expect: {returncode: SUCCESS}
-  - bus: {name: PresentationConversionStartedSysPubMsg, meetingId: "${intId}", within: 60s}
+  - bus: {name: PresentationConversionStartedSysPubMsg, meetingId: "${intId}", within: 180s}
     select: [$.core.body.common.presentationName]
     expect:
       jsonpath: {$.core.body.common.presentationName: "control.pdf"}

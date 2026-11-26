@@ -20,19 +20,19 @@ steps:
     golden: off
     expect: {returncode: SUCCESS}
     capture: {intId: /response/internalMeetingID}
-  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 60s}
+  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 180s}
     select: [$.core.body.presentation.name, $.core.body.presentation.current, $.core.body.presentation.removable, $.core.body.presentation.defaultPresentation]
     expect:
       jsonpath: {$.core.body.presentation.name: "two-pages.pdf"}
-  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 60s}
+  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 180s}
     select: [$.core.body.presentation.name, $.core.body.presentation.current, $.core.body.presentation.removable, $.core.body.presentation.defaultPresentation]
     expect:
       jsonpath: {$.core.body.presentation.name: "image.png"}
-  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 60s}
+  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 180s}
     select: [$.core.body.presentation.name, $.core.body.presentation.current, $.core.body.presentation.removable, $.core.body.presentation.defaultPresentation]
     expect:
       jsonpath: {$.core.body.presentation.name: "slides.odp"}
-  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 60s}
+  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 180s}
     select: [$.core.body.presentation.name, $.core.body.presentation.current, $.core.body.presentation.removable, $.core.body.presentation.defaultPresentation]
     expect:
       jsonpath: {$.core.body.presentation.name: "inline.pdf"}

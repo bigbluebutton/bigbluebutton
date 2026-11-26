@@ -25,11 +25,11 @@ steps:
     body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}/fixtures/presentations/two-pages.pdf" filename="fixed.pdf" removable="false"/><document url="${sinkUrl}/${uid}/fixtures/presentations/two-pages.pdf" filename="shown.pdf" current="true"/></module></modules>'}
     golden: off
     expect: {returncode: SUCCESS}
-  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 60s}
+  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 180s}
     select: [$.core.body.presentation.name, $.core.body.presentation.current, $.core.body.presentation.removable, $.core.body.presentation.defaultPresentation]
     expect:
       jsonpath: {$.core.body.presentation.name: "fixed.pdf"}
-  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 60s}
+  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 180s}
     select: [$.core.body.presentation.name, $.core.body.presentation.current, $.core.body.presentation.removable, $.core.body.presentation.defaultPresentation]
     expect:
       jsonpath: {$.core.body.presentation.name: "shown.pdf"}

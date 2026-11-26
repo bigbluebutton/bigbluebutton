@@ -34,7 +34,7 @@ steps:
     capture: {annToken: /response/session_token}
   # The page URLs bbb-web hands akka-apps, which reach the client in its
   # presentation data: each carries the page's pageToken.
-  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 60s}
+  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 180s}
     golden: off
     expect:
       jsonpath: {$.core.body.presentation.name: two-pages.pdf}

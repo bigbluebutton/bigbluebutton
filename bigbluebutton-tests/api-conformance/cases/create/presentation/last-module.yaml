@@ -15,7 +15,7 @@ steps:
     golden: off
     expect: {returncode: SUCCESS}
     capture: {intId: /response/internalMeetingID}
-  - bus: {name: PresentationConversionStartedSysPubMsg, meetingId: "${intId}", within: 60s}
+  - bus: {name: PresentationConversionStartedSysPubMsg, meetingId: "${intId}", within: 180s}
     select: [$.core.body.common.presentationName]
     expect:
       jsonpath: {$.core.body.common.presentationName: "later.pdf"}

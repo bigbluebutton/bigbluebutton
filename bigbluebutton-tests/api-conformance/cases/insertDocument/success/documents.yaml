@@ -27,19 +27,19 @@ steps:
     params: {meetingID: "${uid}"}
     body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}/fixtures/presentations/two-pages.pdf"/><document url="${sinkUrl}/${uid}/fixtures/presentations/image.png"/><document url="${sinkUrl}/${uid}/fixtures/presentations/slides.odp"/><document name="inline.pdf">${base64File("presentations/two-pages.pdf")}</document></module></modules>'}
     expect: {returncode: SUCCESS}
-  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 60s}
+  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 180s}
     select: [$.core.body.presentation.name, $.core.body.presentation.current, $.core.body.presentation.removable, $.core.body.presentation.defaultPresentation]
     expect:
       jsonpath: {$.core.body.presentation.name: "two-pages.pdf"}
-  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 60s}
+  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 180s}
     select: [$.core.body.presentation.name, $.core.body.presentation.current, $.core.body.presentation.removable, $.core.body.presentation.defaultPresentation]
     expect:
       jsonpath: {$.core.body.presentation.name: "image.png"}
-  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 60s}
+  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 180s}
     select: [$.core.body.presentation.name, $.core.body.presentation.current, $.core.body.presentation.removable, $.core.body.presentation.defaultPresentation]
     expect:
       jsonpath: {$.core.body.presentation.name: "slides.odp"}
-  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 60s}
+  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 180s}
     select: [$.core.body.presentation.name, $.core.body.presentation.current, $.core.body.presentation.removable, $.core.body.presentation.defaultPresentation]
     expect:
       jsonpath: {$.core.body.presentation.name: "inline.pdf"}

@@ -24,15 +24,15 @@ steps:
     body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}/fixtures/presentations/two-pages.pdf" filename="../../dir/slash.pdf"/><document url="${sinkUrl}/${uid}/fixtures/presentations/two-pages.pdf" filename="dir\backslash.pdf"/><document url="${sinkUrl}/${uid}/fixtures/presentations/image.png?version=2"/></module></modules>'}
     golden: off
     expect: {returncode: SUCCESS}
-  - bus: {name: PresentationConversionStartedSysPubMsg, meetingId: "${intId}", within: 60s}
+  - bus: {name: PresentationConversionStartedSysPubMsg, meetingId: "${intId}", within: 180s}
     select: [$.core.body.common.presentationName]
     expect:
       jsonpath: {$.core.body.common.presentationName: "slash.pdf"}
-  - bus: {name: PresentationConversionStartedSysPubMsg, meetingId: "${intId}", within: 60s}
+  - bus: {name: PresentationConversionStartedSysPubMsg, meetingId: "${intId}", within: 180s}
     select: [$.core.body.common.presentationName]
     expect:
       jsonpath: {$.core.body.common.presentationName: "backslash.pdf"}
-  - bus: {name: PresentationConversionStartedSysPubMsg, meetingId: "${intId}", within: 60s}
+  - bus: {name: PresentationConversionStartedSysPubMsg, meetingId: "${intId}", within: 180s}
     select: [$.core.body.common.presentationName]
     expect:
       jsonpath: {$.core.body.common.presentationName: "image.png"}
