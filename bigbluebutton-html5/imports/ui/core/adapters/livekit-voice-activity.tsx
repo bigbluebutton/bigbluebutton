@@ -10,6 +10,9 @@ import {
   useDeriveWhoIsTalking,
   useWhoIsTalkingConsumersCount,
 } from '/imports/ui/core/hooks/livekit/useWhoIsTalkingLiveKit';
+import {
+  useDeriveLocalAudioActivity,
+} from '/imports/ui/core/hooks/livekit/useLocalAudioActivity';
 
 const UnmutedDerivation = () => {
   useDeriveWhoIsUnmuted();
@@ -19,6 +22,12 @@ const UnmutedDerivation = () => {
 
 const TalkingDerivation = () => {
   useDeriveWhoIsTalking();
+
+  return null;
+};
+
+const LocalAudioActivityDerivation = () => {
+  useDeriveLocalAudioActivity();
 
   return null;
 };
@@ -33,6 +42,7 @@ const LiveKitVoiceActivityAdapter = () => {
 
   return (
     <>
+      {isUsingLiveKitAudio && <LocalAudioActivityDerivation />}
       {isUsingLiveKitAudio && unmutedConsumersCount > 0 && <UnmutedDerivation />}
       {shouldUseLiveKitAudioState && talkingConsumersCount > 0 && <TalkingDerivation />}
     </>

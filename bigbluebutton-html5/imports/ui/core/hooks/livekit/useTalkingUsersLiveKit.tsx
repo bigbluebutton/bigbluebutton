@@ -12,6 +12,7 @@ import useHideUserList from '/imports/ui/core/hooks/useHideUserList';
 import useWhoIsUnmutedLiveKit from './useWhoIsUnmutedLiveKit';
 import { useIsUsingLiveKitAudio } from './useShouldUseLiveKitAudioState';
 import useSubscribedAudioUsers from './useSubscribedAudioUsers';
+import { isLocalParticipantSpeaking, useIsLocalAudioActive } from './useLocalAudioActivity';
 import useTalkingUsersGraphql from '../useTalkingUsersGraphql';
 import { VoiceActivityResponse } from '/imports/ui/core/graphql/queries/voiceActivity';
 import { TalkingUsersHookResult } from '../useTalkingUsers';
@@ -85,6 +86,7 @@ const createUseTalkingUsersLiveKit = () => {
     // Consume the LiveKit unmuted source directly (not the opt-in router)
     // so mute state is correct whenever LiveKit is the bridge - see isLiveKitActive.
     const { data: unmutedUsers } = useWhoIsUnmutedLiveKit();
+    const localAudioActive = useIsLocalAudioActive();
     const { data: userMetadataMap, loading } = useData();
     const hideUserList = useHideUserList();
     const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
@@ -123,7 +125,11 @@ const createUseTalkingUsersLiveKit = () => {
         let talking = false;
 
         if (isLocalUser) {
-          talking = localParticipant?.isSpeaking ?? false;
+          talking = isLocalParticipantSpeaking(
+            localParticipant?.isSpeaking ?? false,
+            muted,
+            localAudioActive,
+          );
         } else {
           const isSubscribed = subscribedAudioUsers[userId] ?? false;
           const participant = participantsByUserId.get(userId);
@@ -189,6 +195,7 @@ const createUseTalkingUsersLiveKit = () => {
       subscribedAudioUsers,
       bbbTalkingUsers,
       unmutedUsers,
+      localAudioActive,
       userMetadataMap,
       hideUserList,
       ROLE_MODERATOR,
