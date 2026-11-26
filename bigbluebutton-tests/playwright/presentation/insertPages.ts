@@ -1026,27 +1026,17 @@ export class InsertPages extends Create {
     this.expectNoPageErrors();
   }
 
-  // An image presentation as the target: one unsupportedTarget notification from the server, no client warning.
-  async tokenRefusedForImageTarget() {
+  // An image presentation cannot take pages (the server refuses them): no insert pages button while it is shown,
+  // and the button back once a presentation converted to a PDF is shown again.
+  async buttonAbsentOnImagePresentation() {
     await InsertPages.waitForPresentation(this.modPage);
     await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName);
-    await InsertPages.waitForPresentation(this.modPage);
-    await this.modPage.closeAllToastNotifications();
-    this.watchUploadPosts(this.modPage);
-    await InsertPages.installProbe(this.modPage);
+    await this.modPage.hasElement(e.nextSlide, 'should show the presentation toolbar of the image');
+    await this.modPage.wasRemoved(e.insertPagesButton, 'should not offer the insert pages button on an image');
 
-    await InsertPages.insertFile(this.modPage, e.insertThreePagesFileName);
-    const refusal = `${e.insertThreePagesFileName}: ${e.insertPagesUnsupportedTargetLabel}`;
-    await InsertPages.expectToastSeen(this.modPage, refusal, 'should notify that an image cannot take pages');
-    await InsertPages.expectButtonEnabled(this.modPage, 'should enable the button after the refusal');
-    await this.modPage.page.waitForTimeout(NO_MORE_TOASTS_TIME);
-    expect(await InsertPages.toastsWith(this.modPage, refusal), 'should notify the refusal once').toHaveLength(1);
-    expect(
-      await InsertPages.toastsWith(this.modPage, failedText(e.insertThreePagesFileName)),
-      'should show no failed warning of the client',
-    ).toHaveLength(0);
-    expect(this.uploadPostCount(this.modPage), 'should send no upload').toBe(0);
-    this.expectNoPageErrors();
+    await this.switchPresentation('default.pdf');
+    await InsertPages.waitForPresentation(this.modPage);
+    await InsertPages.expectButtonEnabled(this.modPage, 'should offer the insert pages button on default.pdf again');
   }
 
   // The upload POST fails without an answer: the client cannot tell whether the file arrived, so it warns that the

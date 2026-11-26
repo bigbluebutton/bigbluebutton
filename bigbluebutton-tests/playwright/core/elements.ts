@@ -672,8 +672,6 @@ export const elements = {
   insertPagesNotConfirmedLabel: 'the insert of the pages could not be confirmed',
   insertPagesTimeoutLabel: 'inserting the pages took too long and was stopped',
   insertPagesTargetNotFoundLabel: 'the presentation is no longer available for inserting pages',
-  insertPagesUnsupportedTargetLabel:
-    'pages can only be inserted into a presentation made from a PDF or an office document',
   presentationChangedSlideLabel: 'Presentation changed to slide:',
   screenCapturePermissionErrorLabel: 'Code 1136. Permission to capture the screen needs to be granted.',
   helpLinkToastButton: 'button[data-test="helpLinkToastButton"]',

@@ -102,6 +102,12 @@ test.describe.parallel('Insert pages', { tag: '@ci' }, () => {
     await insertPages.blankPageSizeFollowsReference(e.insertSquareFileName);
   });
 
+  test('No insert pages button on an image presentation', async ({ browser, context, page }, testInfo) => {
+    const insertPages = new InsertPages(browser, context);
+    await insertPages.initModPage(page, { testInfo });
+    await insertPages.buttonAbsentOnImagePresentation();
+  });
+
   // Ac-B 21
   test.describe('Client service', () => {
     test('Token request without answer', async ({ browser, context, page }, testInfo) => {
@@ -110,13 +116,6 @@ test.describe.parallel('Insert pages', { tag: '@ci' }, () => {
       insertPages.watchPageErrors(page);
       await insertPages.initModPage(page, { testInfo });
       await insertPages.tokenRequestWithoutAnswer();
-    });
-
-    test('Token request refused for an image presentation', async ({ browser, context, page }, testInfo) => {
-      const insertPages = new InsertPages(browser, context);
-      insertPages.watchPageErrors(page);
-      await insertPages.initModPage(page, { testInfo });
-      await insertPages.tokenRefusedForImageTarget();
     });
 
     test('Blank page mutation with an error', async ({ browser, context, page }, testInfo) => {
