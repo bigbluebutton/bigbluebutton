@@ -8,13 +8,18 @@ const HoverToolbar = Styled.div<HoverToolbarProps>`
   ${({ toolbarStyle }) => toolbarStyle === 'hoverToolbar' && `
     display: none;
     z-index: 3;
-    [data-test="videoPlayer"]:hover & {
+    [data-test="videoPlayer"]:hover &,
+    [data-test="videoPlayer"]:focus-within & {
       display: flex;
     }
   `}
 
   ${({ toolbarStyle }) => toolbarStyle === 'dontShowMobileHoverToolbar' && `
     display: none;
+    [data-test="videoPlayer"]:focus-within & {
+      display: flex;
+      z-index: 2;
+    }
   `}
 
   ${({ toolbarStyle }) => toolbarStyle === 'showMobileHoverToolbar' && `

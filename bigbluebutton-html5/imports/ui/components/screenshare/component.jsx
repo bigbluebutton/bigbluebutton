@@ -1,5 +1,5 @@
 import React from 'react';
-import { injectIntl } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { debounce } from '/imports/utils/debounce';
 import { throttle } from '/imports/utils/throttle';
@@ -34,6 +34,21 @@ import { colorBackground } from '/imports/ui/stylesheets/styled-components/palet
 const MOBILE_HOVER_TIMEOUT = 5000;
 const MOBILE_HOVER_INTERVAL = 2000;
 const SCREEN_SIZE_DISPATCH_INTERVAL = 500;
+
+const volumeIntlMessages = defineMessages({
+  muteLabel: {
+    id: 'app.screenshare.muteLabel',
+    description: 'Label of the button that mutes the screen share audio',
+  },
+  unmuteLabel: {
+    id: 'app.screenshare.unmuteLabel',
+    description: 'Label of the button that unmutes the screen share audio',
+  },
+  volumeLabel: {
+    id: 'app.screenshare.volumeLabel',
+    description: 'Label of the screen share volume slider',
+  },
+});
 
 const renderPluginItems = (pluginItems, bottom, right) => {
   if (pluginItems !== undefined) {
@@ -347,6 +362,21 @@ class ScreenshareComponent extends React.Component {
     });
   }
 
+  // The attendee volume control shows while focus is inside the screenshare. Its usual way in is
+  // the fullscreen button; when that button does not render (fullscreen disabled, or an iPhone,
+  // where the button renders nothing) and there is no plugin button, there is no Tab stop inside,
+  // so the screenshare itself becomes one.
+  needsKeyboardEntryPoint() {
+    const { isPresenter, isBot, enableVolumeControl } = this.props;
+    const { loaded } = this.state;
+    const ALLOW_FULLSCREEN = window.meetingClientSettings.public.app.allowFullscreen;
+    const fullscreenButtonRenders = ALLOW_FULLSCREEN && !deviceInfo.isIphone;
+
+    if (isPresenter || isBot || !loaded || !enableVolumeControl) return false;
+    if (fullscreenButtonRenders) return false;
+    return Object.values(this.splitPluginItems()).every((items) => items.length === 0);
+  }
+
   renderFullscreenButton() {
     const {
       intl,
@@ -421,7 +451,7 @@ class ScreenshareComponent extends React.Component {
   }
 
   renderVolumeSlider() {
-    const { isBot } = this.props;
+    const { isBot, intl } = this.props;
     const { showHoverToolBar } = this.state;
 
     if (isBot) return null;
@@ -444,6 +474,11 @@ class ScreenshareComponent extends React.Component {
           muted={getVolume() === 0}
           onVolumeChanged={this.handleOnVolumeChanged}
           onMuted={this.handleOnMuted}
+          muteLabel={intl.formatMessage(volumeIntlMessages.muteLabel)}
+          unmuteLabel={intl.formatMessage(volumeIntlMessages.unmuteLabel)}
+          volumeLabel={intl.formatMessage(volumeIntlMessages.volumeLabel)}
+          muteButtonDataTest="screenshareMuteButton"
+          volumeSliderDataTest="screenshareVolumeSlider"
         />
       </Styled.HoverToolbar>
     ),
@@ -589,6 +624,7 @@ class ScreenshareComponent extends React.Component {
       zIndex,
       fullscreenContext,
       shouldShowScreenshare,
+      intl,
     } = this.props;
 
     // Conditions to render the connecting animation
@@ -598,6 +634,7 @@ class ScreenshareComponent extends React.Component {
       || (isPresenter && !isGloballyBroadcasting);
 
     const display = (width > 0 && height > 0) && shouldShowScreenshare ? 'inherit' : 'none';
+    const keyboardEntryPoint = this.needsKeyboardEntryPoint();
     const Settings = getSettingsSingletonInstance();
     const { animations } = Settings.application;
 
@@ -644,6 +681,9 @@ class ScreenshareComponent extends React.Component {
             }
           }}
           id="screenshareContainer"
+          tabIndex={keyboardEntryPoint ? 0 : undefined}
+          role={keyboardEntryPoint ? 'group' : undefined}
+          aria-label={keyboardEntryPoint ? intl.formatMessage(this.locales.label) : undefined}
         >
           {this.renderScreenshareButtons()}
           {isPresenter

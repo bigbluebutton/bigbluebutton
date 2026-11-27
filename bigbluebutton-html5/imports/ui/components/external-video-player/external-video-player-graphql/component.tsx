@@ -181,11 +181,10 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     right,
   } = externalVideo;
 
+  // The Arc (Instructure Media) player API has no volume or mute method, so the
+  // client cannot drive its volume. Every other player gets the client control.
   const hideVolume = useMemo(() => ({
-    Vimeo: true,
-    Facebook: true,
     ArcPlayer: true,
-    YouTube: false,
   }), []);
 
   const videoPlayConfig = useMemo(() => {

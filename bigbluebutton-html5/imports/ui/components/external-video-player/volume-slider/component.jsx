@@ -61,7 +61,14 @@ class VolumeSlider extends Component {
 
   render() {
     const { muted, volume } = this.state;
-    const { hideVolume } = this.props;
+    const {
+      hideVolume,
+      muteLabel,
+      unmuteLabel,
+      volumeLabel,
+      muteButtonDataTest,
+      volumeSliderDataTest,
+    } = this.props;
 
     if (hideVolume) {
       return null;
@@ -69,13 +76,20 @@ class VolumeSlider extends Component {
 
     return (
       <Styled.Slider>
-        <Styled.Volume onClick={() => this.setMuted(!muted)}>
+        <Styled.Volume
+          type="button"
+          aria-label={muted ? unmuteLabel : muteLabel}
+          data-test={muteButtonDataTest}
+          onClick={() => this.setMuted(!muted)}
+        >
           <i
-            tabIndex="-1"
+            aria-hidden="true"
             className={`icon-bbb-${this.getVolumeIcon()}`}
           />
         </Styled.Volume>
         <Styled.VolumeSlider
+          aria-label={volumeLabel}
+          data-test={volumeSliderDataTest}
           type="range"
           min={0}
           max={1}

@@ -6,7 +6,6 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import ReloadButton from './reload-button/component';
 import Subtitles from './subtitles/component';
 import FullscreenButtonContainer from '/imports/ui/components/common/fullscreen-button/container';
-import { uniqueId } from '/imports/utils/string-utils';
 import { layoutSelect } from '../../../layout/context';
 import { Layout } from '../../../layout/layoutTypes';
 import ExternalVideoPlayerProgressBar from './progress-bar/component';
@@ -24,6 +23,26 @@ const intlMessages = defineMessages({
   },
   subtitlesOff: {
     id: 'app.externalVideo.subtitlesOff',
+  },
+  muteLabel: {
+    id: 'app.externalVideo.muteLabel',
+    description: 'Label of the button that mutes the shared external video',
+  },
+  unmuteLabel: {
+    id: 'app.externalVideo.unmuteLabel',
+    description: 'Label of the button that unmutes the shared external video',
+  },
+  volumeLabel: {
+    id: 'app.externalVideo.volumeLabel',
+    description: 'Label of the shared external video volume slider',
+  },
+  overlayLabel: {
+    id: 'app.externalVideo.overlayLabel',
+    description: 'Accessible name of the focusable area over the shared external video',
+  },
+  overlayKeyboardHint: {
+    id: 'app.externalVideo.overlayKeyboardHint',
+    description: 'Describes the keyboard shortcut that moves focus to the external video volume slider',
   },
 });
 
@@ -78,6 +97,19 @@ const ExternalVideoPlayerToolbar: React.FC<ExternalVideoPlayerToolbarProps> = ({
     <>
       {
         [
+          // The overlay comes first so that Tab moves from it into the toolbar
+          // controls instead of leaving the player.
+          (!showUnsynchedMsg && (
+            <ExternalVideoOverlay
+              key="external-video-overlay"
+              label={intl.formatMessage(intlMessages.overlayLabel)}
+              keyboardHint={intl.formatMessage(intlMessages.overlayKeyboardHint)}
+              hasVolumeControl={!hideVolume}
+              onVerticalArrow={() => {
+                volumeSliderRef.current?.focus();
+              }}
+            />
+          )),
           (
             <Styled.HoverToolbar toolbarStyle={toolbarStyle} key="hover-toolbar-external-video">
               <VolumeSlide
@@ -86,6 +118,9 @@ const ExternalVideoPlayerToolbar: React.FC<ExternalVideoPlayerToolbarProps> = ({
                 muted={muted || mutedByEchoTest}
                 onMuted={handleOnMuted}
                 onVolumeChanged={handleVolumeChanged}
+                muteLabel={intl.formatMessage(intlMessages.muteLabel)}
+                unmuteLabel={intl.formatMessage(intlMessages.unmuteLabel)}
+                volumeLabel={intl.formatMessage(intlMessages.volumeLabel)}
                 ref={volumeSliderRef}
               />
               <Styled.ButtonsWrapper>
@@ -104,7 +139,6 @@ const ExternalVideoPlayerToolbar: React.FC<ExternalVideoPlayerToolbarProps> = ({
                 )}
               </Styled.ButtonsWrapper>
               <FullscreenButtonContainer
-                key={uniqueId('fullscreenButton-')}
                 elementName={intl.formatMessage(intlMessages.fullscreenLabel)}
                 fullscreenRef={playerParent}
                 elementId="ExternalVideo"
@@ -133,14 +167,6 @@ const ExternalVideoPlayerToolbar: React.FC<ExternalVideoPlayerToolbarProps> = ({
                 }}
               />
           ),
-          (!showUnsynchedMsg && (
-            <ExternalVideoOverlay
-              key="external-video-overlay"
-              onVerticalArrow={() => {
-                volumeSliderRef.current?.focus();
-              }}
-            />
-          )),
         ]
       }
     </>

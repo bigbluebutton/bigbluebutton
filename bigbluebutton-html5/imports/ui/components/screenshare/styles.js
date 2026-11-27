@@ -81,10 +81,18 @@ const MobileControlsOverlay = styled.span`
 const HoverToolbar = styled.div`
   ${({ toolbarStyle }) => toolbarStyle === 'hoverToolbar' && `
     display: none;
+    #screenshareContainer:focus-within & {
+      display: flex;
+      z-index: 2;
+    }
   `}
 
   ${({ toolbarStyle }) => toolbarStyle === 'dontShowMobileHoverToolbar' && `
     display: none;
+    #screenshareContainer:focus-within & {
+      display: flex;
+      z-index: 2;
+    }
   `}
 
   ${({ toolbarStyle }) => toolbarStyle === 'showMobileHoverToolbar' && `
