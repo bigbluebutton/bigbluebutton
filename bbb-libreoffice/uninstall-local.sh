@@ -7,9 +7,18 @@ if [ "$EUID" -ne 0 ]; then
 fi;
 
 
-IMAGE_CHECK=`docker image inspect bbb-soffice 2>&1 > /dev/null && echo 1 || echo 0`
-if [ "$IMAGE_CHECK"  = "1" ]; then
-	echo "Removing image"
+if [ -f /usr/share/bbb-libreoffice/docker-image ]; then
+	IMAGE="$(cat /usr/share/bbb-libreoffice/docker-image)"
+	if docker image inspect "$IMAGE" &> /dev/null; then
+		echo "Removing image"
+		docker image rm "$IMAGE"
+	fi
+	rm -rf /usr/share/bbb-libreoffice/
+fi
+
+# alias built by versions up to 4.0
+if docker image inspect bbb-soffice &> /dev/null; then
+	echo "Removing legacy bbb-soffice image"
 	docker image rm bbb-soffice
 fi
 

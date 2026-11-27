@@ -387,16 +387,42 @@ See the [Server customization page](/administration/customize) for things you ca
 
 ## Troubleshooting
 
-### bbb-libreoffice-docker fails to install
+### bbb-libreoffice-docker cannot pull the LibreOffice image
 
-The package `bbb-libreoffice-docker` builds the `bbb-soffice` Docker image when it is installed, from the image `bigbluebutton/bbb-libreoffice` on Docker Hub. On a server that cannot reach Docker Hub, the package's post-installation script fails with an error such as
+The package `bbb-libreoffice-docker` runs LibreOffice from the Docker image `bigbluebutton/bbb-libreoffice`, pinned to the tag listed in `/usr/share/bbb-libreoffice/docker-image`. When the package is installed, it pulls that image from Docker Hub. On a server that cannot reach Docker Hub (for example behind a firewall, or when its name server cannot resolve `registry-1.docker.io`) the installation fails with an error such as
 
 ```
+# Pulling the bbb-libreoffice docker image bigbluebutton/bbb-libreoffice:26.8.3.1-20261120-120000
+Error response from daemon: Get "https://registry-1.docker.io/v2/": dial tcp: lookup registry-1.docker.io on 127.0.0.53:53: server misbehaving
 dpkg: error processing package bbb-libreoffice-docker (--configure):
  installed bbb-libreoffice-docker package post-installation script subprocess returned error exit status 1
 ```
 
 Give Docker access to Docker Hub (for example, through an HTTP proxy configured in a drop-in for `docker.service`), or load the image onto the server by other means (`docker load`), then run `sudo apt-get install -f` to finish the installation.
+
+If the server has no route to Docker Hub at all, load the image from a machine that has one and finish the installation afterwards:
+
+```bash
+# on the BigBlueButton server: the image this version of the package needs
+cat /usr/share/bbb-libreoffice/docker-image
+
+# on a machine with access to Docker Hub, with the image printed above
+docker pull bigbluebutton/bbb-libreoffice:26.8.3.1-20261120-120000
+docker save bigbluebutton/bbb-libreoffice:26.8.3.1-20261120-120000 -o bbb-libreoffice.tar
+scp bbb-libreoffice.tar bbb.example.com:
+
+# on the BigBlueButton server
+sudo docker load -i bbb-libreoffice.tar
+sudo apt-get install -f
+```
+
+Document conversion runs the image straight from this reference, so Docker pulls it again by itself if it is ever removed from the server (for example by `docker image prune -a`). The first conversion after the removal then waits for the download, and on a slow connection it can run into the 60-second conversion timeout of `bbb-web` and fail once. If you prune images on the server, pull the image back right away so no upload has to wait for it:
+
+```bash
+sudo docker pull "$(cat /usr/share/bbb-libreoffice/docker-image)"
+```
+
+A server without access to Docker Hub cannot pull the image back, and Office documents fail to convert until it is loaded again. Keep `bbb-libreoffice.tar` from the steps above and run `sudo docker load -i bbb-libreoffice.tar` after a prune. An upgrade that changes the image in `/usr/share/bbb-libreoffice/docker-image` needs the new image, loaded with the steps above; keep that `bbb-libreoffice.tar` in place of the old one. `docker load` prints the image it loaded, which should match that file.
 
 ## Feedback and reporting bugs
 

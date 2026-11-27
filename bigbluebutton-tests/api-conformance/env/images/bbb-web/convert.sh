@@ -1,6 +1,6 @@
 #!/bin/bash
 # Stands in for bbb-libreoffice-docker's convert.sh (convert-local.sh),
-# which runs LibreOffice in a throwaway bbb-soffice container through sudo
+# which runs LibreOffice in a throwaway bbb-libreoffice container through sudo
 # docker, with 1 GB of memory and no network. A container can't start one,
 # so this runs the same LibreOffice build, copied from that image, in
 # bbb-web's container, without those limits. The same arguments:
