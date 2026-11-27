@@ -34,6 +34,10 @@ Administration:
    --start                    Start BigBlueButton
    --status                   Display the services, their health and the image versions
    --zip                      Zip up the logs and the configuration (secrets removed) for reporting an error
+   --upgrade[=<tag>] [--force]
+                              Upgrade the files of this folder and the images to the newest build of
+                              the tag in .env, or of <tag> (e.g. 4.2, v4.1.3). --force replaces local
+                              edits of the files (the backup keeps them).
 
 Anything else goes to docker compose, e.g. ./bbb-conf logs -f web
 EOF
@@ -85,9 +89,19 @@ is_local() {
   ip -4 -o address show 2>/dev/null | grep -qF " $1/"
 }
 
-# The image of each service, with its version label
+# The bbb-compose image of tag $1: BBB_COMPOSE_IMAGE, else from BBB_IMAGE_REGISTRY
+compose_image() {
+  image=$(env_value BBB_COMPOSE_IMAGE)
+  registry=$(env_value BBB_IMAGE_REGISTRY)
+  echo "${image:-${registry:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-compose:$1}"
+}
+
+# The image of each service and of the files, with its version label
 versions() {
-  docker compose config --images | sort -u | while read -r image; do
+  {
+    docker compose config --images
+    compose_image "$(env_value BBB_IMAGE_TAG)"
+  } | sort -u | while read -r image; do
     version=$(docker image inspect --format '{{index .Config.Labels "org.opencontainers.image.version"}}' "$image" 2>/dev/null) ||
       version='(not pulled)'
     printf '%-60s %s\n' "$image" "$version"
@@ -276,6 +290,185 @@ zip_logs() {
   echo "Created $PWD/$file"
 }
 
+# upgrade ---------------------------------------------------------------------------------------
+
+# Copies the files of the local image $1 into directory $2
+image_files() {
+  container=$(docker create --pull never "$1" none 2>/dev/null) || return 1
+  rc=0
+  for file in docker-compose.yml .env.sample bbb-conf docker; do
+    docker cp -q "$container:/$file" "$2/" || rc=1
+  done
+  docker rm "$container" >/dev/null
+  return "$rc"
+}
+
+# Shows the differences between directories $2 and $3 in the files of directory $1
+diff_files() {
+  files=$(cd "$1" && find . -type f | sed "s|^\./||" | sort)
+  rc=0
+  for file in $files; do
+    diff -u "$2/$file" "$3/$file" || rc=1
+  done
+  return "$rc"
+}
+
+# Appends the keys of .env.sample $1 that env file $2 does not have, as install.sh writes them
+add_keys() {
+  # a last line without a newline would be joined with the first new key
+  if [ -n "$(tail -c 1 "$2")" ]; then echo >> "$2"; fi
+  while IFS= read -r line; do
+    case "$line" in
+      [A-Z]*=*) ;;
+      *) continue ;;
+    esac
+    key=${line%%=*}
+    if grep -Eq "^[[:space:]]*(export[[:space:]]+)?${key}[[:space:]]*=" "$2"; then continue; fi
+    case "$line" in
+      *_SECRET= | *_PASSWORD= | LIVEKIT_API_KEY=) line="$line$(openssl rand -hex 32)" ;;
+    esac
+    printf '%s\n' "$line" >> "$2"
+    echo "Added $key to .env"
+  done < "$1"
+}
+
+# Services of the compose arguments "$@" whose image is not a local one (localhost/...)
+pulled_services() {
+  docker compose "$@" config | awk '
+    /^services:/ { s = 1; next }
+    /^[^ ]/ { s = 0 }
+    s && /^  [^ ]/ { service = $1; sub(/:$/, "", service) }
+    s && /^    image: / && $2 !~ /^localhost\// { print service }'
+}
+
+# On every exit of upgrade: the temp folder goes; until the new files are in, the local image of
+# the installed files gets its tag back (the pull moves it), and a stop while moving them in
+# says how to restore the old ones
+upgrade_cleanup() {
+  rm -rf "$tmp"
+  [ -z "$switched" ] || return 0
+  if [ -n "$old_id" ]; then docker tag "$old_id" "$old"; fi
+  if [ -n "$switching" ]; then
+    echo "The upgrade stopped while moving the new files in. To restore the old ones: cp -a $backup/. . && docker compose up -d" >&2
+  fi
+}
+
+# Upgrades to tag $1 (empty: the tag in .env); $2 non-empty: replace local edits
+upgrade() {
+  force=$2
+  # BBB_COMPOSE_IMAGE names one image, so it cannot follow another tag
+  if [ -n "$1" ] && [ -n "$(env_value BBB_COMPOSE_IMAGE)" ]; then
+    fail "BBB_COMPOSE_IMAGE is set in .env; change it to the image for the new version, or remove it, then run --upgrade."
+  fi
+  current=$(env_value BBB_IMAGE_TAG)
+  tag=${1:-$current}
+  case "$tag" in [0-9]*) tag=v$tag ;; esac
+  case "$current|$tag" in
+    v[0-9]*.[0-9]*\|v[0-9]*.[0-9]*)
+      if older "${tag#v}" "${current#v}"; then
+        fail "Refused: $tag is older than $current. A downgrade stays within one minor version."
+      fi
+      ;;
+  esac
+  old=$(compose_image "$current")
+  new=$(compose_image "$tag")
+  old_id='' switching='' switched='' backup=''
+  tmp=$(mktemp -d .upgrade.XXXXXX)
+  trap upgrade_cleanup EXIT
+  trap 'exit 1' HUP INT TERM
+  mkdir "$tmp/old" "$tmp/new"
+
+  # The installed files are those of the local image: only this script and install.sh pull it
+  if image_files "$old" "$tmp/old"; then
+    old_id=$(docker image inspect --format '{{.Id}}' "$old")
+    if diff_files "$tmp/old" "$tmp/old" .; then
+      echo "No local edits: the files here are those of $old"
+    else
+      [ -n "$force" ] || fail "Not upgraded: the files above differ from $old. Put your changes in docker-compose.override.yml, or replace them with ./bbb-conf --upgrade --force (the backup keeps them)."
+      echo "--force: replacing the files above; the backup keeps them"
+    fi
+  fi
+
+  docker pull -q "$new" >/dev/null || fail "Not upgraded: cannot pull $new"
+  image_files "$new" "$tmp/new" || fail "Not upgraded: cannot copy the files of $new"
+  if [ -z "$old_id" ]; then
+    echo "There is no local image $old, so local edits cannot be told from changes in $new. The files here against $new:"
+    if ! diff_files "$tmp/new" . "$tmp/new"; then
+      [ -n "$force" ] || fail "Not upgraded. Run ./bbb-conf --upgrade --force to replace the files above (the backup keeps them)."
+    fi
+  else
+    changes=$(diff -ruN "$tmp/old" "$tmp/new") || true
+    if [ -z "$changes" ]; then
+      echo "The files of $new are the same as the installed ones"
+    elif [ "$(printf '%s\n' "$changes" | wc -l)" -gt 200 ]; then
+      echo "Changed files from $old to $new (long diff, so only the names):"
+      diff -rqN "$tmp/old" "$tmp/new" || true
+    else
+      echo "Changes from $old to $new:"
+      printf '%s\n' "$changes"
+    fi
+  fi
+
+  # The new files with .env (and its new keys) and the override, and their images; images of
+  # your own builds (localhost/...) are not pulled
+  cp .env "$tmp/env"
+  add_keys "$tmp/new/.env.sample" "$tmp/env" >/dev/null
+  set -- --project-directory . --env-file "$tmp/env" -f "$tmp/new/docker-compose.yml"
+  if [ -e docker-compose.override.yml ]; then set -- "$@" -f docker-compose.override.yml; fi
+  out=$(BBB_IMAGE_TAG=$tag docker compose "$@" config -q 2>&1) ||
+    fail "Not upgraded: docker compose rejects the new files: $out"
+  services=$(BBB_IMAGE_TAG=$tag pulled_services "$@")
+  # without a name, compose would pull every image
+  if [ -n "$services" ]; then
+    # shellcheck disable=SC2086 # one service per word
+    BBB_IMAGE_TAG=$tag docker compose "$@" pull $services || fail "Not upgraded: cannot pull the images"
+  fi
+
+  backup=backup/$(date -u +%Y%m%dT%H%M%SZ)
+  files=$(cd "$tmp/new" && find . -type f | sed "s|^\./||")
+  for file in $files .env; do
+    [ -e "$file" ] || continue
+    mkdir -p "$backup/$(dirname "$file")"
+    cp -p "$file" "$backup/$file"
+  done
+  chmod 700 backup
+  # the last 3 of the backups of this script, whose names sort by date; other folders stay
+  set -- backup/[0-9]*T[0-9]*Z/
+  while [ $# -gt 3 ]; do
+    rm -rf "$1"
+    shift
+  done
+  echo "The replaced files and .env are in $backup. To go back: cp -a $backup/. . && docker compose up -d"
+
+  # mv: a new file for this script, which the shell is still reading
+  switching=1
+  for file in $files; do
+    mkdir -p "$(dirname "$file")"
+    mv "$tmp/new/$file" "$file"
+  done
+  if [ "$tag" != "$current" ]; then set_env BBB_IMAGE_TAG "$tag"; fi
+  switched=1
+  upgrade_cleanup
+  trap - EXIT HUP INT TERM
+  exec ./bbb-conf --upgrade-finish
+}
+
+# The second half of --upgrade, run by the new script. Every older bbb-conf calls it after its
+# upgrade, so this option has to stay.
+upgrade_finish() {
+  add_keys .env.sample .env
+  keys=$(sed -n 's/^[[:space:]]*\(export[[:space:]][[:space:]]*\)\{0,1\}\([A-Za-z_][A-Za-z0-9_]*\)[[:space:]]*=.*/\2/p' .env)
+  for key in $keys; do
+    case "$key" in BBB_*_IMAGE | BBB_IMAGE_REGISTRY | COMPOSE_*) continue ;; esac
+    grep -q "^#\{0,1\}$key=" .env.sample ||
+      echo "Warning: $key is in .env, but not in .env.sample (renamed or removed?). It is left as it is."
+  done
+  # recreated, as the mounted files are new files (a container keeps the replaced one); --check
+  # reports what does not get healthy
+  docker compose up -d --remove-orphans --force-recreate --wait --wait-timeout 600 || true
+  check
+}
+
 case "${1:---help}" in
   --help | -h) usage ;;
   --status)
@@ -322,6 +515,20 @@ case "${1:---help}" in
     done
     ;;
   --zip) zip_logs ;;
+  --upgrade | --upgrade=* | --force)
+    tag='' force='' is_upgrade=''
+    for arg in "$@"; do
+      case "$arg" in
+        --upgrade) is_upgrade=1 ;;
+        --upgrade=*) is_upgrade=1 tag=${arg#--upgrade=} ;;
+        --force) force=1 ;;
+        *) is_upgrade='' && break ;;
+      esac
+    done
+    [ -n "$is_upgrade" ] || fail "Usage: ./bbb-conf --upgrade[=<tag>] [--force]"
+    upgrade "$tag" "$force"
+    ;;
+  --upgrade-finish) upgrade_finish ;;
   --test)
     domain=$(env_value BBB_DOMAIN)
     api=https://$domain/bigbluebutton/api

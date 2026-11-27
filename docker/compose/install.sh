@@ -1,21 +1,19 @@
 #!/bin/sh
-# Downloads the docker compose files of BigBlueButton and writes a .env for one server:
+# Copies the docker compose files of BigBlueButton out of the bbb-compose image and writes a .env
+# for one server:
 #
 #   curl -fsSL https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.1.x-develop/docker/compose/install.sh | sh -s -- <domain> [email]
 #
 # Without the email (for Let's Encrypt), put your own certificate in data/certs.
-# BBB_REPO and BBB_BRANCH select the GitHub repository and the branch or tag to download from,
-# BBB_DIR the target directory.
+# BBB_IMAGE_TAG selects the image tag (default: this branch), BBB_IMAGE_REGISTRY another registry
+# (a mirror), BBB_COMPOSE_IMAGE another image with the files, BBB_DIR the target directory.
 # Docker is not installed by this script.
 set -eu
 
-BBB_REPO="${BBB_REPO:-bigbluebutton/bigbluebutton}"
-BBB_BRANCH="${BBB_BRANCH:-v4.1.x-develop}"
 BBB_DIR="${BBB_DIR:-bigbluebutton}"
-URL="https://raw.githubusercontent.com/$BBB_REPO/$BBB_BRANCH"
 
 fail() {
-  echo "$*" >&2
+  printf '%s\n' "$*" >&2
   exit 1
 }
 
@@ -38,7 +36,7 @@ if [ "$compose_major" -lt 2 ] || { [ "$compose_major" -eq 2 ] && [ "$compose_min
 fi
 
 # The other tools this script uses
-for tool in curl openssl getent; do
+for tool in openssl getent; do
   command -v "$tool" >/dev/null || fail "$tool is not installed."
 done
 
@@ -49,25 +47,35 @@ env_value() {
     sed -n "s/^$1=//p" | tail -n 1
 }
 
-# An existing .env is kept: it has to be for the same domain, and its email counts
+# An existing .env is kept: it has to be for the same domain, and its email and images count
+env_tag='' env_registry='' env_image=''
 if [ -e "$BBB_DIR/.env" ]; then
   env_domain=$(env_value BBB_DOMAIN)
   [ -z "$env_domain" ] || [ "$env_domain" = "$domain" ] ||
     fail "$BBB_DIR/.env is set up for $env_domain, not $domain. Run install.sh with $env_domain, or change BBB_DOMAIN in .env first."
   email=$(env_value ACME_EMAIL)
+  env_tag=$(env_value BBB_IMAGE_TAG)
+  env_registry=$(env_value BBB_IMAGE_REGISTRY)
+  env_image=$(env_value BBB_COMPOSE_IMAGE)
 fi
+# the image as ./bbb-conf finds it: BBB_COMPOSE_IMAGE, else bbb-compose of the registry and tag
+tag="${BBB_IMAGE_TAG:-${env_tag:-v4.1.x-develop}}"
+registry="${BBB_IMAGE_REGISTRY:-${env_registry:-ghcr.io/bigbluebutton/bigbluebutton}}"
+image="${BBB_COMPOSE_IMAGE:-${env_image:-$registry/bbb-compose:$tag}}"
 
-# Download the compose file and its configuration
-echo "Downloading $URL to $BBB_DIR"
-mkdir -p "$BBB_DIR/docker/compose/nginx"
+# The compose file, its configuration and bbb-conf, from the image
+echo "Copying the files of $image to $BBB_DIR"
+docker pull -q "$image" >/dev/null || fail "Cannot pull $image."
+mkdir -p "$BBB_DIR"
 cd "$BBB_DIR"
-for file in docker-compose.yml .env.sample \
-  docker/compose/certbot.sh docker/compose/haproxy.cfg \
-  docker/compose/nginx/bigbluebutton docker/compose/nginx/playback.nginx; do
-  curl -fsSL -o "$file" "$URL/$file"
+container=$(docker create "$image" none)
+for file in docker-compose.yml .env.sample bbb-conf docker; do
+  docker cp -q "$container:/$file" . || {
+    docker rm "$container" >/dev/null
+    fail "Cannot copy $file out of $image."
+  }
 done
-curl -fsSL -o bbb-conf "$URL/docker/compose/bbb-conf"
-chmod +x bbb-conf
+docker rm "$container" >/dev/null
 
 # Keep an existing .env
 setip_failed=
@@ -75,13 +83,16 @@ if [ -e .env ]; then
   echo "$BBB_DIR/.env exists, left unchanged (BBB_DOMAIN, BBB_PUBLIC_IP, ACME_EMAIL and the secrets stay as they are)."
   [ -n "$(env_dir=. && env_value BBB_PUBLIC_IP)" ] || setip_failed=1
 else
-  # Write .env from .env.sample: domain, email, and a new random value for each secret
+  # Write .env from .env.sample: domain, email, images, and a new random value for each secret
   touch .env
   chmod 600 .env
   while IFS= read -r line; do
     case "$line" in
       BBB_DOMAIN=) line="BBB_DOMAIN=$domain" ;;
       ACME_EMAIL=) line="ACME_EMAIL=$email" ;;
+      BBB_IMAGE_TAG=*) line="BBB_IMAGE_TAG=$tag" ;;
+      '#BBB_IMAGE_REGISTRY='*) [ -z "${BBB_IMAGE_REGISTRY:-}" ] || line="BBB_IMAGE_REGISTRY=$BBB_IMAGE_REGISTRY" ;;
+      '#BBB_COMPOSE_IMAGE='*) [ -z "${BBB_COMPOSE_IMAGE:-}" ] || line="BBB_COMPOSE_IMAGE=$BBB_COMPOSE_IMAGE" ;;
       *_SECRET= | *_PASSWORD= | LIVEKIT_API_KEY=) line="$line$(openssl rand -hex 32)" ;;
     esac
     printf '%s\n' "$line"

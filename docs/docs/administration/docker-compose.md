@@ -31,7 +31,7 @@ curl -fsSL https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.1.x-
 cd bigbluebutton && ./bbb-conf --start
 ```
 
-`docker/compose/install.sh` checks the Docker versions, downloads `docker-compose.yml`, `.env.sample`, `docker/compose/` and `bbb-conf` into `./bigbluebutton` and writes `.env` with the domain, its IPv4 address, the email and new secrets; an existing `.env` is kept. `BBB_REPO` and `BBB_BRANCH` choose the GitHub repository and the branch, tag or commit to download from (default `bigbluebutton/bigbluebutton` and `v4.1.x-develop`), `BBB_DIR` the target directory (default `bigbluebutton`), e.g. `curl ... | BBB_DIR=bbb sh -s -- <domain>`. Without the script: copy these files from the repository (`docker/compose/bbb-conf` to the top of the folder, next to `docker-compose.yml`), `cp .env.sample .env` and set every value.
+`docker/compose/install.sh` checks the Docker versions, copies `docker-compose.yml`, `.env.sample`, `docker/compose/` and `bbb-conf` out of the image `bbb-compose` into `./bigbluebutton` and writes `.env` with the domain, its IPv4 address, the email and new secrets; an existing `.env` is kept. `BBB_IMAGE_TAG` chooses the tag of the images (default `v4.1.x-develop`, e.g. `v4.1` for the latest 4.1 release), `BBB_IMAGE_REGISTRY` another registry with the same image names (a mirror), `BBB_COMPOSE_IMAGE` another image with the files, and `BBB_DIR` the target directory (default `bigbluebutton`), e.g. `curl ... | BBB_IMAGE_TAG=v4.1 BBB_DIR=bbb sh -s -- <domain>`. Without the script: copy these files from the repository (`docker/compose/bbb-conf` to the top of the folder, next to `docker-compose.yml`), `cp .env.sample .env` and set every value; the first `./bbb-conf --upgrade` of such an install needs `--force`, as there is no installed `bbb-compose` image to compare with.
 
 The images come from the registry (`docker compose pull`, or the first `up`); no local build is needed. `BBB_IMAGE_TAG` is a branch tag such as `v4.1.x-develop`, or `v4.1.x-develop-<commit>` to pin a set of images built together. `BBB_IMAGE_REGISTRY` (default `ghcr.io/bigbluebutton/bigbluebutton`) points to another registry with the same image names, e.g. a mirror.
 
@@ -45,26 +45,26 @@ The images come from the registry (`docker compose pull`, or the first `up`); no
 
 ## Upgrade
 
-The compose files go with the images: a newer image can need a change in `docker-compose.yml` or `docker/compose/`, so upgrade them together, with the files of the commit the images were built from. Each image carries that commit in its label `org.opencontainers.image.revision`, also for a tag without a commit such as `v4.1.x-develop`. Set `BBB_IMAGE_TAG` in `.env` to the new tag (or keep a branch tag), pull, read the commit, and run `install.sh` of that commit again in the directory that contains `bigbluebutton`; it downloads the files again and keeps `.env` and `docker-compose.override.yml`. Then recreate:
+The compose files go with the images: a newer image can need a change in `docker-compose.yml`, `.env` or `docker/compose/`. The image `bbb-compose` holds these files, with the same tag as the other images, and `./bbb-conf --upgrade` upgrades both together:
 
 ```bash
-cd bigbluebutton
-docker compose pull
-commit=$(docker image inspect --format '{{index .Config.Labels "org.opencontainers.image.revision"}}' "$(docker compose config --images web | grep /bbb-web:)")
-cd ..
-repo=bigbluebutton/bigbluebutton  # or the BBB_REPO you installed from
-curl -fsSL "https://raw.githubusercontent.com/$repo/$commit/docker/compose/install.sh" | BBB_REPO=$repo BBB_BRANCH=$commit sh -s -- <domain>
-cd bigbluebutton
-docker compose up -d --force-recreate
+./bbb-conf --upgrade          # the newest build of BBB_IMAGE_TAG
+./bbb-conf --upgrade=4.2      # another tag, e.g. 4.2 (the same as v4.2) or v4.1.3
 ```
 
-Every service restarts, as in a package upgrade. When a schema changed, its database is recreated, so meetings that are running end.
+It compares the files here with the installed `bbb-compose` image. If you changed one, it shows the diff and stops: put your changes in `docker-compose.override.yml`, or run it again with `--force` to replace them. Then it shows what changes in the files, checks them with your `.env` and pulls the new images (except your own builds, `localhost/...`), before anything changes here. It copies the replaced files and `.env` to `backup/<date>/` (the last 3 of these are kept; other folders in `backup/` are left alone), moves the new files in, adds new keys of `.env.sample` to `.env` (new secrets get a random value), warns about keys that `.env.sample` no longer has, recreates the services (`up -d --remove-orphans --force-recreate`), waits until they are healthy and runs `--check`. Every service restarts, as in a package upgrade; when a database schema changed, its database is recreated, so meetings that are running end. A downgrade is refused across minor versions (`v4.2` to `v4.1`) and allowed within one. With `BBB_COMPOSE_IMAGE` in `.env`, `--upgrade=<tag>` is refused: set that variable to the image of the new version, or remove it, and run `--upgrade`. Files that the new version no longer has stay in the folder, unused.
 
-A newer `docker-compose.yml` can need a new value in `.env`; compose then stops and names the variable. `BBB_PAGE_TOKEN_SECRET` (bbb-web's `pageTokenSecret`, separate from `BBB_SHARED_SECRET`) is such a value for installs from before it was added. Add it with
+Without the installed `bbb-compose` image (removed, or installed before it existed), local changes cannot be told from changes in the new version: `--upgrade` shows the diff of the files here against the new ones and stops, and `--force` replaces them.
+
+To go back, copy a backup in and recreate:
 
 ```bash
-echo "BBB_PAGE_TOKEN_SECRET=$(openssl rand -hex 32)" >> .env
+cp -a backup/<date>/. . && docker compose up -d
 ```
+
+This brings back the old images only if the tag changed, e.g. from `v4.1.2` to `v4.1.3`: the restored `.env` names the old tag. A tag that moves, such as `v4.1.x-develop` or `v4.1`, names the new images after `docker compose pull`, so going back restores the files only. For production, use a release tag such as `v4.1.3` and upgrade with `--upgrade=<new tag>`.
+
+The backup holds only these files. Your data (`./data`, the volumes, recordings and the database) is neither changed nor backed up by `--upgrade`; backing it up is yours to do (see [Data and backup](#data-and-backup)).
 
 ## Run another version of one component
 
@@ -116,7 +116,7 @@ Backup: `./data`, `.env` and `docker-compose.override.yml`. PostgreSQL (a volume
 ## Configuration
 
 - `.env` holds the values per server.
-- Local changes go in `docker-compose.override.yml` next to `docker-compose.yml` (compose reads it automatically), not in `docker-compose.yml` or `docker/compose/`: `install.sh` replaces those on an upgrade and never touches the override.
+- Local changes go in `docker-compose.override.yml` next to `docker-compose.yml` (compose reads it automatically), not in `docker-compose.yml` or `docker/compose/`: `./bbb-conf --upgrade` replaces those and never touches the override.
 - bbb-web and bbb-apps-akka get their settings from environment variables in `docker-compose.yml` (see [Environment variables](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/docker/README.md#environment-variables)); bbb-web takes any key of `bigbluebutton.properties` this way.
 - bbb-graphql-middleware, bbb-shared-notes-server and bbb-export-annotations get the addresses of the other services (and the notes' database password) from environment variables as well.
 - Other bare-metal settings are in the inline `livekit.yaml` and in `docker/compose/`. To change one, use your own version in `docker-compose.override.yml`: mount your file at the same path as a file of `docker/compose/` (further files can be mounted there at their bare-metal paths, see [Images](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/docker/README.md#images), e.g. `/etc/bigbluebutton/bbb-apps-akka.conf` or `/etc/bigbluebutton/recording/recording.yml`), or replace an inline file, which needs `!override` (without it compose merges both definitions and rejects `content` and `file` together):
@@ -194,7 +194,7 @@ services:
 
 ## Common bbb-conf tasks
 
-`./bbb-conf` in the install folder takes the options of the package's `bbb-conf`: `--status`, `--start`, `--stop`, `--restart`, `--secret`, `--setsecret <secret>`, `--setip <domain>`, `--check`, `--debug`, `--watch`, `--zip` and `--version`, plus `--test`, which creates a meeting and prints a join link. It runs as any user who can run `docker compose`, and `./bbb-conf --help` describes each option. Anything else goes to `docker compose`, e.g. `./bbb-conf logs -f web`.
+`./bbb-conf` in the install folder takes the options of the package's `bbb-conf`: `--status`, `--start`, `--stop`, `--restart`, `--secret`, `--setsecret <secret>`, `--setip <domain>`, `--check`, `--debug`, `--watch`, `--zip` and `--version`, plus `--test`, which creates a meeting and prints a join link, and `--upgrade` (see [Upgrade](#upgrade)). It runs as any user who can run `docker compose`, and `./bbb-conf --help` describes each option. Anything else goes to `docker compose`, e.g. `./bbb-conf logs -f web`.
 
 `--check` contacts nothing outside the server, and `--zip` replaces the secrets and passwords of `.env` in the logs and the configuration it packs. Three options of the package's `bbb-conf` have no equivalent:
 

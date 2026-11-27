@@ -183,7 +183,8 @@ target "init" {
   }
 }
 
-# The files of the compose setup, at their paths in the install folder of docker/compose/install.sh
+# The files of the compose setup, at their paths in the install folder: docker/compose/install.sh and
+# bbb-conf --upgrade copy them out of this image
 target "compose" {
   inherits          = ["_image"]
   tags              = tags("compose")
