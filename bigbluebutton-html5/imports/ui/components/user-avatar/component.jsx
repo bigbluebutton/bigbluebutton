@@ -5,6 +5,16 @@ import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import Styled from './styles';
 import browserInfo from '/imports/utils/browserInfo';
+import Icon from '/imports/ui/components/common/icon/icon-ts/component';
+
+// Icon of the audio state badge. A user who is not in the audio gets an empty badge,
+// and an avatar given no audio state shows no badge at all.
+const AUDIO_STATE_ICONS = {
+  unmuted: 'unmute',
+  muted: 'mute',
+  listenOnly: 'listen',
+  none: null,
+};
 
 const propTypes = {
   children: PropTypes.node,
@@ -13,6 +23,7 @@ const propTypes = {
   you: PropTypes.bool,
   talking: PropTypes.bool,
   muted: PropTypes.bool,
+  audioState: PropTypes.oneOf(Object.keys(AUDIO_STATE_ICONS)),
   color: PropTypes.string,
   emoji: PropTypes.bool,
   avatar: PropTypes.string,
@@ -30,6 +41,7 @@ const UserAvatar = ({
   className = '',
   talking = false,
   muted = false,
+  audioState = '',
   color = '#000',
   emoji = false,
   avatar = '',
@@ -66,6 +78,17 @@ const UserAvatar = ({
             talking={talking && !muted}
             animations={animations}
           />
+
+          {audioState && (
+            <Styled.AudioState
+              state={audioState}
+              animations={animations}
+              data-test="userAudioState"
+              data-audio-state={audioState}
+            >
+              {AUDIO_STATE_ICONS[audioState] && <Icon iconName={AUDIO_STATE_ICONS[audioState]} />}
+            </Styled.AudioState>
+          )}
 
           {avatar != null && avatar.length !== 0 && !emoji
             ? (

@@ -51,7 +51,8 @@ const AudioStreamVolume = ({
   };
 
   const observeVolumeChanges = (_stream) => {
-    if (_stream) {
+    // hark throws on a stream with no audio track, e.g. the one of a listen only user
+    if (_stream && _stream.getAudioTracks().length > 0) {
       harkObserver.current = hark(_stream, { interval: VOL_POLLING_INTERVAL_MS });
       harkObserver.current.on('volume_change', handleVolumeChange);
     }
