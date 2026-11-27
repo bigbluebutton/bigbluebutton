@@ -137,15 +137,22 @@ Add `data/dev-ca/rootCA.pem` to the trusted certificates of your browser or oper
 
 ```bash
 ./bbb-dev up -d          # start everything (any docker compose command works)
+./bbb-dev status         # what runs from your checkout
+
 ./bbb-dev enable html5   # the HTML5 client runs live from your checkout
-./bbb-dev exec html5     # a shell in its container (or: ./bbb-dev exec html5 npm test)
 ./bbb-dev build web      # build bbb-web from your checkout
 ./bbb-dev enable web     # and run it
 ./bbb-dev build          # build all images (--no-cache: without the build cache)
-./bbb-dev status         # what runs from your checkout
+./bbb-dev enable all     # run every component from your checkout (needs the images of build)
+./bbb-dev disable all    # back to the published images
+
+./bbb-dev logs web -f    # follow its logs
+./bbb-dev restart web    # restart it
+./bbb-dev exec html5     # a shell in its container (or: ./bbb-dev exec html5 npm test)
+
 ./bbb-dev apimate        # open API Mate for your server (prints the URL if no browser opens)
 ./bbb-dev tunnel         # experimental: share it on a temporary public URL until Ctrl-C
-./bbb-dev disable all    # back to the published images
+
 ./bbb-dev help           # all commands and components
 ```
 

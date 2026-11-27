@@ -53,24 +53,33 @@ usage() {
   cat <<EOF
 Usage: ./bbb-dev <command> [component] [args...]
 
+Server:
   setup [domain]          once: .env, a local CA and certificate, the truststore for bbb-web
                           (domain: BBB_DOMAIN in .env, else $DEFAULT_DOMAIN)
+  up -d, down, pull, ...  any other command is passed to docker compose with its arguments
+  status                  the domain, what runs from your checkout, docker compose ps
+
+Run from your checkout:
   build [component] [--no-cache]
                           build its image from your checkout (localhost/bbb-<target>:dev), or all
                           images without a component
   enable <component>      run it from your checkout: live, or the image of build
   enable <component> --image
                           run the image of build, also for a component that runs live
+  enable all [--image]    every component from your checkout; needs the images of build
   disable <component>|all run the published image again
-  exec <component> [cmd]  run cmd in its container, or a shell
+
+Work on a component:
   logs <component> [args] its logs (args as for docker compose logs, e.g. -f)
   restart <component>     restart it
+  exec <component> [cmd]  run cmd in its container, or a shell
+
+Test and share:
   apimate                 open API Mate for this server in the browser, or print its URL
   tunnel                  experimental: share this setup on a temporary public URL until
                           Ctrl-C (containers of cloudflared, and of bore for audio and video)
-  status                  the domain, what runs from your checkout, docker compose ps
+
   help                    this text
-  anything else           docker compose with these arguments, e.g. up -d, pull, down
 
 Components (bake target; live from the checkout, or the local image of build):
 EOF
@@ -134,20 +143,35 @@ enabled_without() {
 }
 
 cmd_enable() {
-  local dir file
-  need_component "${1:-}"
-  file=$1
+  local names c file image='' files='' missing=''
   if [[ ${2:-} == --image ]]; then
-    [[ -z $live ]] || file=$1.image live='' dirs=''
+    image=1
   elif [[ -n ${2:-} ]]; then
     fail "Unknown option: $2"
   fi
-  if [[ -z $live ]] && ! docker image inspect "localhost/bbb-$target:dev" >/dev/null 2>&1; then
+  if [[ ${1:-} == all ]]; then
+    names=$COMPONENTS
+  else
+    need_component "${1:-}"
+    names=$1
+  fi
+  for c in $names; do
+    component "$c"
+    file=$c
+    [[ -z $image || -z $live ]] || file=$c.image live='' dirs=''
+    if [[ -z $live ]] && ! docker image inspect "localhost/bbb-$target:dev" >/dev/null 2>&1; then
+      missing="$missing $c"
+    fi
+    # shellcheck disable=SC2086 # one directory per word
+    [[ -z $dirs ]] || mkdir -p $dirs
+    files="$files $file"
+  done
+  if [[ -n $missing ]]; then
+    [[ $1 != all ]] || fail "No local image for:$missing. Run ./bbb-dev build first."
     fail "No local image localhost/bbb-$target:dev. Run ./bbb-dev build $1 first."
   fi
-  for dir in $dirs; do mkdir -p "$dir"; done
-  # shellcheck disable=SC2046 # one component per line
-  switch_to $(enabled_without "$1") "$file"
+  # shellcheck disable=SC2046,SC2086 # one component per line or word
+  switch_to $([[ $1 == all ]] || enabled_without "$1") $files
 }
 
 cmd_disable() {
