@@ -298,10 +298,17 @@ func TestFileGapIsAnError(t *testing.T) {
 		t.Skip("needs inotify")
 	}
 	w := startSide(t)
-	go func() {
-		time.Sleep(200 * time.Millisecond)
-		os.RemoveAll(filepath.Join(w.fake.DataDir, "recording/status"))
-	}()
+	// Remove the directory on the step's first look, so after the case's
+	// mark: the step only counts gaps after it.
+	var once sync.Once
+	ts := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		if req.URL.Path == "/fs" {
+			once.Do(func() { os.RemoveAll(filepath.Join(w.fake.DataDir, "recording/status")) })
+		}
+		w.tap.ServeHTTP(rw, req)
+	}))
+	t.Cleanup(ts.Close)
+	w.tapURL = ts.URL
 	res := w.run(t, `steps:
   - fs: {path: "recording/status/ended/${uid}.done", within: 1s}
 `)
