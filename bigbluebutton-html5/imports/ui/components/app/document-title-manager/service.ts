@@ -1,4 +1,11 @@
+import getFromUserSettings from '/imports/ui/services/users-settings';
+
 export const DOCUMENT_TITLE_VIEW_CHANGED = 'bbb-document-title-view-changed';
+
+export const getClientTitle = (): string => {
+  const publicConfig = window.meetingClientSettings?.public;
+  return getFromUserSettings('bbb_client_title', publicConfig?.app?.clientTitle || 'BigBlueButton');
+};
 
 type DocumentTitleView = {
   title: string;

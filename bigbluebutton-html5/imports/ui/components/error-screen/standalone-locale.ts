@@ -33,10 +33,15 @@ const fetchLocale = async (locale: string, signal?: AbortSignal): Promise<Locale
   }
 };
 
+interface LoadedLocale {
+  locale: string;
+  messages: LocaleMessages;
+}
+
 const fetchFirstAvailable = async (
   locales: string[],
   signal?: AbortSignal,
-): Promise<LocaleMessages | null> => {
+): Promise<LoadedLocale | null> => {
   // eslint-disable-next-line no-restricted-syntax
   for (const locale of locales) {
     if (signal?.aborted) break;
@@ -45,20 +50,27 @@ const fetchFirstAvailable = async (
     // eslint-disable-next-line no-await-in-loop
     const messages = await fetchLocale(locale, signal);
 
-    if (messages) return messages;
+    if (messages) return { locale, messages };
   }
 
   return null;
 };
 
-const fetchStandaloneLocale = async (signal?: AbortSignal): Promise<LocaleMessages> => {
+/**
+ * `locale` is the language the messages are in, for the page's `lang`: the localized file that
+ * loaded, or English when only the base (or nothing, leaving the hardcoded English line) loaded.
+ */
+const fetchStandaloneLocale = async (signal?: AbortSignal): Promise<LoadedLocale> => {
   const language = (navigator.languages && navigator.languages[0]) || navigator.language || 'en';
   const [base, localized] = await Promise.all([
     fetchLocale(BASE_LOCALE, signal),
     fetchFirstAvailable(localeCandidates(language), signal),
   ]);
 
-  return { ...base, ...localized };
+  return {
+    locale: localized?.locale ?? BASE_LOCALE,
+    messages: { ...base, ...localized?.messages },
+  };
 };
 
 export default fetchStandaloneLocale;
