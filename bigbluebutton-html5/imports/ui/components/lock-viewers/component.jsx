@@ -340,14 +340,16 @@ class LockViewersComponent extends Component {
 
     return (
       <Styled.TabContent>
-        <Styled.SectionTitle>
+        <Styled.SectionTitle id="lock-viewers-guest-policy-title">
           {intl.formatMessage(intlMessages.guestPolicyTitle)}
         </Styled.SectionTitle>
-        <Styled.SectionDescription>
+        <Styled.SectionDescription id="lock-viewers-guest-policy-description">
           {intl.formatMessage(intlMessages.guestPolicyDescription)}
         </Styled.SectionDescription>
         <Styled.GuestPolicySelector
           value={guestPolicy}
+          labelId="lock-viewers-guest-policy-title"
+          aria-describedby="lock-viewers-guest-policy-description"
           IconComponent={ExpandMoreIcon}
           onChange={(e) => this.setState({ guestPolicy: e.target.value })}
           data-test="guestPolicySelector"
@@ -366,6 +368,9 @@ class LockViewersComponent extends Component {
           <Styled.SwitchRow>
             <Styled.MaterialSwitch
               checked={lobbyMessageEnabled}
+              inputProps={{
+                'aria-labelledby': 'lock-viewers-lobby-message-label',
+              }}
               onChange={(_, checked) => {
                 this.setState({ lobbyMessageEnabled: checked });
                 if (!checked) {
@@ -375,6 +380,7 @@ class LockViewersComponent extends Component {
               }}
             />
             <Styled.SwitchLabel
+              id="lock-viewers-lobby-message-label"
               onClick={() => {
                 const next = !lobbyMessageEnabled;
                 this.setState({ lobbyMessageEnabled: next });
@@ -541,14 +547,16 @@ class LockViewersComponent extends Component {
 
     return (
       <Styled.TabContent>
-        <Styled.SectionTitle>
+        <Styled.SectionTitle id="lock-viewers-presentation-policy-title">
           {intl.formatMessage(intlMessages.presentationPermissionsTitle)}
         </Styled.SectionTitle>
-        <Styled.SectionDescription>
+        <Styled.SectionDescription id="lock-viewers-presentation-policy-description">
           {intl.formatMessage(intlMessages.presentationPermissionsDescription)}
         </Styled.SectionDescription>
         <Styled.PresentationPolicySelector
           value={presentationPolicy}
+          labelId="lock-viewers-presentation-policy-title"
+          aria-describedby="lock-viewers-presentation-policy-description"
           IconComponent={ExpandMoreIcon}
           onChange={(e) => this.setState({ presentationPolicy: e.target.value })}
           data-test="presentationPolicySelector"
