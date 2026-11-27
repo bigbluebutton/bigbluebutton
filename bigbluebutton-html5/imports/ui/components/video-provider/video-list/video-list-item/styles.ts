@@ -12,6 +12,7 @@ import {
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { TextElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
 import { UserCameraButtonsContainerWrapperProps } from './types'
+import { visuallyHidden } from '/imports/ui/components/common/visually-hidden/styles';
 
 const rotate360 = keyframes`
   from {
@@ -275,6 +276,12 @@ const UserCameraButtonsContainerWrapper = styled.div<UserCameraButtonsContainerW
   `}
 `;
 
+// Squeezed tiles have no room for the status icons, but screen readers still
+// need the microphone state they carry.
+const SqueezedStatus = styled.div`
+  ${visuallyHidden}
+`;
+
 export default {
   Content,
   UserCameraButtonsContainerWrapper,
@@ -285,6 +292,7 @@ export default {
   TopBar,
   BottomBar,
   SqueezedName,
+  SqueezedStatus,
   VideoDisabled,
   RaiseHand,
   RaiseHandNumber,

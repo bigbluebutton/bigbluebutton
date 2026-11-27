@@ -470,25 +470,30 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
     );
   };
 
-  const renderTabsContent = () => {
-    const shouldShowVirtualBackgrounds = isVirtualBackgroundsEnabled && !cameraAsContent;
+  const shouldShowVirtualBackgroundsTab = isVirtualBackgroundsEnabled
+    && !cameraAsContent
+    && !isCameraAsContentDevice(webcamDeviceId)
+    && isVirtualBackgroundSupported();
 
-    return (
-      <Styled.ContentCol>
-        {selectedTab === 0 && (
-          <Styled.Col>
-            {renderDeviceSelectors()}
-            {isVirtualBackgroundSupported() && renderBrightnessInput()}
-          </Styled.Col>
-        )}
-        {selectedTab === 1 && shouldShowVirtualBackgrounds && (
+  // Each panel must render inside Styled.WebcamTabs (see the modal body) so
+  // react-tabs links it to its tab through id/aria-controls/aria-labelledby.
+  const renderTabsContent = () => (
+    <Styled.ContentCol>
+      <Styled.WebcamTabPanel selectedClassName="is-selected">
+        <Styled.Col>
+          {renderDeviceSelectors()}
+          {isVirtualBackgroundSupported() && renderBrightnessInput()}
+        </Styled.Col>
+      </Styled.WebcamTabPanel>
+      {shouldShowVirtualBackgroundsTab && (
+        <Styled.WebcamTabPanel selectedClassName="is-selected">
           <Styled.BgnCol>
             {renderVirtualBgSelector()}
           </Styled.BgnCol>
-        )}
-      </Styled.ContentCol>
-    );
-  };
+        </Styled.WebcamTabPanel>
+      )}
+    </Styled.ContentCol>
+  );
 
   const renderContent = () => {
     const Settings = getSettingsSingletonInstance();
@@ -646,10 +651,6 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
   }
 
   const allowCloseModal = !!(deviceError || previewError) || !shouldSkipVideoPreview() || forceOpen;
-  const shouldShowVirtualBackgroundsTab = isVirtualBackgroundsEnabled
-    && !cameraAsContent
-    && !isCameraAsContentDevice(webcamDeviceId)
-    && isVirtualBackgroundSupported();
 
   // @ts-ignore
   const BASE_NAME = window.meetingClientSettings.public.app.basename;
@@ -671,26 +672,26 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
       priority={priority}
     >
       <Styled.Container>
-        <Styled.Header>
-          <Styled.WebcamTabs onSelect={setSelectedTab} selectedIndex={selectedTab}>
+        <Styled.WebcamTabs onSelect={setSelectedTab} selectedIndex={selectedTab}>
+          <Styled.Header>
             <Styled.WebcamTabList>
               <Styled.WebcamTabSelector selectedClassName="is-selected">
-                <Styled.IconSvg src={WebcamSettingsImg} darkThemeState={darkThemeState} />
+                <Styled.IconSvg src={WebcamSettingsImg} alt="" darkThemeState={darkThemeState} />
                 <span id="webcam-settings-title">{getModalTitle()}</span>
               </Styled.WebcamTabSelector>
               {shouldShowVirtualBackgroundsTab && (
                 <>
                   <Styled.HeaderSeparator />
                   <Styled.WebcamTabSelector selectedClassName="is-selected">
-                    <Styled.IconSvg src={WebcamBackgroundImg} darkThemeState={darkThemeState} />
+                    <Styled.IconSvg src={WebcamBackgroundImg} alt="" darkThemeState={darkThemeState} />
                     <span id="backgrounds-title">{intl.formatMessage(intlMessages.webcamVirtualBackgroundTitle)}</span>
                   </Styled.WebcamTabSelector>
                 </>
               )}
             </Styled.WebcamTabList>
-          </Styled.WebcamTabs>
-        </Styled.Header>
-        {deviceInfo.hasMediaDevices ? renderModalContent() : supportWarning()}
+          </Styled.Header>
+          {deviceInfo.hasMediaDevices ? renderModalContent() : supportWarning()}
+        </Styled.WebcamTabs>
       </Styled.Container>
     </ModalSimple>
   );

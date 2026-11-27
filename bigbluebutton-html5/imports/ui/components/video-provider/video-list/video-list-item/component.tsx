@@ -374,25 +374,34 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
   }, [settingsSelfViewDisable]);
 
   const renderSqueezedButton = () => (
-    <UserActions
-      name={name}
-      stream={stream}
-      videoContainer={videoContainer}
-      isVideoSqueezed={isVideoSqueezed}
-      cameraId={cameraId}
-      canFocus={canFocus}
-      onHandleVideoFocus={onHandleVideoFocus}
-      focused={focused}
-      onHandleMirror={() => setIsMirrored((value) => !value)}
-      isMirrored={isMirrored}
-      isRTL={isRTL}
-      isStream={isStream}
-      onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}
-      isSelfViewDisabled={isSelfViewDisabled}
-      amIModerator={amIModerator}
-      isFullscreenContext={isFullscreenContext}
-      layoutContextDispatch={layoutContextDispatch}
-    />
+    <>
+      <UserActions
+        name={name}
+        stream={stream}
+        videoContainer={videoContainer}
+        isVideoSqueezed={isVideoSqueezed}
+        cameraId={cameraId}
+        canFocus={canFocus}
+        onHandleVideoFocus={onHandleVideoFocus}
+        focused={focused}
+        onHandleMirror={() => setIsMirrored((value) => !value)}
+        isMirrored={isMirrored}
+        isRTL={isRTL}
+        isStream={isStream}
+        onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}
+        isSelfViewDisabled={isSelfViewDisabled}
+        amIModerator={amIModerator}
+        isFullscreenContext={isFullscreenContext}
+        layoutContextDispatch={layoutContextDispatch}
+      />
+      <Styled.SqueezedStatus>
+        <UserStatus
+          voiceUser={voiceUser}
+          user={user}
+          stream={stream}
+        />
+      </Styled.SqueezedStatus>
+    </>
   );
 
   const renderSqueezedName = () => (

@@ -26,7 +26,7 @@ import {
 import { smallOnly, mediumOnly, landscape } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 import {
-  Tab, Tabs, TabList,
+  Tab, Tabs, TabList, TabPanel,
 } from 'react-tabs';
 
 const Warning = styled.div`
@@ -304,11 +304,6 @@ const Header = styled.div`
 const WebcamTabs = styled(Tabs)`
   display: flex;
   flex-flow: column;
-
-  &:hover {
-    cursor: pointer;
-  }
-
 `;
 
 const WebcamTabList = styled(TabList)`
@@ -320,6 +315,7 @@ const WebcamTabList = styled(TabList)`
 
 const WebcamTabSelector = styled(Tab)`
   display: flex;
+  cursor: pointer;
   justify-content: center;
   flex-grow: 1;
   text-align: center;
@@ -329,6 +325,15 @@ const WebcamTabSelector = styled(Tab)`
   &.is-selected {
     border: none;
     color: ${colorBlack};
+  }
+`;
+
+const WebcamTabPanel = styled(TabPanel)`
+  display: none;
+  height: 100%;
+
+  &.is-selected {
+    display: block;
   }
 `;
 
@@ -381,6 +386,7 @@ export default {
   WebcamTabs,
   WebcamTabList,
   WebcamTabSelector,
+  WebcamTabPanel,
   HeaderSeparator,
   BottomSeparator,
   VideoCol,
