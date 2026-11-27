@@ -38,6 +38,19 @@ export const LIVEKIT_AUDIO_STATE_OVERRIDE: ClientSettingsOverrides = {
   },
 };
 
+// The waiting list shows separate authenticated and guest queues unless a deployment combines
+// them (public.app.combineGuestWaitingQueues), so the waiting list tests pin the one they assume.
+export function combineGuestWaitingQueuesOverride(combine: boolean): ClientSettingsOverrides {
+  return { public: { app: { combineGuestWaitingQueues: combine } } };
+}
+
+// `overrides` on top of the separate queues: overrides don't compose, so a page gets one object.
+export function withSeparateGuestQueues(overrides: ClientSettingsOverrides = {}): ClientSettingsOverrides {
+  const pub = (overrides.public ?? {}) as ClientSettingsOverrides;
+  const app = (pub.app ?? {}) as ClientSettingsOverrides;
+  return { ...overrides, public: { ...pub, app: { combineGuestWaitingQueues: false, ...app } } };
+}
+
 export function emojiRainSettingsOverride(enabled: boolean, numberOfEmojis: number = 5): ClientSettingsOverrides {
   return { public: { app: { emojiRain: { enabled, numberOfEmojis } } } };
 }

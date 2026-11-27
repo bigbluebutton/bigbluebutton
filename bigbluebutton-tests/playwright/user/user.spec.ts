@@ -11,6 +11,7 @@ import { Timer } from './timer';
 import { UserListSearch } from './userListSearch';
 import {
   AUDIO_ONLY_TILE_SETTINGS_OVERRIDE,
+  combineGuestWaitingQueuesOverride,
   emojiRainSettingsOverride,
   LIVEKIT_AUDIO_STATE_OVERRIDE,
   SHORT_REACTION_EXPIRY_MODULE,
@@ -64,6 +65,26 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       const guestPolicy = new GuestPolicy(browser, context);
       await guestPolicy.initModPage(page, { createParameter: 'guestPolicy=ASK_MODERATOR', testInfo });
       await guestPolicy.keepQueuesVisibleWhileSearching();
+    });
+
+    test('Combines the queues into one list when configured', async ({ browser, context, page }, testInfo) => {
+      const guestPolicy = new GuestPolicy(browser, context);
+      await guestPolicy.initModPage(page, {
+        createParameter: 'guestPolicy=ASK_MODERATOR',
+        testInfo,
+        clientSettingsOverrides: combineGuestWaitingQueuesOverride(true),
+      });
+      await guestPolicy.combinedWaitingList();
+    });
+
+    test('Combined list offers allow everyone for one waiting user', async ({ browser, context, page }, testInfo) => {
+      const guestPolicy = new GuestPolicy(browser, context);
+      await guestPolicy.initModPage(page, {
+        createParameter: 'guestPolicy=ASK_MODERATOR',
+        testInfo,
+        clientSettingsOverrides: combineGuestWaitingQueuesOverride(true),
+      });
+      await guestPolicy.combinedWaitingListAllowsOne();
     });
   });
 

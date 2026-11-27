@@ -4,9 +4,17 @@ import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 import { MultiUsers } from './multiusers';
-import { openLockViewers, setGuestPolicyOption } from './util';
+import { openLockViewers, setGuestPolicyOption, withSeparateGuestQueues } from './util';
 
 export class GuestPolicy extends MultiUsers {
+  // These tests assume the separate queues unless a test's own clientSettingsOverrides say otherwise.
+  async initModPage(...[page, options = {}]: Parameters<MultiUsers['initModPage']>) {
+    await super.initModPage(page, {
+      ...options,
+      clientSettingsOverrides: withSeparateGuestQueues(options.clientSettingsOverrides),
+    });
+  }
+
   async initTwoWaitingQueues() {
     await this.initUserPage(this.context, {
       fullName: 'AuthenticatedViewer',
@@ -432,5 +440,66 @@ export class GuestPolicy extends MultiUsers {
       'should still allow the moderator to deny the guest viewer',
       ELEMENT_WAIT_LONGER_TIME,
     );
+  }
+
+  // With combineGuestWaitingQueues, every waiting user is in one list, in order of arrival.
+  async combinedWaitingList(): Promise<void> {
+    // one at a time, each confirmed in the queue before the next joins, so the order is known
+    await this.initUserPage(this.context, {
+      fullName: 'AuthenticatedViewer',
+      shouldCloseAudioModal: false,
+      shouldCheckAllInitialSteps: false,
+    });
+    await this.userPage.hasText(e.positionInWaitingQueue, /first/, 'should put the authenticated viewer first');
+    await this.initUserPage2(this.context, {
+      fullName: 'GuestViewer',
+      joinParameter: 'guest=true',
+      shouldCloseAudioModal: false,
+      shouldCheckAllInitialSteps: false,
+    });
+    await this.userPage2.hasText(e.positionInWaitingQueue, /2/, 'should put the guest viewer second');
+    await this.modPage.waitAndClick(e.usersListSidebarButton);
+
+    const waitingList = this.modPage.page.locator(e.waitingUsers);
+    await expect(waitingList, 'should count every waiting user in one list').toHaveText(/Waiting Users\s*2$/);
+    await expect(this.modPage.page.locator(e.authenticatedWaitingUsers)).toHaveCount(0);
+    await expect(this.modPage.page.locator(e.guestWaitingUsers)).toHaveCount(0);
+    await expect(this.modPage.page.locator(e.allowEveryone)).toHaveText('Allow everyone (2)');
+    await waitingList.click();
+    await expect(
+      this.modPage.page.locator(e.waitingUserName),
+      'should list the authenticated and the guest viewer in order of arrival',
+    ).toHaveText(['[1] AuthenticatedViewer', '[2] GuestViewer']);
+    await expect(this.modPage.page.locator(e.allowAllAuthenticatedWaiting)).toHaveCount(0);
+    await expect(this.modPage.page.locator(e.denyAllGuestWaiting)).toHaveCount(0);
+
+    await this.modPage.fill(e.userListSearch, 'GuestViewer');
+    await expect(
+      this.modPage.page.locator(e.waitingUserName),
+      'should keep the guest viewer at its place in the queue',
+    ).toHaveText(['[2] GuestViewer']);
+    await expect(waitingList, 'should keep counting the user the search leaves out').toHaveText(/Waiting Users\s*2$/);
+    await this.modPage.waitAndClick(e.denyEveryone);
+    await this.userPage.hasText(
+      e.guestMessage,
+      /denied/,
+      'should deny the authenticated viewer the search leaves out',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await this.userPage2.hasText(e.guestMessage, /denied/, 'should deny the guest viewer', ELEMENT_WAIT_LONGER_TIME);
+    await expect(waitingList).toHaveCount(0);
+  }
+
+  // Allow everyone shows for a single waiting user too, since the list has no allow all of its own.
+  async combinedWaitingListAllowsOne(): Promise<void> {
+    await this.initUserPage(this.context, { shouldCloseAudioModal: false, shouldCheckAllInitialSteps: false });
+    await this.userPage.hasText(e.guestMessage, /wait/, 'should display the waiting message for the attendee');
+    await this.modPage.waitAndClick(e.usersListSidebarButton);
+    await this.modPage.waitAndClick(e.waitingUsers);
+    await expect(this.modPage.page.locator(e.allowAllAuthenticatedWaiting)).toHaveCount(0);
+    await expect(this.modPage.page.locator(e.allowEveryone)).toHaveText('Allow everyone (1)');
+    await this.modPage.waitAndClick(e.allowEveryone);
+    await this.userPage.hasText(e.guestMessage, /approved/, 'should approve the attendee', ELEMENT_WAIT_LONGER_TIME);
+    await expect(this.modPage.page.locator(e.waitingUsers)).toHaveCount(0);
   }
 }
