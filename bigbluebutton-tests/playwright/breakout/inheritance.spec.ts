@@ -1,6 +1,7 @@
 import { getRandomInt } from '../core/helpers';
 import { isLegacy } from '../core/livekit';
 import { test } from '../core/setup/fixtures';
+import { combineGuestWaitingQueuesOverride } from '../user/util';
 import { Inheritance, roomsApiCreateParameter } from './inheritance';
 
 // What a breakout room takes from its parent (MeetingService.processCreateBreakoutRoom) and how
@@ -63,7 +64,11 @@ test.describe.parallel('Breakout inheritance', { tag: '@nightly' }, () => {
     page,
   }, testInfo) => {
     const inheritance = new Inheritance(browser, context);
-    await inheritance.initModPage(page, { createParameter: 'guestPolicy=ASK_MODERATOR', testInfo });
+    await inheritance.initModPage(page, {
+      createParameter: 'guestPolicy=ASK_MODERATOR',
+      testInfo,
+      clientSettingsOverrides: combineGuestWaitingQueuesOverride(false),
+    });
     await inheritance.guestJoinsRoomWithoutLobby();
   });
 

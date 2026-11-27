@@ -53,6 +53,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       skipMeetingEnded: false,
       enableGuestLobbyMessage: true,
       showGuestLobbyWaitingQueuePosition: true,
+      combineGuestWaitingQueues: false,
       enableLimitOfViewersInWebcam: false,
       enableMultipleCameras: true,
       enableCameraAsContent: true,

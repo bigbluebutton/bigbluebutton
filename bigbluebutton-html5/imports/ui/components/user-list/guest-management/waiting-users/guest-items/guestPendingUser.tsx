@@ -14,6 +14,7 @@ const renderPendingUsers = (
   privateGuestLobbyMessage: (userId: string) => string | null,
   isGuestLobbyMessageEnabled: boolean,
   intl: IntlShape,
+  sequenceOf: (user: GuestWaitingUser, idx: number) => number = (_user, idx) => idx + 1,
 ) => {
   if (!usersArray.length) return null;
   return (
@@ -28,7 +29,7 @@ const renderPendingUsers = (
               handleAccept={() => action([user], ALLOW_STATUS)}
               handleDeny={() => action([user], DENY_STATUS)}
               role={user.user.role ?? ''}
-              sequence={idx + 1}
+              sequence={sequenceOf(user, idx)}
               userId={user.user.userId ?? ''}
               avatar={user.user.avatar ?? ''}
               setPrivateGuestLobbyMessage={(msg: string) => setPrivateGuestLobbyMessage(msg, user?.user?.userId ?? '')}

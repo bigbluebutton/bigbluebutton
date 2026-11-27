@@ -31,11 +31,22 @@ import {
 } from './mutations';
 
 interface WaitingUserSectionProps {
+  guestUsers: GuestWaitingUser[];
   authedGuestUsers: GuestWaitingUser[];
   unauthedGuestUsers: GuestWaitingUser[];
   guestLobbyMessage: string | null;
   guestPolicy: string;
   searchQuery?: string;
+}
+
+interface QueueProps {
+  users: GuestWaitingUser[];
+  filteredUsers: GuestWaitingUser[];
+  visible: boolean;
+  setVisible: (visible: boolean) => void;
+  title: string;
+  dataTest: string;
+  renderActions?: () => React.ReactNode;
 }
 
 type SeparatedUsers = {
@@ -50,6 +61,10 @@ const ALWAYS_ACCEPT = 'ALWAYS_ACCEPT';
 const ALWAYS_DENY = 'ALWAYS_DENY';
 
 const intlMessages = defineMessages({
+  waitingUsersTitle: {
+    id: 'app.userList.guest.waitingUsers',
+    description: 'Label for the single list of users waiting for approval',
+  },
   authenticatedUsersTitle: {
     id: 'app.userList.guest.waitingAuthenticatedUsers',
     description: 'Label for authenticated users waiting for approval',
@@ -109,15 +124,20 @@ const intlMessages = defineMessages({
 });
 
 const WaitingUserSection: React.FC<WaitingUserSectionProps> = ({
+  guestUsers,
   authedGuestUsers,
   unauthedGuestUsers,
   guestLobbyMessage,
   guestPolicy,
   searchQuery,
 }) => {
-  const isGuestLobbyMessageEnabled = window.meetingClientSettings.public.app.enableGuestLobbyMessage;
+  const {
+    enableGuestLobbyMessage: isGuestLobbyMessageEnabled,
+    combineGuestWaitingQueues,
+  } = window.meetingClientSettings.public.app;
   const intl = useIntl();
   const { isChrome } = browserInfo;
+  const [waitingUsersVisible, setWaitingUsersVisible] = useState(false);
   const [waitingAuthedUsersVisible, setWaitingAuthedUsersVisible] = useState(false);
   const [waitingUnauthedUsersVisible, setWaitingUnauthedUsersVisible] = useState(false);
 
@@ -126,24 +146,24 @@ const WaitingUserSection: React.FC<WaitingUserSectionProps> = ({
     [searchQuery],
   );
 
+  const matchesSearch = useCallback((u: GuestWaitingUser) => {
+    const nameLower = u.user.name?.toLowerCase() ?? '';
+    return searchTerms.every((term) => nameLower.includes(term));
+  }, [searchTerms]);
+
+  const filteredGuestUsers = useMemo(
+    () => guestUsers.filter(matchesSearch),
+    [guestUsers, matchesSearch],
+  );
+
   const filteredAuthedUsers = useMemo(
-    () => (searchTerms.length > 0
-      ? authedGuestUsers.filter((u) => {
-        const nameLower = u.user.name?.toLowerCase() ?? '';
-        return searchTerms.every((term) => nameLower.includes(term));
-      })
-      : authedGuestUsers),
-    [authedGuestUsers, searchTerms],
+    () => authedGuestUsers.filter(matchesSearch),
+    [authedGuestUsers, matchesSearch],
   );
 
   const filteredUnauthedUsers = useMemo(
-    () => (searchTerms.length > 0
-      ? unauthedGuestUsers.filter((u) => {
-        const nameLower = u.user.name?.toLowerCase() ?? '';
-        return searchTerms.every((term) => nameLower.includes(term));
-      })
-      : unauthedGuestUsers),
-    [unauthedGuestUsers, searchTerms],
+    () => unauthedGuestUsers.filter(matchesSearch),
+    [unauthedGuestUsers, matchesSearch],
   );
 
   const [rememberChoice, setRememberChoice] = useState(false);
@@ -233,6 +253,54 @@ const WaitingUserSection: React.FC<WaitingUserSectionProps> = ({
     </Styled.AcceptDenyButtonsContainer>
   );
 
+  // A collapsible queue: its total, its rows (narrowed by the search, numbered by their place
+  // in the queue) and, when given, its own allow/deny all buttons.
+  const renderQueue = ({
+    users, filteredUsers, visible, setVisible, title, dataTest, renderActions,
+  }: QueueProps) => (
+    <>
+      <Tooltip
+        title={
+          visible
+            ? intl.formatMessage(intlMessages.hideWaitingGuests)
+            : intl.formatMessage(intlMessages.showWaitingGuests)
+        }
+      >
+        <Styled.ToggleButton
+          onClick={() => setVisible(!visible)}
+          aria-expanded={visible}
+          data-test={dataTest}
+        >
+          <Styled.ButtonContent>
+            <Styled.ExpandIcon $expanded={visible}>
+              <ExpandMoreIcon />
+            </Styled.ExpandIcon>
+            <Styled.TitleText>
+              {title}
+            </Styled.TitleText>
+            <Avatar sx={{ bgcolor: '#F59240', width: '1.25rem', height: '1.25rem' }}>
+              <Styled.GuestNumberIndicator>
+                {users.length}
+              </Styled.GuestNumberIndicator>
+            </Avatar>
+          </Styled.ButtonContent>
+        </Styled.ToggleButton>
+      </Tooltip>
+      {visible && (
+        renderPendingUsers(
+          filteredUsers,
+          guestUsersCall,
+          setPrivateGuestLobbyMessage,
+          getPrivateGuestLobbyMessage,
+          isGuestLobbyMessageEnabled,
+          intl,
+          (user) => users.indexOf(user) + 1,
+        )
+      )}
+      {visible && renderActions?.()}
+    </>
+  );
+
   return (
     <Styled.Panel isChrome={isChrome}>
       {(authedGuestUsers.length > 0 || unauthedGuestUsers.length > 0) && (
@@ -250,33 +318,27 @@ const WaitingUserSection: React.FC<WaitingUserSectionProps> = ({
               label={intl.formatMessage(intlMessages.rememberChoice)}
             />
           </Styled.RememberChoiceContainer>
-          {authedGuestUsers.length > 0 && unauthedGuestUsers.length > 0 && (
+          {(combineGuestWaitingQueues || (authedGuestUsers.length > 0 && unauthedGuestUsers.length > 0)) && (
             <Styled.ActionButtonsWrapper>
               <Styled.AcceptAllButton
-                onClick={() => guestUsersCall(
-                  authedGuestUsers.concat(unauthedGuestUsers),
-                  ALLOW_STATUS,
-                )}
+                onClick={() => guestUsersCall(guestUsers, ALLOW_STATUS)}
                 data-test="allowEveryone"
               >
                 <CheckCircle sx={{ width: '1rem', height: '1rem' }} />
                 <Styled.AcceptDenyButtonText>
                   {intl.formatMessage(intlMessages.allowEveryone, {
-                    count: authedGuestUsers.length + unauthedGuestUsers.length,
+                    count: guestUsers.length,
                   })}
                 </Styled.AcceptDenyButtonText>
               </Styled.AcceptAllButton>
               <Styled.DenyAllButton
-                onClick={() => guestUsersCall(
-                  authedGuestUsers.concat(unauthedGuestUsers),
-                  DENY_STATUS,
-                )}
+                onClick={() => guestUsersCall(guestUsers, DENY_STATUS)}
                 data-test="denyEveryone"
               >
                 <CancelIcon sx={{ width: '1rem', height: '1rem' }} />
                 <Styled.AcceptDenyButtonText>
                   {intl.formatMessage(intlMessages.denyEveryone, {
-                    count: authedGuestUsers.length + unauthedGuestUsers.length,
+                    count: guestUsers.length,
                   })}
                 </Styled.AcceptDenyButtonText>
               </Styled.DenyAllButton>
@@ -284,100 +346,44 @@ const WaitingUserSection: React.FC<WaitingUserSectionProps> = ({
           )}
         </Styled.AcceptDenyButtonsContainer>
       )}
-      {authedGuestUsers.length > 0 && (
-        <>
-          <Tooltip
-            title={
-              waitingAuthedUsersVisible
-                ? intl.formatMessage(intlMessages.hideWaitingGuests)
-                : intl.formatMessage(intlMessages.showWaitingGuests)
-            }
-          >
-            <Styled.ToggleButton
-              onClick={() => setWaitingAuthedUsersVisible(!waitingAuthedUsersVisible)}
-              data-test="authenticatedWaitingUsers"
-            >
-              <Styled.ButtonContent>
-                <Styled.ExpandIcon $expanded={waitingAuthedUsersVisible}>
-                  <ExpandMoreIcon />
-                </Styled.ExpandIcon>
-                <Styled.TitleText>
-                  {intl.formatMessage(intlMessages.authenticatedUsersTitle)}
-                </Styled.TitleText>
-                <Avatar sx={{ bgcolor: '#F59240', width: '1.25rem', height: '1.25rem' }}>
-                  <Styled.GuestNumberIndicator>
-                    {authedGuestUsers.length}
-                  </Styled.GuestNumberIndicator>
-                </Avatar>
-              </Styled.ButtonContent>
-            </Styled.ToggleButton>
-          </Tooltip>
-          {waitingAuthedUsersVisible && (
-            renderPendingUsers(
-              filteredAuthedUsers,
-              guestUsersCall,
-              setPrivateGuestLobbyMessage,
-              getPrivateGuestLobbyMessage,
-              isGuestLobbyMessageEnabled,
-              intl,
-            )
-          )}
-          {waitingAuthedUsersVisible && renderActionButtons(
-            authedGuestUsers,
-            intl.formatMessage(intlMessages.allowAllAuthenticated, { count: authedGuestUsers.length }),
-            intl.formatMessage(intlMessages.denyAllAuthenticated, { count: authedGuestUsers.length }),
-            'allowAllAuthenticated',
-            'denyAllAuthenticated',
-          )}
-        </>
-      )}
-      {unauthedGuestUsers.length > 0 && (
-        <>
-          <Tooltip
-            title={
-              waitingUnauthedUsersVisible
-                ? intl.formatMessage(intlMessages.hideWaitingGuests)
-                : intl.formatMessage(intlMessages.showWaitingGuests)
-            }
-          >
-            <Styled.ToggleButton
-              onClick={() => setWaitingUnauthedUsersVisible(!waitingUnauthedUsersVisible)}
-              data-test="guestWaitingUsers"
-            >
-              <Styled.ButtonContent>
-                <Styled.ExpandIcon $expanded={waitingUnauthedUsersVisible}>
-                  <ExpandMoreIcon />
-                </Styled.ExpandIcon>
-                <Styled.TitleText>
-                  {intl.formatMessage(intlMessages.guestUsersTitle)}
-                </Styled.TitleText>
-                <Avatar sx={{ bgcolor: '#F59240', width: '1.25rem', height: '1.25rem' }}>
-                  <Styled.GuestNumberIndicator>
-                    {unauthedGuestUsers.length}
-                  </Styled.GuestNumberIndicator>
-                </Avatar>
-              </Styled.ButtonContent>
-            </Styled.ToggleButton>
-          </Tooltip>
-          {waitingUnauthedUsersVisible && (
-            renderPendingUsers(
-              filteredUnauthedUsers,
-              guestUsersCall,
-              setPrivateGuestLobbyMessage,
-              getPrivateGuestLobbyMessage,
-              isGuestLobbyMessageEnabled,
-              intl,
-            )
-          )}
-          {waitingUnauthedUsersVisible && renderActionButtons(
-            unauthedGuestUsers,
-            intl.formatMessage(intlMessages.allowAllGuests, { count: unauthedGuestUsers.length }),
-            intl.formatMessage(intlMessages.denyAllGuests, { count: unauthedGuestUsers.length }),
-            'allowAllGuests',
-            'denyAllGuests',
-          )}
-        </>
-      )}
+      {combineGuestWaitingQueues && guestUsers.length > 0 && renderQueue({
+        users: guestUsers,
+        filteredUsers: filteredGuestUsers,
+        visible: waitingUsersVisible,
+        setVisible: setWaitingUsersVisible,
+        title: intl.formatMessage(intlMessages.waitingUsersTitle),
+        dataTest: 'waitingUsers',
+      })}
+      {!combineGuestWaitingQueues && authedGuestUsers.length > 0 && renderQueue({
+        users: authedGuestUsers,
+        filteredUsers: filteredAuthedUsers,
+        visible: waitingAuthedUsersVisible,
+        setVisible: setWaitingAuthedUsersVisible,
+        title: intl.formatMessage(intlMessages.authenticatedUsersTitle),
+        dataTest: 'authenticatedWaitingUsers',
+        renderActions: () => renderActionButtons(
+          authedGuestUsers,
+          intl.formatMessage(intlMessages.allowAllAuthenticated, { count: authedGuestUsers.length }),
+          intl.formatMessage(intlMessages.denyAllAuthenticated, { count: authedGuestUsers.length }),
+          'allowAllAuthenticated',
+          'denyAllAuthenticated',
+        ),
+      })}
+      {!combineGuestWaitingQueues && unauthedGuestUsers.length > 0 && renderQueue({
+        users: unauthedGuestUsers,
+        filteredUsers: filteredUnauthedUsers,
+        visible: waitingUnauthedUsersVisible,
+        setVisible: setWaitingUnauthedUsersVisible,
+        title: intl.formatMessage(intlMessages.guestUsersTitle),
+        dataTest: 'guestWaitingUsers',
+        renderActions: () => renderActionButtons(
+          unauthedGuestUsers,
+          intl.formatMessage(intlMessages.allowAllGuests, { count: unauthedGuestUsers.length }),
+          intl.formatMessage(intlMessages.denyAllGuests, { count: unauthedGuestUsers.length }),
+          'allowAllGuests',
+          'denyAllGuests',
+        ),
+      })}
     </Styled.Panel>
   );
 };
@@ -426,6 +432,7 @@ const WaitingUserSectionContainer: React.FC<{ searchQuery?: string }> = ({ searc
 
   return (
     <WaitingUserSection
+      guestUsers={guestWaitingUsersData?.user_guest ?? []}
       authedGuestUsers={separateGuestUsersByAuthed.authed}
       unauthedGuestUsers={separateGuestUsersByAuthed.unauthed}
       guestLobbyMessage={currentMeeting?.usersPolicies?.guestLobbyMessage ?? null}

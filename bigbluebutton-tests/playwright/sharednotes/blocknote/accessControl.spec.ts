@@ -1,5 +1,6 @@
 import { initializePages } from '../../core/helpers';
 import { test } from '../../core/setup/fixtures';
+import { combineGuestWaitingQueuesOverride } from '../../user/util';
 import { BlockNoteAccessControl } from './accessControl';
 
 const CREATE_PARAMETER = 'guestPolicy=ASK_MODERATOR';
@@ -13,7 +14,12 @@ test.describe.parallel('Shared Notes - BlockNote access control', { tag: '@ci' }
 
   test('Denied guest cannot read the shared notes via REST', async ({ browser, context }, testInfo) => {
     const accessControl = new BlockNoteAccessControl(browser, context);
-    await initializePages(accessControl, browser, { isMultiUser: false, createParameter: CREATE_PARAMETER, testInfo });
+    await initializePages(accessControl, browser, {
+      isMultiUser: false,
+      createParameter: CREATE_PARAMETER,
+      testInfo,
+      clientSettingsOverrides: combineGuestWaitingQueuesOverride(false),
+    });
     await accessControl.deniedGuestCannotReadNotes();
   });
 

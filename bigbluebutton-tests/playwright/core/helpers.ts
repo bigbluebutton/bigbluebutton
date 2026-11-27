@@ -43,6 +43,8 @@ interface InitOptions {
   joinParameter?: string;
   testInfo?: TestInfo;
   recordVideo?: boolean;
+  // applied to the moderator page only
+  clientSettingsOverrides?: ClientSettingsOverrides;
 }
 
 interface GetJoinUrlProp {
@@ -429,9 +431,10 @@ export async function initializePages(
   browser: Browser,
   initOptions?: InitOptions,
 ): Promise<void> {
-  const { isMultiUser, createParameter, joinParameter, testInfo, recordVideo } = initOptions || {};
+  const { isMultiUser, createParameter, joinParameter, testInfo, recordVideo, clientSettingsOverrides } =
+    initOptions || {};
   const context = await browser.newContext(recordVideo ? { recordVideo: { dir: 'test-results/' } } : {});
   const page = await context.newPage();
-  await testInstance.initModPage(page, { createParameter, joinParameter, testInfo });
+  await testInstance.initModPage(page, { createParameter, joinParameter, testInfo, clientSettingsOverrides });
   if (isMultiUser) await testInstance.initUserPage(context, { createParameter, joinParameter, testInfo });
 }

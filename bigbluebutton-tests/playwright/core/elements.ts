@@ -275,6 +275,7 @@ export const elements = {
   sendPrivateLobbyMessage: 'button[data-test="sendMessageButton"]',
   privateLobbyMessageEcho: 'div[data-test="privateLobbyMessageEcho"]',
   rememberChoice: '[data-test="rememberChoice"]',
+  waitingUsers: '[data-test="waitingUsers"]',
   authenticatedWaitingUsers: '[data-test="authenticatedWaitingUsers"]',
   guestWaitingUsers: '[data-test="guestWaitingUsers"]',
   allowAllAuthenticatedWaiting: 'button[data-test="allowAllAuthenticated"]',
