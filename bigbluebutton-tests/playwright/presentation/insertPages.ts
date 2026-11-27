@@ -32,6 +32,8 @@ type FileToInsert = string | GeneratedFile;
 
 // The event the plugin SDK dispatches for presentation.insertPages (PresentationCommandsEnum.INSERT_PAGES).
 const PLUGIN_INSERT_PAGES_COMMAND = 'PRESENTATION_INSERT_PAGES_COMMAND';
+// The event the plugin SDK dispatches for presentation.upload (PresentationCommandsEnum.UPLOAD).
+const PLUGIN_UPLOAD_COMMAND = 'PRESENTATION_UPLOAD_COMMAND';
 
 interface HeldUpload {
   requests: Request[];
@@ -928,9 +930,9 @@ export class InsertPages extends Create {
 
   // ---------- breakout rooms ----------
 
-  // The presenter of a breakout room is offered the button only when allowPresentationManagementInBreakouts is on,
-  // as the other entry points of presentation management (actions-bar/media-area/container.tsx).
-  async insertButtonInBreakoutRoom(allowedInRooms: boolean, overrides?: ClientSettingsOverrides) {
+  // Opens the first breakout room as its presenter (the moderator), once the room shows the presentation and its
+  // slide controls. Checks that the room runs with the expected allowPresentationManagementInBreakouts.
+  private async openBreakoutRoomAsPresenter(allowedInRooms: boolean, overrides?: ClientSettingsOverrides) {
     if (!this?.userPage) throw new Error('userPage not initialized');
     // control: the setting does not apply outside a breakout room
     await InsertPages.waitForPresentation(this.modPage);
@@ -954,10 +956,72 @@ export class InsertPages extends Create {
       'should show the slide controls to the room presenter',
       ELEMENT_WAIT_LONGER_TIME,
     );
+    await InsertPages.slidePath(room);
+    return room;
+  }
+
+  // The presenter of a breakout room is offered the button only when allowPresentationManagementInBreakouts is on,
+  // as the other entry points of presentation management (actions-bar/media-area/container.tsx).
+  async insertButtonInBreakoutRoom(allowedInRooms: boolean, overrides?: ClientSettingsOverrides) {
+    const room = await this.openBreakoutRoomAsPresenter(allowedInRooms, overrides);
     if (allowedInRooms) {
       await room.hasElement(e.insertPagesButton, 'should offer the room presenter to insert pages');
     } else {
       await room.wasRemoved(e.insertPagesButton, 'should not offer the room presenter to insert pages');
+    }
+    await room.page.close();
+  }
+
+  // The plugin command presentation.insertPages follows the same setting as the button: in a breakout room
+  // without presentation management, a blank page sent by a plugin is not inserted.
+  async pluginInsertInBreakoutRoom(allowedInRooms: boolean, overrides?: ClientSettingsOverrides) {
+    const room = await this.openBreakoutRoomAsPresenter(allowedInRooms, overrides);
+    const total = await InsertPages.totalSlides(room);
+
+    await InsertPages.sendInsertCommands(room, [{ position: 1 }]);
+
+    if (allowedInRooms) {
+      await InsertPages.expectTotalSlides(room, total + 1, 'should insert the blank page sent by the plugin');
+    } else {
+      // a blank page is inserted in well under this time when allowed
+      await room.page.waitForTimeout(NO_MORE_TOASTS_TIME);
+      await InsertPages.expectTotalSlides(room, total, 'should not insert the blank page sent by the plugin');
+    }
+    await room.page.close();
+  }
+
+  // The plugin command presentation.upload follows the same setting: in a breakout room without presentation
+  // management, a file sent by a plugin is not uploaded; with it, the file becomes the current presentation.
+  async pluginUploadInBreakoutRoom(allowedInRooms: boolean, overrides?: ClientSettingsOverrides) {
+    const room = await this.openBreakoutRoomAsPresenter(allowedInRooms, overrides);
+    this.watchUploadPosts(room);
+    const totalBefore = await InsertPages.totalSlides(room);
+    const slideBefore = await InsertPages.slidePath(room);
+
+    await InsertPages.sendUploadCommand(room, e.insertThreePagesFileName);
+
+    if (allowedInRooms) {
+      await expect
+        .poll(() => this.uploadPostCount(room), { message: 'should upload the file sent by the plugin' })
+        .toBe(1);
+      await InsertPages.expectTotalSlides(
+        room,
+        3,
+        'the file sent by the plugin should become the current presentation',
+      );
+      await expect
+        .poll(() => InsertPages.slidePath(room), {
+          message: 'should show the uploaded presentation',
+          timeout: ELEMENT_WAIT_LONGER_TIME,
+        })
+        .not.toBe(slideBefore);
+    } else {
+      // the upload POST of an allowed command starts in well under this time
+      await room.page.waitForTimeout(NO_MORE_TOASTS_TIME);
+      expect(this.uploadPostCount(room), 'should not upload the file sent by the plugin').toBe(0);
+      // the room presenter cannot open the presentation list here: the current presentation tells it
+      await InsertPages.expectTotalSlides(room, totalBefore, 'should keep the current presentation');
+      expect(await InsertPages.slidePath(room), 'should keep the current slide').toBe(slideBefore);
     }
     await room.page.close();
   }
@@ -1261,6 +1325,72 @@ export class InsertPages extends Create {
       },
       [PLUGIN_INSERT_PAGES_COMMAND, details] as const,
     );
+  }
+
+  // Sends the plugin command presentation.upload the way the plugin SDK does, with a PDF of core/media.
+  private static async sendUploadCommand(testPage: Page, file: string) {
+    const detail = {
+      content: { base64: fs.readFileSync(path.join(__dirname, `../core/media/${file}`)).toString('base64') },
+      mimeType: 'application/pdf',
+      filename: file,
+    };
+    await testPage.page.evaluate(
+      ([eventName, eventDetail]) => {
+        window.dispatchEvent(new CustomEvent(eventName, { detail: eventDetail }));
+      },
+      [PLUGIN_UPLOAD_COMMAND, detail] as const,
+    );
+  }
+
+  // Two commands whose content cannot be read, then two over the maximum size, sent in a row: each one gets a
+  // warning of its own, none replaces another, and nothing is uploaded.
+  async pluginWarningsInARow() {
+    await InsertPages.waitForPresentation(this.modPage);
+    await this.modPage.closeAllToastNotifications();
+    this.watchUploadPosts(this.modPage);
+    const total = await InsertPages.totalSlides(this.modPage);
+    const maxSize = await this.modPage.page.evaluate(
+      () =>
+        (
+          window as unknown as {
+            meetingClientSettings: { public: { presentation: { mirroredFromBBBCore: { uploadSizeMax: number } } } };
+          }
+        ).meetingClientSettings.public.presentation.mirroredFromBBBCore.uploadSizeMax,
+    );
+
+    // the oversized content is built in the page: 30 MB would take a while to reach it
+    await this.modPage.page.evaluate(
+      ([eventName, size]) => {
+        const oversized = 'A'.repeat(Math.ceil((size + 1) / 3) * 4);
+        [
+          { position: 1, content: { dataUrl: 'not a data URL' }, filename: 'first.pdf' },
+          { position: 1, content: { dataUrl: 'not a data URL' }, filename: 'second.pdf' },
+          { position: 1, content: { base64: oversized }, filename: 'big-one.pdf' },
+          { position: 1, content: { base64: oversized }, filename: 'big-two.pdf' },
+        ].forEach((detail) => window.dispatchEvent(new CustomEvent(eventName, { detail })));
+      },
+      [PLUGIN_INSERT_PAGES_COMMAND, maxSize] as const,
+    );
+
+    for (const filename of ['first.pdf', 'second.pdf']) {
+      await InsertPages.expectToast(
+        this.modPage,
+        failedText(filename),
+        `should warn that the pages of ${filename} could not be inserted`,
+        ELEMENT_WAIT_LONGER_TIME,
+      );
+    }
+    for (const filename of ['big-one.pdf', 'big-two.pdf']) {
+      await InsertPages.expectToast(
+        this.modPage,
+        `${filename}: ${e.presentationTooLargeLabel} ${(maxSize / 1000 / 1000).toFixed(2)} MB`,
+        `should warn that ${filename} is too large`,
+        ELEMENT_WAIT_LONGER_TIME,
+      );
+    }
+    expect(this.uploadPostCount(this.modPage), 'should send no upload').toBe(0);
+    await InsertPages.expectTotalSlides(this.modPage, total, 'should insert no page');
+    this.expectNoPageErrors();
   }
 
   // From slide 2, three commands sent in a row, without waiting: the 3 pages of a PDF at position 3, a blank
