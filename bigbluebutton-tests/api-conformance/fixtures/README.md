@@ -5,9 +5,16 @@ sink`, see the main README) serves this directory: on Tier 1,
 `${fixtureUrl}/<path>` is `<path>` here, and `${sinkUrl}/<key>/fixtures/<path>`
 is the same file, with the request recorded under `<key>`.
 
-- `bodies/`: request bodies, e.g. create's XML.
-- `presentations/`: documents to upload or have fetched, beyond what the
-  presentation conversion suite's fixtures cover.
+- `presentations/`: documents for create's and insertDocument's bodies,
+  by URL or in base64 (create.presentation.*,
+  create.default-presentation.*, insertDocument.*, presentation.*). They
+  are copies of the presentation conversion suite's synthetic fixtures
+  (`bigbluebutton-tests/presentation-conversion/fixtures/synthetic/`), kept
+  small so that a base64 body stays well under nginx's 1 MB limit:
+  - `two-pages.pdf` (`pdf-text-order-poll-2p.pdf`): a PDF of two pages;
+  - `image.png` (`img-png-alpha.png`): an image, which converts to one page;
+  - `slides.odp` (`off-odp-one-slide.odp`): an Office document of one slide;
+  - `drawing.svg` (`img-svg-upload.svg`): a type bbb-web doesn't accept.
 - `plugins/`: plugin manifests for create to fetch (create.plugins.*):
   - `basic.json`, `second.json`: plain manifests;
   - `breakout.json`: one that sets `enabledForBreakoutRooms`;

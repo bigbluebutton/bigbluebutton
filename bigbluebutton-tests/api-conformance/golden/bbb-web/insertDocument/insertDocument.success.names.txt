@@ -1,0 +1,12 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case insertDocument.success.names
+target bbb-web
+
+== step 3: bus PresentationConversionStartedSysPubMsg select $.core.body.common.presentationName
+$.core.body.common.presentationName "slash.pdf"
+
+== step 4: bus PresentationConversionStartedSysPubMsg select $.core.body.common.presentationName
+$.core.body.common.presentationName "backslash.pdf"
+
+== step 5: bus PresentationConversionStartedSysPubMsg select $.core.body.common.presentationName
+$.core.body.common.presentationName "image.png"

@@ -1,0 +1,38 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case presentation.slides.access-svg
+target bbb-web
+
+== step 6: url ${baseUrl}/bigbluebutton/presentation/${intId}/${intId}/${presId}/svg/1?sessionToken=${annToken}
+status 403
+header Access-Control-Allow-Credentials true
+header Access-Control-Allow-Origin *
+header Content-Type text/html
+body text "403 Forbidden"
+
+== step 7: url ${baseUrl}/bigbluebutton/presentation/${intId}/${intId}/${presId}/svg/1?pageToken=${match(page2, "pageToken=([0-9a-f]+)")}&sessionToken=${annToken}
+status 403
+header Access-Control-Allow-Credentials true
+header Access-Control-Allow-Origin *
+header Content-Type text/html
+body text "403 Forbidden"
+
+== step 8: url ${baseUrl}/bigbluebutton/presentation/${intId}/${intId}/${presId}/svg/1?pageToken=${match(page1, "pageToken=([0-9a-f]+)")}
+status 401
+header Access-Control-Allow-Credentials true
+header Access-Control-Allow-Origin *
+header Content-Type text/html
+body text "401 Authorization Required"
+
+== step 9: url ${baseUrl}/bigbluebutton/presentation/${intId}/${intId}/${presId}/svg/1?pageToken=${match(page1, "pageToken=([0-9a-f]+)")}&sessionToken=${annToken}
+status 401
+header Access-Control-Allow-Credentials true
+header Access-Control-Allow-Origin *
+header Content-Type text/html
+body text "401 Authorization Required"
+
+== step 10: url ${baseUrl}/bigbluebutton/presentation/${intId}/${intId}/${presId}/svg/1?pageToken=${match(page1, "pageToken=([0-9a-f]+)")}&sessionToken=${bobToken}
+status 403
+header Access-Control-Allow-Credentials true
+header Access-Control-Allow-Origin *
+header Content-Type text/html
+body text "403 Forbidden"

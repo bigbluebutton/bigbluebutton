@@ -64,6 +64,8 @@ profiles:
   chapter-breaks:        {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" chapter-breaks'}
   plugin-manifest-cache: {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" plugin-manifest-cache'}
   client-settings-strict: {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" client-settings-strict'}
+  client-settings-body:  {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" client-settings-body'}
+  client-settings-body-strict: {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" client-settings-body-strict'}
   fetch-blocked-host:    {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" fetch-blocked-host'}
   short-fetch-timeouts:  {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" short-fetch-timeouts'}
   default:               {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" default'}

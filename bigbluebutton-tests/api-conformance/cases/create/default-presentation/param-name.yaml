@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# preUploadedPresentationName names the document preUploadedPresentation
+# gives (create.default-presentation.param).
+id: create.default-presentation.param-name
+title: create names preUploadedPresentation's document by preUploadedPresentationName
+endpoint: create
+class: contract
+tags: [ci, conversion]
+requires: [akka, bus, callbacks, presentation-conversion]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Default presentation, preUploadedPresentation: "${sinkUrl}/${uid}/fixtures/presentations/two-pages.pdf", preUploadedPresentationName: handout.pdf}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 180s}
+    select: [$.core.body.presentation.name, $.core.body.presentation.current, $.core.body.presentation.removable, $.core.body.presentation.defaultPresentation]
+    expect:
+      jsonpath: {$.core.body.presentation.name: "handout.pdf"}
+  - bus: {name: PresentationConversionStartedSysPubMsg, meetingId: "${intId}", within: 1s}
+    golden: off
+    expect:
+      absent: true
+      jsonpath: {$.core.body.common.presentationName: default.pdf}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

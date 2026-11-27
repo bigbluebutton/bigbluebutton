@@ -1,0 +1,11 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case insertDocument.errors.rate-limit
+target bbb-web
+
+== step 32: call insertDocument (POST)
+status 200
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "FAILED"
+/response/messageKey "rateLimitExceeded"
+/response/message "Too many presentation upload requests, please try again later."

@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# insertDocument adds documents to a running meeting. For a meeting bbb-web
+# doesn't know it answers notFound, whatever the body holds.
+id: insertDocument.errors.not-found
+title: insertDocument refuses a meeting that doesn't exist
+endpoint: insertDocument
+class: contract
+tags: [ci]
+steps:
+  - call: insertDocument
+    method: POST
+    params: {meetingID: "${uid}"}
+    body: {xml: '<modules><module name="presentation"><document url="${fixtureUrl}/presentations/two-pages.pdf"/></module></modules>'}
+    expect: {returncode: FAILED, messageKey: notFound}

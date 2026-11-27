@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# insertDocument answers in XML. Asked for JSON (Accept: application/json),
+# some of its errors come back as JSON and others still as XML; recorded as
+# it is.
+id: insertDocument.compat.json-errors
+title: insertDocument's errors when JSON is asked for (${case})
+endpoint: insertDocument
+class: compat
+tags: [ci]
+requires: [akka]
+variants:
+  - {id: not-found, vars: {case: an unknown meeting, suffix: '-missing', body: '<modules/>'}}
+  - {id: malformed-xml, vars: {case: malformed XML, suffix: '', body: 'not xml'}}
+  - {id: no-documents, vars: {case: no documents, suffix: '', body: '<modules/>'}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Insert document}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: insertDocument
+    method: POST
+    params: {meetingID: "${uid}${suffix}"}
+    headers: {Accept: application/json}
+    body: {xml: "${body}"}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

@@ -199,7 +199,14 @@ func (s *Session) Do(ctx context.Context, p *Prepared, name string, follow bool,
 	defer resp.Body.Close()
 	data, err := io.ReadAll(io.LimitReader(resp.Body, MaxBody+1))
 	if err != nil {
-		return nil, forwarded, fmt.Errorf("reading the response: %w", err)
+		// A body cut short is still the server's answer, a broken one: keep
+		// it, so that a step can fail on it rather than error.
+		if !errors.Is(err, io.ErrUnexpectedEOF) {
+			return nil, forwarded, fmt.Errorf("reading the response: %w", err)
+		}
+		o := observe.New(resp, data, time.Since(start))
+		o.Truncated = true
+		return o, forwarded, nil
 	}
 	if len(data) > MaxBody {
 		return nil, forwarded, fmt.Errorf("the response body is over %d bytes", MaxBody)

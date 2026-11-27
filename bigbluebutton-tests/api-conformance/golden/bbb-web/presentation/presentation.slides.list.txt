@@ -1,0 +1,23 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case presentation.slides.list
+target bbb-web
+
+== step 4: route presentation-slides
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/conference/@id "<sha1(meetingID)>-<time>"
+/conference/@room "<sha1(meetingID)>-<time>"
+/conference/presentation/@name "<sha1(?)>-<time>"
+/conference/presentation/slides/@count "2"
+/conference/presentation/slides/slide/@name "slide/1"
+/conference/presentation/slides/slide/@number "1"
+/conference/presentation/slides/slide/@textfile "textfile/1"
+/conference/presentation/slides/slide/@thumb "thumbnail/1"
+/conference/presentation/slides/slide
+/conference/presentation/slides/slide/@name "slide/2"
+/conference/presentation/slides/slide/@number "2"
+/conference/presentation/slides/slide/@textfile "textfile/2"
+/conference/presentation/slides/slide/@thumb "thumbnail/2"
+/conference/presentation/slides/slide

@@ -531,3 +531,14 @@ $.value "x"`)
 $.found true
 $.path "learning-dashboard/<sha1(meetingID)>-<time>/<token>/learning_dashboard_data.json"`)
 }
+
+// A body cut short is recorded as far as it came, and says so.
+func TestTruncatedBody(t *testing.T) {
+	o := obs(500, map[string]string{"Content-Type": "text/plain"}, "partial")
+	o.Truncated = true
+	check(t, Response(o, ctx("bbbc-1"), Default()), `
+status 500
+header Content-Type text/plain
+body text 7 bytes, sha256 9834a14ab9bc
+body cut short`)
+}

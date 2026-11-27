@@ -134,3 +134,50 @@ func TestSubrequestCookies(t *testing.T) {
 		t.Error("a relative CookiesFrom should be an error")
 	}
 }
+
+// A body that ends before its Content-Length is kept, as far as it came, and
+// marked: the server answered, badly, so a step can fail on it rather than
+// error. A body that is complete isn't marked.
+func TestTruncatedBody(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/whole" {
+			fmt.Fprint(w, "0123456789")
+			return
+		}
+		w.Header().Set("Content-Length", "100")
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprint(w, "0123456789")
+	}))
+	defer srv.Close()
+	s := NewSession(srv.Client().Transport)
+	o, _, err := s.Do(context.Background(), &Prepared{Method: "GET", URL: srv.URL + "/cut"}, "", false, 5*time.Second)
+	if err != nil {
+		t.Fatalf("a body cut short is an error: %v", err)
+	}
+	if !o.Truncated || o.Status != 500 || string(o.Body) != "0123456789" {
+		t.Errorf("cut: truncated %v, status %d, body %q", o.Truncated, o.Status, o.Body)
+	}
+	o, _, err = s.Do(context.Background(), &Prepared{Method: "GET", URL: srv.URL + "/whole"}, "", false, 5*time.Second)
+	if err != nil || o.Truncated {
+		t.Errorf("whole: truncated %v, err %v", o != nil && o.Truncated, err)
+	}
+}
+
+// A chunked body that stops before its last chunk is cut short too.
+func TestTruncatedChunkedBody(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		conn, buf, err := w.(http.Hijacker).Hijack()
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		defer conn.Close()
+		fmt.Fprint(buf, "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\nContent-Type: text/plain\r\n\r\n5\r\nhello\r\n")
+		buf.Flush()
+	}))
+	defer srv.Close()
+	o, _, err := NewSession(srv.Client().Transport).Do(context.Background(), &Prepared{Method: "GET", URL: srv.URL}, "", false, 5*time.Second)
+	if err != nil || !o.Truncated || string(o.Body) != "hello" {
+		t.Errorf("err %v, observation %+v", err, o)
+	}
+}

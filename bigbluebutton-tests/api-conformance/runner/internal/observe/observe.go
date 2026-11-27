@@ -28,6 +28,9 @@ type Observation struct {
 	Cookies  []*http.Cookie
 	Body     []byte
 	Elapsed  time.Duration
+	// Truncated is set when the connection closed before the body was
+	// complete, e.g. short of its Content-Length: Body holds what came.
+	Truncated bool
 
 	once    sync.Once
 	format  string

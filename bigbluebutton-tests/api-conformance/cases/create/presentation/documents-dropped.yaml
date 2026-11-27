@@ -1,0 +1,30 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# create takes at most maxPresentationsPerRequest (10) documents from its
+# body. It uploads the first ten, drops the rest, and says so in its
+# answer's messageKey (documentsDropped). The meeting is created as usual.
+# The documents point at sink URLs that answer 404, so the sink shows which
+# ones bbb-web went for.
+id: create.presentation.documents-dropped
+title: create uploads the first ten documents of its body and drops the rest
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, callbacks]
+steps:
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Presentations}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}/d1.pdf?_status=404"/><document url="${sinkUrl}/${uid}/d2.pdf?_status=404"/><document url="${sinkUrl}/${uid}/d3.pdf?_status=404"/><document url="${sinkUrl}/${uid}/d4.pdf?_status=404"/><document url="${sinkUrl}/${uid}/d5.pdf?_status=404"/><document url="${sinkUrl}/${uid}/d6.pdf?_status=404"/><document url="${sinkUrl}/${uid}/d7.pdf?_status=404"/><document url="${sinkUrl}/${uid}/d8.pdf?_status=404"/><document url="${sinkUrl}/${uid}/d9.pdf?_status=404"/><document url="${sinkUrl}/${uid}/d10.pdf?_status=404"/><document url="${sinkUrl}/${uid}/d11.pdf?_status=404"/></module></modules>'}
+    expect: {returncode: SUCCESS, messageKey: documentsDropped}
+    capture: {intId: /response/internalMeetingID}
+  - sink: {key: "${uid}", within: 5s}
+    golden: off
+    expect: {path: "/${uid}/d10.pdf"}
+  - sink: {key: "${uid}", within: 1s}
+    golden: off
+    expect: {path: "/${uid}/d11.pdf", absent: true}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

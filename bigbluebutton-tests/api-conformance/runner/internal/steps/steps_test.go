@@ -1313,3 +1313,98 @@ func TestBetween(t *testing.T) {
 		t.Errorf("5 between 5 and 5 from a template: status %s (%s), want PASS", res.Status, res.Reason)
 	}
 }
+
+// A response cut short fails its step, whatever the step expects of it: it
+// isn't an error of the run.
+func TestTruncatedBodyFails(t *testing.T) {
+	cut := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Length", "100")
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprint(w, "0123456789")
+	}))
+	defer cut.Close()
+	for _, tc := range []struct{ name, expect string }{
+		{"other status", "{status: 404}"},
+		{"same status", "{status: 500}"},
+		// It never meets until, so the loop runs to its deadline.
+		{"eventually", "{status: 500}\n    eventually: {within: 1s, every: 100ms, until: {status: 500}}"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			res, _ := runYAML(t, header(fmt.Sprintf("steps:\n  - url: %q\n    expect: %s\n", cut.URL+"/x", tc.expect)))
+			if res.Status != report.Fail || len(res.Steps) != 1 {
+				t.Fatalf("status %s after %d step(s): %s", res.Status, len(res.Steps), res.Reason)
+			}
+			found := false
+			for _, a := range res.Steps[0].Assertions {
+				if a.What == "body" && !a.OK && strings.Contains(a.Actual, "10 bytes, then the connection closed") && strings.Contains(a.Expected, "100 bytes") {
+					found = true
+				}
+			}
+			if !found {
+				t.Errorf("no failed body check: %+v", res.Steps[0].Assertions)
+			}
+		})
+	}
+}
+
+// eventually keeps asking after an answer cut short, as after a failed
+// connection: one that comes whole in time passes, and one cut short every
+// time fails at the deadline on its body.
+func TestEventuallyRetriesTruncatedBody(t *testing.T) {
+	var n atomic.Int32
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/once" && n.Add(1) > 1 {
+			fmt.Fprint(w, "whole")
+			return
+		}
+		w.Header().Set("Content-Length", "100")
+		fmt.Fprint(w, "cut")
+	}))
+	defer srv.Close()
+	ev := "\n    eventually: {within: 1s, every: 100ms, until: {status: 200}}\n"
+	res, _ := runYAML(t, header(fmt.Sprintf("steps:\n  - url: %q%s", srv.URL+"/once", ev)))
+	if res.Status != report.Pass || res.Steps[0].Attempts != 2 {
+		t.Errorf("cut once: status %s after %d attempt(s): %s", res.Status, res.Steps[0].Attempts, res.Reason)
+	}
+	res, _ = runYAML(t, header(fmt.Sprintf("steps:\n  - url: %q%s", srv.URL+"/always", ev)))
+	if res.Status != report.Fail || res.Steps[0].Attempts < 3 || !strings.Contains(res.Reason, "then the connection closed") {
+		t.Errorf("cut always: status %s after %d attempt(s): %s", res.Status, res.Steps[0].Attempts, res.Reason)
+	}
+	bodyChecks := 0
+	for _, a := range res.Steps[0].Assertions {
+		if a.What == "body" {
+			bodyChecks++
+		}
+	}
+	if bodyChecks != 1 {
+		t.Errorf("%d body checks, want 1: %+v", bodyChecks, res.Steps[0].Assertions)
+	}
+}
+
+// A presence join whose answer is cut short errors, as before: there is no
+// session to go on with.
+func TestPresenceJoinTruncated(t *testing.T) {
+	srv := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Length", "100")
+		fmt.Fprint(w, "<response>")
+	}))
+	t.Cleanup(srv.Close)
+	cases, probs := spec.LoadBytes("case.yaml", []byte(header(`steps:
+  - presence: {action: join, as: ann, args: {meetingID: m, fullName: Ann, role: moderator}}
+`)), spec.Options{})
+	if len(probs) > 0 {
+		t.Fatalf("problems: %v", probs)
+	}
+	tg := &target.Target{Name: "fake", BaseURL: srv.URL, APIPrefix: "/bigbluebutton/api/", Salt: salt, DefaultSign: "sha1",
+		Capabilities: []string{"presence"}, GraphQLURL: "wss" + strings.TrimPrefix(srv.URL, "https") + "/graphql"}
+	r, err := NewRunner(tg, "", "test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	r.Transport = srv.Client().Transport
+	r.TLS = srv.Client().Transport.(*http.Transport).TLSClientConfig
+	res := r.RunCase(context.Background(), cases[0], "uid-1")
+	if res.Status != report.Error || !strings.Contains(res.Reason, "join: reading the response: unexpected EOF") {
+		t.Errorf("status %s: %s", res.Status, res.Reason)
+	}
+}

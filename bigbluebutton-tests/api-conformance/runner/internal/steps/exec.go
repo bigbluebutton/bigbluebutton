@@ -704,6 +704,9 @@ func (x *exec) call(ctx context.Context, phase string, index int, s spec.Step, s
 					sr.Status, sr.Message = report.Error, aerr.Error()
 					return
 				}
+				// An answer cut short never meets until: like a failed
+				// connection, it is no answer to wait on, so the loop goes on.
+				until = append(until, truncated(obs)...)
 				if assert.Passed(until) {
 					break
 				}
@@ -755,6 +758,7 @@ func (x *exec) call(ctx context.Context, phase string, index int, s spec.Step, s
 		sr.Status, sr.Message = report.Error, err.Error()
 		return
 	}
+	pre = append(pre, truncated(o)...)
 	results, err := assert.Check(s.Expect, o, eval)
 	if err != nil {
 		sr.Status, sr.Message = report.Error, err.Error()
@@ -770,6 +774,19 @@ func (x *exec) call(ctx context.Context, phase string, index int, s spec.Step, s
 		}
 	}
 	x.captures(s, o, sr)
+}
+
+// truncated fails a step whose response ended before its body did: the
+// server's answer is broken, whatever the step expects of it.
+func truncated(o *observe.Observation) []assert.Result {
+	if !o.Truncated {
+		return nil
+	}
+	want := "a complete body"
+	if n := o.Header.Get("Content-Length"); n != "" {
+		want = "the " + n + " bytes Content-Length announced"
+	}
+	return []assert.Result{{What: "body", Expected: want, Actual: fmt.Sprintf("%d bytes, then the connection closed", len(o.Body))}}
 }
 
 func (x *exec) observe(phase string, index int, s spec.Step, p *client.Prepared, o *observe.Observation) ([]assert.Result, error) {

@@ -51,7 +51,8 @@ go run ./cmd/bbb-conform run --target my-server.yaml --cases ../cases \
 Each case ends as one of:
 - **PASS**;
 - **FAIL**: the server's behaviour didn't match, which includes a response
-  that doesn't parse and a capture that finds nothing;
+  that doesn't parse, one whose body the connection cut short, and a
+  capture that finds nothing;
 - **ERROR**: the runner couldn't do what the case asked, e.g. the server is
   unreachable or a template didn't expand;
 - **SKIP**, with the reason: a capability the target lacks, a URL the case
@@ -1164,7 +1165,7 @@ starting with `_`, which the sink keeps for itself.
 | `followRedirects` | Default `false`: a redirect is the response. |
 | `timeout` | Per-request timeout; default 30s. |
 | `ignoreResult` | Don't fail on this step, typically in teardown. |
-| `eventually` | `{within, every, until}`: repeat the request every `every` (default 1s) until `until` passes, or fail after `within`. `every` must be shorter than `within`. Each attempt gets the step's `timeout`, cut to what is left of `within` (at least 250ms), so a server too slow for that ERRORs. `expect` then checks the final response. |
+| `eventually` | `{within, every, until}`: repeat the request every `every` (default 1s) until `until` passes, or fail after `within`. `every` must be shorter than `within`. An answer whose body is cut short doesn't meet `until`. Each attempt gets the step's `timeout`, cut to what is left of `within` (at least 250ms), so a server too slow for that ERRORs. `expect` then checks the final response. |
 
 #### Signing
 
@@ -1227,6 +1228,11 @@ Content-Length). Set Content-Type either here or in `headers`, not both.
 | `body` | The whole body as text. |
 | `redirect` | `{host, path, query: {name: matcher}}`, from the parsed Location header. |
 | `schema` | A response schema under `fixtures/` (skipped until response schemas exist). |
+
+A response whose body ends before it should (short of its
+Content-Length, or of its last chunk) fails its step with a `body` check,
+whatever the step expects: the server's answer is broken. Its recording
+ends with `body cut short`.
 
 **Matchers.** A plain value means "equals", compared as text, and the path
 must select exactly one node. Anything else is a map with one key:

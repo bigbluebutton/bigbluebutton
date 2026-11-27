@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# Strict validation (create.client-settings.strict) checks an override from
+# create's body too, where the body's is allowed (the
+# client-settings-body-strict profile): one that names a setting the
+# client doesn't have fails create with clientSettingsOverrideValidationError,
+# and no meeting is created. Nightly only: akka-apps reads the strict
+# setting too, so switching to the profile and back restarts it twice.
+id: create.client-settings.body-strict
+title: create with strict validation ${outcome} in its body
+endpoint: create
+class: contract
+tags: [slow, disruptive]
+profile: client-settings-body-strict
+requires: [akka]
+variants:
+  - {id: known, vars: {outcome: accepts an override of known settings, setting: clientTitle, value: '"Body client"', code: SUCCESS}}
+  - {id: unknown, vars: {outcome: refuses an override of a setting the client doesn't have, setting: conformUnknownSetting, value: 'true', code: FAILED}}
+steps:
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Client settings}
+    body: {xml: '<modules><module name="clientSettingsOverride"><![CDATA[{"public":{"app":{"${setting}":${value}}}}]]></module></modules>'}
+    expect: {returncode: "${code}"}
+  - call: getMeetingInfo
+    params: {meetingID: "${uid}"}
+    golden: off
+    expect: {returncode: "${code}"}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 10s, every: 200ms, until: {messageKey: notFound}}

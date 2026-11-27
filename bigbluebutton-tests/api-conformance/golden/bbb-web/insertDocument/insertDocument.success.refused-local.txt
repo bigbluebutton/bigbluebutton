@@ -1,0 +1,13 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case insertDocument.success.refused-local
+target bbb-web
+
+== step 2: call insertDocument (POST) (document)
+status 200
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "SUCCESS"
+/response/message "Presentation is being uploaded"
+
+== step 3: bus PresentationConversionStartedSysPubMsg select $.core.body.common.presentationName
+$.core.body.common.presentationName "control.pdf"
