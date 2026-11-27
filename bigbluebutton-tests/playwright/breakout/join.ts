@@ -326,6 +326,58 @@ export class Join extends Create {
       e.presentationTitle,
       'should display the presentation title on the breakout room',
     );
+    const runningTimeInputs = this.modPage.page.locator(`${e.breakoutRemainingTime} input[type="number"]`);
+    for (let index = 0; index < (await runningTimeInputs.count()); index += 1) {
+      const input = runningTimeInputs.nth(index);
+      const { value, valueText } = await input.evaluate((element: HTMLInputElement) => ({
+        value: Number(element.value),
+        valueText: element.getAttribute('aria-valuetext'),
+      }));
+      expect(valueText).toBe(String(value));
+    }
+    const secondsInput = this.modPage.page.locator(e.breakoutRoomTimerSecondsInput);
+    await secondsInput.focus();
+    const focusedSeconds = await secondsInput.inputValue();
+    const focusedValueText = await secondsInput.getAttribute('aria-valuetext');
+    await this.modPage.page.waitForTimeout(1500);
+    await expect(secondsInput).toHaveValue(focusedSeconds);
+    await expect(secondsInput).toHaveAttribute('aria-valuetext', focusedValueText ?? '');
+    await secondsInput.blur();
+    await this.modPage.page.waitForTimeout(1100);
+    await secondsInput.focus();
+    await expect(secondsInput).not.toHaveValue(focusedSeconds);
+    await secondsInput.blur();
+
+    const minutesInput = this.modPage.page.locator(e.breakoutRoomTimerMinutesInput);
+    await minutesInput.focus();
+    const initialMinutes = Number(await minutesInput.inputValue());
+    const typedMinutes = Math.max(0, initialMinutes - 2);
+    await minutesInput.fill(String(typedMinutes));
+    await expect(minutesInput).toHaveValue(String(typedMinutes).padStart(2, '0'));
+    await minutesInput.press('ArrowUp');
+    await minutesInput.press('ArrowUp');
+    await expect(minutesInput).toHaveValue(String(typedMinutes + 2).padStart(2, '0'));
+    await minutesInput.blur();
+    await this.modPage.page.waitForTimeout(2200);
+    await minutesInput.focus();
+    await expect(minutesInput).toHaveAttribute('aria-valuetext', String(Number(await minutesInput.inputValue())));
+    await minutesInput.blur();
+
+    // A native step must use the live countdown, not the stale value frozen on focus.
+    await minutesInput.fill('14');
+    await minutesInput.blur();
+    await secondsInput.fill('02');
+    await secondsInput.blur();
+    await this.modPage.page.waitForTimeout(2200);
+    await minutesInput.focus();
+    await expect.poll(async () => Number(await secondsInput.inputValue())).toBeGreaterThan(50);
+    await minutesInput.press('ArrowUp');
+    await minutesInput.press('ArrowUp');
+    await expect(minutesInput).toHaveValue('15');
+    await this.modPage.page.waitForTimeout(2200);
+    await expect(minutesInput).toHaveValue('15');
+    await expect(minutesInput).toHaveAttribute('aria-valuetext', '15');
+    await minutesInput.blur();
 
     // Decrease from 15 to 5 minutes by clicking in the minus button 10 times
     for (let i = 0; i < 10; i += 1) {
@@ -334,15 +386,40 @@ export class Join extends Create {
 
     await this.modPage.hasValue(
       e.breakoutRoomTimerMinutesInput,
-      '04',
+      '05',
       'should have the breakout room time remaining counting down on the main meeting',
     );
+    await expect(this.modPage.page.locator(e.breakoutRoomTimerMinutesInput)).toHaveAttribute('aria-valuetext', '5');
 
     await breakoutUserPage.hasText(
       e.timeRemaining,
-      /[4-5]:[0-5][0-9]/,
+      /[5-6]:[0-5][0-9]/,
       'should have the time remaining counting down on the breakout room',
     );
+
+    // Once the countdown is below one minute, an edit that would be shorter than
+    // the one-minute minimum must keep exposing the clamped value after settling.
+    await minutesInput.fill('0');
+    await minutesInput.blur();
+    await expect
+      .poll(
+        async () => {
+          const [minutesValue, secondsValue] = await Promise.all([
+            minutesInput.inputValue(),
+            secondsInput.inputValue(),
+          ]);
+          return Number(minutesValue) * 60 + Number(secondsValue);
+        },
+        { timeout: 20000 },
+      )
+      .toBeLessThanOrEqual(45);
+    await secondsInput.focus();
+    await secondsInput.fill('20');
+    await expect(secondsInput).toHaveValue('00');
+    await expect(secondsInput).toHaveAttribute('aria-valuetext', '0');
+    await this.modPage.page.waitForTimeout(2200);
+    await expect(secondsInput).toHaveValue('00');
+    await expect(secondsInput).toHaveAttribute('aria-valuetext', '0');
   }
 
   async inviteUserAfterCreatingRooms() {

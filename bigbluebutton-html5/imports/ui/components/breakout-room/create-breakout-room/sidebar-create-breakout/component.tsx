@@ -204,17 +204,20 @@ const CreateTimerPicker = React.memo(({ minBreakoutTime, onDurationChange }: Cre
               setHours(Math.max(0, Math.min(23, Number(e.target.value))));
             }}
             aria-label={intl.formatMessage(intlMessages.timerHours)}
+            aria-valuetext={String(hours)}
           />
           <Styled.InputArrows>
             <Styled.InputArrowButton
               type="button"
               onClick={() => setHours((h) => Math.min(23, h + 1))}
-              aria-label={intl.formatMessage(intlMessages.increaseBreakoutTime)}
+              aria-label={`${intl.formatMessage(intlMessages.increaseBreakoutTime)}
+              ${intl.formatMessage(intlMessages.timerHours)}`}
             />
             <Styled.InputArrowButtonDown
               type="button"
               onClick={() => setHours((h) => Math.max(0, h - 1))}
-              aria-label={intl.formatMessage(intlMessages.decreaseBreakoutTime)}
+              aria-label={`${intl.formatMessage(intlMessages.decreaseBreakoutTime)}
+              ${intl.formatMessage(intlMessages.timerHours)}`}
             />
           </Styled.InputArrows>
           <Styled.TimeUnitLabel>
@@ -231,18 +234,21 @@ const CreateTimerPicker = React.memo(({ minBreakoutTime, onDurationChange }: Cre
               setMinutes(Math.max(0, Math.min(59, Number(e.target.value))));
             }}
             aria-label={intl.formatMessage(intlMessages.timerMinutes)}
+            aria-valuetext={String(minutes)}
             data-test="durationTime"
           />
           <Styled.InputArrows>
             <Styled.InputArrowButton
               type="button"
               onClick={() => setMinutes((m) => Math.min(59, m + 1))}
-              aria-label={intl.formatMessage(intlMessages.increaseBreakoutTime)}
+              aria-label={`${intl.formatMessage(intlMessages.increaseBreakoutTime)}
+              ${intl.formatMessage(intlMessages.timerMinutes)}`}
             />
             <Styled.InputArrowButtonDown
               type="button"
               onClick={() => setMinutes((m) => Math.max(0, m - 1))}
-              aria-label={intl.formatMessage(intlMessages.decreaseBreakoutTime)}
+              aria-label={`${intl.formatMessage(intlMessages.decreaseBreakoutTime)}
+              ${intl.formatMessage(intlMessages.timerMinutes)}`}
             />
           </Styled.InputArrows>
           <Styled.TimeUnitLabel>
@@ -259,17 +265,20 @@ const CreateTimerPicker = React.memo(({ minBreakoutTime, onDurationChange }: Cre
               setSeconds(Math.max(0, Math.min(59, Number(e.target.value))));
             }}
             aria-label={intl.formatMessage(intlMessages.timerSeconds)}
+            aria-valuetext={String(seconds)}
           />
           <Styled.InputArrows>
             <Styled.InputArrowButton
               type="button"
               onClick={() => setSeconds((s) => Math.min(59, s + 1))}
-              aria-label={intl.formatMessage(intlMessages.increaseBreakoutTime)}
+              aria-label={`${intl.formatMessage(intlMessages.increaseBreakoutTime)}
+              ${intl.formatMessage(intlMessages.timerSeconds)}`}
             />
             <Styled.InputArrowButtonDown
               type="button"
               onClick={() => setSeconds((s) => Math.max(0, s - 1))}
-              aria-label={intl.formatMessage(intlMessages.decreaseBreakoutTime)}
+              aria-label={`${intl.formatMessage(intlMessages.decreaseBreakoutTime)}
+              ${intl.formatMessage(intlMessages.timerSeconds)}`}
             />
           </Styled.InputArrows>
           <Styled.TimeUnitLabel>

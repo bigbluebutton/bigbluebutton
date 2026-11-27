@@ -1,6 +1,7 @@
 import { useMutation } from '@apollo/client';
 import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
+import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
@@ -11,11 +12,47 @@ import { TIMER_START, TIMER_STOP } from '../mutations';
 import useTimer from '/imports/ui/core/hooks/useTimer';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 
+const intlMessages = defineMessages({
+  timerRunningModerator: {
+    id: 'app.timer.aria.timerRunningModerator',
+    description: 'Accessible name for a running timer that a moderator can pause',
+  },
+  timerStoppedModerator: {
+    id: 'app.timer.aria.timerStoppedModerator',
+    description: 'Accessible name for a stopped timer that a moderator can start',
+  },
+  stopwatchRunningModerator: {
+    id: 'app.timer.aria.stopwatchRunningModerator',
+    description: 'Accessible name for a running stopwatch that a moderator can pause',
+  },
+  stopwatchStoppedModerator: {
+    id: 'app.timer.aria.stopwatchStoppedModerator',
+    description: 'Accessible name for a stopped stopwatch that a moderator can start',
+  },
+  timerRunningAttendee: {
+    id: 'app.timer.aria.timerRunningAttendee',
+    description: 'Accessible name for a running timer shown to an attendee',
+  },
+  timerStoppedAttendee: {
+    id: 'app.timer.aria.timerStoppedAttendee',
+    description: 'Accessible name for a stopped timer shown to an attendee',
+  },
+  stopwatchRunningAttendee: {
+    id: 'app.timer.aria.stopwatchRunningAttendee',
+    description: 'Accessible name for a running stopwatch shown to an attendee',
+  },
+  stopwatchStoppedAttendee: {
+    id: 'app.timer.aria.stopwatchStoppedAttendee',
+    description: 'Accessible name for a stopped stopwatch shown to an attendee',
+  },
+});
+
 interface TimerIndicatorProps {
   timePassed: number;
   songTrack: string;
   elapsed?: boolean;
   running: boolean;
+  stopwatch: boolean;
   isModerator: boolean;
   sidebarNavigationIsOpen: boolean;
   sidebarContentIsOpen: boolean;
@@ -26,10 +63,12 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   songTrack,
   elapsed,
   running,
+  stopwatch,
   isModerator,
   sidebarNavigationIsOpen,
   sidebarContentIsOpen,
 }) => {
+  const intl = useIntl();
   const timeRef = useRef<HTMLSpanElement>(null);
   const alarm = useRef<HTMLAudioElement>();
   const music = useRef<HTMLAudioElement>();
@@ -38,6 +77,7 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   const [startTimerMutation] = useMutation(TIMER_START);
   const [stopTimerMutation] = useMutation(TIMER_STOP);
   const [songTrackState, setSongTrackState] = useState<string>(songTrack);
+  const [focusedTime, setFocusedTime] = useState<string | null>(null);
   const prevElapsed = usePreviousValue<boolean | undefined>(elapsed);
 
   const CDN = window.meetingClientSettings.public.app.cdn;
@@ -117,6 +157,16 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   }, [running, songTrackState]);
 
   const onClick = running ? stopTimer : startTimer;
+  const time = humanizeSeconds(Math.floor(timePassed / 1000));
+  let accessibleMessage = intlMessages.timerStoppedAttendee;
+  if (stopwatch && running && isModerator) accessibleMessage = intlMessages.stopwatchRunningModerator;
+  else if (stopwatch && running) accessibleMessage = intlMessages.stopwatchRunningAttendee;
+  else if (stopwatch && isModerator) accessibleMessage = intlMessages.stopwatchStoppedModerator;
+  else if (stopwatch) accessibleMessage = intlMessages.stopwatchStoppedAttendee;
+  else if (running && isModerator) accessibleMessage = intlMessages.timerRunningModerator;
+  else if (running) accessibleMessage = intlMessages.timerRunningAttendee;
+  else if (isModerator) accessibleMessage = intlMessages.timerStoppedModerator;
+  const accessibleName = intl.formatMessage(accessibleMessage, { time: focusedTime ?? time });
 
   return (
     <Styled.TimerWrapper
@@ -125,10 +175,14 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
       <Styled.Timer>
         <Styled.TimerButton
           running={running}
-          disabled={!isModerator}
+          $disabled={!isModerator}
           hide={sidebarNavigationIsOpen && sidebarContentIsOpen && !running}
           role="button"
+          aria-label={accessibleName}
+          aria-disabled={!isModerator}
           tabIndex={0}
+          onFocus={() => setFocusedTime(time)}
+          onBlur={() => setFocusedTime(null)}
           onClick={isModerator ? onClick : () => {}}
           className="bbb-timer-indicator__button"
           data-test="timeIndicator"
@@ -141,7 +195,7 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
               aria-hidden
               ref={timeRef}
             >
-              {humanizeSeconds(Math.floor(timePassed / 1000))}
+              {time}
             </Styled.TimerTime>
           </Styled.TimerContent>
         </Styled.TimerButton>
@@ -171,6 +225,7 @@ const TimerIndicatorContainer: React.FC = () => {
     songTrack,
     elapsed,
     running,
+    stopwatch,
   } = currentTimer;
 
   return (
@@ -179,6 +234,7 @@ const TimerIndicatorContainer: React.FC = () => {
       songTrack={songTrack}
       elapsed={elapsed}
       running={running}
+      stopwatch={stopwatch}
       isModerator={currentUser?.isModerator ?? false}
       sidebarNavigationIsOpen={sidebarNavigationIsOpen}
       sidebarContentIsOpen={sidebarContentIsOpen}
