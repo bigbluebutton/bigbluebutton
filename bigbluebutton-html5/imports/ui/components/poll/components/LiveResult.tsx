@@ -73,6 +73,19 @@ const intlMessages = defineMessages({
   },
 });
 
+// Kept apart from intlMessages, which is also the lookup table that translates
+// poll answers: a custom answer such as "Vote" must keep its authored text.
+const voteCountMessages = defineMessages({
+  vote: {
+    id: 'app.chat.content.pollVote',
+    description: 'Vote label',
+  },
+  votes: {
+    id: 'app.chat.content.pollVotes',
+    description: 'Votes label',
+  },
+});
+
 interface LiveResultProps {
   questionText: string;
   responses: Array<ResponseInfo>;
@@ -109,6 +122,10 @@ const LiveResult: React.FC<LiveResultProps> = ({
     };
   });
 
+  const voteLabel = (count: number) => intl.formatMessage(
+    count === 1 ? voteCountMessages.vote : voteCountMessages.votes,
+  );
+
   return (
     <div>
       <Styled.Instructions>
@@ -130,16 +147,26 @@ const LiveResult: React.FC<LiveResultProps> = ({
           {usersCount !== respondedUsersCount
             ? <Styled.ConnectingAnimation animations={animations} /> : null}
         </Styled.Status>
-        <ResponsiveContainer width="90%" height={translatedResponses.length * 50}>
-          <BarChart
-            data={translatedResponses}
-            layout="vertical"
-          >
-            <XAxis type="number" allowDecimals={false} />
-            <YAxis width={type === 'R-' ? (sidebarContent.width / 3) : 70} fontSize={fontSize} type="category" dataKey="optionDesc" tick={<CustomizedAxisTick />} />
-            <Bar dataKey="optionResponsesCount" fill="#0C57A7" />
-          </BarChart>
-        </ResponsiveContainer>
+        <div aria-hidden>
+          <ResponsiveContainer width="90%" height={translatedResponses.length * 50}>
+            <BarChart
+              data={translatedResponses}
+              layout="vertical"
+            >
+              <XAxis type="number" allowDecimals={false} />
+              <YAxis width={type === 'R-' ? (sidebarContent.width / 3) : 70} fontSize={fontSize} type="category" dataKey="optionDesc" tick={<CustomizedAxisTick />} />
+              <Bar dataKey="optionResponsesCount" fill="#0C57A7" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <ul className="sr-only" data-test="pollLiveResultText">
+          {translatedResponses.map(({ optionDesc, optionResponsesCount, correctOption }) => (
+            <li key={optionDesc}>
+              {`${correctOption ? `${intl.formatMessage(intlMessages.correctOption)}: ` : ''}`
+                + `${optionDesc}: ${optionResponsesCount} ${voteLabel(optionResponsesCount)}`}
+            </li>
+          ))}
+        </ul>
       </Styled.Stats>
       <Styled.Separator />
       {

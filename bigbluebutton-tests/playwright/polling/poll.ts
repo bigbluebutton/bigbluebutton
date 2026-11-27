@@ -30,6 +30,10 @@ export class Polling extends MultiUsers {
       'Done',
       'should display the anonymous poll as done after each attendee has answered',
     );
+    await expect(
+      this.modPage.page.locator(e.pollLiveResultTextItem),
+      'should expose the vote count of each option as text, even in an anonymous poll',
+    ).toHaveText(['A: 1 vote', 'B: 0 votes', 'C: 0 votes', 'D: 0 votes']);
   }
 
   async quickPoll() {
@@ -248,6 +252,26 @@ export class Polling extends MultiUsers {
 
     await this.modPage.hasText(e.currentPollQuestion, /Test/, 'should display the answer that the attendee selected');
     await this.modPage.hasText(e.userVoteLiveResult, '1', 'should display the live result');
+  }
+
+  async customAnswerNamedLikeVoteCount() {
+    await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard', ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitAndClick(e.pollSidebarButton);
+    await this.modPage.waitAndClickElement(e.autoOptioningPollBtn);
+
+    await this.modPage.fill(e.pollQuestionArea, 'Test');
+    await this.modPage.waitAndClick(e.addPollItem);
+    await this.modPage.fill(e.pollOptionItem1, 'Vote');
+    await this.modPage.waitAndClick(e.addPollItem);
+    await this.modPage.fill(e.pollOptionItem2, 'Votes');
+    await this.modPage.waitAndClick(e.startPoll);
+
+    await util.answerPollOption(this.userPage, 'Vote');
+    await expect(
+      this.modPage.page.locator(e.pollLiveResultTextItem),
+      'should keep the authored text of answers named like the vote count label',
+    ).toHaveText(['Vote: 1 vote', 'Votes: 0 votes']);
+    await this.modPage.hasText(e.userVoteLiveResult, 'Vote', 'should display the authored answer in the live result');
   }
 
   async allowMultipleChoices() {

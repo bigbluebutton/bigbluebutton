@@ -43,6 +43,10 @@ test.describe.parallel('Polling', { tag: '@ci' }, () => {
       await polling.customInput();
     });
 
+    test('Custom answer named like the vote count label keeps its text', async () => {
+      await polling.customAnswerNamedLikeVoteCount();
+    });
+
     test('Allow multiple choices', async () => {
       await polling.allowMultipleChoices();
     });
