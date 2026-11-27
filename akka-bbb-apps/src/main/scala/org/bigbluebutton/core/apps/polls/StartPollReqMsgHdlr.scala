@@ -1,5 +1,6 @@
 package org.bigbluebutton.core.apps.polls
 
+import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPathAsIntOrElse
 import org.bigbluebutton.common2.domain.SimplePollOutVO
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
@@ -11,7 +12,9 @@ import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 trait StartPollReqMsgHdlr extends RightsManagementTrait {
   this: PollApp2x =>
 
-  def handle(msg: StartPollReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+  def handle(reqMsg: StartPollReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+    val maxQuestionLength = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.poll.maxQuestionLength", PollHdlrHelpers.DefaultMaxQuestionLength)
+    val msg = reqMsg.copy(body = PollHdlrHelpers.limitStartPollBody(reqMsg.body, maxQuestionLength))
 
     def broadcastEvent(msg: StartPollReqMsg, poll: SimplePollOutVO): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)

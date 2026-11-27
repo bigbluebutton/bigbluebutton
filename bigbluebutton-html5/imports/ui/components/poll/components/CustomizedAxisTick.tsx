@@ -17,20 +17,30 @@ function getAverageCharacterWidth(text: string, font: string, fontSize: number) 
 const TICK_SIZE = 6;
 const ELLIPSIS = '...';
 
+// The label as it fits an axis of the given width: cut, with an ellipsis, when too long.
+const getAxisLabel = (value: string, width: number, fontSize: number) => {
+  const averageCharWidth = getAverageCharacterWidth(value, 'Source Sans Pro', fontSize) ?? 6;
+  const numberOfChars = Math.floor((width - TICK_SIZE) / averageCharWidth);
+  if (value.length <= numberOfChars) return value;
+  return `${value.substring(0, numberOfChars - ELLIPSIS.length)}${ELLIPSIS}`;
+};
+
+export const isAxisLabelCut = (
+  value: string,
+  width: number,
+  fontSize: number,
+) => getAxisLabel(value, width, fontSize) !== value;
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const CustomizedAxisTick = (props: any) => {
   const { payload, ...restProps } = props;
   const { width, fontSize } = restProps;
-  const averageCharWidth = getAverageCharacterWidth(payload.value, 'Source Sans Pro', fontSize) ?? 6;
-  const numberOfChars = Math.floor((width - TICK_SIZE) / averageCharWidth);
-  const restValue = payload.value.substring(numberOfChars, payload.value.length);
 
   return (
     <g>
       {/* eslint-disable-next-line react/jsx-props-no-spreading */}
       <text {...restProps}>
-        {payload.value.substring(0, restValue.length > 0 ? numberOfChars - ELLIPSIS.length : numberOfChars)}
-        {restValue.length > 0 && ELLIPSIS}
+        {getAxisLabel(payload.value, width, fontSize)}
       </text>
     </g>
   );

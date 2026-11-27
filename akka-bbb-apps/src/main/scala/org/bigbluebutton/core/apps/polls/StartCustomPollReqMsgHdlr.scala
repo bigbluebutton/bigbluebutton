@@ -12,7 +12,11 @@ import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 trait StartCustomPollReqMsgHdlr extends RightsManagementTrait {
   this: PollApp2x =>
 
-  def handle(msg: StartCustomPollReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+  def handle(reqMsg: StartCustomPollReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+    val maxQuestionLength = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.poll.maxQuestionLength", PollHdlrHelpers.DefaultMaxQuestionLength)
+    val maxOptionLength = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.poll.maxOptionLength", PollHdlrHelpers.DefaultMaxOptionLength)
+    val msg = reqMsg.copy(body = PollHdlrHelpers.limitStartCustomPollBody(reqMsg.body, maxQuestionLength, maxOptionLength))
+
     def broadcastEvent(msg: StartCustomPollReqMsg, poll: SimplePollOutVO): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
       val envelope = BbbCoreEnvelope(PollStartedEvtMsg.NAME, routing)

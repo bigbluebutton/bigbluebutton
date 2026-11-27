@@ -91,7 +91,7 @@ export class Poll extends Geo {
       const testLine = currentLine + (currentLine ? ' ' : '') + word;
       const testWidth = testLine.length * fontSize * 0.6;
 
-      if (testWidth > maxWidth) {
+      if (testWidth > maxWidth && currentLine) {
         lines.push(currentLine);
         currentLine = word;
       } else {
@@ -116,8 +116,9 @@ export class Poll extends Geo {
 
     const titleLines = this.breakTextIntoLines(questionText, titleFontSize, width);
 
+    // The title lines are drawn titleFontSize apart, so that is all they take.
     const padding = {
-      top: 19 + ((titleFontSize + titleSpacing) * titleLines.length),
+      top: 19 + (titleFontSize * titleLines.length) + titleSpacing,
       right: 39,
       bottom: 29,
       left: width * 0.3 - 1
@@ -147,17 +148,28 @@ export class Poll extends Geo {
 
       // emoji does not work for now, using HTML entity
       const checkmark = "&#10004;";
-      let labelText = label;
+      const prefix = isQuiz && answers[i].isCorrectAnswer ? '\u2714 ' : '';
 
-      if (labelText.length > 20) {
-        labelText = labelText.slice(0, 20) + '...';
+      // The label wraps over as many lines as its bar is tall; only what still does not
+      // fit is cut.
+      const labelLineHeight = 14;
+      const maxLabelLines = Math.max(1, Math.floor(barHeight / labelLineHeight));
+      let labelLines = this.breakTextIntoLines(prefix + label, 12, padding.left - 12);
+      if (labelLines.length > maxLabelLines) {
+        labelLines = labelLines.slice(0, maxLabelLines);
+        labelLines[maxLabelLines - 1] += '...';
       }
-
-      const displayText = (isQuiz && answers[i].isCorrectAnswer ? checkmark + ' ' : '') + escapeXml(labelText);
+      const firstLineY = y + barHeight / 2 + 4 - ((labelLines.length - 1) * labelLineHeight) / 2;
+      const labelMarkup = labelLines.map((line, lineIndex) => {
+        const lineText = lineIndex === 0 && prefix
+          ? checkmark + ' ' + escapeXml(line.slice(prefix.length))
+          : escapeXml(line);
+        return `<tspan x="${x - 6}" y="${firstLineY + lineIndex * labelLineHeight}">${lineText}</tspan>`;
+      }).join('');
 
       bars += `
         <rect x="${x}" y="${y}" width="${w}" height="${barHeight}" rx="4" ry="4" fill="${barColor}" />
-        <text x="${x - 6}" y="${y + barHeight / 2 + 4}" font-size="12" text-anchor="end" fill="#333">${displayText}</text>
+        <text font-size="12" text-anchor="end" fill="#333">${labelMarkup}</text>
       `;
     });
 

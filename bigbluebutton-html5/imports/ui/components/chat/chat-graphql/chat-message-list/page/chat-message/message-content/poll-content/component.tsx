@@ -1,9 +1,12 @@
 import React, {
   useRef,
+  useState,
   useCallback,
+  useLayoutEffect,
   useImperativeHandle,
   forwardRef,
 } from 'react';
+import { flushSync } from 'react-dom';
 import {
   Bar,
   BarChart,
@@ -16,7 +19,8 @@ import logger from '/imports/startup/client/logger';
 import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
-import CustomizedAxisTick from '/imports/ui/components/poll/components/CustomizedAxisTick';
+import CustomizedAxisTick, { isAxisLabelCut } from '/imports/ui/components/poll/components/CustomizedAxisTick';
+import PollOptionsLegend from '/imports/ui/components/poll/components/PollOptionsLegend';
 import { layoutSelectOutput, layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout, Output } from '/imports/ui/components/layout/layoutTypes';
 
@@ -81,6 +85,14 @@ const intlMessages = defineMessages({
     id: 'app.poll.quiz.options.correct',
     description: 'Correct answer label for quiz options',
   },
+  showMore: {
+    id: 'app.chat.content.pollShowMore',
+    description: 'Button that shows the whole question and options of a poll result',
+  },
+  showLess: {
+    id: 'app.chat.content.pollShowLess',
+    description: 'Button that shortens a poll result back',
+  },
 });
 
 function assertAsMetadata(metadata: unknown): asserts metadata is Metadata {
@@ -113,6 +125,9 @@ const ChatPollContent = forwardRef<ChatPollContentHandle, ChatPollContentProps>(
 ) => {
   const intl = useIntl();
   const chartRef = useRef<HTMLDivElement>(null);
+  const questionRef = useRef<HTMLDivElement>(null);
+  const [expanded, setExpanded] = useState(false);
+  const [isQuestionCut, setIsQuestionCut] = useState(false);
   const sidebarContent: Output['sidebarContent'] = layoutSelectOutput((i: Output) => i.sidebarContent);
   const fontSize: Layout['fontSize'] = layoutSelect((i: Layout) => i.fontSize);
 
@@ -129,6 +144,23 @@ const ChatPollContent = forwardRef<ChatPollContentHandle, ChatPollContentProps>(
       pollAnswerWithNumVotes,
     };
   });
+
+  const yAxisWidth = sidebarContent.width / 3;
+  const hasCutLabels = translatedAnswers.some(
+    ({ pollAnswerWithNumVotes }: { pollAnswerWithNumVotes: string }) => (
+      isAxisLabelCut(pollAnswerWithNumVotes, yAxisWidth, fontSize)
+    ),
+  );
+
+  // Collapsed, the question shows its first lines only, so one result cannot take the
+  // whole chat; whether that cut anything is only known once it is laid out.
+  useLayoutEffect(() => {
+    const question = questionRef.current;
+    if (!question || expanded) return;
+    setIsQuestionCut(question.scrollHeight > question.clientHeight);
+  }, [pollData.questionText, sidebarContent.width, expanded]);
+
+  const canExpand = isQuestionCut || hasCutLabels;
 
   const handleCopy = useCallback((onDone: () => void) => {
     const pollDate = createdAt ? new Date(createdAt) : new Date();
@@ -173,7 +205,16 @@ const ChatPollContent = forwardRef<ChatPollContentHandle, ChatPollContentProps>(
     const dateStr = `${pollDate.getFullYear()}-${pad(pollDate.getMonth() + 1)}-${pad(pollDate.getDate())}`
       + `_${pad(pollDate.getHours())}-${pad(pollDate.getMinutes())}-${pad(pollDate.getSeconds())}`;
     const fileName = `poll-result_${dateStr}.png`;
-    toPng(chartNode, { backgroundColor: '#fff' }).then((dataUrl) => {
+    // The image shows the whole question even when the message is collapsed, and the
+    // chart as before, without the options list under it.
+    const wasExpanded = expanded;
+    flushSync(() => setExpanded(true));
+    toPng(chartNode, {
+      backgroundColor: '#fff',
+      filter: (node) => !(node instanceof HTMLElement && node.dataset.test === 'pollOptionsLegend'),
+    }).finally(() => {
+      if (!wasExpanded) setExpanded(false);
+    }).then((dataUrl) => {
       const anchor = document.createElement('a');
       anchor.href = dataUrl;
       anchor.setAttribute(
@@ -182,7 +223,7 @@ const ChatPollContent = forwardRef<ChatPollContentHandle, ChatPollContentProps>(
       );
       anchor.click();
     });
-  }, [pollData]);
+  }, [pollData, expanded]);
 
   useImperativeHandle(ref, () => ({
     copy: handleCopy,
@@ -192,9 +233,9 @@ const ChatPollContent = forwardRef<ChatPollContentHandle, ChatPollContentProps>(
   const useHeight = height || translatedAnswers.length * 50;
 
   return (
-    <>
+    <Styled.PollResult>
       <Styled.PollWrapper aria-hidden data-test="chatPollMessageText" ref={chartRef}>
-        <Styled.PollText>
+        <Styled.PollText ref={questionRef} $collapsed={!expanded}>
           {pollData.questionText}
         </Styled.PollText>
         <div>
@@ -218,7 +259,26 @@ const ChatPollContent = forwardRef<ChatPollContentHandle, ChatPollContentProps>(
             </BarChart>
           </ResponsiveContainer>
         </div>
+        {expanded && hasCutLabels && (
+          <PollOptionsLegend
+            options={translatedAnswers.map(
+              ({ pollAnswer, isCorrectAnswer }: Answers & { pollAnswer: string }) => (
+                `${isCorrectAnswer ? '✅ ' : ''}${pollAnswer}`
+              ),
+            )}
+          />
+        )}
       </Styled.PollWrapper>
+      {canExpand && (
+        <Styled.ExpandButton
+          type="button"
+          data-test="pollResultExpand"
+          aria-expanded={expanded}
+          onClick={() => setExpanded((prev) => !prev)}
+        >
+          {intl.formatMessage(expanded ? intlMessages.showLess : intlMessages.showMore)}
+        </Styled.ExpandButton>
+      )}
       <p className="sr-only">
         {pollData.questionText ? `${pollData.questionText}: ` : ''}
         {`${translatedAnswers
@@ -232,7 +292,7 @@ const ChatPollContent = forwardRef<ChatPollContentHandle, ChatPollContentProps>(
           <li key={a.pollAnswer}>{`${a.isCorrectAnswer ? `${intl.formatMessage(intlMessages.correctAnswer)}: ` : ''}${a.pollAnswer} — ${a.numVotes}`}</li>
         ))}
       </ul>
-    </>
+    </Styled.PollResult>
   );
 });
 
