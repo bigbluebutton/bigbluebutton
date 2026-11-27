@@ -5,6 +5,7 @@ import type { ApolloError } from '@apollo/client';
 import Auth from '/imports/ui/services/auth';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
+import { uniqueId } from '/imports/utils/string-utils';
 import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
 import getSizeWithUnit from '/imports/utils/getSizeWithUnit';
 import PresentationUploadService from '/imports/ui/components/actions-bar/media-area/media-sharing/presentation/service';
@@ -37,6 +38,10 @@ type RequestOutcome = 'done' | 'failed' | 'notConfirmed';
 
 const presentationConfig = () => window.meetingClientSettings.public.presentation;
 
+// Each warning gets a toast of its own: without an id, notify derives one from the message, and a warning
+// replaces the toast of the previous one (two failed files show only the last name).
+const ownToast = () => ({ toastId: uniqueId('insert-pages-outcome-') });
+
 // The warning of an insert that failed before the server could report it: the file was too large to send,
 // or the request or the upload failed on the way.
 export const showInsertError = (filename: string, tooLarge = false): void => {
@@ -50,12 +55,16 @@ export const showInsertError = (filename: string, tooLarge = false): void => {
         React.createElement(FormattedMessage, { id: 'app.presentationUploder.upload.413', values: { maxFileSize } }),
       ),
       'error',
+      undefined,
+      ownToast(),
     );
     return;
   }
   notify(
     React.createElement(FormattedMessage, { id: 'app.presentation.insertPages.error.failed', values: { filename } }),
     'error',
+    undefined,
+    ownToast(),
   );
 };
 
@@ -68,6 +77,8 @@ export const showInsertNotConfirmed = (filename: string): void => {
       values: { filename },
     }),
     'error',
+    undefined,
+    ownToast(),
   );
 };
 
