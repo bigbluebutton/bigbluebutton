@@ -8,6 +8,10 @@ case "$1" in
   # make sure postgres can read this directory
   chmod 755 /usr/share/bbb-graphql-server/ -R
 
+  # apply reloadable settings from conf.d/bbb-pg.conf (e.g. random_page_cost) without a restart;
+  # Hasura is restarted below, so its new connections plan with them
+  runuser -u postgres -- psql -q -c "select pg_reload_conf()" > /dev/null
+
   runuser -u postgres -- psql -q -c "drop database if exists bbb_graphql with (force)"
   runuser -u postgres -- psql -c "create database bbb_graphql WITH TEMPLATE template0 LC_COLLATE 'C.UTF-8'"
   runuser -u postgres -- psql -q -c "alter database bbb_graphql set timezone to 'UTC'"
