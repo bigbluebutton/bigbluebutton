@@ -1,0 +1,19 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case presentation.upload.too-large
+target bbb-web
+
+== step 7: route presentation-upload (POST)
+status 413
+header Content-Type text/html
+body text "413 Request Entity Too Large"
+
+== step 8: bus PresentationUploadedFileTooLargeErrorSysPubMsg select $.core.body.messageKey, $.core.body.presentationName, $.core.body.maxFileSize
+$.core.body.maxFileSize 30000000
+$.core.body.messageKey "FILE_TOO_LARGE"
+$.core.body.presentationName "large.pdf"
+
+== step 9: route presentation-upload (POST)
+status 200
+header Cache-Control no-cache
+header Content-Type text/plain
+body text 14 bytes, sha256 a9c48a8d278c

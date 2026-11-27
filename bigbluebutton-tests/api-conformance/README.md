@@ -1005,6 +1005,26 @@ The actions other cases need, with their signatures (from
 | `presentationRequestUploadToken` | `podId: String!` (DEFAULT_PRESENTATION_POD), `filename: String!, uploadTemporaryId: String!` |
 | `chatSendMessage` | `chatId: String!` (MAIN-PUBLIC-GROUP-CHAT), `chatMessageInMarkdownFormat: String!`; optional `replyToMessageId: String`, `metadata: json` |
 
+**Uploading a presentation** (`cases/presentation/upload/`) takes four
+steps:
+1. `graphql` as the presenter: `presentationRequestUploadToken`, as the
+   HTML5 client sends it.
+2. `bus` `PresentationUploadTokenSysPubMsg`, filtered on the filename:
+   capture `$.core.body.authzToken`. The client reads the same token from
+   its `pres_presentation_uploadToken` row.
+3. A CORS preflight: `route: presentation-upload` with `method: OPTIONS`
+   and the `Origin` and `Access-Control-Request-Method` headers,
+   `eventually` until 200. bbb-web learns the token from its own message
+   queue a moment after akka-apps sends it (#26788), and until then nginx's
+   check refuses it. The preflight is refused the same way, and doesn't use
+   the token up.
+4. `route: presentation-upload` with `method: POST`, `pathParams:
+   {authzToken}` and a `multipart` body: the file as `fileUpload`, the
+   internal meeting ID as `conference`, and `temporaryPresentationId`.
+
+The token isn't recorded. Bus steps `select` everything they record but
+the token, and steps whose answer holds it are `golden: off`.
+
 #### Side effects: `bus`, `fs` and `redis`
 
 These steps check what a call did outside its answer, through the target's

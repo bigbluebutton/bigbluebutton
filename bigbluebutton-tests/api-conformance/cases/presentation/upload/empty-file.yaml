@@ -1,0 +1,79 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# An upload of an empty file, or of a file whose name has no extension,
+# fails: bbb-web answers 200 "upload-failed". The presenter should be told
+# why, and bbb-web works the reason out, but it sends INVALID_MIME_TYPE
+# with no type and no extension instead. A defect (#26789,
+# expectations/bbb-web.yaml): this case expects no INVALID_MIME_TYPE, and
+# another reason on the presentation.
+id: presentation.upload.empty-file
+title: An upload of ${what} isn't reported as an invalid MIME type
+endpoint: presentation
+class: defect
+tags: [ci, presence]
+requires: [akka, bus, presence, callbacks]
+variants:
+  - {id: empty, vars: {what: an empty file, path: presentations/empty.pdf, filename: empty.pdf}}
+  - {id: no-extension, vars: {what: a PDF named without an extension, path: presentations/two-pages.pdf, filename: slides}}
+steps:
+  # A one-page image instead of the 15-page default presentation, so that
+  # the suite's conversions stay short.
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Upload}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}-start/fixtures/presentations/image.png" filename="start.png"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: MODERATOR}}
+    golden: off
+  - graphql:
+      as: ann
+      query: 'mutation RequestUploadToken($podId: String!, $filename: String!, $tmp: String!) { presentationRequestUploadToken(podId: $podId, filename: $filename, uploadTemporaryId: $tmp) }'
+      variables: {podId: DEFAULT_PRESENTATION_POD, filename: "${filename}", tmp: upload-1}
+    golden: off
+  - bus: {name: PresentationUploadTokenSysPubMsg, meetingId: "${intId}", within: 10s}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.filename: "${filename}"}
+    capture: {token: $.core.body.authzToken}
+  # bbb-web learns the token from its own message queue, a moment after
+  # akka-apps sends it (#26788), and until then nginx refuses it. A CORS
+  # preflight is refused the same way, and doesn't use the token up.
+  - route: presentation-upload
+    method: OPTIONS
+    headers: {Origin: "${baseUrl}", Access-Control-Request-Method: POST}
+    pathParams: {authzToken: "${token}"}
+    eventually: {within: 10s, every: 300ms, until: {status: 200}}
+    golden: off
+  - route: presentation-upload
+    method: POST
+    pathParams: {authzToken: "${token}"}
+    body:
+      multipart:
+        fields: {conference: "${intId}", temporaryPresentationId: upload-1}
+        files: [{field: fileUpload, path: "${path}", filename: "${filename}", contentType: application/pdf}]
+    expect: {status: 200, body: upload-failed}
+  - bus: {name: PresentationHasInvalidMimeTypeErrorSysPubMsg, meetingId: "${intId}", within: 3s}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.temporaryPresentationId: upload-1}
+      absent: true
+  # The presentation's row carries the reason the presenter's uploader shows.
+  - graphql:
+      as: ann
+      query: 'query Failed($tmp: String!) { pres_presentation(where: {uploadTemporaryId: {_eq: $tmp}}) { uploadErrorMsgKey } }'
+      variables: {tmp: upload-1}
+    golden: off
+    eventually:
+      within: 10s
+      every: 300ms
+      until:
+        jsonpath: {"$.data.pres_presentation[0].uploadErrorMsgKey": {regex: '.'}}
+    expect:
+      jsonpath: {"$.data.pres_presentation[0].uploadErrorMsgKey": {regex: '.'}}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true

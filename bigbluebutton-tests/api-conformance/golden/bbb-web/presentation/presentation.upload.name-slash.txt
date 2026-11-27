@@ -1,0 +1,12 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case presentation.upload.name-slash
+target bbb-web
+
+== step 7: route presentation-upload (POST)
+status 200
+header Cache-Control no-cache
+header Content-Type text/plain
+body text 14 bytes, sha256 a9c48a8d278c
+
+== step 8: bus PresentationConversionStartedSysPubMsg select $.core.body.common.presentationName
+$.core.body.common.presentationName "slides.pdf"

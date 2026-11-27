@@ -1,0 +1,63 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# Only the presenter gets an upload token. graphql-actions refuses anyone
+# else, a moderator included, before the request reaches akka-apps, so no
+# token is issued.
+id: presentation.upload-token.not-presenter
+title: A ${role} who isn't the presenter gets no upload token
+endpoint: presentation
+class: contract
+tags: [ci, presence]
+requires: [akka, bus, presence, callbacks]
+variants:
+  - {id: viewer, vars: {role: VIEWER}}
+  - {id: moderator, vars: {role: MODERATOR}}
+steps:
+  # A one-page image instead of the 15-page default presentation, so that
+  # the suite's conversions stay short.
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Upload token}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}-start/fixtures/presentations/image.png" filename="start.png"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  # Ann joins first and becomes the presenter.
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: MODERATOR}}
+    golden: off
+  - graphql: {as: ann, query: 'query Me { user_current { presenter } }'}
+    golden: off
+    eventually: {within: 5s, every: 300ms, until: {jsonpath: {"$.data.user_current[0].presenter": true}}}
+  - presence: {action: join, as: bob, args: {meetingID: "${uid}", fullName: Bob, role: "${role}"}}
+    golden: off
+  - graphql:
+      as: bob
+      query: 'mutation RequestUploadToken($podId: String!, $filename: String!, $tmp: String!) { presentationRequestUploadToken(podId: $podId, filename: $filename, uploadTemporaryId: $tmp) }'
+      variables: {podId: DEFAULT_PRESENTATION_POD, filename: bob.pdf, tmp: upload-1}
+    expect:
+      errors: {regex: 'Permission Denied \(not presenter\)'}
+  # Ann's own request reaches akka-apps, so Bob's would have been seen.
+  - graphql:
+      as: ann
+      query: 'mutation RequestUploadToken($podId: String!, $filename: String!, $tmp: String!) { presentationRequestUploadToken(podId: $podId, filename: $filename, uploadTemporaryId: $tmp) }'
+      variables: {podId: DEFAULT_PRESENTATION_POD, filename: ann.pdf, tmp: upload-2}
+    golden: off
+  - bus: {name: PresentationUploadTokenReqMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.uploadTemporaryId: upload-2}
+  - bus: {name: PresentationUploadTokenReqMsg, meetingId: "${intId}", within: 1s}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.uploadTemporaryId: upload-1}
+      absent: true
+  - bus: {name: PresentationUploadTokenSysPubMsg, meetingId: "${intId}", within: 1s}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.filename: bob.pdf}
+      absent: true
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true

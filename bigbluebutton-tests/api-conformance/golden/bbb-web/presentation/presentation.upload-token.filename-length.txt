@@ -1,0 +1,12 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case presentation.upload-token.filename-length
+target bbb-web
+
+== step 4: graphql mutation RequestUploadToken as ann
+$.data.presentationRequestUploadToken true
+
+== step 5: bus PresentationUploadTokenSysPubMsg select $.core.body.podId
+$.core.body.podId "DEFAULT_PRESENTATION_POD"
+
+== step 6: graphql mutation RequestUploadToken as ann
+$.errors[].message "Mutation failed (RequestUploadToken): It was not able to send the request to Graphql Actions: graphql actions request failed: presentationRequestUploadToken: Parameter filename exceeds maximum allowed length of 500 characters"

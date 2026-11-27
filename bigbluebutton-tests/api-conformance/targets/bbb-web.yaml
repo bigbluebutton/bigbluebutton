@@ -68,4 +68,5 @@ profiles:
   client-settings-body-strict: {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" client-settings-body-strict'}
   fetch-blocked-host:    {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" fetch-blocked-host'}
   short-fetch-timeouts:  {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" short-fetch-timeouts'}
+  short-upload-start-timeout: {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" short-upload-start-timeout'}
   default:               {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" default'}

@@ -1,0 +1,96 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# akka-apps issues a user at most presentationUploadTokenMaxRequests (20)
+# upload tokens in presentationUploadTokenWindowSec (60 s). The next
+# request is refused: the user gets PresentationUploadTokenFailRespMsg,
+# and its presentation row carries the reason the uploader shows,
+# PRESENTATION_UPLOAD_RATE_LIMIT_EXCEEDED, with no token. The limit is
+# per user in a meeting, so other cases' requests don't count. The tokens are never
+# used.
+id: presentation.upload-token.rate-limit
+title: The presenter's 21st upload token request within a minute is refused
+endpoint: presentation
+class: contract
+tags: [ci, presence]
+requires: [akka, bus, presence, callbacks]
+steps:
+  # A one-page image instead of the 15-page default presentation, so that
+  # the suite's conversions stay short.
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Upload token}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}-start/fixtures/presentations/image.png" filename="start.png"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: MODERATOR}}
+    golden: off
+  - &issued
+    graphql:
+      as: ann
+      query: 'mutation RequestUploadToken($podId: String!, $filename: String!, $tmp: String!) { presentationRequestUploadToken(podId: $podId, filename: $filename, uploadTemporaryId: $tmp) }'
+      variables: {podId: DEFAULT_PRESENTATION_POD, filename: two-pages.pdf, tmp: upload-1}
+    golden: off
+    expect:
+      jsonpath: {$.data.presentationRequestUploadToken: true}
+  - *issued
+  - *issued
+  - *issued
+  - *issued
+  - *issued
+  - *issued
+  - *issued
+  - *issued
+  - *issued
+  - *issued
+  - *issued
+  - *issued
+  - *issued
+  - *issued
+  - *issued
+  - *issued
+  - *issued
+  - *issued
+  - *issued
+  - bus: {name: PresentationUploadTokenSysPubMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+    expect: {count: 20}
+  - graphql:
+      as: ann
+      query: 'mutation RequestUploadToken($podId: String!, $filename: String!, $tmp: String!) { presentationRequestUploadToken(podId: $podId, filename: $filename, uploadTemporaryId: $tmp) }'
+      variables: {podId: DEFAULT_PRESENTATION_POD, filename: refused.pdf, tmp: upload-21}
+    expect:
+      jsonpath: {$.data.presentationRequestUploadToken: true}
+  - bus: {name: PresentationUploadTokenFailRespMsg, meetingId: "${intId}", within: 10s}
+    select: [$.core.body.podId, $.core.body.filename]
+    expect:
+      jsonpath: {$.core.body.filename: refused.pdf}
+  - bus: {name: PresentationUploadTokenSysPubMsg, meetingId: "${intId}", within: 1s}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.filename: refused.pdf}
+      absent: true
+  - graphql:
+      as: ann
+      query: 'query Refused($tmp: String!) { pres_presentation(where: {uploadTemporaryId: {_eq: $tmp}}) { name uploadErrorMsgKey uploadCompleted uploadInProgress } }'
+      variables: {tmp: upload-21}
+    eventually:
+      within: 5s
+      every: 300ms
+      until:
+        jsonpath: {"$.data.pres_presentation[0].uploadErrorMsgKey": PRESENTATION_UPLOAD_RATE_LIMIT_EXCEEDED}
+    expect:
+      jsonpath:
+        $.data.pres_presentation[0].name: refused.pdf
+        $.data.pres_presentation[0].uploadErrorMsgKey: PRESENTATION_UPLOAD_RATE_LIMIT_EXCEEDED
+  - graphql:
+      as: ann
+      query: 'query RefusedToken($tmp: String!) { pres_presentation_uploadToken(where: {uploadTemporaryId: {_eq: $tmp}}) { uploadToken } }'
+      variables: {tmp: upload-21}
+    expect:
+      jsonpath: {"$.data.pres_presentation_uploadToken[0].uploadToken": {regex: '^$'}}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true

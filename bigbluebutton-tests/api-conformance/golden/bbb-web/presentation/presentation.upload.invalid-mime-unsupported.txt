@@ -1,0 +1,21 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case presentation.upload.invalid-mime-unsupported
+target bbb-web
+
+== step 7: route presentation-upload (POST)
+status 200
+header Cache-Control no-cache
+header Content-Type text/plain
+body text 13 bytes, sha256 fe2ad51fca62
+
+== step 8: bus PresentationHasInvalidMimeTypeErrorSysPubMsg select $.core.body.messageKey, $.core.body.presentationName, $.core.body.temporaryPresentationId, $.core.body.fileMime, $.core.body.fileExtension
+$.core.body.fileExtension "svg"
+$.core.body.fileMime "image/svg+xml"
+$.core.body.messageKey "INVALID_MIME_TYPE"
+$.core.body.presentationName "drawing.svg"
+$.core.body.temporaryPresentationId "upload-1"
+
+== step 9: route presentation-upload (POST)
+status 403
+header Content-Type text/html
+body text "403 Forbidden"

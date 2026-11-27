@@ -1,0 +1,14 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case presentation.upload.ended-meeting
+target bbb-web
+
+== step 9: route presentation-upload (POST)
+status 200
+header Cache-Control no-cache
+header Content-Type text/plain
+body text 10 bytes, sha256 c48d5c10cc4b
+
+== step 10: route presentation-upload (POST)
+status 403
+header Content-Type text/html
+body text "403 Forbidden"

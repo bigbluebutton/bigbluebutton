@@ -1,0 +1,65 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# The presentation is named after the uploaded file's own filename, not the
+# one in the token request. Only its last path segment is kept, whether
+# the path uses / or \, and a name in another script is kept as it is.
+id: presentation.upload.name
+title: An upload named ${filename} becomes ${name}
+endpoint: presentation
+class: contract
+tags: [ci, presence, conversion]
+requires: [akka, bus, presence, presentation-conversion, callbacks]
+variants:
+  - {id: slash, vars: {filename: dir/sub/slides.pdf, name: slides.pdf}}
+  - {id: backslash, vars: {filename: 'dir\slides.pdf', name: slides.pdf}}
+  - {id: unicode, vars: {filename: présentation-日本.pdf, name: présentation-日本.pdf}}
+steps:
+  # A one-page image instead of the 15-page default presentation, so that
+  # the suite's conversions stay short.
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Upload}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}-start/fixtures/presentations/image.png" filename="start.png"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: MODERATOR}}
+    golden: off
+  - graphql:
+      as: ann
+      query: 'mutation RequestUploadToken($podId: String!, $filename: String!, $tmp: String!) { presentationRequestUploadToken(podId: $podId, filename: $filename, uploadTemporaryId: $tmp) }'
+      variables: {podId: DEFAULT_PRESENTATION_POD, filename: requested.pdf, tmp: upload-1}
+    golden: off
+  - bus: {name: PresentationUploadTokenSysPubMsg, meetingId: "${intId}", within: 10s}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.filename: requested.pdf}
+    capture: {token: $.core.body.authzToken, presId: $.core.body.presentationId}
+  # bbb-web learns the token from its own message queue, a moment after
+  # akka-apps sends it (#26788), and until then nginx refuses it. A CORS
+  # preflight is refused the same way, and doesn't use the token up.
+  - route: presentation-upload
+    method: OPTIONS
+    headers: {Origin: "${baseUrl}", Access-Control-Request-Method: POST}
+    pathParams: {authzToken: "${token}"}
+    eventually: {within: 10s, every: 300ms, until: {status: 200}}
+    golden: off
+  - route: presentation-upload
+    method: POST
+    pathParams: {authzToken: "${token}"}
+    body:
+      multipart:
+        fields: {conference: "${intId}", temporaryPresentationId: upload-1}
+        files: [{field: fileUpload, path: presentations/two-pages.pdf, filename: "${filename}", contentType: application/pdf}]
+    expect: {status: 200, body: upload-success}
+  - bus: {name: PresentationConversionStartedSysPubMsg, meetingId: "${intId}", within: 30s}
+    select: [$.core.body.common.presentationName]
+    expect:
+      jsonpath:
+        $.core.body.common.presentationId: "${presId}"
+        $.core.body.common.presentationName: "${name}"
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true

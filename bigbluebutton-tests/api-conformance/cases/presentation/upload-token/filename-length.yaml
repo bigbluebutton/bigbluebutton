@@ -1,0 +1,53 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# graphql-actions takes a filename of up to 500 characters in a token
+# request, and refuses a longer one before it reaches akka-apps.
+id: presentation.upload-token.filename-length
+title: A token request's filename may have 500 characters, not 501
+endpoint: presentation
+class: contract
+tags: [ci, presence]
+requires: [akka, bus, presence, callbacks]
+steps:
+  # A one-page image instead of the 15-page default presentation, so that
+  # the suite's conversions stay short.
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Upload token}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}-start/fixtures/presentations/image.png" filename="start.png"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: MODERATOR}}
+    golden: off
+  - graphql:
+      as: ann
+      query: 'mutation RequestUploadToken($podId: String!, $filename: String!, $tmp: String!) { presentationRequestUploadToken(podId: $podId, filename: $filename, uploadTemporaryId: $tmp) }'
+      variables: {podId: DEFAULT_PRESENTATION_POD, filename: '${repeat("n", 496)}.pdf', tmp: upload-1}
+    expect:
+      jsonpath: {$.data.presentationRequestUploadToken: true}
+  - bus: {name: PresentationUploadTokenSysPubMsg, meetingId: "${intId}", within: 10s}
+    select: [$.core.body.podId]
+    expect:
+      jsonpath: {$.core.body.filename: '${repeat("n", 496)}.pdf'}
+  - graphql:
+      as: ann
+      query: 'mutation RequestUploadToken($podId: String!, $filename: String!, $tmp: String!) { presentationRequestUploadToken(podId: $podId, filename: $filename, uploadTemporaryId: $tmp) }'
+      variables: {podId: DEFAULT_PRESENTATION_POD, filename: '${repeat("n", 497)}.pdf', tmp: upload-2}
+    expect:
+      errors: {regex: 'Parameter filename exceeds maximum allowed length of 500 characters'}
+  # The accepted request reached akka-apps; the refused one didn't.
+  - bus: {name: PresentationUploadTokenReqMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.uploadTemporaryId: upload-1}
+  - bus: {name: PresentationUploadTokenReqMsg, meetingId: "${intId}", within: 1s}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.uploadTemporaryId: upload-2}
+      absent: true
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true

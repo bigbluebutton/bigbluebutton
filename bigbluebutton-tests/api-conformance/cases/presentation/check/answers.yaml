@@ -1,0 +1,90 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# nginx asks bbb-web's checkPresentation whether an upload may go through,
+# before any of its body is sent. It passes the token from the upload URL
+# as X-Presentation-Token, the request's Content-Length as
+# X-Original-Content-Length and its method as X-Original-Method. bbb-web
+# answers:
+# - a token it knows, with a length under maxFileSizeUpload (30000000):
+#   200 "upload-success";
+# - a token it knows, with a length over the limit: 403 with
+#   X-File-Too-Large, which nginx turns into 413, and FILE_TOO_LARGE for
+#   the presentation on the bus;
+# - a token it doesn't know, or none: 403 "invalid auth token";
+# - OPTIONS (a CORS preflight): 200 "upload-success" for a token it
+#   knows, 403 "upload-fail" otherwise.
+# Asking doesn't use the token up: the upload afterwards goes through.
+# Lengths of 0 or none are #26787; the length exactly at the limit isn't
+# checked here.
+id: presentation.check.answers
+title: checkPresentation's answers for an upload
+endpoint: presentation
+class: contract
+tags: [ci, presence]
+requires: [akka, bus, presence, callbacks]
+steps:
+  # A one-page image instead of the 15-page default presentation, so that
+  # the suite's conversions stay short.
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Upload check}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}-start/fixtures/presentations/image.png" filename="start.png"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: MODERATOR}}
+    golden: off
+  - graphql:
+      as: ann
+      query: 'mutation RequestUploadToken($podId: String!, $filename: String!, $tmp: String!) { presentationRequestUploadToken(podId: $podId, filename: $filename, uploadTemporaryId: $tmp) }'
+      variables: {podId: DEFAULT_PRESENTATION_POD, filename: two-pages.pdf, tmp: upload-1}
+    golden: off
+  - bus: {name: PresentationUploadTokenSysPubMsg, meetingId: "${intId}", within: 10s}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.filename: two-pages.pdf}
+    capture: {token: $.core.body.authzToken}
+  # bbb-web learns the token from its own message queue, a moment after
+  # akka-apps sends it (#26788).
+  - route: presentation-check
+    headers: {X-Presentation-Token: "${token}", X-Original-Content-Length: "1000", X-Original-Method: POST}
+    eventually: {within: 10s, every: 300ms, until: {status: 200}}
+    expect: {status: 200, body: upload-success}
+  - route: presentation-check
+    headers: {X-Presentation-Token: "${token}", X-Original-Content-Length: "30000001", X-Original-Method: POST}
+    expect:
+      status: 403
+      headers: {X-File-Too-Large: "1"}
+      body: file-empty
+  - bus: {name: PresentationUploadedFileTooLargeErrorSysPubMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.messageKey, $.core.body.presentationName, $.core.body.fileSize, $.core.body.maxFileSize]
+    expect:
+      jsonpath:
+        $.core.body.messageKey: FILE_TOO_LARGE
+        $.core.body.fileSize: 30000001
+        $.core.body.maxFileSize: 30000000
+  - route: presentation-check
+    headers: {X-Presentation-Token: PresUploadToken-unknown, X-Original-Content-Length: "1000", X-Original-Method: POST}
+    expect: {status: 403, body: invalid auth token}
+  - route: presentation-check
+    headers: {X-Original-Content-Length: "1000", X-Original-Method: POST}
+    expect: {status: 403, body: invalid auth token}
+  - route: presentation-check
+    headers: {X-Presentation-Token: "${token}", X-Original-Method: OPTIONS}
+    expect: {status: 200, body: upload-success}
+  - route: presentation-check
+    headers: {X-Presentation-Token: PresUploadToken-unknown, X-Original-Method: OPTIONS}
+    expect: {status: 403, body: upload-fail}
+  - route: presentation-upload
+    method: POST
+    pathParams: {authzToken: "${token}"}
+    body:
+      multipart:
+        fields: {conference: "${intId}", temporaryPresentationId: upload-1}
+        files: [{field: fileUpload, path: presentations/two-pages.pdf, contentType: application/pdf}]
+    expect: {status: 200, body: upload-success}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true

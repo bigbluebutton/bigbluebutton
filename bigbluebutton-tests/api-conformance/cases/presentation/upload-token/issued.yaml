@@ -1,0 +1,67 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# The presenter asks for an upload token with the GraphQL action
+# presentationRequestUploadToken, as the HTML5 client does. akka-apps
+# answers three ways, all with the same token and presentation ID:
+# - PresentationUploadTokenSysPubMsg, which tells bbb-web the token;
+# - PresentationUploadTokenPassRespMsg, to the user;
+# - the pres_presentation_uploadToken row the client reads, found by the
+#   uploadTemporaryId it chose.
+# The token itself isn't recorded.
+id: presentation.upload-token.issued
+title: The presenter gets an upload token, to bbb-web and to the client
+endpoint: presentation
+class: contract
+tags: [ci, presence]
+requires: [akka, bus, presence, callbacks]
+steps:
+  # A one-page image instead of the 15-page default presentation, so that
+  # the suite's conversions stay short.
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Upload token}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}-start/fixtures/presentations/image.png" filename="start.png"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  # The first moderator to join becomes the presenter.
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: MODERATOR}}
+    golden: off
+  - graphql:
+      as: ann
+      query: 'mutation RequestUploadToken($podId: String!, $filename: String!, $tmp: String!) { presentationRequestUploadToken(podId: $podId, filename: $filename, uploadTemporaryId: $tmp) }'
+      variables: {podId: DEFAULT_PRESENTATION_POD, filename: two-pages.pdf, tmp: upload-1}
+    expect:
+      jsonpath: {$.data.presentationRequestUploadToken: true}
+  - bus: {name: PresentationUploadTokenSysPubMsg, meetingId: "${intId}", within: 10s}
+    select: [$.core.body.podId, $.core.body.filename]
+    expect:
+      jsonpath:
+        $.core.body.filename: two-pages.pdf
+        $.core.body.authzToken: {regex: '^PresUploadToken-[a-z0-9]{8}DEFAULT_PRESENTATION_POD-w_[a-z0-9]+$'}
+    capture: {token: $.core.body.authzToken, presId: $.core.body.presentationId}
+  - bus: {name: PresentationUploadTokenPassRespMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.podId, $.core.body.filename, $.core.body.temporaryPresentationId]
+    expect:
+      jsonpath:
+        $.core.body.authzToken: "${token}"
+        $.core.body.presentationId: "${presId}"
+  - graphql:
+      as: ann
+      query: 'query UploadToken($tmp: String!) { pres_presentation_uploadToken(where: {uploadTemporaryId: {_eq: $tmp}}) { presentationId uploadToken } }'
+      variables: {tmp: upload-1}
+    golden: off
+    eventually:
+      within: 5s
+      every: 300ms
+      until:
+        jsonpath: {"$.data.pres_presentation_uploadToken[0].uploadToken": "${token}"}
+    expect:
+      jsonpath:
+        $.data.pres_presentation_uploadToken[0].uploadToken: "${token}"
+        $.data.pres_presentation_uploadToken[0].presentationId: "${presId}"
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true

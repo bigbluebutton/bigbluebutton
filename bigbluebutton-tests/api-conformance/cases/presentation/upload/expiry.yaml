@@ -1,0 +1,56 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A token whose upload hasn't reached bbb-web within
+# presentationUploadStartTimeout (shipped 300 s; 5 s in the
+# short-upload-start-timeout profile) is dropped at bbb-web's next cleanup
+# run, every 15 seconds. bbb-web then tells akka-apps the upload failed
+# (PRESENTATION_UPLOAD_FAILED), so it doesn't show as uploading, and nginx's
+# check refuses the token.
+id: presentation.upload.expiry
+title: An upload token that isn't used in time is dropped
+endpoint: presentation
+class: contract
+tags: [slow, disruptive, presence]
+requires: [akka, bus, presence, callbacks]
+profile: short-upload-start-timeout
+steps:
+  # A one-page image instead of the 15-page default presentation, so that
+  # the suite's conversions stay short.
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Upload}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}-start/fixtures/presentations/image.png" filename="start.png"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: MODERATOR}}
+    golden: off
+  - graphql:
+      as: ann
+      query: 'mutation RequestUploadToken($podId: String!, $filename: String!, $tmp: String!) { presentationRequestUploadToken(podId: $podId, filename: $filename, uploadTemporaryId: $tmp) }'
+      variables: {podId: DEFAULT_PRESENTATION_POD, filename: two-pages.pdf, tmp: upload-1}
+    golden: off
+  - bus: {name: PresentationUploadTokenSysPubMsg, meetingId: "${intId}", within: 10s}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.filename: two-pages.pdf}
+    capture: {token: $.core.body.authzToken}
+  # The first cleanup run is a minute after bbb-web starts, which the
+  # profile switch has just done.
+  - bus: {name: PresentationConversionFailedErrorSysPubMsg, meetingId: "${intId}", within: 120s}
+    select: [$.core.body.messageKey, $.core.body.presName, $.core.body.errorDetail]
+    expect:
+      jsonpath: {$.core.body.presName: two-pages.pdf}
+  - route: presentation-upload
+    method: POST
+    pathParams: {authzToken: "${token}"}
+    body:
+      multipart:
+        fields: {conference: "${intId}", temporaryPresentationId: upload-1}
+        files: [{field: fileUpload, path: presentations/two-pages.pdf, contentType: application/pdf}]
+    expect: {status: 403}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true

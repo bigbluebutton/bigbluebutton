@@ -1,0 +1,13 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case presentation.upload.expiry
+target bbb-web
+
+== step 6: bus PresentationConversionFailedErrorSysPubMsg select $.core.body.messageKey, $.core.body.presName, $.core.body.errorDetail
+$.core.body.errorDetail "No upload request arrived in time"
+$.core.body.messageKey "PRESENTATION_UPLOAD_FAILED"
+$.core.body.presName "two-pages.pdf"
+
+== step 7: route presentation-upload (POST)
+status 403
+header Content-Type text/html
+body text "403 Forbidden"
