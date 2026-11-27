@@ -199,12 +199,14 @@ func handleSubscriptionMessage(hc *common.HasuraConnection, message *[]byte, sub
 	lastReceivedDataWas := subscription.LastReceivedData
 	cacheKey := combineUint32ToUint64(subscription.LastReceivedDataChecksum, dataChecksum)
 
-	// Store LastReceivedData Checksum
-	subscription.LastReceivedData = messageData
-	subscription.LastReceivedDataChecksum = dataChecksum
-	hc.BrowserConn.ActiveSubscriptionsMutex.Lock()
-	hc.BrowserConn.ActiveSubscriptions[queryId] = subscription
-	hc.BrowserConn.ActiveSubscriptionsMutex.Unlock()
+	// Store LastReceivedData Checksum on the current entry. The writer may have
+	// replaced or removed it while this message was being processed.
+	if !hc.BrowserConn.UpdateActiveSubscription(queryId, func(current *common.GraphQlSubscription) {
+		current.LastReceivedData = messageData
+		current.LastReceivedDataChecksum = dataChecksum
+	}) {
+		return false
+	}
 
 	// Apply msg patch when it supports it
 	if subscription.JsonPatchSupported {
@@ -222,11 +224,9 @@ func handleStreamingMessage(hc *common.HasuraConnection, message []byte, subscri
 	lastCursor := common.GetLastStreamCursorValueFromReceivedMessage(message, subscription.StreamCursorField, hc.BrowserConn.MeetingId)
 	// Either value may be a list or an object decoded from JSON, which != cannot compare.
 	if lastCursor != nil && !reflect.DeepEqual(subscription.StreamCursorCurrValue, lastCursor) {
-		subscription.StreamCursorCurrValue = lastCursor
-
-		hc.BrowserConn.ActiveSubscriptionsMutex.Lock()
-		hc.BrowserConn.ActiveSubscriptions[queryId] = subscription
-		hc.BrowserConn.ActiveSubscriptionsMutex.Unlock()
+		hc.BrowserConn.UpdateActiveSubscription(queryId, func(current *common.GraphQlSubscription) {
+			current.StreamCursorCurrValue = lastCursor
+		})
 	}
 }
 
