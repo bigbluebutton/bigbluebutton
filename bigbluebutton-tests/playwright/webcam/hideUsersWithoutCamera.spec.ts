@@ -29,6 +29,30 @@ test.describe.parallel('Hide participants without camera', { tag: '@ci' }, () =>
     await hideUsersWithoutCamera.startWithUsersWithoutCameraHidden();
   });
 
+  // docs/docs/testing/release-testing.md#hide-participants-without-camera-restore-the-presentation-partially-automated
+  test('Hiding users with no camera shared restores the minimized presentation', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    const hideUsersWithoutCamera = new HideUsersWithoutCamera(browser, context);
+    await hideUsersWithoutCamera.initModPage(page, { testInfo });
+    await hideUsersWithoutCamera.initModPage2(context, { testInfo });
+    await hideUsersWithoutCamera.initUserPage(context, { testInfo });
+    await hideUsersWithoutCamera.restorePresentationWhenGridEmpties();
+  });
+
+  test('Presentation is restored when the last camera stops with users without camera hidden', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    const hideUsersWithoutCamera = new HideUsersWithoutCamera(browser, context);
+    await hideUsersWithoutCamera.initModPage(page, { createParameter: HIDE_USERS_WITHOUT_CAMERA_PARAMETER, testInfo });
+    await hideUsersWithoutCamera.initUserPage(context, { testInfo });
+    await hideUsersWithoutCamera.restorePresentationWhenLastCameraStops();
+  });
+
   test('Layout view button is hidden with disabledFeatures=layoutView', async ({
     browser,
     context,

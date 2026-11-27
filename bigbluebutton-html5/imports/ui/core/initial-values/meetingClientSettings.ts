@@ -443,6 +443,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           moderator: 2,
           viewer: 2,
         },
+        layoutViewMaxPageSize: 12,
         gridEnabled: true,
         desktopGridSizes: {
           moderator: 48,

@@ -32,9 +32,13 @@ trait SetHideUsersWithoutCameraReqMsgHdlr extends RightsManagementTrait {
       val reason = "No permission to hide users without camera."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
     } else {
+      val changed = Layouts.getHideUsersWithoutCamera(liveMeeting.layouts) != msg.body.hideUsersWithoutCamera
       Layouts.setHideUsersWithoutCamera(liveMeeting.layouts, msg.body.hideUsersWithoutCamera)
       LayoutDAO.insertOrUpdate(liveMeeting.props.meetingProp.intId, liveMeeting.layouts)
       sendSetHideUsersWithoutCameraEvtMsg(msg.header.userId)
+      if (changed) {
+        LayoutHdlrHelpers.notifyLayoutUpdate(msg.header.userId, liveMeeting, outGW)
+      }
     }
   }
 

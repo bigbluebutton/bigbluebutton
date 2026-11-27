@@ -46,6 +46,7 @@ const MEETING_SUBSCRIPTION = gql`
           cameraDockAspectRatio
           cameraDockIsResizing
           cameraDockPlacement
+          cameraPageSize
           cameraWithFocus
           currentLayoutType
           hideUsersWithoutCamera

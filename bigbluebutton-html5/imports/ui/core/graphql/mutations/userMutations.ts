@@ -120,6 +120,12 @@ export const SET_HIDE_USERS_WITHOUT_CAMERA = gql`
   }
 `;
 
+export const SET_CAMERA_PAGE_SIZE = gql`
+  mutation($cameraPageSize: Int!) {
+   meetingLayoutSetCameraPageSize(cameraPageSize: $cameraPageSize)
+  }
+`;
+
 export default {
   SET_CAMERA_PINNED,
   SET_RAISE_HAND,

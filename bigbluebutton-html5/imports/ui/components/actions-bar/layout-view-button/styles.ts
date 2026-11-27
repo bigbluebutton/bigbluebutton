@@ -38,6 +38,10 @@ const Header = styled.div`
 
 const Content = styled.div`
   padding: 1rem;
+
+  & + & {
+    border-top: 1px solid ${appsGalleryOutlineColor};
+  }
 `;
 
 export default {

@@ -11,6 +11,7 @@ select_permissions:
     permission:
       columns:
         - cameraDockAspectRatio
+        - cameraPageSize
         - cameraDockIsResizing
         - cameraDockPlacement
         - cameraWithFocus

@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.db
 
 import org.bigbluebutton.core.models.Layouts
-import org.bigbluebutton.core.models.Layouts.{getCameraDockIsResizing, getCameraPosition, getCurrentLayout, getFocusedCamera, getPresentationIsOpen, getPresentationVideoRate, getPushLayout, getScreenshareAsContent, getHideUsersWithoutCamera, setCurrentLayout}
+import org.bigbluebutton.core.models.Layouts.{getCameraDockIsResizing, getCameraPosition, getCurrentLayout, getFocusedCamera, getPresentationIsOpen, getPresentationVideoRate, getPushLayout, getScreenshareAsContent, getHideUsersWithoutCamera, getCameraPageSize, setCurrentLayout}
 import slick.jdbc.PostgresProfile.api._
 
 case class LayoutDbModel(
@@ -15,6 +15,7 @@ case class LayoutDbModel(
     propagateLayout:        Boolean,
     screenshareAsContent:   Boolean,
     hideUsersWithoutCamera: Boolean,
+    cameraPageSize:         Option[Int],
     setByUserId:            String,
     updatedAt:              java.sql.Timestamp,
 )
@@ -30,11 +31,12 @@ class LayoutDbTableDef(tag: Tag) extends Table[LayoutDbModel](tag, None, "layout
   val propagateLayout = column[Boolean]("propagateLayout")
   val screenshareAsContent = column[Boolean]("screenshareAsContent")
   val hideUsersWithoutCamera = column[Boolean]("hideUsersWithoutCamera")
+  val cameraPageSize = column[Option[Int]]("cameraPageSize")
   val setByUserId = column[String]("setByUserId")
   val updatedAt = column[java.sql.Timestamp]("updatedAt")
   override def * = (
     meetingId, currentLayoutType, presentationMinimized, cameraDockIsResizing, cameraDockPlacement,
-    cameraDockAspectRatio, cameraWithFocus, propagateLayout, screenshareAsContent, hideUsersWithoutCamera, setByUserId, updatedAt
+    cameraDockAspectRatio, cameraWithFocus, propagateLayout, screenshareAsContent, hideUsersWithoutCamera, cameraPageSize, setByUserId, updatedAt
   ) <> (LayoutDbModel.tupled, LayoutDbModel.unapply)
 }
 
@@ -61,6 +63,7 @@ object LayoutDAO {
           propagateLayout = getPushLayout(layout),
           screenshareAsContent = getScreenshareAsContent(layout),
           hideUsersWithoutCamera = getHideUsersWithoutCamera(layout),
+          cameraPageSize = getCameraPageSize(layout),
           setByUserId = Layouts.getLayoutSetter(layout),
           updatedAt = new java.sql.Timestamp(System.currentTimeMillis())
         )

@@ -646,6 +646,7 @@ class MeetingActor(
       case m: BroadcastPushLayoutMsg          => handleBroadcastPushLayoutMsg(m)
       case m: SetScreenshareAsContentReqMsg   => handleSetScreenshareAsContentReqMsg(m)
       case m: SetHideUsersWithoutCameraReqMsg => handleSetHideUsersWithoutCameraReqMsg(m)
+      case m: SetCameraPageSizeReqMsg         => handleSetCameraPageSizeReqMsg(m)
 
       // Pads
       case m: BNSharedNotesCreatedEvtMsg      => padsApp2x.handle(m, liveMeeting, msgBus)

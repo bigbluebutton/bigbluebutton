@@ -271,6 +271,12 @@ type Mutation {
 }
 
 type Mutation {
+  meetingLayoutSetCameraPageSize(
+    cameraPageSize: Int!
+  ): Boolean
+}
+
+type Mutation {
   meetingLayoutSetHideUsersWithoutCamera(
     hideUsersWithoutCamera: Boolean!
   ): Boolean
