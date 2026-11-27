@@ -1,9 +1,84 @@
-import { expect, type Locator } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 
 import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
+import { type ClientSettingsOverrides } from '../core/page';
 import { MultiUsers } from './multiusers';
 import { timeInSeconds } from './util';
+
+// the timer music is off by default (public.timer.music.enabled)
+export const TIMER_MUSIC_CLIENT_SETTINGS_OVERRIDE: ClientSettingsOverrides = {
+  public: { timer: { music: { enabled: true } } },
+};
+
+// The timer music is an Audio object outside the DOM, so the page records the last play/pause
+// call on it, every music element it played and how many times play() was called on each;
+// whether the browser lets the sound out (autoplay policy) does not matter here
+type TimerMusicWindow = Window & {
+  lastTimerMusicCall?: string;
+  timerMusicElements?: HTMLMediaElement[];
+  timerMusicPlayCalls?: WeakMap<HTMLMediaElement, number>;
+};
+
+async function trackTimerMusic(page: Page) {
+  await page.evaluate(() => {
+    const target = window as TimerMusicWindow;
+    target.timerMusicElements = [];
+    target.timerMusicPlayCalls = new WeakMap();
+    const { play, pause } = HTMLMediaElement.prototype;
+    const isMusic = (media: HTMLMediaElement) =>
+      media.src.includes('/resources/sounds/') && !media.src.endsWith('/alarm.mp3');
+    HTMLMediaElement.prototype.play = function trackedPlay(this: HTMLMediaElement) {
+      if (isMusic(this)) {
+        target.lastTimerMusicCall = 'play';
+        if (!target.timerMusicElements!.includes(this)) target.timerMusicElements!.push(this);
+        target.timerMusicPlayCalls!.set(this, (target.timerMusicPlayCalls!.get(this) ?? 0) + 1);
+      }
+      return play.call(this);
+    };
+    HTMLMediaElement.prototype.pause = function trackedPause(this: HTMLMediaElement) {
+      if (isMusic(this)) target.lastTimerMusicCall = 'pause';
+      return pause.call(this);
+    };
+  });
+}
+
+function lastTimerMusicCall(page: Page) {
+  return page.evaluate(() => (window as TimerMusicWindow).lastTimerMusicCall);
+}
+
+// Moves the last music element the page played to `secondsBeforeEnd` before the end of the track,
+// where the gapless loop restarts it, waits a second and reports what the loop did meanwhile
+async function seekTimerMusicNearEnd(page: Page, secondsBeforeEnd: number) {
+  const playCallsBefore = await page.evaluate(async (offset) => {
+    const target = window as TimerMusicWindow;
+    const audio = target.timerMusicElements![target.timerMusicElements!.length - 1];
+    if (audio.readyState < HTMLMediaElement.HAVE_METADATA) {
+      await new Promise((resolve) => {
+        audio.addEventListener('loadedmetadata', resolve, { once: true });
+      });
+    }
+    // counted before the seek: the loop runs on the timeupdate that the seek fires before 'seeked'
+    const playCalls = target.timerMusicPlayCalls!.get(audio) ?? 0;
+    const seeked = new Promise((resolve) => {
+      audio.addEventListener('seeked', resolve, { once: true });
+    });
+    audio.currentTime = audio.duration - offset;
+    await seeked;
+    return playCalls;
+  }, secondsBeforeEnd);
+  await page.waitForTimeout(1000);
+  return page.evaluate((before) => {
+    const target = window as TimerMusicWindow;
+    const audio = target.timerMusicElements![target.timerMusicElements!.length - 1];
+    return {
+      newPlayCalls: (target.timerMusicPlayCalls!.get(audio) ?? 0) - before,
+      paused: audio.paused,
+      currentTime: audio.currentTime,
+      duration: audio.duration,
+    };
+  }, playCallsBefore);
+}
 
 export class Timer extends MultiUsers {
   async stopwatchTest() {
@@ -256,6 +331,97 @@ export class Timer extends MultiUsers {
     await this.userPage.waitAndClick(e.startStopTimer);
     await expect(participant.locator(e.startStopTimer)).toHaveText('Stop');
     expect(pageErrors, 'role changes should not cause uncaught timer errors').toEqual([]);
+  }
+
+  // https://github.com/bigbluebutton/bigbluebutton/issues/26709
+  async timerMusicMuteTest() {
+    await this.userPage.waitForSelector(e.whiteboard);
+    await Promise.all([this.modPage, this.userPage].map((testPage) => trackTimerMusic(testPage.page)));
+    await this.openTimerAndStopwatch();
+    const modSwitch = this.modPage.page.locator(e.timerMusicSwitch);
+    const muteButton = this.userPage.page.locator(e.timerMusicMuteButton);
+    const userIndicatorLocator = this.userPage.page.locator(e.timerIndicator);
+
+    await this.modPage.waitAndClick(e.timerMusicSwitch);
+    await expect(modSwitch, 'should turn the timer music on').toBeChecked();
+    await this.userPage.wasRemoved(
+      e.timerMusicMuteButton,
+      'should not display the mute button while the timer is stopped',
+    );
+
+    await this.clickOnTimerControl();
+    await this.userPage.hasElement(e.timerMusicMuteButton, 'should display the mute button while the music plays');
+    await expect(muteButton, 'should start with the music not muted').toHaveAttribute('aria-pressed', 'false');
+    await expect
+      .poll(() => lastTimerMusicCall(this.userPage.page), { message: 'should play the music for the attendee' })
+      .toBe('play');
+
+    // the attendee mutes the music with the keyboard, and the timer keeps running
+    await muteButton.focus();
+    await this.userPage.page.keyboard.press('Enter');
+    await expect(muteButton, 'should mark the button as pressed once muted').toHaveAttribute('aria-pressed', 'true');
+    await expect
+      .poll(() => lastTimerMusicCall(this.userPage.page), { message: 'should pause the music for the attendee' })
+      .toBe('pause');
+    expect(await lastTimerMusicCall(this.modPage.page), 'should keep the music playing for the moderator').toBe('play');
+    // the loop must not restart the music of an attendee who muted it, even near the end of the track
+    const mutedNearEnd = await seekTimerMusicNearEnd(this.userPage.page, 0.05);
+    await expect
+      .soft(muteButton, 'should keep the button pressed near the end of the track')
+      .toHaveAttribute('aria-pressed', 'true');
+    expect.soft(mutedNearEnd.newPlayCalls, 'should not restart the muted music at the end of the track').toBe(0);
+    expect
+      .soft(await lastTimerMusicCall(this.userPage.page), 'should leave the muted music paused at the end of the track')
+      .toBe('pause');
+    expect.soft(mutedNearEnd.paused, 'should keep the muted music element paused').toBe(true);
+
+    const mutedValue = await timeInSeconds(userIndicatorLocator);
+    await expect
+      .poll(() => timeInSeconds(userIndicatorLocator), { message: 'should keep the timer running while muted' })
+      .toBeLessThan(mutedValue);
+
+    // the moderator turns the music off and on while the timer runs
+    await this.modPage.hasElementEnabled(
+      e.timerMusicSwitch,
+      'should let the moderator change the music while the timer runs',
+    );
+    await this.modPage.waitAndClick(e.timerMusicSwitch);
+    await expect(modSwitch, 'should turn the timer music off while the timer runs').not.toBeChecked();
+    await expect
+      .poll(() => lastTimerMusicCall(this.modPage.page), { message: 'should stop the music for the moderator' })
+      .toBe('pause');
+    await this.userPage.wasRemoved(e.timerMusicMuteButton, 'should remove the mute button once the music is off');
+    // the loop must not restart the retired track (a position other than the one the mute check left it at)
+    await expect
+      .poll(() => lastTimerMusicCall(this.userPage.page), {
+        message: 'should pause the retired track for the attendee',
+      })
+      .toBe('pause');
+    const retiredNearEnd = await seekTimerMusicNearEnd(this.userPage.page, 0.1);
+    expect(retiredNearEnd.newPlayCalls, 'should not restart the music after it was turned off').toBe(0);
+    expect(retiredNearEnd.paused, 'should keep the music element paused after it was turned off').toBe(true);
+
+    await this.modPage.waitAndClick(e.timerMusicSwitch);
+    await expect(modSwitch, 'should turn the timer music on again while the timer runs').toBeChecked();
+    await expect
+      .poll(() => lastTimerMusicCall(this.modPage.page), { message: 'should resume the music for the moderator' })
+      .toBe('play');
+    await expect(muteButton, 'should keep the music muted for the attendee').toHaveAttribute('aria-pressed', 'true');
+    expect(
+      await lastTimerMusicCall(this.userPage.page),
+      'should not resume the music for the attendee who muted it',
+    ).toBe('pause');
+
+    // the attendee unmutes it
+    await muteButton.focus();
+    await this.userPage.page.keyboard.press('Space');
+    await expect(muteButton, 'should mark the button as not pressed once unmuted').toHaveAttribute(
+      'aria-pressed',
+      'false',
+    );
+    await expect
+      .poll(() => lastTimerMusicCall(this.userPage.page), { message: 'should resume the music for the attendee' })
+      .toBe('play');
   }
 
   async openTimerAndStopwatch() {

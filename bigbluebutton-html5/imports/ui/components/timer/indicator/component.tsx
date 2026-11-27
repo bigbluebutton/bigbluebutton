@@ -1,5 +1,8 @@
 import { useMutation } from '@apollo/client';
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback, useEffect, useRef, useState,
+} from 'react';
+import { defineMessages, useIntl } from 'react-intl';
 import cx from 'classnames';
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
@@ -10,6 +13,15 @@ import { Input } from '../../layout/layoutTypes';
 import { TIMER_START, TIMER_STOP } from '../mutations';
 import useTimer from '/imports/ui/core/hooks/useTimer';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
+import TooltipContainer from '/imports/ui/components/common/tooltip/container';
+import logger from '/imports/startup/client/logger';
+
+const intlMessages = defineMessages({
+  muteMusic: {
+    id: 'app.timer.muteMusic',
+    description: 'Label of the button that mutes the timer music for the current user only',
+  },
+});
 
 interface TimerIndicatorProps {
   timePassed: number;
@@ -37,8 +49,12 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   const alreadyNotified = useRef<boolean>(false);
   const [startTimerMutation] = useMutation(TIMER_START);
   const [stopTimerMutation] = useMutation(TIMER_STOP);
-  const [songTrackState, setSongTrackState] = useState<string>(songTrack);
+  // Each participant can silence the music on their own device; nothing is sent to the server
+  const [musicMuted, setMusicMuted] = useState<boolean>(false);
+  // Whether the current track should be heard on this device right now; read by the loop below
+  const musicShouldPlay = useRef<boolean>(false);
   const prevElapsed = usePreviousValue<boolean | undefined>(elapsed);
+  const intl = useIntl();
 
   const CDN = window.meetingClientSettings.public.app.cdn;
   const BASENAME = window.meetingClientSettings.public.app.basename;
@@ -48,6 +64,9 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
 
   type ObjectKey = keyof typeof trackName;
 
+  const hasMusicTrack = songTrack !== 'noTrack' && songTrack in trackName;
+  const isMusicPlaying = running && hasMusicTrack;
+
   const startTimer = () => {
     startTimerMutation();
   };
@@ -56,30 +75,52 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
     stopTimerMutation();
   };
 
+  const toggleMusicMuted = useCallback(() => {
+    setMusicMuted((muted) => !muted);
+  }, []);
+
   useEffect(() => {
-    if (songTrackState !== songTrack) {
-      if (music.current) music.current.pause();
+    if (!hasMusicTrack) {
+      music.current = undefined;
+      return undefined;
     }
-    if (songTrack in trackName) {
-      music.current = new Audio(`${HOST}/resources/sounds/${trackName[songTrack as ObjectKey]}.mp3`);
-      music.current.volume = MUSIC_VOLUME;
-      setSongTrackState(songTrack);
-      music.current.addEventListener('timeupdate', () => {
-        const buffer = 0.19;
-        // Start playing the music before it ends to make the loop gapless
-        if (!music.current) return null;
-        if (music.current.currentTime > music.current.duration - buffer) {
-          music.current.currentTime = 0;
-          music.current.play();
-        }
-        return null;
-      });
-    }
+    const audio = new Audio(`${HOST}/resources/sounds/${trackName[songTrack as ObjectKey]}.mp3`);
+    audio.volume = MUSIC_VOLUME;
+    const loopMusic = () => {
+      // pause() queues one more timeupdate, so a muted, stopped or replaced track must not restart here
+      if (music.current !== audio || !musicShouldPlay.current) return;
+      const buffer = 0.19;
+      // Start playing the music before it ends to make the loop gapless
+      if (audio.currentTime > audio.duration - buffer) {
+        audio.currentTime = 0;
+        audio.play();
+      }
+    };
+    audio.addEventListener('timeupdate', loopMusic);
+    music.current = audio;
 
     return () => {
-      if (music.current) music.current.pause();
+      audio.removeEventListener('timeupdate', loopMusic);
+      audio.pause();
+      if (music.current === audio) music.current = undefined;
     };
   }, [songTrack]);
+
+  // Declared after the effect above, so a track change mid-run creates the new track before it plays
+  useEffect(() => {
+    musicShouldPlay.current = isMusicPlaying && !musicMuted;
+    if (!music.current) return;
+    if (musicShouldPlay.current) {
+      music.current.play().catch((error) => {
+        logger.warn({
+          logCode: 'timer_music_play_failed',
+          extraInfo: { errorName: error?.name, errorMessage: error?.message },
+        }, `Timer music could not be played: ${error?.message}`);
+      });
+    } else {
+      music.current.pause();
+    }
+  }, [isMusicPlaying, musicMuted, songTrack]);
 
   useEffect(() => {
     alarm.current = new Audio(`${HOST}/resources/sounds/alarm.mp3`);
@@ -100,21 +141,17 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
 
   useEffect(() => {
     if (!timeRef.current) {
+      musicShouldPlay.current = false;
       if (music.current) music.current.pause();
       if (alarm.current) alarm.current.pause();
     }
   }, [timePassed]);
 
   useEffect(() => {
-    if (running && songTrack !== 'noTrack') {
-      if (music.current) music.current.play();
-    } else if (!running || songTrack === 'noTrack') {
-      if (music.current) music.current.pause();
-    }
     if (running && alreadyNotified.current) {
       alreadyNotified.current = false;
     }
-  }, [running, songTrackState]);
+  }, [running]);
 
   const onClick = running ? stopTimer : startTimer;
 
@@ -145,6 +182,20 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
             </Styled.TimerTime>
           </Styled.TimerContent>
         </Styled.TimerButton>
+        {isMusicPlaying && (
+          <TooltipContainer title={intl.formatMessage(intlMessages.muteMusic)}>
+            <Styled.MusicMuteButton
+              type="button"
+              aria-pressed={musicMuted}
+              aria-label={intl.formatMessage(intlMessages.muteMusic)}
+              onClick={toggleMusicMuted}
+              className="bbb-timer-indicator__music-mute-button"
+              data-test="timerMusicMuteButton"
+            >
+              <Icon iconName={musicMuted ? 'no_audio' : 'volume_level_2'} />
+            </Styled.MusicMuteButton>
+          </TooltipContainer>
+        )}
       </Styled.Timer>
     </Styled.TimerWrapper>
   );

@@ -34,6 +34,8 @@ Moderators and viewers can now search the user list in real time. The search sup
 
 The timer received a new design and an improved input experience, including one-click **presets** and **quick-add buttons**. The available values are configurable in `settings.yml` (`public.timer.presets`, `public.timer.quickAddButtons`, `public.timer.maxHours`).
 
+When timer music is enabled (`public.timer.music.enabled`, off by default), each participant can mute it for themselves with the speaker button next to the timer indicator, while the timer keeps running. The moderator can also turn the music on or off, or change the track, while the timer runs.
+
 #### Redesigned guest management panel
 
 Guest management now lives in a dedicated panel integrated with the user list. Moderators approving or denying guests in the waiting panel can use a new **"Remember Choice"** option to apply the same decision to subsequent join requests. The input for messaging the waiting room now gives visual send-state feedback so moderators can tell their message was delivered.
