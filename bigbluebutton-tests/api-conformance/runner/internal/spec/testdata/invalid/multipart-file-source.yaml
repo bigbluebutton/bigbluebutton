@@ -1,0 +1,13 @@
+# want: 12: steps[0].body.multipart.files[0]
+# want: 13: steps[0].body.multipart.files[1].size
+id: putRecordingTextTrack.x.y
+title: t
+endpoint: putRecordingTextTrack
+class: contract
+steps:
+  - call: putRecordingTextTrack
+    body:
+      multipart:
+        files:
+          - {field: file, path: captions/sample.vtt, size: 10}
+          - {field: big, size: 67108865}

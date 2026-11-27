@@ -1142,7 +1142,7 @@ starting with `_`, which the sink keeps for itself.
 
 ```yaml
 - call: join                         # or route: + pathParams:, or url:
-  method: GET                        # GET (default), POST, PUT, DELETE, HEAD
+  method: GET                        # GET (default), POST, PUT, DELETE, HEAD, OPTIONS
   sign: sha256                       # see Signing
   params: {meetingID: "${uid}", fullName: Ann, role: moderator}
   headers: {Accept: null, X-Forwarded-For: 203.0.113.7}
@@ -1210,7 +1210,7 @@ Exactly one of:
 | `form` | `application/x-www-form-urlencoded`. |
 | `json` | Any YAML value as JSON, with its strings templated. |
 | `raw` | The string, with no Content-Type unless `contentType` sets one. |
-| `multipart` | `{fields, files: [{field, path \| content, filename, contentType}]}`; `path` is under `fixtures/`. |
+| `multipart` | `{fields, files: [{field, path \| content \| size, filename, contentType}]}`; `path` is under `fixtures/`; `size: N` sends N filler bytes, for a size no fixture should have (up to 64 MiB). |
 
 Plus `contentType` (overrides the default) and `chunked: true` (no
 Content-Length). Set Content-Type either here or in `headers`, not both.

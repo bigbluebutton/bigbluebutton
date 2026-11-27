@@ -767,6 +767,11 @@ func (d *decoder) multipart(n *yaml.Node) *Multipart {
 			if c := mapGet(fn, "content"); c != nil {
 				file.Content, file.HasContent = d.str(c), true
 			}
+			if v := mapGet(fn, "size"); v != nil {
+				// As YAML reads it (30_000_001 too); the schema checked it is an
+				// integer in range.
+				file.HasSize = v.Decode(&file.Size) == nil
+			}
 			if v := mapGet(fn, "filename"); v != nil {
 				file.Filename = d.str(v)
 			}
