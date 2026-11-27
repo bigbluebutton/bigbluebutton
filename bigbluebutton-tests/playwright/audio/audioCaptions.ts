@@ -117,6 +117,72 @@ export async function shimSpeechSynthesisVoices(page: PlaywrightPage, langs: str
   }, langs);
 }
 
+// Whether a graphql message sets speechLocale to `locale`, as a whole row or as a patch.
+function setsSpeechLocale(node: unknown, locale: string): boolean {
+  if (!node || typeof node !== 'object') return false;
+  const fields = node as Record<string, unknown>;
+  if (fields.speechLocale === locale) return true;
+  if (typeof fields.path === 'string' && fields.path.endsWith('/speechLocale') && fields.value === locale) return true;
+  return Object.values(fields).some((value) => setsSpeechLocale(value, locale));
+}
+
+// Makes the configured language reach the page only after the user has chosen another one, as
+// on a slow server: the current user's updates are held back from when the client sends the
+// configured language until the user chooses, and the choice is held back until the server has
+// published the configured language, so the server takes them in that order. `delivered`
+// resolves once both have gone through. Call before initModPage().
+export async function deliverDefaultLocaleAfterChoice(
+  page: PlaywrightPage,
+  defaultLocale: string,
+): Promise<{ delivered: Promise<void> }> {
+  let markDelivered = () => {};
+  const delivered = new Promise<void>((resolve) => {
+    markDelivered = resolve;
+  });
+  await page.routeWebSocket(/\/graphql$/, (pageSide) => {
+    const serverSide = pageSide.connectToServer();
+    const currentUserIds = new Set<string>();
+    let defaultPublished = false;
+    let choice: string | undefined;
+    let held: string[] | undefined;
+    const release = () => {
+      if (!defaultPublished || choice === undefined || !held) return;
+      serverSide.send(choice);
+      held.forEach((message) => pageSide.send(message));
+      held = undefined;
+      markDelivered();
+    };
+    pageSide.onMessage((message) => {
+      const locale =
+        typeof message === 'string' &&
+        message.includes('SetSpeechLocale') &&
+        JSON.parse(message).payload?.variables?.locale;
+      if (locale === defaultLocale && !defaultPublished && !held) {
+        held = [];
+      } else if (typeof locale === 'string' && held) {
+        choice = message as string;
+        release();
+        return;
+      }
+      serverSide.send(message);
+    });
+    serverSide.onMessage((message) => {
+      const { id, payload } = typeof message === 'string' ? JSON.parse(message) : {};
+      if (payload?.data?.user_current) currentUserIds.add(id);
+      if (!held || !currentUserIds.has(id)) {
+        pageSide.send(message);
+        return;
+      }
+      held.push(message as string);
+      if (setsSpeechLocale(payload, defaultLocale)) {
+        defaultPublished = true;
+        release();
+      }
+    });
+  });
+  return { delivered };
+}
+
 export class AudioCaptions extends MultiUsers {
   // The device settings step of the audio modal, where the "Automatic transcription" select is.
   async openAudioSettings(): Promise<void> {

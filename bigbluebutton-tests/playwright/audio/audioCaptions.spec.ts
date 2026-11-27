@@ -5,6 +5,7 @@ import { test } from '../core/setup/fixtures';
 import {
   AudioCaptions,
   audioCaptionsOverrides,
+  deliverDefaultLocaleAfterChoice,
   shimSpeechRecognition,
   shimSpeechSynthesisVoices,
 } from './audioCaptions';
@@ -236,6 +237,34 @@ test.describe("Audio captions - on-device transcription (speechProcessing 'local
     await audioCaptions.openAudioSettings();
     // Right after choosing, before the user's speechLocale comes back from the server
     await modPage.page.selectOption(e.speechRecognition, '');
+    await modPage.waitAndClick(e.joinEchoTestButton);
+    await modPage.hasElement(e.unmuteMicButton, 'should join audio without downloading anything');
+    expect((await audioCaptions.getSpeechRecognitionShimRecord()).installs, 'should not download').toEqual([]);
+  });
+
+  test('joins audio without downloading when the configured locale reaches the user after transcription is disabled', async ({
+    browser,
+    browserName,
+    context,
+    page,
+  }, testInfo) => {
+    test.skip(browserName === 'firefox', NO_WEBSPEECH);
+    await shimSpeechSynthesisVoices(page, VOICES);
+    await shimSpeechRecognition(page, { ...AVAILABILITY, 'en-US': 'downloadable' });
+    const lateDefault = await deliverDefaultLocaleAfterChoice(page, 'en-US');
+    const audioCaptions = new AudioCaptions(browser, context);
+    await audioCaptions.initModPage(page, {
+      testInfo,
+      shouldCloseAudioModal: false,
+      clientSettingsOverrides: audioCaptionsOverrides('en-US', true, 'local'),
+    });
+    const { modPage } = audioCaptions;
+
+    await audioCaptions.openAudioSettings();
+    await modPage.page.selectOption(e.speechRecognition, '');
+    await lateDefault.delivered;
+    // the select shows the user's speechLocale, so this is the configured locale arriving
+    await expect(modPage.page.locator(e.speechRecognition)).toHaveValue('en-US');
     await modPage.waitAndClick(e.joinEchoTestButton);
     await modPage.hasElement(e.unmuteMicButton, 'should join audio without downloading anything');
     expect((await audioCaptions.getSpeechRecognitionShimRecord()).installs, 'should not download').toEqual([]);
