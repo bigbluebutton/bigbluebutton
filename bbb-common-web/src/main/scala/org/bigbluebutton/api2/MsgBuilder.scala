@@ -4,6 +4,7 @@ import org.bigbluebutton.api.messaging.converters.messages._
 import org.bigbluebutton.api.messaging.messages.{ ChatMessageFromApi, RegisterUserSessionToken }
 import org.bigbluebutton.api.service.ServiceUtils
 import org.bigbluebutton.api2.meeting.RegisterUser
+import org.bigbluebutton.api2.util.SpeakerNotesJsonReader
 import org.bigbluebutton.common2.domain.{ DefaultProps, PageVO, PresentationPageConvertedVO, PresentationVO }
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.presentation.messages._
@@ -127,10 +128,33 @@ object MsgBuilder {
         logger.warn(s"SVG dimensions unresolved from probe (width/height/viewBox absent or unparseable); using defaults ${width.toInt}x${height.toInt} for $pageAbsoluteSvgPath")
     }
 
-    val content = Try {
-      val maxChars: Int = 1024 * 1024 // limit ~1 MB to avoid OOM
-      val pageAbsoluteTxtPath = presParentPath + "/textfiles/slide-" + page.toString + ".txt"
-      Using(Source.fromFile(pageAbsoluteTxtPath, StandardCharsets.UTF_8.name())) { source =>
+    val content = readPageTextFile(presParentPath + "/textfiles/slide-" + page.toString + ".txt")
+    val speakerNotes = readPageTextFile(presParentPath + "/speakernotes/slide-" + page.toString + ".txt")
+    val speakerNotesJson = SpeakerNotesJsonReader.readValidJson(
+      Paths.get(presParentPath, "speakernotes", s"slide-$page.json")
+    ).getOrElse("")
+    val slideTitle = readPageTextFile(presParentPath + "/speakernotes/slide-" + page.toString + ".title.txt")
+
+    PresentationPageConvertedVO(
+      id = s"$presId/$page",
+      num = page,
+      urls = urls,
+      content = content,
+      speakerNotes = speakerNotes,
+      speakerNotesJson = speakerNotesJson,
+      slideTitle = slideTitle,
+      current = page == 1,
+      width = width,
+      height = height,
+      pageToken = pageToken
+    )
+  }
+
+  /** Reads a per-page UTF-8 text file, capped at ~1 MB to avoid OOM; a missing or unreadable file yields "". */
+  private def readPageTextFile(path: String): String = {
+    Try {
+      val maxChars: Int = 1024 * 1024
+      Using(Source.fromFile(path, StandardCharsets.UTF_8.name())) { source =>
         val buffer = new StringBuilder
         val iter = source.iter
         var count = 0
@@ -141,17 +165,6 @@ object MsgBuilder {
         buffer.toString()
       }.get
     }.getOrElse("")
-
-    PresentationPageConvertedVO(
-      id = s"$presId/$page",
-      num = page,
-      urls = urls,
-      content = content,
-      current = page == 1,
-      width = width,
-      height = height,
-      pageToken = pageToken
-    )
   }
 
   def buildPresentationPageConvertedSysMsg(msg: DocPageGeneratedProgress, pageTokenSecret: String = ""): BbbCommonEnvCoreMsg = {

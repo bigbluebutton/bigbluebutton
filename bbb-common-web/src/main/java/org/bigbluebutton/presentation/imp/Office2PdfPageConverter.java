@@ -40,7 +40,11 @@ import static org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlin
 public abstract class Office2PdfPageConverter {
   private static Logger log = LoggerFactory.getLogger(Office2PdfPageConverter.class);
 
-  public static boolean convert(File presentationFile, File output, int page, UploadedPresentation pres,
+  /*
+   * speakerNotesDirectory: where the conversion script saves the speaker notes
+   * of each visible slide (slide-N.txt), or null to skip them.
+   */
+  public static boolean convert(File presentationFile, File output, File speakerNotesDirectory, UploadedPresentation pres,
                          String presOfficeConversionExec, int conversionTimeout) {
 
     try {
@@ -61,8 +65,11 @@ public abstract class Office2PdfPageConverter {
 
       log.info(String.format("Calling conversion script %s.", presOfficeConversionExec));
 
-      NuProcessBuilder officeConverterExec = new NuProcessBuilder(Arrays.asList("timeout", conversionTimeout + "s", "/bin/sh", "-c",
-              "\""+presOfficeConversionExec + "\" \"" + presentationFile.getAbsolutePath() + "\" \"" + output.getAbsolutePath()+"\" pdf " + conversionTimeout));
+      String conversionCommand = "\""+presOfficeConversionExec + "\" \"" + presentationFile.getAbsolutePath() + "\" \"" + output.getAbsolutePath()+"\" pdf " + conversionTimeout;
+      if (speakerNotesDirectory != null) {
+        conversionCommand += " \"" + speakerNotesDirectory.getAbsolutePath() + "\"";
+      }
+      NuProcessBuilder officeConverterExec = new NuProcessBuilder(Arrays.asList("timeout", conversionTimeout + "s", "/bin/sh", "-c", conversionCommand));
       Office2PdfConverterHandler office2PdfConverterHandler  = new Office2PdfConverterHandler("office2pdf-" + pres.getMeetingId() + "-" + pres.getId());
       officeConverterExec.setProcessListener(office2PdfConverterHandler);
 

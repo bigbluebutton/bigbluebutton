@@ -47,6 +47,7 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
   private OfficeToPdfConversionService officeToPdfConversionService;
   private SlidesGenerationProgressNotifier notifier;
   private long maxPageConversionTime = 60L;
+  private boolean extractPresentationSpeakerNotes = true;
 
   private PresentationFileProcessor presentationFileProcessor;
 
@@ -113,6 +114,7 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
       String fileType = pres.getFileType();
 
       if (SupportedFileTypes.isOfficeFile(fileType)) {
+        pres.setExtractSpeakerNotes(extractPresentationSpeakerNotes && SupportedFileTypes.isPresentationFile(fileType));
         pres = officeToPdfConversionService.convertOfficeToPdf(pres);
         OfficeToPdfConversionSuccessFilter ocsf = new OfficeToPdfConversionSuccessFilter(gw);
         if (ocsf.didConversionSucceed(pres)) {
@@ -249,5 +251,9 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
 
   public void setMaxPageConversionTime(long maxPageConversionTime) {
     this.maxPageConversionTime = maxPageConversionTime;
+  }
+
+  public void setExtractPresentationSpeakerNotes(boolean extractPresentationSpeakerNotes) {
+    this.extractPresentationSpeakerNotes = extractPresentationSpeakerNotes;
   }
 }

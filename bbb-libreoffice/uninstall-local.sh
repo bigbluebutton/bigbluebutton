@@ -19,6 +19,8 @@ if [ "$FOLDER_CHECK" = "1" ]; then
 	rm -rf /usr/share/bbb-libreoffice-conversion/
 fi;
 
+rm -rf /usr/share/bbb-libreoffice/speaker-notes
+
 FILE_SUDOERS_CHECK=`[ -f /etc/sudoers.d/zzz-bbb-docker-libreoffice ] && echo 1 || echo 0`
 if [ "$FILE_SUDOERS_CHECK" = "1" ]; then
 	echo "Removing Sudoers file"

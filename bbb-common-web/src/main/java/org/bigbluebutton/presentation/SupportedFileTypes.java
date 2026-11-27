@@ -54,6 +54,15 @@ public final class SupportedFileTypes {
 		}
 	});
 	
+	private static final List<String> PRESENTATION_FILE_LIST = List.of(PPT, PPTX, ODP);
+
+	/*
+	 * Returns if the Office file is a slide presentation, the only type with speaker notes.
+	 */
+	public static boolean isPresentationFile(String fileExtension) {
+		return PRESENTATION_FILE_LIST.contains(fileExtension.toLowerCase());
+	}
+
 	/*
 	 * Returns if the Office file is supported.
 	 */

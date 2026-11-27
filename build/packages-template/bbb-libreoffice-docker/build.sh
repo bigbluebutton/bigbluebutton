@@ -31,6 +31,10 @@ chmod +x staging/usr/share/bbb-libreoffice-conversion/convert-remote.sh
 
 cp -r docker staging/usr/share/bbb-libreoffice
 
+# Mounted read-only into the LibreOffice container by convert-local.sh to save speaker notes
+mkdir -p staging/usr/share/bbb-libreoffice/speaker-notes
+install -m 0644 speaker-notes/speaker-notes.py speaker-notes/convert-with-speaker-notes.sh staging/usr/share/bbb-libreoffice/speaker-notes/
+
 ##
 
 . ./opts-$DISTRO.sh

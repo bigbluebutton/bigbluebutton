@@ -198,6 +198,11 @@ object PresPresentationDAO {
               num = page._2.num,
               urlsJson = page._2.urls.toJson,
               content = page._2.content,
+              speakerNotes = PresPageSpeakerNotesDbModel(
+                speakerNotes = page._2.speakerNotes,
+                speakerNotesJson = scala.util.Try(page._2.speakerNotesJson.parseJson).toOption,
+                slideTitle = page._2.slideTitle
+              ),
               slideRevealed = page._2.current,
               current = page._2.current,
               xOffset = page._2.xOffset,

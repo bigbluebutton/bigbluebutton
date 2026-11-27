@@ -103,6 +103,7 @@ public class PresentationFileProcessor {
             if (!isNumberOfPagesOk) {
                 return;
             }
+            discardSpeakerNotesIfPageCountDiffers(pres);
         } else if (SupportedFileTypes.isImageFile(pres.getFileType())) {
             pres.setNumberOfPages(1);
         }
@@ -114,6 +115,17 @@ public class PresentationFileProcessor {
                 pres.getTemporaryPresentationId(), maxConversionTime, pres.getMeetingId(), pres.getAuthzToken());
         notifier.sendDocConversionProgress(started);
 
+    }
+
+    // Notes are matched to PDF pages by position, so a partial set would be shown on the wrong slides.
+    private void discardSpeakerNotesIfPageCountDiffers(UploadedPresentation pres) {
+        File speakerNotesDir = new File(pres.getUploadedFile().getParentFile(), OfficeToPdfConversionService.SPEAKER_NOTES_DIRECTORY);
+        File[] noteFiles = speakerNotesDir.listFiles((dir, name) -> name.matches("slide-\\d+\\.txt"));
+        if (noteFiles != null && noteFiles.length != pres.getNumberOfPages()) {
+            log.warn("Discarding speaker notes for meetingId={} presId={}: {} note files do not match PDF page count {}",
+                    pres.getMeetingId(), pres.getId(), noteFiles.length, pres.getNumberOfPages());
+            org.bigbluebutton.presentation.Util.deleteDirectory(speakerNotesDir);
+        }
     }
 
     private void processMakePresentationDownloadableMsg(UploadedPresentation pres) {

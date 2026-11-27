@@ -151,7 +151,9 @@ const DtfCss = `
   [data-test="selectDefaultBackground"],
   [data-test="selectCustomBackground"],
   [data-test="noneBackgroundButton"],
-  [data-test="inputBackgroundButton"]
+  [data-test="inputBackgroundButton"],
+  [data-ignore-dark-theme-inline],
+  [data-ignore-dark-theme-inline] *
 `;
 
 const DtfAvatars = `

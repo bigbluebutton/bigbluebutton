@@ -7,12 +7,20 @@ import spray.json._
 import scala.util.{Success, Failure}
 import scala.concurrent.ExecutionContext
 
+// Kept as one nested value so the page row stays within Slick's 22-element tuple limit.
+case class PresPageSpeakerNotesDbModel(
+    speakerNotes:     String,
+    speakerNotesJson: Option[JsValue],
+    slideTitle:       String
+)
+
 case class PresPageDbModel(
     pageId:          String,
     presentationId:  String,
     num:             Int,
     urlsJson:        JsValue,
     content:         String,
+    speakerNotes:    PresPageSpeakerNotesDbModel,
     slideRevealed:   Boolean,
     current:         Boolean,
     xOffset:         Double,
@@ -37,6 +45,9 @@ class PresPageDbTableDef(tag: Tag) extends Table[PresPageDbModel](tag, None, "pr
   val num = column[Int]("num")
   val urlsJson = column[JsValue]("urlsJson")
   val content = column[String]("content")
+  val speakerNotes = column[String]("speakerNotes")
+  val speakerNotesJson = column[Option[JsValue]]("speakerNotesJson")
+  val slideTitle = column[String]("slideTitle")
   val slideRevealed = column[Boolean]("slideRevealed")
   val current = column[Boolean]("current")
   val xOffset = column[Double]("xOffset")
@@ -53,8 +64,10 @@ class PresPageDbTableDef(tag: Tag) extends Table[PresPageDbModel](tag, None, "pr
   val infiniteWhiteboard = column[Boolean]("infiniteWhiteboard")
   val fitToWidth = column[Boolean]("fitToWidth")
 
+  def speakerNotesProjection = (speakerNotes, speakerNotesJson, slideTitle) <> (PresPageSpeakerNotesDbModel.tupled, PresPageSpeakerNotesDbModel.unapply)
+
   def * = (
-    pageId, presentationId, num, urlsJson, content, slideRevealed, current, xOffset, yOffset, widthRatio, heightRatio, width, height, viewBoxWidth, viewBoxHeight, maxImageWidth, maxImageHeight, uploadCompleted, infiniteWhiteboard, fitToWidth
+    pageId, presentationId, num, urlsJson, content, speakerNotesProjection, slideRevealed, current, xOffset, yOffset, widthRatio, heightRatio, width, height, viewBoxWidth, viewBoxHeight, maxImageWidth, maxImageHeight, uploadCompleted, infiniteWhiteboard, fitToWidth
   ) <> (PresPageDbModel.tupled, PresPageDbModel.unapply)
 }
 
@@ -76,6 +89,11 @@ object PresPageDAO {
           num = page.num,
           urlsJson = page.urls.toJson,
           content = page.content,
+          speakerNotes = PresPageSpeakerNotesDbModel(
+            speakerNotes = page.speakerNotes,
+            speakerNotesJson = scala.util.Try(page.speakerNotesJson.parseJson).toOption,
+            slideTitle = page.slideTitle
+          ),
           slideRevealed = page.current,
           current = page.current,
           xOffset = page.xOffset,

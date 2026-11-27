@@ -1402,6 +1402,30 @@ Then copy the font (.ttf) to `/usr/share/fonts/`
 
 That's all! The font will be available on next presentations.
 
+#### Disable the extraction of presentation speaker notes
+
+When a PowerPoint (`.ppt`, `.pptx`) or OpenDocument (`.odp`) presentation is converted to PDF, the same LibreOffice run that creates the PDF also saves the speaker notes of each visible slide as a UTF-8 file under `speakernotes/slide-N.txt` in the presentation directory. `N` is the corresponding page number in the converted PDF. Hidden slides are skipped, and the notes are discarded if their number differs from the number of PDF pages. A failure to save notes does not prevent presentation conversion. Reading the notes stops at half of the conversion timeout (`officeToPdfConversionTimeout`, 60 seconds by default): when a presentation has more notes than can be read in that time, its notes are dropped and the PDF is still delivered within the timeout.
+
+Speaker notes require the default local LibreOffice conversion (`/usr/share/bbb-libreoffice-conversion/convert-local.sh`). The remote conversion scripts (`convert-remote.sh`, `convert-cool.sh`) only create the PDF, so presentations converted with them have no speaker notes. The local conversion reads the notes with two scripts that the `bbb-libreoffice-docker` package installs in `/usr/share/bbb-libreoffice/speaker-notes/`, owned by root; they are mounted read-only into the LibreOffice container, so the image itself only needs LibreOffice. That run is allowed by a second rule in `/etc/sudoers.d/zzz-bbb-docker-libreoffice`, next to the rule for the plain conversion.
+
+Next to each non-empty `slide-N.txt`, the same run saves `slide-N.json` with the formatting of the notes: paragraphs with their list level and bullet or number marker, and text runs with bold, italic, underline, strikethrough, superscript, subscript, direct text color and highlight. A slide whose formatting cannot be read keeps only its plain text.
+
+The same run also saves `slide-N.title.txt` with the text of the slide's title placeholder (whitespace collapsed to single spaces). It is empty when the slide has no title placeholder, as in many `.ppt` files.
+
+The notes are available through the GraphQL `pres_page_speakerNotes` fields `speakerNotes` (plain text), `speakerNotesJson` (the formatted notes, or null when missing, invalid or larger than 1 MiB in UTF-8) and `slideTitle` (the slide title, or an empty string) to the current presenter and moderators in the meeting. Speaker notes are not stored in the presentation conversion cache (`presentationConversionCacheEnabled`): each conversion saves them again, so they always follow the current `extractPresentationSpeakerNotes` setting.
+
+To disable extraction, add the following override to `/etc/bigbluebutton/bbb-web.properties`:
+
+```properties
+extractPresentationSpeakerNotes=false
+```
+
+Restart BigBlueButton after changing the setting:
+
+```bash
+sudo bbb-conf --restart
+```
+
 
 #### Change the limit of 300 annotations per page
 

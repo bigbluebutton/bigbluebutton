@@ -13,14 +13,17 @@ case class PresentationPodVO(id: String, currentPresenter: String,
                              presentations: Vector[PresentationVO])
 
 case class PresentationPageConvertedVO(
-    id:        String,
-    num:       Int,
-    urls:      Map[String, String],
-    content:   String,
-    current:   Boolean             = false,
-    width:     Double              = 1440D,
-    height:    Double              = 1080D,
-    pageToken: String              = ""
+    id:               String,
+    num:              Int,
+    urls:             Map[String, String],
+    content:          String,
+    current:          Boolean             = false,
+    width:            Double              = 1440D,
+    height:           Double              = 1080D,
+    pageToken:        String              = "",
+    speakerNotes:     String              = "",
+    speakerNotesJson: String              = "",
+    slideTitle:       String              = ""
 )
 
 case class PresentationPageVO(

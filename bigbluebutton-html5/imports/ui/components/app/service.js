@@ -23,6 +23,7 @@ export function useMeetingIsBreakout() {
 }
 
 export const setDarkTheme = (value) => {
+  document.documentElement.dataset.bbbTheme = value ? 'dark' : 'light';
   let invert = [Styled.DtfInvert];
 
   if (equalURLs()) {

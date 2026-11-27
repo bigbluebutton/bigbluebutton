@@ -52,11 +52,15 @@ trait PresentationPageConvertedSysMsgHdlr {
     }
 
     val page = PresentationPage(
-      msg.body.page.id,
-      msg.body.page.num,
-      msg.body.page.urls,
-      msg.body.page.content,
-      msg.body.page.current,
+      id = msg.body.page.id,
+      num = msg.body.page.num,
+      urls = msg.body.page.urls,
+      content = msg.body.page.content,
+      // Jackson leaves the field null when an older bbb-web omits it
+      speakerNotes = Option(msg.body.page.speakerNotes).getOrElse(""),
+      speakerNotesJson = Option(msg.body.page.speakerNotesJson).getOrElse(""),
+      slideTitle = Option(msg.body.page.slideTitle).getOrElse(""),
+      current = msg.body.page.current,
       width = msg.body.page.width,
       height = msg.body.page.height,
       converted = true,
