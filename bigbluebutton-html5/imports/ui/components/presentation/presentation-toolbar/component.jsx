@@ -19,6 +19,7 @@ import Styled, {
 } from './styles';
 import ZoomTool from './zoom-tool/component';
 import SmartMediaShareContainer from './smart-video-share/container';
+import SlidePicker from './slide-picker/component';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import KEYS from '/imports/utils/keys';
 import Spinner from '/imports/ui/components/common/spinner/component';
@@ -55,21 +56,9 @@ const intlMessages = defineMessages({
     id: 'app.presentation.presentationToolbar.noPrevSlideDesc',
     description: '',
   },
-  skipSlideLabel: {
-    id: 'app.presentation.presentationToolbar.skipSlideLabel',
-    description: 'Aria label for when switching to a specific slide',
-  },
   skipSlideDesc: {
     id: 'app.presentation.presentationToolbar.skipSlideDesc',
     description: 'Aria description for when switching to a specific slide',
-  },
-  goToSlide: {
-    id: 'app.presentation.presentationToolbar.goToSlide',
-    description: 'button for slide select',
-  },
-  selectLabel: {
-    id: 'app.presentation.presentationToolbar.selectLabel',
-    description: 'slide select label',
   },
   fitToWidth: {
     id: 'app.presentation.presentationToolbar.fitToWidth',
@@ -121,7 +110,7 @@ class PresentationToolbar extends PureComponent {
   constructor(props) {
     super(props);
 
-    this.handleSkipToSlideChange = this.handleSkipToSlideChange.bind(this);
+    this.handleSkipToSlide = this.handleSkipToSlide.bind(this);
     this.change = this.change.bind(this);
     this.renderAriaDescs = this.renderAriaDescs.bind(this);
     this.nextSlideHandler = this.nextSlideHandler.bind(this);
@@ -155,13 +144,11 @@ class PresentationToolbar extends PureComponent {
     if (this.toolbarFitFrame) window.cancelAnimationFrame(this.toolbarFitFrame);
   }
 
-  handleSkipToSlideChange(event) {
+  handleSkipToSlide(requestedSlideNum) {
     const { skipToSlide, currentSlide } = this.props;
-    const requestedSlideNum = Number.parseInt(event.target.value, 10);
 
     if (currentSlide?.infiniteWhiteboard) this.disableInfiniteWhiteboard();
 
-    if (event) event.currentTarget.blur();
     skipToSlide(requestedSlideNum);
   }
 
@@ -372,25 +359,11 @@ class PresentationToolbar extends PureComponent {
     );
   }
 
-  renderSkipSlideOpts(numberOfSlides) {
-    // Fill drop down menu with all the slides in presentation
-    const { intl } = this.props;
-    const optionList = [];
-    for (let i = 1; i <= numberOfSlides; i += 1) {
-      optionList.push(
-        <option value={i} key={i}>
-          {intl.formatMessage(intlMessages.goToSlide, { slideNumber: i })}
-        </option>,
-      );
-    }
-
-    return optionList;
-  }
-
   render() {
     const {
       currentSlideNum,
       numberOfSlides,
+      presentationId,
       fitToWidthHandler,
       fitToWidth,
       intl,
@@ -488,24 +461,14 @@ class PresentationToolbar extends PureComponent {
             data-test="prevSlide"
           />
 
-          <TooltipContainer
-            title={intl.formatMessage(intlMessages.selectLabel)}
-          >
-            <Styled.SkipSlideSelect
-              className="bbb-presentation-toolbar__slide-select"
-              id="skipSlide"
-              aria-label={intl.formatMessage(intlMessages.skipSlideLabel)}
-              aria-describedby="skipSlideDesc"
-              aria-live="polite"
-              aria-relevant="all"
-              disabled={!isConnected}
-              value={currentSlideNum}
-              onChange={this.handleSkipToSlideChange}
-              data-test="skipSlide"
-            >
-              {this.renderSkipSlideOpts(numberOfSlides)}
-            </Styled.SkipSlideSelect>
-          </TooltipContainer>
+          <SlidePicker
+            className="bbb-presentation-toolbar__slide-select"
+            presentationId={presentationId}
+            currentSlideNum={currentSlideNum}
+            numberOfSlides={numberOfSlides}
+            disabled={!isConnected}
+            onSelectSlide={this.handleSkipToSlide}
+          />
           <Styled.NextSlideButton
             className="bbb-presentation-toolbar__next"
             role="button"
@@ -667,11 +630,13 @@ PresentationToolbar.propTypes = {
   numberOfJoinedUsers: PropTypes.number.isRequired,
   isMobile: PropTypes.bool.isRequired,
   toolbarWidth: PropTypes.number,
+  presentationId: PropTypes.string,
 };
 
 PresentationToolbar.defaultProps = {
   fullscreenRef: null,
   toolbarWidth: 0,
+  presentationId: '',
 };
 
 export default injectWbResizeEvent(injectIntl(PresentationToolbar));

@@ -496,9 +496,9 @@ export async function uploadMultiplePresentations(
 
 export async function skipSlide(testPage: Page) {
   const selectSlideLocator = testPage.page.locator(e.skipSlide);
-  const currentSlideNumber = await selectSlideLocator.inputValue();
+  const currentSlideNumber = await selectSlideLocator.getAttribute('data-current-slide');
   await testPage.waitAndClick(e.nextSlide);
-  await expect(selectSlideLocator).not.toHaveValue(currentSlideNumber);
+  await expect(selectSlideLocator).not.toHaveAttribute('data-current-slide', currentSlideNumber ?? '');
 }
 
 export async function hasTextOnCurrentPresentationToast(
