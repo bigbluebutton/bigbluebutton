@@ -29,7 +29,7 @@ group "default" {
     "apps-akka", "web", "html5-client", "learning-dashboard",
     "graphql-actions", "graphql-middleware", "graphql-server",
     "export-annotations", "shared-notes-server", "record-and-playback", "nginx",
-    "webrtc-sfu", "webrtc-recorder", "webhooks", "playback", "init",
+    "webrtc-sfu", "webrtc-recorder", "webhooks", "playback", "init", "compose",
   ]
 }
 
@@ -181,4 +181,17 @@ target "init" {
     graphql-server      = "./bbb-graphql-server"
     shared-notes-server = "./bbb-shared-notes-server"
   }
+}
+
+# The files of the compose setup, at their paths in the install folder of docker/compose/install.sh
+target "compose" {
+  inherits          = ["_image"]
+  tags              = tags("compose")
+  context           = "."
+  dockerfile-inline = <<EOT
+FROM scratch
+COPY docker-compose.yml .env.sample docker/compose/bbb-conf /
+COPY docker/compose/certbot.sh docker/compose/haproxy.cfg /docker/compose/
+COPY docker/compose/nginx/bigbluebutton docker/compose/nginx/playback.nginx /docker/compose/nginx/
+EOT
 }

@@ -54,6 +54,7 @@ commit and the dated version, `org.opencontainers.image.title` its name.
 | bbb-webhooks | `docker/bbb-webhooks/` | 3005 | `/etc/bigbluebutton/bbb-webhooks/production.yml` |
 | bbb-playback | `docker/bbb-playback/` | 8080 | none |
 | bbb-init | `docker/bbb-init/` | none | environment only |
+| bbb-compose | `docker-bake.hcl` | none | none: the files of the compose setup (`docker-compose.yml`, `.env.sample`, `bbb-conf`, `docker/compose/`), at their paths in the install folder |
 
 Third-party services (Redis, PostgreSQL, LiveKit, TURN, document conversion) are not built here;
 deployments use their official images.
