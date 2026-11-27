@@ -64,3 +64,16 @@ test.describe.parallel('Connection Status heartbeat', { tag: '@nightly' }, () =>
     await connectionStatus.heartbeatWithHiddenNavBar(heartbeats);
   });
 });
+
+// The history has to fill up, so this stays out of the gate. The override only applies in the page: the client
+// reports every second instead of every 10 s, while the cap under test still comes from the server's settings.yml.
+test.describe.parallel('Connection Status history', { tag: '@nightly' }, () => {
+  test('History keeps the latest reports up to the default cap', async ({ browser, context, page }, testInfo) => {
+    const connectionStatus = new ConnectionStatus(browser, context);
+    await connectionStatus.initModPage(page, {
+      testInfo,
+      clientSettingsOverrides: { public: { stats: { interval: 1000 } } },
+    });
+    await connectionStatus.historyKeepsLatestReports();
+  });
+});
