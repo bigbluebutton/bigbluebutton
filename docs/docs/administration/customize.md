@@ -1998,6 +1998,18 @@ public:
 
 Restart BigBlueButton with `sudo bbb-conf --restart` for the change to take effect.
 
+#### Show the waiting users in one list
+
+By default, the moderator sees the users waiting for approval in two queues, one for authenticated users and one for guests (`guest=true`), each with its own allow all and deny all buttons. To show them in one list instead, in the order they arrived, set `public.app.combineGuestWaitingQueues` to `true` in `/etc/bigbluebutton/bbb-html5.yml`. Allow everyone and deny everyone then show whenever someone is waiting.
+
+```yaml
+public:
+  app:
+    combineGuestWaitingQueues: true
+```
+
+Restart BigBlueButton with `sudo bbb-conf --restart` for the change to take effect.
+
 #### Show a custom logo on the client
 
 Ensure that `public.app.branding.displayBrandingArea` is set to `true` in `/etc/bigbluebutton/bbb-html5.yml`, restart BigBlueButton server with `sudo bbb-conf --restart` and pass `logo=<image-url>` in Custom parameters when creating the meeting.

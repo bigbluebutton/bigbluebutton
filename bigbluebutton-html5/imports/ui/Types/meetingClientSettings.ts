@@ -65,6 +65,7 @@ export interface App {
   skipMeetingEnded: boolean
   enableGuestLobbyMessage: boolean
   showGuestLobbyWaitingQueuePosition: boolean
+  combineGuestWaitingQueues: boolean
   enableLimitOfViewersInWebcam: boolean
   enableMultipleCameras: boolean
   enableCameraAsContent: boolean

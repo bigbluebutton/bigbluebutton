@@ -70,6 +70,9 @@ public:
     # Show the guest user's position in the lobby waiting queue.
     # Set to false when users should not see their place in line.
     showGuestLobbyWaitingQueuePosition: true
+    # Show the users waiting for approval in one list instead of separate queues for
+    # authenticated users and guests.
+    combineGuestWaitingQueues: false
     enableLimitOfViewersInWebcam: false
     enableMultipleCameras: true
     enableCameraAsContent: true
