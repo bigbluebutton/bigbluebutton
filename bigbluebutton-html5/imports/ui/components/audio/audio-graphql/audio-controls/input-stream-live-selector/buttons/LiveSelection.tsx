@@ -391,6 +391,7 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
                 />
               )}
             <Styled.AudioDropdown
+              aria-haspopup="menu"
               className="bbb-audio-dropdown"
               data-test="audioDropdownMenu"
               emoji="device_list_selector"

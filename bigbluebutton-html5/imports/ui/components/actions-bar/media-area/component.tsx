@@ -77,6 +77,8 @@ const MediaArea = (props: MediaAreaProps) => {
       {/* eslint-disable-next-line jsx-a11y/no-access-key */}
       <Styled.HideDropdownButton
         hideLabel
+        aria-controls={menuOpen ? 'mediaAreaDropUp' : undefined}
+        aria-expanded={menuOpen}
         aria-label={intl.formatMessage(intlMessages.mediaLabel)}
         data-test="mediaAreaButton"
         accessKey={openMediaArea}

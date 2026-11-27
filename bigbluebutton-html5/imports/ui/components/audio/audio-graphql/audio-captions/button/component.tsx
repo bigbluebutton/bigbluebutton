@@ -248,6 +248,7 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
               <>
                 { startStopCaptionsButton }
                 <ButtonEmoji
+                  aria-haspopup="menu"
                   emoji="device_list_selector"
                   hideLabel
                   label={intl.formatMessage(intlMessages.transcriptionSettings)}
