@@ -10,6 +10,7 @@ import {
 import { elements as e } from '../core/elements';
 import { checkScreenshots } from '../layouts/util';
 import {
+  expectSlideFitsCanvas,
   EXTERNAL_VIDEO_URL,
   routeExternalVideo,
   uploadSinglePresentation,
@@ -410,8 +411,12 @@ export class CustomParameters extends MultiUsers {
 
     await uploadSinglePresentation(this.modPage, e.pdfFileName, UPLOAD_PDF_WAIT_TIME * 2);
 
-    const wbBox = this.modPage.page.locator(e.whiteboard);
-    await expect(wbBox).toHaveScreenshot('moderator-with-minimalist-large-presentation.png');
+    // The slide first renders at 100% zoom, cropped by the restored area, and is only fitted once the area stops
+    // resizing; wait for the fitted state instead of comparing pixels of whichever frame comes first.
+    await expectSlideFitsCanvas(
+      this.modPage,
+      'should fit the uploaded slide to the whiteboard canvas for the moderator',
+    );
 
     await this.modPage.hasElement(
       e.minimizePresentation,
