@@ -13,6 +13,9 @@ import {
 } from './service';
 import Styled from './styles';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
+import { uniqueId } from '/imports/utils/string-utils';
+
+const INSERT_PAGES_MESSAGE_PREFIX = 'app.presentation.insertPages.';
 
 const Notifications: React.FC = () => {
   const [registeredAt, setRegisteredAt] = React.useState<string>(new Date().toISOString());
@@ -109,6 +112,10 @@ const Notifications: React.FC = () => {
         />,
         notification.notificationType,
         notification.icon,
+        // Each outcome of an insert of pages is a toast of its own: toasts with the same message merge.
+        notification.messageId.startsWith(INSERT_PAGES_MESSAGE_PREFIX)
+          ? { toastId: uniqueId('insert-pages-outcome-') }
+          : undefined,
       );
     }
   };

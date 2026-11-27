@@ -64,10 +64,14 @@ const removeFailedUpload = (presentationId) => {
 };
 
 // Resolves with the upload token and the id of the presentation the server created for it.
+// insertIntent ({ insertIntoPresentationId, insertAtPosition, insertSeenTotalPages,
+// insertNavigate }) turns the upload into an insert of pages into that presentation;
+// without it the upload is a presentation of its own.
 const requestPresentationUpload = (
   temporaryPresentationId,
   meetingId,
   filename,
+  insertIntent,
 ) => new Promise((resolve, reject) => {
   const client = apolloContextHolder.getClient();
   client.mutate({
@@ -76,6 +80,7 @@ const requestPresentationUpload = (
       podId: POD_ID,
       filename,
       uploadTemporaryId: temporaryPresentationId,
+      ...insertIntent,
     },
   });
 
@@ -132,7 +137,8 @@ const requestPresentationUploadToken = (
   temporaryPresentationId,
   meetingId,
   filename,
-) => requestPresentationUpload(temporaryPresentationId, meetingId, filename)
+  insertIntent,
+) => requestPresentationUpload(temporaryPresentationId, meetingId, filename, insertIntent)
   .then(({ uploadToken }) => uploadToken);
 
 const uploadAndConvertPresentation = (
@@ -146,6 +152,8 @@ const uploadAndConvertPresentation = (
   onProgress,
   onConversion,
   current,
+  insertIntent,
+  onRequested,
 ) => {
   if (!file) return Promise.resolve();
 
@@ -168,7 +176,16 @@ const uploadAndConvertPresentation = (
 
   let serverPresentationId = null;
 
-  return requestPresentationUpload(temporaryPresentationId, meetingId, filename)
+  const uploadRequest = requestPresentationUpload(
+    temporaryPresentationId,
+    meetingId,
+    filename,
+    insertIntent,
+  );
+  // Called once the token request ends (token, refusal or timeout), before the upload starts.
+  if (onRequested) uploadRequest.then(() => onRequested(), () => onRequested());
+
+  return uploadRequest
     .then(({ uploadToken, presentationId }) => {
       serverPresentationId = presentationId;
       return futch(endpoint.replace('upload', `${uploadToken}/upload`), opts, onProgress);
@@ -421,6 +438,7 @@ function handleFiledrop(files, files2, that, intl, intlMessages) {
 }
 
 export default {
+  TOKEN_TIMEOUT,
   handleSavePresentation,
   persistPresentationChanges,
   requestPresentationUploadToken,

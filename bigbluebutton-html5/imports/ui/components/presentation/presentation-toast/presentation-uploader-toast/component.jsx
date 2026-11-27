@@ -542,8 +542,11 @@ export const PresentationUploaderToast = ({
         handleDismissToast(exportToastIdRef.current);
       }
       return p;
-    }).filter((p) => (dismissedItems.length > 0 && !dismissedItems.includes(p.presentationId))
-      || p.exportToChatInProgress);
+    // Only presentations that were exported: uploads in progress (inserts of pages
+    // included) have no export.
+    }).filter((p) => p.exportToChatStatus
+      && ((dismissedItems.length > 0 && !dismissedItems.includes(p.presentationId))
+      || p.exportToChatInProgress));
 
     if (exportingPres && exportingPres.length > 0) {
       if (toast.isActive(exportToastIdRef.current)) {
