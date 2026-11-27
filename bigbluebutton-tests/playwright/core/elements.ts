@@ -368,11 +368,13 @@ export const elements = {
   // Timer
   timerStopwatchFeature: 'div[data-test="timerSidebarButton"]',
   stopwatchCurrent: 'span[data-test="stopwatchCurrent"]',
+  stopwatchAccessibleTime: 'span[data-test="stopwatchAccessibleTime"]',
   startStopTimer: 'button[data-test="startStopTimer"]',
   resetTimerStopwatch: 'button[data-test="resetTimerStopWatch"]',
   deactivateTimer: 'button[data-test="deactivateTimer"]',
   timerButton: 'button[data-test="timerButton"]',
   timerIndicator: 'div[data-test="timeIndicator"]',
+  timerIndicatorAccessibleTime: 'span[data-test="timerIndicatorAccessibleTime"]',
   stopwatch: 'button[data-test="stopwatchButton"]',
   timerHoursInput: 'input[data-test="timerHoursInput"]',
   timerMinutesInput: 'input[data-test="timerMinutesInput"]',

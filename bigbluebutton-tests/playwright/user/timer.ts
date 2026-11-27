@@ -11,7 +11,6 @@ export class Timer extends MultiUsers {
     await this.modPage.waitAndClick(e.timerStopwatchFeature);
     await this.modPage.waitAndClick(e.stopwatch);
     await this.modPage.hasElement(e.stopwatchCurrent, 'should display the timer counter in the sidebar content');
-
     const timerCurrentLocator = this.modPage.page.locator(e.stopwatchCurrent);
     const timerIndicatorLocator = this.modPage.page.locator(e.timerIndicator);
 
@@ -44,6 +43,23 @@ export class Timer extends MultiUsers {
     // reset a running stopwatch and check if the values are reset
     await this.clickOnTimerControl();
     await this.modPage.hasText(e.stopwatchCurrent, /00:02/, 'should display 00:02 after 2 seconds');
+    await expect(
+      this.modPage.page.locator(e.stopwatchCurrent),
+      'should hide the digit-formatted stopwatch time from assistive technologies',
+    ).toHaveAttribute('aria-hidden', 'true');
+    // The stopwatch is still running: read both texts in one snapshot so they come from the same tick.
+    const { digits, readable } = await this.modPage.page.evaluate(
+      ([digitsSelector, readableSelector]) => ({
+        digits: document.querySelector(digitsSelector)?.textContent ?? '',
+        readable: document.querySelector(readableSelector)?.textContent ?? '',
+      }),
+      [e.stopwatchCurrent, e.stopwatchAccessibleTime],
+    );
+    expect(digits, 'should display the running stopwatch time in the mm:ss format').toMatch(/^00:\d{2}$/);
+    const elapsedSeconds = Number(digits.split(':')[1]);
+    expect(readable, 'should expose the stopwatch time in a readable form to assistive technologies').toBe(
+      elapsedSeconds === 1 ? '1 second' : `${elapsedSeconds} seconds`,
+    );
     await this.modPage.waitAndClick(e.resetTimerStopwatch);
     await expect(async () => {
       const { r, b } = await this.getStartStopButtonColor();
@@ -75,9 +91,17 @@ export class Timer extends MultiUsers {
     await this.modPage.waitAndClick(e.timerPreset10min);
     await this.checkTimerInputs('00', '10', '00', 'should set the timer inputs to the selected preset');
     await this.modPage.hasText(e.timerIndicator, /10:00/, 'should set the timer indicator to the selected preset');
+    await expect(
+      this.modPage.page.locator(e.timerAdd30s),
+      'should include the visible text in the accessible name',
+    ).toHaveAccessibleName('+00:30 (Add 30 seconds)');
     await this.modPage.waitAndClick(e.timerAdd30s);
     await this.checkTimerInputs('00', '10', '30', 'should add 30 seconds to the timer inputs');
     await this.modPage.hasText(e.timerIndicator, /10:30/, 'should add 30 seconds to the timer indicator');
+    await expect(
+      this.modPage.page.locator(e.timerIndicatorAccessibleTime),
+      'should expose the timer countdown in a readable form to assistive technologies',
+    ).toHaveText('10 minutes, 30 seconds');
 
     // a running timer locks the inputs, which show the countdown
     await this.clickOnTimerControl();

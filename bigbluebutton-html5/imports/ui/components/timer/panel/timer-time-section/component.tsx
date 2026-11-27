@@ -91,6 +91,34 @@ const intlMessages = defineMessages({
     id: 'app.timer.aria.addTime',
     description: 'Aria label: Add {time} to timer',
   },
+  addTimeName: {
+    id: 'app.timer.aria.addTimeName',
+    description: 'Accessible name for quick-add buttons: visible label followed by the action',
+  },
+  hoursSingular: {
+    id: 'app.timer.aria.hoursSingular',
+    description: 'Accessible timer duration in hours, singular',
+  },
+  hoursPlural: {
+    id: 'app.timer.aria.hoursPlural',
+    description: 'Accessible timer duration in hours, plural',
+  },
+  minutesSingular: {
+    id: 'app.timer.aria.minutesSingular',
+    description: 'Accessible timer duration in minutes, singular',
+  },
+  minutesPlural: {
+    id: 'app.timer.aria.minutesPlural',
+    description: 'Accessible timer duration in minutes, plural',
+  },
+  secondsSingular: {
+    id: 'app.timer.aria.secondsSingular',
+    description: 'Accessible timer duration in seconds, singular',
+  },
+  secondsPlural: {
+    id: 'app.timer.aria.secondsPlural',
+    description: 'Accessible timer duration in seconds, plural',
+  },
 });
 
 export interface TimerTimeSectionProps {
@@ -131,6 +159,28 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
   const serverHours = Math.floor(timeInSeconds / 3600);
   const serverMinutes = Math.floor((timeInSeconds % 3600) / 60);
   const serverSeconds = timeInSeconds % 60;
+
+  const formatAccessibleDuration = (totalSeconds: number) => {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    const timeParts = [
+      hours > 0 && intl.formatMessage(
+        hours === 1 ? intlMessages.hoursSingular : intlMessages.hoursPlural,
+        { count: hours },
+      ),
+      minutes > 0 && intl.formatMessage(
+        minutes === 1 ? intlMessages.minutesSingular : intlMessages.minutesPlural,
+        { count: minutes },
+      ),
+      (seconds > 0 || totalSeconds === 0) && intl.formatMessage(
+        seconds === 1 ? intlMessages.secondsSingular : intlMessages.secondsPlural,
+        { count: seconds },
+      ),
+    ].filter((part): part is string => Boolean(part));
+
+    return intl.formatList(timeParts, { type: 'unit' });
+  };
 
   const [focusedUnit, setFocusedUnit] = useState<'hours' | 'minutes' | 'seconds' | null>(null);
   const [localHours, setLocalHours] = useState(0);
@@ -316,12 +366,17 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
 
   if (stopwatch) {
     return (
-      <Styled.TimerCurrent
-        aria-hidden
-        data-test="stopwatchCurrent"
-      >
-        {humanizeSeconds(Math.floor(timePassed / 1000))}
-      </Styled.TimerCurrent>
+      <>
+        <Styled.TimerCurrent
+          data-test="stopwatchCurrent"
+          aria-hidden
+        >
+          {humanizeSeconds(timeInSeconds)}
+        </Styled.TimerCurrent>
+        <span className="sr-only" data-test="stopwatchAccessibleTime">
+          {formatAccessibleDuration(timeInSeconds)}
+        </span>
+      </>
     );
   }
 
@@ -513,18 +568,19 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
         <Styled.TimerAddsRow>
           {QUICK_ADD_BUTTONS.map((addSeconds) => {
             const testId = `add${addSeconds}s`;
-            const timeLabel = addSeconds >= 60
-              ? `${Math.floor(addSeconds / 60)} minute${Math.floor(addSeconds / 60) > 1 ? 's' : ''}`
-              : `${addSeconds} second${addSeconds > 1 ? 's' : ''}`;
-
             const h = Math.floor(addSeconds / 3600);
             const m = Math.floor((addSeconds % 3600) / 60);
             const s = addSeconds % 60;
+            const timeLabel = formatAccessibleDuration(addSeconds);
             const fmt = (n: number) => (n < 10 ? `0${n}` : n.toString());
             const displayLabel = h > 0
               ? `+${fmt(h)}:${fmt(m)}:${fmt(s)}`
               : `+${fmt(m)}:${fmt(s)}`;
             const tooltipMessage = intl.formatMessage(intlMessages.addTime, { time: timeLabel });
+            const accessibleName = intl.formatMessage(intlMessages.addTimeName, {
+              label: displayLabel,
+              description: tooltipMessage,
+            });
 
             return (
               <TooltipContainer
@@ -534,7 +590,7 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
                 <Styled.TimerAddButton
                   onClick={() => changeTime(addSeconds)}
                   disabled={running}
-                  aria-label={tooltipMessage}
+                  aria-label={accessibleName}
                   data-test={testId}
                 >
                   {displayLabel}
