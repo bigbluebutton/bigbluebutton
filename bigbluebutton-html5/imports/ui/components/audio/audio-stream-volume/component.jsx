@@ -9,6 +9,7 @@ const VOL_CEIL = 50;
 const DB_AMPL = 65;
 
 const propTypes = {
+  id: PropTypes.string,
   stream: PropTypes.shape({
     active: PropTypes.bool,
     id: PropTypes.string,
@@ -21,6 +22,7 @@ const propTypes = {
 };
 
 const AudioStreamVolume = ({
+  id = undefined,
   volumeFloor = VOL_FLOOR,
   volumeRange = VOL_CEIL,
   low = VOL_FLOOR,
@@ -74,6 +76,7 @@ const AudioStreamVolume = ({
 
   return (
     <Styled.VolumeMeter
+      id={id}
       data-test={volume > 0 ? 'hasVolume' : 'hasNoVolume'}
       min={volumeFloor}
       low={low}
