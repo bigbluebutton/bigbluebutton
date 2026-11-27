@@ -80,6 +80,15 @@ export class CreateParameters extends MultiUsers {
   async bannerText() {
     await this.modPage.hasElement(e.mediaAreaButton, 'should the media area button be displayed');
     await this.modPage.hasElement(e.notificationBannerBar, 'should display the banner text on the top of the meeting');
+    const notificationBar = this.modPage.page.locator(e.notificationBannerBar);
+    await expect(notificationBar, 'should expose the banner text as a status message').toHaveAttribute(
+      'role',
+      'status',
+    );
+    await expect(notificationBar, 'should announce the banner text to screen readers').toHaveAttribute(
+      'aria-live',
+      'polite',
+    );
   }
 
   async bannerColor(colorToRGB: string) {
@@ -110,6 +119,12 @@ export class CreateParameters extends MultiUsers {
       /[1-2]:[0-5][0-9]/,
       'should display the time remaining of the meeting decreasing',
     );
+    const notificationBar = this.modPage.page.locator(e.notificationBannerBar);
+    await expect(notificationBar, 'should not announce every countdown tick to screen readers').toHaveAttribute(
+      'aria-live',
+      'off',
+    );
+    await expect(notificationBar, 'should not expose the countdown as a status message').not.toHaveAttribute('role');
   }
 
   async meetingEndsAfterDuration() {
