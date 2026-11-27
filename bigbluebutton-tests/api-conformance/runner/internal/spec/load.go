@@ -21,6 +21,10 @@ type Options struct {
 	// FixturesDir is where xmlFile, multipart paths, schema and base64File
 	// arguments resolve. When empty, fixture files aren't checked.
 	FixturesDir string
+	// RepoDir is the repository, where the presentation conversion
+	// suite's fixtures that cases ask the sink for by ID are found. When
+	// empty, those aren't checked.
+	RepoDir string
 }
 
 // Result is what loading found.

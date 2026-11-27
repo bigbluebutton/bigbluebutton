@@ -165,6 +165,12 @@ services:
     volumes:
       - ./.state/conform:/etc/bigbluebutton/conform:ro
       - ../fixtures:/fixtures:ro
+      # The presentation conversion suite's fixtures, served by ID: its
+      # manifests and the two directories they borrow files from, at
+      # their places in the repository (runner/internal/convfix).
+      - ../../presentation-conversion/fixtures:/repo/bigbluebutton-tests/presentation-conversion/fixtures:ro
+      - ../../playwright/core/media:/repo/bigbluebutton-tests/playwright/core/media:ro
+      - ../../../bigbluebutton-web/test/resources:/repo/bigbluebutton-web/test/resources:ro
 
   # Optional (make up CLAMAV=1): the ClamAV daemon on localhost:3310, where
   # bbb-web looks for one when the clamav-scan profile turns scanning on.

@@ -87,6 +87,10 @@ coverage:
 coverage-clean:
 	mkdir -p $(STATE) && flock $(STATE)/profile.lock $(TIER1)/coverage.sh clean
 
-# The variables the runner reads, for eval.
+# The variables the runner reads, for eval. BBB_CLAMAV, which gives the
+# target the clamav capability, only while the ClamAV daemon runs.
 env:
 	@cat $(STATE)/conform/conform.env
+	@if docker compose -f $(CURDIR)/compose.yaml --profile clamav ps -q --status running clamav 2>/dev/null | grep -q .; then \
+		echo 'export BBB_CLAMAV=1'; \
+	fi

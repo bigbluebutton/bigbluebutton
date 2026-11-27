@@ -9,7 +9,9 @@
 //	/<key>[/...]                      recorded; 200 with no body
 //	/<key>/fixtures/<path>            recorded; a file from the fixtures directory
 //	/<key>/fixtures/generated/<name>  recorded; a generated file of _size bytes
+//	/<key>/conversion/<id>            recorded; a presentation conversion suite fixture
 //	/fixtures/<path>                  the same files, not recorded
+//	/conversion/<id>                  the same fixtures, not recorded
 //	/_received?key=K                  the requests recorded under K
 //	/_info                            the sink's instance and last sequence number
 //
@@ -41,6 +43,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/convfix"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/guard"
 )
 
@@ -52,11 +55,15 @@ const (
 	// generatedDir the one under it that generated files are.
 	fixturesDir  = "fixtures"
 	generatedDir = "generated"
+	// conversionDir is the path segment the conversion suite's
+	// fixtures are served under, by ID.
+	conversionDir = "conversion"
 )
 
 // Config configures a sink.
 type Config struct {
 	Fixtures string   // the fixtures directory; "" serves none
+	Repo     string   // the repository, or its convfix.Dirs, for the conversion suite's fixtures; "" serves none
 	HTTPAddr string   // where it also serves plain HTTP, for /_info; "" for nowhere
 	Hosts    []string // host names /_received answers to, besides IP addresses and localhost
 	Token    string   // the bearer token /_received needs; "" for none
@@ -65,12 +72,14 @@ type Config struct {
 }
 
 // Server is a running sink. It reads fixtures through an os.Root, so
-// nothing outside the fixtures directory can be served.
+// nothing outside the fixtures directory can be served, and the
+// conversion suite's through another, on the repository.
 type Server struct {
 	cfg      Config
 	instance string
 	log      *Log
 	root     *os.Root
+	repo     *os.Root
 }
 
 // New starts a sink.
@@ -85,6 +94,14 @@ func New(cfg Config) (*Server, error) {
 		}
 		s.root = root
 	}
+	if cfg.Repo != "" {
+		repo, err := os.OpenRoot(cfg.Repo)
+		if err != nil {
+			s.Close()
+			return nil, err
+		}
+		s.repo = repo
+	}
 	return s, nil
 }
 
@@ -92,6 +109,9 @@ func New(cfg Config) (*Server, error) {
 func (s *Server) Close() {
 	if s.root != nil {
 		s.root.Close()
+	}
+	if s.repo != nil {
+		s.repo.Close()
 	}
 }
 
@@ -109,9 +129,9 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		v, status, err := s.received(r)
 		writeJSON(w, v, status, err)
 	case key == "" || strings.HasPrefix(key, "_"):
-		writeJSON(w, nil, http.StatusNotFound, errors.New("no such path: requests go to /<key>/..., fixtures to /fixtures/<path>, and /_received?key=<key> lists a key's requests"))
-	case key == fixturesDir:
-		a, status, err := s.prepare(r, fixturesDir+"/"+rest, false)
+		writeJSON(w, nil, http.StatusNotFound, errors.New("no such path: requests go to /<key>/..., fixtures to /fixtures/<path> or /conversion/<id>, and /_received?key=<key> lists a key's requests"))
+	case key == fixturesDir || key == conversionDir:
+		a, status, err := s.prepare(r, key+"/"+rest, false)
 		if err != nil {
 			fail(w, status, err)
 			return
@@ -143,14 +163,14 @@ func (s *Server) mayRead(r *http.Request) (int, error) {
 
 // CheckKey says why requests can't be recorded under key, or returns nil:
 // a key is the first segment of a request's path, and the sink keeps
-// fixtures and names that start with an underscore for itself.
+// fixtures, conversion and names that start with an underscore for itself.
 func CheckKey(key string) error {
 	switch {
 	case key == "":
 		return errors.New("a sink key can't be empty")
 	case strings.Contains(key, "/"):
 		return fmt.Errorf("sink key %q isn't one path segment", key)
-	case key == fixturesDir || strings.HasPrefix(key, "_"):
+	case key == fixturesDir || key == conversionDir || strings.HasPrefix(key, "_"):
 		return fmt.Errorf("the sink keeps %q for itself, so it can't be a key", key)
 	}
 	return nil
@@ -264,10 +284,12 @@ type answering struct {
 // prepare reads how a request asks to be answered, and opens the fixture
 // it asks for, with the status to answer when it can't be answered so.
 // rest is its path after the key: a fixture when it starts with
-// fixtures/, else nothing. recorded says whether it is recorded.
+// fixtures/ or conversion/, else nothing. recorded says whether it is
+// recorded.
 func (s *Server) prepare(r *http.Request, rest string, recorded bool) (answering, int, error) {
 	m, err := parseModifiers(r.URL.Query())
 	name, isFixture := strings.CutPrefix(rest, fixturesDir+"/")
+	id, isConversion := strings.CutPrefix(rest, conversionDir+"/")
 	switch {
 	case err != nil:
 	case r.URL.Query().Has("_size") && !(isFixture && strings.HasPrefix(name, generatedDir+"/")):
@@ -281,6 +303,13 @@ func (s *Server) prepare(r *http.Request, rest string, recorded bool) (answering
 		return answering{}, http.StatusBadRequest, err
 	}
 	a := answering{m: m}
+	if isConversion {
+		f, status, err := s.openConversion(id)
+		if err != nil {
+			return answering{}, status, err
+		}
+		a.f = f
+	}
 	if isFixture {
 		f, status, err := s.open(name, r.URL.Query().Get("_size"))
 		if err != nil {
@@ -404,12 +433,17 @@ func (s *Server) open(p, size string) (*file, int, error) {
 	if s.root == nil {
 		return nil, http.StatusNotFound, errors.New("this sink serves no fixtures")
 	}
+	return openRegular(s.root, p)
+}
+
+// openRegular opens the regular file p in root.
+func openRegular(root *os.Root, p string) (*file, int, error) {
 	notFound := fmt.Errorf("no fixture %s", p)
 	// Only a regular file: opening a named pipe would wait for a writer.
-	if st, err := s.root.Stat(p); err != nil || !st.Mode().IsRegular() {
+	if st, err := root.Stat(p); err != nil || !st.Mode().IsRegular() {
 		return nil, http.StatusNotFound, notFound
 	}
-	f, err := s.root.Open(p)
+	f, err := root.Open(p)
 	if err != nil {
 		return nil, http.StatusNotFound, notFound
 	}
@@ -419,6 +453,31 @@ func (s *Server) open(p, size string) (*file, int, error) {
 		return nil, http.StatusNotFound, notFound
 	}
 	return &file{content: f, name: st.Name(), modTime: st.ModTime(), close: func() { f.Close() }}, 0, nil
+}
+
+// openConversion finds the conversion suite's fixture id, or generates
+// it, with the status to answer when it can't.
+func (s *Server) openConversion(id string) (*file, int, error) {
+	if s.repo == nil {
+		return nil, http.StatusNotFound, errors.New("this sink serves no conversion fixtures: start it with --repo")
+	}
+	fx, err := convfix.Find(s.repo.FS(), id)
+	switch {
+	case errors.Is(err, convfix.ErrNotFound):
+		return nil, http.StatusNotFound, err
+	case errors.Is(err, convfix.ErrBadID):
+		return nil, http.StatusBadRequest, err
+	case err != nil:
+		// A manifest the sink can't follow, or one it can't read.
+		return nil, http.StatusInternalServerError, err
+	case fx.Path == "":
+		content, err := generate(fx.Name, strconv.FormatInt(fx.Generated, 10))
+		if err != nil {
+			return nil, http.StatusBadRequest, err
+		}
+		return &file{content: content, name: fx.Name, close: func() {}}, 0, nil
+	}
+	return openRegular(s.repo, fx.Path)
 }
 
 // received answers what the runner asks: the requests under a key after

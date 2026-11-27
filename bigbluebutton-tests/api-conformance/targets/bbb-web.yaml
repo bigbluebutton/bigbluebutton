@@ -15,6 +15,10 @@ vars:
   # cases that check the credentials bbb-web hands out. TURN_SECRET gives the
   # target the turn capability; without it, those cases are skipped.
   turnSecret: {env: TURN_SECRET, secret: true, capability: turn}
+  # Set when the ClamAV daemon runs next to bbb-web (on Tier 1, make up
+  # CLAMAV=1), which gives the target the clamav capability: the cases that
+  # scan presentations need one. Without it, they are skipped.
+  clamav: {env: BBB_CLAMAV, capability: clamav}
   # bbb-web's pageTokenSecret, masked in recordings as the salt is. On Tier 1,
   # conform.env sets BBB_PAGE_TOKEN_SECRET; elsewhere, unset, nothing is masked.
   pageTokenSecret: {env: BBB_PAGE_TOKEN_SECRET, secret: true}
@@ -69,4 +73,8 @@ profiles:
   fetch-blocked-host:    {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" fetch-blocked-host'}
   short-fetch-timeouts:  {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" short-fetch-timeouts'}
   short-upload-start-timeout: {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" short-upload-start-timeout'}
+  tight-limits:          {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" tight-limits'}
+  office-precheck:       {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" office-precheck'}
+  generate-pngs:         {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" generate-pngs'}
+  clamav-scan-unreachable: {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" clamav-scan-unreachable'}
   default:               {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" default'}

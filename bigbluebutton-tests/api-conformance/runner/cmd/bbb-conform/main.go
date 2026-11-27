@@ -18,7 +18,7 @@
 //	                     [--sources DIR ...]
 //	bbb-conform tap [--listen ADDR] [--redis URL] [--data-dir DIR] [--watch DIR,..]
 //	                [--channels CH,..] [--redis-keys GLOB,..] [--max-mb N] [--max-age D]
-//	bbb-conform sink [--listen ADDR] [--cert FILE --key FILE [--listen-http ADDR]] [--fixtures DIR] [--max-mb N] [--max-age D]
+//	bbb-conform sink [--listen ADDR] [--cert FILE --key FILE [--listen-http ADDR]] [--fixtures DIR] [--repo DIR] [--max-mb N] [--max-age D]
 //	bbb-conform version
 package main
 
@@ -35,6 +35,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/convfix"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/diff"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/expectations"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/gap"
@@ -191,6 +192,17 @@ func checkRecordings(dir string, cases []*spec.Case) []string {
 	return append(out, orphans(dir, cases)...)
 }
 
+// repoDir finds the repository the fixtures directory is in, when it is
+// the suite's own (bigbluebutton-tests/api-conformance/fixtures) and the
+// conversion suite is beside it; "" otherwise.
+func repoDir(fixtures string) string {
+	repo := filepath.Join(fixtures, "..", "..", "..")
+	if st, err := os.Stat(filepath.Join(repo, filepath.FromSlash(convfix.ManifestDir))); err != nil || !st.IsDir() {
+		return ""
+	}
+	return repo
+}
+
 // load loads the cases, defaulting the fixtures directory to a sibling of
 // the cases directory. That one needn't exist until a case refers to a
 // fixture, which is then reported as not found. It returns the fixtures
@@ -206,7 +218,7 @@ func load(cases, fixtures string, stderr io.Writer) (*spec.Result, string, int) 
 		fmt.Fprintf(stderr, "bbb-conform: fixtures directory %q not found\n", fixtures)
 		return nil, "", exitUsage
 	}
-	res, err := spec.LoadDir(cases, spec.Options{FixturesDir: fixtures})
+	res, err := spec.LoadDir(cases, spec.Options{FixturesDir: fixtures, RepoDir: repoDir(fixtures)})
 	if err != nil {
 		fmt.Fprintf(stderr, "bbb-conform: %v\n", err)
 		return nil, "", exitUsage

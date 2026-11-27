@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/antchfx/xpath"
+	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/convfix"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/signer"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/sink"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/tmpl"
@@ -157,6 +158,7 @@ func (d *decoder) decodeCase(root *yaml.Node, file, variantID string) *Case {
 
 	c.Uses = sortedKeys(d.uses)
 	d.sinkKeysUsed(root, c)
+	d.conversionFixtures(root)
 
 	// A profile restarts the server, which --exclude-tags disruptive must
 	// be able to avoid. A triage case's answers aren't decided yet, so
@@ -622,6 +624,36 @@ func (d *decoder) sinkKey(n *yaml.Node, key, where string) {
 // sinkURLKey finds the sink keys a case's URLs send requests to: the
 // first path segment after ${sinkUrl}/, ${sinkHttpUrl}/ or ${sinkLocalUrl}/.
 var sinkURLKey = regexp.MustCompile(`\$\{(?:sinkUrl|sinkHttpUrl|sinkLocalUrl)\}/([^/?&#\s"]+)`)
+
+// sinkConversion finds the conversion suite's fixtures a case's URLs ask
+// the sink for: ${sinkUrl}/<key>/conversion/<id>, or with no key.
+var sinkConversion = regexp.MustCompile(`\$\{(?:sinkUrl|sinkHttpUrl|sinkLocalUrl)\}/(?:[^/?&#\s"']+/)?conversion/([^/?&#\s"'<>]+)`)
+
+// conversionFixtures checks that each conversion suite fixture a case asks
+// the sink for by ID is one the sink can serve, so a misspelt ID fails
+// here rather than as a conversion that never starts.
+func (d *decoder) conversionFixtures(root *yaml.Node) {
+	if d.opts.RepoDir == "" {
+		return
+	}
+	var walk func(n *yaml.Node)
+	walk = func(n *yaml.Node) {
+		if n.Kind == yaml.ScalarNode {
+			for _, m := range sinkConversion.FindAllStringSubmatch(n.Value, -1) {
+				if tmpl.HasExpr(m[1]) {
+					continue
+				}
+				if _, err := convfix.Find(os.DirFS(d.opts.RepoDir), m[1]); err != nil {
+					d.f.errf(n, "%v", err)
+				}
+			}
+		}
+		for _, k := range n.Content {
+			walk(k)
+		}
+	}
+	walk(root)
+}
 
 // sinkKeysUsed checks that a sink step that expects nothing (absent, or a
 // count of 0) watches a key a URL in the case sends requests to, written

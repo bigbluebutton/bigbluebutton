@@ -1,6 +1,7 @@
 #!/bin/sh
 # Tier 1 mirrors parts of the packages by hand: install scripts, units,
-# Depends lists, the LibreOffice converter. copies.sha256 holds a hash of
+# Depends lists, the LibreOffice converter; and two of its profiles copy the
+# presentation conversion suite's. copies.sha256 holds a hash of
 # each source as Tier 1 last followed it. This warns about each one that
 # has changed since, so the mirror can be checked; it doesn't fail, since
 # most changes to those files don't matter to Tier 1. In GitHub Actions,

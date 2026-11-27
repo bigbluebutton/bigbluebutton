@@ -10,6 +10,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/convfix"
 )
 
 const (
@@ -115,6 +117,47 @@ steps:
 		if !files[i].HasSize || files[i].Size != want {
 			t.Errorf("file %d: HasSize %v, Size %d, want %d", i, files[i].HasSize, files[i].Size, want)
 		}
+	}
+}
+
+// A conversion suite fixture a case asks the sink for by ID must resolve:
+// a misspelt one is a problem at load, one a variant var names is checked
+// as the var's value, one a run-time template names is left for run time,
+// and without a repository nothing is checked.
+func TestConversionFixtureIDs(t *testing.T) {
+	repo := t.TempDir()
+	dir := filepath.Join(repo, filepath.FromSlash(convfix.ManifestDir), "synthetic")
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "pdf-ok.yaml"), []byte("id: pdf-ok\nfile: pdf-ok.pdf\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	data := []byte(`id: insertDocument.x.y
+title: t
+endpoint: insertDocument
+class: contract
+variants:
+  - {id: a, vars: {fx: pdf-ok}}
+steps:
+  - call: insertDocument
+    params: {meetingID: "${uid}"}
+    body:
+      xml: >-
+        <modules><module name="presentation">
+        <document url="${sinkUrl}/${uid}/conversion/pdf-ok" filename="a.pdf"/>
+        <document url="${sinkUrl}/conversion/pdf-ok" filename="b.pdf"/>
+        <document url="${sinkUrl}/${uid}/conversion/${fx}" filename="c.pdf"/>
+        <document url="${sinkUrl}/${uid}/conversion/pdf-typo" filename="d.pdf"/>
+        <document url="${sinkUrl}/${uid}/conversion/${uid}" filename="e.pdf"/>
+        </module></modules>
+`)
+	_, probs := LoadBytes("conv.yaml", data, Options{RepoDir: repo})
+	if len(probs) != 1 || !strings.Contains(probs[0].Msg, `no such conversion fixture "pdf-typo"`) {
+		t.Errorf("problems:\n%s", dump(probs))
+	}
+	if _, probs := LoadBytes("conv.yaml", data, Options{}); len(probs) != 0 {
+		t.Errorf("without a repository: problems:\n%s", dump(probs))
 	}
 }
 
