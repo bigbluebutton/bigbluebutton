@@ -55,6 +55,7 @@ import useSystemThemeSync from './hooks/useSystemThemeSync';
 import { NotesRenderMode } from '/imports/ui/components/notes/constants';
 import RequestPresenterContainer from '/imports/ui/components/request-presenter/container';
 import DocumentTitleManager from './document-title-manager/component';
+import SmartTriggers from '/imports/ui/components/smart-triggers/component';
 
 interface AppProps {
   darkTheme: boolean;
@@ -193,6 +194,7 @@ const App: React.FC<AppProps> = ({
           )}
           <ChatAlertContainerGraphql />
           {isRaiseHandEnabled && <RaiseHandNotifier />}
+          <SmartTriggers toastsVisible={!hideNotificationToasts && isNotificationEnabled} />
           <ManyWebcamsNotifier />
           <PollingContainer />
           <WakeLockContainer />
