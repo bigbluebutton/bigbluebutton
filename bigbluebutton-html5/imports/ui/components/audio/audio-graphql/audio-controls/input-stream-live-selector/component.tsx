@@ -63,8 +63,6 @@ interface InputStreamLiveSelectorContainerProps {
 
 interface InputStreamLiveSelectorProps extends InputStreamLiveSelectorContainerProps {
   isConnected: boolean;
-  isPresenter: boolean;
-  isModerator: boolean;
   isAudioLocked: boolean;
   listenOnly: boolean;
   muted: boolean;
@@ -86,8 +84,6 @@ interface InputStreamLiveSelectorProps extends InputStreamLiveSelectorContainerP
 
 const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
   isConnected,
-  isPresenter,
-  isModerator,
   isAudioLocked,
   listenOnly,
   muted,
@@ -210,9 +206,6 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
             supportsTransparentListenOnly={supportsTransparentListenOnly}
             openAudioSettings={openAudioSettings}
             showMutedAlert={showMutedAlert}
-            inputStream={inputStream}
-            isModerator={isModerator}
-            isPresenter={isPresenter}
           />
         ) : (
           <>
@@ -228,9 +221,6 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
                 openAudioSettings={openAudioSettings}
                 noInputDevice={inputDeviceId === 'listen-only'}
                 showMutedAlert={showMutedAlert}
-                inputStream={inputStream}
-                isModerator={isModerator}
-                isPresenter={isPresenter}
               />
             )}
             <ListenOnly
@@ -252,14 +242,12 @@ const InputStreamLiveSelectorContainer: React.FC<InputStreamLiveSelectorContaine
   const { data: currentUser } = useCurrentUser((u: Partial<User>) => {
     if (!u.voice) {
       return {
-        presenter: u.presenter,
         isModerator: u.isModerator,
       };
     }
 
     return {
       userId: u.userId,
-      presenter: u.presenter,
       isModerator: u.isModerator,
       locked: u?.locked ?? false,
       away: u?.away,
@@ -311,8 +299,6 @@ const InputStreamLiveSelectorContainer: React.FC<InputStreamLiveSelectorContaine
 
   return (
     <InputStreamLiveSelector
-      isPresenter={currentUser?.presenter ?? false}
-      isModerator={currentUser?.isModerator ?? false}
       isAudioLocked={(!currentUser?.isModerator && currentUser?.locked
         && currentMeeting?.lockSettings?.disableMic) ?? false}
       listenOnly={currentUser?.voice?.listenOnly ?? false}
