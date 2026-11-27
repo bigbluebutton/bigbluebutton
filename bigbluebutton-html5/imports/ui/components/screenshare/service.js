@@ -285,7 +285,7 @@ export const attachLocalPreviewStream = (mediaElement) => {
     return;
   }
   const stream = screenShareBridge.gdmStream;
-  if (stream && mediaElement) {
+  if (stream && mediaElement && mediaElement.srcObject !== stream) {
     // Always muted, presenter preview.
     BridgeService.screenshareLoadAndPlayMediaStream(stream, mediaElement, true);
   }

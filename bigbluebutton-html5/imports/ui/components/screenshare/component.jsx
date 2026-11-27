@@ -71,7 +71,7 @@ class ScreenshareComponent extends React.Component {
     );
   }
 
-  constructor(props) {
+  constructor() {
     super();
     this.state = {
       loaded: false,
@@ -103,10 +103,6 @@ class ScreenshareComponent extends React.Component {
       { leading: false, trailing: true },
     );
 
-    const { locales, icon } = props;
-    this.locales = locales;
-    this.icon = icon;
-
     this.volume = getVolume();
     this.mobileHoverSetTimeout = null;
   }
@@ -120,6 +116,8 @@ class ScreenshareComponent extends React.Component {
       outputDeviceId,
       hasAudio,
       streamId,
+      locales,
+      icon,
     } = this.props;
 
     screenshareHasStarted(streamId, hasAudio, isPresenter, { outputDeviceId });
@@ -130,7 +128,7 @@ class ScreenshareComponent extends React.Component {
 
     this.setState({ switched: startPreviewSizeBig });
 
-    notify(intl.formatMessage(this.locales.started), 'info', this.icon);
+    notify(intl.formatMessage(locales.started), 'info', icon);
 
     layoutContextDispatch({
       type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
@@ -142,10 +140,28 @@ class ScreenshareComponent extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { isPresenter, outputDeviceId, shouldShowScreenshare } = this.props;
+    const {
+      isPresenter,
+      outputDeviceId,
+      shouldShowScreenshare,
+      streamId,
+      startPreviewSizeBig,
+    } = this.props;
     const { videoTagRef } = this.state;
     if (prevProps.isPresenter && !isPresenter) {
       screenshareHasEnded();
+    }
+
+    // The presenter's preview is the local stream, attached on mount. When the shared
+    // content is replaced while this component stays mounted (e.g. camera as content
+    // started over a screenshare), attach the new local stream and use the preview size
+    // of the new content type, as a fresh mount would.
+    if (isPresenter && prevProps.streamId !== streamId) {
+      attachLocalPreviewStream(getMediaElement());
+    }
+
+    if (prevProps.startPreviewSizeBig !== startPreviewSizeBig) {
+      this.setState({ switched: startPreviewSizeBig });
     }
 
     if (prevProps.outputDeviceId !== outputDeviceId && !isPresenter) {
@@ -172,6 +188,8 @@ class ScreenshareComponent extends React.Component {
       intl,
       fullscreenContext,
       layoutContextDispatch,
+      locales,
+      icon,
     } = this.props;
     const {
       videoTagRef,
@@ -181,9 +199,9 @@ class ScreenshareComponent extends React.Component {
 
     const Settings = getSettingsSingletonInstance();
     if (Settings.dataSaving.viewScreenshare) {
-      notify(intl.formatMessage(this.locales.ended), 'info', this.icon);
+      notify(intl.formatMessage(locales.ended), 'info', icon);
     } else {
-      notify(intl.formatMessage(this.locales.endedDueToDataSaving), 'info', this.icon);
+      notify(intl.formatMessage(locales.endedDueToDataSaving), 'info', icon);
     }
 
     layoutContextDispatch({
@@ -353,6 +371,7 @@ class ScreenshareComponent extends React.Component {
       fullscreenElementId,
       fullscreenContext,
       isBot,
+      locales,
     } = this.props;
 
     const ALLOW_FULLSCREEN = window.meetingClientSettings.public.app.allowFullscreen;
@@ -363,7 +382,7 @@ class ScreenshareComponent extends React.Component {
       <Styled.FullscreenButtonWrapperForScreenshare>
         <FullscreenButtonContainer
           key={uniqueId('fullscreenButton-')}
-          elementName={intl.formatMessage(this.locales.label)}
+          elementName={intl.formatMessage(locales.label)}
           fullscreenRef={this.screenshareContainer}
           elementId={fullscreenElementId}
           isFullscreen={fullscreenContext}
@@ -374,13 +393,13 @@ class ScreenshareComponent extends React.Component {
   }
 
   renderAutoplayOverlay() {
-    const { intl } = this.props;
+    const { intl, locales } = this.props;
 
     return (
       <AutoplayOverlay
         key={uniqueId('screenshareAutoplayOverlay')}
-        autoplayBlockedDesc={intl.formatMessage(this.locales.autoplayBlockedDesc)}
-        autoplayAllowLabel={intl.formatMessage(this.locales.autoplayAllowLabel)}
+        autoplayBlockedDesc={intl.formatMessage(locales.autoplayBlockedDesc)}
+        autoplayAllowLabel={intl.formatMessage(locales.autoplayAllowLabel)}
         handleAllowAutoplay={this.handleAllowAutoplay}
       />
     );
@@ -481,7 +500,7 @@ class ScreenshareComponent extends React.Component {
 
   renderScreensharePresenter() {
     const { switched } = this.state;
-    const { isGloballyBroadcasting, intl } = this.props;
+    const { isGloballyBroadcasting, intl, locales } = this.props;
 
     return (
       <>
@@ -493,12 +512,12 @@ class ScreenshareComponent extends React.Component {
               <div data-test="isSharingScreen">
                 {!switched
                   && ScreenshareComponent.renderScreenshareContainerInside(
-                    intl.formatMessage(this.locales.presenterSharingLabel),
+                    intl.formatMessage(locales.presenterSharingLabel),
                   )}
               </div>
             )
             : ScreenshareComponent.renderScreenshareContainerInside(
-              intl.formatMessage(this.locales.presenterLoadingLabel),
+              intl.formatMessage(locales.presenterLoadingLabel),
             )
         }
       </>
@@ -506,7 +525,7 @@ class ScreenshareComponent extends React.Component {
   }
 
   renderScreenshareDefault() {
-    const { intl, enableVolumeControl } = this.props;
+    const { intl, enableVolumeControl, locales } = this.props;
     const { loaded } = this.state;
 
     return (
@@ -518,7 +537,7 @@ class ScreenshareComponent extends React.Component {
           {
             !loaded
               ? ScreenshareComponent.renderScreenshareContainerInside(
-                intl.formatMessage(this.locales.viewerLoadingLabel),
+                intl.formatMessage(locales.viewerLoadingLabel),
               )
               : null
           }
@@ -670,4 +689,10 @@ ScreenshareComponent.propTypes = {
   outputDeviceId: PropTypes.string,
   streamId: PropTypes.string.isRequired,
   isBot: PropTypes.bool.isRequired,
+  locales: PropTypes.objectOf(PropTypes.shape({
+    id: PropTypes.string,
+    description: PropTypes.string,
+  })).isRequired,
+  icon: PropTypes.string.isRequired,
+  startPreviewSizeBig: PropTypes.bool.isRequired,
 };
