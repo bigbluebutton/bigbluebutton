@@ -10,42 +10,25 @@ import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
     if(browserInfo.isTabletApp) {
         logger.debug(`BBB-MOBILE - Mobile APP detected`);
 
-        const WEBRTC_CALL_TYPE_FULL_AUDIO = 'full_audio';
         const WEBRTC_CALL_TYPE_SCREEN_SHARE = 'screen_share';
         const WEBRTC_CALL_TYPE_STANDARD = 'standard';
 
-        // This function detects if the call happened to publish a screenshare
-        function detectWebRtcCallType(caller, peerConnection = null, args = null) {
-            // Keep track of how many webRTC evaluations was done
-            if(!peerConnection.detectWebRtcCallTypeEvaluations)
-                peerConnection.detectWebRtcCallTypeEvaluations = 0;
+        // Set by runAsScreenSharePeer while the screen share broker starts its peer
+        let screenSharePeerPending = false;
 
-            peerConnection.detectWebRtcCallTypeEvaluations ++;
-
-            // If already successfully evaluated, reuse
-            if(peerConnection && peerConnection.webRtcCallType !== undefined ) {
-                logger.info(`BBB-MOBILE - detectWebRtcCallType (already evaluated as ${peerConnection.webRtcCallType})`, {caller, peerConnection});
-                return peerConnection.webRtcCallType;
+        // Classifies a peer connection on its first evaluation: the peer started inside
+        // runAsScreenSharePeer is routed to the native broadcast upload extension, every
+        // other peer keeps using the webview WebRTC
+        function detectWebRtcCallType(caller, peerConnection) {
+            if (peerConnection.webRtcCallType === undefined) {
+                peerConnection.webRtcCallType = screenSharePeerPending
+                    ? WEBRTC_CALL_TYPE_SCREEN_SHARE
+                    : WEBRTC_CALL_TYPE_STANDARD;
+                screenSharePeerPending = false;
+                logger.info(`BBB-MOBILE - detectWebRtcCallType (evaluated as ${peerConnection.webRtcCallType})`, {caller});
             }
 
-            // Evaluate context otherwise
-            const e = new Error('dummy');
-            const stackTrace = e.stack;
-            logger.info(`BBB-MOBILE - detectWebRtcCallType (evaluating)`, {caller, peerConnection, stackTrace: stackTrace.split('\n'), detectWebRtcCallTypeEvaluations: peerConnection.detectWebRtcCallTypeEvaluations, args});
-
-            // addEventListener is the first call for screensharing and it has a startScreensharing in its stackTrace
-            if( peerConnection.detectWebRtcCallTypeEvaluations == 1) {
-                if(caller == 'addEventListener' && stackTrace.indexOf('startScreensharing') !== -1) {
-                    peerConnection.webRtcCallType = WEBRTC_CALL_TYPE_SCREEN_SHARE; // this uses mobile app broadcast upload extension
-                } else if(caller == 'addEventListener' && stackTrace.indexOf('invite') !== -1) {
-                    peerConnection.webRtcCallType = WEBRTC_CALL_TYPE_FULL_AUDIO; // this uses mobile app webRTC
-                } else {
-                    peerConnection.webRtcCallType = WEBRTC_CALL_TYPE_STANDARD; // this uses the webview webRTC
-                }
-
-                return peerConnection.webRtcCallType;
-            }
-
+            return peerConnection.webRtcCallType;
         }
         // Store the method call sequential
         const sequenceHolder = {sequence: 0};
@@ -142,12 +125,10 @@ import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
             }
             logger.info(`BBB-MOBILE - createOffer called`, {options});
 
-            const stunTurn = await fetchStunTurnServers(Auth._authToken);
-
-            const createOfferMethod = (webRtcCallType === WEBRTC_CALL_TYPE_SCREEN_SHARE) ? 'createScreenShareOffer' : 'createFullAudioOffer';
+            const stunTurn = await fetchStunTurnServers(Auth.sessionToken);
 
             return await new Promise( (resolve, reject) => {
-                callNativeMethod(createOfferMethod, [stunTurn]).then ( sdp => {
+                callNativeMethod('createScreenShareOffer', [stunTurn]).then ( sdp => {
                     logger.info(`BBB-MOBILE - createOffer resolved`, {sdp});
 
                     // send offer to BBB code
@@ -161,7 +142,7 @@ import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
 
         prototype.originalAddEventListener = prototype.addEventListener;
         prototype.addEventListener = function (event, callback) {
-            if(WEBRTC_CALL_TYPE_STANDARD === detectWebRtcCallType('addEventListener', this, arguments)){
+            if(WEBRTC_CALL_TYPE_STANDARD === detectWebRtcCallType('addEventListener', this)){
                 return prototype.originalAddEventListener.call(this, ...arguments);
             }
 
@@ -206,8 +187,7 @@ import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
 
         prototype.originalSetRemoteDescription = prototype.setRemoteDescription;
         prototype.setRemoteDescription = function (description, successCallback, failureCallback) {
-            const webRtcCallType = detectWebRtcCallType('setRemoteDescription', this);
-            if(WEBRTC_CALL_TYPE_STANDARD === webRtcCallType){
+            if(WEBRTC_CALL_TYPE_STANDARD === detectWebRtcCallType('setRemoteDescription', this)){
                 return prototype.originalSetRemoteDescription.call(this, ...arguments);
             }
 
@@ -216,20 +196,11 @@ import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
             this._remoteDescription = JSON.parse(JSON.stringify(description));
             Object.defineProperty(this, 'remoteDescription', {get: function() {return this._remoteDescription;},set: function(newValue) {}});
 
-            const setRemoteDescriptionMethod = (webRtcCallType === WEBRTC_CALL_TYPE_SCREEN_SHARE) ? 'setScreenShareRemoteSDP' : 'setFullAudioRemoteSDP';
-
             return new Promise( (resolve, reject) => {
-                callNativeMethod(setRemoteDescriptionMethod, [description]).then ( () => {
+                callNativeMethod('setScreenShareRemoteSDP', [description]).then ( () => {
                     logger.info(`BBB-MOBILE - setRemoteDescription resolved`);
 
                     resolve();
-
-                    if(webRtcCallType === WEBRTC_CALL_TYPE_FULL_AUDIO) {
-                        Object.defineProperty(this, "iceGatheringState", {get: function() { return "complete" }, set: ()=>{} });
-                        Object.defineProperty(this, "iceConnectionState", {get: function() { return "completed" }, set: ()=>{} });
-                        this.onicegatheringstatechange && this.onicegatheringstatechange({target: this});
-                        this.oniceconnectionstatechange && this.oniceconnectionstatechange({target: this});
-                    }
                 });
             } );
         }
@@ -284,6 +255,18 @@ import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
         window.bbbMobileApp = {};
         window.bbbMobileApp.onScreenshareStopRequest = () => {
             callNativeMethod('stopScreenShare');
+        }
+
+        // Runs fn (the screen share peer start) so that the peer connection it sets up is
+        // classified as screen share. The flag is cleared even if fn throws, so a failed
+        // start never leaks the classification into the next audio/webcam peer.
+        window.bbbMobileApp.runAsScreenSharePeer = (fn) => {
+            screenSharePeerPending = true;
+            try {
+                return fn();
+            } finally {
+                screenSharePeerPending = false;
+            }
         }
 
         // Handle screenshare stop requested by application (i.e. stopped the broadcast extension)

@@ -202,7 +202,13 @@ class ScreenshareBroker extends BaseBroker {
         };
         this.webRtcPeer = new WebRtcPeer('sendonly', options);
         this.webRtcPeer.iceQueue = [];
-        this.webRtcPeer.start();
+        // The tablet app routes this peer to its native screen broadcast
+        // (imports/ui/services/mobile-app); elsewhere the helper is absent
+        if (window.bbbMobileApp?.runAsScreenSharePeer) {
+          window.bbbMobileApp.runAsScreenSharePeer(() => this.webRtcPeer.start());
+        } else {
+          this.webRtcPeer.start();
+        }
         this.webRtcPeer.peerConnection.onconnectionstatechange = () => {
           this.handleConnectionStateChange('screenshare');
         };
