@@ -31,6 +31,13 @@ case class ExtendMeetingDuration(meetingId: String, userId: String) extends InMe
 case class DestroyMeetingInternalMsg(meetingId: String) extends InMessage
 
 /**
+ * Sent by BigBlueButtonActor once the meeting actor is subscribed to the message buses,
+ * so the shared notes server's reply cannot arrive before the meeting can receive it.
+ * @param meetingId
+ */
+case class InitSharedNotesInternalMsg(meetingId: String) extends InMessage
+
+/**
  * Sent by breakout room to parent meeting the breakout had ended.
  * @param meetingId
  */
