@@ -151,7 +151,7 @@ var (
 	GqlSubscriptionRemovedCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "gql_subscription_removed_total",
-			Help: "Total number of Graphql subscriptions removed, by reason",
+			Help: "Total number of Graphql subscriptions removed, by reason: client_complete, hasura_complete, hasura_error or connection_closed",
 		},
 		[]string{"type", "operationName", "reason"},
 	)

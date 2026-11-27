@@ -5,6 +5,7 @@ package common
 const (
 	RemovedByClient          = "client_complete"
 	RemovedByHasura          = "hasura_complete"
+	RemovedByHasuraError     = "hasura_error"
 	RemovedOnConnectionClose = "connection_closed"
 )
 
@@ -29,6 +30,20 @@ func (bc *BrowserConnection) RemoveActiveSubscription(queryId string) (GraphQlSu
 		bc.NoteActiveSubscriptionsLocked()
 	}
 	return subscription, active
+}
+
+// RemoveSubscriptionWithoutData removes a subscription that has not received data yet, and returns
+// it, if it was active and had received none. The check and the removal are one lock.
+func (bc *BrowserConnection) RemoveSubscriptionWithoutData(queryId string) (GraphQlSubscription, bool) {
+	bc.ActiveSubscriptionsMutex.Lock()
+	defer bc.ActiveSubscriptionsMutex.Unlock()
+	subscription, active := bc.ActiveSubscriptions[queryId]
+	if !active || subscription.FirstDataReceived {
+		return subscription, false
+	}
+	delete(bc.ActiveSubscriptions, queryId)
+	bc.NoteActiveSubscriptionsLocked()
+	return subscription, true
 }
 
 // RecordConnectionSubscriptionsRemoved removes, when a connection closes, the subscriptions still

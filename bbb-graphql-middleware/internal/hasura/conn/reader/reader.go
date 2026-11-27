@@ -111,6 +111,12 @@ func handleMessageReceivedFromHasura(hc *common.HasuraConnection, message []byte
 			handleCompleteMessage(hc, hasuraMessageInfo.ID)
 		}
 
+		// An "error" also ends the operation, in the protocol: no complete follows it. The error
+		// is still passed on to the browser below.
+		if hasuraMessageInfo.Type == "error" {
+			handleErrorMessage(hc, hasuraMessageInfo.ID)
+		}
+
 		if hasuraMessageInfo.Type == "next" {
 			common.GqlReceivedDataCounter.
 				With(prometheus.Labels{
@@ -280,6 +286,18 @@ func handleCompleteMessage(hc *common.HasuraConnection, queryId string) {
 		common.RecordSubscriptionRemoved(subscription, common.RemovedByHasura)
 	}
 	hc.BrowserConn.Logger.Debugf("%s (%s) with Id %s finished by Hasura.", subscription.Type, subscription.OperationName, queryId)
+}
+
+// handleErrorMessage removes an operation Hasura refused before it sent any data, so it no longer
+// holds a slot of the per-connection limit and is not resent after a reconnection. An operation
+// that has received data is kept: the error can answer a second subscribe for its id (Hasura
+// refuses an id it is running), while the first one is still running.
+func handleErrorMessage(hc *common.HasuraConnection, queryId string) {
+	subscription, removed := hc.BrowserConn.RemoveSubscriptionWithoutData(queryId)
+	if removed {
+		common.RecordSubscriptionRemoved(subscription, common.RemovedByHasuraError)
+		hc.BrowserConn.Logger.Debugf("%s (%s) with Id %s refused by Hasura with an error.", subscription.Type, subscription.OperationName, queryId)
+	}
 }
 
 func handleConnectionAckMessage(hc *common.HasuraConnection, message []byte) {
