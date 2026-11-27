@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useId } from 'react';
 import { useIntl, defineMessages } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import logger from '/imports/startup/client/logger';
@@ -49,6 +49,10 @@ const intlMessages = defineMessages({
 
 const CrowdActionButtons: React.FC = () => {
   const intl = useIntl();
+  const muteAllLabelId = useId();
+  const muteAllDescId = useId();
+  const lockSettingsLabelId = useId();
+  const lockSettingsDescId = useId();
   const [setMuted] = useMutation(SET_MUTED);
   const [clearAllReaction, { loading: isClearingReactions }] = useMutation(CLEAR_ALL_REACTION);
   const isReactionsEnabled = useIsReactionsEnabled();
@@ -108,13 +112,18 @@ const CrowdActionButtons: React.FC = () => {
       )}
       <Styled.ActionButtonsWrapper className="bbb-crowd-actions" $isMinWidth={isMinWidthLayout}>
         <Styled.ActionButtonWrapper className="bbb-crowd-actions__item">
-          <Styled.ActionButtonLabel className="bbb-crowd-actions__label">
+          <Styled.ActionButtonLabel id={muteAllLabelId} className="bbb-crowd-actions__label" aria-hidden>
             {intl.formatMessage(intlMessages.muteAllExceptPresenterLabel)}
           </Styled.ActionButtonLabel>
+          <span id={muteAllDescId} className="sr-only" aria-hidden>
+            {intl.formatMessage(intlMessages.muteAllExceptPresenterDesc)}
+          </span>
           {/* @ts-ignore - button is js component */}
           <Styled.ActionButton
             hideLabel
-            label={intl.formatMessage(intlMessages.muteAllExceptPresenterDesc)}
+            label={intl.formatMessage(intlMessages.muteAllExceptPresenterLabel)}
+            aria-labelledby={muteAllLabelId}
+            aria-describedby={muteAllDescId}
             tooltipLabel={intl.formatMessage(intlMessages.muteAllExceptPresenterDesc)}
             icon="mute"
             size="lg"
@@ -123,13 +132,18 @@ const CrowdActionButtons: React.FC = () => {
           />
         </Styled.ActionButtonWrapper>
         <Styled.ActionButtonWrapper className="bbb-crowd-actions__item">
-          <Styled.ActionButtonLabel className="bbb-crowd-actions__label">
+          <Styled.ActionButtonLabel id={lockSettingsLabelId} className="bbb-crowd-actions__label" aria-hidden>
             {intl.formatMessage(intlMessages.lockSettingsButtonLabel)}
           </Styled.ActionButtonLabel>
+          <span id={lockSettingsDescId} className="sr-only" aria-hidden>
+            {intl.formatMessage(intlMessages.lockSettingsButtonDescription)}
+          </span>
           {/* @ts-ignore - button is js component */}
           <Styled.ActionButton
             hideLabel
-            label={intl.formatMessage(intlMessages.lockSettingsButtonDescription)}
+            label={intl.formatMessage(intlMessages.lockSettingsButtonLabel)}
+            aria-labelledby={lockSettingsLabelId}
+            aria-describedby={lockSettingsDescId}
             tooltipLabel={intl.formatMessage(intlMessages.lockSettingsButtonDescription)}
             icon="lock"
             size="lg"

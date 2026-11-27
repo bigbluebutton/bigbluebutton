@@ -486,9 +486,11 @@ const QuickPollDropdown = (props) => {
     singlePollType = type;
   }
 
+  const quickPollAriaLabel = `${quickPollLabel} – ${intl.formatMessage(intlMessages.quickPollLabel)}`;
+
   let btn = (
     <Styled.QuickPollButton
-      aria-label={intl.formatMessage(intlMessages.quickPollLabel)}
+      aria-label={quickPollAriaLabel}
       label={quickPollLabel}
       tooltipLabel={intl.formatMessage(intlMessages.quickPollLabel)}
       onClick={() => {
@@ -533,7 +535,7 @@ const QuickPollDropdown = (props) => {
   if (usePollDropdown) {
     btn = (
       <Styled.QuickPollButton
-        aria-label={intl.formatMessage(intlMessages.quickPollLabel)}
+        aria-label={quickPollAriaLabel}
         label={quickPollLabel}
         tooltipLabel={intl.formatMessage(intlMessages.quickPollLabel)}
         onClick={() => null}

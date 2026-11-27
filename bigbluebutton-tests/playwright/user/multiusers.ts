@@ -520,6 +520,22 @@ export class MultiUsers {
     // mute all users except the presenter: a direct crowd-action button in the
     // participants panel now (the manageUsers gear dropdown is gone)
     await this.modPage.waitAndClick(e.usersListSidebarButton);
+    // the crowd-action buttons are named by their visible labels and described by their tooltips
+    const muteAllLocator = this.modPage.page.locator(e.muteAllUsers);
+    await expect(muteAllLocator, 'should name the mute all button after its visible label').toHaveAccessibleName(
+      e.muteAllUsersLabel,
+    );
+    await expect(muteAllLocator, 'should describe what the mute all button does').toHaveAccessibleDescription(
+      e.muteAllUsersDescription,
+    );
+    const lockViewersLocator = this.modPage.page.locator(e.lockViewersButton);
+    await expect(
+      lockViewersLocator,
+      'should name the lock viewers button after its visible label',
+    ).toHaveAccessibleName(e.lockViewersButtonLabel);
+    await expect(lockViewersLocator, 'should describe what the lock viewers button does').toHaveAccessibleDescription(
+      e.lockViewersButtonDescription,
+    );
     await this.modPage.waitAndClick(e.muteAllUsers);
     // check if presenter is not muted
     await this.modPage.checkUserTalkingIndicator();

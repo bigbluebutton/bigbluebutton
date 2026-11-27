@@ -73,6 +73,7 @@ class EchoTest extends Component {
         <Styled.EchoTestButton
           label={intl.formatMessage(intlMessages.disconfirmLabel)}
           aria-label={intl.formatMessage(intlMessages.disconfirmAriaLabel)}
+          data-test="echoNoBtn"
           icon="thumbs_down"
           circle
           color="danger"

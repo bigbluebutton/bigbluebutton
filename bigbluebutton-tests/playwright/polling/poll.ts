@@ -37,6 +37,13 @@ export class Polling extends MultiUsers {
     await util.uploadSPresentationForTestingPolls(this.modPage, e.questionSlideFileName);
 
     // The slide needs to be uploaded and converted, so wait a bit longer for this step
+    await this.modPage.hasElement(e.quickPoll, 'should display the quick poll button', ELEMENT_WAIT_LONGER_TIME);
+    // the accessible name starts with the detected options shown on the button (WCAG 2.5.3)
+    const quickPollLocator = this.modPage.page.locator(e.quickPoll);
+    const quickPollOptions = (await quickPollLocator.innerText()).trim();
+    await expect(quickPollLocator, 'should name the quick poll button after its visible options').toHaveAccessibleName(
+      `${quickPollOptions} – ${e.quickPollLabel}`,
+    );
     await this.modPage.waitAndClick(e.quickPoll, ELEMENT_WAIT_LONGER_TIME);
     if (!quickPollConfirmationStep) {
       await this.userPage.hasElement(

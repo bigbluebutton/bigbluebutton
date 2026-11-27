@@ -176,6 +176,15 @@ export class Audio extends MultiUsers {
     await this.modPage.hasElement(e.audioModal, 'should open the audio modal on join', ELEMENT_WAIT_EXTRA_LONG_TIME);
     await this.modPage.clickMicrophoneButton();
     await this.modPage.hasElement(e.echoYesButton, 'should ask whether the echo is audible', ELEMENT_WAIT_LONGER_TIME);
+    // the accessible names start with the visible "Yes" / "No" labels (WCAG 2.5.3)
+    await expect(
+      this.modPage.page.locator(e.echoYesButton),
+      'should name the "Yes" button after its visible label',
+    ).toHaveAccessibleName(e.echoYesButtonLabel);
+    await expect(
+      this.modPage.page.locator(e.echoNoButton),
+      'should name the "No" button after its visible label',
+    ).toHaveAccessibleName(e.echoNoButtonLabel);
     await this.modPage.waitAndClick(e.echoNoButton);
     await this.modPage.hasElement(e.audioSettingsModal, 'should open the audio settings when the echo is not heard');
     await this.modPage.hasElement(e.selectMicrophoneButton, 'should offer to change the microphone');
