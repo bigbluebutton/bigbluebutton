@@ -30,11 +30,13 @@ const Position = styled.div`
   margin-bottom: 24px;
 `;
 
-const MessageContainer = styled.div`
-  background-color: rgba(0, 0, 0, 0.35);
-  padding: 20px 28px;
-  border-radius: 12px;
-  margin: 8px 0 24px 0;
+const MessageContainer = styled.div<{ $hasCustomMessage: boolean }>`
+  ${({ $hasCustomMessage }) => $hasCustomMessage && `
+    background-color: rgba(0, 0, 0, 0.35);
+    padding: 20px 28px;
+    border-radius: 12px;
+    margin: 8px 0 24px 0;
+  `}
 `;
 
 const MessageLabel = styled.div`
@@ -46,11 +48,13 @@ const MessageLabel = styled.div`
   letter-spacing: 0.5px;
 `;
 
-const MessageText = styled.p`
-  font-size: 1em;
-  font-weight: 500;
-  line-height: 1.4;
-  margin: 0;
+const MessageText = styled.p<{ $hasCustomMessage: boolean }>`
+  ${({ $hasCustomMessage }) => $hasCustomMessage && `
+    font-size: 1em;
+    font-weight: 500;
+    line-height: 1.4;
+    margin: 0;
+  `}
 `;
 
 const pulse = keyframes`

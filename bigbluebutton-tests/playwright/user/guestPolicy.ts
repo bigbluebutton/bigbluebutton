@@ -120,14 +120,43 @@ export class GuestPolicy extends MultiUsers {
       .locator('..')
       .getByRole('checkbox')
       .click();
-    await this.modPage.fill(e.waitingUsersLobbyMessage, 'test');
+    const guestMessage = this.userPage.page.locator(e.guestMessage);
+    await expect(
+      guestMessage,
+      'should render the guest message live region before its content changes',
+    ).toHaveAttribute('aria-live', 'polite');
+    const initialGuestMessage = await guestMessage.elementHandle();
+    const firstMessage = 'first lobby message';
+    const secondMessage = 'second lobby message';
+    const successStatus = this.modPage.page.getByRole('status');
+    await expect(successStatus).toBeEmpty();
+    const initialSuccessStatus = await successStatus.elementHandle();
+    await this.modPage.fill(e.waitingUsersLobbyMessage, firstMessage);
     await this.modPage.waitAndClick(e.sendLobbyMessage);
+    await expect(successStatus).toHaveAttribute('aria-atomic', 'true');
+    const visibleSuccessLabel = successStatus.locator('[data-test="lobbyMessageSuccessLabel"]');
+    await expect(visibleSuccessLabel).toHaveText('Message sent successfully!');
+    await expect(visibleSuccessLabel).toBeVisible();
+    await expect(visibleSuccessLabel).toHaveAttribute('aria-hidden', 'true');
+    const screenReaderSuccess = visibleSuccessLabel.locator('xpath=following-sibling::span');
+    await expect(screenReaderSuccess).toHaveText(`Message sent successfully!: ${firstMessage}`);
+    expect(
+      await successStatus.evaluate((node, initialNode) => node === initialNode, initialSuccessStatus),
+      'should update the existing message confirmation status region',
+    ).toBe(true);
     await this.userPage.hasText(
       e.guestMessage,
-      /test/,
-      'should the guest message contain the text "test"',
+      new RegExp(firstMessage),
+      `should the guest message contain the text "${firstMessage}"`,
       ELEMENT_WAIT_LONGER_TIME,
     );
+    expect(
+      await guestMessage.evaluate((node, initialNode) => node === initialNode, initialGuestMessage),
+      'should update the existing guest message live region',
+    ).toBe(true);
+    await this.modPage.fill(e.waitingUsersLobbyMessage, secondMessage);
+    await this.modPage.waitAndClick(e.sendLobbyMessage);
+    await expect(screenReaderSuccess).toHaveText(`Message sent successfully!: ${secondMessage}`);
   }
 
   async allowAllAuthenticated() {
@@ -198,17 +227,51 @@ export class GuestPolicy extends MultiUsers {
     await setGuestPolicyOption(this.modPage, e.askModerator);
     await this.modPage.page.waitForTimeout(500);
     await this.initUserPage(this.context, { shouldCloseAudioModal: false, shouldCheckAllInitialSteps: false });
+    const guestMessage = this.userPage.page.locator(e.guestMessage);
+    await expect(
+      guestMessage,
+      'should render the guest message live region before its content changes',
+    ).toHaveAttribute('aria-live', 'polite');
+    const initialGuestMessage = await guestMessage.elementHandle();
     await this.modPage.waitAndClick(e.authenticatedWaitingUsers);
 
     await this.modPage.waitAndClick(e.privateMessageGuest);
-    await this.modPage.fill(e.inputPrivateLobbyMessage, 'test');
+    const firstMessage = 'first private message';
+    const secondMessage = 'second private message';
+    const successStatus = this.modPage.page.getByRole('status');
+    await expect(successStatus).toBeEmpty();
+    const initialSuccessStatus = await successStatus.elementHandle();
+    await this.modPage.fill(e.inputPrivateLobbyMessage, firstMessage);
     await this.modPage.waitAndClick(e.sendPrivateLobbyMessage);
+    await expect(successStatus).toHaveAttribute('aria-atomic', 'true');
+    const visibleSuccessLabel = successStatus.locator('[data-test="lobbyMessageSuccessLabel"]');
+    await expect(visibleSuccessLabel).toHaveText('Message sent successfully!');
+    await expect(visibleSuccessLabel).toBeVisible();
+    await expect(visibleSuccessLabel).toHaveAttribute('aria-hidden', 'true');
+    const screenReaderSuccess = visibleSuccessLabel.locator('xpath=following-sibling::span');
+    await expect(screenReaderSuccess).toHaveText(`Message sent successfully!: ${firstMessage}`);
+    expect(
+      await successStatus.evaluate((node, initialNode) => node === initialNode, initialSuccessStatus),
+      'should update the existing private message confirmation status region',
+    ).toBe(true);
+    await this.modPage.fill(e.inputPrivateLobbyMessage, secondMessage);
+    await expect(this.modPage.page.locator(e.inputPrivateLobbyMessage)).toBeFocused();
     await this.userPage.hasText(
       e.guestMessage,
-      /test/,
-      'should the guest message contain the text "test" for the attendee',
+      new RegExp(firstMessage),
+      `should the guest message contain the text "${firstMessage}" for the attendee`,
       ELEMENT_WAIT_LONGER_TIME,
     );
+    expect(
+      await guestMessage.evaluate((node, initialNode) => node === initialNode, initialGuestMessage),
+      'should update the existing guest message live region',
+    ).toBe(true);
+    await expect(successStatus).toBeEmpty();
+    await expect(this.modPage.page.locator(e.inputPrivateLobbyMessage)).toHaveValue(secondMessage);
+    await expect(this.modPage.page.locator(e.inputPrivateLobbyMessage)).toBeFocused();
+    await this.modPage.waitAndClick(e.sendPrivateLobbyMessage);
+    await expect(screenReaderSuccess).toHaveText(`Message sent successfully!: ${secondMessage}`);
+    await expect(successStatus).toHaveCount(0);
   }
 
   async acceptSpecificUser() {

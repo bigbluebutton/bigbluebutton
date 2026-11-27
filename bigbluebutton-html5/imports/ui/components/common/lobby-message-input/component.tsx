@@ -44,6 +44,7 @@ const LobbyMessageInput: React.FC<LobbyMessageInputProps> = ({
   const [isSending, setIsSending] = useState(false);
   const [messageSent, setMessageSent] = useState(false);
   const [lastSentMessage, setLastSentMessage] = useState(initialMessage);
+  const draftVersionRef = useRef(0);
   const messageSentTimerRef = useRef<ReturnType<typeof setTimeout>>();
   const isSendingTimerRef = useRef<ReturnType<typeof setTimeout>>();
 
@@ -54,22 +55,27 @@ const LobbyMessageInput: React.FC<LobbyMessageInputProps> = ({
 
   const handleSend = useCallback(() => {
     if (!message.trim()) return;
-    onSend(message);
-    setLastSentMessage(message);
+    const sentMessage = message;
+    const sentDraftVersion = draftVersionRef.current;
+    onSend(sentMessage);
+    setLastSentMessage(sentMessage);
     clearTimeout(isSendingTimerRef.current);
     clearTimeout(messageSentTimerRef.current);
     setIsSending(true);
     isSendingTimerRef.current = setTimeout(() => {
       setIsSending(false);
       setMessageSent(true);
-      onSent?.();
-      messageSentTimerRef.current = setTimeout(() => setMessageSent(false), SENT_FEEDBACK_MS);
+      messageSentTimerRef.current = setTimeout(() => {
+        setMessageSent(false);
+        if (draftVersionRef.current === sentDraftVersion) onSent?.();
+      }, SENT_FEEDBACK_MS);
     }, SENDING_DELAY_MS);
   }, [message, onSend, onSent]);
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
     setMessage(value);
+    draftVersionRef.current += 1;
     onDraftChange?.(value);
   }, [onDraftChange]);
 
@@ -113,10 +119,15 @@ const LobbyMessageInput: React.FC<LobbyMessageInputProps> = ({
           </TooltipContainer>
         ) : sendButton}
       </Styled.InputWrapper>
-      {messageSent && successLabel && (
-        <Styled.SuccessMessage role="status" aria-live="polite">
-          <CheckCircleOutlineIcon fontSize="small" />
-          {successLabel}
+      {successLabel && (
+        <Styled.SuccessMessage role="status" aria-live="polite" aria-atomic="true">
+          {messageSent && (
+            <Styled.SuccessContent>
+              <CheckCircleOutlineIcon fontSize="small" />
+              <span data-test="lobbyMessageSuccessLabel" aria-hidden="true">{successLabel}</span>
+              <Styled.VisuallyHidden>{`${successLabel}: ${lastSentMessage}`}</Styled.VisuallyHidden>
+            </Styled.SuccessContent>
+          )}
         </Styled.SuccessMessage>
       )}
     </>

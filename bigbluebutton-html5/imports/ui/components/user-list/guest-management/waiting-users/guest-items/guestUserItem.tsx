@@ -36,6 +36,10 @@ const intlMessages = defineMessages({
     id: 'app.textInput.sendLabel',
     description: 'Text input send button label',
   },
+  messageSent: {
+    id: 'app.lock-viewers.guestPolicy.lobbyMessageSent',
+    description: 'Confirmation shown after lobby message is sent',
+  },
 });
 
 interface GuestUserItemProps {
@@ -151,6 +155,7 @@ const GuestUserItem: React.FC<GuestUserItemProps> = ({
             <LobbyMessageInput
               placeholder={intl.formatMessage(intlMessages.privateInputPlaceholder, { userName: name })}
               submitLabel={intl.formatMessage(intlMessages.sendLabel)}
+              successLabel={intl.formatMessage(intlMessages.messageSent)}
               onSend={setPrivateGuestLobbyMessage}
               onSent={() => setShowInput(false)}
               inputDataTest="privateLobbyMessage"
