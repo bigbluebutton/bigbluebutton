@@ -1,0 +1,56 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# An Office document is converted to PDF by LibreOffice first. bbb-web
+# says the document is supported, that LibreOffice made its PDF, and that
+# the PDF is supported, before it converts the PDF as any other: the
+# converted file is named after the document, with .pdf.
+id: presentation.conversion.sequence-office
+title: An Office document goes through LibreOffice before its pages convert
+endpoint: presentation
+class: contract
+tags: [ci, conversion]
+requires: [akka, bus, callbacks, presentation-conversion]
+steps:
+  # A one-page image instead of the 15-page default presentation, so that
+  # the suite's conversions stay short.
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Conversion}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}-start/fixtures/presentations/image.png" filename="start.png"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: insertDocument
+    method: POST
+    params: {meetingID: "${uid}"}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}/conversion/off-docx-lorem-a4" filename="report.docx"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - bus: {name: PresentationConversionEndedEventMsg, meetingId: "${intId}", within: 180s}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.presName: report.docx}
+    capture: {presId: $.core.body.presentationId}
+  - bus: {name: PresentationConversionUpdateSysPubMsg, meetingId: "${intId}", within: 500ms}
+    select: [$.core.body.messageKey, $.core.body.presName]
+    expect:
+      jsonpath:
+        $.core.body.presentationId: "${presId}"
+        $.core.body.messageKey: OFFICE_DOC_CONVERSION_SUCCESS
+      count: 1
+  - bus: {name: PresentationConversionUpdateSysPubMsg, meetingId: "${intId}", within: 500ms}
+    select: [$.core.body.messageKey, $.core.body.presName]
+    expect:
+      jsonpath:
+        $.core.body.presentationId: "${presId}"
+        $.core.body.messageKey: SUPPORTED_DOCUMENT
+      count: 2
+  - bus: {name: PresentationPageConversionStartedSysMsg, channel: to-akka-apps-redis-channel, meetingId: "${intId}", within: 500ms}
+    select: [$.core.body.presName, $.core.body.presFilenameConverted, $.core.body.numPages]
+    expect:
+      jsonpath: {$.core.body.presentationId: "${presId}"}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true

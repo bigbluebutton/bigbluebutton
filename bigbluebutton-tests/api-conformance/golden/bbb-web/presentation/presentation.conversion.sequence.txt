@@ -1,0 +1,53 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case presentation.conversion.sequence
+target bbb-web
+
+== step 4: bus PresentationConversionEndedEventMsg select $.core.body.presName
+$.core.body.presName "slides.pdf"
+
+== step 5: bus PresentationConversionRequestReceivedSysMsg select $.core.body.presName, $.core.body.current, $.core.body.temporaryPresentationId, $.core.body.removable
+$.core.body.current false
+$.core.body.presName "slides.pdf"
+$.core.body.removable true
+$.core.body.temporaryPresentationId ""
+
+== step 6: bus PresentationConversionUpdateSysPubMsg select $.core.body.messageKey, $.core.body.presName
+$.core.body.messageKey "SUPPORTED_DOCUMENT"
+$.core.body.presName "slides.pdf"
+
+== step 7: bus PresentationPageConversionStartedSysMsg select $.core.body.presName, $.core.body.presFilenameConverted, $.core.body.numPages, $.core.body.current, $.core.body.default
+$.core.body.current false
+$.core.body.default false
+$.core.body.numPages 3
+$.core.body.presFilenameConverted "slides.pdf"
+$.core.body.presName "slides.pdf"
+
+== step 8: bus PresentationConversionStartedSysPubMsg select $.core.body.common.presentationName, $.core.body.common.messageKey, $.core.body.maxDuration
+$.core.body.common.messageKey ""
+$.core.body.common.presentationName "slides.pdf"
+$.core.body.maxDuration 180
+
+== step 9: bus PresentationPageGeneratedSysPubMsg select $.core.body.messageKey, $.core.body.numberOfPages
+$.core.body.messageKey "GENERATED_SLIDE"
+$.core.body.numberOfPages 3
+
+== step 10: bus PresentationPageConvertedSysMsg select $.core.body.messageKey, $.core.body.numberOfPages
+$.core.body.messageKey "GENERATED_SLIDE"
+$.core.body.numberOfPages 3
+
+== step 11: bus PresentationConversionCompletedSysPubMsg select $.core.body.presentation.name
+$.core.body.presentation.name "slides.pdf"
+
+== step 12: bus PresentationConversionEndedSysMsg select $.core.body.presName
+$.core.body.presName "slides.pdf"
+
+== step 13: bus PresentationPageGeneratedEvtMsg select $.core.body.messageKey, $.core.body.numberOfPages
+$.core.body.messageKey "GENERATED_SLIDE"
+$.core.body.numberOfPages 3
+
+== step 14: bus PresentationPageConvertedEventMsg select $.core.body.messageKey, $.core.body.numberOfPages
+$.core.body.messageKey "GENERATED_SLIDE"
+$.core.body.numberOfPages 3
+
+== step 15: bus PresentationConversionCompletedEvtMsg select $.core.body.presentation.name
+$.core.body.presentation.name "slides.pdf"

@@ -1,0 +1,69 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# An image is one slide. bbb-web says it is making the slide's text file,
+# thumbnail and SVG (it says so for images only), and the converted file
+# has no name of its own.
+id: presentation.conversion.sequence-image
+title: An image's conversion says what it generates
+endpoint: presentation
+class: contract
+tags: [ci, conversion]
+requires: [akka, bus, callbacks, presentation-conversion]
+steps:
+  # A one-page image instead of the 15-page default presentation, so that
+  # the suite's conversions stay short.
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Conversion}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}-start/fixtures/presentations/image.png" filename="start.png"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: insertDocument
+    method: POST
+    params: {meetingID: "${uid}"}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}/conversion/img-png-alpha" filename="picture.png"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - bus: {name: PresentationConversionEndedEventMsg, meetingId: "${intId}", within: 180s}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.presName: picture.png}
+    capture: {presId: $.core.body.presentationId}
+  - bus: {name: PresentationConversionUpdateSysPubMsg, meetingId: "${intId}", within: 500ms}
+    select: [$.core.body.messageKey, $.core.body.presName]
+    expect:
+      jsonpath:
+        $.core.body.presentationId: "${presId}"
+        $.core.body.messageKey: SUPPORTED_DOCUMENT
+      count: 1
+  - bus: {name: PresentationConversionUpdateSysPubMsg, meetingId: "${intId}", within: 500ms}
+    select: [$.core.body.messageKey, $.core.body.presName]
+    expect:
+      jsonpath:
+        $.core.body.presentationId: "${presId}"
+        $.core.body.messageKey: GENERATING_TEXTFILES
+      count: 1
+  - bus: {name: PresentationConversionUpdateSysPubMsg, meetingId: "${intId}", within: 500ms}
+    select: [$.core.body.messageKey, $.core.body.presName]
+    expect:
+      jsonpath:
+        $.core.body.presentationId: "${presId}"
+        $.core.body.messageKey: GENERATING_THUMBNAIL
+      count: 1
+  - bus: {name: PresentationConversionUpdateSysPubMsg, meetingId: "${intId}", within: 500ms}
+    select: [$.core.body.messageKey, $.core.body.presName]
+    expect:
+      jsonpath:
+        $.core.body.presentationId: "${presId}"
+        $.core.body.messageKey: GENERATING_SVGIMAGES
+      count: 1
+  - bus: {name: PresentationPageConversionStartedSysMsg, channel: to-akka-apps-redis-channel, meetingId: "${intId}", within: 500ms}
+    select: [$.core.body.presName, $.core.body.presFilenameConverted, $.core.body.numPages]
+    expect:
+      jsonpath: {$.core.body.presentationId: "${presId}"}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true

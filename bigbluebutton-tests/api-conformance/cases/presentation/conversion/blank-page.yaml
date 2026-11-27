@@ -1,0 +1,48 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A page whose SVG would be larger than maxBigSvgSize (200000 bytes in the
+# tight-limits profile, the conversion suite's) is replaced by a blank SVG
+# at the page's size, with no message: the conversion still completes with
+# every page. Here page 2, which bbb-web rasterizes, is the large one.
+id: presentation.conversion.blank-page
+title: A page whose SVG is over maxBigSvgSize becomes a blank page, and the conversion completes
+endpoint: presentation
+class: contract
+tags: [ci, conversion, disruptive]
+requires: [akka, bus, fs, callbacks, presentation-conversion]
+profile: tight-limits
+steps:
+  # A one-page image instead of the 15-page default presentation, so that
+  # the suite's conversions stay short.
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Conversion}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}-start/fixtures/presentations/image.png" filename="start.png"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: insertDocument
+    method: POST
+    params: {meetingID: "${uid}"}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}/conversion/pdf-use-tags-2p" filename="tags.pdf"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - bus: {name: PresentationConversionCompletedEvtMsg, meetingId: "${intId}", within: 180s}
+    select: [$.core.body.presentation.name]
+    expect:
+      jsonpath:
+        $.core.body.presentation.name: tags.pdf
+        "$.core.body.presentation.pages[*]": {count: 2}
+    capture: {presId: $.core.body.presentation.id}
+  - fs: {path: "${intId}/${intId}/${presId}/svgs/slide1.svg"}
+    golden: off
+    expect:
+      contents: {regex: '<(path|image|use)\b'}
+  - fs: {path: "${intId}/${intId}/${presId}/svgs/slide2.svg"}
+    expect:
+      contents: {regex: '^(<\?xml[^>]*>\s*)?<svg [^>]*width="1440" height="810" viewBox="0 0 1440 810">\s*</svg>\s*$'}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true

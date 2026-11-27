@@ -1,0 +1,65 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A PDF with more pages than the meeting allows is refused once bbb-web
+# has counted them: akka-apps passes on PAGE_COUNT_EXCEEDED with the count
+# and the limit, and the presenter's row carries them. The limit is the
+# meeting's maxNumPages, or bbb-web's maxNumPages (200) without one. Two
+# pages, within either limit, convert: in the param variant, exactly the
+# limit.
+id: presentation.conversion.page-count
+title: A PDF over ${limit} pages is refused with PAGE_COUNT_EXCEEDED
+endpoint: presentation
+class: contract
+tags: [ci, conversion, presence]
+requires: [akka, bus, presence, callbacks, presentation-conversion]
+variants:
+  - {id: param, vars: {limit: the meeting's maxNumPages, maxNumPages: "2", fixture: pdf-base14-text-3p, name: three.pdf, pages: "3", max: "2"}}
+  - {id: default, vars: {limit: "bbb-web's 200", maxNumPages: null, fixture: pdf-201-pages, name: long.pdf, pages: "201", max: "200"}}
+steps:
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Conversion, maxNumPages: "${maxNumPages}"}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}-start/fixtures/presentations/image.png" filename="start.png"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  # Only the presenter sees the presentation's rows.
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: MODERATOR}}
+    golden: off
+  - call: insertDocument
+    method: POST
+    params: {meetingID: "${uid}"}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}/fixtures/presentations/two-pages.pdf" filename="two.pdf"/><document url="${sinkUrl}/${uid}/conversion/${fixture}" filename="${name}"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+  # Two pages are within either limit.
+  - bus: {name: PresentationConversionCompletedEvtMsg, meetingId: "${intId}", within: 180s}
+    select: [$.core.body.presentation.name]
+    expect:
+      jsonpath:
+        $.core.body.presentation.name: two.pdf
+        "$.core.body.presentation.pages[*]": {count: 2}
+  - bus: {name: PresentationPageCountErrorEvtMsg, meetingId: "${intId}", within: 30s}
+    select: [$.core.body.messageKey, $.core.body.presName, $.core.body.numberOfPages, $.core.body.maxNumberPages]
+    expect:
+      jsonpath:
+        $.core.body.presName: "${name}"
+        $.core.body.messageKey: PAGE_COUNT_EXCEEDED
+        $.core.body.numberOfPages: "${pages}"
+        $.core.body.maxNumberPages: "${max}"
+  - graphql:
+      as: ann
+      query: >-
+        query Row($name: String!) { pres_presentation(where: {name: {_eq: $name}}) {
+        name uploadCompleted uploadErrorMsgKey uploadErrorDetailsJson totalPages } }
+      variables: {name: "${name}"}
+    eventually:
+      within: 10s
+      every: 300ms
+      until:
+        jsonpath: {"$.data.pres_presentation[0].uploadErrorMsgKey": PAGE_COUNT_EXCEEDED}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true

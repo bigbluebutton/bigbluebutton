@@ -120,6 +120,13 @@ there compares like with like.
   short-upload-start-timeout profile). They were recorded from a stack
   running packages built from v4.0.x-develop of that day (b40adcc3c8).
 
+  On 2026-11-27 the presentation conversion cases were added
+  (`presentation/presentation.conversion.*`; `blank-page` under the
+  tight-limits profile, `office-precheck` under office-precheck, `pngs`
+  under generate-pngs, `scan-failed-stored` under clamav-scan-unreachable,
+  and the `virus-*` cases under clamav-scan, with ClamAV running), from
+  the same packages.
+
 ## Reviewing
 
 A recording becomes an expectation only after a person reviews it against the

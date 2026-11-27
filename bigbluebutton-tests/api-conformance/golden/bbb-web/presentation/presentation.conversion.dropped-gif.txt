@@ -1,0 +1,6 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case presentation.conversion.dropped-gif
+target bbb-web
+
+== step 5: bus PresentationConversionRequestReceivedSysMsg
+$ null

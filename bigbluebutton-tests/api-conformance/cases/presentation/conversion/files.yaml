@@ -1,0 +1,72 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# What a converted PDF leaves on disk, under
+# <presentationDir>/<meetingId>/<meetingId>/<presentationId>/: the
+# document itself, and for each page an SVG (svgs/slideN.svg), a thumbnail
+# (thumbnails/thumb-N.png) and its text (textfiles/slide-N.txt), which the
+# slide routes serve. The one-page PDFs the pages were cut into are gone
+# once the conversion completes, and there are no PNGs unless generatePngs
+# is set (presentation.conversion.pngs).
+id: presentation.conversion.files
+title: A converted PDF has an SVG, a thumbnail and a text file for each page
+endpoint: presentation
+class: contract
+tags: [ci, conversion]
+requires: [akka, bus, fs, callbacks, presentation-conversion]
+steps:
+  # A one-page image instead of the 15-page default presentation, so that
+  # the suite's conversions stay short.
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Conversion}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}-start/fixtures/presentations/image.png" filename="start.png"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: insertDocument
+    method: POST
+    params: {meetingID: "${uid}"}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}/conversion/pdf-base14-text-3p" filename="slides.pdf"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - bus: {name: PresentationConversionEndedEventMsg, meetingId: "${intId}", within: 180s}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.presName: slides.pdf}
+    capture: {presId: $.core.body.presentationId}
+  - fs: {path: "${intId}/${intId}/${presId}/${presId}.pdf"}
+    golden: off
+    expect: {exists: true}
+  - fs: {path: "${intId}/${intId}/${presId}/svgs/slide1.svg"}
+    golden: off
+    expect: {exists: true}
+  - fs: {path: "${intId}/${intId}/${presId}/thumbnails/thumb-1.png"}
+    golden: off
+    expect: {exists: true}
+  - fs: {path: "${intId}/${intId}/${presId}/textfiles/slide-1.txt"}
+    expect: {exists: true}
+  - fs: {path: "${intId}/${intId}/${presId}/svgs/slide2.svg"}
+    golden: off
+    expect: {exists: true}
+  - fs: {path: "${intId}/${intId}/${presId}/thumbnails/thumb-2.png"}
+    golden: off
+    expect: {exists: true}
+  - fs: {path: "${intId}/${intId}/${presId}/textfiles/slide-2.txt"}
+    expect: {exists: true}
+  - fs: {path: "${intId}/${intId}/${presId}/svgs/slide3.svg"}
+    golden: off
+    expect: {exists: true}
+  - fs: {path: "${intId}/${intId}/${presId}/thumbnails/thumb-3.png"}
+    golden: off
+    expect: {exists: true}
+  - fs: {path: "${intId}/${intId}/${presId}/textfiles/slide-3.txt"}
+    expect: {exists: true}
+  - fs: {path: "${intId}/${intId}/${presId}/page-*.pdf", within: 10s}
+    expect: {exists: false}
+  - fs: {path: "${intId}/${intId}/${presId}/pngs/*", within: 10s}
+    expect: {exists: false}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true

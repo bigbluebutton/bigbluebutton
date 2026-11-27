@@ -1,0 +1,11 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case presentation.conversion.blank-page
+target bbb-web
+
+== step 4: bus PresentationConversionCompletedEvtMsg select $.core.body.presentation.name
+$.core.body.presentation.name "tags.pdf"
+
+== step 6: fs ${intId}/${intId}/${presId}/svgs/slide2.svg
+$.contents "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"1440\" height=\"810\" viewBox=\"0 0 1440 810\">\n</svg>\n"
+$.found true
+$.path "<sha1(meetingID)>-<time>/<sha1(meetingID)>-<time>/<sha1(?)>-<time>/svgs/slide2.svg"

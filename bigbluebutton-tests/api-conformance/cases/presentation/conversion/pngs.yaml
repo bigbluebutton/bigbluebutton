@@ -1,0 +1,61 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# With generatePngs set, bbb-web also makes a PNG of each page
+# (pngs/slide-N.png), and the page's png route serves it.
+id: presentation.conversion.pngs
+title: With generatePngs, each page also has a PNG, which its route serves
+endpoint: presentation
+class: contract
+tags: [ci, conversion, disruptive]
+requires: [akka, bus, fs, callbacks, presentation-conversion]
+profile: generate-pngs
+steps:
+  # A one-page image instead of the 15-page default presentation, so that
+  # the suite's conversions stay short.
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Conversion}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}-start/fixtures/presentations/image.png" filename="start.png"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: join
+    client: ann
+    params: {meetingID: "${uid}", fullName: Ann, role: moderator, redirect: "false"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {annToken: /response/session_token}
+  - call: insertDocument
+    method: POST
+    params: {meetingID: "${uid}"}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}/conversion/pdf-base14-text-3p" filename="slides.pdf"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+  # The page URLs bbb-web hands akka-apps carry each page's pageToken.
+  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 180s}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.presentation.name: slides.pdf}
+    capture:
+      presId: $.core.body.presentation.id
+      page1: "$.core.body.presentation.pages[?@.num==1].svgUri"
+  - fs: {path: "${intId}/${intId}/${presId}/pngs/slide-1.png"}
+    golden: off
+    expect: {exists: true}
+  - fs: {path: "${intId}/${intId}/${presId}/pngs/slide-2.png"}
+    golden: off
+    expect: {exists: true}
+  - fs: {path: "${intId}/${intId}/${presId}/pngs/slide-3.png"}
+    golden: off
+    expect: {exists: true}
+  - url: '${baseUrl}/bigbluebutton/presentation/${intId}/${intId}/${presId}/png/1?pageToken=${match(page1, "pageToken=([0-9a-f]+)")}&sessionToken=${annToken}'
+    client: ann
+    golden: off
+    expect:
+      status: 200
+      headers: {Content-Type: {regex: '^image'}}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true

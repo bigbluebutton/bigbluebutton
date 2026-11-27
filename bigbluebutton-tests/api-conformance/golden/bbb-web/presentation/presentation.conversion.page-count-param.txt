@@ -1,0 +1,20 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case presentation.conversion.page-count-param
+target bbb-web
+
+== step 5: bus PresentationConversionCompletedEvtMsg select $.core.body.presentation.name
+$.core.body.presentation.name "two.pdf"
+
+== step 6: bus PresentationPageCountErrorEvtMsg select $.core.body.messageKey, $.core.body.presName, $.core.body.numberOfPages, $.core.body.maxNumberPages
+$.core.body.maxNumberPages 2
+$.core.body.messageKey "PAGE_COUNT_EXCEEDED"
+$.core.body.numberOfPages 3
+$.core.body.presName "three.pdf"
+
+== step 7: graphql query Row as ann
+$.data.pres_presentation[].name "three.pdf"
+$.data.pres_presentation[].totalPages 0
+$.data.pres_presentation[].uploadCompleted false
+$.data.pres_presentation[].uploadErrorDetailsJson.maxNumberOfPages "2"
+$.data.pres_presentation[].uploadErrorDetailsJson.numberOfPages "3"
+$.data.pres_presentation[].uploadErrorMsgKey "PAGE_COUNT_EXCEEDED"

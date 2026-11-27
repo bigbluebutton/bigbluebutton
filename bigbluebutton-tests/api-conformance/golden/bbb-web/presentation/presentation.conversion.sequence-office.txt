@@ -1,0 +1,16 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case presentation.conversion.sequence-office
+target bbb-web
+
+== step 5: bus PresentationConversionUpdateSysPubMsg select $.core.body.messageKey, $.core.body.presName
+$.core.body.messageKey "OFFICE_DOC_CONVERSION_SUCCESS"
+$.core.body.presName "report.docx"
+
+== step 6: bus PresentationConversionUpdateSysPubMsg select $.core.body.messageKey, $.core.body.presName
+$.core.body.messageKey "SUPPORTED_DOCUMENT"
+$.core.body.presName "report.docx"
+
+== step 7: bus PresentationPageConversionStartedSysMsg select $.core.body.presName, $.core.body.presFilenameConverted, $.core.body.numPages
+$.core.body.numPages 1
+$.core.body.presFilenameConverted "report.pdf"
+$.core.body.presName "report.docx"

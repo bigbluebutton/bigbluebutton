@@ -1,0 +1,15 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case presentation.conversion.office-failed
+target bbb-web
+
+== step 5: bus PresentationConversionFailedErrorSysPubMsg select $.core.body.messageKey, $.core.body.presName, $.core.body.errorDetail
+$.core.body.errorDetail "OfficeToPdfConversionFailed"
+$.core.body.messageKey "OFFICE_DOC_CONVERSION_FAILED"
+$.core.body.presName "broken.docx"
+
+== step 6: graphql query Row as ann
+$.data.pres_presentation[].name "broken.docx"
+$.data.pres_presentation[].totalPages 0
+$.data.pres_presentation[].uploadCompleted false
+$.data.pres_presentation[].uploadErrorDetailsJson.OFFICE_DOC_CONVERSION_FAILED "OfficeToPdfConversionFailed"
+$.data.pres_presentation[].uploadErrorMsgKey "OFFICE_DOC_CONVERSION_FAILED"

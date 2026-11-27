@@ -1,0 +1,7 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case presentation.conversion.scan-failed-stored
+target bbb-web
+
+== step 5: bus PresentationUploadedFileScanFailedErrorEvtMsg select $.core.body.messageKey, $.core.body.presentationName (document)
+$.core.body.messageKey "SCAN_FAILED"
+$.core.body.presentationName "two.pdf"

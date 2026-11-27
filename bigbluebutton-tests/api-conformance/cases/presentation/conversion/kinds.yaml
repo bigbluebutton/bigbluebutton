@@ -1,0 +1,91 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# Each kind of document bbb-web takes converts into slides: a PDF page by
+# page, an Office or text document through LibreOffice first, an image as
+# one slide. When it is done, akka-apps announces the presentation with its
+# pages, and the presenter's row says it is complete, with no error. Its
+# first page has an SVG, a thumbnail and a text file on disk (files.yaml
+# looks at every page of a PDF); an image has no text, so its text file
+# says so. The documents are the presentation conversion
+# suite's fixtures, which the sink serves by ID; how the slides look is
+# that suite's concern.
+id: presentation.conversion.kinds
+title: A ${kind} document converts into ${pages} slide(s)
+endpoint: presentation
+class: contract
+tags: [ci, conversion, presence]
+requires: [akka, bus, fs, presence, callbacks, presentation-conversion]
+variants:
+  - {id: pdf, vars: {kind: PDF, fixture: pdf-base14-text-3p, name: slides.pdf, pages: 3, text: "Base-14 Helvetica text"}}
+  - {id: docx, vars: {kind: Word, fixture: off-docx-lorem-a4, name: report.docx, pages: 1, text: Lorem ipsum}}
+  - {id: pptx, vars: {kind: PowerPoint, fixture: off-pptx-one-slide, name: deck.pptx, pages: 1, text: PPTX marker slide}}
+  - {id: xlsx, vars: {kind: Excel, fixture: off-xlsx-one-sheet, name: sheet.xlsx, pages: 1, text: Apple}}
+  - {id: odt, vars: {kind: OpenDocument text, fixture: off-odt-one-page, name: text.odt, pages: 1, text: ODT heading}}
+  - {id: odp, vars: {kind: OpenDocument presentation, fixture: off-odp-one-slide, name: slides.odp, pages: 1, text: ODP marker slide}}
+  - {id: ods, vars: {kind: OpenDocument spreadsheet, fixture: off-ods-one-sheet, name: sheet.ods, pages: 1, text: Apple}}
+  - {id: rtf, vars: {kind: RTF, fixture: off-rtf-one-page, name: notes.rtf, pages: 1, text: RTF heading}}
+  - {id: txt, vars: {kind: plain text, fixture: repo-hello-txt, name: hello.txt, pages: 1, text: Hello World}}
+  - {id: jpg, vars: {kind: JPEG, fixture: img-jpg-exif6-camera, name: photo.jpg, pages: 1, text: No text could be retrieved for the slide}}
+  - {id: png, vars: {kind: PNG, fixture: img-png-alpha, name: picture.png, pages: 1, text: No text could be retrieved for the slide}}
+  - {id: webp, vars: {kind: WebP, fixture: img-webp-lossless, name: picture.webp, pages: 1, text: No text could be retrieved for the slide}}
+steps:
+  # A one-page image instead of the 15-page default presentation, so that
+  # the suite's conversions stay short.
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Conversion}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}-start/fixtures/presentations/image.png" filename="start.png"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  # Only the presenter sees the presentation's row.
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: MODERATOR}}
+    golden: off
+  - call: insertDocument
+    method: POST
+    params: {meetingID: "${uid}"}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}/conversion/${fixture}" filename="${name}"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - bus: {name: PresentationConversionCompletedEvtMsg, meetingId: "${intId}", within: 180s}
+    select:
+      - $.core.body.presentation.name
+      - $.core.body.presentation.filenameConverted
+      - $.core.body.presentation.current
+    expect:
+      jsonpath: {$.core.body.presentation.name: "${name}"}
+    capture:
+      presId: $.core.body.presentation.id
+  - graphql:
+      as: ann
+      query: >-
+        query Converted($name: String!) { pres_presentation(where: {name: {_eq: $name}}) {
+        name uploadInProgress uploadCompleted uploadErrorMsgKey totalPages pages(order_by: {num: asc}) { num } } }
+      variables: {name: "${name}"}
+    eventually:
+      within: 10s
+      every: 300ms
+      until:
+        jsonpath: {"$.data.pres_presentation[0].uploadCompleted": true}
+    expect:
+      jsonpath:
+        "$.data.pres_presentation[0].uploadInProgress": false
+        "$.data.pres_presentation[0].totalPages": "${pages}"
+  # The slide and its thumbnail are the conversion suite's to compare.
+  - fs: {path: "${intId}/${intId}/${presId}/svgs/slide1.svg"}
+    golden: off
+    expect: {exists: true}
+  - fs: {path: "${intId}/${intId}/${presId}/thumbnails/thumb-1.png"}
+    golden: off
+    expect: {exists: true}
+  # Its text, as LibreOffice or pdftotext lays it out, isn't recorded:
+  # a new version of either may space it differently.
+  - fs: {path: "${intId}/${intId}/${presId}/textfiles/slide-1.txt"}
+    golden: off
+    expect:
+      contents: {contains: "${text}"}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true

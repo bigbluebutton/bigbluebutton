@@ -1,0 +1,58 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# An Office document LibreOffice can't convert is refused with
+# OFFICE_DOC_CONVERSION_FAILED. bbb-web tells akka-apps, which stores it on
+# the presenter's row but doesn't pass the message on; the document isn't
+# converted.
+id: presentation.conversion.office-failed
+title: An Office document LibreOffice can't convert fails with OFFICE_DOC_CONVERSION_FAILED
+endpoint: presentation
+class: contract
+tags: [ci, conversion, presence]
+requires: [akka, bus, presence, callbacks, presentation-conversion]
+steps:
+  # A one-page image instead of the 15-page default presentation, so that
+  # the suite's conversions stay short.
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Conversion}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}-start/fixtures/presentations/image.png" filename="start.png"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  # Only the presenter sees the presentation's rows.
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: MODERATOR}}
+    golden: off
+  - call: insertDocument
+    method: POST
+    params: {meetingID: "${uid}"}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}/fixtures/presentations/no-content.docx" filename="broken.docx"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - bus: {name: PresentationConversionFailedErrorSysPubMsg, meetingId: "${intId}", within: 180s}
+    select: [$.core.body.messageKey, $.core.body.presName, $.core.body.errorDetail]
+    expect:
+      jsonpath:
+        $.core.body.presName: broken.docx
+        $.core.body.messageKey: OFFICE_DOC_CONVERSION_FAILED
+  - graphql:
+      as: ann
+      query: >-
+        query Row($name: String!) { pres_presentation(where: {name: {_eq: $name}}) {
+        name uploadCompleted uploadErrorMsgKey uploadErrorDetailsJson totalPages } }
+      variables: {name: "broken.docx"}
+    eventually:
+      within: 10s
+      every: 300ms
+      until:
+        jsonpath: {"$.data.pres_presentation[0].uploadErrorMsgKey": OFFICE_DOC_CONVERSION_FAILED}
+  - bus: {name: PresentationConversionCompletedEvtMsg, meetingId: "${intId}", within: 3s}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.presentation.name: broken.docx}
+      absent: true
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true

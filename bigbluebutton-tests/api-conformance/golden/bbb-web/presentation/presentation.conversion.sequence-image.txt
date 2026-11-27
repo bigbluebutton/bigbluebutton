@@ -1,0 +1,24 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case presentation.conversion.sequence-image
+target bbb-web
+
+== step 5: bus PresentationConversionUpdateSysPubMsg select $.core.body.messageKey, $.core.body.presName
+$.core.body.messageKey "SUPPORTED_DOCUMENT"
+$.core.body.presName "picture.png"
+
+== step 6: bus PresentationConversionUpdateSysPubMsg select $.core.body.messageKey, $.core.body.presName
+$.core.body.messageKey "GENERATING_TEXTFILES"
+$.core.body.presName "picture.png"
+
+== step 7: bus PresentationConversionUpdateSysPubMsg select $.core.body.messageKey, $.core.body.presName
+$.core.body.messageKey "GENERATING_THUMBNAIL"
+$.core.body.presName "picture.png"
+
+== step 8: bus PresentationConversionUpdateSysPubMsg select $.core.body.messageKey, $.core.body.presName
+$.core.body.messageKey "GENERATING_SVGIMAGES"
+$.core.body.presName "picture.png"
+
+== step 9: bus PresentationPageConversionStartedSysMsg select $.core.body.presName, $.core.body.presFilenameConverted, $.core.body.numPages
+$.core.body.numPages 1
+$.core.body.presFilenameConverted ""
+$.core.body.presName "picture.png"
