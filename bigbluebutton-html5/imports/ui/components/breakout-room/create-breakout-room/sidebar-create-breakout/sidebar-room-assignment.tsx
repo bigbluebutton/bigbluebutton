@@ -1,8 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, {
+  useCallback, useEffect, useRef, useState,
+} from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import MenuItem from '@mui/material/MenuItem';
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/component';
+import BBBMenu from '/imports/ui/components/common/menu/component';
 import Auth from '/imports/ui/services/auth';
 import { ChildComponentProps } from '../room-managment-state/types';
 import { useDragAndDrop, useRoverNavigation } from '../../hooks';
@@ -24,7 +27,37 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.currentSlideLabel',
     description: 'Current slide label for presentation selector',
   },
+  renameRoom: {
+    id: 'app.createBreakoutRoom.renameRoom',
+    description: 'Accessible label for the room name edit button',
+  },
+  roomNameLabel: {
+    id: 'app.createBreakoutRoom.roomNameLabel',
+    description: 'Accessible label for the room name input',
+  },
+  moveUserMenu: {
+    id: 'app.createBreakoutRoom.moveUserMenu',
+    description: 'Accessible label for the move participant menu',
+  },
+  moveToRoom: {
+    id: 'app.createBreakoutRoom.moveToRoom',
+    description: 'Move participant to breakout room menu item',
+  },
+  moveToUnassignedUsers: {
+    id: 'app.createBreakoutRoom.moveToUnassignedUsers',
+    description: 'Move participant to the unassigned users list menu item',
+  },
+  keyboardInstructions: {
+    id: 'app.createBreakoutRoom.keyboardInstructions',
+    description: 'Keyboard instructions for assigning participants before breakout rooms start',
+  },
+  participants: {
+    id: 'app.userList.participantsTitle',
+    description: 'Participants label',
+  },
 });
+
+const KEYBOARD_INSTRUCTIONS_ID = 'breakout-room-assignment-keyboard-instructions';
 
 const isMe = (intId: string) => intId === Auth.userID;
 
@@ -44,6 +77,28 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
   const intl = useIntl();
   const roomPadNum = (n: number) => n.toString().padStart(2, '0');
   const [editingRoom, setEditingRoom] = useState<number | null>(null);
+  const [openMoveMenu, setOpenMoveMenu] = useState<string | null>(null);
+  const roomNameRefs = useRef<Record<number, HTMLButtonElement | null>>({});
+  const pendingFocusId = useRef<string | null>(null);
+  const restoreRoomNameFocus = useRef(false);
+  const editedRoomNumber = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (editingRoom === null && restoreRoomNameFocus.current) {
+      restoreRoomNameFocus.current = false;
+      if (editedRoomNumber.current !== null) roomNameRefs.current[editedRoomNumber.current]?.focus();
+      editedRoomNumber.current = null;
+    }
+  }, [editingRoom]);
+
+  useEffect(() => {
+    if (!pendingFocusId.current) return;
+    const element = document.getElementById(pendingFocusId.current);
+    if (element) {
+      element.focus();
+      pendingFocusId.current = null;
+    }
+  }, [rooms]);
 
   const changeRoomPresentation = (roomNum: number) => (ev: { target: { value: unknown } }) => {
     setRoomPresentations((prev) => ({
@@ -62,19 +117,75 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
     dragStart, dragEnd, allowDrop, drop,
   } = useDragAndDrop(moveUser, setSelectedId);
 
-  const rover = useRoverNavigation('draggableUser', moveUser, numberOfRooms);
+  const rememberMoveFocus = useCallback((userId: string, _from: number, to: number) => {
+    pendingFocusId.current = `${userId}-${to}-move-button`;
+  }, []);
+
+  const moveUserAndKeepFocus = useCallback((userId: string, from: number, to: number) => {
+    pendingFocusId.current = `${userId}-${to}-move-button`;
+    setOpenMoveMenu(null);
+    moveUser(userId, from, to);
+  }, [moveUser]);
+
+  const rover = useRoverNavigation(
+    'draggableUser',
+    moveUser,
+    numberOfRooms,
+    rememberMoveFocus,
+    true,
+    'moveUserMenuButton',
+  );
+
+  const closeMoveMenu = (rowId: string) => {
+    setOpenMoveMenu(null);
+    requestAnimationFrame(() => {
+      const focusId = pendingFocusId.current || `${rowId}-move-button`;
+      document.getElementById(focusId)?.focus();
+    });
+  };
+
+  const moveMenuActions = (userId: string, from: number) => Array.from(
+    { length: numberOfRooms + 1 },
+    (_, roomNum) => roomNum,
+  ).filter((roomNum) => roomNum !== from).map((roomNum) => ({
+    key: `${userId}-${roomNum}`,
+    label: roomNum === 0
+      ? intl.formatMessage(intlMessages.moveToUnassignedUsers)
+      : intl.formatMessage(intlMessages.moveToRoom, {
+        roomName: rooms[roomNum]?.name || '',
+      }),
+    dataTest: roomNum === 0 ? 'moveUserToUnassigned' : `moveUserToRoom${roomNum}`,
+    onClick: () => moveUserAndKeepFocus(userId, from, roomNum),
+  }));
+
+  const participantLabel = (name: string, userId: string, roomName: string) => (
+    `${name}${isMe(userId) ? ` (${intl.formatMessage(intlMessages.you)})` : ''}, ${roomName}`
+  );
+
+  const moveUserLabel = (userName: string, roomName: string) => (
+    `${intl.formatMessage(intlMessages.moveUserMenu, { userName })}, ${roomName}`
+  );
+
+  const roomCardLabel = (roomName: string, participantCount: number) => (
+    `${roomName}, ${intl.formatMessage(intlMessages.participants)}: ${participantCount}`
+  );
 
   const unassignedRoom = rooms[0];
   const unassignedUsers = unassignedRoom?.users || [];
+  const unassignedUsersLabel = intl.formatMessage(intlMessages.unassignedUsers);
 
   return (
     <>
+      <span id={KEYBOARD_INSTRUCTIONS_ID} className="sr-only">
+        {intl.formatMessage(intlMessages.keyboardInstructions)}
+      </span>
       <Styled.UsersSection
         id="breakoutBox-0"
         onDrop={drop(0)}
         onDragOver={allowDrop}
         tabIndex={0}
         onKeyDown={rover}
+        aria-describedby={KEYBOARD_INSTRUCTIONS_ID}
       >
         <Styled.UsersSectionHeader>
           <span>{intl.formatMessage(intlMessages.unassignedUsers)}</span>
@@ -82,20 +193,48 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
         </Styled.UsersSectionHeader>
         {unassignedUsers.length > 0 && (
           <Styled.UsersList>
-            {unassignedUsers.map((user) => (
-              <Styled.UserItem
-                key={user.userId}
-                id={`${user.userId}-0`}
-                data-test="draggableUser"
-                draggable
-                tabIndex={-1}
-                onDragStart={dragStart}
-                onDragEnd={dragEnd}
-              >
-                {user.name}
-                {isMe(user.userId) ? ` (${intl.formatMessage(intlMessages.you)})` : ''}
-              </Styled.UserItem>
-            ))}
+            {unassignedUsers.map((user) => {
+              const rowId = `${user.userId}-0`;
+              return (
+                <Styled.UserItem
+                  key={user.userId}
+                  id={rowId}
+                  data-test="draggableUser"
+                  draggable
+                  aria-label={participantLabel(
+                    user.name,
+                    user.userId,
+                    unassignedUsersLabel,
+                  )}
+                  onKeyDown={rover}
+                  onDragStart={dragStart}
+                  onDragEnd={dragEnd}
+                >
+                  <span>
+                    {user.name}
+                    {isMe(user.userId) ? ` (${intl.formatMessage(intlMessages.you)})` : ''}
+                  </span>
+                  <BBBMenu
+                    open={openMoveMenu === rowId}
+                    onCloseCallback={() => closeMoveMenu(rowId)}
+                    trigger={(
+                      <Styled.MoveUserBtn
+                        id={`${rowId}-move-button`}
+                        type="button"
+                        tabIndex={-1}
+                        aria-label={moveUserLabel(user.name, unassignedUsersLabel)}
+                        aria-haspopup="menu"
+                        aria-expanded={openMoveMenu === rowId}
+                        data-test="moveUserMenuButton"
+                        onClick={() => setOpenMoveMenu(rowId)}
+                      />
+                  )}
+                    actions={moveMenuActions(user.userId, 0)}
+                    opts={{ autoFocus: true, transitionDuration: 0 }}
+                  />
+                </Styled.UserItem>
+              );
+            })}
           </Styled.UsersList>
         )}
       </Styled.UsersSection>
@@ -110,21 +249,32 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
             <Styled.RoomCard
               id={`breakoutBox-${roomNum}`}
               key={`room-card-${roomNum}`}
+              role="group"
+              aria-label={roomCardLabel(roomName, usersInRoom.length)}
               onDrop={drop(roomNum)}
               onDragOver={allowDrop}
               tabIndex={0}
               onKeyDown={rover}
+              aria-describedby={KEYBOARD_INSTRUCTIONS_ID}
             >
               <Styled.RoomCardHeader>
                 {editingRoom === roomNum ? (
                   <Styled.RoomNameInput
+                    aria-label={intl.formatMessage(intlMessages.roomNameLabel)}
+                    data-room-number={roomNum}
                     value={roomName}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       changeRoomName(roomNum, e.target.value);
                     }}
                     onBlur={() => setEditingRoom(null)}
                     onKeyDown={(e: React.KeyboardEvent) => {
-                      if (e.key === 'Enter' || e.key === 'Escape') setEditingRoom(null);
+                      if (e.key === 'Enter' || e.key === 'Escape') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        editedRoomNumber.current = roomNum;
+                        restoreRoomNameFocus.current = true;
+                        setEditingRoom(null);
+                      }
                     }}
                     autoFocus
                     onClick={(e) => e.stopPropagation()}
@@ -132,8 +282,10 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
                   />
                 ) : (
                   <Styled.RoomCardName
+                    type="button"
+                    ref={(element) => { roomNameRefs.current[roomNum] = element; }}
                     onClick={() => setEditingRoom(roomNum)}
-                    style={{ cursor: 'pointer' }}
+                    aria-label={intl.formatMessage(intlMessages.renameRoom, { roomName })}
                     data-test={`${roomName}`}
                   >
                     {roomName}
@@ -176,32 +328,55 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
               )}
               {usersInRoom.length > 0 && (
                 <Styled.RoomCardUserList>
-                  {usersInRoom.map((user) => (
-                    <Styled.RoomCardUserItem
-                      key={user.userId}
-                      id={`${user.userId}-${roomNum}`}
-                      data-test="draggableUser"
-                      draggable
-                      tabIndex={-1}
-                      onDragStart={dragStart}
-                      onDragEnd={dragEnd}
-                    >
-                      <span>
-                        {user.name}
-                        {isMe(user.userId) ? ` (${intl.formatMessage(intlMessages.you)})` : ''}
-                      </span>
-                      <Styled.UserRemoveBtn
-                        type="button"
-                        aria-label={intl.formatMessage(intlMessages.unassignUser)}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          moveUser(user.userId, roomNum, 0);
-                        }}
+                  {usersInRoom.map((user) => {
+                    const rowId = `${user.userId}-${roomNum}`;
+                    return (
+                      <Styled.RoomCardUserItem
+                        key={user.userId}
+                        id={rowId}
+                        data-test="draggableUser"
+                        draggable
+                        aria-label={participantLabel(user.name, user.userId, roomName)}
+                        onKeyDown={rover}
+                        onDragStart={dragStart}
+                        onDragEnd={dragEnd}
                       >
-                        ✕
-                      </Styled.UserRemoveBtn>
-                    </Styled.RoomCardUserItem>
-                  ))}
+                        <span>
+                          {user.name}
+                          {isMe(user.userId) ? ` (${intl.formatMessage(intlMessages.you)})` : ''}
+                        </span>
+                        <Styled.UserRemoveBtn
+                          type="button"
+                          aria-label={intl.formatMessage(intlMessages.unassignUser)}
+                          data-test="unassignUserFromBreakoutRoom"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            moveUser(user.userId, roomNum, 0);
+                          }}
+                        >
+                          ✕
+                        </Styled.UserRemoveBtn>
+                        <BBBMenu
+                          open={openMoveMenu === rowId}
+                          onCloseCallback={() => closeMoveMenu(rowId)}
+                          trigger={(
+                            <Styled.MoveUserBtn
+                              id={`${rowId}-move-button`}
+                              type="button"
+                              tabIndex={-1}
+                              aria-label={moveUserLabel(user.name, roomName)}
+                              aria-haspopup="menu"
+                              aria-expanded={openMoveMenu === rowId}
+                              data-test="moveUserMenuButton"
+                              onClick={() => setOpenMoveMenu(rowId)}
+                            />
+                        )}
+                          actions={moveMenuActions(user.userId, roomNum)}
+                          opts={{ autoFocus: true, transitionDuration: 0 }}
+                        />
+                      </Styled.RoomCardUserItem>
+                    );
+                  })}
                 </Styled.RoomCardUserList>
               )}
             </Styled.RoomCard>
