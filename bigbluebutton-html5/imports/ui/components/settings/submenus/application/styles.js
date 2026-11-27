@@ -85,6 +85,22 @@ const PullContentRight = styled.div`
 const LocalesDropdownSelect = styled.div`
   width: 100%;
   margin-top: 0.5rem;
+
+  & .MuiSelect-root {
+    // Preserve the outlined input's rounded border and focus state.
+    overflow: visible;
+  }
+
+  & .MuiSelect-root .MuiSelect-select.MuiSelect-outlined {
+    padding-inline: 1rem 3rem;
+  }
+
+  & .MuiSelect-icon {
+    font-size: 1.5rem;
+    left: auto;
+    right: auto;
+    inset-inline-end: 1rem;
+  }
 `;
 
 const ExampleText = styled.p`

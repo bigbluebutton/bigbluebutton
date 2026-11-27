@@ -6,6 +6,7 @@ import {
   unpinnedAppIconColor,
   colorWhite,
   colorBorder,
+  colorText,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   titlesFontWeight,
@@ -69,6 +70,7 @@ const AppTitleWrapper = styled.div`
 `;
 
 const AppTitle = styled.div`
+  color: ${colorText};
   min-width: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -145,6 +147,7 @@ const PinApp = styled.div<{pinned: boolean}>`
 `;
 
 const DescWrapper = styled.div`
+  color: ${colorText};
   padding: 0 ${contentSidebarPadding} 0;
   display: flex;
   align-items: flex-start;
@@ -178,39 +181,9 @@ const TileNewLabel = styled(NewLabel)`
   }
 `;
 
+// BBBSearch takes no className, so the wrapper keeps the panel spacing.
 const SearchWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
   margin: 1rem ${contentSidebarPadding};
-  padding: 0.4rem 0.75rem;
-  border: 1px solid ${colorBorder};
-  border-radius: ${lgBorderRadius};
-  background-color: ${colorWhite};
-
-  &:focus-within {
-    box-shadow: 0 0 0 0.2rem ${colorBorder};
-  }
-
-  > i {
-    color: ${unpinnedAppIconColor};
-    font-size: 115%;
-    flex-shrink: 0;
-  }
-`;
-
-const SearchInput = styled.input`
-  flex: 1;
-  min-width: 0;
-  border: none;
-  outline: none;
-  background: transparent;
-  font-size: ${fontSizeBase};
-  color: inherit;
-
-  &::placeholder {
-    color: ${unpinnedAppIconColor};
-  }
 `;
 
 const SectionSeparator = styled.hr`
@@ -333,6 +306,7 @@ const TilePinApp = styled.div<{ pinned: boolean }>`
 `;
 
 const TileTitle = styled.div`
+  color: ${colorText};
   text-align: center;
   font-size: ${fontSizeBase};
   font-weight: ${headingsFontWeight};
@@ -388,7 +362,6 @@ export default {
   NewLabel,
   TileNewLabel,
   SearchWrapper,
-  SearchInput,
   SectionSeparator,
   ViewToggleWrapper,
   ViewToggleButton,

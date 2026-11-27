@@ -429,7 +429,7 @@ export const UsersList = styled.div`
 `;
 
 export const UserItem = styled.div`
-  padding: 0.3rem 0;
+  padding: 0.3rem 0.25rem;
   font-size: ${fontSizeBase};
   color: ${colorText};
   cursor: grab;

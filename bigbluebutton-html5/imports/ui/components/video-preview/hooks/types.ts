@@ -66,6 +66,8 @@ export interface UseVideoPreviewReturn {
   deviceError: string | null;
   previewError: string | null;
   isCameraLoading: boolean;
+  // The camera is loading only because the brightness slider started its effect engine
+  isBrightnessStarting: boolean;
   isAwaitingCameraPermission: boolean;
   brightness: number;
   wholeImageBrightness: boolean;

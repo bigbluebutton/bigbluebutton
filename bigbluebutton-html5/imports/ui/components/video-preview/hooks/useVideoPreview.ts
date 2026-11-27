@@ -160,6 +160,10 @@ export const useVideoPreview = ({
   // Bumped by every getCameraStream call so a slower, superseded call knows it lost the race
   const cameraStreamRequestId = useRef(0);
   const cameraLoadCount = useRef(0);
+  // The brightness effect engine is started by the first slider change; later changes
+  // wait for that same start instead of starting another one
+  const brightnessStart = useRef<Promise<void> | null>(null);
+  const [isBrightnessStarting, setIsBrightnessStarting] = useState<boolean>(false);
   // Read by the async camera flows, which may outlive the render that started them
   const isCameraDisabled = useRef(cameraDisabled);
   isCameraDisabled.current = cameraDisabled;
@@ -483,11 +487,21 @@ export const useVideoPreview = ({
     const CAMERA_BRIGHTNESS_AVAILABLE = ENABLE_CAMERA_BRIGHTNESS && isVirtualBackgroundSupported();
 
     if (CAMERA_BRIGHTNESS_AVAILABLE && currentVideoStream.current) {
+      // Set first, so the slider follows the pointer while the engine starts
+      setBrightness(newBrightness);
       if (currentVideoStream.current?.virtualBgService == null) {
-        await startCameraBrightness({ brightness: newBrightness, wholeImageBrightness });
+        if (!brightnessStart.current) {
+          setIsBrightnessStarting(true);
+          brightnessStart.current = startCameraBrightness({ brightness: newBrightness, wholeImageBrightness })
+            .finally(() => {
+              brightnessStart.current = null;
+              setIsBrightnessStarting(false);
+            });
+        }
+        await brightnessStart.current;
+        if (!currentVideoStream.current) return;
       }
       currentVideoStream.current.changeCameraBrightness(newBrightness);
-      setBrightness(newBrightness);
       if (isCameraShared) {
         setCameraBrightnessInfo(deviceId || webcamDeviceId.current, newBrightness, wholeImageBrightness);
       }
@@ -923,6 +937,7 @@ export const useVideoPreview = ({
     deviceError,
     previewError,
     isCameraLoading,
+    isBrightnessStarting,
     isAwaitingCameraPermission,
     brightness,
     wholeImageBrightness,

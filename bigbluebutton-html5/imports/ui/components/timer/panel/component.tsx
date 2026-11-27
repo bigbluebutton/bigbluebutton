@@ -9,6 +9,10 @@ import {
   useMutation,
 } from '@apollo/client';
 import Styled from './styles';
+import {
+  SegmentedButtonContainer,
+  SegmentedButton,
+} from '/imports/ui/components/common/segmented-control/styles';
 import { layoutDispatch } from '../../layout/context';
 import { ACTIONS, PANELS } from '../../layout/enums';
 import {
@@ -288,27 +292,39 @@ const TimerPanelComponent: React.FC<TimerPanelProps> = ({
       <Styled.TimerScrollableContent id="timer-scroll-box">
         <Styled.TimerContent>
           <Styled.TimerType>
-            <Styled.TimerSwitchButton
-              label={intl.formatMessage(intlMessages.timer)}
-              onClick={() => {
-                timerStop();
-                switchTimer(false);
-              }}
-              disabled={!stopwatch || running}
-              color={!stopwatch ? 'primary' : 'secondary'}
-              data-test="timerButton"
-            />
-            <Styled.TimerSwitchButton
-              label={intl.formatMessage(intlMessages.stopwatch)}
-              onClick={() => {
-                timerStop();
-                timerReset();
-                switchTimer(true);
-              }}
-              disabled={stopwatch || running}
-              color={stopwatch ? 'primary' : 'secondary'}
-              data-test="stopwatchButton"
-            />
+            <SegmentedButtonContainer
+              role="group"
+              aria-label={intl.formatMessage(intlMessages.title)}
+            >
+              {/* The option in use is disabled, so clicking it does not stop or reset the timer. */}
+              <SegmentedButton
+                type="button"
+                active={!stopwatch}
+                aria-pressed={!stopwatch}
+                onClick={() => {
+                  timerStop();
+                  switchTimer(false);
+                }}
+                disabled={!stopwatch || running}
+                data-test="timerButton"
+              >
+                {intl.formatMessage(intlMessages.timer)}
+              </SegmentedButton>
+              <SegmentedButton
+                type="button"
+                active={stopwatch}
+                aria-pressed={stopwatch}
+                onClick={() => {
+                  timerStop();
+                  timerReset();
+                  switchTimer(true);
+                }}
+                disabled={stopwatch || running}
+                data-test="stopwatchButton"
+              >
+                {intl.formatMessage(intlMessages.stopwatch)}
+              </SegmentedButton>
+            </SegmentedButtonContainer>
           </Styled.TimerType>
 
           <TimerTimeSection

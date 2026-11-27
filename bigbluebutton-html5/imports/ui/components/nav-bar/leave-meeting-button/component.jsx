@@ -165,7 +165,9 @@ class LeaveMeetingButton extends PureComponent {
               data-test="leaveMeetingDropdown"
               icon="logout"
               color="danger"
-              size="lg"
+              // Icon only, it is round and sized like the other icon buttons of the bar.
+              size={enableExitLabel ? 'lg' : 'md'}
+              circle={!enableExitLabel}
               hideLabel={!enableExitLabel}
               disabled={isDisabled}
               // FIXME: Without onClick react proptypes keep warning

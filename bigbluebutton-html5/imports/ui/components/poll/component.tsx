@@ -4,7 +4,6 @@ import React, {
 import { defineMessages, useIntl } from 'react-intl';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { BBBToggle } from '@bigbluebutton/bbb-ui-components-react/Toggle';
-import { BBButton } from '@bigbluebutton/bbb-ui-components-react/Button';
 import { Input } from '../layout/layoutTypes';
 import { layoutDispatch, layoutSelectInput } from '../layout/context';
 import { addAlert } from '../screenreader-alert/service';
@@ -18,7 +17,6 @@ import {
   validateInput,
 } from './service';
 import PanelHeader from '/imports/ui/components/common/panel-header/component';
-import usePanelClose from '/imports/ui/components/common/panel-header/usePanelClose';
 import StartPollButton from './components/StartPollButton';
 import Styled from './styles';
 import ResponseChoices from './components/ResponseChoices';
@@ -215,10 +213,6 @@ const intlMessages = defineMessages({
     id: 'app.polling.pollQuestionTitle',
     description: 'polling question header',
   },
-  cancelLabel: {
-    id: 'app.poll.cancelLabel',
-    description: 'label for the button that dismisses poll creation',
-  },
 });
 
 interface PollCreationPanelProps {
@@ -250,19 +244,6 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
     text: string;
     index: number;
   }>({ text: '', index: -1 });
-
-  const { closePanel } = usePanelClose(PANELS.POLL);
-  // Set by the Cancel action so the unmount effect below knows not to persist the draft.
-  const discardedRef = useRef(false);
-
-  const discardPoll = useCallback(() => {
-    // "Cancel" promises to throw the draft away; without this the unmount effect would
-    // persist it to pollSavedState and the panel would restore it on the next open.
-    discardedRef.current = true;
-    SessionStorage.removeItem('pollSavedState');
-    Session.setItem('pollInitiated', false);
-    closePanel();
-  }, [closePanel]);
 
   const resetPollForm = useCallback(() => {
     const newType = customInput ? pollTypes.Custom : '';
@@ -431,7 +412,6 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
   ]);
 
   useEffect(() => () => {
-    if (discardedRef.current) return;
     SessionStorage.setItem('pollSavedState', getPollCurrentState());
   }, [getPollCurrentState]);
 
@@ -776,28 +756,17 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
       </Styled.ContentWrapper>
       <Styled.PollFooter>
         {hasPoll ? <LiveResultActions /> : (
-          <Styled.PollActionsRow>
-            <BBButton
-              className="bbb-action-button bbb-action-button--secondary"
-              dataTest="cancelPollCreation"
-              fullWidth
-              label={intl.formatMessage(intlMessages.cancelLabel)}
-              variant="secondary"
-              color="default"
-              onClick={discardPoll}
-            />
-            <StartPollButton
-              question={question}
-              multipleResponse={multipleResponse}
-              optList={optList}
-              type={type}
-              secretPoll={secretPoll}
-              setError={setError}
-              setIsPolling={resetPollForm}
-              isQuiz={isQuiz}
-              correctAnswer={correctAnswer}
-            />
-          </Styled.PollActionsRow>
+          <StartPollButton
+            question={question}
+            multipleResponse={multipleResponse}
+            optList={optList}
+            type={type}
+            secretPoll={secretPoll}
+            setError={setError}
+            setIsPolling={resetPollForm}
+            isQuiz={isQuiz}
+            correctAnswer={correctAnswer}
+          />
         )}
       </Styled.PollFooter>
     </>

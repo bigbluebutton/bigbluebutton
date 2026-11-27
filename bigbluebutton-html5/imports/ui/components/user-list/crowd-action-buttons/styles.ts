@@ -27,7 +27,6 @@ const ActionButtonWrapper = styled.div`
   flex-direction: column;
   gap: 0.5rem;
   overflow: hidden;
-  max-height: 5rem;
   padding: 0.2rem;
 `;
 
@@ -37,9 +36,12 @@ const ActionButtonLabel = styled.span`
   font-weight: ${textFontWeight};
   text-align: center;
   line-height: normal;
+  // Up to two lines: one is too short for most labels ("Mute all users except
+  // presenter" is cut off even in English on a wide screen).
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 `;
 
 // @ts-ignore - Button is JSX element
