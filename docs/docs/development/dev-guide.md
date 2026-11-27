@@ -141,6 +141,7 @@ Add `data/dev-ca/rootCA.pem` to the trusted certificates of your browser or oper
 ./bbb-dev exec html5     # a shell in its container (or: ./bbb-dev exec html5 npm test)
 ./bbb-dev build web      # build bbb-web from your checkout
 ./bbb-dev enable web     # and run it
+./bbb-dev build          # build all images (--no-cache: without the build cache)
 ./bbb-dev status         # what runs from your checkout
 ./bbb-dev apimate        # open API Mate for your server (prints the URL if no browser opens)
 ./bbb-dev tunnel         # experimental: share it on a temporary public URL until Ctrl-C

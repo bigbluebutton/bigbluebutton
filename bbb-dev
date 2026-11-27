@@ -55,7 +55,9 @@ Usage: ./bbb-dev <command> [component] [args...]
 
   setup [domain]          once: .env, a local CA and certificate, the truststore for bbb-web
                           (domain: BBB_DOMAIN in .env, else $DEFAULT_DOMAIN)
-  build <component>       build its image from your checkout (localhost/bbb-<target>:dev)
+  build [component] [--no-cache]
+                          build its image from your checkout (localhost/bbb-<target>:dev), or all
+                          images without a component
   enable <component>      run it from your checkout: live, or the image of build
   enable <component> --image
                           run the image of build, also for a component that runs live
@@ -159,11 +161,19 @@ cmd_disable() {
 }
 
 cmd_build() {
-  local arch
-  need_component "${1:-}"
+  local arch no_cache='' target=default # the bake group of all images
+  if [[ ${1:-} && $1 != --no-cache ]]; then
+    need_component "$1"
+    shift
+  fi
+  if [[ ${1:-} == --no-cache ]]; then
+    no_cache=$1
+    shift
+  fi
+  (($# == 0)) || fail "Usage: ./bbb-dev build [component] [--no-cache]"
   arch=$(docker version -f '{{.Server.Arch}}')
   BBB_IMAGE_REGISTRY=localhost BBB_IMAGE_TAG=dev \
-    docker buildx bake -f docker-bake.hcl --load --set "*.platform=linux/$arch" "$target"
+    docker buildx bake -f docker-bake.hcl --load --set "*.platform=linux/$arch" ${no_cache:+"$no_cache"} "$target"
 }
 
 cmd_exec() {
