@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A pluginManifests param that isn't JSON lists no manifest: pluginProp
+# is empty, and create succeeds.
+id: create.plugins.dropped
+title: create drops plugin manifests it can't list (${case})
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus]
+variants:
+  - {id: malformed-param, vars: {case: a malformed pluginManifests param, manifests: '[{"url":'}}
+steps:
+  - call: create
+    params:
+      meetingID: "${uid}"
+      name: Plugins
+      pluginManifests: "${manifests}"
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 10s}
+    select: [$.core.body.props.pluginProp]
+    expect:
+      jsonpath:
+        $.core.body.props.pluginProp.*: {absent: true}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

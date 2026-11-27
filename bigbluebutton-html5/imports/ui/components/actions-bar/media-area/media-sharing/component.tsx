@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useMutation } from '@apollo/client';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import SvgIcon from '@mui/material/SvgIcon';
@@ -18,6 +19,7 @@ import PresentationUploaderContainer from './presentation/container';
 import ExternalVideoView from './external-video/component';
 import CameraAsContentView from './camera-as-content/component';
 import { MediaButtonPluginItem } from '../types';
+import { EXTERNAL_VIDEO_STOP } from '/imports/ui/components/external-video-player/mutations';
 import { layoutSelectOutput } from '/imports/ui/components/layout/context';
 import { Output } from '/imports/ui/components/layout/layoutTypes';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
@@ -40,7 +42,6 @@ interface MediaSharingModalProps {
   isPresentationEnabled: boolean;
   isSharingVideo: boolean;
   allowExternalVideo: boolean;
-  stopExternalVideoShare: () => void;
   isMobile: boolean;
   isRTL: boolean;
   isRequestingPresenter?: boolean;
@@ -156,7 +157,6 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
   isPresentationEnabled,
   isSharingVideo,
   allowExternalVideo,
-  stopExternalVideoShare,
   isMobile,
   isRTL,
   isRequestingPresenter = false,
@@ -166,6 +166,7 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
   const animations = getSettingsSingletonInstance().application?.animations ?? true;
   const actionsBarStyle = layoutSelectOutput((i: Output) => i.actionBar);
   const { screenIsShared: isScreenGloballyBroadcasting } = useIsScreenGloballyBroadcasting();
+  const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
   const [currentView, setCurrentView] = useState<'main' | 'presentation' | 'externalVideo' | 'cameraAsContent'>('main');
   const [localRequestingPresenter, setLocalRequestingPresenter] = useState(false);
 
@@ -232,7 +233,7 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
   const renderContent = () => {
     if (currentView === 'main') {
       return (
-        <Styled.MediaGrid isMobile={isMobile}>
+        <Styled.MediaGrid className="bbb-media-sharing__options" isMobile={isMobile}>
           <ScreenshareButtonContainer {...{
             amIPresenter,
             isConnected,
@@ -320,7 +321,6 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
           intl={intl}
           onActionCompleted={handleBackClick}
           isSharingVideo={isSharingVideo}
-          stopExternalVideoShare={stopExternalVideoShare}
         />
       );
     } else if (currentView === 'cameraAsContent') {
@@ -331,22 +331,21 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
           intl={intl}
           hasCameraAsContent={hasCameraAsContent}
           onActionCompleted={handleBackClick}
-          stopExternalVideoShare={stopExternalVideoShare}
         />
       );
     }
 
     if (subViewSpecificContent) {
       return (
-        <Styled.SubViewWrapper>
-          <Styled.SubHeader>
+        <Styled.SubViewWrapper className="bbb-media-sharing__subview">
+          <Styled.SubHeader className="bbb-media-sharing__subview-header">
             <IconButton onClick={handleBackClick} size="small">
               <Styled.BackButtonIcon />
             </IconButton>
-            <Styled.SubHeaderTitle>{subViewTitle}</Styled.SubHeaderTitle>
+            <Styled.SubHeaderTitle className="bbb-media-sharing__subview-title">{subViewTitle}</Styled.SubHeaderTitle>
             {subViewIcon && <Styled.SubHeaderIconContainer>{subViewIcon}</Styled.SubHeaderIconContainer>}
           </Styled.SubHeader>
-          <Styled.SubViewContent>
+          <Styled.SubViewContent className="bbb-media-sharing__subview-content">
             {subViewSpecificContent}
           </Styled.SubViewContent>
         </Styled.SubViewWrapper>
@@ -359,7 +358,7 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
   const renderTakePresenterView = () => {
     if (isWaitingPresenter) {
       return (
-        <Styled.BecomePresenterViewContainer>
+        <Styled.BecomePresenterViewContainer className="bbb-media-sharing__become-presenter">
           <Styled.BecomePresenterText>
             {intl.formatMessage(intlMessages.mustBePresenter)}
           </Styled.BecomePresenterText>
@@ -377,7 +376,7 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
 
     if (amIModerator) {
       return (
-        <Styled.BecomePresenterViewContainer>
+        <Styled.BecomePresenterViewContainer className="bbb-media-sharing__become-presenter">
           <Styled.BecomePresenterText>
             {intl.formatMessage(intlMessages.mustBePresenter)}
           </Styled.BecomePresenterText>
@@ -396,7 +395,7 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
 
     if (presenterPolicy === 'moderatorOnly' && isLockedUser) {
       return (
-        <Styled.BecomePresenterViewContainer>
+        <Styled.BecomePresenterViewContainer className="bbb-media-sharing__become-presenter">
           <Styled.BecomePresenterText>
             {intl.formatMessage(intlMessages.mustBePresenter)}
           </Styled.BecomePresenterText>
@@ -406,7 +405,7 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
 
     if (presenterPolicy === 'freeForAll') {
       return (
-        <Styled.BecomePresenterViewContainer>
+        <Styled.BecomePresenterViewContainer className="bbb-media-sharing__become-presenter">
           <Styled.BecomePresenterText>
             {intl.formatMessage(intlMessages.mustBePresenter)}
           </Styled.BecomePresenterText>
@@ -424,7 +423,7 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
     }
 
     return (
-      <Styled.BecomePresenterViewContainer>
+      <Styled.BecomePresenterViewContainer className="bbb-media-sharing__become-presenter">
         <Styled.BecomePresenterText>
           {intl.formatMessage(intlMessages.mustBePresenter)}
         </Styled.BecomePresenterText>
@@ -468,19 +467,20 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
         isRTL={isRTL}
         actionsBarHeight={actionsBarStyle.height}
         id="mediaAreaDropUp"
+        className="bbb-media-sharing"
       >
         {!amIPresenter
           ? renderTakePresenterView()
           : (
             <>
-              <Styled.HeaderContainer>
+              <Styled.HeaderContainer className="bbb-media-sharing__header">
                 <h2>{intl.formatMessage(intlMessages.mediaSharingTitle)}</h2>
                 <IconButton onClick={handleClose} size="small">
                   <CloseIcon />
                 </IconButton>
               </Styled.HeaderContainer>
 
-              <Styled.ContentContainer>
+              <Styled.ContentContainer className="bbb-media-sharing__content">
                 {renderContent()}
               </Styled.ContentContainer>
 

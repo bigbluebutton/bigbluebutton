@@ -1,8 +1,5 @@
-import { exec } from 'node:child_process';
-import { promisify } from 'node:util';
-import { writeFile, readFile, unlink } from 'node:fs/promises';
-import { randomBytes } from 'node:crypto';
-import fs, { existsSync } from 'node:fs';
+import net from 'node:net';
+import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { Logger } from '../../common/logger';
 import config from '../../config';
@@ -13,7 +10,8 @@ import { renderMathForPdf } from '../../common/math';
 // is reliable. The postinstall script (scripts/download-twemoji-assets.mjs) places files here.
 const TWEMOJI_SVG_DIR = path.join(process.cwd(), 'assets/twemoji/svg');
 
-const execAsync = promisify(exec);
+const PDF_MAGIC = Buffer.from('%PDF-');
+const PDF_EOF = Buffer.from('%%EOF');
 const logger = new Logger('exportDocumentToPdf');
 
 /**
@@ -94,24 +92,15 @@ interface PdfExportOptions {
 }
 
 /**
- * Converts HTML content to PDF using pandoc
- * Uses a shell script (run-in-systemd.sh) to run the command in a sandboxed env
- * The container is ephemeral (created, used, and removed automatically)
+ * Converts HTML content to PDF with wkhtmltopdf.
+ * The HTML is sent to the bbb-shared-notes-conversion socket, where each connection starts a
+ * sandboxed bbb-shared-notes-conversion@ service that writes the PDF back and closes it.
  */
 export async function exportHtmlToPdf(
   htmlContent: string,
   _options: PdfExportOptions = {}
 ): Promise<Buffer> {
-  const { workDir, runnerScript, timeout } = config.commandExecution;
-
-  if (!fs.existsSync(workDir)) {
-    fs.mkdirSync(workDir, { recursive: true });
-  }
-
-  // Generate unique filename for isolation
-  const runId = randomBytes(8).toString('hex');
-  const htmlFilePath = path.join(workDir, `bbb-html-${runId}.html`);
-  const pdfFilePath = path.join(workDir, `bbb-pdf-${runId}.pdf`);
+  const { conversionSocket, timeout } = config.commandExecution;
 
   try {
     // Replace emoji Unicode characters with inline base64 SVG images so wkhtmltopdf
@@ -120,80 +109,41 @@ export async function exportHtmlToPdf(
     // wkhtmltopdf does not render MathML either: typeset math with KaTeX.
     const htmlForPdf = await renderMathForPdf(htmlWithInlinedEmojis);
 
-    // Write HTML content to temporary file
-    await writeFile(htmlFilePath, htmlForPdf, 'utf-8');
-    // Set ownership to bigbluebutton user
-    logger.info('HTML content written to temporary file', { htmlFilePath });
-
-
-
-    // Execute bash script for conversion
-    const command = `${runnerScript} ${timeout} \
-      wkhtmltopdf \
-          --encoding utf-8 \
-          --dpi 96 \
-          --page-size A4 \
-          --margin-top 0mm \
-          --margin-bottom 0mm \
-          --margin-left 0mm \
-          --margin-right 0mm \
-          --print-media-type \
-          --background \
-          --no-header-line \
-          "${htmlFilePath}" "${pdfFilePath}"`;
-
-    logger.info('Executing conversion script', { command });
-
-    const execTimeoutMs = (timeout * 1000) + 5000; // (script timeout + 5s buffer)
-    const { stdout, stderr } = await execAsync(command, {
-      maxBuffer: 10 * 1024 * 1024, // 10MB buffer
-      timeout: execTimeoutMs
-    });
-
-    if (stdout) {
-      logger.debug('Script stdout', { stdout });
-    }
-
-    if (stderr) {
-      logger.warn('Script stderr', { stderr });
-    }
-
-    // Check if PDF was created
-    if (!existsSync(pdfFilePath)) {
-      throw new Error(`PDF file not created. Script output: ${stdout || stderr}`);
-    }
-
-    // Read PDF file
-    const pdfBuffer = await readFile(pdfFilePath);
-
-    logger.info('PDF generated successfully', {
-      size: pdfBuffer.length,
-      runId
-    });
-
+    const pdfBuffer = await convertThroughSocket(conversionSocket, htmlForPdf, (timeout * 1000) + 5000);
+    logger.info('PDF generated successfully', { size: pdfBuffer.length });
     return pdfBuffer;
-
   } catch (error) {
-    logger.error('Error generating PDF with Chrome', {
+    logger.error('Error generating PDF', {
       error: error instanceof Error ? error.message : String(error),
-      runId
     });
     throw error;
-  } finally {
-    // Cleanup temporary files
-    try {
-      if (existsSync(htmlFilePath)) {
-        await unlink(htmlFilePath);
-        logger.debug('Removed temporary HTML file', { htmlFilePath });
-      }
-      if (existsSync(pdfFilePath)) {
-        await unlink(pdfFilePath);
-        logger.debug('Removed temporary PDF file', { pdfFilePath });
-      }
-    } catch (cleanupError) {
-      logger.warn('Error during cleanup', {
-        error: cleanupError instanceof Error ? cleanupError.message : String(cleanupError)
-      });
-    }
   }
+}
+
+function convertThroughSocket(socketPath: string, html: string, timeoutMs: number): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    const chunks: Buffer[] = [];
+    const socket = net.createConnection(socketPath);
+
+    socket.setTimeout(timeoutMs, () => {
+      socket.destroy(new Error(`PDF conversion timed out after ${timeoutMs}ms`));
+    });
+    socket.on('connect', () => socket.end(html, 'utf-8'));
+    socket.on('data', (chunk: Buffer) => chunks.push(chunk));
+    socket.on('error', reject);
+    socket.on('close', (hadError) => {
+      if (hadError) return;
+      const pdf = Buffer.concat(chunks);
+      // The service sends nothing back when the conversion fails or hits its time limit
+      if (!pdf.subarray(0, PDF_MAGIC.length).equals(PDF_MAGIC)) {
+        reject(new Error(`PDF conversion returned no PDF (${pdf.length} bytes)`));
+        return;
+      }
+      if (!pdf.subarray(-1024).includes(PDF_EOF)) {
+        reject(new Error(`PDF conversion returned a truncated PDF (${pdf.length} bytes)`));
+        return;
+      }
+      resolve(pdf);
+    });
+  });
 }

@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# akka-apps reports a meeting's learning-dashboard data to bbb-web every
+# few seconds while it changes, from the start, with nobody joined, and
+# bbb-web writes it to
+# learning-dashboard/<internal ID>/<access token>/learning_dashboard_data.json,
+# where the dashboard reads it. The access token is the meeting's
+# learningDashboardAccessToken. The data names the meeting.
+id: create.dashboard.written
+title: create starts the meeting's learning-dashboard data file
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus, fs]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Dashboard}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+    capture: {token: $.core.body.props.password.learningDashboardAccessToken}
+  # Not recorded: the data changes as the meeting runs.
+  - fs: {path: "learning-dashboard/${intId}/${token}/learning_dashboard_data.json", within: 15s}
+    golden: off
+    expect:
+      jsonpath:
+        $.contents.intId: "${intId}"
+        $.contents.extId: "${uid}"
+        $.contents.name: Dashboard
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

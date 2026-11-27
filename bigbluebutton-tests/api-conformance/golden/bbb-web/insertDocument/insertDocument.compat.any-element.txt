@@ -1,0 +1,6 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case insertDocument.compat.any-element
+target bbb-web
+
+== step 3: bus PresentationConversionStartedSysPubMsg select $.core.body.common.presentationName
+$.core.body.common.presentationName "element.pdf"

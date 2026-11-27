@@ -1,0 +1,27 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A create for a meeting that already runs answers duplicateWarning and
+# ignores its body: its documents aren't fetched.
+id: create.presentation.duplicate
+title: A repeated create ignores the documents in its body
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, callbacks]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Presentations}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Presentations}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}/fixtures/presentations/two-pages.pdf"/></module></modules>'}
+    expect: {returncode: SUCCESS, messageKey: duplicateWarning}
+  - sink: {key: "${uid}", within: 3s}
+    golden: off
+    expect: {absent: true}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

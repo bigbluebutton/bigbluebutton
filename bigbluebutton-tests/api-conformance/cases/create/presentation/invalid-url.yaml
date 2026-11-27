@@ -1,0 +1,22 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A document URL in create's body that isn't a well-formed URL is refused
+# as invalidPresentationUrl, and the meeting isn't created. The check is on
+# the URL's syntax only (create.presentation.dropped-documents).
+id: create.presentation.invalid-url
+title: create refuses a document URL that isn't well-formed (${case}), and creates no meeting
+endpoint: create
+class: contract
+tags: [ci]
+variants:
+  - {id: space, vars: {case: a space, url: 'https://sink.test:8444/a b.pdf'}}
+  - {id: bad-escape, vars: {case: a bad percent escape, url: 'https://sink.test:8444/a%zz.pdf'}}
+steps:
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Presentations}
+    body: {xml: '<modules><module name="presentation"><document url="${url}"/></module></modules>'}
+    expect: {returncode: FAILED, messageKey: invalidPresentationUrl}
+  - call: getMeetingInfo
+    params: {meetingID: "${uid}"}
+    golden: off
+    expect: {returncode: FAILED, messageKey: notFound}

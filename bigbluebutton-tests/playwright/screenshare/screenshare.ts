@@ -69,6 +69,40 @@ export class ScreenShare extends MultiUsers {
     await this.modPage.wasRemoved(e.startScreenSharing, 'should not display the start screenshare button');
   }
 
+  async mobilePresenterSharesToDesktopViewer() {
+    await this.modPage.hasElement(e.startScreenSharing, 'should display screen sharing in the actions bar');
+    await this.modPage.waitAndClick(e.mediaAreaButton);
+    await this.modPage.hasNElements(
+      '[data-test="startScreenShare"]',
+      2,
+      'should display screen sharing in the Media Sharing panel',
+    );
+    await this.modPage.page.keyboard.press('Escape');
+
+    await this.initUserPage(this.context);
+    await startScreenshare(this.modPage);
+    await this.userPage.hasElement(
+      e.screenShareVideo,
+      'should deliver the mobile presenter screen share to a desktop viewer',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+    await expectVideoReceived(
+      this.userPage.page,
+      e.screenShareVideo,
+      'the desktop viewer should decode the mobile presenter screen share',
+    );
+
+    await this.modPage.waitAndClick(e.stopScreenSharing);
+    await this.modPage.wasRemoved(e.isSharingScreen, 'should not display the screenshare element after stopping');
+    await this.modPage.wasRemoved(e.stopScreenSharing, 'should not display the stop screenshare button after stopping');
+    await this.modPage.hasElement(e.startScreenSharing, 'should display the start screenshare button after stopping');
+    await this.userPage.wasRemoved(
+      e.screenShareVideo,
+      'the desktop viewer should stop receiving the screen share once the mobile presenter stops it',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+  }
+
   async screenshareStopsExternalVideo() {
     const { screensharingEnabled } = this.modPage.settings || {};
 

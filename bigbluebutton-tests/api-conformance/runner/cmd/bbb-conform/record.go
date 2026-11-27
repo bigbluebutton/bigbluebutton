@@ -10,6 +10,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strings"
 
@@ -54,7 +55,7 @@ func cmdRecord(args []string, stdout, stderr io.Writer) int {
 	exclude := fl.String("exclude-tags", "", "skip cases with any of these comma-separated tags")
 	ids := fl.String("id", "", "only cases whose ID matches one of these comma-separated globs")
 	parallel := fl.Int("parallel", 4, "cases to run at once (cases tagged serial always run alone)")
-	masksFile := fl.String("masks", "", "extra normalization rules (default: masks.yaml next to the cases directory)")
+	masksFile := fl.String("masks", "", "extra normalization rules (default: masks.d/*.yaml and masks.yaml next to the cases directory)")
 	outDir := fl.String("out", "", "where recordings go (default: golden/<target name> next to the cases directory)")
 	passes := fl.Int("passes", 2, "how many times each case runs; any difference between runs is reported")
 	if err := fl.Parse(args); err != nil {
@@ -166,7 +167,7 @@ func cmdRecord(args []string, stdout, stderr io.Writer) int {
 		for p := range results {
 			results[p] = run.Cases[p*n+k]
 		}
-		rec := recordCase(c, tg.Name, out, hostNames(tg.Bases()), results, cols)
+		rec := recordCase(c, tg.Name, out, recordedHosts(tg), results, cols)
 		outcomes = append(outcomes, rec)
 	}
 
@@ -327,6 +328,18 @@ func writeRecordConsole(w io.Writer, outcomes []recorded, runWarnings, orphanWar
 	fmt.Fprintf(w, "\n%s: %d new, %d changed, %d unchanged, %d unstable, %d incomplete, %d secret, %d errors, %d skipped\n",
 		out, counts[recNew], counts[recChanged], counts[recUnchanged], counts[recUnstable], counts[recIncomplete],
 		counts[recSecret], counts[recError], counts[recSkip])
+}
+
+// recordedHosts returns the host names a recording shouldn't hold: the
+// target's and the sink's, whose URLs normalization replaces.
+func recordedHosts(tg *target.Target) []string {
+	urls := tg.Bases()
+	for _, u := range tg.NamedURLs() {
+		if u != "" {
+			urls = append(urls, u)
+		}
+	}
+	return slices.Compact(slices.Sorted(slices.Values(hostNames(urls))))
 }
 
 // hostNames returns the host names in a target's base URLs.

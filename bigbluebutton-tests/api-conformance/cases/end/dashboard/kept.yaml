@@ -1,0 +1,43 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# An ended meeting's learning-dashboard data stays past the cleanup delay
+# (end.dashboard.cleanup) when:
+# - the delay is 0, which keeps it;
+# - the meeting is recorded and its recording hasn't been archived yet:
+#   bbb-web looks again every minute until record-and-playback marks it
+#   archived (on Tier 1 nothing does), for up to a day.
+id: end.dashboard.kept
+title: An ended meeting's learning-dashboard data is kept when ${why}
+endpoint: end
+class: contract
+tags: [slow]
+requires: [akka, bus, fs]
+variants:
+  - {id: delay-0, vars: {why: the cleanup delay is 0, minutes: "0", record: "false"}}
+  - {id: recorded, vars: {why: its recording awaits archiving, minutes: "1", record: "true"}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Dashboard, record: "${record}", learningDashboardCleanupDelayInMinutes: "${minutes}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - fs: {path: "learning-dashboard/${intId}/*/learning_dashboard_data.json", within: 15s}
+    golden: off
+    expect: {exists: true}
+  - call: end
+    params: {meetingID: "${uid}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+  # A minute and a half: past a one-minute delay's cleanup.
+  - wait: 90s
+  # Its contents, so only a file that is there now counts: one that
+  # appeared during the case and was removed since would pass exists.
+  - fs: {path: "learning-dashboard/${intId}/*/learning_dashboard_data.json"}
+    golden: off
+    expect:
+      jsonpath:
+        $.contents.intId: "${intId}"
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

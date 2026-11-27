@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# An empty meta_<name> removes the key from the recording's metadata, and
+# an update without meta_ params changes nothing. The recording is blue and
+# large. Serial, with the recording put back before and after.
+id: updateRecordings.meta.remove
+title: updateRecordings removes a key with an empty value, and changes nothing without meta_ params
+endpoint: updateRecordings
+class: contract
+tags: [ci, serial]
+defs:
+  rec: &rec 13ed80f250c8d538c9570d0240900f30c9867b0b-1700028800000
+steps:
+  - restore: {recordings: [*rec]}
+  - call: updateRecordings
+    params: {recordID: *rec}
+    expect:
+      returncode: SUCCESS
+      xpath: {/response/updated: "true"}
+  - call: updateRecordings
+    params: {recordID: *rec, meta_conform-size: ""}
+    expect:
+      returncode: SUCCESS
+      xpath: {/response/updated: "true"}
+  - call: getRecordings
+    params: {recordID: *rec}
+    expect:
+      returncode: SUCCESS
+      xpath:
+        /response/recordings/recording/metadata/conform-size: {absent: true}
+        /response/recordings/recording/metadata/conform-color: blue
+teardown:
+  - restore: {recordings: [*rec]}

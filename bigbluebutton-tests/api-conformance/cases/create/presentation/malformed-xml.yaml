@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A create body that doesn't parse as XML is refused as malformedXml, and
+# the meeting isn't created.
+id: create.presentation.malformed-xml
+title: create refuses a body that isn't well-formed XML (${case}), and creates no meeting
+endpoint: create
+class: contract
+tags: [ci]
+variants:
+  - {id: unclosed, vars: {case: an unclosed element, body: '<modules><module name="presentation"><document url="https://example.com/a.pdf"/></module>'}}
+  - {id: text, vars: {case: plain text, body: 'not xml'}}
+steps:
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Presentations}
+    body: {xml: "${body}"}
+    expect: {returncode: FAILED, messageKey: malformedXml}
+  - call: getMeetingInfo
+    params: {meetingID: "${uid}"}
+    golden: off
+    expect: {returncode: FAILED, messageKey: notFound}

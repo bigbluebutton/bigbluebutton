@@ -278,8 +278,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             if (isProduction && isSafari && safariVersion && safariVersion < 16 && safariVersion >= MIN_VERSIONS.safari) {
               document.documentElement.classList.add('legacy');
               script.src = 'bundle.' + bundleHash + '.safari.js';
-            } else {
+            } else if (isProduction) {
               script.src = 'bundle.' + bundleHash + '.js';
+            } else {
+              // Dev builds keep one bundle name (see webpack.config.js)
+              script.src = 'bundle.js?v=' + bundleHash;
             }
 
             document.head.appendChild(script);

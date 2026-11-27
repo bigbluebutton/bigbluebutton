@@ -38,6 +38,28 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await guestPolicy.allowEveryoneInWaitingQueues();
     });
 
+    test('Always accept admits the users already waiting', async ({ browser, context, page }, testInfo) => {
+      const guestPolicy = new GuestPolicy(browser, context);
+      await guestPolicy.initModPage(page, { createParameter: 'guestPolicy=ASK_MODERATOR', testInfo });
+      await guestPolicy.alwaysAcceptAdmitsWaitingUsers();
+    });
+
+    test('Remember choice on one accept admits the other waiting users', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      const guestPolicy = new GuestPolicy(browser, context);
+      await guestPolicy.initModPage(page, { createParameter: 'guestPolicy=ASK_MODERATOR', testInfo });
+      await guestPolicy.rememberChoiceAcceptAdmitsTheRest();
+    });
+
+    test('Always deny keeps the users already waiting (guard)', async ({ browser, context, page }, testInfo) => {
+      const guestPolicy = new GuestPolicy(browser, context);
+      await guestPolicy.initModPage(page, { createParameter: 'guestPolicy=ASK_MODERATOR', testInfo });
+      await guestPolicy.alwaysDenyKeepsWaitingUsers();
+    });
+
     test('Keeps queue totals visible while searching', async ({ browser, context, page }, testInfo) => {
       const guestPolicy = new GuestPolicy(browser, context);
       await guestPolicy.initModPage(page, { createParameter: 'guestPolicy=ASK_MODERATOR', testInfo });
@@ -119,6 +141,12 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       const timer = new Timer(browser, context);
       await timer.initPages(page, testInfo);
       await timer.timerCountdownForAttendeeTest();
+    });
+
+    test('Closes timer panel on demotion', async ({ browser, context, page }, testInfo) => {
+      const timer = new Timer(browser, context);
+      await timer.initPages(page, testInfo);
+      await timer.closesPanelOnDemotion();
     });
 
     test('Leave Meeting', async ({ browser, context, page }, testInfo) => {
@@ -583,6 +611,13 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await multiusers.muteAllUsersExceptPresenter();
     });
 
+    test('Clear all status icon', async ({ browser, context, page }, testInfo) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page, { testInfo });
+      await multiusers.initModPage2(context, { testInfo });
+      await multiusers.clearAllStatusIcon();
+    });
+
     test('End meeting', async ({ browser, context, page }, testInfo) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page, { testInfo });
@@ -617,5 +652,19 @@ test.describe.parallel('Emoji rain', { tag: '@nightly' }, () => {
       clientSettingsOverrides: emojiRainSettingsOverride(true, numberOfEmojis),
     });
     await multiusers.emojiRainForEveryReaction(numberOfEmojis);
+  });
+
+  test('Raising the hand right after a reaction does not replay its rain', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    const numberOfEmojis = 5;
+    const multiusers = new MultiUsers(browser, context);
+    await multiusers.initModPage(page, {
+      testInfo,
+      clientSettingsOverrides: emojiRainSettingsOverride(true, numberOfEmojis),
+    });
+    await multiusers.emojiRainOnceWhenRaisingHandAfterReaction(numberOfEmojis);
   });
 });

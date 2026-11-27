@@ -1,0 +1,38 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A plugin manifest URL, or a pluginManifestsFetchUrl, at a local address
+# whose name fetchUrlAllowedLocalHosts doesn't list is refused: no entry in
+# pluginProp, and create succeeds. Here both point at the sink at its
+# local address (sinkLocalUrl, 127.0.0.1 on Tier 1), which the server
+# reaches but doesn't list (Tier 1 lists sink.test). A target without
+# sinkLocalUrl skips the case: a fetch that can't connect, or that fails
+# the TLS handshake, would pass it.
+# The fetch rules are covered in full on clientSettingsOverrideJsonUrl
+# (create.fetch.*).
+id: create.plugins.dropped-local
+title: create drops plugin manifests at a local address it may not fetch from
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus]
+steps:
+  - call: create
+    params:
+      meetingID: "${uid}"
+      name: Plugins
+      pluginManifests: '[{"url":"${sinkLocalUrl}/${uid}/fixtures/plugins/basic.json"}]'
+      pluginManifestsFetchUrl: '${sinkLocalUrl}/${uid}/fixtures/plugins/list.json?_expand=1'
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 10s}
+    select: [$.core.body.props.pluginProp]
+    expect:
+      jsonpath:
+        $.core.body.props.pluginProp.*: {absent: true}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

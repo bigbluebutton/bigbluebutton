@@ -2,7 +2,8 @@
 # Renders the stack's configuration into env/.state/conform, which the
 # services mount at /etc/bigbluebutton/conform:
 #   bbb-web.properties   Tier 1's, plus the profile in force, if any
-#   bbb-apps-akka.conf
+#   bbb-apps-akka.conf   Tier 1's, plus the profile's akka-apps settings, if
+#                        it has any
 #   certs/               the CA and nginx's certificate (certs.sh)
 #   conform.env          the variables the runner reads
 # and, once, env/.state/tokens.env: the tap's and the sink's tokens, which
@@ -21,7 +22,9 @@ profile=${1:-$(cat "$env_dir/.state/profile" 2>/dev/null || true)}
 mkdir -p "$out"
 "$here/certs.sh" "$out/certs" "$env_dir/.state/ca"
 
-subst() { sed "s|@SALT@|$TIER1_SALT|g" "$1"; }
+subst() {
+	sed -e "s|@SALT@|$TIER1_SALT|g" -e "s|@PAGE_TOKEN_SECRET@|$TIER1_PAGE_TOKEN_SECRET|g" "$1"
+}
 
 # write_changed FILE: writes stdin to FILE if that changes it. In place, so a
 # running service reads it after a restart, and untouched otherwise:
@@ -43,7 +46,15 @@ write_changed() {
 		cat "$env_dir/bbb-web/profiles/$profile.properties"
 	fi
 } | write_changed "$out/bbb-web.properties"
-subst "$env_dir/akka-apps/bbb-apps-akka.conf.in" | write_changed "$out/bbb-apps-akka.conf"
+# A profile can also carry akka-apps settings, in NAME.akka.conf next to
+# its properties: HOCON, where a later value of a key wins too.
+{
+	subst "$env_dir/akka-apps/bbb-apps-akka.conf.in"
+	if [ -n "$profile" ] && [ -f "$env_dir/bbb-web/profiles/$profile.akka.conf" ]; then
+		printf '\n// bbb-conform profile %s\n' "$profile"
+		cat "$env_dir/bbb-web/profiles/$profile.akka.conf"
+	fi
+} | write_changed "$out/bbb-apps-akka.conf"
 
 tokens=$env_dir/.state/tokens.env
 if [ ! -s "$tokens" ]; then
@@ -53,17 +64,28 @@ fi
 # shellcheck source=/dev/null # made just above
 . "$tokens"
 
+# The TURN servers' shared secret, from the file bbb-web reads, so the stuns
+# cases can check the credentials it hands out. Every TurnServer there must
+# use the same one: bbb-web lists the servers in no fixed order (a HashSet),
+# and the cases check whichever comes first.
+turn_secret=$(sed -n '/TurnServer"/,/<\/bean>/s/.*index="0" value="\([^"]*\)".*/\1/p' "$here/../bbb-web/turn-stun-servers.xml" | sort -u)
+[ -n "$turn_secret" ] || { echo "render.sh: no TURN secret in bbb-web/turn-stun-servers.xml" >&2; exit 1; }
+[ "$(printf '%s\n' "$turn_secret" | wc -l)" -eq 1 ] || { echo "render.sh: the TURN servers in bbb-web/turn-stun-servers.xml must share one secret" >&2; exit 1; }
+
 cat > "$out/conform.env" <<END
 export BBB_URL=https://localhost:8443/bigbluebutton/
 export BBB_SECRET=$TIER1_SALT
+export BBB_PAGE_TOKEN_SECRET=$TIER1_PAGE_TOKEN_SECRET
 export BBB_WEB_DIRECT_URL=http://localhost:8090
 export BBB_TAP_URL=http://localhost:8099
 export BBB_TAP_TOKEN=$BBB_TAP_TOKEN
 export BBB_SINK_URL=https://sink.test:8444
 export BBB_SINK_READ_URL=https://localhost:8444
 export BBB_SINK_HTTP_URL=http://sink.test:8445
+export BBB_SINK_LOCAL_URL=https://127.0.0.1:8444
 export BBB_SINK_TOKEN=$BBB_SINK_TOKEN
 export BBB_FIXTURE_URL=https://sink.test:8444/fixtures
+export TURN_SECRET=$turn_secret
 export BBB_PROFILE_CMD=$here/profile.sh
 export SSL_CERT_FILE=$out/certs/bundle.pem
 END

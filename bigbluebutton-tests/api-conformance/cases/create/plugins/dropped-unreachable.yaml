@@ -1,0 +1,38 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A plugin manifest URL whose check gets an error answer leaves no entry
+# in pluginProp (unlike a manifest that fails to load after the check,
+# create.plugins.load-failure), and bbb-web doesn't go on to fetch it:
+# the sink sees the check alone.
+id: create.plugins.dropped-unreachable
+title: create drops a plugin manifest whose URL check fails (${case})
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus, callbacks]
+variants:
+  - {id: not-found, vars: {case: 404, rest: "fixtures/plugins/basic.json?_status=404"}}
+  - {id: server-error, vars: {case: 500, rest: "fixtures/plugins/basic.json?_status=500"}}
+steps:
+  - call: create
+    params:
+      meetingID: "${uid}"
+      name: Plugins
+      pluginManifests: '[{"url":"${sinkUrl}/${uid}/${rest}"}]'
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 10s}
+    select: [$.core.body.props.pluginProp]
+    expect:
+      jsonpath:
+        $.core.body.props.pluginProp.*: {absent: true}
+  - sink: {key: "${uid}", within: 2s}
+    golden: off
+    expect: {count: 1}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

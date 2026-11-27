@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# With preUploadedPresentationOverrideDefault=false, the server's default
+# presentation is uploaded beside the documents in create's body and,
+# unless a document asks to be current, it goes first: it is the current,
+# default presentation, and the body's documents are neither
+# (create.default-presentation.override-true).
+id: create.default-presentation.override-false
+title: With preUploadedPresentationOverrideDefault false, the default presentation comes first
+endpoint: create
+class: contract
+tags: [ci, conversion]
+requires: [akka, bus, callbacks, presentation-conversion]
+steps:
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Default presentation, preUploadedPresentationOverrideDefault: "false"}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}/fixtures/presentations/two-pages.pdf"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 180s}
+    select: [$.core.body.presentation.name, $.core.body.presentation.current, $.core.body.presentation.removable, $.core.body.presentation.defaultPresentation]
+    expect:
+      jsonpath:
+        $.core.body.presentation.name: "default.pdf"
+        $.core.body.presentation.current: "true"
+        $.core.body.presentation.defaultPresentation: "true"
+  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 180s}
+    select: [$.core.body.presentation.name, $.core.body.presentation.current, $.core.body.presentation.removable, $.core.body.presentation.defaultPresentation]
+    expect:
+      jsonpath:
+        $.core.body.presentation.name: "two-pages.pdf"
+        $.core.body.presentation.current: "false"
+        $.core.body.presentation.defaultPresentation: "false"
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

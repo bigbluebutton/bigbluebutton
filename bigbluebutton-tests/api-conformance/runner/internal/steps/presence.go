@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -115,7 +116,10 @@ func (x *exec) attach(ctx context.Context, p *spec.PresenceStep, sr *report.Step
 			return nil, nil, report.Error, err
 		}
 		sr.Request = x.requestInfo(req)
-		o, err := x.session.Do(ctx, req, p.As, false, DefaultTimeout)
+		o, _, err := x.session.Do(ctx, req, p.As, false, DefaultTimeout)
+		if err == nil && o.Truncated {
+			err = fmt.Errorf("reading the response: %w", io.ErrUnexpectedEOF)
+		}
 		if err != nil {
 			return nil, req, report.Error, fmt.Errorf("join: %w", err)
 		}

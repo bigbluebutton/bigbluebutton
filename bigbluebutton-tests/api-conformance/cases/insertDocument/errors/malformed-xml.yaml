@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A body that doesn't parse as XML is refused as malformedXml, and no
+# document is taken.
+id: insertDocument.errors.malformed-xml
+title: insertDocument refuses a body that isn't well-formed XML (${case})
+endpoint: insertDocument
+class: contract
+tags: [ci]
+requires: [akka]
+variants:
+  - {id: unclosed, vars: {case: an unclosed element, body: '<modules><module name="presentation"><document url="https://example.com/a.pdf"/></module>'}}
+  - {id: text, vars: {case: plain text, body: 'not xml'}}
+  - {id: two-roots, vars: {case: two root elements, body: '<modules/><modules/>'}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Insert document}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: insertDocument
+    method: POST
+    params: {meetingID: "${uid}"}
+    body: {xml: "${body}"}
+    expect: {returncode: FAILED, messageKey: malformedXml}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

@@ -13,4 +13,6 @@
 
 .tippy-box[data-theme~='bbbtip']>.tippy-content{
     text-wrap: pretty;
+    /* allow multi-line tooltips through "\n" in the title */
+    white-space: pre-line;
 }

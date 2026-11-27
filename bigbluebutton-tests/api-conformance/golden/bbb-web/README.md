@@ -48,7 +48,70 @@ there compares like with like.
   `end/end.callbacks.expired` were added, and `create.expiry.not-joined-*`
   and `end.callbacks.http-*`, whose steps changed, were re-recorded, from a
   stack started that day from packages whose build key still matched this
-  tree.
+  tree. On 2026-11-06 the recording cases were added: getRecordings
+  (`getRecordings/getRecordings.{filters,pagination,all,response}.*`, the
+  `all` ones partly under the no-fetch-all-recordings profile),
+  publishRecordings, deleteRecordings and updateRecordings (`*.errors.*`,
+  `*.state.*`, `*.meta.*`), getRecordingTextTracks and putRecordingTextTrack
+  (`*.errors.*`, `*.tracks.*`, `*.upload.*`) and the caption-file routes
+  (`textTrack/`). They were recorded from a fresh stack (`make reset`)
+  built from this tree that day, with the tap installing
+  `fixtures/recordings/`. On 2026-11-09 the publish, delete and upload cases
+  (`publishRecordings.state.*`, `deleteRecordings.state.*`,
+  `putRecordingTextTrack.{upload,errors}.*`) were recorded again with their
+  side effects: the directory moves, the `*RecordingSysMsg` announcements
+  and the captions inbox. That stack was started fresh (`make reset`) from
+  packages whose build key still matched this tree. The token-expiry case
+  (`textTrack.authz.expiry`) was recorded the same day. On 2026-11-10 the
+  auth hook cases (`connection/`, two of them under the alt-defaults profile
+  and one under short-users-timeout) were added, recorded from a stack built
+  that day from a tree without the recording cases. On 2026-11-12 the
+  fixtures' links moved to the host `recordings.test`, and the 56 recordings
+  that show them were re-recorded from a fresh stack running packages built
+  from v4.0.x-develop of 2026-11-10; only the host changed in them. On
+  2026-11-13 `getRecordings.all.fetch-all-off` was re-recorded without its
+  limited listing, whose formats depend on the file system's order, from a
+  stack running the same packages. On 2026-11-16 the getRecordingProcessingInfo
+  cases (`getRecordingProcessingInfo/`, and their checksum and method cases)
+  were added, recorded from a fresh stack (`make reset`) running a bbb-web
+  built from this tree that day and the other packages of 2026-11-10. On
+  2026-11-17 the session-token calls' cases (`getJoinUrl/`, `stuns/`,
+  `signOut/`, `learningDashboard/`, `sendChatMessage/`,
+  `join.session.ignored-params` and `create.breakouts.sequence`) were
+  recorded from a stack running packages built from v4.0.x-develop of that
+  day (3fc5b07e3d), and `getJoinUrl.signed-url.parameters` was recorded
+  again for its new check step; its answers didn't change. On 2026-11-23
+  the side-effect cases (`create/` redis, breakout-rooms, dashboard,
+  plugins, client-settings, shared-notes and fetch; `end/` markers and
+  dashboard) were recorded from a fresh stack (`make reset`) running
+  packages built from v4.0.x-develop of that day (aca03d0651). On
+  2026-11-24 `end.markers.none` was recorded again, from the same
+  packages, for its new step; its answer didn't change. The same day
+  `create.breakout-rooms.capture`, `create.fetch.two-requests` and the
+  `download-error` variants of `create.client-settings.failed` and
+  `create.shared-notes.failed` were added, and
+  `create.breakout-rooms.redis` recorded again because its
+  `meeting:breakout` step is now documented rather than compared; its
+  answer didn't change.
+
+  On 2026-11-23 the breakout room cases (`getMeetingInfo/`, `getMeetings/`
+  and `end/` breakout-rooms) were recorded from a stack running packages
+  built from v4.0.x-develop of that day (aca03d0651; the three commits
+  since, to the HTML5 client and bbb-libreoffice, change none of them).
+  On 2026-11-24 `getMeetingInfo.breakout-rooms.room` was recorded again,
+  from the same packages, for its rooms' new 601-second duration; only
+  the duration changed.
+
+  On 2026-11-25 the presentation cases were added: insertDocument's
+  (`insertDocument/insertDocument.{errors,success,compat}.*`), create's
+  documents (`create/create.presentation.*`,
+  `create/create.default-presentation.*`), the body modules of
+  `create.client-settings.body*` (`body` and `body-and-url` under the
+  client-settings-body profile, `body-strict` under
+  client-settings-body-strict) and `create.shared-notes.body*`,
+  and the slide routes (`presentation/presentation.slides.*`,
+  `presentation/presentation.authz.*`). They were recorded from a stack
+  running packages built from v4.0.x-develop of that day (c9a1df59ca).
 
 ## Reviewing
 

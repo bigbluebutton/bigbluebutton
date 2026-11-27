@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"cmp"
 	"fmt"
+	"net"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -46,6 +47,15 @@ type Target struct {
 	// blank: for cases that check the server won't call an http URL. The
 	// runner reads what it records through SinkReadURL.
 	SinkHTTPURL string `yaml:"sinkHttpUrl"`
+	// SinkLocalURL is the sink as the server reaches it at a local IP
+	// address (https://127.0.0.1:8444 on Tier 1), for ${sinkLocalUrl}, or
+	// BBB_SINK_LOCAL_URL when blank: for cases that check the server won't
+	// fetch from a local address its settings don't list. Only a target
+	// whose server does reach the sink there, with a certificate that names
+	// the address, sets it: elsewhere a fetch that can't connect, or that
+	// fails the TLS handshake, would pass those cases too, so they are
+	// skipped.
+	SinkLocalURL string `yaml:"sinkLocalUrl"`
 	// FixtureURL is where the server fetches fixtures from, for
 	// ${fixtureUrl}, or BBB_FIXTURE_URL when blank.
 	FixtureURL string `yaml:"fixtureUrl"`
@@ -81,11 +91,13 @@ type TLS struct {
 // Route is where a non-API route lives. Path may hold {name} placeholders,
 // filled from a step's pathParams. Base, or the variable BaseEnv names,
 // replaces the target's baseUrl, e.g. to reach bbb-web's nginx-internal
-// hooks directly.
+// hooks directly. Subrequest sends the route's steps the way nginx sends an
+// auth_request subrequest (see client.Prepared.CookiesFrom).
 type Route struct {
-	Path    string `yaml:"path"`
-	Base    string `yaml:"base"`
-	BaseEnv string `yaml:"baseEnv"`
+	Path       string `yaml:"path"`
+	Base       string `yaml:"base"`
+	BaseEnv    string `yaml:"baseEnv"`
+	Subrequest bool   `yaml:"subrequest"`
 
 	unavailable bool // BaseEnv names a variable that isn't set
 }
@@ -96,11 +108,14 @@ type Profile struct {
 }
 
 // Var is a value cases read as ${target.<name>}. Secret values are redacted
-// from reports.
+// from reports. Capability, when set, is a capability the target has
+// while the var has a value, so the cases that need the value are skipped
+// rather than failed on a target that doesn't say it.
 type Var struct {
-	Value  string `yaml:"value"`
-	Env    string `yaml:"env"`
-	Secret bool   `yaml:"secret"`
+	Value      string `yaml:"value"`
+	Env        string `yaml:"env"`
+	Secret     bool   `yaml:"secret"`
+	Capability string `yaml:"capability"`
 }
 
 var (
@@ -218,6 +233,12 @@ func (t *Target) complete(getenv func(string) string) error {
 			v.Value = getenv(v.Env)
 			t.Vars[name] = v
 		}
+		if v.Capability != "" && !slices.Contains(known, v.Capability) {
+			return fmt.Errorf("vars.%s: unknown capability %q (known: %s)", name, v.Capability, strings.Join(known, ", "))
+		}
+	}
+	if err := t.varCapabilities(); err != nil {
+		return err
 	}
 	if t.TLS.CAFile != "" && !filepath.IsAbs(t.TLS.CAFile) {
 		t.TLS.CAFile = filepath.Join(t.Dir, t.TLS.CAFile)
@@ -290,6 +311,13 @@ func (t *Target) Bases() []string {
 	return out
 }
 
+// NamedURLs maps the placeholders a case writes for the sink's URLs to the
+// target's values, empty when it has none: a server reports some of them
+// back, such as a fetched plugin manifest's address.
+func (t *Target) NamedURLs() map[string]string {
+	return map[string]string{"${sinkUrl}": t.SinkURL, "${sinkHttpUrl}": t.SinkHTTPURL, "${sinkLocalUrl}": t.SinkLocalURL, "${fixtureUrl}": t.FixtureURL}
+}
+
 // FillPath replaces each {name} in path with the path-escaped value of
 // params[name]. Params the path doesn't use are ignored, since another
 // target may map the same route with other placeholders.
@@ -316,13 +344,14 @@ func (t *Target) completeSink(getenv func(string) string) error {
 	t.SinkURL = strings.TrimSuffix(cmp.Or(t.SinkURL, getenv("BBB_SINK_URL")), "/")
 	t.SinkReadURL = strings.TrimSuffix(cmp.Or(t.SinkReadURL, getenv("BBB_SINK_READ_URL"), t.SinkURL), "/")
 	t.SinkHTTPURL = strings.TrimSuffix(cmp.Or(t.SinkHTTPURL, getenv("BBB_SINK_HTTP_URL")), "/")
+	t.SinkLocalURL = strings.TrimSuffix(cmp.Or(t.SinkLocalURL, getenv("BBB_SINK_LOCAL_URL")), "/")
 	t.FixtureURL = strings.TrimSuffix(cmp.Or(t.FixtureURL, getenv("BBB_FIXTURE_URL")), "/")
 	for _, f := range []struct {
 		name, url string
 		root      bool // the sink keys requests by their first path segment
 		plain     bool // the sink's plain-HTTP listener
 	}{{"sinkUrl", t.SinkURL, true, false}, {"sinkReadUrl", t.SinkReadURL, true, false}, {"sinkHttpUrl", t.SinkHTTPURL, true, true},
-		{"fixtureUrl", t.FixtureURL, false, false}} {
+		{"sinkLocalUrl", t.SinkLocalURL, true, false}, {"fixtureUrl", t.FixtureURL, false, false}} {
 		if f.url == "" {
 			continue
 		}
@@ -336,16 +365,50 @@ func (t *Target) completeSink(getenv func(string) string) error {
 		if f.root && (u.Path != "" || u.RawQuery != "") {
 			return fmt.Errorf("%s %q must be scheme and host only: the sink takes a request's first path segment as its key", f.name, f.url)
 		}
+		if f.name == "sinkLocalUrl" {
+			if ip := net.ParseIP(u.Hostname()); ip == nil || !(ip.IsLoopback() || ip.IsPrivate() || ip.IsLinkLocalUnicast()) {
+				return fmt.Errorf("sinkLocalUrl %q must name the sink by a local IP address (loopback, private or link-local)", f.url)
+			}
+		}
 	}
 	switch {
 	case t.SinkURL == "" && t.SinkReadURL != "":
 		return fmt.Errorf("sinkReadUrl %q needs a sinkUrl, the sink as the server reaches it", t.SinkReadURL)
 	case t.SinkURL == "" && t.SinkHTTPURL != "":
 		return fmt.Errorf("sinkHttpUrl %q needs a sinkUrl: the runner reads what the sink recorded through it", t.SinkHTTPURL)
+	case t.SinkURL == "" && t.SinkLocalURL != "":
+		return fmt.Errorf("sinkLocalUrl %q needs a sinkUrl: the runner reads what the sink recorded through it", t.SinkLocalURL)
 	case t.SinkURL != "" && !t.Has("callbacks"):
 		t.Capabilities = append(t.Capabilities, "callbacks")
 	case t.SinkURL == "" && t.Has("callbacks"):
 		return fmt.Errorf("capability callbacks needs a sink: set sinkUrl or BBB_SINK_URL")
+	}
+	return nil
+}
+
+// varCapabilities gives the target each capability a var with a value
+// names. One the target lists while none of its vars has a value is an
+// error: its cases would fail rather than skip.
+func (t *Target) varCapabilities() error {
+	given := map[string]bool{}
+	var names []string
+	for _, v := range t.Vars {
+		if v.Capability == "" {
+			continue
+		}
+		if _, seen := given[v.Capability]; !seen {
+			names = append(names, v.Capability)
+		}
+		given[v.Capability] = given[v.Capability] || v.Value != ""
+	}
+	sort.Strings(names)
+	for _, c := range names {
+		switch {
+		case given[c] && !t.Has(c):
+			t.Capabilities = append(t.Capabilities, c)
+		case !given[c] && t.Has(c):
+			return fmt.Errorf("capability %s needs a var that gives it to have a value", c)
+		}
 	}
 	return nil
 }

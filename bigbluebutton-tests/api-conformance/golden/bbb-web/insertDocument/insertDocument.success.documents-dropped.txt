@@ -1,0 +1,11 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case insertDocument.success.documents-dropped
+target bbb-web
+
+== step 2: call insertDocument (POST)
+status 200
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "SUCCESS"
+/response/messageKey "documentsDropped"
+/response/message "Only the first 10 of 11 presentations are being uploaded; at most 10 are accepted per request."

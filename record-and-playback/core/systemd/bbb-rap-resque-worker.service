@@ -1,6 +1,8 @@
 [Unit]
 Description=BigBlueButton resque worker for recordings
 Wants=redis-server.service
+# Archive jobs are no longer taken by this worker; start the worker that takes them.
+Wants=bbb-rap-archive-worker.service
 After=redis-server.service
 PartOf=bigbluebutton.target
 
@@ -8,7 +10,8 @@ PartOf=bigbluebutton.target
 Type=simple
 ExecStart=/usr/bin/bundle exec rake -f Rakefile resque:workers
 WorkingDirectory=/usr/local/bigbluebutton/core/scripts
-Environment=QUEUE=rap:archive,rap:publish,rap:process,rap:sanity,rap:captions,rap:events
+# Archive jobs run on bbb-rap-archive-worker, so they never wait behind processing.
+Environment=QUEUE=rap:publish,rap:process,rap:sanity,rap:captions,rap:events
 Environment=COUNT=1
 # Environment=VVERBOSE=1
 User=bigbluebutton

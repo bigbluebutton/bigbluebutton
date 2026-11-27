@@ -1,0 +1,11 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case insertDocument.errors.invalid-filename-url
+target bbb-web
+
+== step 2: call insertDocument (POST)
+status 200
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "FAILED"
+/response/messageKey "invalidFilename"
+/response/message "One or more documents could not be uploaded due to an invalid filename."

@@ -1,0 +1,67 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# nginx asks bbb-web's checkAuthorization whether a request for a page's
+# file may go through: it passes the request's URI, with its query, as
+# X-Original-URI, and the client's cookies. For a joined user's session, the
+# meeting's own page and that page's pageToken, bbb-web answers 200
+# "authorized". It refuses a request without X-Original-URI, or with a
+# sessionToken it doesn't know, with 401 "unauthorized"; another meeting's
+# page or a URI that isn't a page's file with 403 "forbidden"; and a
+# pageToken that isn't the page's with 403 "invalid-token".
+id: presentation.authz.answers
+title: checkAuthorization's answers for a page's file
+endpoint: presentation
+class: contract
+tags: [ci, conversion]
+requires: [akka, bus, callbacks, presentation-conversion]
+steps:
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Slides}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}/fixtures/presentations/two-pages.pdf"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - call: join
+    client: ann
+    params: {meetingID: "${uid}", fullName: Ann, role: moderator, redirect: "false"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {annToken: /response/session_token}
+  # The page URLs bbb-web hands akka-apps, which reach the client in its
+  # presentation data: each carries the page's pageToken.
+  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 180s}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.presentation.name: two-pages.pdf}
+    capture:
+      presId: $.core.body.presentation.id
+      page1: "$.core.body.presentation.pages[?@.num==1].svgUri"
+      page2: "$.core.body.presentation.pages[?@.num==2].svgUri"
+  - route: presentation-authz
+    client: ann
+    headers: {X-Original-URI: '/bigbluebutton/presentation/${intId}/${intId}/${presId}/svg/1?pageToken=${match(page1, "pageToken=([0-9a-f]+)")}&sessionToken=${annToken}'}
+    expect: {status: 200, body: authorized}
+  - route: presentation-authz
+    client: ann
+    expect: {status: 401, body: unauthorized}
+  - route: presentation-authz
+    client: ann
+    headers: {X-Original-URI: '/bigbluebutton/presentation/${intId}/${intId}/${presId}/svg/1?pageToken=${match(page1, "pageToken=([0-9a-f]+)")}&sessionToken=${annToken}x'}
+    expect: {status: 401, body: unauthorized}
+  - route: presentation-authz
+    client: ann
+    headers: {X-Original-URI: '/bigbluebutton/presentation/${intId}x/${intId}x/${presId}/svg/1?pageToken=${match(page1, "pageToken=([0-9a-f]+)")}&sessionToken=${annToken}'}
+    expect: {status: 403, body: forbidden}
+  - route: presentation-authz
+    client: ann
+    headers: {X-Original-URI: '/bigbluebutton/presentation/${intId}/${intId}/${presId}/other/1?sessionToken=${annToken}'}
+    expect: {status: 403, body: forbidden}
+  - route: presentation-authz
+    client: ann
+    headers: {X-Original-URI: '/bigbluebutton/presentation/${intId}/${intId}/${presId}/svg/1?pageToken=${match(page2, "pageToken=([0-9a-f]+)")}&sessionToken=${annToken}'}
+    expect: {status: 403, body: invalid-token}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

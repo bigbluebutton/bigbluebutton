@@ -58,7 +58,7 @@ def keep_meeting_events(recording_dir, file, from_archive)
     return unless File.exist?(ended_done_file)
 
     BigBlueButton.logger.info("Enqueueing job to keep events from archive #{attrs.inspect}")
-    Resque.enqueue(BigBlueButton::Resque::EventsWorker, attrs)
+    BigBlueButton::Resque.enqueue(BigBlueButton::Resque::EventsWorker, attrs)
   else
     recorded_done_file = "#{recording_dir}/status/recorded/#{attrs[:meeting_id]}.done"
     raw_dir = "#{recording_dir}/raw/#{attrs[:meeting_id]}"
@@ -66,7 +66,7 @@ def keep_meeting_events(recording_dir, file, from_archive)
     return if File.exist?(recorded_done_file) || File.exist?(raw_dir)
 
     BigBlueButton.logger.info("Enqueueing job to keep events #{attrs.inspect}")
-    Resque.enqueue(BigBlueButton::Resque::EventsWorker, attrs)
+    BigBlueButton::Resque.enqueue(BigBlueButton::Resque::EventsWorker, attrs)
   end
 end
 
@@ -81,7 +81,7 @@ def archive_recorded_meetings(recording_dir, done_file)
   FileUtils.mkdir_p("#{recording_dir}/raw/#{attrs[:meeting_id]}")
 
   BigBlueButton.logger.info("Enqueuing job to archive #{attrs.inspect}")
-  Resque.enqueue(BigBlueButton::Resque::ArchiveWorker, attrs)
+  BigBlueButton::Resque.enqueue(BigBlueButton::Resque::ArchiveWorker, attrs)
   FileUtils.rm_f(done_file)
 end
 

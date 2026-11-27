@@ -38,14 +38,15 @@ const loadedFiles = {
   worklet: null,
 };
 
-// These are fetched from fixed URLs, unlike the webpack bundle which carries
+// These are fetched by name, unlike the webpack bundle which carries
 // a content hash and so can never go stale. Nothing sets Cache-Control on
 // /html5client/wasm, so a browser is free to keep serving a cached copy after
 // a redeploy - which pairs a NEW bundle with an OLD worklet. That combination
 // is silently broken rather than merely outdated: the two disagree about the
 // port protocol, and the plugin does not load or keeps its built-in defaults.
 // 'no-cache' forces revalidation (a cheap 304 when unchanged) instead of blind
-// reuse.
+// reuse. It stays next to the ?v= added in loadFiles(), for a redeploy that
+// does not change the client build (running from source).
 const fetchOpts = { cache: 'no-cache' };
 
 // fetch that rejects on HTTP errors, instead of handing an error page on
@@ -254,12 +255,13 @@ const loadFiles = () => {
   const serverPathPrefix = pathMatch ? pathMatch[1] : '';
   const basepath = `${serverPathPrefix}/html5client/wasm/`;
   const suffix = supportsSIMD ? '' : '-nosimd';
-  const wasmURL = `${basepath}BBBA${suffix}-mapi.wasm`;
+  const version = `?v=${window.meetingClientSettings.public.app.html5ClientBuild}`;
+  const wasmURL = `${basepath}BBBA${suffix}-mapi.wasm${version}`;
 
   loadPromise = Promise.all([
     compileWasm(wasmURL),
-    fetchOk(`${basepath}BBBA${suffix}-mapi.js`).then((resp) => resp.text()),
-    fetchOk(`${basepath}mapi-proc.js`).then((resp) => resp.text()),
+    fetchOk(`${basepath}BBBA${suffix}-mapi.js${version}`).then((resp) => resp.text()),
+    fetchOk(`${basepath}mapi-proc.js${version}`).then((resp) => resp.text()),
   ]).then(([wasmModule, wasmJS, worklet]) => {
     loadedFiles.wasmURL = wasmURL;
     loadedFiles.wasmModule = wasmModule;

@@ -3,6 +3,7 @@ import { defineMessages } from 'react-intl';
 import PropTypes from 'prop-types';
 import deviceInfo from '/imports/utils/deviceInfo';
 import withShortcutHelper from '/imports/ui/services/shortcuts/withShortcutHelper';
+import useShortcutTooltip from '/imports/ui/core/hooks/useShortcutTooltip';
 import { SET_RAISE_HAND } from '/imports/ui/core/graphql/mutations/userMutations';
 import { useMutation } from '@apollo/client';
 import { listItemBgHover } from '/imports/ui/stylesheets/styled-components/palette';
@@ -17,6 +18,7 @@ const RaiseHandButton = (props) => {
   } = props;
 
   const [setRaiseHand] = useMutation(SET_RAISE_HAND);
+  const withShortcut = useShortcutTooltip();
 
   const intlMessages = defineMessages({
     raiseHandLabel: {
@@ -46,6 +48,7 @@ const RaiseHandButton = (props) => {
       data-test={raiseHand ? 'lowerHandBtn' : 'raiseHandBtn'}
       icon="hand"
       label={intl.formatMessage(label)}
+      tooltipLabel={withShortcut(intl.formatMessage(label), shortcuts.raisehand)}
       description="Reactions"
       onKeyPress={() => { }}
       onClick={() => handleRaiseHandButtonClick()}

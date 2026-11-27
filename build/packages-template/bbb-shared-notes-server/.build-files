@@ -1,4 +1,6 @@
 after-install.sh
+bbb-shared-notes-conversion.socket
+bbb-shared-notes-conversion@.service
 bbb-shared-notes-server.service
 before-remove.sh
 build.sh

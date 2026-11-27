@@ -11,8 +11,9 @@ name: "Nightly tests"
 #   setting-*   the @setting-required:<setting> tests, on a server installed with that bbb-web setting
 # Every job uses one worker and ends with bigbluebutton-tests/server-health-check.sh. The
 # api-conformance-slow job runs the API conformance suite's slow cases (bigbluebutton-tests/
-# api-conformance: callback retries, expiry timing, about 20 minutes), which the per-PR gate leaves
-# out, on the suite's Tier 1 stack built from the same build's packages. The report job
+# api-conformance: callback retries, expiry timing and an hour-long text-track token expiry,
+# about 85 minutes), which the per-PR gate leaves out, on the suite's Tier 1 stack built from
+# the same build's packages. The report job
 # merges the results into one HTML report per group (artifact nightly-test-reports) and lists in its
 # summary the tests that passed only on retry.
 # Screenshot comparisons run as in the per-PR gate: GitHub sets CI=true on its runners, which skips
@@ -24,18 +25,16 @@ name: "Nightly tests"
 #     whose artifact has not expired; a manual run can name another run.
 #   - Runners: 8 ubuntu-24.04 jobs per run, each installing BigBlueButton (up to about 2 hours each).
 #   - Permissions: actions: read, to find that run and download its artifact. No secrets.
-#   - Schedule: GitHub starts scheduled workflows only from the default branch, so the schedule takes
-#     effect once this file is on the default branch; it still tests the branch named below. It runs
-#     only in bigbluebutton/bigbluebutton. A manual run works on any branch and fork that has the file.
+#   - Schedule: nightly-schedule.yml, on the default branch, starts this workflow every night on each
+#     branch it lists, with that branch's copy of this file. A manual run works on any branch and fork
+#     that has the file.
 on:
-  schedule:
-    - cron: "0 2 * * *"
   workflow_dispatch:
     inputs:
       branch:
-        description: "Branch whose newest Automated tests build to test"
+        description: "Branch whose newest Automated tests build to test (default: the branch this runs on)"
         type: string
-        default: "v4.0.x-develop"
+        required: false
       build-run-id:
         description: "Automated tests run to take the packages from instead (optional)"
         type: string
@@ -44,16 +43,15 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: ${{ github.workflow }}-${{ inputs.branch || 'v4.0.x-develop' }}
+  group: ${{ github.workflow }}-${{ inputs.branch || github.ref_name }}
   cancel-in-progress: false
 env:
-  BRANCH: ${{ inputs.branch || 'v4.0.x-develop' }}
+  BRANCH: ${{ inputs.branch || github.ref_name }}
   NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
   BBB_URL: https://bbb-ci.test/bigbluebutton/
   BBB_SECRET: bbbci
 jobs:
   find-build:
-    if: github.event_name != 'schedule' || github.repository == 'bigbluebutton/bigbluebutton'
     runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-24.04' }}
     outputs:
       run-id: ${{ steps.find.outputs.run-id }}
@@ -170,6 +168,7 @@ jobs:
       - uses: actions/setup-node@v5
         name: PLAYWRIGHT CACHE - Restore Playwright node modules from cache
         with:
+          node-version: 24
           cache: "npm"
           cache-dependency-path: bigbluebutton-tests/playwright/package-lock.json
       - name: PLAYWRIGHT CACHE - Restore Playwright binaries from cache
@@ -251,12 +250,13 @@ jobs:
   # The API conformance suite's slow cases, against bbb-web on the suite's
   # Tier 1 stack, from the packages of the build under test: the cases the
   # per-PR api-conformance job (automated-tests.yml) leaves out because they
-  # take minutes each. Every answer is compared with the committed
-  # recordings; a skipped case fails the run.
+  # take minutes each, one of them an hour (textTrack.authz.expiry). Every
+  # answer is compared with the committed recordings; a skipped case fails
+  # the run.
   api-conformance-slow:
     needs: find-build
     runs-on: ${{ vars.CI_HEAVY_RUNNER || 'ubuntu-24.04' }}
-    timeout-minutes: 60
+    timeout-minutes: 120
     defaults:
       run:
         working-directory: bigbluebutton-tests/api-conformance
@@ -341,7 +341,7 @@ jobs:
           ref: ${{ needs.find-build.outputs.sha }}
       - uses: actions/setup-node@v5
         with:
-          node-version: 22
+          node-version: 24
           cache: "npm"
           cache-dependency-path: bigbluebutton-tests/playwright/package-lock.json
       - name: Install dependencies

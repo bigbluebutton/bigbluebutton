@@ -175,6 +175,7 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 			errorMessageId,
 			errorOnInitConnection.Error(),
 			connectionLogger)
+		return
 	}
 
 	common.WsConnectionAcceptedCounter.Inc()

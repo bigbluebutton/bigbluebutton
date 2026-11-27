@@ -1,0 +1,25 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# sendChatMessage takes its parameters in the query only: a request with a
+# body is refused with unsupportedContentType, whatever the body.
+id: sendChatMessage.request.body
+title: sendChatMessage refuses a request with a body
+endpoint: sendChatMessage
+class: contract
+tags: [ci]
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Chat}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: sendChatMessage
+    params: {meetingID: "${uid}", message: Hello}
+    body: {form: {userName: Bob}}
+    expect: {returncode: FAILED, messageKey: unsupportedContentType}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

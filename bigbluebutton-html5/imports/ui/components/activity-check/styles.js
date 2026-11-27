@@ -1,4 +1,6 @@
 import styled from 'styled-components';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
+import { confirmationButtonMinWidth } from '/imports/ui/stylesheets/styled-components/general';
 import { fontSizeLarge } from '/imports/ui/stylesheets/styled-components/typography';
 
 const ActivityModalContent = styled.div`
@@ -18,6 +20,11 @@ const ActivityModalContent = styled.div`
   }
 `;
 
+const FooterButton = styled(BBButton)`
+  min-width: ${confirmationButtonMinWidth};
+`;
+
 export default {
   ActivityModalContent,
+  FooterButton,
 };

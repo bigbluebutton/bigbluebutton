@@ -1,4 +1,6 @@
 # yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# The meetingID matches no recording, so the answer is the same whatever
+# recordings the server has.
 id: getRecordings.checksum.accepted
 title: getRecordings (a recording call) accepts every algorithm, upper-case hex and any placement
 endpoint: getRecordings
@@ -16,6 +18,6 @@ variants:
   - {id: middle, vars: {<<: *base, pos: middle}}
 steps:
   - call: getRecordings
-    params: {a: "1", b: "2"}
+    params: {meetingID: "${uid}", b: "2"}
     sign: {alg: "${alg}", mode: "${mode}", position: "${pos}"}
     expect: {returncode: SUCCESS}

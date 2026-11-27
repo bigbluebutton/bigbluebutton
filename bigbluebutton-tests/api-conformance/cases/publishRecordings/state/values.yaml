@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# bbb-web reads publish with Groovy's toBoolean: true, y and 1, in any case,
+# publish; anything else unpublishes. The answer echoes the value as sent.
+# A value that publishes is sent for an unpublished recording, and one
+# that unpublishes for a published one. Serial, with the recordings put
+# back before and after.
+id: publishRecordings.state.values
+title: publishRecordings with publish=${value} ${case}
+endpoint: publishRecordings
+class: contract
+tags: [ci, serial]
+defs:
+  on: &on {case: publishes, rid: db0c52cbb08b78549a52cb6f29e4d8dc236977bd-1700021600000, state: published}
+  off: &off {case: unpublishes, rid: 4d64ff980226cdc0de5d24362bf27a829e1a8ab2-1700025200000, state: unpublished}
+variants:
+  - {id: upper-true, vars: {<<: *on, value: "TRUE"}}
+  - {id: y, vars: {<<: *on, value: "y"}}
+  - {id: upper-y, vars: {<<: *on, value: "Y"}}
+  - {id: one, vars: {<<: *on, value: "1"}}
+  - {id: yes, vars: {<<: *off, value: "yes"}}
+  - {id: "on", vars: {<<: *off, value: "on"}}
+  - {id: zero, vars: {<<: *off, value: "0"}}
+  - {id: other, vars: {<<: *off, value: "published"}}
+steps:
+  - restore: {recordings: ["${rid}"]}
+  - call: publishRecordings
+    params: {recordID: "${rid}", publish: "${value}"}
+    expect:
+      returncode: SUCCESS
+      xpath: {/response/published: "${value}"}
+  - call: getRecordings
+    params: {recordID: "${rid}"}
+    expect:
+      returncode: SUCCESS
+      xpath: {/response/recordings/recording/state: "${state}"}
+teardown:
+  - restore: {recordings: ["${rid}"]}

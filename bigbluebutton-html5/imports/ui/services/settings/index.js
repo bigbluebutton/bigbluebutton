@@ -12,6 +12,7 @@ import {
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Auth from '/imports/ui/services/auth';
 import { isSystemThemeAutoDetectEnabled, systemPrefersDarkTheme } from './system-theme';
+import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 
 // A group named in SETTINGS_STORAGE_FLAGS answers to a public.app flag of its
 // own rather than to userSettingsStorage. 'session' - the default - keeps it
@@ -38,6 +39,10 @@ const getStorageFor = (settingGroup) => {
 class Settings {
   constructor(defaultValues = {}) {
     const writableDefaultValues = JSON.parse(JSON.stringify(defaultValues));
+    // Not a catalog entry: the layout group holds the layout in effect for this user
+    // (meeting-scoped in storage), which the push layout engine sets from the meeting's
+    // layout, userdata-bbb_default_layout or enforceLayout.
+    writableDefaultValues.layout = { selectedLayout: LAYOUT_TYPE.UNIFIED_LAYOUT };
     Object.values(SETTINGS).forEach((p) => {
       const privateProp = `_${p}`;
       this[privateProp] = {

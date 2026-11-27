@@ -19,6 +19,7 @@
 
 package org.bigbluebutton.api;
 
+import org.bigbluebutton.api.domain.RecordingProcessingInfo;
 import org.bigbluebutton.api.messaging.messages.MakePresentationDownloadableMsg;
 import org.bigbluebutton.api2.domain.UploadedTrack;
 
@@ -43,6 +44,7 @@ public interface RecordingService {
     void startIngestAndProcessing(String meetingId);
     void markAsEnded(String meetingId);
     void kickOffRecordingChapterBreak(String meetingId, Long timestamp);
+    RecordingProcessingInfo getRecordingProcessingInfo();
     void processMakePresentationDownloadableMsg(MakePresentationDownloadableMsg msg);
     File getDownloadablePresentationFile(String meetingId, String presId, String presFilename);
 

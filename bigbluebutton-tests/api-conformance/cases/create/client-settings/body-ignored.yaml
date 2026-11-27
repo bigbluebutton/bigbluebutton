@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# create's body can carry a client settings override (a
+# clientSettingsOverride module), but bbb-web uses it only while
+# allowOverrideClientSettingsOnCreateCall is true. Shipped false: the
+# module is ignored, and the meeting has no override.
+id: create.client-settings.body-ignored
+title: create ignores a client settings override in its body by default
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus]
+steps:
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Client settings}
+    body: {xml: '<modules><module name="clientSettingsOverride"><![CDATA[{"public":{"app":{"clientTitle":"Body client"}}}]]></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.props.overrideClientSettings]
+    expect:
+      jsonpath: {$.core.body.props.overrideClientSettings: ""}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

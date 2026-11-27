@@ -6,7 +6,9 @@ set -eu
 ca=/etc/bigbluebutton/conform/certs/ca.crt
 if [ -f "$ca" ]; then
 	cp "$ca" /usr/local/share/ca-certificates/bbb-conform-ca.crt
-	update-ca-certificates >/dev/null
+	# Its Java keystore hook runs java, as root: without the coverage agent
+	# compose.yaml may pass in, whose data file bbb-web must own.
+	JAVA_TOOL_OPTIONS='' update-ca-certificates >/dev/null
 fi
 set -a
 . /etc/default/bbb-web
@@ -14,7 +16,10 @@ set +a
 # On all interfaces, so the host reaches it through the published port, for
 # the auth-hook cases. A packaged server listens on 127.0.0.1 only.
 LISTEN_ADDRESS=0.0.0.0
+# The unit's Environment= lines. A JAVA_TOOL_OPTIONS that compose.yaml passes
+# in (e.g. a coverage agent) is kept, after the unit's flag.
 export MALLOC_ARENA_MAX=2
+export JAVA_TOOL_OPTIONS="-XX:-UseBASE64Intrinsics${JAVA_TOOL_OPTIONS:+ $JAVA_TOOL_OPTIONS}"
 # setpriv keeps root's environment; the converters' font cache goes in HOME.
 export HOME=/home/bigbluebutton USER=bigbluebutton
 cd /usr/share/bbb-web

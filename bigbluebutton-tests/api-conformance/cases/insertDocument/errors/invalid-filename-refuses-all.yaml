@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# One document with an invalid name refuses the whole request: the valid
+# document beside it is neither fetched nor converted.
+id: insertDocument.errors.invalid-filename-refuses-all
+title: insertDocument refuses every document of a request with an invalid name in it
+endpoint: insertDocument
+class: contract
+tags: [ci]
+requires: [akka, bus, callbacks]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Insert document}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - call: insertDocument
+    method: POST
+    params: {meetingID: "${uid}"}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}/fixtures/presentations/two-pages.pdf"/><document url="https://example.com/files/slides"/></module></modules>'}
+    expect: {returncode: FAILED, messageKey: invalidFilename}
+  - sink: {key: "${uid}", within: 3s}
+    golden: off
+    expect: {absent: true}
+  - bus: {name: PresentationConversionStartedSysPubMsg, meetingId: "${intId}", within: 1s}
+    golden: off
+    expect:
+      absent: true
+      jsonpath: {$.core.body.common.presentationName: two-pages.pdf}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

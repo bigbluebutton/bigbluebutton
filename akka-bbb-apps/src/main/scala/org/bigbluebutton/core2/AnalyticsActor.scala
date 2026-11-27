@@ -180,16 +180,10 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       // Guest Management
       case m: GuestsWaitingApprovedMsg => logMessage(msg)
       case m: GuestsWaitingApprovedEvtMsg => logMessage(msg)
-      case m: GuestWaitingLeftEvtMsg => logMessage(msg)
-      case m: GuestsWaitingForApprovalEvtMsg => logMessage(msg)
-      case m: UpdatePositionInWaitingQueueReqMsg => logMessage(msg)
-      case m: PosInWaitingQueueUpdatedRespMsg => logMessage(msg)
       case m: SetGuestPolicyCmdMsg => logMessage(msg)
       case m: GuestPolicyChangedEvtMsg => logMessage(msg)
       case m: SetGuestLobbyMessageCmdMsg => logMessage(msg)
-      case m: GuestLobbyMessageChangedEvtMsg => logMessage(msg)
       case m: SetPrivateGuestLobbyMessageCmdMsg => logMessage(msg)
-      case m: PrivateGuestLobbyMsgChangedEvtMsg => logMessage(msg)
 
       // System
       case m: ClientToServerLatencyTracerMsg => traceMessage(msg)
@@ -222,6 +216,7 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       // Breakouts
       case m: CreateBreakoutRoomsCmdMsg => logMessage(msg)
       case m: ChangeUserBreakoutReqMsg => logMessage(msg)
+      case m: UnassignUserFromBreakoutReqMsg => logMessage(msg)
 
       case _ => // ignore message
     }

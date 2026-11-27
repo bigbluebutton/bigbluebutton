@@ -1,0 +1,63 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# insertDocument takes at most insertDocumentMaxRequests (30) requests per
+# meeting in insertDocumentRateWindowSec (60 s); the next is refused as
+# rateLimitExceeded. The limit is per meeting, so other cases' requests
+# don't count. The documents point at a sink URL that answers 404, so
+# nothing is converted.
+id: insertDocument.errors.rate-limit
+title: insertDocument refuses a meeting's 31st request within a minute
+endpoint: insertDocument
+class: contract
+tags: [ci]
+requires: [akka, callbacks]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Insert document}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - &accepted
+    call: insertDocument
+    method: POST
+    params: {meetingID: "${uid}"}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}/missing.pdf?_status=404"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - *accepted
+  - *accepted
+  - *accepted
+  - *accepted
+  - *accepted
+  - *accepted
+  - *accepted
+  - *accepted
+  - *accepted
+  - *accepted
+  - *accepted
+  - *accepted
+  - *accepted
+  - *accepted
+  - *accepted
+  - *accepted
+  - *accepted
+  - *accepted
+  - *accepted
+  - *accepted
+  - *accepted
+  - *accepted
+  - *accepted
+  - *accepted
+  - *accepted
+  - *accepted
+  - *accepted
+  - *accepted
+  - *accepted
+  - call: insertDocument
+    method: POST
+    params: {meetingID: "${uid}"}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}/missing.pdf?_status=404"/></module></modules>'}
+    expect: {returncode: FAILED, messageKey: rateLimitExceeded}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

@@ -19,10 +19,12 @@ runner/                  the bbb-conform Go module
   schema/case.schema.json  the case format, as JSON Schema
   testdata/cases/          worked examples of every feature
   testdata/smoke/          a quick check of a live server
-cases/<area>/<group>/    the suite's cases, e.g. cases/common/checksum/ or cases/join/guest/
+cases/<area>/<group>/    the suite's cases, e.g. cases/common/checksum/, cases/join/guest/ or
+                           cases/connection/authz/ (the nginx auth hooks)
 fixtures/                files cases refer to or the sink serves (bodies, presentations, plugins)
 golden/<target>/         reviewed recordings of what a server answered
 masks.yaml               extra normalization rules for diff and recordings
+masks.d/                 more of them, for a server that answers more than the suite records
 env/                     the Tier 1 stack (make -C env up) and config profiles
 ```
 
@@ -49,12 +51,13 @@ go run ./cmd/bbb-conform run --target my-server.yaml --cases ../cases \
 Each case ends as one of:
 - **PASS**;
 - **FAIL**: the server's behaviour didn't match, which includes a response
-  that doesn't parse and a capture that finds nothing;
+  that doesn't parse, one whose body the connection cut short, and a
+  capture that finds nothing;
 - **ERROR**: the runner couldn't do what the case asked, e.g. the server is
   unreachable or a template didn't expand;
 - **SKIP**, with the reason: a capability the target lacks, a URL the case
   uses that the target doesn't set (`not-configured: sinkUrl`,
-  `sinkHttpUrl` or `fixtureUrl`), something the runner can't do yet, or an interrupt before
+  `sinkHttpUrl`, `sinkLocalUrl` or `fixtureUrl`), something the runner can't do yet, or an interrupt before
   the case started.
 
 The exit status is 0 when nothing failed or errored, 1 when something did
@@ -82,20 +85,38 @@ defaultSign: sha256
 sinkUrl: https://sink.test:8444      # the sink as the server reaches it, for ${sinkUrl}
 sinkReadUrl: https://localhost:8444  # where the runner reads it, when that differs; both scheme and host only
 sinkHttpUrl: http://sink.test:8445     # the sink's plain-HTTP listener, for ${sinkHttpUrl}; scheme and host only
+sinkLocalUrl: https://127.0.0.1:8444  # the sink at a local IP address the server reaches it by, for ${sinkLocalUrl}; scheme and host only
 fixtureUrl: https://sink.test:8444/fixtures   # for ${fixtureUrl}
 graphqlUrl: wss://bbb.example.com/graphql  # the default: baseUrl's host at /graphql; keep that host, for the join's cookie
 tapUrl: http://10.0.0.5:8099         # the server's tap, for bus, fs and redis steps
 vars:
-  turnSecret: {env: TURN_SECRET, secret: true}   # ${target.turnSecret}
+  turnSecret: {env: TURN_SECRET, secret: true, capability: turn}   # ${target.turnSecret}
 ```
 
 Blank fields fall back to the variables the Playwright suite uses: `BBB_URL`
 (e.g. `https://bbb-ci.test/bigbluebutton/`) and `BBB_SECRET`; to
 `BBB_TAP_URL` for `tapUrl`; and to `BBB_SINK_URL`, `BBB_SINK_READ_URL`,
-`BBB_SINK_HTTP_URL` and `BBB_FIXTURE_URL` for the sink's. `targets/bbb-web.yaml` and
+`BBB_SINK_HTTP_URL`, `BBB_SINK_LOCAL_URL` and `BBB_FIXTURE_URL` for the sink's. `targets/bbb-web.yaml` and
 `targets/bbb-api.yaml` are set up that way. The tap's and the sink's tokens
 come only from `BBB_TAP_TOKEN` and `BBB_SINK_TOKEN`, never a target file;
 like the salt, they are redacted from what the runner writes.
+
+A var's `capability` is a capability the target has while the var has a
+value, so the cases that need the value are skipped, not failed, on a
+server that doesn't give it: `targets/bbb-web.yaml` has the `turn`
+capability, for the stuns cases that check TURN credentials, while
+`TURN_SECRET` holds the TURN servers' shared secret. Listing the capability
+without the var's value is an error.
+
+`sinkLocalUrl` is for the cases that check the server won't fetch from a
+local address its settings don't list (`fetchUrlAllowedLocalHosts`). Set
+it only where the server reaches the sink at that address and the
+certificate the sink serves names the address, as an IP subject
+alternative name, from a CA the server's JVM trusts. Tier 1 is such a
+place: its services share one network, and its certificate names
+127.0.0.1. Otherwise a fetch that can't connect, or that fails the TLS
+handshake, would pass those cases too, so a target without
+`sinkLocalUrl` skips them.
 
 A target with a tap has the `bus`, `fs` and `redis` capabilities, and one
 with a sink the `callbacks` capability. Listing them without one is an
@@ -106,13 +127,26 @@ error. The runner trusts the sink as it trusts the target (`tls`).
 ```yaml
 routes:
   presentation-download: {path: "/bigbluebutton/presentation/download/{meetingId}/{presId}"}
-  connection-authz:      {path: "/bigbluebutton/connection/checkAuthorization", baseEnv: BBB_WEB_DIRECT_URL}
+  connection-authz:      {path: "/bigbluebutton/connection/checkAuthorization", baseEnv: BBB_WEB_DIRECT_URL, subrequest: true}
 ```
 
 - `{name}` is filled from the step's `pathParams`, path-escaped. A missing
   param is an error; params the path doesn't use are ignored.
 - `base` (or the variable `baseEnv` names) replaces `baseUrl`, for routes such
   as the nginx-internal hooks that cases call on bbb-web directly.
+- With `subrequest: true`, a step on the route is sent as nginx sends an
+  `auth_request` subrequest, which carries the browser's cookies:
+  - it carries the cookies its `client` holds under `baseUrl`, such as the
+    JSESSIONID a `join` set. They are the cookies for the path in the
+    step's `X-Original-URI` header, without its query (nginx sets that
+    header to the browser's request), or for the route's own path when
+    the header is missing or isn't a path;
+  - the cookies the answer sets aren't kept, because a subrequest's answer
+    never reaches the browser (the recording still shows them);
+  - a `Cookie` in the step's `headers` replaces the client's cookies, and
+    an empty one sends none. A fresh `client` sends none either.
+- A route with `base` but not `subrequest` keeps and sends cookies as any
+  request does.
 - A case is skipped as `not-routed` if the target doesn't map one of its
   routes, or if the route's `baseEnv` is unset.
 - A route may name a path the server no longer serves, so that a case can
@@ -137,7 +171,8 @@ profiles:
 
 **Profiles on a full install.** `targets/bbb-web.yaml` lists the suite's
 profiles with `env/full-install/profile.sh` as their command. Each profile
-is an overlay, `env/bbb-web/profiles/<name>.properties`:
+is an overlay, `env/bbb-web/profiles/<name>.properties`, and some also have
+akka-apps settings, `<name>.akka.conf` (HOCON; `chapter-breaks` does):
 
 ```sh
 export BBB_EXEC="docker exec -i bbb40"     # or local, or "ssh root@host"
@@ -150,7 +185,12 @@ env/full-install/profile.sh default        # restore the server's own file
   - it keeps the server's `/etc/bigbluebutton/bbb-web.properties` aside;
   - it writes that file plus the overlay (bbb-web takes the last value of a
     key) and restarts bbb-web;
-  - it waits until the API answers again, about 15 seconds.
+  - with akka-apps settings, it does the same to
+    `/etc/bigbluebutton/bbb-apps-akka.conf` and restarts bbb-apps-akka
+    first, as it also does when the switch changes
+    `clientSettingsOverrideStrictValidation`, which akka-apps reads too;
+  - it waits until the API answers again, about 15 seconds, and after an
+    akka-apps restart until its `/healthz` does.
 - **Applying the profile already in force** restarts nothing.
 - **Safety:** it refuses to touch a profiled file that was edited by hand,
   and it takes a lock, so two switches never overlap.
@@ -160,6 +200,10 @@ env/full-install/profile.sh default        # restore the server's own file
   says so), so `--exclude-tags disruptive` leaves the server alone.
 - **Another switcher:** set `BBB_PROFILE_CMD` to a command that takes the
   same arguments. The Tier 1 stack's is `env/tier1/profile.sh` (see below).
+- **Picking a profile:** each overlay's header says what it changes.
+  `alt-defaults` sets `allowRequestsWithoutSession=true`, so under it a
+  session token alone passes every session check: a case about the join's
+  HTTP session doesn't belong there.
 
 To smoke-test a server, point a target at it and run `--cases testdata/smoke`.
 
@@ -205,11 +249,13 @@ go run ./cmd/bbb-conform run --target ../targets/bbb-web.yaml --cases ../cases -
 | Target | Does |
 |---|---|
 | `debs` | Builds the five packages the stack runs (bbb-web, bbb-apps-akka, bbb-graphql-server, bbb-graphql-middleware, bbb-graphql-actions) with their own build scripts, in the image CI builds them in. `PKGS=bbb-web` builds one. About 20 minutes cold. |
-| `up` | Renders the configuration, builds what changed and starts the stack, then waits until every service is healthy (about a minute). `CLAMAV=1` adds a ClamAV daemon. |
-| `env` | Prints the variables the runner reads: `BBB_URL`, `BBB_SECRET`, `BBB_TAP_URL`, `BBB_TAP_TOKEN`, `BBB_SINK_URL`, `BBB_SINK_READ_URL`, `BBB_SINK_HTTP_URL`, `BBB_SINK_TOKEN`, `BBB_FIXTURE_URL`, `BBB_WEB_DIRECT_URL`, `BBB_PROFILE_CMD` and `SSL_CERT_FILE`. The tokens are made once, in `env/.state/tokens.env`. |
+| `up` | Renders the configuration, builds what changed and starts the stack, then waits until every service is healthy (about a minute). `CLAMAV=1` adds a ClamAV daemon. `COVERAGE=1` starts bbb-web with JaCoCo's agent (see [Coverage](#coverage-coverage)). |
+| `env` | Prints the variables the runner reads: `BBB_URL`, `BBB_SECRET`, `BBB_PAGE_TOKEN_SECRET`, `BBB_TAP_URL`, `BBB_TAP_TOKEN`, `BBB_SINK_URL`, `BBB_SINK_READ_URL`, `BBB_SINK_HTTP_URL`, `BBB_SINK_LOCAL_URL`, `BBB_SINK_TOKEN`, `BBB_FIXTURE_URL`, `BBB_WEB_DIRECT_URL`, `TURN_SECRET` (read from `env/bbb-web/turn-stun-servers.xml`), `BBB_PROFILE_CMD` and `SSL_CERT_FILE`. The tokens are made once, in `env/.state/tokens.env`. |
 | `profile` | `NAME=reveal-version` switches bbb-web to a profile in `env/bbb-web/profiles/`, `NAME=default` back; without `NAME`, prints the one in force. Cases use it through `BBB_PROFILE_CMD`. |
 | `reset` | Starts again from nothing: no meetings, an empty data directory, the default profile. A profile switch waits until it is done. |
 | `check-copies` | Warns about the package files Tier 1 mirrors by hand that changed since it last followed them (see below). |
+| `coverage` | Stops bbb-web so its coverage agent writes what it recorded, builds JaCoCo's reports into `out/coverage/` (or `COVERAGE_OUT`), and starts bbb-web again. |
+| `coverage-clean` | Forgets the coverage data, to measure from here on. |
 | `logs`, `ps`, `down` | `SERVICE=bbb-web` for one service's log; `TAIL=all` for all of it, not the last 200 lines. |
 
 It needs Linux on amd64, Docker with Compose 2.24 or later, and network
@@ -231,11 +277,16 @@ access for the first build.
     itself answers on `http://localhost:8090` (`BBB_WEB_DIRECT_URL`), the
     tap on `http://localhost:8099`, and the sink on `https://localhost:8444`
     (`BBB_SINK_READ_URL`). All four are bound to the host's loopback only;
+  - the tap installs the [fixture recordings](#fixture-recordings) when it
+    starts, so they are there after every `make up` and `make reset`;
   - bbb-web reaches the sink as `https://sink.test:8444` (`BBB_SINK_URL`),
     a name the stack's hosts file gives it and nginx's certificate names.
     The sink serves `fixtures/` (`BBB_FIXTURE_URL`), and plain HTTP on
     `http://sink.test:8445` (`BBB_SINK_HTTP_URL`), which only the stack
-    reaches.
+    reaches. The stack's services share one network, so bbb-web also
+    reaches it at `https://127.0.0.1:8444` (`BBB_SINK_LOCAL_URL`), a local
+    address it isn't allowed to fetch from, which that certificate names
+    too.
 - **Its configuration** is a packaged server's, with what bbb-install sets:
   the host and a test salt (`env/tier1/tier1.env`, published on purpose),
   and a TURN server (`env/bbb-web/turn-stun-servers.xml`). Timeouts are the
@@ -255,19 +306,21 @@ access for the first build.
   - bbb-api isn't part of it yet.
 - **What it mirrors by hand.** Parts of the packages are copied rather
   than run: bbb-web's Depends and the edits its install script makes,
-  the units' command lines, the GraphQL server's database setup,
-  akka-apps' preinst, the data directory bbb-config creates, the
-  LibreOffice converter. `env/tier1/check-copies.sh` (`make check-copies`)
-  warns about each of those sources that changed since Tier 1 last
-  followed it, from the hashes in `env/tier1/copies.sha256`; CI shows the
-  warnings as annotations. Once the stack follows the change, `--update`
-  records the sources as they are. nginx's site is bbb-install's, which
-  isn't in this repository, so nothing checks it.
+  the units' command lines and environment, the GraphQL server's
+  database setup, akka-apps' preinst, the data directory bbb-config
+  creates, the LibreOffice converter. `env/tier1/check-copies.sh`
+  (`make check-copies`) warns about each of those sources that changed
+  since Tier 1 last followed it, from the hashes in
+  `env/tier1/copies.sha256`; CI shows the warnings as annotations. Once
+  the stack follows the change, `--update` records the sources as they
+  are. nginx's site is bbb-install's, which isn't in this repository, so
+  nothing checks it.
 - **Restarts.** Services are restarted when they exit, as the packages'
   units restart theirs; the GraphQL middleware exits when it loses its
   redis subscription. A profile switch restarts bbb-web, and akka-apps too
-  when it changes `clientSettingsOverrideStrictValidation`, the one
-  bbb-web setting akka-apps reads.
+  when it changes akka-apps' settings (`<name>.akka.conf`, appended to the
+  stack's `bbb-apps-akka.conf`) or `clientSettingsOverrideStrictValidation`,
+  the one bbb-web setting akka-apps reads.
 - **ClamAV.** `make up CLAMAV=1` runs the daemon where bbb-web looks for
   it; the `clamav-scan` profile turns scanning on.
 - **In CI.** The `api-conformance` job of `.github/workflows/automated-tests.yml`
@@ -284,7 +337,8 @@ access for the first build.
   and, when the job fails, the services' logs are uploaded as
   `api-conformance-bbb-web`, and the matrix is the job's summary;
   `check-copies.sh`'s warnings are annotations on the run. The `slow`
-  cases, about 20 minutes, run every night instead: the
+  cases, about 85 minutes (one waits an hour for a text-track token to
+  expire), run every night instead: the
   `api-conformance-slow` job of `.github/workflows/nightly-tests.yml`
   starts the stack from the packages of the newest Automated tests build of
   v4.0.x-develop, at the commit that build is of, and uploads
@@ -298,9 +352,11 @@ access for the first build.
 through a tap: `bbb-conform tap`, running on the server itself. The tap:
 - follows the redis channels that bbb-web and akka-apps talk over;
 - reads redis keys;
-- reads files in the data directory.
+- reads files in the data directory;
+- with `--recordings`, installs the suite's fixture recordings and puts
+  them back for `restore` steps (see [Fixture recordings](#fixture-recordings)).
 
-It serves all three over HTTP to the runner, which can run on another
+It serves all of this over HTTP to the runner, which can run on another
 host.
 
 ```sh
@@ -322,6 +378,7 @@ BBB_TAP_TOKEN=$(openssl rand -hex 16) ./bbb-conform tap --listen 10.0.0.5:8099
 | `--channels a,b` | The to-akka-apps, from-akka-apps, from-akka-apps-pres and from-bbb-web redis channels. |
 | `--redis-keys a,b` | `meeting:*,recording:*,captions:*`: globs of the only keys it reads. |
 | `--max-mb N`, `--max-age D` | 128 MiB and 2h: how much of what it saw it keeps. Both must be positive. |
+| `--recordings DIR` | None. A tree of fixture recordings, e.g. `fixtures/recordings`, to write into the data directory at start and restore on request. Needs `--data-dir`, and can't be the data directory itself. |
 
 - **Test servers only.** What the tap serves includes the session tokens
   and passwords on the bus. With `BBB_TAP_TOKEN` set in its environment,
@@ -331,7 +388,9 @@ BBB_TAP_TOKEN=$(openssl rand -hex 16) ./bbb-conform tap --listen 10.0.0.5:8099
   unless told otherwise, and won't listen anywhere else without a token.
   To reach it from another host, listen on a private interface with a
   token, or use an SSH tunnel (`ssh -L 8099:127.0.0.1:8099 server`). Never
-  expose it on a public interface. It never writes to redis or to files.
+  expose it on a public interface. It never writes to redis, and writes
+  files only with `--recordings`, and only the fixture recordings and
+  their status markers.
   It answers only requests addressed to an IP address, `localhost` or one
   of its `--hosts`; any other host name gets HTTP 421.
 - **What it keeps:**
@@ -363,8 +422,43 @@ BBB_TAP_TOKEN=$(openssl rand -hex 16) ./bbb-conform tap --listen 10.0.0.5:8099
 
 `GET /info` on the tap shows the channels it follows, whether it is
 subscribed, its redis connection, the directories it watches and why it
-can't watch any others. Before a run, the runner checks that the tap
-answers; if it doesn't, the cases that use it ERROR at once.
+can't watch any others, and how many fixture recordings it has. Before a
+run, the runner checks that the tap answers; if it doesn't, the cases that
+use it ERROR at once.
+
+### Fixture recordings
+
+getRecordings and the calls that change recordings need recordings to
+work on. `fixtures/recordings/` (see its README) is a tree laid out like
+`/var/bigbluebutton`, with recordings in every state, caption tracks and
+the status markers record-and-playback leaves for a recording
+(`recording/status/<step>/<record ID>[-<format>].done` or `.fail`, for the
+archived, sanity, processed and published steps).
+A tap started with `--recordings fixtures/recordings`:
+- writes every recording in the tree into the data directory when it
+  starts, replacing any copy of it there, in whatever state;
+- puts recordings back on `POST /recordings/restore?id=<record ID>&id=...`,
+  which `restore` steps send: every copy of each recording goes, in any
+  state and format, with its status markers, its caption files, anything
+  uploaded for it to the captions inbox and record-and-playback's work
+  directory for such an upload (`recording/caption/inbox/<record ID>`),
+  and the tree's copy goes in. A record ID that isn't in the tree is
+  refused. A marker in the tree must belong to one of its recordings.
+  `?all=1` puts every recording back: the runner asks for that before a
+  run with cases that need the recordings, so each run starts from the
+  tree whatever an earlier one left. A restore of several recordings that
+  fails partway says which one it stopped at and how many it had put back;
+- writes as the data directory's owner when it runs as root, so bbb-web
+  can move what it wrote.
+
+A target whose tap reports fixture recordings has the `recordings-fs`
+capability; the cases that need them are skipped elsewhere, and ERROR when
+the tap doesn't answer. Run it on a test server only: the recordings show
+up in that server's getRecordings, and the cases that list every recording
+expect only them. On a full install, record-and-playback's caption watcher
+(`rap-caption-inbox.rb`) can pick up a track a case uploaded after the case
+has put the recording back. What it writes for a fixture recording is
+under the paths a restore clears, so the next run undoes it.
 
 ## The sink: `sink`
 
@@ -380,7 +474,7 @@ It also serves the fixtures cases have the server fetch.
 |---|---|
 | `--listen ADDR` | `127.0.0.1:8444`. An address other hosts reach needs `BBB_SINK_TOKEN` set, as does `--listen-http` on one. |
 | `--hosts a,b` | None: host names the runner reads it by. `/_received` always answers requests sent to an IP address, `localhost` or a name `--cert` covers, the name the server reaches it by. |
-| `--cert FILE`, `--key FILE` | None, for plain HTTP. bbb-web fetches and calls back over https only (`fetchUrlSupportedProtocols`), so give the sink a certificate for a name the server resolves to it, from a CA the server's JVM trusts. A name that resolves to a private address must also be in the server's `fetchUrlAllowedLocalHosts`. |
+| `--cert FILE`, `--key FILE` | None, for plain HTTP. bbb-web fetches and calls back over https only (`fetchUrlSupportedProtocols`), so give the sink a certificate for a name the server resolves to it, from a CA the server's JVM trusts. A name that resolves to a private address must also be in the server's `fetchUrlAllowedLocalHosts`. With `sinkLocalUrl`, the certificate must also name that address, as an IP subject alternative name. |
 | `--listen-http ADDR` | None. With `--cert`, also serve plain HTTP there, for cases that check the server won't call an `http://` URL (`${sinkHttpUrl}`). Both listeners record into one log. |
 | `--fixtures DIR` | None: the directory served under `fixtures/`. |
 | `--max-mb N`, `--max-age D` | 64 MiB and 2h: how much of what it recorded it keeps. Both must be positive. |
@@ -404,10 +498,16 @@ to an end callback.
 |---|---|
 | `_status=N` | Status N (200 to 599). |
 | `_delay=D` | After D, up to 2m. The request is recorded when it arrives, so a server that gives up still counts as having sent it. |
-| `_redirect=URL` | 302, or `_status`, with that Location. |
+| `_redirect=URL` | 302, or `_status`, with that Location. `_redirect=self` sends the request's own path and query back, so with `_first=N` it is a chain of N redirects that then ends in the answer. |
 | `_type=T` | Content-Type T. |
 | `_first=N` | The params above apply to the first N requests to the path that it still holds; later ones get a plain answer. `_status=500&_first=1` fails once, then succeeds. Only under a key. |
+| `_after=N` | The params above apply only after the first N requests to the path that it still holds, which get a plain answer; with `_first=M`, to the M requests after those. `_status=500&_after=1` succeeds once, then fails: a fetch whose URL is checked with one request and downloaded with another fails the download only. bbb-web fetches that way, so a case that relies on it is `compat` (`create.fetch.two-requests`); other cases allow one request or two for each URL. Only under a key. |
+| `_expand=1` | A fixture file with each `{{origin}}` replaced by the scheme and host the request reached the sink at, such as `https://sink.test:8444`: a fixture that lists other fixtures' URLs, such as a plugin manifest list, then names the sink the way the server reaches it. Not for generated files. |
 | `_size=N` | A generated file's length; only for `fixtures/generated/`. |
+
+`_expand` and `_redirect=self` build URLs from the scheme, host and path the
+sink itself sees, so the server must reach the sink directly, not through a
+proxy that changes them.
 
 An unknown or misplaced `_` param gets a 400, so a misspelt one isn't
 ignored. Every request to a key is recorded, with why the sink couldn't
@@ -529,7 +629,7 @@ The HTML is one self-contained page.
 
 A response becomes ordered lines: `status`, the headers that matter
 (Content-Type, Cache-Control, Access-Control-*, Set-Cookie with its value
-masked, plus any listed in `masks.yaml`), `location`, then one
+masked, plus any listed in `masks.yaml` or `masks.d`), `location`, then one
 `path "value"` line per XML element, attribute or JSON value. JSON numbers,
 booleans and null aren't quoted.
 
@@ -543,7 +643,7 @@ Values that change from run to run are masked:
 | userID, user_id, internalUserID, existingUserID, and GraphQL's userId and extId | `w_<id>` |
 | attendeePW, moderatorPW, voiceBridge, and the bus's moderatorPass, viewerPass, voiceConf and telVoice | `<random>`, unless the case sent that value |
 | session and auth tokens, checksum, JSESSIONID, and the token in a learning-dashboard file's path | `<token>` |
-| stuns TURN username and password | `<expiry>:…` and `<token>` |
+| stuns TURN username and password | `<expiry>:<user ID>` and `<token>` |
 | a redis key's `ttl`, when it has one | `<set>` (-1, no expiry, and -2, missing, stay) |
 
 After masking:
@@ -573,10 +673,21 @@ the same way.
 `masks`, `unordered`, `scope`, `drop` (removes the lines a path names, only
 those with `value` if it is given) and `headers`. Only a mask can override a
 built-in rule, for the same field; the others only add, so the built-in
-`noMeetings` drop can't be turned off. The suite's `masks.yaml` masks the
-missing-checksum message bbb-web picks at random, and the version
-endpoint's `bbbVersion` and `html5PluginSdkVersion`, which change with each
-release.
+`noMeetings` drop can't be turned off. The first mask for a node takes all
+its values, unless it is a regex mask with `onlyMatching: true`: that one
+takes only the values its regex matches, and leaves the others to the next
+mask, such as a built-in one for the same field. The suite's `masks.yaml`
+masks the missing-checksum message bbb-web picks at random,
+learningDashboard's data, and the version endpoint's `bbbVersion` and
+`html5PluginSdkVersion`, which change with each release.
+
+The `*.yaml` files in `masks.d`, next to `masks.yaml`, add rules the same
+way, in name order and ahead of `masks.yaml`, so their masks win over its.
+They are for a server that answers more than the suite records, such as a
+fork's own response fields (e.g. `drop: [{path: response/myField}]`): the
+fork keeps them in its own file, and the suite's files stay as they are.
+The suite ships none. `--masks FILE` replaces both `masks.yaml` and
+`masks.d`.
 
 ## Recording what a server answers: `record`
 
@@ -718,7 +829,7 @@ after 2s with a warning.
 | `endpoint` | The endpoint the case is about. |
 | `class` | `contract` (documented or relied-on behaviour), `compat` (a bbb-web quirk clients may depend on) or `defect` (asserts the *correct* behaviour that bbb-web gets wrong). |
 | `tags` | Any of `ci`, `slow`, `disruptive`, `full-stack`, `presence`, `conversion`, `serial`, `triage`. `triage` marks behaviour still to be classified as contract, compat or defect: until then each of its steps (outside teardown) must say `golden: document` or `off`, which `validate` checks. |
-| `requires` | Capabilities the target must declare, or the case is skipped: `akka`, `presence`, `recordings-fs`, `callbacks`, `presentation-conversion`, `bus`, `fs`, `redis`, `clamav`, `full-stack`. Step types add their own: `presence` and `graphql` add `presence`; `bus`, `fs` and `redis` add themselves; `sink` adds `callbacks`. |
+| `requires` | Capabilities the target must declare, or the case is skipped: `akka`, `presence`, `recordings-fs`, `callbacks`, `presentation-conversion`, `bus`, `fs`, `redis`, `clamav`, `full-stack`, `turn`. A target var can grant one while it has a value, as `turnSecret` grants `turn`. Step types add their own: `presence` and `graphql` add `presence`; `bus`, `fs` and `redis` add themselves; `sink` adds `callbacks`; `restore` adds `recordings-fs`, which a target also has when its tap has [fixture recordings](#fixture-recordings). |
 | `profile` | A named config overlay the target must run with, e.g. one with short timeouts. |
 | `variants` | See below. |
 | `defs` | Ignored. A place to define YAML anchors. |
@@ -753,6 +864,9 @@ steps:
 - A var whose value is `null` removes the mapping entry or list item that is
   exactly `${var}`. That's how a variant leaves a param out. Using a null var
   anywhere else is an error.
+- A var's value is used as written: a template in it isn't expanded. So
+  write `"${sinkUrl}/${uid}/${rest}"` in the step and give the var only
+  `rest`; `validate` refuses a var that refers to a built-in variable.
 - A variant can also set `profile` and `class` (replacing the case's) and
   `requires` and `tags` (added to the case's).
 
@@ -786,10 +900,13 @@ Each step has exactly one step-type key.
 | `redis` | `{key, within}`: a redis key. `expect: {exists, absent, hash, members, ttl}`. | yes |
 | `sink` | `{key, within}`: the requests the target's sink recorded under a key. `expect: {method, path, query, headers, absent, count}`. See [Callbacks and fetches](#callbacks-and-fetches-sink). | yes |
 | `env` | `{action: stop\|start\|restart\|reset, service}`. | not yet |
+| `check` | `[{value, expect}, ...]`: compares values the case already has, typically earlier steps' captures run through template functions, with no request: `value` is a template and `expect` a [matcher](#checking-responses-expect) other than `exists`, `absent` and `count`. For what a server derives from its own answer, such as a TURN credential's HMAC or a URL's checksum. Takes no `capture` or `golden`, and records nothing. | yes |
+| `restore` | `{recordings: [<record ID>, ...]}`: puts [fixture recordings](#fixture-recordings) back as the tree has them, through the tap. Record IDs are written out (a variant var works; a template doesn't). Takes no `expect`, `capture` or `golden`. A case that changes recordings restores them in its first step and in `teardown`. A case with a `restore` step must be tagged `serial` (`validate` checks), so the cases that list recordings never see it half done. | yes |
 
 - A case that uses a step type that isn't implemented yet is skipped as
   `unimplemented:<type>`. This is decided before any step runs.
-- Every step that observes something takes `expect`, `capture` and `golden`.
+- Every step that observes something takes `expect`, `capture` and `golden`;
+  `wait` and `restore` observe nothing.
 
 #### Users: `presence` and `graphql`
 
@@ -922,7 +1039,7 @@ These steps check what a call did outside its answer, through the target's
   - `fs` and `redis` steps look every 250ms, and a last time at the end of
     the window. A `redis` step reads the key as it is then.
 - **What matches:** these keys narrow what counts as a match:
-  - `jsonpath`, for all three, on the step's document;
+  - `jsonpath`, for `bus` and `fs`, on the step's document;
   - `contents`, for `fs`;
   - `hash`, `members` (the exact set) and `ttl`, for `redis`.
 
@@ -974,7 +1091,7 @@ These steps check what a call did outside its answer, through the target's
 
 A `sink` step checks what the server sent to the target's
 [sink](#the-sink-sink): a callback, or a fetch of a fixture. The case gives
-the server a URL under `${sinkUrl}` (or `${sinkHttpUrl}`) whose first path segment is a key,
+the server a URL under `${sinkUrl}` (or `${sinkHttpUrl}`, `${sinkLocalUrl}`) whose first path segment is a key,
 normally made from `${uid}`, and the step looks at the requests under that
 key. A key is one path segment: no `/`, and neither `fixtures` nor a name
 starting with `_`, which the sink keeps for itself.
@@ -1037,7 +1154,7 @@ starting with `_`, which the sink keeps for itself.
 | Key | Meaning |
 |---|---|
 | `call` | An API call name, sent to the target's API prefix. `""` is the version endpoint. |
-| `route`, `pathParams` | A non-API route (presentation, connection, textTrack), mapped per target. |
+| `route`, `pathParams` | A non-API route (presentation, connection, textTrack), mapped per target. A `subrequest` route sends the client's `baseUrl` cookies and keeps none; any other route keeps and sends cookies as an API call does ([routes](#target-files)). |
 | `url` | An absolute URL sent as it is, e.g. a link getJoinUrl returned. |
 | `method` | A HEAD response has no body, so a HEAD step can only check `status`, `headers` and `redirect`, and capture headers. |
 | `params` | Query parameters, in the order written. |
@@ -1048,7 +1165,7 @@ starting with `_`, which the sink keeps for itself.
 | `followRedirects` | Default `false`: a redirect is the response. |
 | `timeout` | Per-request timeout; default 30s. |
 | `ignoreResult` | Don't fail on this step, typically in teardown. |
-| `eventually` | `{within, every, until}`: repeat the request every `every` (default 1s) until `until` passes, or fail after `within`. `every` must be shorter than `within`. Each attempt gets the step's `timeout`, cut to what is left of `within` (at least 250ms), so a server too slow for that ERRORs. `expect` then checks the final response. |
+| `eventually` | `{within, every, until}`: repeat the request every `every` (default 1s) until `until` passes, or fail after `within`. `every` must be shorter than `within`. An answer whose body is cut short doesn't meet `until`. Each attempt gets the step's `timeout`, cut to what is left of `within` (at least 250ms), so a server too slow for that ERRORs. `expect` then checks the final response. |
 
 #### Signing
 
@@ -1112,6 +1229,11 @@ Content-Length). Set Content-Type either here or in `headers`, not both.
 | `redirect` | `{host, path, query: {name: matcher}}`, from the parsed Location header. |
 | `schema` | A response schema under `fixtures/` (skipped until response schemas exist). |
 
+A response whose body ends before it should (short of its
+Content-Length, or of its last chunk) fails its step with a `body` check,
+whatever the step expects: the server's answer is broken. Its recording
+ends with `body cut short`.
+
 **Matchers.** A plain value means "equals", compared as text, and the path
 must select exactly one node. Anything else is a map with one key:
 
@@ -1124,6 +1246,7 @@ must select exactly one node. Anything else is a map with one key:
 /response/attendees/attendee: {count: 2}
 /response/message: {contains: unknown}
 /response/messageKey: {oneOf: [idNotUnique, duplicateWarning]}
+$.turnServers[0].ttl: {between: [1, 604800]} # an integer, bounds included; bounds may be templates
 ```
 
 ### Capturing values: `capture`
@@ -1148,7 +1271,7 @@ Any string can contain `${...}`.
 - **Variables:**
   - `${uid}`: unique per case per run, valid as a meetingID;
   - `${salt}`: redacted from reports;
-  - `${baseUrl}`, `${sinkUrl}`, `${sinkHttpUrl}`, `${fixtureUrl}`;
+  - `${baseUrl}`, `${sinkUrl}`, `${sinkHttpUrl}`, `${sinkLocalUrl}`, `${fixtureUrl}`;
   - `${target.<name>}`: from the target file's `vars`, where an entry marked
     `secret` is redacted;
   - captures from earlier steps and variant vars.
@@ -1158,7 +1281,15 @@ Any string can contain `${...}`.
   - `repeat(s, n)`;
   - `urlencode(s)`;
   - `base64File(path)`, a file under `fixtures/`;
-  - `checksum(alg, call, query)`, a lowercase hex digest of call + query + salt.
+  - `checksum(alg, call, query)`, a lowercase hex digest of call + query + salt;
+  - `match(s, regex)`, the first group of regex's first match in s, or the
+    whole match when regex has no group; no match, or a first group that
+    took no part in it, is an error. For a part of a captured value, e.g.
+    the token in a URL;
+  - `hmac(alg, key, data)`, the Base64 of an HMAC (alg sha1, sha256, sha384
+    or sha512), as a TURN credential's password;
+  - `now()`, the current Unix time in seconds;
+  - `add(a, b)`, the sum of two integers, e.g. `add(now(), ttl)`.
 
   Arguments are `"strings"`, integers, variables or nested calls.
 - **Escaping:** `$${` is a literal `${`.
@@ -1182,6 +1313,98 @@ may vary by design; `document` in `defect` cases; otherwise `compare`.
 Case files are YAML 1.2, as the runner and the schema read them: there,
 `golden: off` is the string `off`. A YAML 1.1 tool (PyYAML, for one) reads
 an unquoted `off` as false; quote it for such a tool.
+
+## Coverage: `coverage`
+
+How much of bbb-web's code the suite reaches, measured while the suite runs
+unchanged: bbb-web runs with [JaCoCo](https://www.jacoco.org/)'s agent, and
+the report is built from the class files of the build that ran. The suite
+adds no unit tests for this; it is the coverage of these black-box cases.
+
+```sh
+make -C env up COVERAGE=1     # bbb-web with the agent
+cd runner
+go run ./cmd/bbb-conform run --target ../targets/bbb-web.yaml --cases ../cases ...
+make -C ../env coverage       # ../out/coverage/: jacoco.xml, jacoco.csv, html/index.html
+w=../../../bigbluebutton-web
+go run ./cmd/bbb-conform coverage --report ../out/coverage/jacoco.xml \
+    --triage ../coverage/triage.yaml --md ../out/coverage/summary.md \
+    --sources $w/grails-app/controllers --sources $w/grails-app/services \
+    --sources $w/grails-app/init --sources $w/src/main/groovy
+```
+
+- **What's recorded.** Every bbb-web session adds to one data file
+  (`/var/bigbluebutton/coverage/bbb-web.exec` on the data volume): bbb-web
+  stops cleanly, so the agent writes at every profile switch and at
+  `make coverage`. A later `make up` without `COVERAGE=1` recreates bbb-web
+  without the agent. `make reset` and `make coverage-clean` start again.
+- **Class files.** `make coverage` reports on `WEB-INF/classes` (the Groovy
+  controllers, services and filters) and the bbb-common-web jar, from the
+  image that ran, with links to the repo's sources. Run `coverage-clean`
+  after rebuilding bbb-web: JaCoCo refuses another build's data only for a
+  class that has none from this build, and otherwise keeps it without a
+  word, so a report over two builds can count what the old one reached.
+- **Closures and lambdas.** The compilers number some code per class, so
+  the numbers change whenever such code is added elsewhere in the class:
+  - a Grails action is a Groovy closure (`def create = {...}`), and each
+    closure is a class of its own (`ApiController$_closure2`);
+  - Java lambdas (`lambda$start$2`) and Scala anonymous functions
+    (`$anonfun$build$1`) are numbered methods.
+
+  `bbb-conform coverage` names them after the member they are in instead:
+  `ApiController#create{}`, `MeetingService#start->` and
+  `MsgBuilder#build=>`. It numbers a member's ones in line order, so
+  `desc: "{2}"` is the member's second. For a closure in a field, it needs
+  `--sources`, the Groovy source roots, to find the member from the
+  closure's first line.
+- **`bbb-conform coverage`** reads JaCoCo's XML report through the triage
+  file and prints what the suite reached. `--md` writes a per-package table,
+  `--untriaged` lists the methods it doesn't reach that the triage file
+  doesn't account for, and `--write-baseline` writes the numbers as a
+  baseline. With `--baseline`, a package whose share of reached methods is
+  more than `--drop-tolerance` percentage points (0.5) below it is a warning;
+  `--fail-on-drop` makes it fail. A triage file that doesn't fit the report
+  fails (exit 1), and then `--write-baseline` writes nothing.
+- **Methods, branches and lines.** The triage file and the baseline
+  comparison work on methods. Methods and branches leave out the methods an
+  ignore rule names (a branch belongs to one method). Lines are JaCoCo's
+  count per package, as its HTML report shows it: a line two methods share
+  (a lambda's, a Scala case class's) counts once, and it can't be split
+  between them, so generated code's lines are in it.
+
+**`coverage/triage.yaml`:**
+
+```yaml
+scope:                       # the packages measured; each takes in its subpackages
+  - org.bigbluebutton.web
+ignore:                      # methods compilers generate, left out of the method numbers
+  - classes: "org.bigbluebutton.api2.**"      # * within a name segment, ** across
+    methods: "copy|copy\\$default\\$\\d+"     # a regular expression for the whole name
+    reason: Scala case-class members
+methods:                     # one entry per method in scope the suite doesn't reach
+  - class: org.bigbluebutton.api.MeetingService
+    method: log
+    desc: "(Ljava/lang/String;)V"             # only for an overloaded name
+    outcome: excluded                         # case, leftover or excluded
+    reason: logging only                      # excluded: why
+  - class: org.bigbluebutton.web.controllers.ApiController
+    method: legacy
+    outcome: leftover                         # code with no effect
+    # ref, for case: the case or ticket to cover it in; for leftover: the
+    # issue, or the list in this repository, that has it
+    ref: "https://github.com/bigbluebutton/bigbluebutton/issues/<n>"
+```
+
+An entry for a method outside the scope, one an ignore rule already leaves
+out, an overloaded name without `desc`, or a method the report doesn't have
+is an error, and so is a scope in which the report has no method the ignore
+rules leave in. An entry for a method the suite now reaches is a warning: the
+entry can go. Like everything public here, a note describes behaviour, never
+a weakness (see [Public-repo rule](#public-repo-rule)).
+
+**`coverage/baseline.json`** holds the numbers to compare with: the tool,
+the scope, and per package (and in total) the covered and missed methods,
+lines and branches, as `--write-baseline` writes them.
 
 ## Public-repo rule
 

@@ -1,9 +1,11 @@
 import styled from 'styled-components';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import {
   colorText,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   $2xlPadding,
+  confirmationButtonMinWidth,
 } from '/imports/ui/stylesheets/styled-components/general';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
@@ -31,22 +33,22 @@ const RequestModalContent = styled.div`
   padding: 1rem;
 
   @media ${smallOnly} {
-    flex-direction: row-reverse;
+    flex-direction: column-reverse;
+    align-items: stretch;
     gap: 1rem;
     margin-top: 0;
     padding: 0;
-
-    button {
-      flex: 1;
-
-      i {
-        display: none;
-      }
-    }
   }
+`;
+
+// On a phone the pair stacks at full width, and the component drops the icons and
+// lets the labels wrap there.
+const RequestButton = styled(BBButton)`
+  min-width: ${confirmationButtonMinWidth};
 `;
 
 export default {
   Subtitle,
   RequestModalContent,
+  RequestButton,
 };

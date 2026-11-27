@@ -114,6 +114,7 @@ public class MeetingService implements MessageListener {
   private IBbbWebApiGWApp gw;
 
   private final ConcurrentMap<String, PresentationUploadToken> uploadAuthzTokens;
+  private long presentationUploadStartTimeout = 300000;
   private RejectedPresentationRegistry rejectedPresentations;
 
   ObjectMapper objectMapper = new ObjectMapper();
@@ -144,19 +145,19 @@ public class MeetingService implements MessageListener {
   public void registerUser(String meetingID, String internalUserId,
                            String fullname, String firstName, String lastName, String role, String externUserID,
                            String authToken, String sessionToken, String avatarURL, String webcamBackgroundURL, Boolean bot,
-                           Boolean guest, Boolean authed, String guestStatus, Boolean excludeFromDashboard, Boolean leftGuestLobby,
+                           Boolean guest, Boolean authed, String guestStatus, Boolean excludeFromDashboard,
                            String enforceLayout, String logoutUrl, Map<String, String> joinRequestMetadata, Map<String, String> userMetadata) {
     handle(
             new RegisterUser(meetingID, internalUserId, fullname, firstName, lastName, role,
                             externUserID, authToken, sessionToken, avatarURL, webcamBackgroundURL, bot, guest, authed, guestStatus,
-                            excludeFromDashboard, leftGuestLobby, enforceLayout, logoutUrl, joinRequestMetadata, userMetadata
+                            excludeFromDashboard, enforceLayout, logoutUrl, joinRequestMetadata, userMetadata
             )
     );
 
     Meeting m = getMeeting(meetingID);
     if (m != null) {
       RegisteredUser ruser = new RegisteredUser(authToken, internalUserId, guestStatus,
-                                                excludeFromDashboard, leftGuestLobby, enforceLayout, logoutUrl);
+                                                excludeFromDashboard, enforceLayout, logoutUrl);
       m.userRegistered(ruser);
     }
   }
@@ -259,13 +260,6 @@ public class MeetingService implements MessageListener {
     }
   }
 
-  public void guestIsWaiting(String meetingId, String userId) {
-    Meeting m = getMeeting(meetingId);
-    if (m != null) {
-      m.guestIsWaiting(userId);
-    }
-  }
-
   public void sendChatMessage(String meetingId, String name, String message) {
     gw.sendChatMessage(new ChatMessageFromApi(meetingId, name, message));
   }
@@ -291,6 +285,59 @@ public class MeetingService implements MessageListener {
   public PresentationUploadToken consumePresentationUploadToken(String authzToken) {
     if (authzToken == null) return null;
     return uploadAuthzTokens.remove(authzToken);
+  }
+
+  // The upload request for this token has reached bbb-web: its file is on its way, and the purge
+  // below leaves the token alone from here on. True for the first request to arrive for the
+  // token, which then has to see the upload ended (PresentationUploadFilter does). False for a
+  // later request, and when the token is gone, which the purge can cause at that very moment.
+  public boolean markPresentationUploadStarted(String authzToken) {
+    if (authzToken == null) return false;
+    boolean[] first = new boolean[1];
+    uploadAuthzTokens.computeIfPresent(authzToken, (key, presUploadToken) -> {
+      first[0] = presUploadToken.markUploadStarted();
+      return presUploadToken;
+    });
+    return first[0];
+  }
+
+  /**
+   * Drop the upload tokens no upload request arrived for in time and report those uploads as
+   * failed. bbb-apps-akka creates the presentation when it issues the token, and nothing else
+   * ends an upload whose request never arrives: it would show as uploading until the meeting ends.
+   * A presentationUploadStartTimeout of 0 turns this off.
+   */
+  public void purgePresentationUploadTokens() {
+    purgePresentationUploadTokens(System.currentTimeMillis());
+  }
+
+  public void purgePresentationUploadTokens(long now) {
+    if (presentationUploadStartTimeout <= 0) {
+      return;
+    }
+    for (String authzToken : uploadAuthzTokens.keySet()) {
+      try {
+        // Decided under the map's lock for this token, as markPresentationUploadStarted is: a
+        // token is either dropped or kept for its upload, never both.
+        PresentationUploadToken[] dropped = new PresentationUploadToken[1];
+        uploadAuthzTokens.computeIfPresent(authzToken, (key, presUploadToken) -> {
+          if (!presUploadToken.isAbandoned(now, presentationUploadStartTimeout)) return presUploadToken;
+          dropped[0] = presUploadToken;
+          return null;
+        });
+        if (dropped[0] != null) {
+          log.info("No upload arrived in time for a presentation upload token. meetingId={} presentationId={}",
+              dropped[0].meetingId, dropped[0].presentationId);
+          sendPresentationUploadFailedMessage(dropped[0], "No upload request arrived in time");
+        }
+      } catch (Exception e) {
+        log.error("Could not purge a presentation upload token", e);
+      }
+    }
+  }
+
+  public void sendPresentationUploadFailedMessage(PresentationUploadToken presUploadToken, String errorDetail) {
+    notifier.sendUploadFailedMessage(presUploadToken, errorDetail);
   }
 
   public void sendPresentationUploadMaxFilesizeMessage(PresentationUploadToken presUploadToken, int uploadedFileSize, int maxUploadFileSize) {
@@ -816,6 +863,10 @@ public class MeetingService implements MessageListener {
 
   public boolean existsAnyRecording(List<String> idList) {
     return recordingService.existAnyRecording(idList);
+  }
+
+  public RecordingProcessingInfo getRecordingProcessingInfo() {
+    return recordingService.getRecordingProcessingInfo();
   }
 
   public void setPublishRecording(List<String> idList, boolean publish) {
@@ -1487,8 +1538,6 @@ public class MeetingService implements MessageListener {
           processPresentationUploadToken((PresentationUploadToken) message);
         } else if (message instanceof PresentationConversionRejected) {
           processPresentationConversionRejected((PresentationConversionRejected) message);
-        } else if (message instanceof PositionInWaitingQueueUpdated) {
-          processPositionInWaitingQueueUpdated((PositionInWaitingQueueUpdated) message);
         } else if (message instanceof GuestStatusChangedEventMsg) {
           processGuestStatusChangedEventMsg((GuestStatusChangedEventMsg) message);
         } else if (message instanceof GuestPolicyChanged) {
@@ -1497,10 +1546,6 @@ public class MeetingService implements MessageListener {
           processLockSettingsChanged((LockSettingsChanged) message);
         } else if (message instanceof WebcamsOnlyForModeratorChanged) {
           processWebcamsOnlyForModeratorChanged((WebcamsOnlyForModeratorChanged) message);
-        } else if (message instanceof GuestLobbyMessageChanged) {
-          processGuestLobbyMessageChanged((GuestLobbyMessageChanged) message);
-        } else if (message instanceof PrivateGuestLobbyMessageChanged) {
-          processPrivateGuestLobbyMessageChanged((PrivateGuestLobbyMessageChanged) message);
         } else if (message instanceof RecordChapterBreak) {
           processRecordingChapterBreak((RecordChapterBreak) message);
         } else if (message instanceof MakePresentationDownloadableMsg) {
@@ -1553,28 +1598,6 @@ public class MeetingService implements MessageListener {
     Meeting m = getMeeting(msg.meetingId);
     if (m != null) {
       m.setWebcamsOnlyForModerator(msg.webcamsOnlyForModerator);
-    }
-  }
-
-  public void processPositionInWaitingQueueUpdated(PositionInWaitingQueueUpdated msg) {
-    Meeting m = getMeeting(msg.meetingId);
-    HashMap<String,String> guestUsers = msg.guests;
-    if (m != null) {
-      m.setWaitingPositionsInWaitingQueue(guestUsers);
-    }
-  }
-
-  public void processGuestLobbyMessageChanged(GuestLobbyMessageChanged msg) {
-    Meeting m = getMeeting(msg.meetingId);
-    if (m != null) {
-      m.setGuestLobbyMessage(msg.message);
-    }
-  }
-
-  public void processPrivateGuestLobbyMessageChanged(PrivateGuestLobbyMessageChanged msg) {
-    Meeting m = getMeeting(msg.meetingId);
-    if (m != null) {
-      m.setPrivateGuestLobbyMessage(msg.guestId, msg.message);
     }
   }
 
@@ -1646,6 +1669,10 @@ public class MeetingService implements MessageListener {
 
   public void setGw(IBbbWebApiGWApp gw) {
     this.gw = gw;
+  }
+
+  public void setPresentationUploadStartTimeout(long seconds) {
+    presentationUploadStartTimeout = seconds * 1000;
   }
 
   public void setUserCleanupTimerTask(UserCleanupTimerTask c) {

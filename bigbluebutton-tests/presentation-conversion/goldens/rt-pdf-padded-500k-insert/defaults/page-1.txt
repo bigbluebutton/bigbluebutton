@@ -1,0 +1,2 @@
+padded to 500000 bytes via insertDocument
+500000 bytes

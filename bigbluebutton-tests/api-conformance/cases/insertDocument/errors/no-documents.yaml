@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A request with nothing to upload is refused as noDocuments: it needs a
+# presentation module with at least one document, a document being an
+# element with a url or a name attribute.
+id: insertDocument.errors.no-documents
+title: insertDocument refuses a request without documents (${case})
+endpoint: insertDocument
+class: contract
+tags: [ci]
+requires: [akka]
+variants:
+  - {id: empty-body, vars: {case: an empty body, body: ''}}
+  - {id: no-modules, vars: {case: no modules, body: '<modules/>'}}
+  - {id: other-module, vars: {case: only another module, body: '<modules><module name="other"><document url="https://example.com/files/a.pdf"/></module></modules>'}}
+  - {id: empty-module, vars: {case: an empty presentation module, body: '<modules><module name="presentation"/></modules>'}}
+  - {id: no-source, vars: {case: a document with neither url nor name, body: '<modules><module name="presentation"><document filename="a.pdf"/></module></modules>'}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Insert document}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: insertDocument
+    method: POST
+    params: {meetingID: "${uid}"}
+    body: {xml: "${body}"}
+    expect: {returncode: FAILED, messageKey: noDocuments}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

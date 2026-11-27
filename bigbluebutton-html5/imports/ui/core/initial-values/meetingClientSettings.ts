@@ -135,10 +135,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       enableCopyNetworkStatsButton: true,
       userSettingsStorage: 'session',
       defaultSettings: {
-        layout: {
-          selectedLayout: 'unified',
-          pushLayout: false,
-        },
         application: {
           animations: true,
           chatAudioAlerts: false,
@@ -155,6 +151,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           paginationEnabled: true,
           whiteboardToolbarAutoHide: false,
           recordingIndicatorAutoCollapse: false,
+          selfViewDisable: false,
           pushToTalkEnabled: false,
           autoCloseReactionsBar: true,
           darkTheme: false,
@@ -175,54 +172,43 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           minUtteranceLength: 1,
         },
       },
+      showShortcutsInTooltips: true,
       shortcuts: {
         openOptions: {
           accesskey: 'O',
-          descId: 'openOptions',
         },
         toggleUserList: {
           accesskey: 'U',
-          descId: 'toggleUserList',
         },
         openLeaveMenu: {
           accesskey: 'X',
-          descId: 'openLeaveMenu',
         },
         toggleMute: {
           accesskey: 'M',
-          descId: 'toggleMute',
         },
         joinAudio: {
           accesskey: 'J',
-          descId: 'joinAudio',
         },
         leaveAudio: {
           accesskey: 'L',
-          descId: 'leaveAudio',
         },
         togglePublicChat: {
           accesskey: 'P',
-          descId: 'togglePublicChat',
         },
         hidePrivateChat: {
           accesskey: 'H',
-          descId: 'hidePrivateChat',
         },
         closePrivateChat: {
           accesskey: 'G',
-          descId: 'closePrivateChat',
         },
         raiseHand: {
           accesskey: 'R',
-          descId: 'raiseHand',
         },
         openActions: {
           accesskey: 'A',
-          descId: 'openActions',
         },
         openDebugWindow: {
           accesskey: 'K',
-          descId: 'openDebugWindow',
         },
       },
       branding: {
@@ -519,6 +505,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
     },
     captions: {
       background: '#000000',
+      maxTextLength: 8192,
       font: {
         color: '#ffffff',
         family: 'Calibri',
@@ -688,6 +675,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       muteAudioOutputWhenAway: false,
       screenshare: {
         showButtonForNonPresenters: false,
+        enableOnMobile: false,
       },
       livekit: {
         url: `wss://${window.location.hostname}/livekit`,
@@ -767,7 +755,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       allowDownloadOriginal: true,
       allowDownloadWithAnnotations: true,
       allowSnapshotOfCurrentSlide: true,
-      panZoomThrottle: 32,
       restoreOnUpdate: true,
       uploadEndpoint: '/bigbluebutton/presentation/upload',
       fileUploadConstraintsHint: false,

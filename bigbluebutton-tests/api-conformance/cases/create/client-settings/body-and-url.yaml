@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# An override fetched from clientSettingsOverrideJsonUrl takes precedence
+# over one in create's body, even where the body's is allowed (the
+# client-settings-body profile).
+id: create.client-settings.body-and-url
+title: clientSettingsOverrideJsonUrl's override wins over the body's
+endpoint: create
+class: contract
+tags: [ci, disruptive]
+profile: client-settings-body
+requires: [akka, bus, callbacks]
+steps:
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Client settings, clientSettingsOverrideJsonUrl: "${sinkUrl}/${uid}/fixtures/client-settings/override.json"}
+    body: {xml: '<modules><module name="clientSettingsOverride"><![CDATA[{"public":{"app":{"clientTitle":"Body client"}}}]]></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.props.overrideClientSettings]
+    expect:
+      jsonpath:
+        $.core.body.props.overrideClientSettings: {regex: '^\{"public":\{"app":\{"clientTitle":"Conform client"\}\}\}\s*$'}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

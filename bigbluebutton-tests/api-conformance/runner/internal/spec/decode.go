@@ -8,10 +8,12 @@ import (
 	"regexp"
 	"slices"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/antchfx/xpath"
+	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/signer"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/sink"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/tmpl"
 	"github.com/theory/jsonpath"
@@ -167,7 +169,7 @@ func (d *decoder) decodeCase(root *yaml.Node, file, variantID string) *Case {
 		for i, st := range mapGet(root, "steps").Content {
 			s := c.Steps[i]
 			ignored := s.Call != nil && s.Call.IgnoreResult
-			if s.Kind != KindWait && !ignored && s.Golden != "document" && s.Golden != "off" {
+			if s.Kind != KindWait && s.Kind != KindRestore && s.Kind != KindCheck && !ignored && s.Golden != "document" && s.Golden != "off" {
 				d.f.errf(st, "steps[%d]: a triage case records what the server answers without comparing it: give the step golden: document", i)
 			}
 		}
@@ -226,6 +228,23 @@ func (d *decoder) step(n *yaml.Node, where string) Step {
 		s.Call, s.Expect = d.call(n, key, where)
 	case KindWait:
 		s.Wait = duration(mapGet(n, "wait"))
+	case KindRestore:
+		if !d.serial {
+			d.f.errf(n, "%s: tag a case with restore steps serial: other cases would see its recordings half restored", where)
+		}
+		for _, id := range mapGet(mapGet(n, key), "recordings").Content {
+			s.Restore = append(s.Restore, id.Value)
+		}
+	case KindCheck:
+		for j, item := range mapGet(n, key).Content {
+			m := d.matcher(mapGet(item, "expect"))
+			switch m.Op {
+			case "exists", "absent", "count":
+				// A check always has its one value, so these would say nothing.
+				d.f.errf(item, "%s: check[%d]: %s can't be checked on a value: compare it", where, j, m.Op)
+			}
+			s.Check = append(s.Check, CheckItem{Value: d.str(mapGet(item, "value")), M: m, Line: item.Line})
+		}
 	case KindPresence:
 		s.Presence = d.presence(mapGet(n, key), where)
 		if e := mapGet(n, "expect"); e != nil {
@@ -601,8 +620,8 @@ func (d *decoder) sinkKey(n *yaml.Node, key, where string) {
 }
 
 // sinkURLKey finds the sink keys a case's URLs send requests to: the
-// first path segment after ${sinkUrl}/ or ${sinkHttpUrl}/.
-var sinkURLKey = regexp.MustCompile(`\$\{(?:sinkUrl|sinkHttpUrl)\}/([^/?&#\s"]+)`)
+// first path segment after ${sinkUrl}/, ${sinkHttpUrl}/ or ${sinkLocalUrl}/.
+var sinkURLKey = regexp.MustCompile(`\$\{(?:sinkUrl|sinkHttpUrl|sinkLocalUrl)\}/([^/?&#\s"]+)`)
 
 // sinkKeysUsed checks that a sink step that expects nothing (absent, or a
 // count of 0) watches a key a URL in the case sends requests to, written
@@ -886,6 +905,28 @@ func (d *decoder) matcher(n *yaml.Node) Matcher {
 		for _, item := range v.Content {
 			m.Args = append(m.Args, d.str(item))
 		}
+	case "between":
+		var bounds [2]int64
+		literal := true
+		for i, item := range v.Content {
+			m.Args = append(m.Args, d.str(item))
+			if tmpl.HasExpr(item.Value) {
+				literal = false
+				continue
+			}
+			b, err := strconv.ParseInt(item.Value, 10, 64)
+			if err != nil {
+				d.f.errf(item, "between: bound %q isn't an integer", item.Value)
+				literal = false
+				continue
+			}
+			if i < 2 {
+				bounds[i] = b
+			}
+		}
+		if literal && len(v.Content) == 2 && bounds[0] > bounds[1] {
+			d.f.errf(v, "between: the low bound %d is above the high bound %d", bounds[0], bounds[1])
+		}
 	}
 	return m
 }
@@ -996,7 +1037,7 @@ func (d *decoder) checkTemplate(n *yaml.Node, text, in string) {
 	for _, c := range t.Calls() {
 		fn, ok := tmpl.LookupFunc(c.Name)
 		if !ok {
-			d.f.errf(n, "%sunknown function %s (known: base64File, checksum, repeat, urlencode)", prefix, c.Name)
+			d.f.errf(n, "%sunknown function %s (known: %s)", prefix, c.Name, strings.Join(tmpl.FuncNames(), ", "))
 			continue
 		}
 		if len(c.Args) != fn.Arity {
@@ -1005,6 +1046,11 @@ func (d *decoder) checkTemplate(n *yaml.Node, text, in string) {
 		}
 		if c.Name == "base64File" && c.Args[0].Kind == tmpl.Str {
 			d.fixtureExists(n, c.Args[0].Lit)
+		}
+		if (c.Name == "hmac" || c.Name == "checksum") && c.Args[0].Kind == tmpl.Str {
+			if _, err := signer.HashFunc(c.Args[0].Lit); err != nil {
+				d.f.errf(n, "%s%s: %v", prefix, c.Name, err)
+			}
 		}
 	}
 	for _, ref := range t.Refs() {

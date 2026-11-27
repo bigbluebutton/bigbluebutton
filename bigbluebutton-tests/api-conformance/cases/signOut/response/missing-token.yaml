@@ -1,0 +1,11 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# signOut answers SUCCESS whatever it is given, a missing session token
+# included (signOut.method.allowed sends an unknown one).
+id: signOut.response.missing-token
+title: signOut answers SUCCESS without a session token
+endpoint: signOut
+class: contract
+tags: [ci]
+steps:
+  - call: signOut
+    expect: {returncode: SUCCESS}

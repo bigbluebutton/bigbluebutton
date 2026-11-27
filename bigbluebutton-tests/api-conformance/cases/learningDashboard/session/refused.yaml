@@ -1,0 +1,66 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# learningDashboard needs a live session token and the HTTP session the join made
+# (its JSESSIONID cookie): each step below changes one of them from the
+# first, which bbb-web accepts as far as the session goes ("Meeting not
+# found": nobody is in the meeting). The token check comes first and says
+# "Invalid session token"; the cookie check says "Invalid Session". After
+# the meeting ends, its sessions are gone.
+id: learningDashboard.session.refused
+title: learningDashboard refuses a token it doesn't know, or without the join's cookie
+endpoint: learningDashboard
+class: contract
+tags: [ci]
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Sessions}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: join
+    client: ann
+    params: {meetingID: "${uid}", fullName: Ann, role: moderator, redirect: "false"}
+    golden: off
+    capture: {annToken: /response/session_token}
+  - call: join
+    client: bob
+    params: {meetingID: "${uid}", fullName: Bob, role: viewer, redirect: "false"}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: learningDashboard
+    client: ann
+    params: {sessionToken: "${annToken}"}
+    expect: {format: json, returncode: FAILED, message: Meeting not found}
+  # An empty token, and one bbb-web never handed out.
+  - call: learningDashboard
+    client: ann
+    params: {sessionToken: ""}
+    expect: {format: json, returncode: FAILED, message: Invalid session token}
+  - call: learningDashboard
+    client: ann
+    params: {sessionToken: "${uid}"}
+    expect: {format: json, returncode: FAILED, message: Invalid session token}
+  # Ann's token without a cookie, and with Bob's.
+  - call: learningDashboard
+    client: nobody
+    params: {sessionToken: "${annToken}"}
+    expect: {format: json, returncode: FAILED, message: Invalid Session}
+  - call: learningDashboard
+    client: bob
+    params: {sessionToken: "${annToken}"}
+    expect: {format: json, returncode: FAILED, message: Invalid Session}
+  - call: end
+    params: {meetingID: "${uid}"}
+    golden: off
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}
+  - call: learningDashboard
+    client: ann
+    params: {sessionToken: "${annToken}"}
+    eventually: {within: 5s, every: 100ms, until: {message: Invalid session token}}
+    expect: {format: json, returncode: FAILED, message: Invalid session token}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

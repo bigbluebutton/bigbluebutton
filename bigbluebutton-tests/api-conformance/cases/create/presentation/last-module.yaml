@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# create's body names each module once: with two presentation modules,
+# only the last one's documents are uploaded.
+id: create.presentation.last-module
+title: create uploads only the last presentation module's documents
+endpoint: create
+class: compat
+tags: [ci, conversion]
+requires: [akka, bus, callbacks, presentation-conversion]
+steps:
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Presentations}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}/fixtures/presentations/two-pages.pdf" filename="earlier.pdf"/></module><module name="presentation"><document url="${sinkUrl}/${uid}/fixtures/presentations/two-pages.pdf" filename="later.pdf"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: PresentationConversionStartedSysPubMsg, meetingId: "${intId}", within: 180s}
+    select: [$.core.body.common.presentationName]
+    expect:
+      jsonpath: {$.core.body.common.presentationName: "later.pdf"}
+  - bus: {name: PresentationConversionStartedSysPubMsg, meetingId: "${intId}", within: 1s}
+    golden: off
+    expect:
+      absent: true
+      jsonpath: {$.core.body.common.presentationName: "earlier.pdf"}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

@@ -1,0 +1,7 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.shared-notes.failed-slow
+target bbb-web
+
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.meetingProp.sharedNotesInitialContentJson, $.core.body.props.meetingProp.sharedNotesInitialContentMarkdown
+$.core.body.props.meetingProp.sharedNotesInitialContentJson []
+$.core.body.props.meetingProp.sharedNotesInitialContentMarkdown ""

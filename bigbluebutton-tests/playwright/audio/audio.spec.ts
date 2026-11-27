@@ -5,9 +5,15 @@ import { trackPeerConnections } from '../core/rtcStatsProbe';
 import { test } from '../core/setup/fixtures';
 import { constants as c } from '../parameters/constants';
 import { Audio } from './audio';
+import { exposeLiveKitRoomInContext } from './liveKitProbe';
 import { E2E_ECHO_TEST_SETTINGS_OVERRIDE } from './util';
 
 const UNMUTE_WITH_CONSENT = `${c.allowModsToUnmuteUsers}&requireUserConsentBeforeUnmuting=true`;
+const UNMUTE_WITHOUT_CONSENT = `${c.allowModsToUnmuteUsers}&requireUserConsentBeforeUnmuting=false`;
+// unpublishOnMute is the default; set here because the spec waits for the unpublish.
+const unmuteWithoutConsentSettings = (useLiveKitAudioState: boolean) => ({
+  public: { media: { livekit: { audio: { unpublishOnMute: true, useLiveKitAudioState } } } },
+});
 
 test.describe.parallel('Audio', { tag: ['@ci', '@media'] }, () => {
   let audio: Audio;
@@ -145,6 +151,30 @@ test.describe.parallel('Unmute consent', { tag: ['@ci', '@media'] }, () => {
 
   test('An attendee who accepts is unmuted', async () => {
     await audio.unmuteConsentAccepted();
+  });
+
+  test('Muting everyone withdraws a pending request', async () => {
+    await audio.unmuteRequestWithdrawnByMuteAll();
+  });
+});
+
+test.describe.parallel('Unmute without consent', { tag: ['@ci', '@media'] }, () => {
+  [false, true].forEach((useLiveKitAudioState) => {
+    const name = useLiveKitAudioState ? 'with the LiveKit audio state' : 'with the BBB audio state';
+
+    test(`A moderator unmutes an attendee directly, ${name}`, async ({ browser, context, page }, testInfo) => {
+      linkIssue(26285);
+      test.skip(useLiveKitAudioState && !isLiveKit, 'the LiveKit audio state only exists on the LiveKit bridge');
+      await exposeLiveKitRoomInContext(context);
+      const audio = new Audio(browser, context);
+      await audio.initModPage(page, {
+        createParameter: UNMUTE_WITHOUT_CONSENT,
+        createClientSettingsOverride: unmuteWithoutConsentSettings(useLiveKitAudioState),
+        testInfo,
+      });
+      await audio.initUserPage(context, { testInfo });
+      await audio.unmuteWithoutConsent();
+    });
   });
 });
 

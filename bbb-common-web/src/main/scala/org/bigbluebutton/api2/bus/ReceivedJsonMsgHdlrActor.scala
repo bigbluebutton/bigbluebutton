@@ -96,18 +96,12 @@ class ReceivedJsonMsgHdlrActor(val msgFromAkkaAppsEventBus: MsgFromAkkaAppsEvent
         route[PresentationConversionRejectedSysMsg](envelope, jsonNode)
       case GuestsWaitingApprovedEvtMsg.NAME =>
         route[GuestsWaitingApprovedEvtMsg](envelope, jsonNode)
-      case PosInWaitingQueueUpdatedRespMsg.NAME =>
-        route[PosInWaitingQueueUpdatedRespMsg](envelope, jsonNode)
       case GuestPolicyChangedEvtMsg.NAME =>
         route[GuestPolicyChangedEvtMsg](envelope, jsonNode)
       case LockSettingsInMeetingChangedEvtMsg.NAME =>
         route[LockSettingsInMeetingChangedEvtMsg](envelope, jsonNode)
       case WebcamsOnlyForModeratorChangedEvtMsg.NAME =>
         route[WebcamsOnlyForModeratorChangedEvtMsg](envelope, jsonNode)
-      case GuestLobbyMessageChangedEvtMsg.NAME =>
-        route[GuestLobbyMessageChangedEvtMsg](envelope, jsonNode)
-      case PrivateGuestLobbyMsgChangedEvtMsg.NAME =>
-        route[PrivateGuestLobbyMsgChangedEvtMsg](envelope, jsonNode)
       case RecordingChapterBreakSysMsg.NAME =>
         route[RecordingChapterBreakSysMsg](envelope, jsonNode)
       case SetPresentationDownloadableEvtMsg.NAME =>

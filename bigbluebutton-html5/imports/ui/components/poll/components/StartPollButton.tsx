@@ -125,7 +125,8 @@ const StartPollButton: React.FC<StartPollButtonProps> = ({
     && !(optList[correctAnswer.index]?.key === correctAnswer.text));
   // Tippy on a disabled BBButton never fires (the library sets
   // pointer-events: none on disabled buttons), so the tooltip explaining why
-  // the poll/quiz can't start is placed on a wrapper via TooltipContainer.
+  // the poll/quiz can't start is placed on a wrapper via TooltipContainer
+  // (bigbluebutton/bbb-ui-components-react#125).
   // The button used to live inside ResponseArea, which only rendered once a type was
   // picked. It now sits in the panel footer and is always mounted, so the type has to be
   // checked here - otherwise POLL_CREATE would fire with an empty pollType. Note this
@@ -140,7 +141,9 @@ const StartPollButton: React.FC<StartPollButtonProps> = ({
     <Styled.StartPollButtonWrapper>
       <BBButton
         variant="primary"
+        className="bbb-action-button bbb-action-button--primary"
         dataTest="startPoll"
+        fullWidth
         ariaDescribedBy="start-poll-button"
         // eslint-disable-next-line max-len
         label={isQuiz ? intl.formatMessage(intlMessages.startQuizLabel) : intl.formatMessage(intlMessages.startPollLabel)}

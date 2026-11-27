@@ -14,7 +14,7 @@ import org.bigbluebutton.core.running.{LiveMeeting, OutMsgRouter}
 import org.bigbluebutton.core2.message.senders.{MsgBuilder, Sender}
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
 import org.bigbluebutton.core.apps.webcam.CameraHdlrHelpers
-import org.bigbluebutton.core.db.{ChatMessageDAO, MediaGroupUserDAO, UserDAO, UserStateDAO}
+import org.bigbluebutton.core.db.{ChatMessageDAO, MediaGroupUserDAO, PresPresentationDAO, UserDAO, UserStateDAO}
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core.graphql.GraphqlMiddleware
 
@@ -31,33 +31,20 @@ object UsersApp {
     outGW.send(msgEvent)
   }
 
-  def guestWaitingLeft(liveMeeting: LiveMeeting, userId: String, outGW: OutMsgRouter): Unit = {
+  def guestWaitingLeft(liveMeeting: LiveMeeting, userId: String): Unit = {
     for {
       u <- RegisteredUsers.findWithUserId(userId, liveMeeting.registeredUsers)
     } yield {
       RegisteredUsers.setUserLoggedOutFlag(liveMeeting.registeredUsers, u)
-
-      val event = MsgBuilder.buildGuestWaitingLeftEvtMsg(liveMeeting.props.meetingProp.intId, u.id)
-      outGW.send(event)
     }
   }
 
-  def approveOrRejectGuest(liveMeeting: LiveMeeting, outGW: OutMsgRouter,
-                           guest: GuestApprovedVO, approvedBy: String): Unit = {
+  def approveOrRejectGuest(liveMeeting: LiveMeeting, guest: GuestApprovedVO, approvedBy: String): Unit = {
     for {
       u <- RegisteredUsers.findWithUserId(guest.guest, liveMeeting.registeredUsers)
     } yield {
       RegisteredUsers.setWaitingForApproval(liveMeeting.registeredUsers, u, guest.status)
       UserStateDAO.updateGuestStatus(liveMeeting.props.meetingProp.intId, guest.guest, guest.status, approvedBy)
-      // send message to user that he has been approved
-
-      val event = MsgBuilder.buildGuestApprovedEvtMsg(
-        liveMeeting.props.meetingProp.intId,
-        guest.guest, guest.status, approvedBy
-      )
-
-      outGW.send(event)
-
     }
   }
 
@@ -175,6 +162,11 @@ object UsersApp {
         automaticallyAssignPresenter(outGW, liveMeeting)
       }
       UserStateDAO.updateEjected(meetingId, userId, reason, reasonCode, ejectedBy)
+      // An ejected user never reaches removeUsersWithExpiredUserLeftFlag, which does this for the others
+      PresPresentationDAO.updateErrorsOfAwaitingUploadsOfUser(
+        meetingId, userId, "PRESENTATION_UPLOAD_FAILED",
+        Map("PRESENTATION_UPLOAD_FAILED" -> "Uploader was removed from the meeting")
+      )
       removeUserLiveKitMemberships(liveMeeting, meetingId, userId, outGW)
       Webcams.findWebcamsForUser(liveMeeting.webcams, userId) foreach { webcam =>
         CameraHdlrHelpers.stopBroadcastedCam(liveMeeting, meetingId, userId, webcam.streamId, outGW)

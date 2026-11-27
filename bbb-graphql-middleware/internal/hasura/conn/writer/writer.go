@@ -91,8 +91,10 @@ RangeLoop:
 					queryId := browserMessage.ID
 
 					// Rate limiter from config max_connection_queries_per_minute
-					ctxRateLimiter, _ := context.WithTimeout(hc.Context, 30*time.Second)
-					if err := hc.BrowserConn.FromBrowserToHasuraRateLimiter.Wait(ctxRateLimiter); err != nil {
+					ctxRateLimiter, cancelRateLimiter := context.WithTimeout(hc.Context, 30*time.Second)
+					errRateLimiter := hc.BrowserConn.FromBrowserToHasuraRateLimiter.Wait(ctxRateLimiter)
+					cancelRateLimiter()
+					if errRateLimiter != nil {
 						sendErrorMessage(
 							browserConnection,
 							queryId,
@@ -160,7 +162,11 @@ RangeLoop:
 
 					if query != "" {
 						if strings.HasPrefix(query, "subscription") {
-							if config.GetConfig().Server.MaxConnectionConcurrentSubscriptions > 0 {
+							browserConnection.ActiveSubscriptionsMutex.RLock()
+							existingSubscriptionData, queryIdExists := browserConnection.ActiveSubscriptions[queryId]
+							browserConnection.ActiveSubscriptionsMutex.RUnlock()
+
+							if !queryIdExists && config.GetConfig().Server.MaxConnectionConcurrentSubscriptions > 0 {
 								browserConnection.ActiveSubscriptionsMutex.RLock()
 								totalOfActiveSubscriptions := len(browserConnection.ActiveSubscriptions)
 								browserConnection.ActiveSubscriptionsMutex.RUnlock()
@@ -215,9 +221,6 @@ RangeLoop:
 
 							messageType = common.Subscription
 
-							browserConnection.ActiveSubscriptionsMutex.RLock()
-							existingSubscriptionData, queryIdExists := browserConnection.ActiveSubscriptions[queryId]
-							browserConnection.ActiveSubscriptionsMutex.RUnlock()
 							if queryIdExists {
 								lastReceivedDataChecksum = existingSubscriptionData.LastReceivedDataChecksum
 								lastReceivedData = existingSubscriptionData.LastReceivedData
