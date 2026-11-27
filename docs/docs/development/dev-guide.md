@@ -143,6 +143,7 @@ Add `data/dev-ca/rootCA.pem` to the trusted certificates of your browser or oper
 ./bbb-dev enable web     # and run it
 ./bbb-dev status         # what runs from your checkout
 ./bbb-dev apimate        # open API Mate for your server (prints the URL if no browser opens)
+./bbb-dev tunnel         # experimental: share it on a temporary public URL until Ctrl-C
 ./bbb-dev disable all    # back to the published images
 ./bbb-dev help           # all commands and components
 ```
@@ -159,6 +160,8 @@ To run a Node component as its production image instead, build it and enable it 
 ```
 
 Each component has a file in `docker/compose/dev/` with what is different in development, and `enable` adds it to `COMPOSE_FILE` in `.env`, so a plain `docker compose` runs the same setup. Your own settings go in `docker-compose.override.yml`, which is read last.
+
+`./bbb-dev tunnel` is experimental. It runs a [Cloudflare quick tunnel](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/do-more-with-tunnels/trycloudflare/) for the web traffic and [bore](https://github.com/ekzhang/bore) for audio, video and screen sharing (a public TCP port of bore.pub to the TURN server) in containers; neither needs an account. It restarts the services that use the domain, so running meetings are interrupted, and switches back on Ctrl-C. Use the printed API Mate link to create meetings. Anyone with the URL reaches your development setup, including the dev servers of live components.
 
 #### Alternative - add a development environment to a [locally running] working BigBlueButton server
 

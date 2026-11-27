@@ -64,6 +64,8 @@ Usage: ./bbb-dev <command> [component] [args...]
   logs <component> [args] its logs (args as for docker compose logs, e.g. -f)
   restart <component>     restart it
   apimate                 open API Mate for this server in the browser, or print its URL
+  tunnel                  experimental: share this setup on a temporary public URL until
+                          Ctrl-C (containers of cloudflared, and of bore for audio and video)
   status                  the domain, what runs from your checkout, docker compose ps
   help                    this text
   anything else           docker compose with these arguments, e.g. up -d, pull, down
@@ -200,6 +202,56 @@ cmd_apimate() {
   "$opener" "$url" >/dev/null 2>&1 || echo "$url"
 }
 
+# Removes the tunnel containers and restores the .env domain, also after a failed start
+tunnel_stop() {
+  trap '' INT TERM HUP
+  unset BBB_DOMAIN COMPOSE_FILE TUNNEL_TURN_URL
+  echo "Tunnel closed, switching back to $(env_value BBB_DOMAIN)"
+  docker compose up -d --remove-orphans
+}
+
+# Prints the first match of regex $2 in the logs of service $1, waiting up to 30 s for it
+wait_for_log() {
+  local i
+  for ((i = 0; i < 30; i++)); do
+    ! docker compose logs --no-log-prefix "$1" 2>&1 | grep -oE "$2" | head -n 1 | grep . || return 0
+    sleep 1
+  done
+  docker compose logs "$1" >&2
+  return 1
+}
+
+# Runs the stack under the name of a cloudflared quick tunnel until Ctrl-C ($DEV/tunnel.yml). The
+# name and the settings of the tunnel are only in the environment, which wins over .env, so .env
+# is never changed.
+# shortcut: enable and disable while this runs end the tunnel's setup; run tunnel again.
+cmd_tunnel() {
+  local url addr
+  [[ -e .env ]] || fail "Run ./bbb-dev setup first."
+  echo "./bbb-dev tunnel is experimental." >&2
+  COMPOSE_FILE=$(env_value COMPOSE_FILE):$DEV/tunnel.yml
+  export COMPOSE_FILE
+  unset TUNNEL_TURN_URL
+  trap tunnel_stop EXIT
+  trap 'exit 130' INT TERM HUP
+  # recreated, so that the logs have no name or port of an earlier run
+  docker compose up -d --force-recreate --no-deps cloudflared bore
+  # a quick tunnel's name is several words, unlike api.trycloudflare.com in error messages
+  url=$(wait_for_log cloudflared 'https://[a-z0-9]+(-[a-z0-9]+)+\.trycloudflare\.com') ||
+    fail "cloudflared gave no tunnel URL."
+  addr=$(wait_for_log bore 'bore\.pub:[0-9]+') || fail "bore gave no address."
+  export BBB_DOMAIN=${url#https://} TUNNEL_TURN_URL="turn:$addr?transport=tcp"
+  docker compose up -d
+  cat <<EOF
+
+Public until Ctrl-C: $url
+Media relay: $TUNNEL_TURN_URL
+API Mate (contains your shared secret, do not pass it on; share the join links):
+  https://bigbluebutton.org/api-mate/#server=$url/bigbluebutton/&sharedSecret=$(env_value BBB_SHARED_SECRET)
+EOF
+  docker compose logs -f --tail 0 cloudflared bore
+}
+
 # setup ---------------------------------------------------------------------------------------
 
 # Without an argument, a domain already set in .env is the one to set up.
@@ -305,7 +357,7 @@ EOF
 
 case "${1:-help}" in
   help | -h | --help) usage ;;
-  setup | build | enable | disable | exec | status | apimate)
+  setup | build | enable | disable | exec | status | apimate | tunnel)
     command=$1
     shift
     "cmd_$command" "$@"

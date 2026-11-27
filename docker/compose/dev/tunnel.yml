@@ -1,0 +1,40 @@
+# Added only while ./bbb-dev tunnel runs.
+# cloudflared gives the public HTTPS name; WebRTC media does not fit through it, so bore forwards
+# a public TCP port to coturn, which relays to LiveKit. Neither is restarted: a restart would get
+# a new name or port. Their settings must not use BBB_DOMAIN, or they would be recreated.
+services:
+  cloudflared:
+    image: docker.io/cloudflare/cloudflared:2026.3.0@sha256:6b599ca3e974349ead3286d178da61d291961182ec3fe9c505e1dd02c8ac31b0
+    # haproxy's certificate is for the local domain, hence no verification on this hop
+    command: tunnel --url https://haproxy:8443 --no-tls-verify
+
+  bore:
+    image: docker.io/ekzhang/bore:0.6.0@sha256:add9294ed874251ca1737f1d4e10a8681c3b885048888b3022cb327e4133c988
+    command: local 3478 --local-host coturn --to bore.pub
+    environment:
+      NO_COLOR: "1"
+
+  # BBB_DOMAIN is then the tunnel's public name, so bbb-web must resolve it through DNS instead
+  # of to the host
+  web:
+    extra_hosts: !reset []
+
+# TURN through bore (TUNNEL_TURN_URL)
+configs:
+  turn-stun-servers.xml:
+    content: |
+      <?xml version="1.0" encoding="UTF-8"?>
+      <beans xmlns="http://www.springframework.org/schema/beans"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.springframework.org/schema/beans
+          http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+        <bean id="turn0" class="org.bigbluebutton.web.services.turn.TurnServer">
+          <constructor-arg index="0" value="${TURN_SECRET:?}"/>
+          <constructor-arg index="1" value="${TUNNEL_TURN_URL:-turn:${BBB_DOMAIN}:3478}"/>
+          <constructor-arg index="2" value="86400"/>
+        </bean>
+        <bean id="stunTurnService" class="org.bigbluebutton.web.services.turn.StunTurnService">
+          <property name="stunServers"><set/></property>
+          <property name="turnServers"><set><ref bean="turn0"/></set></property>
+        </bean>
+      </beans>
