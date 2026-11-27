@@ -23,33 +23,46 @@ else
 	echo "Docker already installed";
 fi
 
-IMAGE_CHECK=`docker image inspect bbb-soffice &> /dev/null && echo 1 || echo 0`
-if [ "$IMAGE_CHECK"  = "0" ]; then
-	echo "Docker image doesn't exists, building"
-	docker build -t bbb-soffice docker/
-else
+IMAGE="$(sed -n 's/^FROM //p' docker/Dockerfile)"
+if docker image inspect "$IMAGE" &> /dev/null; then
 	echo "Docker image already exists";
+else
+	echo "Docker image doesn't exist, pulling"
+	docker pull "$IMAGE" || exit 1
 fi
 
-FOLDER_CHECK=`[ -d /usr/share/bbb-libreoffice-conversion/ ] && echo 1 || echo 0`
-if [ "$FOLDER_CHECK" = "0" ]; then
-	echo "Install folder doesn't exists, installing"
-	install -Dm755 assets/convert-local.sh /usr/share/bbb-libreoffice-conversion/convert.sh
-	install -Dm755 assets/convert-cool.sh /usr/share/bbb-libreoffice-conversion/convert-cool.sh
-	chown -R root /usr/share/bbb-libreoffice-conversion/
-else
-	echo "Install folder already exists"
-fi;
+install -d /usr/share/bbb-libreoffice
+printf '%s\n' "$IMAGE" > /usr/share/bbb-libreoffice/docker-image
+chmod 0644 /usr/share/bbb-libreoffice/docker-image
+install -Dm644 assets/zzz-bbb-docker-libreoffice /usr/share/bbb-libreoffice/zzz-bbb-docker-libreoffice.template
 
-FILE_SUDOERS_CHECK=`[ -f /etc/sudoers.d/zzz-bbb-docker-libreoffice ] && echo 1 || echo 0`
-if [ "$FILE_SUDOERS_CHECK" = "0" ]; then
-	echo "Sudoers file doesn't exists, installing"
-	cp assets/zzz-bbb-docker-libreoffice /etc/sudoers.d/zzz-bbb-docker-libreoffice
-	chmod 0440 /etc/sudoers.d/zzz-bbb-docker-libreoffice
-	chown root:root /etc/sudoers.d/zzz-bbb-docker-libreoffice
-else
-	echo "Sudoers file already exists"
-fi;
+# Always installed, so a conversion script from an earlier checkout is replaced on upgrade: the one
+# shipped until 4.0 ran the bbb-soffice alias, which this version no longer creates.
+# convert-cool.sh is a sample edited for the Collabora host, so an existing one is kept.
+# convert.sh is a symlink, as the package makes it; a converter chosen by pointing it elsewhere is kept,
+# and a regular file is replaced only when it is that earlier local converter
+echo "Installing conversion scripts"
+install -Dm755 assets/convert-local.sh /usr/share/bbb-libreoffice-conversion/convert-local.sh
+[ -e /usr/share/bbb-libreoffice-conversion/convert-cool.sh ] || install -Dm755 assets/convert-cool.sh /usr/share/bbb-libreoffice-conversion/convert-cool.sh
+if [ ! -L /usr/share/bbb-libreoffice-conversion/convert.sh ]; then
+	if [ ! -e /usr/share/bbb-libreoffice-conversion/convert.sh ] || grep -q -- '--rm bbb-soffice sh -c' /usr/share/bbb-libreoffice-conversion/convert.sh; then
+		ln -sf /usr/share/bbb-libreoffice-conversion/convert-local.sh /usr/share/bbb-libreoffice-conversion/convert.sh
+	else
+		echo "Keeping /usr/share/bbb-libreoffice-conversion/convert.sh, which is not the local converter"
+	fi
+fi
+chown -R root /usr/share/bbb-libreoffice-conversion/
+
+# Always rendered, so a rule written for an earlier image is replaced on upgrade
+echo "Installing sudoers file"
+IMAGE_SUDOERS="${IMAGE//:/\\:}"
+TEMPLATE="$(cat assets/zzz-bbb-docker-libreoffice)"
+echo "${TEMPLATE//@BBB_LIBREOFFICE_IMAGE@/$IMAGE_SUDOERS}" > /etc/sudoers.d/zzz-bbb-docker-libreoffice
+chmod 0440 /etc/sudoers.d/zzz-bbb-docker-libreoffice
+chown root:root /etc/sudoers.d/zzz-bbb-docker-libreoffice
+install -d /var/lib/bbb-libreoffice
+printf '%s\n' "$IMAGE" > /var/lib/bbb-libreoffice/docker-image
+chmod 0644 /var/lib/bbb-libreoffice/docker-image
 
 aptInstalledList=$(apt list --installed 2>&1)
 fontInstalled=0
