@@ -1,0 +1,343 @@
+#!/bin/sh
+# bbb-conf for the Docker Compose setup, run as ./bbb-conf from the install folder (next to
+# docker-compose.yml). `./bbb-conf --help` lists the options; anything else goes to docker compose.
+set -eu
+cd "$(dirname "$0")"
+
+fail() {
+  printf '%s\n' "$*" >&2
+  exit 1
+}
+
+usage() {
+  cat <<'EOF'
+BigBlueButton Configuration Utility for Docker Compose
+
+   ./bbb-conf [options]
+
+Configuration:
+   --version                  Display the images: tag and version
+   --setip <domain>           Set BBB_DOMAIN and BBB_PUBLIC_IP (the first address of the domain that
+                              is not a loopback address) and recreate the running services
+   --setsecret <secret>       Set BBB_SHARED_SECRET and recreate the services
+
+Monitoring:
+   --check                    Check the configuration and the services for problems
+   --debug                    Scan the logs of the services for error messages
+   --watch                    Scan the logs of the services for error messages every 2 seconds
+   --secret                   View the URL and shared secret for the server
+   --test                     Create a meeting and print a moderator join link
+
+Administration:
+   --restart                  Restart BigBlueButton
+   --stop                     Stop BigBlueButton
+   --start                    Start BigBlueButton
+   --status                   Display the services, their health and the image versions
+   --zip                      Zip up the logs and the configuration (secrets removed) for reporting an error
+
+Anything else goes to docker compose, e.g. ./bbb-conf logs -f web
+EOF
+}
+
+# The variables as docker compose resolves them: .env (quotes, comments and the like as compose
+# reads them) and the environment, which wins over .env. .env is not sourced: it is not a shell
+# script.
+compose_env() {
+  printf 'services: {}\n' | docker compose -f - config --environment 2>/dev/null
+}
+
+# The value of variable $1, as compose resolves it
+env_value() {
+  compose_env | sed -n "s/^$1=//p" | tail -n 1
+}
+
+# Sets key $1 to $2 in .env, replacing it or appending it. The new file has mode 600, as .env.
+set_env() {
+  env_tmp=$(mktemp .env.XXXXXX)
+  KEY=$1 VALUE=$2 awk -F = '
+    $1 == ENVIRON["KEY"] { if (!done) print ENVIRON["KEY"] "=" ENVIRON["VALUE"]; done = 1; next }
+    { print }
+    END { if (!done) print ENVIRON["KEY"] "=" ENVIRON["VALUE"] }' .env > "$env_tmp"
+  mv "$env_tmp" .env
+}
+
+# True if version $1 is older than $2 in its first two numbers
+older() {
+  awk -v a="$1" -v b="$2" 'BEGIN {
+    split(a, x, "."); split(b, y, ".")
+    exit !(x[1] + 0 < y[1] + 0 || (x[1] + 0 == y[1] + 0 && x[2] + 0 < y[2] + 0)) }'
+}
+
+# The public IPv4 address of domain $1: its first address that is not a loopback address
+# (e.g. 127.0.1.1 from /etc/hosts), with a note if it is not an address of this host
+public_ip() {
+  ip=$(getent ahostsv4 "$1" | awk '$1 !~ /^127\./ {print $1; exit}')
+  if [ -z "$ip" ]; then
+    getent ahostsv4 "$1" >/dev/null || fail "$1 does not resolve to an IPv4 address. Create its DNS record first."
+    fail "On this host $1 resolves only to loopback addresses (see /etc/hosts). Set BBB_PUBLIC_IP in .env to the server's public IPv4 address."
+  fi
+  is_local "$ip" ||
+    echo "Note: $ip is not an address of this host. LiveKit announces it to the clients, so it must reach this host (as behind NAT or with a floating IP); if it does not, set BBB_PUBLIC_IP in .env." >&2
+  echo "$ip"
+}
+
+is_local() {
+  ip -4 -o address show 2>/dev/null | grep -qF " $1/"
+}
+
+# The image of each service, with its version label
+versions() {
+  docker compose config --images | sort -u | while read -r image; do
+    version=$(docker image inspect --format '{{index .Config.Labels "org.opencontainers.image.version"}}' "$image" 2>/dev/null) ||
+      version='(not pulled)'
+    printf '%-60s %s\n' "$image" "$version"
+  done
+}
+
+# Errors in the logs: the patterns of the package's bbb-conf --debug
+debug() {
+  docker compose logs --no-color 2>&1 | grep -E 'ERROR|\[error\]|[Ee]xception|EXCEPTION' | grep -v CacheExceptionHandlerFactory || true
+}
+
+ok() { printf 'ok      %s\n' "$*"; }
+note() { printf 'note    %s\n' "$*"; }
+error() {
+  printf 'ERROR   %s\n' "$*"
+  errors=$((errors + 1))
+}
+
+# Everything this checks is on this host: the files, the services and its own HTTPS endpoint
+check() {
+  errors=0
+  domain=$(env_value BBB_DOMAIN)
+  if out=$(docker compose config -q 2>&1); then ok "docker compose config"; else error "docker compose config: $out"; fi
+
+  engine=$(docker version --format '{{.Server.Version}}' 2>/dev/null) || engine=
+  compose=$(docker compose version --short 2>/dev/null) || compose=
+  compose=${compose#v}
+  if [ -z "$engine" ]; then
+    error "Cannot reach the Docker Engine"
+  elif older "$engine" 28.0; then
+    note "Docker Engine $engine is older than 28, the minimum"
+  else
+    ok "Docker Engine $engine"
+  fi
+  if older "$compose" 2.35; then note "docker compose $compose is older than 2.35, the minimum"; else ok "docker compose $compose"; fi
+
+  empty=
+  keys=$(sed -n 's/^\([A-Z0-9_]*\)=.*/\1/p' .env.sample)
+  for key in $keys; do
+    [ -z "$(env_value "$key")" ] || continue
+    # ACME_EMAIL can stay empty with your own certificate
+    [ "$key" = ACME_EMAIL ] && [ -s data/certs/fullchain.pem ] && continue
+    empty="$empty $key"
+  done
+  if [ -n "$empty" ]; then error "Empty in .env:$empty"; else ok "Every key of .env.sample has a value in .env"; fi
+
+  ip=$(env_value BBB_PUBLIC_IP)
+  if getent ahostsv4 "$domain" | awk '{print $1}' | grep -qxF "$ip"; then
+    ok "$domain resolves to BBB_PUBLIC_IP $ip"
+  else
+    error "$domain does not resolve to BBB_PUBLIC_IP $ip"
+  fi
+  if is_local "$ip"; then
+    ok "$ip is an address of this host"
+  else
+    note "$ip is not an address of this host: it has to reach this host (NAT or a floating IP)"
+  fi
+
+  if [ -s data/certs/fullchain.pem ]; then
+    from=data/certs/fullchain.pem
+    cert=$(cat "$from")
+  else
+    from="The certificate haproxy serves"
+    cert=$(openssl s_client -connect 127.0.0.1:443 -servername "$domain" </dev/null 2>/dev/null | openssl x509 2>/dev/null) || cert=
+  fi
+  if [ -z "$cert" ]; then
+    error "No certificate: none in data/certs, and haproxy serves none"
+  else
+    end=$(printf '%s\n' "$cert" | openssl x509 -noout -enddate | sed 's/^notAfter=//')
+    if ! printf '%s\n' "$cert" | openssl x509 -noout -checkend 0 >/dev/null; then
+      error "$from expired on $end"
+    elif ! printf '%s\n' "$cert" | openssl x509 -noout -checkend 1209600 >/dev/null; then
+      note "$from expires on $end, in less than 14 days"
+    else
+      ok "$from is valid until $end"
+    fi
+    if printf '%s\n' "$cert" | openssl x509 -noout -checkhost "$domain" | grep -q 'does match'; then
+      ok "$from is for $domain"
+    else
+      error "$from is not for $domain"
+    fi
+  fi
+
+  services=$(docker compose config --services 2>/dev/null) || services=
+  ps=$(docker compose ps -a --format '{{.Service}}|{{.State}}|{{.Health}}|{{.ExitCode}}' 2>/dev/null) || ps=
+  for service in $services; do
+    printf '%s\n' "$ps" | grep -q "^$service|" || error "$service is not created"
+  done
+  bad=0
+  while IFS='|' read -r service state health code; do
+    [ -n "$service" ] || continue
+    # init runs once on every start
+    [ "$service" = init ] && [ "$state" = exited ] && [ "$code" = 0 ] && continue
+    [ "$state" = running ] && [ "$health" != unhealthy ] && [ "$health" != starting ] && continue
+    error "$service is $state${health:+ ($health)}"
+    bad=1
+  done <<EOF
+$ps
+EOF
+  [ "$bad" = 1 ] || ok "Every service is running and not unhealthy"
+
+  # haproxy on this host, not the public address, which can be outside (NAT)
+  out=$(curl -sS --max-time 10 --resolve "$domain:443:127.0.0.1" "https://$domain/bigbluebutton/api" 2>&1) || true
+  case "$out" in
+    *'<returncode>SUCCESS</returncode>'*) ok "https://$domain/bigbluebutton/api answers SUCCESS" ;;
+    *) error "https://$domain/bigbluebutton/api does not answer SUCCESS: $(printf '%s\n' "$out" | head -n 3 | cut -c 1-200)" ;;
+  esac
+
+  case " $(printf '%s\n' "$services" | tr '\n' ' ') " in
+    *' office-conversion '*)
+      if [ ! -r /sys/kernel/security/lsm ]; then
+        note "Cannot read /sys/kernel/security/lsm: is landlock enabled? The office conversion needs it"
+      elif grep -qw landlock /sys/kernel/security/lsm; then
+        ok "landlock is enabled, for the office conversion"
+      else
+        error "landlock is not enabled in the kernel: office documents are not converted"
+      fi
+      ;;
+  esac
+
+  if [ "$errors" -gt 0 ]; then
+    echo "Errors: $errors"
+    return 1
+  fi
+  echo "No errors"
+}
+
+# The API checksum of call $1 with query $2
+checksum() {
+  printf '%s%s%s' "$1" "$2" "$(env_value BBB_SHARED_SECRET)" | sha256sum | cut -d ' ' -f 1
+}
+
+SECRET_KEYS='([A-Z0-9_]*_(SECRET|PASSWORD)|LIVEKIT_API_KEY)'
+
+# Removes each value of a *_SECRET, *_PASSWORD and LIVEKIT_API_KEY, as compose resolves it, from
+# its input, longest first, in one pass per value: what replaces it is never searched again
+redact() {
+  SECRETS=$(compose_env | grep -E "^$SECRET_KEYS=" | sed 's/^[^=]*=//') awk '
+    BEGIN {
+      n = split(ENVIRON["SECRETS"], v, "\n")
+      for (i = 2; i <= n; i++)
+        for (j = i; j > 1 && length(v[j]) > length(v[j - 1]); j--) { t = v[j]; v[j] = v[j - 1]; v[j - 1] = t }
+    }
+    {
+      for (i = 1; i <= n; i++) {
+        if (v[i] == "") continue
+        # a value inside the mark itself is removed without one
+        mark = index("<removed>", v[i]) ? "" : "<removed>"
+        out = ""; rest = $0
+        while ((k = index(rest, v[i])) > 0) {
+          out = out substr(rest, 1, k - 1) mark; rest = substr(rest, k + length(v[i]))
+        }
+        $0 = out rest
+      }
+      print
+    }'
+}
+
+# .env with the value of each secret key removed, in any spelling of the line
+redact_env() {
+  sed -E "s/^([[:space:]]*(export[[:space:]]+)?$SECRET_KEYS)[[:space:]]*=.*/\\1=<removed>/" .env | redact
+}
+
+zip_logs() {
+  name=bbb-conf-zip-$(date -u +%Y%m%d-%H%M%S)
+  tmp=$(mktemp -d)
+  trap 'rm -rf "$tmp"' EXIT
+  trap 'exit 1' HUP INT TERM
+  mkdir "$tmp/$name" "$tmp/$name/logs"
+  for service in $(docker compose config --services); do
+    docker compose logs --no-color --timestamps "$service" 2>&1 | redact > "$tmp/$name/logs/$service.log"
+  done
+  docker compose ps -a 2>&1 | redact > "$tmp/$name/ps.txt"
+  versions 2>&1 | redact > "$tmp/$name/version.txt"
+  redact_env > "$tmp/$name/env"
+  docker compose config 2>&1 | redact > "$tmp/$name/docker-compose.config.yml"
+  umask 077
+  if command -v zip >/dev/null; then
+    file=$name.zip
+    (cd "$tmp" && zip -qr - "$name") > "$file"
+  else
+    file=$name.tar.gz
+    tar -czf "$file" -C "$tmp" "$name"
+  fi
+  rm -rf "$tmp"
+  echo "Created $PWD/$file"
+}
+
+case "${1:---help}" in
+  --help | -h) usage ;;
+  --status)
+    docker compose ps -a
+    echo
+    versions
+    ;;
+  --version) versions ;;
+  --secret)
+    echo
+    echo "    URL: https://$(env_value BBB_DOMAIN)/bigbluebutton/"
+    echo "    Secret: $(env_value BBB_SHARED_SECRET)"
+    echo
+    ;;
+  --setsecret)
+    case "${2:-}" in
+      '' | *[!A-Za-z0-9]*) fail "Usage: ./bbb-conf --setsecret <secret> (letters and digits, e.g. from openssl rand -hex 32)" ;;
+    esac
+    set_env BBB_SHARED_SECRET "$2"
+    docker compose up -d --force-recreate
+    ;;
+  --setip)
+    [ -n "${2:-}" ] || fail "Usage: ./bbb-conf --setip <domain>"
+    ip=$(public_ip "$2")
+    if [ "$(env_value BBB_DOMAIN)" = "$2" ] && [ "$(env_value BBB_PUBLIC_IP)" = "$ip" ]; then
+      echo "BBB_DOMAIN is $2 and BBB_PUBLIC_IP is $ip already"
+      exit 0
+    fi
+    set_env BBB_DOMAIN "$2"
+    set_env BBB_PUBLIC_IP "$ip"
+    echo "Set BBB_DOMAIN=$2 and BBB_PUBLIC_IP=$ip in .env"
+    if [ -n "$(docker compose ps -q)" ]; then docker compose up -d --force-recreate; fi
+    ;;
+  --start) docker compose up -d ;;
+  --stop) docker compose stop ;;
+  --restart) docker compose restart ;;
+  --check) check ;;
+  --debug) debug ;;
+  --watch)
+    while :; do
+      clear
+      debug
+      sleep 2
+    done
+    ;;
+  --zip) zip_logs ;;
+  --test)
+    domain=$(env_value BBB_DOMAIN)
+    api=https://$domain/bigbluebutton/api
+    id=bbb-conf-test-$(date +%s)
+    query="name=bbb-conf+test&meetingID=$id"
+    out=$(curl -sS --max-time 10 --resolve "$domain:443:127.0.0.1" "$api/create?$query&checksum=$(checksum create "$query")" 2>&1) || true
+    case "$out" in
+      *'<returncode>SUCCESS</returncode>'*) ;;
+      *) fail "create failed: $out" ;;
+    esac
+    query="fullName=Moderator&meetingID=$id&role=MODERATOR"
+    echo "Created the meeting $id. Join it as a moderator:"
+    echo "$api/join?$query&checksum=$(checksum join "$query")"
+    ;;
+  --set-port-range) fail "LiveKit receives all media on one UDP port, 7882: change it in your livekit.yaml and the port in docker-compose.override.yml" ;;
+  --clean) fail "The logs rotate (the local logging driver); docker compose up -d --force-recreate starts with empty logs" ;;
+  --network) fail "Connections go through Docker's port forwarding; docker compose ps shows the published ports" ;;
+  *) exec docker compose "$@" ;;
+esac

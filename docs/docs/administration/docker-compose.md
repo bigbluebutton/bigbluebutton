@@ -28,10 +28,10 @@ Not covered yet: FreeSWITCH and dial-in, more than one server, Kubernetes, and r
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.1.x-develop/docker/compose/install.sh | sh -s -- <domain> [email]
-cd bigbluebutton && docker compose up -d
+cd bigbluebutton && ./bbb-conf --start
 ```
 
-`docker/compose/install.sh` checks the Docker versions, downloads `docker-compose.yml`, `.env.sample` and `docker/compose/` into `./bigbluebutton` and writes `.env` with the domain, its IPv4 address, the email and new secrets; an existing `.env` is kept. `BBB_REPO` and `BBB_BRANCH` choose the GitHub repository and the branch, tag or commit to download from (default `bigbluebutton/bigbluebutton` and `v4.1.x-develop`), `BBB_DIR` the target directory (default `bigbluebutton`), e.g. `curl ... | BBB_DIR=bbb sh -s -- <domain>`. Without the script: copy these files from the repository, `cp .env.sample .env` and set every value.
+`docker/compose/install.sh` checks the Docker versions, downloads `docker-compose.yml`, `.env.sample`, `docker/compose/` and `bbb-conf` into `./bigbluebutton` and writes `.env` with the domain, its IPv4 address, the email and new secrets; an existing `.env` is kept. `BBB_REPO` and `BBB_BRANCH` choose the GitHub repository and the branch, tag or commit to download from (default `bigbluebutton/bigbluebutton` and `v4.1.x-develop`), `BBB_DIR` the target directory (default `bigbluebutton`), e.g. `curl ... | BBB_DIR=bbb sh -s -- <domain>`. Without the script: copy these files from the repository (`docker/compose/bbb-conf` to the top of the folder, next to `docker-compose.yml`), `cp .env.sample .env` and set every value.
 
 The images come from the registry (`docker compose pull`, or the first `up`); no local build is needed. `BBB_IMAGE_TAG` is a branch tag such as `v4.1.x-develop`, or `v4.1.x-develop-<commit>` to pin a set of images built together. `BBB_IMAGE_REGISTRY` (default `ghcr.io/bigbluebutton/bigbluebutton`) points to another registry with the same image names, e.g. a mirror.
 
@@ -190,20 +190,19 @@ services:
 - There is no FreeSWITCH, so there is no dial-in.
 - Office documents are converted by Collabora Online in `office-conversion` instead of a `bbb-soffice` container per document (`bbb-libreoffice`).
 - The PDF export of the shared notes runs in the `shared-notes-conversion` service instead of the systemd units `bbb-shared-notes-conversion.socket` and `bbb-shared-notes-conversion@.service`: the same wkhtmltopdf command and 30 s limit, in a container without network that shares the socket with `shared-notes-server`. In the container all conversions run as one user and share one `/tmp`; the unit gives each conversion a user and a `/tmp` of its own.
-- The domain, the IP address and the secrets are set in `.env` instead of with `bbb-conf --setip` and `bbb-conf --setsecret`. There is no `bbb-conf` and no `apply-config.sh`.
+- The domain, the IP address and the secrets are in `.env`. `./bbb-conf` in the install folder changes them, as `bbb-conf` does on a package install. There is no `apply-config.sh`.
 
 ## Common bbb-conf tasks
 
+`./bbb-conf` in the install folder takes the options of the package's `bbb-conf`: `--status`, `--start`, `--stop`, `--restart`, `--secret`, `--setsecret <secret>`, `--setip <domain>`, `--check`, `--debug`, `--watch`, `--zip` and `--version`, plus `--test`, which creates a meeting and prints a join link. It runs as any user who can run `docker compose`, and `./bbb-conf --help` describes each option. Anything else goes to `docker compose`, e.g. `./bbb-conf logs -f web`.
+
+`--check` contacts nothing outside the server, and `--zip` replaces the secrets and passwords of `.env` in the logs and the configuration it packs. Three options of the package's `bbb-conf` have no equivalent:
+
 | Package install | Docker Compose |
 |---|---|
-| `bbb-conf --status` | `docker compose ps` |
-| `bbb-conf --stop` / `--start` | `docker compose stop` / `docker compose up -d` |
-| `bbb-conf --restart` | `docker compose restart` |
-| `bbb-conf --secret` | the URL is `https://<BBB_DOMAIN>/bigbluebutton/`, the secret is `BBB_SHARED_SECRET` in `.env` |
-| `bbb-conf --setsecret <secret>` | set `BBB_SHARED_SECRET` in `.env`, then `docker compose up -d --force-recreate` |
-| `bbb-conf --setip <hostname>` | set `BBB_DOMAIN` and `BBB_PUBLIC_IP` in `.env`, then `docker compose up -d --force-recreate` |
-| `bbb-conf --debug` / `--watch` | `docker compose logs <service>` / `docker compose logs -f` |
-| `bbb-conf --version` | `docker compose images` (the image tags); the dated version of an image is its label `org.opencontainers.image.version` (`docker image inspect --format '{{index .Config.Labels "org.opencontainers.image.version"}}' <image>`) |
+| `bbb-conf --set-port-range` | LiveKit receives all media on one UDP port, 7882: change it in your own `livekit.yaml` (see [Configuration](#configuration)) |
+| `bbb-conf --clean` | the logs rotate; `docker compose up -d --force-recreate` starts with empty logs |
+| `bbb-conf --network` | `docker compose ps` shows the published ports |
 
 ## Greenlight and other front ends
 
