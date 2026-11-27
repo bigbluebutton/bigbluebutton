@@ -4,6 +4,7 @@ import java.util.concurrent.TimeUnit
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 
+import scala.jdk.CollectionConverters._
 import scala.util.{ Failure, Success, Try }
 import com.typesafe.config.ConfigFactory
 
@@ -79,6 +80,9 @@ trait SystemConfiguration {
   lazy val presUploadTokenMaxRequests = Try(config.getInt("apps.presentationUploadTokenMaxRequests")).getOrElse(20)
   lazy val presUploadTokenWindowSec = Try(config.getInt("apps.presentationUploadTokenWindowSec")).getOrElse(60)
   lazy val presMaxPerPod = Try(config.getInt("apps.presentationMaxPerPod")).getOrElse(50)
+
+  // Optional list of colors assigned to users (avatar). Empty means use the built-in defaults.
+  lazy val userColors: List[String] = Try(config.getStringList("users.colors").asScala.toList).getOrElse(List())
 
   // Redis server configuration
   lazy val redisHost = Try(config.getString("redis.host")).getOrElse("127.0.0.1")

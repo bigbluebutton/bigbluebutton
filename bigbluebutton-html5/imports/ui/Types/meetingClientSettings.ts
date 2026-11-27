@@ -72,6 +72,7 @@ export interface App {
   enableTalkingIndicator: boolean
   enableCameraBrightness: boolean
   mirrorOwnWebcam: boolean
+  useUserColorForAvatars: boolean
   viewersInWebcam: number
   allowLogout: boolean
   allowFullscreen: boolean
