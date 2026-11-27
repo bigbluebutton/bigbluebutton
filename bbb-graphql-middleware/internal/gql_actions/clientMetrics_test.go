@@ -30,7 +30,7 @@ func startClient(t *testing.T, limiter *rate.Limiter) *runningClient {
 	browser := &common.BrowserConnection{
 		Context:                            ctx,
 		GraphqlActionsContext:              ctx,
-		FromBrowserToGqlActionsChannel:     common.NewSafeChannelByte(10),
+		FromBrowserToGqlActionsChannel:     common.NewSafeChannel[*common.BrowserMessage](10),
 		FromBrowserToGqlActionsRateLimiter: limiter,
 		FromHasuraToBrowserChannel:         common.NewSafeChannelByte(10),
 		Logger:                             logrus.NewEntry(logrus.New()),
@@ -61,7 +61,7 @@ func (c *runningClient) mutate(t *testing.T, operationName string) string {
 			"query":         `mutation ` + "M" + ` { userSetMuted(muted: true) }`,
 		},
 	})
-	c.browser.FromBrowserToGqlActionsChannel.SendWait(context.Background(), message)
+	c.browser.FromBrowserToGqlActionsChannel.SendWait(context.Background(), common.DecodeBrowserMessage(message).Decide())
 	select {
 	case reply := <-c.browser.FromHasuraToBrowserChannel.ReceiveChannel():
 		var received struct {

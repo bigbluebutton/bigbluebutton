@@ -36,7 +36,7 @@ func TestAMutationOverTheLengthLimitIsCountedAsRefused(t *testing.T) {
 			"query":         "mutation TooLong { userSetMuted(muted: true) }" + strings.Repeat(" ", 10001),
 		},
 	})
-	c.browser.FromBrowserToGqlActionsChannel.SendWait(context.Background(), message)
+	c.browser.FromBrowserToGqlActionsChannel.SendWait(context.Background(), common.DecodeBrowserMessage(message).Decide())
 	select {
 	case reply := <-c.browser.FromHasuraToBrowserChannel.ReceiveChannel():
 		var got struct{ Type string }

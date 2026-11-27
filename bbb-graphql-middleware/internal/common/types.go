@@ -74,9 +74,9 @@ type BrowserConnection struct {
 	ConnAckSentToBrowser               bool                           // indicate if `connection_ack` msg was already sent to the browser
 	GraphqlActionsContext              context.Context                // graphql actions context
 	GraphqlActionsContextCancel        context.CancelFunc             // function to cancel the graphql actions context
-	FromBrowserToHasuraChannel         *SafeChannelByte               // channel to transmit messages from Browser to Hasura
+	FromBrowserToHasuraChannel         *SafeChannel[*BrowserMessage]  // channel to transmit messages from Browser to Hasura
 	FromBrowserToHasuraRateLimiter     *rate.Limiter                  // rate limiter to transmit messages from Browser to Hasura
-	FromBrowserToGqlActionsChannel     *SafeChannelByte               // channel to transmit messages from Browser to Graphq-Actions
+	FromBrowserToGqlActionsChannel     *SafeChannel[*BrowserMessage]  // channel to transmit messages from Browser to Graphq-Actions
 	FromBrowserToGqlActionsRateLimiter *rate.Limiter                  // rate limiter to transmit messages from Browser to Graphq-Actions
 	FromHasuraToBrowserChannel         *SafeChannelByte               // channel to transmit messages from Hasura/GqlActions to Browser
 	LastBrowserMessageTime             time.Time                      // stores the time of the last message to control browser idleness

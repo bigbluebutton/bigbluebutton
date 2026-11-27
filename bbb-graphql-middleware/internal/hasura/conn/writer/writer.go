@@ -17,8 +17,6 @@ import (
 
 	"github.com/coder/websocket"
 	"github.com/graphql-go/graphql/language/ast"
-	"github.com/graphql-go/graphql/language/parser"
-	"github.com/graphql-go/graphql/language/source"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -73,21 +71,30 @@ RangeLoop:
 		select {
 		case <-hc.Context.Done():
 			break RangeLoop
-		case fromBrowserMessage := <-hc.BrowserConn.FromBrowserToHasuraChannel.ReceiveChannel():
+		case received := <-hc.BrowserConn.FromBrowserToHasuraChannel.ReceiveChannel():
 			{
-				if fromBrowserMessage == nil {
+				if received == nil {
 					continue
 				}
+				fromBrowserMessage := received.Raw
 
-				// var fromBrowserMessageAsMap = fromBrowserMessage.(map[string]interface{})
-
-				var browserMessage common.BrowserSubscribeMessage
-				err := json.Unmarshal(fromBrowserMessage, &browserMessage)
-				if err != nil {
-					hc.BrowserConn.Logger.Errorf("failed to unmarshal message: %v", err)
-					hc.SetCloseReason(common.ReconnectionInvalidBrowserMessage)
-					return
+				// The reader decodes the messages it reads; a resend, or a message it could not
+				// decode, is decoded here.
+				browserMessage := received.Subscribe
+				if browserMessage == nil {
+					browserMessage = &common.BrowserSubscribeMessage{}
+					err := json.Unmarshal(fromBrowserMessage, browserMessage)
+					if err != nil {
+						hc.BrowserConn.Logger.Errorf("failed to unmarshal message: %v", err)
+						hc.SetCloseReason(common.ReconnectionInvalidBrowserMessage)
+						return
+					}
 				}
+
+				// The name of the operation: the name decided from the document, or the operationName
+				// field of the message when there is none. The lists, the metric labels and the entry
+				// use it, so a client cannot leave the field out to pass a named operation through them.
+				operationName := browserMessage.Payload.OperationName
 
 				if browserMessage.Type == "subscribe" {
 					queryId := browserMessage.ID
@@ -106,7 +113,15 @@ RangeLoop:
 						continue
 					}
 
-					// Identify type based on query string
+					// The reader decides the operation of what it reads, and the retransmitter passes
+					// on the type stored with a resend. A subscribe read before the connection was
+					// authorized was not decided by the reader, and is decided here.
+					operation := received.Operation
+					if operation == nil {
+						operation = common.DecideOperation(browserMessage.Payload.Query, browserMessage.Payload.OperationName)
+					}
+					operationName = operation.NameOr(browserMessage.Payload.OperationName)
+
 					messageType := common.Query
 					var lastReceivedDataChecksum uint32
 					var lastReceivedData common.HasuraMessage
@@ -125,20 +140,20 @@ RangeLoop:
 							sendErrorMessage(
 								browserConnection,
 								queryId,
-								fmt.Sprintf("Query %s is not valid with length %d and the max allowed is %d", browserMessage.Payload.OperationName, queryLength, config.GetConfig().Server.MaxQueryLength))
+								fmt.Sprintf("Query %s is not valid with length %d and the max allowed is %d", operationName, queryLength, config.GetConfig().Server.MaxQueryLength))
 							continue
 						}
 					}
 
 					// Before anything parses the query, and whatever max_query_depth is.
-					if tokens := countNestingTokens(query); tokens > maxNestingTokens {
+					if tokens := common.CountNestingTokens(query); tokens > common.MaxNestingTokens {
 						common.RecordQueryRejection(common.QueryRejectedMaxQueryNesting)
-						sendErrorMessage(browserConnection, queryId, nestingLimitMessage(browserMessage.Payload.OperationName, tokens))
+						sendErrorMessage(browserConnection, queryId, nestingLimitMessage(operationName, tokens))
 						continue
 					}
 
 					if config.GetConfig().Server.MaxQueryDepth > 0 {
-						if refusal := queryDepthRefusal(query, browserMessage.Payload.OperationName, config.GetConfig().Server.MaxQueryDepth); refusal != "" {
+						if refusal := queryDepthRefusal(operation, query, operationName, config.GetConfig().Server.MaxQueryDepth); refusal != "" {
 							// The nesting bound is checked above, so this refusal is on the depth.
 							common.RecordQueryRejection(common.QueryRejectedMaxQueryDepth)
 							sendErrorMessage(browserConnection, queryId, refusal)
@@ -148,8 +163,7 @@ RangeLoop:
 
 					if len(browserMessage.Payload.Variables) > 0 {
 						variablesLength, variablesErr := validateOperationVariablesLength(
-							query,
-							browserMessage.Payload.OperationName,
+							operation,
 							browserMessage.Payload.Variables,
 							config.GetConfig().Server.MaxQueryVariablesLength,
 						)
@@ -160,7 +174,7 @@ RangeLoop:
 								queryId,
 								fmt.Sprintf(
 									"Query %s is not valid with variables length %d and the max allowed is %d",
-									browserMessage.Payload.OperationName,
+									operationName,
 									variablesLength,
 									config.GetConfig().Server.MaxQueryVariablesLength,
 								),
@@ -170,7 +184,7 @@ RangeLoop:
 					}
 
 					if query != "" {
-						if strings.HasPrefix(query, "subscription") {
+						if operation.Type.IsSubscription() {
 							// The id is looked up before the limit is checked, so a resend is not counted as a new subscription.
 							browserConnection.ActiveSubscriptionsMutex.RLock()
 							existingSubscriptionData, queryIdExists = browserConnection.ActiveSubscriptions[queryId]
@@ -191,13 +205,13 @@ RangeLoop:
 										browserConnection.ActiveSubscriptionsMutex.RUnlock()
 
 										browserConnection.Logger.
-											WithField("rejectedOperation", browserMessage.Payload.OperationName).
+											WithField("rejectedOperation", operationName).
 											WithField("activeSubscriptions", len(operationNames)).
 											WithField("activeSubscriptionsByOperation", subscriptionlimit.SummarizeByOperation(operationNames)).
 											Warn("Concurrent subscription limit reached")
 									}
 
-									recordSubscriptionLimitRejection(subscriptionTypeOf(query), browserMessage.Payload.OperationName)
+									recordSubscriptionLimitRejection(operation.Type, operationName)
 									sendErrorMessage(
 										browserConnection,
 										queryId,
@@ -210,10 +224,10 @@ RangeLoop:
 
 							// Validate if subscription is allowed
 							if len(allowedSubscriptions) > 0 {
-								subscriptionAllowed := slices.Contains(allowedSubscriptions, browserMessage.Payload.OperationName)
+								subscriptionAllowed := slices.Contains(allowedSubscriptions, operationName)
 
 								if !subscriptionAllowed {
-									hc.BrowserConn.Logger.Infof("Subscription %s not allowed!", browserMessage.Payload.OperationName)
+									hc.BrowserConn.Logger.Infof("Subscription %s not allowed!", operationName)
 									common.RecordQueryRejection(common.QueryRejectedSubscriptionsAllowed)
 									continue
 								}
@@ -221,16 +235,16 @@ RangeLoop:
 
 							// Validate if subscription is allowed
 							if len(deniedSubscriptions) > 0 {
-								subscriptionAllowed := !slices.Contains(deniedSubscriptions, browserMessage.Payload.OperationName)
+								subscriptionAllowed := !slices.Contains(deniedSubscriptions, operationName)
 
 								if !subscriptionAllowed {
-									hc.BrowserConn.Logger.Infof("Subscription %s not allowed!", browserMessage.Payload.OperationName)
+									hc.BrowserConn.Logger.Infof("Subscription %s not allowed!", operationName)
 									common.RecordQueryRejection(common.QueryRejectedSubscriptionsDenied)
 									continue
 								}
 							}
 
-							messageType = common.Subscription
+							messageType = operation.Type
 
 							if queryIdExists {
 								lastReceivedDataChecksum = existingSubscriptionData.LastReceivedDataChecksum
@@ -240,10 +254,9 @@ RangeLoop:
 								streamCursorInitialValue = existingSubscriptionData.StreamCursorCurrValue
 							}
 
-							if isStreamingQuery(query) {
-								messageType = common.Streaming
+							if operation.Streaming {
 								if !queryIdExists {
-									streamCursorField, streamCursorVariableName, streamCursorInitialValue = common.GetStreamCursorPropsFromBrowserMessage(browserMessage)
+									streamCursorField, streamCursorVariableName, streamCursorInitialValue = common.GetStreamCursorPropsFromBrowserMessage(*browserMessage)
 
 									// It's necessary to assure the cursor field will return in the result of the query
 									// To be able to store the last received cursor value
@@ -253,13 +266,9 @@ RangeLoop:
 									fromBrowserMessage = newMessageJson
 								}
 							}
-
-							if isAggregateQuery(query) {
-								messageType = common.SubscriptionAggregate
-							}
 						}
 
-						if strings.HasPrefix(query, "mutation") {
+						if operation.Type == common.Mutation {
 							messageType = common.Mutation
 						}
 					}
@@ -271,7 +280,7 @@ RangeLoop:
 						jsonPatchSupported = true
 					}
 
-					operationNameLabel := common.MetricOperationName(browserMessage.Payload.OperationName)
+					operationNameLabel := common.MetricOperationName(operationName)
 
 					browserConnection.ActiveSubscriptionsMutex.Lock()
 					if browserConnection.ActiveSubscriptionsClosed {
@@ -285,7 +294,7 @@ RangeLoop:
 					browserConnection.ActiveSubscriptions[queryId] = common.GraphQlSubscription{
 						Id:                         queryId,
 						Message:                    fromBrowserMessage,
-						OperationName:              browserMessage.Payload.OperationName,
+						OperationName:              operationName,
 						OperationNameLabel:         operationNameLabel,
 						StreamCursorField:          streamCursorField,
 						StreamCursorVariableName:   streamCursorVariableName,
@@ -321,7 +330,7 @@ RangeLoop:
 
 						if errSavingQueryDump := saveContentToFile(
 							fmt.Sprintf("/%s/%s", common.GetUniqueID(), browserConnection.Id),
-							fmt.Sprintf("%02d-%s-%s", counterValue, string(messageType), strings.ReplaceAll(browserMessage.Payload.OperationName, "/", "_")),
+							fmt.Sprintf("%02d-%s-%s", counterValue, string(messageType), strings.ReplaceAll(operationName, "/", "_")),
 							fromBrowserMessage,
 						); errSavingQueryDump != nil {
 							hc.BrowserConn.Logger.Error(errSavingQueryDump)
@@ -338,8 +347,8 @@ RangeLoop:
 					// Iterate the canonical list rather than naming the streams here, so a stream
 					// cannot be added to the list and missed in this teardown.
 					browserConnection.ActiveStreamingsMutex.Lock()
-					for _, operationName := range config.StreamingSubscriptionsManagedByMiddleware {
-						if removed, newActiveStreamings := removeValueFromSlice(browserConnection.ActiveStreamings, operationName, browserMessage.ID); removed {
+					for _, streamName := range config.StreamingSubscriptionsManagedByMiddleware {
+						if removed, newActiveStreamings := removeValueFromSlice(browserConnection.ActiveStreamings, streamName, browserMessage.ID); removed {
 							browserConnection.ActiveStreamings = newActiveStreamings
 						}
 					}
@@ -354,8 +363,8 @@ RangeLoop:
 
 				if !hc.BrowserConn.IsCurrentlyInMeeting() && // avoid sending to Hasura subscriptions that user doesn't have permission
 					browserMessage.Type == "subscribe" &&
-					!slices.Contains(config.AllowedSubscriptionsForNotInMeetingUsers, browserMessage.Payload.OperationName) {
-					hc.BrowserConn.Logger.Debugf("Not sending to Hasura %s because the user is not in meeting", browserMessage.Payload.OperationName)
+					!slices.Contains(config.AllowedSubscriptionsForNotInMeetingUsers, operationName) {
+					hc.BrowserConn.Logger.Debugf("Not sending to Hasura %s because the user is not in meeting", operationName)
 					continue
 				} else {
 					// Sending to Hasura
@@ -391,32 +400,14 @@ func validateQueryVariablesLength(variables map[string]interface{}, maxLength in
 	return length, nil
 }
 
-func validateOperationVariablesLength(query string, operationName string, variables map[string]interface{}, maxLength int) (int, error) {
-	if selectedOperationIsMutation(query, operationName) {
+// validateOperationVariablesLength checks the variables of any operation but a mutation decided
+// from the document. A mutation whose type comes from its text has its variables checked, as before.
+func validateOperationVariablesLength(operation *common.Operation, variables map[string]interface{}, maxLength int) (int, error) {
+	if operation.FromDocument && operation.Type == common.Mutation {
 		return 0, nil
 	}
 
 	return validateQueryVariablesLength(variables, maxLength)
-}
-
-func selectedOperationIsMutation(query string, operationName string) bool {
-	astDoc, err := parseQuery(query)
-	if err != nil {
-		return false
-	}
-
-	operations := make([]*ast.OperationDefinition, 0)
-	for _, definition := range astDoc.Definitions {
-		operation, ok := definition.(*ast.OperationDefinition)
-		if !ok {
-			continue
-		}
-		if operationName == "" || operation.Name != nil && operation.Name.Value == operationName {
-			operations = append(operations, operation)
-		}
-	}
-
-	return len(operations) == 1 && operations[0].Operation == ast.OperationTypeMutation
 }
 
 func saveContentToFile(subDir string, filename string, contentInBytes []byte) error {
@@ -447,61 +438,34 @@ func saveContentToFile(subDir string, filename string, contentInBytes []byte) er
 	return nil
 }
 
-// maxNestingTokens bounds how many '{' and '[' a query may contain before it is parsed. The GraphQL
-// parser recurses with no limit of its own, and each level of its recursion (selection set, object
-// value, list value, list type) consumes one of these tokens, so their count bounds the recursion
-// for any input. 5000 matches the default max_query_length, so it refuses nothing that limit
-// accepts; at about 940 bytes per level for the costliest construct (list values), 5000 levels
-// take about 4.5 MiB of stack, against the 1 GiB default limit.
-const maxNestingTokens = 5000
-
-// errTooManyNestingTokens is the error of parseQuery for a query past maxNestingTokens.
-var errTooManyNestingTokens = errors.New("too many braces and brackets")
-
 func nestingLimitMessage(operationName string, tokens int) string {
-	return fmt.Sprintf("Query %s is not valid with %d braces and brackets and the max allowed is %d", operationName, tokens, maxNestingTokens)
-}
-
-// parseQuery parses a query, refusing without parsing one past maxNestingTokens. Every parse of a
-// client query goes through it.
-func parseQuery(query string) (*ast.Document, error) {
-	if tokens := countNestingTokens(query); tokens > maxNestingTokens {
-		return nil, fmt.Errorf("%w: %d, the max allowed is %d", errTooManyNestingTokens, tokens, maxNestingTokens)
-	}
-
-	return parser.Parse(parser.ParseParams{
-		Source: source.NewSource(&source.Source{
-			Body: []byte(query),
-			Name: "GraphQL query",
-		}),
-	})
+	return fmt.Sprintf("Query %s is not valid with %d braces and brackets and the max allowed is %d", operationName, tokens, common.MaxNestingTokens)
 }
 
 // queryDepthRefusal returns the message refusing a query on its depth, or "" to let it through. A
 // query past the nesting bound is refused with the bound's message, so the refusal does not depend
 // on that check running first in the loop. A query that does not parse keeps depth 0 and goes on,
-// as before.
-func queryDepthRefusal(query string, operationName string, maxDepth int) string {
-	queryDepth, err := calculateQueryDepth(query)
-	if errors.Is(err, errTooManyNestingTokens) {
-		return nestingLimitMessage(operationName, countNestingTokens(query))
+// as before. The depth is read from the document the reader parsed; a resend, which carries no
+// document, is parsed here, as the checks apply to it again.
+func queryDepthRefusal(operation *common.Operation, query string, operationName string, maxDepth int) string {
+	document, err := operation.Document, operation.ParseError
+	if document == nil && err == nil {
+		document, err = common.ParseQuery(query)
 	}
-	if queryDepth > maxDepth {
+	if errors.Is(err, common.ErrTooManyNestingTokens) {
+		return nestingLimitMessage(operationName, common.CountNestingTokens(query))
+	}
+	if err != nil {
+		return ""
+	}
+	if queryDepth := documentDepth(document); queryDepth > maxDepth {
 		return fmt.Sprintf("Query %s is not valid with depth %d and the max allowed is %d", operationName, queryDepth, maxDepth)
 	}
 
 	return ""
 }
 
-func calculateQueryDepth(query string) (int, error) {
-	astDoc, err := parseQuery(query)
-	if errors.Is(err, errTooManyNestingTokens) {
-		return 0, err
-	}
-	if err != nil {
-		return 0, fmt.Errorf("failed to parse query: %v", err)
-	}
-
+func documentDepth(astDoc *ast.Document) int {
 	maxDepth := 0
 	for _, def := range astDoc.Definitions {
 		if op, ok := def.(*ast.OperationDefinition); ok {
@@ -512,7 +476,7 @@ func calculateQueryDepth(query string) (int, error) {
 		}
 	}
 
-	return maxDepth, nil
+	return maxDepth
 }
 
 func traverseSelectionSet(selectionSet *ast.SelectionSet, currentDepth int) int {
@@ -598,12 +562,6 @@ func removeValueFromSlice(mapWithSlices map[string][]string, key string, value s
 	return removed, mapWithSlices
 }
 
-// countNestingTokens counts every '{' and '[' in the text, including those inside strings and
-// comments, so it is never below the number of such tokens the lexer produces.
-func countNestingTokens(query string) int {
-	return strings.Count(query, "{") + strings.Count(query, "[")
-}
-
 // recordSubscriptionStart counts an operation the browser started. A message whose id is already
 // active is not counted: a resend after a reconnection to Hasura, which the retransmitter counts,
 // or a subscribe the client repeats for an id it holds, which no counter counts.
@@ -632,26 +590,6 @@ func startFirstDataWait(browserConnection *common.BrowserConnection, queryId str
 	}
 	subscription.FirstDataPendingSince = time.Now()
 	browserConnection.ActiveSubscriptions[queryId] = subscription
-}
-
-func isStreamingQuery(query string) bool {
-	return strings.Contains(query, "_stream(") && strings.Contains(query, "cursor: {")
-}
-
-func isAggregateQuery(query string) bool {
-	return strings.Contains(query, "_aggregate") && strings.Contains(query, "aggregate {")
-}
-
-// subscriptionTypeOf is the type a subscription query is given below, for a subscription that
-// is rejected before it gets there.
-func subscriptionTypeOf(query string) common.QueryType {
-	switch {
-	case isAggregateQuery(query):
-		return common.SubscriptionAggregate
-	case isStreamingQuery(query):
-		return common.Streaming
-	}
-	return common.Subscription
 }
 
 // recordSubscriptionLimitRejection counts a subscription rejected by the per-connection limit of

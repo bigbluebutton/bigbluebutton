@@ -11,24 +11,6 @@ import (
 	logrustest "github.com/sirupsen/logrus/hooks/test"
 )
 
-func TestSubscriptionTypeOf(t *testing.T) {
-	cases := []struct {
-		query string
-		want  common.QueryType
-	}{
-		{`subscription getUsers { user { userId } }`, common.Subscription},
-		{`subscription getChat { chat_message_public_stream(batch_size: 10, cursor: {initial_value: {createdAt: "x"}}) { createdAt } }`, common.Streaming},
-		{`subscription UsersCount { user_aggregate { aggregate { count } } }`, common.SubscriptionAggregate},
-		// both: the writer classifies it as an aggregate, as it tests for one after a stream
-		{`subscription Both { user_aggregate { aggregate { count } } chat_stream(batch_size: 1, cursor: {initial_value: {createdAt: "x"}}) { createdAt } }`, common.SubscriptionAggregate},
-	}
-	for _, c := range cases {
-		if got := subscriptionTypeOf(c.query); got != c.want {
-			t.Errorf("subscriptionTypeOf(%q) = %q, want %q", c.query, got, c.want)
-		}
-	}
-}
-
 func TestRecordSubscriptionLimitRejection(t *testing.T) {
 	rejected := func() float64 {
 		return metricstest.Value(common.GqlSubscriptionLimitRejectedCounter.WithLabelValues(string(common.Streaming), "getChat"))

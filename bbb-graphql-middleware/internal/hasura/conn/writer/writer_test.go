@@ -56,7 +56,7 @@ func startTestWriter(t *testing.T) *testWriter {
 		CurrentlyInMeeting:             true,
 		Context:                        context.Background(),
 		ActiveSubscriptions:            map[string]common.GraphQlSubscription{},
-		FromBrowserToHasuraChannel:     common.NewSafeChannelByte(10),
+		FromBrowserToHasuraChannel:     common.NewSafeChannel[*common.BrowserMessage](10),
 		FromBrowserToHasuraRateLimiter: rate.NewLimiter(rate.Inf, 1),
 		FromHasuraToBrowserChannel:     common.NewSafeChannelByte(10),
 		Logger:                         logrus.NewEntry(logrus.New()),
@@ -89,7 +89,20 @@ func (w *testWriter) subscribe(id, operationName string) {
 }
 
 func (w *testWriter) send(id, query string, variables map[string]interface{}) {
-	w.browser.FromBrowserToHasuraChannel.SendWait(context.Background(), subscribeMessage(id, query, variables))
+	w.browser.FromBrowserToHasuraChannel.SendWait(context.Background(), asTheReaderSends(subscribeMessage(id, query, variables)))
+}
+
+// asTheReaderSends is a message as the browser reader passes it on: decoded and, for a subscribe of
+// an authorized connection, with its operation decided.
+func asTheReaderSends(message []byte) *common.BrowserMessage {
+	browserMessage := common.DecodeBrowserMessage(message)
+	if browserMessage == nil {
+		return &common.BrowserMessage{Raw: message}
+	}
+	if browserMessage.Subscribe.Type == "subscribe" {
+		browserMessage.Decide()
+	}
+	return browserMessage
 }
 
 // operationName is the name after the operation keyword, up to its variables or selection set.

@@ -21,7 +21,7 @@ func browserConnectionForHasura(t *testing.T) *common.BrowserConnection {
 		Id:                         "BC1",
 		Context:                    ctx,
 		ActiveSubscriptions:        map[string]common.GraphQlSubscription{},
-		FromBrowserToHasuraChannel: common.NewSafeChannelByte(10),
+		FromBrowserToHasuraChannel: common.NewSafeChannel[*common.BrowserMessage](10),
 		FromHasuraToBrowserChannel: common.NewSafeChannelByte(10),
 		ConnectionInitMessage:      []byte(`{"type":"connection_init"}`),
 		Logger:                     logrus.NewEntry(logrus.New()),

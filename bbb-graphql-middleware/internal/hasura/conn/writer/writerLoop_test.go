@@ -35,7 +35,7 @@ func newBrowserConnection(inMeeting bool) *common.BrowserConnection {
 		CurrentlyInMeeting:             inMeeting,
 		Context:                        context.Background(),
 		ActiveSubscriptions:            map[string]common.GraphQlSubscription{},
-		FromBrowserToHasuraChannel:     common.NewSafeChannelByte(100),
+		FromBrowserToHasuraChannel:     common.NewSafeChannel[*common.BrowserMessage](100),
 		FromBrowserToHasuraRateLimiter: rate.NewLimiter(rate.Inf, 1),
 		FromHasuraToBrowserChannel:     common.NewSafeChannelByte(100),
 		Logger:                         logrus.NewEntry(logrus.New()),
@@ -98,7 +98,7 @@ func startWriterOn(t *testing.T, browser *common.BrowserConnection, hasuraConnec
 
 // send hands a message to the writer, as the browser reader does.
 func (w *runningWriter) send(message string) {
-	w.browser.FromBrowserToHasuraChannel.SendWait(context.Background(), []byte(message))
+	w.browser.FromBrowserToHasuraChannel.SendWait(context.Background(), asTheReaderSends([]byte(message)))
 }
 
 func (w *runningWriter) expectSent(t *testing.T) []byte {

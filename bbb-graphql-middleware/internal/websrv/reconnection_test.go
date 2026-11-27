@@ -64,7 +64,7 @@ func TestARequestedReconnectionEndsTheConnectionWithItsReason(t *testing.T) {
 		hasuraContext, hasuraCancel := context.WithCancel(browserContext)
 		browser := &common.BrowserConnection{
 			Context:                    browserContext,
-			FromBrowserToHasuraChannel: common.NewSafeChannelByte(1),
+			FromBrowserToHasuraChannel: common.NewSafeChannel[*common.BrowserMessage](1),
 			Logger:                     logrus.NewEntry(logrus.New()),
 		}
 		hasura := &common.HasuraConnection{Id: "HC1", BrowserConn: browser, Context: hasuraContext, ContextCancelFunc: hasuraCancel}

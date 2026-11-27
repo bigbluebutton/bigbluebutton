@@ -108,9 +108,9 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 		Context:                            browserConnectionContext,
 		ContextCancelFunc:                  browserConnectionContextCancel,
 		ConnAckSentToBrowser:               false,
-		FromBrowserToHasuraChannel:         common.NewSafeChannelByte(bufferSize),
+		FromBrowserToHasuraChannel:         common.NewSafeChannel[*common.BrowserMessage](bufferSize),
 		FromBrowserToHasuraRateLimiter:     rate.NewLimiter(rate.Every(time.Minute/time.Duration(cfg.Server.MaxConnectionQueriesPerMinute)), cfg.Server.MaxConnectionQueriesPerMinute),
-		FromBrowserToGqlActionsChannel:     common.NewSafeChannelByte(bufferSize),
+		FromBrowserToGqlActionsChannel:     common.NewSafeChannel[*common.BrowserMessage](bufferSize),
 		FromBrowserToGqlActionsRateLimiter: rate.NewLimiter(rate.Every(time.Minute/time.Duration(cfg.Server.MaxConnectionMutationsPerMinute)), cfg.Server.MaxConnectionMutationsPerMinute),
 		FromHasuraToBrowserChannel:         common.NewSafeChannelByte(bufferSize),
 		LastBrowserMessageTime:             time.Now(),
@@ -447,10 +447,10 @@ func connectionInitHandler(browserConnection *common.BrowserConnection) (error, 
 
 	// Intercept the fromBrowserMessage channel to get the sessionToken
 	for {
-		var fromBrowserMessage []byte
+		var received *common.BrowserMessage
 		var ok bool
 		select {
-		case fromBrowserMessage, ok = <-browserConnection.FromBrowserToHasuraChannel.ReceiveChannel():
+		case received, ok = <-browserConnection.FromBrowserToHasuraChannel.ReceiveChannel():
 		case <-deadline.C:
 			return errConnectionInitTimeout, ""
 		}
@@ -458,6 +458,7 @@ func connectionInitHandler(browserConnection *common.BrowserConnection) (error, 
 			// Received all messages. Channel is closed
 			return errClosedBeforeInit, "param_missing"
 		}
+		fromBrowserMessage := received.Raw
 		if bytes.Contains(fromBrowserMessage, []byte("\"connection_init\"")) {
 			var fromBrowserMessageAsMap map[string]interface{}
 			if err := json.Unmarshal(fromBrowserMessage, &fromBrowserMessageAsMap); err != nil {

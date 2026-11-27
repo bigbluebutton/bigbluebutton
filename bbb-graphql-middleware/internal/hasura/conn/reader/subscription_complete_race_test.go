@@ -23,7 +23,7 @@ func newTestHasuraConnection(t *testing.T) *common.HasuraConnection {
 		Context:                    ctx,
 		ContextCancelFunc:          cancel,
 		ActiveSubscriptions:        make(map[string]common.GraphQlSubscription),
-		FromBrowserToHasuraChannel: common.NewSafeChannelByte(1),
+		FromBrowserToHasuraChannel: common.NewSafeChannel[*common.BrowserMessage](1),
 		FromHasuraToBrowserChannel: common.NewSafeChannelByte(1),
 		Logger:                     logrus.NewEntry(logrus.New()),
 	}

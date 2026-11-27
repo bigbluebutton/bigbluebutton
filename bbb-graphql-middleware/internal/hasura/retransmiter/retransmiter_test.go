@@ -14,7 +14,7 @@ func TestRetransmitCountsEachSubscriptionResent(t *testing.T) {
 	browser := &common.BrowserConnection{
 		CurrentlyInMeeting:         true,
 		ActiveSubscriptions:        map[string]common.GraphQlSubscription{},
-		FromBrowserToHasuraChannel: common.NewSafeChannelByte(10),
+		FromBrowserToHasuraChannel: common.NewSafeChannel[*common.BrowserMessage](10),
 		Logger:                     logrus.NewEntry(logrus.New()),
 	}
 	browser.ActiveSubscriptions["1"] = common.GraphQlSubscription{Id: "1", OperationName: "getUsers", Type: common.Subscription, Message: []byte(`{"id":"1"}`), LastSeenOnHasuraConnection: "HC-old"}
@@ -43,7 +43,7 @@ func TestRetransmitCountsOnlyTheResendsQueued(t *testing.T) {
 	browser := &common.BrowserConnection{
 		CurrentlyInMeeting:         true,
 		ActiveSubscriptions:        map[string]common.GraphQlSubscription{},
-		FromBrowserToHasuraChannel: common.NewSafeChannelByte(10),
+		FromBrowserToHasuraChannel: common.NewSafeChannel[*common.BrowserMessage](10),
 		Logger:                     logrus.NewEntry(logrus.New()),
 	}
 	browser.ActiveSubscriptions["1"] = common.GraphQlSubscription{Id: "1", OperationName: "getPads", Type: common.Subscription, Message: []byte(`{"id":"1"}`), LastSeenOnHasuraConnection: "HC-old"}
@@ -68,7 +68,7 @@ func TestRetransmitCountsUnderTheTypeAndTheCappedLabel(t *testing.T) {
 	browser := &common.BrowserConnection{
 		CurrentlyInMeeting:         true,
 		ActiveSubscriptions:        map[string]common.GraphQlSubscription{},
-		FromBrowserToHasuraChannel: common.NewSafeChannelByte(10),
+		FromBrowserToHasuraChannel: common.NewSafeChannel[*common.BrowserMessage](10),
 		Logger:                     logrus.NewEntry(logrus.New()),
 	}
 	browser.ActiveSubscriptions["1"] = common.GraphQlSubscription{
