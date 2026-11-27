@@ -208,7 +208,7 @@ RangeLoop:
 							browserConnection.ActiveSubscriptionsMutex.RUnlock()
 
 							browserConnection.Logger.
-								WithField("rejectedOperation", operationName).
+								WithField("rejectedOperation", subscriptionlimit.TruncateName(operationName)).
 								WithField("activeSubscriptions", len(operationNames)).
 								WithField("activeSubscriptionsByOperation", subscriptionlimit.SummarizeByOperation(operationNames)).
 								Warn("Concurrent subscription limit reached")
