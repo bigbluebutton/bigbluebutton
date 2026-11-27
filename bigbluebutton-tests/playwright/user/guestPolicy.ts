@@ -3,6 +3,7 @@ import { expect } from '@playwright/test';
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
+import { getDefaultLocaleValue } from '../core/util';
 import { MultiUsers } from './multiusers';
 import { openLockViewers, setGuestPolicyOption } from './util';
 
@@ -35,6 +36,18 @@ export class GuestPolicy extends MultiUsers {
     const guestQueue = this.modPage.page.locator(e.guestWaitingUsers);
     await expect(authenticatedQueue, 'should display the authenticated waiting users queue').toBeVisible();
     await expect(guestQueue, 'should display the guest waiting users queue').toBeVisible();
+    // the notification dot is drawn with CSS and the participant count is a child of the
+    // button, so both have to be in the button name (only the moderator has joined)
+    await expect(
+      this.modPage.page.locator(e.usersListSidebarButton),
+      'should announce the participant count and the waiting users in the participants sidebar button name',
+    ).toHaveAttribute(
+      'aria-label',
+      getDefaultLocaleValue('app.sidebarNavigation.button.ariaLabelWithCountAndState')
+        .replace('{label}', getDefaultLocaleValue('app.userList.participantsTitle'))
+        .replace('{count}', '1')
+        .replace('{state}', getDefaultLocaleValue('app.sidebarNavigation.button.newNotifications')),
+    );
     await authenticatedQueue.click();
     const allowAllAuthenticated = this.modPage.page.locator(e.allowAllAuthenticatedWaiting);
     const denyAllAuthenticated = this.modPage.page.locator(e.denyAllAuthenticatedWaiting);

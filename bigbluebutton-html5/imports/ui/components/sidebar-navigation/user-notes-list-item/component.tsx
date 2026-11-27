@@ -32,6 +32,10 @@ const intlMessages = defineMessages({
     id: 'app.userList.notesListItem.unreadContent',
     description: 'Aria label for notes unread content',
   },
+  unreadNotes: {
+    id: 'app.sidebarNavigation.button.unreadNotes',
+    description: 'Spoken state of the shared notes button when the notes changed and were not seen',
+  },
   locked: {
     id: 'app.notes.locked',
     description: '',
@@ -97,6 +101,7 @@ const UserNotesListItemContainerGraphql: React.FC = () => {
       ariaDescribedBy="lockedNotes"
       dataTest="sharedNotesSidebarButton"
       hasNotification={hasUnreadNotes}
+      notificationLabel={intl.formatMessage(intlMessages.unreadNotes)}
       isDisabled={isPinned}
       isLocked={disableNotes}
     />

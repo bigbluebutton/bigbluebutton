@@ -9,6 +9,12 @@ export interface SidebarNavigationButtonProps {
   label: string;
   hasNotification?: boolean;
   hasPrivateNotification?: boolean;
+  // Spoken in place of the generic state when the button has a notification.
+  notificationLabel?: string;
+  // Text of a visible badge (e.g. set by a plugin); spoken whenever it is not empty.
+  badgeLabel?: string;
+  // Number shown under the icon; spoken as part of the button name.
+  count?: number;
   isDisabled?: boolean;
   isLocked?: boolean;
   accessKey?: string;

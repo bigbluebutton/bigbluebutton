@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/no-access-key */
 import React, { useCallback, memo } from 'react';
+import { defineMessages, useIntl } from 'react-intl';
 import cx from 'classnames';
 import KEYS from '/imports/utils/keys';
 import resolveIcon from '/imports/ui/components/plugins/plugin-icon/utils';
@@ -12,6 +13,25 @@ import { SidebarNavigationButtonProps } from './types';
 import Styled from './styles';
 import { useIsMultiFunctionalModeEnabled } from '/imports/ui/services/features';
 
+const intlMessages = defineMessages({
+  newNotifications: {
+    id: 'app.sidebarNavigation.button.newNotifications',
+    description: 'Spoken state of a sidebar button that shows a notification badge',
+  },
+  ariaLabelWithState: {
+    id: 'app.sidebarNavigation.button.ariaLabelWithState',
+    description: 'Accessible name of a sidebar button with its notification state',
+  },
+  ariaLabelWithCount: {
+    id: 'app.sidebarNavigation.button.ariaLabelWithCount',
+    description: 'Accessible name of a sidebar button with the number shown on it',
+  },
+  ariaLabelWithCountAndState: {
+    id: 'app.sidebarNavigation.button.ariaLabelWithCountAndState',
+    description: 'Accessible name of a sidebar button with the number shown on it and its notification state',
+  },
+});
+
 const SidebarNavigationButton: React.FC<SidebarNavigationButtonProps> = ({
   panel,
   isOpened = false,
@@ -19,6 +39,9 @@ const SidebarNavigationButton: React.FC<SidebarNavigationButtonProps> = ({
   label,
   hasNotification = false,
   hasPrivateNotification = false,
+  notificationLabel,
+  badgeLabel,
+  count,
   isDisabled = false,
   isLocked = false,
   accessKey,
@@ -30,6 +53,7 @@ const SidebarNavigationButton: React.FC<SidebarNavigationButtonProps> = ({
   children,
   ariaDescribedBy,
 }) => {
+  const intl = useIntl();
   const layoutContextDispatch = layoutDispatch();
   const sidebarContentAuxiliaryInput = layoutSelectInput((i: Input) => i.sidebarContentAuxiliary);
   const {
@@ -89,6 +113,24 @@ const SidebarNavigationButton: React.FC<SidebarNavigationButtonProps> = ({
     }
   }, [onKeyDown, togglePanel, isDisabled, onClick, panel]);
 
+  // The badge is drawn with CSS and the count is replaced by aria-label, so both
+  // have to be part of the accessible name.
+  let state: string | undefined;
+  if (badgeLabel) {
+    state = badgeLabel;
+  } else if (hasNotification || hasPrivateNotification) {
+    state = notificationLabel ?? intl.formatMessage(intlMessages.newNotifications);
+  }
+  const hasCount = count !== undefined;
+  let ariaLabel = label;
+  if (hasCount && state) {
+    ariaLabel = intl.formatMessage(intlMessages.ariaLabelWithCountAndState, { label, count, state });
+  } else if (hasCount) {
+    ariaLabel = intl.formatMessage(intlMessages.ariaLabelWithCount, { label, count });
+  } else if (state) {
+    ariaLabel = intl.formatMessage(intlMessages.ariaLabelWithState, { label, state });
+  }
+
   return (
     <TooltipContainer
       title={withShortcut(label, accessKey)}
@@ -103,7 +145,7 @@ const SidebarNavigationButton: React.FC<SidebarNavigationButtonProps> = ({
           'bbb-navigation__item--locked': isLocked,
         })}
         accessKey={accessKey}
-        aria-label={label}
+        aria-label={ariaLabel}
         aria-describedby={ariaDescribedBy}
         aria-expanded={isOpened}
         $active={isOpened}

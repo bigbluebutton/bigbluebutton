@@ -8,6 +8,7 @@ export interface PinnedAppProps {
   appKey: string;
   appInfo: NativeWidget | InjectedWidget | InjectedAppGalleryItem;
   isOpened: boolean;
+  badgeLabel?: string;
   children?: React.ReactNode;
 }
 
