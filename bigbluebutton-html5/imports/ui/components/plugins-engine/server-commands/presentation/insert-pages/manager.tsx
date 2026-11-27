@@ -7,6 +7,7 @@ import {
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/server-commands/presentation/enum';
 import logger from '/imports/startup/client/logger';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { useMeetingIsBreakout } from '/imports/ui/components/app/service';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
@@ -61,6 +62,8 @@ const PluginInsertPagesServerCommandsManager = () => {
   // Read by the listener at the moment of the command, not when it was registered.
   const presenterRef = useRef(false);
   presenterRef.current = !!currentUserData?.presenter;
+  const meetingIsBreakoutRef = useRef(false);
+  meetingIsBreakoutRef.current = useMeetingIsBreakout();
   const currentPageRef = useRef<{ presentationId: string; totalPages: number } | undefined>(undefined);
   currentPageRef.current = presentationPageData?.pres_page_curr?.[0];
 
@@ -70,6 +73,13 @@ const PluginInsertPagesServerCommandsManager = () => {
         logger.warn({
           logCode: 'plugin_presentation_insert_pages_not_allowed',
         }, 'Plugin tried to insert pages but user is not a presenter');
+        return;
+      }
+      const { allowPresentationManagementInBreakouts } = window.meetingClientSettings.public.app.breakouts;
+      if (meetingIsBreakoutRef.current && !allowPresentationManagementInBreakouts) {
+        logger.warn({
+          logCode: 'plugin_presentation_insert_pages_not_allowed_in_breakout',
+        }, 'Plugin tried to insert pages in a breakout room without presentation management');
         return;
       }
       const detail = event?.detail;

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import {
   UploadPresentationCommandArguments,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/server-commands/presentation/types';
@@ -9,6 +9,7 @@ import { uniqueId } from '/imports/utils/string-utils';
 import PresentationUploaderService from '/imports/ui/components/actions-bar/media-area/media-sharing/presentation/service';
 import logger from '/imports/startup/client/logger';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { useMeetingIsBreakout } from '/imports/ui/components/app/service';
 import { toFile } from '/imports/ui/components/plugins-engine/server-commands/presentation/content-to-file';
 
 const isValidUploadEvent = (event: CustomEvent<UploadPresentationCommandArguments>) => {
@@ -27,6 +28,9 @@ const PluginUploadPresentationServerCommandsManager = () => {
   const { data: currentUserData } = useCurrentUser((user) => ({
     presenter: user.presenter,
   }));
+  // Read by the listener at the moment of the command: the listener is registered again only when the user changes.
+  const meetingIsBreakoutRef = useRef(false);
+  meetingIsBreakoutRef.current = useMeetingIsBreakout();
 
   const handleUploadPresentation = ((
     event: CustomEvent<UploadPresentationCommandArguments>,
@@ -35,6 +39,13 @@ const PluginUploadPresentationServerCommandsManager = () => {
       logger.warn({
         logCode: 'plugin_presentation_upload_not_allowed',
       }, 'Plugin tried to upload a presentation but user is not a presenter');
+      return;
+    }
+    const { allowPresentationManagementInBreakouts } = window.meetingClientSettings.public.app.breakouts;
+    if (meetingIsBreakoutRef.current && !allowPresentationManagementInBreakouts) {
+      logger.warn({
+        logCode: 'plugin_presentation_upload_not_allowed_in_breakout',
+      }, 'Plugin tried to upload a presentation in a breakout room without presentation management');
       return;
     }
     if (!isValidUploadEvent(event)) {
