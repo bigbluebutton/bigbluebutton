@@ -20,6 +20,7 @@ import {
   recordToasts,
   setPresentationPermission,
   talkingIndicatorLocator,
+  userListRowOf,
 } from './util';
 
 export class LockViewers extends MultiUsers {
@@ -614,7 +615,7 @@ export class LockViewers extends MultiUsers {
     await this.userPage.hasElementDisabled(e.chatBox, 'should disable the public chat for the first attendee');
     await this.userPage2.hasElementDisabled(e.chatBox, 'should disable the public chat for the second attendee');
 
-    const attendeeRow = this.modPage.page.locator(`${e.userListItem}[aria-label="${this.userPage.username}"]`);
+    const attendeeRow = this.modPage.page.locator(userListRowOf(this.userPage.username));
     await attendeeRow.locator(e.moreOptionsUserItemButton).click();
     const lockToggle = this.modPage.page.locator(`${e.unlockUserButton}:visible`).first();
     await expect(lockToggle, 'should offer to unlock the first attendee').toHaveText(

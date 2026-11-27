@@ -92,6 +92,7 @@ const TalkingAvatar: React.FC<TalkingAvatarProps> = ({ user, children }) => {
 };
 
 const UserListItem: React.FC<UserListItemProps> = ({
+  style,
   currentUserIsModerator,
   currentUserIsPresenter,
   currentUserLocked,
@@ -105,6 +106,7 @@ const UserListItem: React.FC<UserListItemProps> = ({
   pageId,
   type,
 }) => {
+  const nameId = React.useId();
   const { intl, operations, modal } = useUserOperations(user.userId);
 
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
@@ -169,12 +171,13 @@ const UserListItem: React.FC<UserListItemProps> = ({
 
   return (
     <Styled.UserItemContents
+      as="li"
+      style={style}
       id={`user-index-${index}`}
       className="bbb-user-list-item"
       tabIndex={-1}
       data-test={(isMe(user.userId)) ? 'userListItemCurrent' : 'userListItem'}
-      role="listitem"
-      aria-label={user.name}
+      aria-labelledby={nameId}
       data-id={user.extId}
     >
       {modal.isOpen && (
@@ -198,6 +201,7 @@ const UserListItem: React.FC<UserListItemProps> = ({
         />
       </TalkingAvatar>
       <UserNameWithSubs
+        id={nameId}
         subjectUser={user}
         lockSettings={lockSettings}
         intl={intl}

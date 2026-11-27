@@ -12,6 +12,7 @@ import {
   checkAvatarIcon,
   checkMutedUser,
   REACTION_EXPIRY_CHECK_INTERVAL,
+  setAway,
 } from './util';
 
 interface InitExtraPageOptionsProps extends InitOptionsProps {
@@ -106,6 +107,17 @@ export class MultiUsers {
     await this.modPage.hasElementCount(e.userListItem, 1, 'should contain one user on user list for the moderator');
     await this.userPage.hasElementCount(e.currentUser, 1, 'should contain one current user for the attendee');
     await this.userPage.hasElementCount(e.userListItem, 1, 'should contain one user on user list for the attendee');
+    const participantList = this.modPage.page.locator(`${e.userListPanel} ul`).first();
+    await expect(participantList, 'should expose one participant list').toHaveRole('list');
+    await expect(participantList.getByRole('listitem'), 'should expose each participant as one list item').toHaveCount(
+      2,
+    );
+
+    await setAway(this.userPage);
+    await expect(
+      this.modPage.page.locator(e.userListItem).filter({ hasText: this.userPage.username }),
+      'should include the away status in the participant accessible name',
+    ).toHaveAccessibleName(new RegExp(`${this.userPage.username}.*Away`));
   }
 
   async makePresenter() {

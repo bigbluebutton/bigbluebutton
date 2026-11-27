@@ -8,6 +8,7 @@ import deviceInfo from '/imports/utils/deviceInfo';
 const { isMobile } = deviceInfo;
 
 interface RaisedHandsListProps {
+  titleId: string;
   raisedHands: RaisedHandUser[];
   currentUser: User;
   meeting: {
@@ -19,6 +20,7 @@ interface RaisedHandsListProps {
 }
 
 const RaisedHandsList: React.FC<RaisedHandsListProps> = ({
+  titleId,
   raisedHands,
   currentUser,
   meeting,
@@ -43,11 +45,11 @@ const RaisedHandsList: React.FC<RaisedHandsListProps> = ({
   ));
 
   return !isMobile ? (
-    <Styled.ScrollableList role="tabpanel" tabIndex={0}>
+    <Styled.ScrollableList role="list" aria-labelledby={titleId} tabIndex={0}>
       <Styled.List>{listContent}</Styled.List>
     </Styled.ScrollableList>
   ) : (
-    <>{listContent}</>
+    <div role="list" aria-labelledby={titleId}>{listContent}</div>
   );
 };
 

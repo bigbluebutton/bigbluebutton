@@ -1,4 +1,5 @@
 import React from 'react';
+import { useIntl } from 'react-intl';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import Styled from './styles';
 import PrivateChatListItem from './chat-list-item/component';
@@ -24,7 +25,7 @@ const getActiveChats = (
     key={chat.chatId}
     nodeRef={chatNodeRef}
   >
-    <Styled.ListTransition>
+    <Styled.ListTransition role="listitem">
       <PrivateChatListItem
         chat={chat}
         chatNodeRef={chatNodeRef}
@@ -36,6 +37,7 @@ const getActiveChats = (
 ));
 
 const PrivateChatList: React.FC<ChatListProps> = ({ chats, privateChatSelectedCallback }) => {
+  const intl = useIntl();
   const messageListRef = React.useRef<HTMLDivElement | null>(null);
   const messageItemsRef = React.useRef<HTMLDivElement | null>(null);
   const [selectedChat, setSelectedChat] = React.useState<HTMLElement>();
@@ -56,7 +58,8 @@ const PrivateChatList: React.FC<ChatListProps> = ({ chats, privateChatSelectedCa
 
   return (
     <Styled.ScrollableList
-      role="tabpanel"
+      role="list"
+      aria-label={intl.formatMessage({ id: 'app.chat.titlePrivate' })}
       tabIndex={0}
       ref={messageListRef}
       onKeyDown={rove}

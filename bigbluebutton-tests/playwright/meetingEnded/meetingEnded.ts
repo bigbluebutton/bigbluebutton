@@ -6,6 +6,7 @@ import { endMeetings } from '../core/helpers';
 import { ClientSettingsOverrides, Page } from '../core/page';
 import { parameters } from '../core/parameters';
 import { MultiUsers } from '../user/multiusers';
+import { userListRowOf } from '../user/util';
 
 // A logout URL on a reserved domain: the navigation to it is answered by the test
 // (routeLogoutUrl), so no outside host is contacted.
@@ -99,14 +100,22 @@ export class MeetingEnded extends MultiUsers {
     await secondPage.waitForSelector(e.actionsBarBackground, ELEMENT_WAIT_EXTRA_LONG_TIME);
     // the audio modal may or may not cover the page, so the user list is opened without pointer events
     await secondPage.waitAndClickElement(e.usersListSidebarButton);
-    await expect(secondPage.page.locator(e.currentUser), 'should join the second page as the attendee').toHaveAttribute(
-      'aria-label',
-      this.userPage.username,
+    await secondPage.hasElement(e.userListPanel, 'should open the user list panel', ELEMENT_WAIT_EXTRA_LONG_TIME);
+    const currentUserRow = secondPage.page.locator(e.currentUser);
+    await expect(currentUserRow, 'should label the current participant row with its name container').toHaveAttribute(
+      'aria-labelledby',
+      /.+/,
     );
+    const currentUserNameId = await currentUserRow.getAttribute('aria-labelledby');
+    if (!currentUserNameId) throw new Error('current participant row has no accessible name source');
+    await expect(
+      secondPage.page.locator(`[id="${currentUserNameId}"]`),
+      'should join the second page as the attendee',
+    ).toHaveText(new RegExp(`^${this.userPage.username}\\s+\\(You\\)`));
 
     await this.modPage.waitAndClick(e.usersListSidebarButton);
     await expect(
-      this.modPage.page.locator(`${e.userListItem}[aria-label="${this.userPage.username}"]`),
+      this.modPage.page.locator(userListRowOf(this.userPage.username)),
       'should list the attendee once for the moderator',
     ).toHaveCount(1);
   }
