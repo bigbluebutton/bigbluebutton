@@ -183,44 +183,50 @@ RangeLoop:
 						}
 					}
 
-					if query != "" {
-						if operation.Type.IsSubscription() {
-							// The id is looked up before the limit is checked, so a resend is not counted as a new subscription.
+					// The per-connection limit counts every entry the connection holds, queries and
+					// mutations in flight included, whatever their type, and refuses only a
+					// subscription. The id is looked up before the limit is checked, so a resend is
+					// not counted as a new subscription.
+					browserConnection.ActiveSubscriptionsMutex.RLock()
+					existingEntry, entryExists := browserConnection.ActiveSubscriptions[queryId]
+					heldEntries := len(browserConnection.ActiveSubscriptions)
+					browserConnection.ActiveSubscriptionsMutex.RUnlock()
+
+					if query != "" &&
+						operation.Type.IsSubscription() &&
+						config.GetConfig().Server.MaxConnectionConcurrentSubscriptions > 0 &&
+						heldEntries >= config.GetConfig().Server.MaxConnectionConcurrentSubscriptions &&
+						!isResend(existingEntry, entryExists, hc.Id) {
+						// Log what is holding the slots once per connection, so the cause can be
+						// identified without flooding the log on every rejected subscription.
+						if browserConnection.SubscriptionLimitLogged.CompareAndSwap(false, true) {
 							browserConnection.ActiveSubscriptionsMutex.RLock()
-							existingSubscriptionData, queryIdExists = browserConnection.ActiveSubscriptions[queryId]
-							totalOfActiveSubscriptions := len(browserConnection.ActiveSubscriptions)
+							operationNames := make([]string, 0, len(browserConnection.ActiveSubscriptions))
+							for _, subscription := range browserConnection.ActiveSubscriptions {
+								operationNames = append(operationNames, subscription.OperationName)
+							}
 							browserConnection.ActiveSubscriptionsMutex.RUnlock()
 
-							if config.GetConfig().Server.MaxConnectionConcurrentSubscriptions > 0 &&
-								!isResend(existingSubscriptionData, queryIdExists, hc.Id) {
-								if totalOfActiveSubscriptions >= config.GetConfig().Server.MaxConnectionConcurrentSubscriptions {
-									// Log what is holding the slots once per connection, so the cause can be
-									// identified without flooding the log on every rejected subscription.
-									if browserConnection.SubscriptionLimitLogged.CompareAndSwap(false, true) {
-										browserConnection.ActiveSubscriptionsMutex.RLock()
-										operationNames := make([]string, 0, len(browserConnection.ActiveSubscriptions))
-										for _, subscription := range browserConnection.ActiveSubscriptions {
-											operationNames = append(operationNames, subscription.OperationName)
-										}
-										browserConnection.ActiveSubscriptionsMutex.RUnlock()
+							browserConnection.Logger.
+								WithField("rejectedOperation", operationName).
+								WithField("activeSubscriptions", len(operationNames)).
+								WithField("activeSubscriptionsByOperation", subscriptionlimit.SummarizeByOperation(operationNames)).
+								Warn("Concurrent subscription limit reached")
+						}
 
-										browserConnection.Logger.
-											WithField("rejectedOperation", operationName).
-											WithField("activeSubscriptions", len(operationNames)).
-											WithField("activeSubscriptionsByOperation", subscriptionlimit.SummarizeByOperation(operationNames)).
-											Warn("Concurrent subscription limit reached")
-									}
+						recordSubscriptionLimitRejection(operation.Type, operationName)
+						sendErrorMessage(
+							browserConnection,
+							queryId,
+							fmt.Sprintf("Limit exceeded: Maximum %d concurrent subscriptions allowed.", config.GetConfig().Server.MaxConnectionConcurrentSubscriptions),
+						)
 
-									recordSubscriptionLimitRejection(operation.Type, operationName)
-									sendErrorMessage(
-										browserConnection,
-										queryId,
-										fmt.Sprintf("Limit exceeded: Maximum %d concurrent subscriptions allowed.", config.GetConfig().Server.MaxConnectionConcurrentSubscriptions),
-									)
+						continue
+					}
 
-									continue
-								}
-							}
+					if query != "" {
+						if operation.Type.IsSubscription() {
+							existingSubscriptionData, queryIdExists = existingEntry, entryExists
 
 							// Validate if subscription is allowed
 							if len(allowedSubscriptions) > 0 {

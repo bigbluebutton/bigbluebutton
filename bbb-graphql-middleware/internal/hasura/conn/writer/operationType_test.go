@@ -223,3 +223,45 @@ func TestANamedDocumentWithoutTheOperationNameFieldUsesItsName(t *testing.T) {
 		w.expectNotForwarded(t)
 	})
 }
+
+// The per-connection limit counts every entry the connection holds, the queries in flight
+// included.
+func TestQueriesHeldByTheConnectionCountTowardTheLimit(t *testing.T) {
+	setSubscriptionLimit(t, 2)
+	w := startTestWriter(t)
+	w.setActive(common.GraphQlSubscription{Id: "1", OperationName: "getMeeting", Type: common.Query})
+	w.setActive(common.GraphQlSubscription{Id: "2", OperationName: "getPads", Type: common.Query})
+
+	w.sendDecided(subscribeWithName("3", "getUsers", "subscription getUsers { user { userId } }", nil))
+	w.expectBrowserError(t, "Limit exceeded")
+	w.expectNotForwarded(t)
+}
+
+// The limit only refuses a subscription: a query at the limit is forwarded and held.
+func TestAQueryAtTheLimitIsNotRefused(t *testing.T) {
+	setSubscriptionLimit(t, 1)
+	w := startTestWriter(t)
+	w.setActive(common.GraphQlSubscription{Id: "1", OperationName: "getUsers", Type: common.Subscription})
+
+	w.sendDecided(subscribeWithName("2", "getMeeting", "query getMeeting { meeting { name } }", nil))
+	w.expectForwarded(t)
+	if subscription, held := w.active("2"); !held || subscription.Type != common.Query {
+		t.Errorf("the query at the limit: held %v as %q, want held as a query", held, subscription.Type)
+	}
+	w.expectNoBrowserMessage(t)
+}
+
+// A subscription after a space is a subscription for the limit, also when what holds the slots
+// are queries.
+func TestASubscriptionAfterASpaceIsRefusedAtTheLimitHeldByQueries(t *testing.T) {
+	setSubscriptionLimit(t, 1)
+	w := startTestWriter(t)
+	w.setActive(common.GraphQlSubscription{Id: "1", OperationName: "getMeeting", Type: common.Query})
+
+	w.sendDecided(subscribeWithName("2", "getUsers", " subscription getUsers { user { userId } }", nil))
+	w.expectBrowserError(t, "Limit exceeded")
+	w.expectNotForwarded(t)
+	if _, held := w.active("2"); held {
+		t.Error("the subscription refused at the limit is held")
+	}
+}
