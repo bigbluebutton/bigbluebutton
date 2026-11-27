@@ -124,58 +124,52 @@ It includes all you need to be able to run a local BigBlueButton development env
 
 #### Alternative - Develop with Docker Compose
 
-`docker-compose.yml` in the repository root runs BigBlueButton from the published container images (see [Install with Docker Compose](/administration/docker-compose) for the requirements). In a checkout of the repository, you can run it on your own machine and replace the image of the component you work on with your own build.
-
-Start from a checkout:
+`docker-compose.yml` in the repository root runs BigBlueButton from the published container images (see [Install with Docker Compose](/administration/docker-compose) for the requirements). In a checkout of the repository, `./bbb-dev` runs it on your own machine, with the components you work on from your checkout. You need Docker and openssl; everything else runs in containers.
 
 ```bash
 git clone https://github.com/bigbluebutton/bigbluebutton.git
 cd bigbluebutton
 git checkout v4.1.x-develop
+./bbb-dev setup          # once: .env, a local CA and certificate for bbb.localhost
 ```
 
-Run the local Docker Compose setup script:
+Add `data/dev-ca/rootCA.pem` to the trusted certificates of your browser or operating system (running `setup` again keeps the CA, so you trust it only once). Then:
 
 ```bash
-./docker/compose/setup-dev.sh
+./bbb-dev up -d          # start everything (any docker compose command works)
+./bbb-dev status         # what runs from your checkout
+
+./bbb-dev enable html5   # the HTML5 client runs live from your checkout
+./bbb-dev build web      # build bbb-web from your checkout
+./bbb-dev enable web     # and run it
+./bbb-dev build          # build all images (--no-cache: without the build cache)
+./bbb-dev enable all     # run every component from your checkout (needs the images of build)
+./bbb-dev disable all    # back to the published images
+
+./bbb-dev logs web -f    # follow its logs
+./bbb-dev restart web    # restart it
+./bbb-dev exec html5     # a shell in its container (or: ./bbb-dev exec html5 npm test)
+
+./bbb-dev apimate        # open API Mate for your server (prints the URL if no browser opens)
+./bbb-dev tunnel         # experimental: share it on a temporary public URL until Ctrl-C
+
+./bbb-dev help           # all commands and components
 ```
 
-It fills the empty settings of `.env` (the domain, `BBB_PUBLIC_IP=127.0.0.1` and new secrets) and keeps values already set. It creates a local CA in `data/dev-ca`, limited to the domain by a name constraint, and a certificate for the domain in `data/certs`. It creates a Java truststore with the CA for `bbb-web`, and a `docker-compose.override.yml` that uses it. An existing `docker-compose.override.yml` is left unchanged; the script then prints the two settings to add. Without an argument the script uses `BBB_DOMAIN` from `.env` (`bbb.localhost` when it is empty). Another domain: `./docker/compose/setup-dev.sh <domain>` on the first run; later, change `BBB_DOMAIN` in `.env` and remove `data/dev-ca` first.
+Open `https://bbb.localhost` (browsers resolve `*.localhost` to the loopback address). Another domain: `./bbb-dev setup <domain>` on the first run.
 
-Add `data/dev-ca/rootCA.pem` to the trusted certificates of your browser or operating system. Running the script again keeps the CA, so you trust it only once.
+The Node components (html5, dashboard, actions, notes, export) run live: a changed source file is recompiled or restarted without a rebuild. The first `enable` installs their dependencies into a volume, which takes a few minutes. The other components run the image of `./bbb-dev build`.
 
-Then start it:
+To run a Node component as its production image instead, build it and enable it with `--image`. After a source change, run both commands again; `enable` without `--image` switches back to live.
 
 ```bash
-docker compose up -d
+./bbb-dev build html5
+./bbb-dev enable html5 --image
 ```
 
-and open `https://bbb.localhost` (browsers resolve `*.localhost` to the loopback address).
+Each component has a file in `docker/compose/dev/` with what is different in development, and `enable` adds it to `COMPOSE_FILE` in `.env`, so a plain `docker compose` runs the same setup. Your own settings go in `docker-compose.override.yml`, which is read last.
 
-To run your own build of a component, build its image, set it in `.env` and add its service to `docker-compose.override.yml` (`docker-compose.override.sample.yml` has a block for each), e.g. for bbb-web:
-
-```bash
-BBB_IMAGE_REGISTRY=localhost BBB_IMAGE_TAG=dev docker buildx bake -f docker-bake.hcl --load --set '*.platform=linux/amd64' web
-echo BBB_WEB_IMAGE=localhost/bbb-web:dev >> .env
-```
-
-```yaml
-services:
-  web:
-    pull_policy: never
-```
-
-`pull_policy: never` lets `docker compose pull` skip the local image. Then `docker compose up -d web`. The variable names of all images are in "Run another version of one component" on the Docker Compose page.
-
-For the HTML5 client, run the webpack dev server on your machine (Node 24), as `bigbluebutton-html5/run-dev.sh` does: a changed source file is recompiled and reloaded in the browser without a restart.
-
-```bash
-cd bigbluebutton-html5 && npm ci && npm start
-```
-
-Then uncomment the HTML5 block at the end of `docker-compose.override.yml` (from `docker-compose.override.sample.yml`), with variant (a), and run `docker compose up -d nginx`. nginx then proxies `/html5client/` to port 3000 of your machine and serves the locales from the source tree. The dev server listens on all interfaces, so it is reachable from your network. If a firewall denies incoming connections, allow port 3000 from the compose network (172.30.82.0/24), e.g. `ufw allow from 172.30.82.0/24 to any port 3000 proto tcp`.
-
-Without Node on your machine, use variant (b) instead: it runs the dev server in a container. The first start runs `npm ci` into a volume and compiles (about two minutes; until then `/html5client` answers 502).
+`./bbb-dev tunnel` is experimental. It runs a [Cloudflare quick tunnel](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/do-more-with-tunnels/trycloudflare/) for the web traffic and [bore](https://github.com/ekzhang/bore) for audio, video and screen sharing (a public TCP port of bore.pub to the TURN server) in containers; neither needs an account. It restarts the services that use the domain, so running meetings are interrupted, and switches back on Ctrl-C. Use the printed API Mate link to create meetings. Anyone with the URL reaches your development setup, including the dev servers of live components.
 
 #### Alternative - add a development environment to a [locally running] working BigBlueButton server
 

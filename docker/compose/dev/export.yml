@@ -1,0 +1,15 @@
+# ./bbb-dev enable export: bbb-export-annotations live from bbb-export-annotations/, restarted by
+# node on a change. It runs in its image, which has the tools it calls (ghostscript, cairosvg,
+# pdftocairo) and its node_modules: the checkout is mounted in a directory below them. A change
+# to package.json needs a new image.
+services:
+  export-annotations:
+    working_dir: /usr/local/bigbluebutton/bbb-export-annotations/dev
+    environment:
+      NODE_CONFIG_DIR: /usr/local/bigbluebutton/bbb-export-annotations/dev/config/:/etc/bigbluebutton/bbb-export-annotations/
+    command:
+      - node
+      - --watch
+      - master.js
+    volumes:
+      - ./bbb-export-annotations:/usr/local/bigbluebutton/bbb-export-annotations/dev:ro

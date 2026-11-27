@@ -1,0 +1,7 @@
+# ./bbb-dev enable init: the image of ./bbb-dev build init. init creates the databases from the
+# schemas in its image: build and enable it as well when you change bbb_schema.sql
+# (graphql-server) or blocknote_schema.sql (shared-notes-server).
+services:
+  init:
+    image: localhost/bbb-init:dev
+    pull_policy: never

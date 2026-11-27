@@ -1,0 +1,8 @@
+# Read in every development setup (./bbb-dev): bbb-web trusts the local CA of ./bbb-dev setup,
+# so that it can load the default slides from https://<domain>
+services:
+  web:
+    environment:
+      JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/local/cacerts
+    volumes:
+      - ./data/certs/cacerts:/etc/ssl/local/cacerts:ro

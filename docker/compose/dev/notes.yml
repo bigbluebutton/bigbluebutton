@@ -1,0 +1,24 @@
+# ./bbb-dev enable notes: bbb-shared-notes-server live from bbb-shared-notes-server/ (npm start:
+# nodemon restarts tsx on a change in src/), with config/default.yml from the checkout and
+# /etc/bigbluebutton/bbb-shared-notes-server.yml as in the image. The PDF conversion
+# (shared-notes-conversion) stays the published image.
+services:
+  shared-notes-server:
+    image: node:24.22.3@sha256:9d266751ca3d7fdbe651c878ffd5ad0a42fed49a18c283509267c97f025b7496
+    working_dir: /app
+    environment:
+      SERVER_HOST: 0.0.0.0
+    # npm ci into the volume on the first start, or when package-lock.json changed; its
+    # postinstall downloads the emoji images of the PDF export to assets/twemoji
+    command:
+      - sh
+      - -ec
+      - npm ls --depth=0 >/dev/null 2>&1 || npm ci; exec npm start
+    volumes:
+      - ./bbb-shared-notes-server:/app:ro
+      - notes-node-modules:/app/node_modules
+      - notes-twemoji:/app/assets/twemoji
+
+volumes:
+  notes-node-modules:
+  notes-twemoji:

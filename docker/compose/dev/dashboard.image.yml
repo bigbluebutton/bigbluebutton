@@ -1,0 +1,5 @@
+# ./bbb-dev enable dashboard --image: the image of ./bbb-dev build dashboard
+services:
+  learning-dashboard:
+    image: localhost/bbb-learning-dashboard:dev
+    pull_policy: never

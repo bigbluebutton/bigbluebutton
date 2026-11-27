@@ -1,0 +1,5 @@
+# ./bbb-dev enable notes --image: the image of ./bbb-dev build notes
+services:
+  shared-notes-server:
+    image: localhost/bbb-shared-notes-server:dev
+    pull_policy: never

@@ -1,0 +1,5 @@
+# ./bbb-dev enable export --image: the image of ./bbb-dev build export
+services:
+  export-annotations:
+    image: localhost/bbb-export-annotations:dev
+    pull_policy: never
