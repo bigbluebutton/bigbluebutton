@@ -6,8 +6,9 @@ import (
 	"sync/atomic"
 )
 
-type SafeChannelByte struct {
-	ch     chan []byte
+// SafeChannel is a channel that can be closed while senders use it, and frozen to hold them.
+type SafeChannel[T any] struct {
+	ch     chan T
 	closed atomic.Bool
 	frozen atomic.Bool // written only under mux, so it always matches thawed
 	once   sync.Once
@@ -18,16 +19,23 @@ type SafeChannelByte struct {
 	thawed chan struct{}
 }
 
+// SafeChannelByte carries raw messages.
+type SafeChannelByte = SafeChannel[[]byte]
+
 func NewSafeChannelByte(size int) *SafeChannelByte {
+	return NewSafeChannel[[]byte](size)
+}
+
+func NewSafeChannel[T any](size int) *SafeChannel[T] {
 	thawed := make(chan struct{})
 	close(thawed)
 
-	return &SafeChannelByte{ch: make(chan []byte, size), thawed: thawed}
+	return &SafeChannel[T]{ch: make(chan T, size), thawed: thawed}
 }
 
 // TrySend never blocks; drops on closed/frozen/full.
 // Uses recover to handle a close race (send on closed channel).
-func (s *SafeChannelByte) TrySend(value []byte) (ok bool) {
+func (s *SafeChannel[T]) TrySend(value T) (ok bool) {
 	if s.closed.Load() || s.frozen.Load() {
 		return false
 	}
@@ -46,7 +54,7 @@ func (s *SafeChannelByte) TrySend(value []byte) (ok bool) {
 
 // SendWait waits while the channel is frozen, then does a single blocking attempt. Both waits end
 // when ctx is done. Recover handles a close race.
-func (s *SafeChannelByte) SendWait(ctx context.Context, value []byte) (ok bool) {
+func (s *SafeChannel[T]) SendWait(ctx context.Context, value T) (ok bool) {
 	s.mux.Lock()
 	thawed := s.thawed
 	s.mux.Unlock()
@@ -76,13 +84,13 @@ func (s *SafeChannelByte) SendWait(ctx context.Context, value []byte) (ok bool) 
 	}
 }
 
-func (s *SafeChannelByte) Receive() ([]byte, bool)       { v, ok := <-s.ch; return v, ok }
-func (s *SafeChannelByte) ReceiveChannel() <-chan []byte { return s.ch }
+func (s *SafeChannel[T]) Receive() (T, bool)       { v, ok := <-s.ch; return v, ok }
+func (s *SafeChannel[T]) ReceiveChannel() <-chan T { return s.ch }
 
-func (s *SafeChannelByte) Closed() bool { return s.closed.Load() }
+func (s *SafeChannel[T]) Closed() bool { return s.closed.Load() }
 
 // Close is idempotent. Marks closed, releases the senders waiting on a freeze, then closes ch.
-func (s *SafeChannelByte) Close() {
+func (s *SafeChannel[T]) Close() {
 	s.once.Do(func() {
 		s.mux.Lock()
 		s.closed.Store(true)
@@ -92,10 +100,10 @@ func (s *SafeChannelByte) Close() {
 	})
 }
 
-func (s *SafeChannelByte) Frozen() bool { return s.frozen.Load() }
+func (s *SafeChannel[T]) Frozen() bool { return s.frozen.Load() }
 
 // FreezeChannel can be called multiple times. A closed channel is not frozen again.
-func (s *SafeChannelByte) FreezeChannel() {
+func (s *SafeChannel[T]) FreezeChannel() {
 	s.mux.Lock()
 	defer s.mux.Unlock()
 
@@ -107,7 +115,7 @@ func (s *SafeChannelByte) FreezeChannel() {
 }
 
 // UnfreezeChannel clears the frozen state, unblocking all SendWait().
-func (s *SafeChannelByte) UnfreezeChannel() {
+func (s *SafeChannel[T]) UnfreezeChannel() {
 	s.mux.Lock()
 	defer s.mux.Unlock()
 
@@ -115,7 +123,7 @@ func (s *SafeChannelByte) UnfreezeChannel() {
 }
 
 // thaw must be called with mux held.
-func (s *SafeChannelByte) thaw() {
+func (s *SafeChannel[T]) thaw() {
 	if s.frozen.Load() {
 		close(s.thawed)
 		s.frozen.Store(false)

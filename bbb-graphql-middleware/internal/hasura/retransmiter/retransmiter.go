@@ -35,10 +35,27 @@ func RetransmitSubscriptionStartMessages(hc *common.HasuraConnection) {
 		if subscription.LastSeenOnHasuraConnection != hc.Id {
 			hc.BrowserConn.Logger.Tracef("retransmiting subscription start: %v", string(subscription.Message))
 
+			// The resend carries the type and the name stored when the subscription started, so the
+			// writer does not decide them again.
+			resend := &common.BrowserMessage{
+				Raw: subscription.Message,
+				Operation: &common.Operation{
+					Type:      subscription.Type,
+					Name:      subscription.OperationName,
+					Streaming: subscription.StreamCursorField != "",
+				},
+			}
 			if subscription.Type == common.Streaming && subscription.StreamCursorCurrValue != nil {
-				hc.BrowserConn.FromBrowserToHasuraChannel.SendWait(hc.Context, common.PatchQuerySettingLastCursorValue(subscription))
-			} else {
-				hc.BrowserConn.FromBrowserToHasuraChannel.SendWait(hc.Context, subscription.Message)
+				resend.Raw = common.PatchQuerySettingLastCursorValue(subscription)
+			}
+			queued := hc.BrowserConn.FromBrowserToHasuraChannel.SendWait(hc.Context, resend)
+
+			// Counted once queued: a resend the connection did not take (it ended meanwhile) is
+			// resent, and counted, by the next connection.
+			if queued {
+				common.GqlSubscriptionRetransmittedCounter.
+					WithLabelValues(string(subscription.Type), subscription.MetricLabel()).
+					Inc()
 			}
 		}
 	}

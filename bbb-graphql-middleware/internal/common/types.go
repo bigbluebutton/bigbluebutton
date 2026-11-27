@@ -28,13 +28,16 @@ type GraphQlSubscription struct {
 	Message                    []byte
 	Type                       QueryType
 	OperationName              string
+	OperationNameLabel         string // MetricOperationName(OperationName), resolved once when the subscription is created
 	StreamCursorField          string
 	StreamCursorVariableName   string
 	StreamCursorCurrValue      interface{}
 	LastReceivedData           HasuraMessage
 	LastReceivedDataChecksum   uint32
-	JsonPatchSupported         bool   // indicate if client support Json Patch for this subscription
-	LastSeenOnHasuraConnection string // id of the hasura connection that this query was active
+	JsonPatchSupported         bool      // indicate if client support Json Patch for this subscription
+	LastSeenOnHasuraConnection string    // id of the hasura connection that this query was active
+	FirstDataPendingSince      time.Time // when the subscription was sent to Hasura, while its first data has not arrived
+	FirstDataReceived          bool      // its first data arrived
 }
 
 type BrowserConnection struct {
@@ -57,7 +60,11 @@ type BrowserConnection struct {
 	BrowserRequestCookies              []*http.Cookie
 	ActiveSubscriptions                map[string]GraphQlSubscription // active subscriptions of this connection (start, but no stop)
 	ActiveSubscriptionsMutex           sync.RWMutex                   // mutex to control the map usage
+	ActiveSubscriptionsPeak            int                            // highest number of active subscriptions held, under ActiveSubscriptionsMutex
+	ActiveSubscriptionsCount           atomic.Int64                   // number of active subscriptions, read by the metrics without the mutex
 	SubscriptionLimitLogged            atomic.Bool                    // indicate if active subscriptions were already logged on reaching the concurrent limit
+	SubscriptionTwoThirdsLogged        atomic.Bool                    // indicate if active subscriptions were already logged on reaching two thirds of the concurrent limit
+	ActiveSubscriptionsClosed          bool                           // the connection closed and its subscriptions were removed, under ActiveSubscriptionsMutex
 	ActiveStreamings                   map[string][]string            // active streamings managed by Middleware of this connection
 	PendingStreamReplays               map[string][]string            // replays withheld until the connection is a meeting member
 	ActiveStreamingsMutex              sync.RWMutex                   // mutex to control both maps above
@@ -67,9 +74,9 @@ type BrowserConnection struct {
 	ConnAckSentToBrowser               bool                           // indicate if `connection_ack` msg was already sent to the browser
 	GraphqlActionsContext              context.Context                // graphql actions context
 	GraphqlActionsContextCancel        context.CancelFunc             // function to cancel the graphql actions context
-	FromBrowserToHasuraChannel         *SafeChannelByte               // channel to transmit messages from Browser to Hasura
+	FromBrowserToHasuraChannel         *SafeChannel[*BrowserMessage]  // channel to transmit messages from Browser to Hasura
 	FromBrowserToHasuraRateLimiter     *rate.Limiter                  // rate limiter to transmit messages from Browser to Hasura
-	FromBrowserToGqlActionsChannel     *SafeChannelByte               // channel to transmit messages from Browser to Graphq-Actions
+	FromBrowserToGqlActionsChannel     *SafeChannel[*BrowserMessage]  // channel to transmit messages from Browser to Graphq-Actions
 	FromBrowserToGqlActionsRateLimiter *rate.Limiter                  // rate limiter to transmit messages from Browser to Graphq-Actions
 	FromHasuraToBrowserChannel         *SafeChannelByte               // channel to transmit messages from Hasura/GqlActions to Browser
 	LastBrowserMessageTime             time.Time                      // stores the time of the last message to control browser idleness
@@ -77,12 +84,13 @@ type BrowserConnection struct {
 }
 
 type HasuraConnection struct {
-	Id                  string                // hasura connection id
-	BrowserConn         *BrowserConnection    // browser connection that originated this hasura connection
-	Websocket           *websocket.Conn       // websocket used to connect to Hasura
-	WebsocketCloseError *websocket.CloseError // closeError received from Hasura
-	Context             context.Context       // hasura connection context (child of browser connection context)
-	ContextCancelFunc   context.CancelFunc    // function to cancel the hasura context (and so, the hasura connection)
+	Id                  string                 // hasura connection id
+	BrowserConn         *BrowserConnection     // browser connection that originated this hasura connection
+	Websocket           *websocket.Conn        // websocket used to connect to Hasura
+	WebsocketCloseError *websocket.CloseError  // closeError received from Hasura
+	Context             context.Context        // hasura connection context (child of browser connection context)
+	ContextCancelFunc   context.CancelFunc     // function to cancel the hasura context (and so, the hasura connection)
+	closeReason         atomic.Pointer[string] // why the connection is ending; see SetCloseReason
 }
 
 type HasuraMessage struct {

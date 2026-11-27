@@ -2,19 +2,43 @@ package bbb_web
 
 import (
 	"bbb-graphql-middleware/config"
+	"bbb-graphql-middleware/internal/common"
 	"encoding/json"
+	"errors"
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
 	"net/http/cookiejar"
 	"strings"
+	"time"
 )
 
 // authHookUrl is the authentication hook URL obtained from config file.
 var authHookUrl = config.GetConfig().AuthHook.Url
 
+var errNotAuthorized = fmt.Errorf("user not authorized")
+
+// BBBWebCheckAuthorization asks bbb-web whether a session token is authorized, measuring each
+// request in the auth hook metrics.
 func BBBWebCheckAuthorization(browserConnectionId string, sessionToken string, clientSessionUUID string, cookies []*http.Cookie) (string, string, error) {
+	start := time.Now()
+	meetingId, userId, err := checkAuthorization(browserConnectionId, sessionToken, clientSessionUUID, cookies)
+	common.AuthHookRequestDuration.Observe(time.Since(start).Seconds())
+
+	result := common.HookRequestOk
+	switch {
+	case errors.Is(err, errNotAuthorized):
+		result = common.HookRequestUnauthorized
+	case err != nil:
+		result = common.HookRequestError
+	}
+	common.AuthHookRequestCounter.WithLabelValues(result).Inc()
+
+	return meetingId, userId, err
+}
+
+func checkAuthorization(browserConnectionId string, sessionToken string, clientSessionUUID string, cookies []*http.Cookie) (string, string, error) {
 	logger := log.WithField("_routine", "BBBWebClient").
 		WithField("browserConnectionId", browserConnectionId).
 		WithField("sessionToken", sessionToken).
@@ -75,7 +99,7 @@ func BBBWebCheckAuthorization(browserConnectionId string, sessionToken string, c
 	}
 	if response != "authorized" {
 		logger.Error(response)
-		return "", "", fmt.Errorf("user not authorized")
+		return "", "", errNotAuthorized
 	}
 
 	// Normalize the response header keys.

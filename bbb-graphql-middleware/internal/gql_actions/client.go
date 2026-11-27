@@ -15,6 +15,7 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
+	"golang.org/x/time/rate"
 )
 
 var graphqlActionsUrl = config.GetConfig().GraphqlActions.Url
@@ -33,43 +34,56 @@ RangeLoop:
 		case <-browserConnection.GraphqlActionsContext.Done():
 			browserConnection.Logger.Debug("GraphqlActionsContext cancelled!")
 			break RangeLoop
-		case fromBrowserMessage := <-browserConnection.FromBrowserToGqlActionsChannel.ReceiveChannel():
+		case received := <-browserConnection.FromBrowserToGqlActionsChannel.ReceiveChannel():
 			{
-				if fromBrowserMessage == nil {
+				if received == nil {
 					continue
 				}
 
-				var browserMessage common.BrowserSubscribeMessage
-				err := json.Unmarshal(fromBrowserMessage, &browserMessage)
-				if err != nil {
-					browserConnection.Logger.Errorf("failed to unmarshal message: %v", err)
-					continue
+				// The reader decodes the message and decides its operation before it routes it here; a
+				// message it could not decode is decoded here, as before, and decided with the same
+				// function.
+				browserMessage := received.Subscribe
+				if browserMessage == nil {
+					browserMessage = &common.BrowserSubscribeMessage{}
+					err := json.Unmarshal(received.Raw, browserMessage)
+					if err != nil {
+						browserConnection.Logger.Errorf("failed to unmarshal message: %v", err)
+						continue
+					}
+				}
+				operation := received.Operation
+				if operation == nil {
+					operation = common.DecideOperation(browserMessage.Payload.Query, browserMessage.Payload.OperationName)
 				}
 
 				if browserMessage.Type == "subscribe" {
 					var mutationFuncName string
+					// The name decided from the document, or the operationName field when there is none.
+					operationName := operation.NameOr(browserMessage.Payload.OperationName)
 
 					if config.GetConfig().Server.MaxMutationLength > 0 {
 						mutationLength := len(browserMessage.Payload.Query)
 						if mutationLength > config.GetConfig().Server.MaxMutationLength {
+							common.RecordQueryRejection(common.QueryRejectedMaxMutationLength)
 							sendErrorMessage(
 								browserConnection,
 								browserMessage.ID,
 								fmt.Sprintf(
 									"Mutation failed (%s): Length %d and the max allowed is %d",
-									browserMessage.Payload.OperationName,
+									operationName,
 									mutationLength, config.GetConfig().Server.MaxMutationLength))
 							continue
 						}
 					}
 
 					// Rate limiter from config max_connection_mutations_per_minute
-					if !browserConnection.FromBrowserToGqlActionsRateLimiter.Allow() {
+					if !mutationAllowed(browserConnection.FromBrowserToGqlActionsRateLimiter) {
 						sendErrorMessage(
 							browserConnection,
 							browserMessage.ID,
 							fmt.Sprintf("Mutation failed (%s): Rate limit exceeded - Maximum %d mutations per minute allowed",
-								browserMessage.Payload.OperationName,
+								operationName,
 								config.GetConfig().Server.MaxConnectionMutationsPerMinute,
 							),
 						)
@@ -77,34 +91,44 @@ RangeLoop:
 						continue
 					}
 
-					if strings.HasPrefix(browserMessage.Payload.Query, "mutation") {
-						if funcName, inputs, err := parseGraphQLMutation(browserMessage.Payload.Query, browserMessage.Payload.Variables); err == nil {
-							mutationFuncName = funcName
-							if err = SendGqlActionsRequest(funcName, inputs, browserConnection.BBBWebSessionVariables, browserConnection.Logger); err == nil {
-								// Add Prometheus Metrics
-								common.GqlMutationsCounter.With(prometheus.Labels{"operationName": browserMessage.Payload.OperationName}).Inc()
-							} else {
-								sendErrorMessage(
-									browserConnection,
-									browserMessage.ID,
-									fmt.Sprintf("Mutation failed (%s): It was not able to send the request to Graphql Actions: %s",
-										browserMessage.Payload.OperationName,
-										err.Error(),
-									),
-								)
-								continue
-							}
+					// Only a mutation is executed here. Any other operation that reaches this client
+					// (a message the reader routed on its text) is refused, rather than answered as
+					// done.
+					if operation.Type != common.Mutation {
+						sendErrorMessage(
+							browserConnection,
+							browserMessage.ID,
+							fmt.Sprintf("Mutation failed (%s): the operation is not a mutation", operationName),
+						)
+						continue
+					}
+
+					if funcName, inputs, err := parseGraphQLMutation(browserMessage.Payload.Query, browserMessage.Payload.Variables); err == nil {
+						mutationFuncName = funcName
+						if err = SendGqlActionsRequest(funcName, inputs, browserConnection.BBBWebSessionVariables, browserConnection.Logger); err == nil {
+							// Add Prometheus Metrics
+							common.GqlMutationsCounter.With(prometheus.Labels{"operationName": common.MetricOperationName(operationName)}).Inc()
 						} else {
 							sendErrorMessage(
 								browserConnection,
 								browserMessage.ID,
-								fmt.Sprintf("Mutation failed (%s): It was not able to parse graphQL query: %s",
-									browserMessage.Payload.OperationName,
+								fmt.Sprintf("Mutation failed (%s): It was not able to send the request to Graphql Actions: %s",
+									operationName,
 									err.Error(),
 								),
 							)
 							continue
 						}
+					} else {
+						sendErrorMessage(
+							browserConnection,
+							browserMessage.ID,
+							fmt.Sprintf("Mutation failed (%s): It was not able to parse graphQL query: %s",
+								operationName,
+								err.Error(),
+							),
+						)
+						continue
 					}
 
 					// Action sent successfully, return data msg to client
@@ -282,4 +306,14 @@ func sendErrorMessage(browserConnection *common.BrowserConnection, messageId str
 	}
 	jsonDataComplete, _ := json.Marshal(browserResponseComplete)
 	browserConnection.FromHasuraToBrowserChannel.SendWait(browserConnection.Context, jsonDataComplete)
+}
+
+// mutationAllowed takes a token from the connection's mutation rate limiter, counting the
+// mutations it rejects.
+func mutationAllowed(limiter *rate.Limiter) bool {
+	if limiter.Allow() {
+		return true
+	}
+	common.GqlMutationRateLimitExceededCounter.Inc()
+	return false
 }

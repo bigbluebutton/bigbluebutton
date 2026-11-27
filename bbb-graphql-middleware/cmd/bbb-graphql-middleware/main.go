@@ -1,11 +1,8 @@
 package main
 
 import (
-	"context"
-	"errors"
 	"fmt"
 	"net/http"
-	"time"
 
 	"bbb-graphql-middleware/config"
 	"bbb-graphql-middleware/internal/common"
@@ -37,6 +34,8 @@ func main() {
 	}
 
 	common.RegisterMetrics()
+	common.InitMetricOperationNames()
+	websrv.RegisterConnectionMetrics()
 
 	common.InitUniqueID()
 	log = log.WithField("graphql-middleware-uid", common.GetUniqueID())
@@ -58,24 +57,7 @@ func main() {
 
 	rateLimiter := rate.NewLimiter(rate.Limit(cfg.Server.MaxConnectionsPerSecond), cfg.Server.MaxConnectionsPerSecond)
 
-	http.HandleFunc("/graphql", func(w http.ResponseWriter, r *http.Request) {
-		ctx, cancel := context.WithTimeout(r.Context(), 120*time.Second)
-		defer cancel()
-
-		common.HttpConnectionGauge.Inc()
-		common.HttpConnectionCounter.Inc()
-		defer common.HttpConnectionGauge.Dec()
-
-		if err := rateLimiter.Wait(ctx); err != nil {
-			if !errors.Is(err, context.Canceled) {
-				http.Error(w, "Request cancelled or rate limit exceeded", http.StatusTooManyRequests)
-			}
-
-			return
-		}
-
-		websrv.ConnectionHandler(w, r)
-	})
+	http.HandleFunc("/graphql", websrv.RateLimitedConnectionHandler(rateLimiter, websrv.ConnectionHandler))
 
 	http.HandleFunc("/graphql-reconnection", websrv.ReconnectionHandler)
 

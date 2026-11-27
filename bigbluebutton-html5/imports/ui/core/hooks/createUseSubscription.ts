@@ -9,6 +9,9 @@ import { GraphqlDataHookSubscriptionResponse } from '../../Types/hook';
 import useDeepComparison from '../../hooks/useDeepComparison';
 import GrahqlSubscriptionStore, { getSubscriptionHash, SubscriptionListener } from '../singletons/subscriptionStore';
 
+// A new operation of the client, and its Patched_ form for a subscription, has to be listed in
+// bbb-graphql-middleware/config/client-operation-names.txt to keep its own label in the metrics
+// (scripts/check-client-operation-names.js checks it).
 export const makePatchedQuery = (query: DocumentNode | TypedQueryDocumentNode) => {
   if (!query) {
     throw new Error('Error: query is not defined');

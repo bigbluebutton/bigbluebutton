@@ -35,6 +35,9 @@ func HasuraConnectionReader(hc *common.HasuraConnection, wg *sync.WaitGroup) {
 		var closeError *websocket.CloseError
 
 		if err != nil {
+			if !errors.Is(err, context.Canceled) {
+				hc.SetCloseReason(common.ReconnectionHasuraReadError)
+			}
 			if errors.Is(err, context.Canceled) {
 				hc.BrowserConn.Logger.Debugf("Closing Hasura ws connection as Context was cancelled!")
 			} else if errors.As(err, &closeError) {
@@ -87,9 +90,17 @@ func handleMessageReceivedFromHasura(hc *common.HasuraConnection, message []byte
 
 	// Check if subscription is still active!
 	if hasuraMessageInfo.ID != "" {
-		hc.BrowserConn.ActiveSubscriptionsMutex.RLock()
-		subscription, ok := hc.BrowserConn.ActiveSubscriptions[hasuraMessageInfo.ID]
-		hc.BrowserConn.ActiveSubscriptionsMutex.RUnlock()
+		var subscription common.GraphQlSubscription
+		var ok bool
+		if hasuraMessageInfo.Type == "next" {
+			// Read the record and settle its first data in one lock, so the copy used below is
+			// already the settled one.
+			subscription, ok = recordFirstData(hc, hasuraMessageInfo.ID)
+		} else {
+			hc.BrowserConn.ActiveSubscriptionsMutex.RLock()
+			subscription, ok = hc.BrowserConn.ActiveSubscriptions[hasuraMessageInfo.ID]
+			hc.BrowserConn.ActiveSubscriptionsMutex.RUnlock()
+		}
 		if !ok {
 			hc.BrowserConn.Logger.Debugf("Subscription with Id %s doesn't exist anymore, skipping response.", hasuraMessageInfo.ID)
 			return
@@ -100,11 +111,17 @@ func handleMessageReceivedFromHasura(hc *common.HasuraConnection, message []byte
 			handleCompleteMessage(hc, hasuraMessageInfo.ID)
 		}
 
+		// An "error" also ends the operation, in the protocol: no complete follows it. The error
+		// is still passed on to the browser below.
+		if hasuraMessageInfo.Type == "error" {
+			handleErrorMessage(hc, hasuraMessageInfo.ID)
+		}
+
 		if hasuraMessageInfo.Type == "next" {
 			common.GqlReceivedDataCounter.
 				With(prometheus.Labels{
 					"type":          string(subscription.Type),
-					"operationName": subscription.OperationName,
+					"operationName": subscription.MetricLabel(),
 				}).
 				Inc()
 		}
@@ -199,12 +216,14 @@ func handleSubscriptionMessage(hc *common.HasuraConnection, message *[]byte, sub
 	lastReceivedDataWas := subscription.LastReceivedData
 	cacheKey := combineUint32ToUint64(subscription.LastReceivedDataChecksum, dataChecksum)
 
-	// Store LastReceivedData Checksum
-	subscription.LastReceivedData = messageData
-	subscription.LastReceivedDataChecksum = dataChecksum
-	hc.BrowserConn.ActiveSubscriptionsMutex.Lock()
-	hc.BrowserConn.ActiveSubscriptions[queryId] = subscription
-	hc.BrowserConn.ActiveSubscriptionsMutex.Unlock()
+	// Store LastReceivedData Checksum on the current entry. The writer may have
+	// replaced or removed it while this message was being processed.
+	if !hc.BrowserConn.UpdateActiveSubscription(queryId, func(current *common.GraphQlSubscription) {
+		current.LastReceivedData = messageData
+		current.LastReceivedDataChecksum = dataChecksum
+	}) {
+		return false
+	}
 
 	// Apply msg patch when it supports it
 	if subscription.JsonPatchSupported {
@@ -222,21 +241,63 @@ func handleStreamingMessage(hc *common.HasuraConnection, message []byte, subscri
 	lastCursor := common.GetLastStreamCursorValueFromReceivedMessage(message, subscription.StreamCursorField, hc.BrowserConn.MeetingId)
 	// Either value may be a list or an object decoded from JSON, which != cannot compare.
 	if lastCursor != nil && !reflect.DeepEqual(subscription.StreamCursorCurrValue, lastCursor) {
-		subscription.StreamCursorCurrValue = lastCursor
-
-		hc.BrowserConn.ActiveSubscriptionsMutex.Lock()
-		hc.BrowserConn.ActiveSubscriptions[queryId] = subscription
-		hc.BrowserConn.ActiveSubscriptionsMutex.Unlock()
+		hc.BrowserConn.UpdateActiveSubscription(queryId, func(current *common.GraphQlSubscription) {
+			current.StreamCursorCurrValue = lastCursor
+		})
 	}
 }
 
+// recordFirstData reads a subscription's record for a data message and, on its first data
+// message, observes the time it waited for it, once. The record it returns, and keeps, has the
+// first data settled. Once settled, the record is only read, under the read lock; the entry is
+// updated, under the write lock, only until the first data of the subscription is settled. A
+// subscription removed meanwhile is not brought back, and its first data wait is not observed. A
+// subscription removed after it is read here still has the message counted in
+// gql_received_data_total and the payload histograms, which count messages.
+func recordFirstData(hc *common.HasuraConnection, queryId string) (common.GraphQlSubscription, bool) {
+	hc.BrowserConn.ActiveSubscriptionsMutex.RLock()
+	subscription, ok := hc.BrowserConn.ActiveSubscriptions[queryId]
+	hc.BrowserConn.ActiveSubscriptionsMutex.RUnlock()
+	if !ok || subscription.FirstDataReceived {
+		return subscription, ok
+	}
+
+	var pendingSince time.Time
+	if !hc.BrowserConn.UpdateActiveSubscription(queryId, func(current *common.GraphQlSubscription) {
+		if !current.FirstDataReceived {
+			pendingSince = current.FirstDataPendingSince
+			current.FirstDataReceived = true
+			current.FirstDataPendingSince = time.Time{}
+		}
+		subscription = *current
+	}) {
+		return common.GraphQlSubscription{}, false
+	}
+
+	if !pendingSince.IsZero() {
+		common.GqlSubscriptionFirstDataDuration.WithLabelValues(string(subscription.Type)).Observe(time.Since(pendingSince).Seconds())
+	}
+	return subscription, true
+}
+
 func handleCompleteMessage(hc *common.HasuraConnection, queryId string) {
-	hc.BrowserConn.ActiveSubscriptionsMutex.Lock()
-	queryType := hc.BrowserConn.ActiveSubscriptions[queryId].Type
-	operationName := hc.BrowserConn.ActiveSubscriptions[queryId].OperationName
-	delete(hc.BrowserConn.ActiveSubscriptions, queryId)
-	hc.BrowserConn.ActiveSubscriptionsMutex.Unlock()
-	hc.BrowserConn.Logger.Debugf("%s (%s) with Id %s finished by Hasura.", queryType, operationName, queryId)
+	subscription, removed := hc.BrowserConn.RemoveActiveSubscription(queryId)
+	if removed {
+		common.RecordSubscriptionRemoved(subscription, common.RemovedByHasura)
+	}
+	hc.BrowserConn.Logger.Debugf("%s (%s) with Id %s finished by Hasura.", subscription.Type, subscription.OperationName, queryId)
+}
+
+// handleErrorMessage removes an operation Hasura refused before it sent any data, so it no longer
+// holds a slot of the per-connection limit and is not resent after a reconnection. An operation
+// that has received data is kept: the error can answer a second subscribe for its id (Hasura
+// refuses an id it is running), while the first one is still running.
+func handleErrorMessage(hc *common.HasuraConnection, queryId string) {
+	subscription, removed := hc.BrowserConn.RemoveSubscriptionWithoutData(queryId)
+	if removed {
+		common.RecordSubscriptionRemoved(subscription, common.RemovedByHasuraError)
+		hc.BrowserConn.Logger.Debugf("%s (%s) with Id %s refused by Hasura with an error.", subscription.Type, subscription.OperationName, queryId)
+	}
 }
 
 func handleConnectionAckMessage(hc *common.HasuraConnection, message []byte) {
@@ -286,7 +347,7 @@ func getHasuraMessage(message []byte, subscription common.GraphQlSubscription, m
 	common.GqlReceivedDataPayloadSize.
 		With(prometheus.Labels{
 			"type":          string(subscription.Type),
-			"operationName": subscription.OperationName,
+			"operationName": subscription.MetricLabel(),
 		}).
 		Observe(float64(dataSize))
 
@@ -301,7 +362,7 @@ func getHasuraMessage(message []byte, subscription common.GraphQlSubscription, m
 			common.GqlReceivedDataPayloadLength.
 				With(prometheus.Labels{
 					"type":          string(subscription.Type),
-					"operationName": subscription.OperationName,
+					"operationName": subscription.MetricLabel(),
 				}).
 				Observe(float64(dataLength))
 
@@ -341,7 +402,7 @@ func includePromotheusMetrics(traceLog string, meetingId string, logger *logrus.
 				// Add Prometheus metrics
 				common.ApplicationsLatency.
 					With(prometheus.Labels{
-						"application": fmt.Sprintf("%d-%s", i, applicationName),
+						"application": applicationLatencyLabel(i, applicationName),
 					}).
 					Observe(float64(diff))
 
@@ -361,6 +422,27 @@ func includePromotheusMetrics(traceLog string, meetingId string, logger *logrus.
 			"application": "end-to-end",
 		}).
 		Observe(float64(diffTotal))
+}
+
+// traceLogStages are the stages the BigBlueButton components append to the trace of
+// ConnStatusWithTraceLog, at their position in it: the client writes position 0, the middleware
+// appends position 1 when it forwards the mutation, then bbb-graphql-actions, akka-apps, and the
+// middleware again, for the database and itself, when the trace comes back. The trace starts in
+// the client, so its text is not taken as a label.
+var traceLogStages = []string{1: "gqlmiddleware", 2: "gqlactions", 3: "bbbapps", 4: "pg", 5: "gqlmiddleware"}
+
+// otherTraceLogStage is the application label of any stage that is not one of traceLogStages at
+// its position.
+const otherTraceLogStage = "other"
+
+// applicationLatencyLabel is the application label of bbb_application_reach_latency_milliseconds
+// for the stage at a position of the trace: "<position>-<stage>" for a known stage at its
+// position, and otherTraceLogStage for any other, so the label takes a fixed set of values.
+func applicationLatencyLabel(position int, stage string) string {
+	if position > 0 && position < len(traceLogStages) && traceLogStages[position] == stage {
+		return fmt.Sprintf("%d-%s", position, stage)
+	}
+	return otherTraceLogStage
 }
 
 func getTime(ts string) (time.Time, error) {

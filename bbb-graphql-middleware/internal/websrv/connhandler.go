@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"slices"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -84,7 +85,7 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	connectionLogger.Infof("browser connection accepted")
 
 	if common.HasReachedMaxGlobalConnections() {
-		common.WsConnectionRejectedCounter.With(prometheus.Labels{"reason": "limit of server connections exceeded"}).Inc()
+		common.WsConnectionRejectedCounter.With(prometheus.Labels{"reason": rejectionReason("connections_limit_exceeded")}).Inc()
 		disconnectWithError(
 			browserWsConn,
 			browserConnectionContext,
@@ -107,9 +108,9 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 		Context:                            browserConnectionContext,
 		ContextCancelFunc:                  browserConnectionContextCancel,
 		ConnAckSentToBrowser:               false,
-		FromBrowserToHasuraChannel:         common.NewSafeChannelByte(bufferSize),
+		FromBrowserToHasuraChannel:         common.NewSafeChannel[*common.BrowserMessage](bufferSize),
 		FromBrowserToHasuraRateLimiter:     rate.NewLimiter(rate.Every(time.Minute/time.Duration(cfg.Server.MaxConnectionQueriesPerMinute)), cfg.Server.MaxConnectionQueriesPerMinute),
-		FromBrowserToGqlActionsChannel:     common.NewSafeChannelByte(bufferSize),
+		FromBrowserToGqlActionsChannel:     common.NewSafeChannel[*common.BrowserMessage](bufferSize),
 		FromBrowserToGqlActionsRateLimiter: rate.NewLimiter(rate.Every(time.Minute/time.Duration(cfg.Server.MaxConnectionMutationsPerMinute)), cfg.Server.MaxConnectionMutationsPerMinute),
 		FromHasuraToBrowserChannel:         common.NewSafeChannelByte(bufferSize),
 		LastBrowserMessageTime:             time.Now(),
@@ -119,10 +120,16 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	BrowserConnectionsMutex.Lock()
 	BrowserConnections[browserConnectionId] = &thisConnection
 	BrowserConnectionsMutex.Unlock()
+	openConnectionSubscriptions.Store(browserConnectionId, &thisConnection.ActiveSubscriptionsCount)
 
 	thisConnection.Logger.Infof("browser connection stored")
 
+	// Set once the connection init is accepted; read when the connection closes.
+	acceptedAtInit := false
 	defer func() {
+		openConnectionSubscriptions.Delete(browserConnectionId)
+		recordConnectionClose(&thisConnection, acceptedAtInit)
+
 		sessionTokenRemoved := ""
 		BrowserConnectionsMutex.Lock()
 		if _, bcExists := BrowserConnections[browserConnectionId]; bcExists {
@@ -157,14 +164,15 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	// Check authorization and obtain user session variables from bbb-web
-	if errorOnInitConnection, errorMessageId := connectionInitHandler(&thisConnection); errors.Is(errorOnInitConnection, errConnectionInitTimeout) {
-		common.WsConnectionRejectedCounter.With(prometheus.Labels{"reason": errorOnInitConnection.Error()}).Inc()
+	errorOnInitConnection, errorMessageId := connectionInitHandler(&thisConnection)
+	recordConnectionInit(errorOnInitConnection, errorMessageId)
+	acceptedAtInit = errorOnInitConnection == nil
+	if errors.Is(errorOnInitConnection, errConnectionInitTimeout) {
 		// 4408 is the graphql-transport-ws code for this case. Clients retry it, unlike a refusal.
 		connectionLogger.Infof("closing browser connection, reason: %v", errorOnInitConnection)
 		browserWsConn.Close(websocket.StatusCode(4408), "Connection initialisation timeout")
 		browserConnectionContextCancel()
 	} else if errorOnInitConnection != nil {
-		common.WsConnectionRejectedCounter.With(prometheus.Labels{"reason": errorOnInitConnection.Error()}).Inc()
 		disconnectWithError(
 			browserWsConn,
 			browserConnectionContext,
@@ -178,34 +186,13 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	common.WsConnectionAcceptedCounter.Inc()
-
 	common.AddUserConnection(thisConnection.SessionToken)
 	defer common.RemoveUserConnection(thisConnection.SessionToken)
 
 	// Ensure a hasura client is running while the browser is connected
 	go func() {
 		thisConnection.Logger.Debugf("starting hasura client")
-
-	BrowserConnectedLoop:
-		for {
-			select {
-			case <-browserConnectionContext.Done():
-				break BrowserConnectedLoop
-			default:
-				{
-					thisConnection.Logger.Debugf("creating hasura client")
-					BrowserConnectionsMutex.RLock()
-					thisBrowserConnection := BrowserConnections[browserConnectionId]
-					BrowserConnectionsMutex.RUnlock()
-					if thisBrowserConnection != nil {
-						thisConnection.Logger.Infof("created hasura client")
-						hasura.HasuraClient(thisBrowserConnection)
-					}
-					time.Sleep(100 * time.Millisecond)
-				}
-			}
-		}
+		keepConnectedToHasura(browserConnectionContext, &thisConnection, hasura.HasuraClient)
 	}()
 
 	// Ensure a gql-actions client is running while the browser is connected
@@ -298,6 +285,7 @@ func invalidateHasuraConnectionForSessionToken(browserConnection *common.Browser
 
 	// Cancel the Hasura connection context to clean up resources.
 	if hasuraConnection != nil && hasuraConnection.ContextCancelFunc != nil {
+		hasuraConnection.SetCloseReason(common.ReconnectionReason(reason))
 		hasuraConnection.ContextCancelFunc()
 	}
 
@@ -459,17 +447,18 @@ func connectionInitHandler(browserConnection *common.BrowserConnection) (error, 
 
 	// Intercept the fromBrowserMessage channel to get the sessionToken
 	for {
-		var fromBrowserMessage []byte
+		var received *common.BrowserMessage
 		var ok bool
 		select {
-		case fromBrowserMessage, ok = <-browserConnection.FromBrowserToHasuraChannel.ReceiveChannel():
+		case received, ok = <-browserConnection.FromBrowserToHasuraChannel.ReceiveChannel():
 		case <-deadline.C:
 			return errConnectionInitTimeout, ""
 		}
 		if !ok {
 			// Received all messages. Channel is closed
-			return fmt.Errorf("error on receiving init connection"), "param_missing"
+			return errClosedBeforeInit, "param_missing"
 		}
+		fromBrowserMessage := received.Raw
 		if bytes.Contains(fromBrowserMessage, []byte("\"connection_init\"")) {
 			var fromBrowserMessageAsMap map[string]interface{}
 			if err := json.Unmarshal(fromBrowserMessage, &fromBrowserMessageAsMap); err != nil {
@@ -585,6 +574,146 @@ func connectionInitHandler(browserConnection *common.BrowserConnection) (error, 
 	}
 
 	return nil, ""
+}
+
+var registerConnectionMetricsOnce sync.Once
+
+// openConnectionSubscriptions holds, for each open browser connection, its number of active
+// subscriptions (BrowserConnection.ActiveSubscriptionsCount), so the collection of
+// ws_connection_subscriptions_max reads them without taking any lock of the application.
+var openConnectionSubscriptions sync.Map // browser connection id -> *atomic.Int64
+
+// RegisterConnectionMetrics registers the metrics computed from the open connections when they
+// are collected, once however many times it is called.
+func RegisterConnectionMetrics() {
+	registerConnectionMetricsOnce.Do(func() {
+		prometheus.MustRegister(prometheus.NewGaugeFunc(prometheus.GaugeOpts{
+			Name: "ws_connection_subscriptions_max",
+			Help: "Highest number of entries (subscriptions, and queries in flight) held by one of the Websocket connections open at the time of the scrape",
+		}, maxActiveSubscriptions))
+		// The reasons are a closed set: their series exist from the start, at zero.
+		for _, reason := range append(slices.Clone(rejectionReasons), rejectionClosedBeforeInit, rejectionInitTimeout, rejectionOther) {
+			common.WsConnectionRejectedCounter.WithLabelValues(reason)
+		}
+	})
+}
+
+// maxActiveSubscriptions is the highest number of active subscriptions among the open
+// connections. It takes no lock of the application: a collection runs inside the Prometheus
+// registry, and a lock taken here could wait on a connection that is itself waiting on the
+// registry.
+func maxActiveSubscriptions() float64 {
+	var highest int64
+	openConnectionSubscriptions.Range(func(_, count any) bool {
+		if n := count.(*atomic.Int64).Load(); n > highest {
+			highest = n
+		}
+		return true
+	})
+	return float64(highest)
+}
+
+// keepConnectedToHasura connects to Hasura for the browser connection with client, and again each
+// time that connection ends, while the browser is connected. Each connection after the first is
+// counted as a reconnection, with the reason the previous one ended, when it is made: after the
+// pause between connections and the check that the browser is still connected.
+func keepConnectedToHasura(
+	browserConnectionContext context.Context,
+	thisConnection *common.BrowserConnection,
+	client func(*common.BrowserConnection) (string, error),
+) {
+	closeReason := "" // why the last connection to Hasura ended; empty before the first one
+
+BrowserConnectedLoop:
+	for {
+		select {
+		case <-browserConnectionContext.Done():
+			break BrowserConnectedLoop
+		default:
+			{
+				thisConnection.Logger.Debugf("creating hasura client")
+				BrowserConnectionsMutex.RLock()
+				thisBrowserConnection := BrowserConnections[thisConnection.Id]
+				BrowserConnectionsMutex.RUnlock()
+				if thisBrowserConnection != nil {
+					thisConnection.Logger.Infof("created hasura client")
+					if closeReason != "" {
+						recordHasuraReconnection(closeReason)
+					}
+					closeReason, _ = client(thisBrowserConnection)
+				}
+				time.Sleep(100 * time.Millisecond)
+			}
+		}
+	}
+}
+
+// recordHasuraReconnection counts a connection to Hasura made again for a browser connection, with
+// the reason the previous one ended.
+func recordHasuraReconnection(reason string) {
+	common.GqlHasuraReconnectionCounter.WithLabelValues(reason).Inc()
+}
+
+// errClosedBeforeInit is the init error of a browser that left before it sent its
+// connection_init.
+var errClosedBeforeInit = errors.New("error on receiving init connection")
+
+// rejectionClosedBeforeInit is the reason label of a connection whose browser left before it sent
+// its connection_init: it is answered with param_missing, but nothing was missing from it.
+const rejectionClosedBeforeInit = "closed_before_init"
+
+// rejectionInitTimeout is the reason label of a connection closed because its browser sent no
+// connection_init within connectionInitTimeout.
+const rejectionInitTimeout = "init_timeout"
+
+// rejectionOther is the reason label of a rejection with an errorMessageId outside rejectionReasons.
+const rejectionOther = "other"
+
+// rejectionReasons are the errorMessageIds a connection can be rejected with here; any other id
+// (one forwarded from akka-apps, for instance) is counted as rejectionOther.
+var rejectionReasons = []string{
+	"param_missing",
+	"too_many_connections",
+	"check_authorization_error",
+	"meeting_not_found",
+	"user_not_found",
+	"connections_limit_exceeded",
+}
+
+// rejectionReason is the reason label of ws_connection_rejected for an errorMessageId.
+func rejectionReason(errorMessageId string) string {
+	if slices.Contains(rejectionReasons, errorMessageId) {
+		return errorMessageId
+	}
+	return rejectionOther
+}
+
+// recordConnectionInit counts the outcome of a connection's init: rejected with its reason, or
+// accepted. A rejected connection is not counted as accepted.
+func recordConnectionInit(errorOnInitConnection error, errorMessageId string) {
+	if errors.Is(errorOnInitConnection, errClosedBeforeInit) {
+		common.WsConnectionRejectedCounter.With(prometheus.Labels{"reason": rejectionClosedBeforeInit}).Inc()
+		return
+	}
+	if errors.Is(errorOnInitConnection, errConnectionInitTimeout) {
+		common.WsConnectionRejectedCounter.With(prometheus.Labels{"reason": rejectionInitTimeout}).Inc()
+		return
+	}
+	if errorOnInitConnection != nil {
+		common.WsConnectionRejectedCounter.With(prometheus.Labels{"reason": rejectionReason(errorMessageId)}).Inc()
+		return
+	}
+	common.WsConnectionAcceptedCounter.Inc()
+}
+
+// recordConnectionClose counts, when a connection closes, the subscriptions it still held and,
+// for a connection accepted at init, the highest number of subscriptions it held. A connection
+// rejected at init (or gone before it) never held any, and is left out of the peak.
+func recordConnectionClose(browserConnection *common.BrowserConnection, acceptedAtInit bool) {
+	common.RecordConnectionSubscriptionsRemoved(browserConnection)
+	if acceptedAtInit {
+		common.RecordConnectionSubscriptionsPeak(browserConnection)
+	}
 }
 
 func disconnectWithError(

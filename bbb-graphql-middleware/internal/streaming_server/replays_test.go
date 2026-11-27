@@ -55,7 +55,7 @@ func (h *runOnDeferral) Fire(entry *logrus.Entry) error {
 func TestReplayStaysPendingUntilMembershipArrives(t *testing.T) {
 	bc, _ := newReplayTestConnection()
 
-	_ = ReadNewStreamingSubscription(bc, subscribeMessage(config.OpUserVoiceStateStream))
+	_ = ReadNewStreamingSubscription(bc, subscribeMessage(config.OpUserVoiceStateStream), "")
 	if frames := replayFrames(bc); frames != 0 {
 		t.Fatalf("a connection that is not in the meeting was sent %d replay frames", frames)
 	}
@@ -86,7 +86,7 @@ func TestReplayIsDeliveredWhenMembershipSettledBeforeItWasRecorded(t *testing.T)
 	}}
 	logger.AddHook(settled)
 
-	_ = ReadNewStreamingSubscription(bc, subscribeMessage(config.OpCursorCoordinatesStream))
+	_ = ReadNewStreamingSubscription(bc, subscribeMessage(config.OpCursorCoordinatesStream), "")
 
 	if !settled.fired {
 		t.Fatal("the replay was never deferred, so this test did not exercise the race")
@@ -109,7 +109,7 @@ func TestReplayIsNotSentTwiceWhenTheRefreshDrainsIt(t *testing.T) {
 	}}
 	logger.AddHook(settled)
 
-	_ = ReadNewStreamingSubscription(bc, subscribeMessage(config.OpCursorCoordinatesStream))
+	_ = ReadNewStreamingSubscription(bc, subscribeMessage(config.OpCursorCoordinatesStream), "")
 
 	if !settled.fired {
 		t.Fatal("the replay was never deferred, so this test did not exercise the race")
