@@ -40,7 +40,9 @@ To run these tests with an existing BigBlueButton server, you need to find the s
 ### 2. Run tests
 
 - **IMPORTANT**: BBB automated tests rely on the default server config (based on values set in `settings.yml`). Any custom setting may cause false failures.
-- A few tests provision per-meeting client settings server-side through the `clientSettingsOverride` create module (`createClientSettingsOverride` in `Page.init`). bbb-web ignores that module unless `allowOverrideClientSettingsOnCreateCall=true` is set in `/etc/bigbluebutton/bbb-web.properties` (then restart bbb-web); without it those tests fail at join with a message naming the setting. CI enables it in `.github/actions/install-bbb`.
+- Two server settings are required, and CI sets both in `.github/actions/install-bbb`. Set them in `/etc/bigbluebutton/bbb-web.properties` and restart bbb-web when running against your own server; without them these tests fail with a message naming the setting, they do not skip:
+  - `allowOverrideClientSettingsOnCreateCall=true`: bbb-web ignores the `clientSettingsOverride` create module without it, and a few tests provision per-meeting client settings that way (`createClientSettingsOverride` in `Page.init`).
+  - `fetchUrlAllowedLocalHosts=<server host>`: the meeting-ended callback test has bbb-web call back its own host.
 - Node 24 recommended: it is the version CI runs the suite with (see the root `.nvmrc`).
 
 Tests can be executed using `npx playwright test` or `npm test`. You can run all tests in each of 3 available browsers (`chromium`, `firefox`, `webkit`) (Note: ensure the browser you're interested in is enabled in `playwright.config.ts`) with one of the following commands:
@@ -132,7 +134,7 @@ The quarantine tags are defined once, as `config.quarantine` in `package.json`; 
 - `@flaky` — genuinely intermittent; passes on retry or under different timing
 - `@need-update` — the covered feature changed or was removed; the test itself needs a rewrite (a comment at the test states what changed)
 - `@known-issue` — the test and its assertions are correct, but a known/suspected product issue makes it fail deterministically (a comment or `linkIssue()` at the test points to the issue)
-- `@setting-required:<setting>` — needs a non-default server setting
+- `@setting-required:<setting>` — needs a server setting the gate's servers do not have; each one has its own `setting-*` nightly job
 - `@only-headed` — cannot run headless (no test carries it at the moment)
 
 Tests tagged `@nightly` cover extended test sets or wait minutes for recording processing or timers. The gates never select them, even inside a describe tagged `@ci`, so a `@ci` test moves to the nightly by taking the `@nightly` tag itself; `npm run test-nightly` runs them on Chromium. The Nightly tests workflow (`.github/workflows/nightly-tests.yml`) runs them every night, together with the whole non-quarantined suite on the default bridge and the gate's `@media` tests on `bbb-webrtc-sfu`, the selection of the former per-PR legacy media job. The tests of recording formats other than presentation run only for the formats listed in `RECORDING_FORMATS` (e.g. `presentation,podcast,video,screenshare,notes`).

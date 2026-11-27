@@ -1,6 +1,5 @@
 import { expect } from '@playwright/test';
 
-import { CI } from '../core/constants';
 import { linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { API } from './api';
@@ -307,11 +306,11 @@ test.describe.parallel('API', () => {
     test('meetingEndedUrlCarriesRecordingmarksAndMeetingID', async ({ request }) => {
       linkIssue(25929);
       const callsBack = await APICallbacks.serverCallsBackItsOwnHost(request);
-      if (CI) {
-        expect(callsBack, 'the meta_endCallbackUrl control callback should re-create the meeting').toBe(true);
-      } else {
-        test.skip(!callsBack, 'bbb-web does not accept a callback to its own host (fetchUrlAllowedLocalHosts)');
-      }
+      expect(
+        callsBack,
+        'the meta_endCallbackUrl control callback should re-create the meeting: bbb-web needs its own host in ' +
+          'fetchUrlAllowedLocalHosts in /etc/bigbluebutton/bbb-web.properties. CI sets it in .github/actions/install-bbb.',
+      ).toBe(true);
       await APICallbacks.testMeetingEndedUrlCarriesRecordingmarksAndMeetingID(request);
     });
   });

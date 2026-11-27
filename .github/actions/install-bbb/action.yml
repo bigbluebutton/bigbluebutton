@@ -13,6 +13,10 @@ inputs:
     description: "Lines to append to /etc/bigbluebutton/bbb-web.properties before the services restart (default: none)"
     required: false
     default: ""
+  allow-client-settings-override:
+    description: "false leaves allowOverrideClientSettingsOnCreateCall at its default, for the test of that default (default: enabled)"
+    required: false
+    default: "true"
 runs:
   using: "composite"
   steps:
@@ -202,8 +206,16 @@ runs:
         NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
         ACTIONS_RUNNER_DEBUG: true
         BBB_WEB_PROPERTIES: ${{ inputs.bbb-web-properties }}
+        ALLOW_CLIENT_SETTINGS_OVERRIDE: ${{ inputs.allow-client-settings-override }}
       run: |
-        printf '%s\n' "$BBB_WEB_PROPERTIES" > /tmp/bbb-web-extra.properties
+        {
+          # Tests provision per-meeting client settings via the clientSettingsOverride
+          # create module (e.g. webcam/gridTileCount); the property defaults to false.
+          if [ "$ALLOW_CLIENT_SETTINGS_OVERRIDE" != "false" ]; then
+            echo "allowOverrideClientSettingsOnCreateCall=true"
+          fi
+          printf '%s\n' "$BBB_WEB_PROPERTIES"
+        } > /tmp/bbb-web-extra.properties
         sudo -i <<'EOF'
         set -e
         cd /root/
@@ -236,12 +248,10 @@ runs:
         sed -i "s/exports.DEBUG = false/exports.DEBUG = true/" /usr/local/bigbluebutton/bbb-graphql-actions/config.js
         sudo yq-go e -i '.log_level = "TRACE"' /usr/share/bbb-graphql-middleware/config.yml
         echo "HASURA_GRAPHQL_LOG_LEVEL=debug" | tee -a /etc/bigbluebutton/bbb-graphql-server.env
-        # Tests provision per-meeting client settings via the clientSettingsOverride
-        # create module (e.g. webcam/gridTileCount); the property defaults to false.
-        echo "allowOverrideClientSettingsOnCreateCall=true" | tee -a /etc/bigbluebutton/bbb-web.properties
         # The meeting-ended callback test calls back bbb-ci.test, which resolves to a private address.
         echo "fetchUrlAllowedLocalHosts=bbb-ci.test" | tee -a /etc/bigbluebutton/bbb-web.properties
-        # Settings the calling job asked for (input bbb-web-properties), e.g. for @setting-required tests
+        # The client settings override (see above) and the settings the calling job asked for
+        # (input bbb-web-properties), e.g. for @setting-required tests
         sed '/^$/d' /tmp/bbb-web-extra.properties | tee -a /etc/bigbluebutton/bbb-web.properties
         cat > /etc/bigbluebutton/bbb-conf/apply-config.sh << HERE
         #!/bin/bash
