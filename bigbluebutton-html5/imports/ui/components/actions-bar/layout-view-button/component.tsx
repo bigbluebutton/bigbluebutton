@@ -40,6 +40,10 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.layoutView.cameraPageSize.description',
     description: 'Helper text for the slider that sets how many cameras each page shows',
   },
+  cameraPageSizeLimitedDesc: {
+    id: 'app.actionsBar.layoutView.cameraPageSize.limitedDescription',
+    description: 'Helper text for the camera page size slider while the meeting size limits it; {limit} is the limit',
+  },
   hideUsersWithoutCameraLabel: {
     id: 'app.actionsBar.layoutView.hideUsersWithoutCamera.label',
     description: 'Label for the toggle that hides participants without camera for the whole meeting',
@@ -73,7 +77,7 @@ const LayoutViewButton: React.FC = () => {
   );
 
   const meetingPageSize = useMeetingCameraPageSize();
-  const { max: maxPageSize, viewerPageSize } = useCameraPageSizeRange();
+  const { max: maxPageSize, viewerPageSize, isLimitedByThreshold } = useCameraPageSizeRange();
   const [setCameraPageSize] = useMutation(SET_CAMERA_PAGE_SIZE);
   // Until someone sets it, the slider shows what viewers get from config; 0 is unlimited.
   const [pageSize, requestPageSize] = usePendingRequest(
@@ -164,7 +168,9 @@ const LayoutViewButton: React.FC = () => {
             <BBBSlider
               dataTest="cameraPageSizeSlider"
               label={intl.formatMessage(intlMessages.cameraPageSizeLabel)}
-              helperText={intl.formatMessage(intlMessages.cameraPageSizeDesc)}
+              helperText={isLimitedByThreshold
+                ? intl.formatMessage(intlMessages.cameraPageSizeLimitedDesc, { limit: intl.formatNumber(maxPageSize) })
+                : intl.formatMessage(intlMessages.cameraPageSizeDesc)}
               value={sliderValue}
               min={1}
               max={maxPageSize}

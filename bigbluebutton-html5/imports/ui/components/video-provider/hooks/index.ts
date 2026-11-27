@@ -309,8 +309,8 @@ export const useMeetingCameraPageSize = () => {
   return data?.layout?.cameraPageSize ?? null;
 };
 
-// The largest camera page size the Layout view offers, and the size desktop viewers get from
-// config while the meeting has none.
+// The largest camera page size the Layout view offers and whether a pagination threshold sets
+// it. Also the size desktop viewers get from config while the meeting has none.
 export const useCameraPageSizeRange = () => {
   const {
     desktopPageSizes,
@@ -320,7 +320,9 @@ export const useCameraPageSizeRange = () => {
   const active = paginationThresholds?.active;
   const viewerPageSize = (active?.desktopPageSizes || desktopPageSizes)?.viewer ?? 0;
 
-  if (!paginationThresholds) return { max: Math.max(layoutViewMaxPageSize, 1), viewerPageSize };
+  if (!paginationThresholds) {
+    return { max: Math.max(layoutViewMaxPageSize, 1), viewerPageSize, isLimitedByThreshold: false };
+  }
 
   const { thresholds } = paginationThresholds;
   const belowFirstThreshold = thresholds[0].users - 1;
@@ -335,7 +337,7 @@ export const useCameraPageSizeRange = () => {
     max = Math.max(belowFirstThreshold, ...sizes);
   }
 
-  return { max: Math.max(max, 1), viewerPageSize };
+  return { max: Math.max(max, 1), viewerPageSize, isLimitedByThreshold: !!active && viewerPageSize > 0 };
 };
 
 export const useMyRole = () => {
