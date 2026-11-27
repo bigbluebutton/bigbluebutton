@@ -57,6 +57,8 @@ Usage: ./bbb-dev <command> [component] [args...]
                           (domain: BBB_DOMAIN in .env, else $DEFAULT_DOMAIN)
   build <component>       build its image from your checkout (localhost/bbb-<target>:dev)
   enable <component>      run it from your checkout: live, or the image of build
+  enable <component> --image
+                          run the image of build, also for a component that runs live
   disable <component>|all run the published image again
   exec <component> [cmd]  run cmd in its container, or a shell
   logs <component> [args] its logs (args as for docker compose logs, e.g. -f)
@@ -95,7 +97,7 @@ set_env() {
   mv "$tmp" .env
 }
 
-# The components in COMPOSE_FILE
+# The components in COMPOSE_FILE; <component>.image for a live one that runs its built image
 enabled() {
   env_value COMPOSE_FILE | tr ':' '\n' | sed -n "s|^$DEV/\(.*\)\.yml$|\1|p" | grep -vx base || true
 }
@@ -122,15 +124,26 @@ switch_to() {
   docker compose up -d --remove-orphans
 }
 
+# The components in COMPOSE_FILE except $1, in either mode
+enabled_without() {
+  enabled | grep -vxE "$1(\.image)?" || true
+}
+
 cmd_enable() {
-  local dir
+  local dir file
   need_component "${1:-}"
+  file=$1
+  if [[ ${2:-} == --image ]]; then
+    [[ -z $live ]] || file=$1.image live='' dirs=''
+  elif [[ -n ${2:-} ]]; then
+    fail "Unknown option: $2"
+  fi
   if [[ -z $live ]] && ! docker image inspect "localhost/bbb-$target:dev" >/dev/null 2>&1; then
     fail "No local image localhost/bbb-$target:dev. Run ./bbb-dev build $1 first."
   fi
   for dir in $dirs; do mkdir -p "$dir"; done
   # shellcheck disable=SC2046 # one component per line
-  switch_to $(enabled) "$1"
+  switch_to $(enabled_without "$1") "$file"
 }
 
 cmd_disable() {
@@ -139,7 +152,7 @@ cmd_disable() {
   else
     need_component "${1:-}"
     # shellcheck disable=SC2046
-    switch_to $(enabled | grep -vx "$1" || true)
+    switch_to $(enabled_without "$1")
   fi
 }
 
@@ -168,8 +181,9 @@ cmd_status() {
   echo "Domain: $(env_value BBB_DOMAIN)"
   echo "From your checkout:"
   for c in $(enabled); do
-    component "$c" || continue
-    echo "  $c: ${live:-localhost/bbb-$target:dev}"
+    component "${c%.image}" || continue
+    [[ $c != *.image ]] || live=''
+    echo "  ${c%.image}: ${live:-localhost/bbb-$target:dev}"
   done
   docker compose ps
 }

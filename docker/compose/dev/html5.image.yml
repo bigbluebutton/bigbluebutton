@@ -1,0 +1,5 @@
+# ./bbb-dev enable html5 --image: the image of ./bbb-dev build html5
+services:
+  html5-client:
+    image: localhost/bbb-html5-client:dev
+    pull_policy: never

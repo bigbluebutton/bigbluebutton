@@ -1,0 +1,5 @@
+# ./bbb-dev enable actions --image: the image of ./bbb-dev build actions
+services:
+  graphql-actions:
+    image: localhost/bbb-graphql-actions:dev
+    pull_policy: never

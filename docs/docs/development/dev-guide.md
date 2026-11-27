@@ -151,6 +151,13 @@ Open `https://bbb.localhost` (browsers resolve `*.localhost` to the loopback add
 
 The Node components (html5, dashboard, actions, notes, export) run live: a changed source file is recompiled or restarted without a rebuild. The first `enable` installs their dependencies into a volume, which takes a few minutes. The other components run the image of `./bbb-dev build`.
 
+To run a Node component as its production image instead, build it and enable it with `--image`. After a source change, run both commands again; `enable` without `--image` switches back to live.
+
+```bash
+./bbb-dev build html5
+./bbb-dev enable html5 --image
+```
+
 Each component has a file in `docker/compose/dev/` with what is different in development, and `enable` adds it to `COMPOSE_FILE` in `.env`, so a plain `docker compose` runs the same setup. Your own settings go in `docker-compose.override.yml`, which is read last.
 
 #### Alternative - add a development environment to a [locally running] working BigBlueButton server
