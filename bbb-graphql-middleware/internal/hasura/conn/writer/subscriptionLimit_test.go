@@ -103,3 +103,34 @@ func TestTheLimitWarningsCutLongNames(t *testing.T) {
 		t.Errorf("the two-thirds warning: %v", entries)
 	}
 }
+
+// The two-thirds warning shows the count and the names of the same moment: the subscriptions that
+// reached the threshold, even when they are removed while the warning is written.
+func TestTheTwoThirdsWarningShowsTheSubscriptionsThatReachedIt(t *testing.T) {
+	for run := 0; run < 2000; run++ {
+		logger, hook := logrustest.NewNullLogger()
+		browser := &common.BrowserConnection{ActiveSubscriptions: map[string]common.GraphQlSubscription{}, Logger: logrus.NewEntry(logger)}
+		browser.ActiveSubscriptions["1"] = common.GraphQlSubscription{Id: "1", OperationName: "getUsers"}
+		browser.ActiveSubscriptions["2"] = common.GraphQlSubscription{Id: "2", OperationName: "getChat"}
+
+		removed := make(chan struct{})
+		go func() {
+			defer close(removed)
+			browser.ActiveSubscriptionsMutex.Lock()
+			clear(browser.ActiveSubscriptions)
+			browser.ActiveSubscriptionsMutex.Unlock()
+		}()
+		logOnTwoThirdsOfLimit(browser, 3) // the threshold is 2
+		<-removed
+
+		for _, entry := range hook.AllEntries() {
+			if entry.Data["activeSubscriptions"] != 2 || entry.Data["activeSubscriptionsByOperation"] != "getChat=1, getUsers=1" {
+				t.Fatalf("run %d: the warning showed %v subscriptions, %q; want the 2 that reached the threshold",
+					run, entry.Data["activeSubscriptions"], entry.Data["activeSubscriptionsByOperation"])
+			}
+		}
+		if len(hook.AllEntries()) == 0 && browser.SubscriptionTwoThirdsLogged.Load() {
+			t.Fatalf("run %d: the flag was taken with no warning", run)
+		}
+	}
+}

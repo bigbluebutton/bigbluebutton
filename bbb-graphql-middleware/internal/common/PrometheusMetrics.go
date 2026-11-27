@@ -81,7 +81,7 @@ var (
 	GqlSubscribeCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "gql_subscription_total",
-			Help: "Total number of GraphQL operations of the clients forwarded to Hasura (subscriptions, queries, and the mutations that go through Hasura), by type; a message whose id is already active, a resend after a reconnection or a repeated subscribe, is not counted",
+			Help: "Total number of GraphQL operations of the clients the middleware records as started (subscriptions, queries, and the mutations that go through Hasura), by type, including a subscribe of a user not in the meeting that the membership check holds and does not forward to Hasura; a message whose id is already active, a resend after a reconnection or a repeated subscribe, is not counted",
 		},
 		[]string{"type", "operationName"},
 	)

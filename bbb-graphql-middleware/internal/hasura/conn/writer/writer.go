@@ -610,20 +610,22 @@ func recordSubscriptionLimitRejection(messageType common.QueryType, operationNam
 // their number reaches two thirds of the limit: early enough to see a leak before subscriptions
 // are rejected.
 func logOnTwoThirdsOfLimit(browserConnection *common.BrowserConnection, limit int) {
+	// The count and the names are read in one lock, so the warning, written once per connection,
+	// shows the subscriptions that reached the threshold, not what is left of them a moment later.
 	browserConnection.ActiveSubscriptionsMutex.RLock()
-	activeSubscriptions := len(browserConnection.ActiveSubscriptions)
+	reached := len(browserConnection.ActiveSubscriptions) >= limit*2/3 && !browserConnection.SubscriptionTwoThirdsLogged.Load()
+	var operationNames []string
+	if reached {
+		operationNames = make([]string, 0, len(browserConnection.ActiveSubscriptions))
+		for _, subscription := range browserConnection.ActiveSubscriptions {
+			operationNames = append(operationNames, subscription.OperationName)
+		}
+	}
 	browserConnection.ActiveSubscriptionsMutex.RUnlock()
 
-	if activeSubscriptions < limit*2/3 || !browserConnection.SubscriptionTwoThirdsLogged.CompareAndSwap(false, true) {
+	if !reached || !browserConnection.SubscriptionTwoThirdsLogged.CompareAndSwap(false, true) {
 		return
 	}
-
-	browserConnection.ActiveSubscriptionsMutex.RLock()
-	operationNames := make([]string, 0, len(browserConnection.ActiveSubscriptions))
-	for _, subscription := range browserConnection.ActiveSubscriptions {
-		operationNames = append(operationNames, subscription.OperationName)
-	}
-	browserConnection.ActiveSubscriptionsMutex.RUnlock()
 
 	browserConnection.Logger.
 		WithField("activeSubscriptions", len(operationNames)).

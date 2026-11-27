@@ -40,6 +40,9 @@ func writerUntilItEnds(t *testing.T, beforeInit func(*websocket.Conn)) (*common.
 	if err != nil {
 		t.Fatalf("dial the fake Hasura: %v", err)
 	}
+	// The writer can end without closing the socket, and server.Close does not close a hijacked
+	// connection: close it, so the fake Hasura does not stay blocked in Read after the test.
+	t.Cleanup(func() { conn.CloseNow() })
 	beforeInit(conn)
 	browser := newBrowserConnection(true)
 	hasura := &common.HasuraConnection{Id: "HC1", BrowserConn: browser, Websocket: conn, Context: ctx, ContextCancelFunc: cancel}
