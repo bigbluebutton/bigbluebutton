@@ -31,6 +31,7 @@ interface InsertPagesButtonProps {
   currentSlideNum: number;
   numberOfSlides: number;
   isConnected: boolean;
+  meetingIsBreakout: boolean;
 }
 
 // Pages enter after the current slide, and the presenter is taken to the first of them. The position goes
@@ -40,6 +41,7 @@ const InsertPagesButton: React.FC<InsertPagesButtonProps> = ({
   currentSlideNum,
   numberOfSlides,
   isConnected,
+  meetingIsBreakout,
 }) => {
   const intl = useIntl();
   const fileInput = useRef<HTMLInputElement>(null);
@@ -71,6 +73,9 @@ const InsertPagesButton: React.FC<InsertPagesButtonProps> = ({
   }, [run, presentationId, currentSlideNum, numberOfSlides]);
 
   if (!presentationConfig.insertPagesEnabled) return null;
+  // In a breakout room, only where the presenter may manage presentations (as the upload in the actions bar).
+  const { allowPresentationManagementInBreakouts } = window.meetingClientSettings.public.app.breakouts;
+  if (meetingIsBreakout && !allowPresentationManagementInBreakouts) return null;
 
   const disabled = busy || !isConnected || !presentationId || numberOfSlides < 1;
   const label = intl.formatMessage(intlMessages.insertPagesLabel);
@@ -78,6 +83,7 @@ const InsertPagesButton: React.FC<InsertPagesButtonProps> = ({
   return (
     <>
       <BBBMenu
+        disabled={disabled}
         trigger={(
           <Button
             data-test="insertPagesButton"

@@ -530,6 +530,7 @@ class PresentationToolbar extends PureComponent {
             currentSlideNum={currentSlideNum}
             numberOfSlides={numberOfSlides}
             isConnected={isConnected}
+            meetingIsBreakout={meetingIsBreakout}
           />
         </Styled.PresentationSlideControls>
         <Styled.PresentationZoomControls className="bbb-presentation-toolbar__zoom-controls">

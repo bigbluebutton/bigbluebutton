@@ -668,6 +668,7 @@ export const elements = {
   presentationUploadFailedLabel: 'The upload failed. Please try again.',
   presentationUploadCouldNotStartLabel: 'The upload could not start.',
   insertPagesFailedLabel: 'the pages could not be inserted',
+  insertPagesNotConfirmedLabel: 'the insert of the pages could not be confirmed',
   insertPagesTimeoutLabel: 'inserting the pages took too long and was stopped',
   insertPagesUnsupportedTargetLabel:
     'pages can only be inserted into a presentation made from a PDF or an office document',
