@@ -72,14 +72,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         provider: 'webspeech',
         speechProcessing: 'cloud',
         showInSidebarNavigation: false,
-        microphoneAlert: {
-          enabled: true,
-          helpLink: '',
-          threshold: -50,
-          speakingThreshold: 5000,
-          duration: 10000,
-          interval: 200,
-        },
         language: {
           available: [
             'en-US',
@@ -92,11 +84,20 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           locale: 'disabled',
         },
       },
-      mutedAlert: {
+      smartTriggers: {
         enabled: true,
-        interval: 200,
-        threshold: -50,
-        duration: 4000,
+        talkingWhileMuted: {
+          enabled: true,
+          speechThresholdDb: -50,
+          hideAfterMs: 4000,
+        },
+        speechNotTranscribed: {
+          enabled: true,
+          speechThresholdDb: -50,
+          afterSpeakingSeconds: 5,
+          hideAfterMs: 10000,
+          helpLink: '',
+        },
       },
       appsGallery: {
         maxPinnedApps: 3,
@@ -634,6 +635,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         defaultListenOnlyBridge: 'livekit',
         retryThroughRelay: false,
         allowAudioJoinCancel: true,
+        micActivitySampleInterval: 200,
         audioWasmProcessing: {
           enabled: false,
           provider: 'bbba',
