@@ -782,6 +782,14 @@ SELECT "user_voice".*
 FROM "user_voice"
 WHERE "user_voice"."joined" is true;
 
+-- This view is used ONLY for the `voice` relationship of v_user (user list, raised hands,
+-- audio-only users, grid...). Its permission must never reference a per-user session variable
+-- (X-Hasura-UserId, X-Hasura-LockedUserId...): that would make Hasura run the user list once per
+-- connected user instead of once per meeting. The current user's own voice is served by
+-- user_current.voice (v_user_voice). See bbb-graphql-server/scripts/check-userlist-cohort-safety.py
+CREATE OR REPLACE VIEW "v_user_list_voice" AS
+SELECT * FROM "v_user_voice";
+
 --Populate voiceActivityAt to provide users that are active in audio via stream subscription using the view v_user_voice_activity
 CREATE OR REPLACE FUNCTION "update_user_voice_voiceActivityAt_trigger_func"() RETURNS TRIGGER AS $$
 BEGIN
@@ -857,6 +865,13 @@ SELECT * FROM "user_camera";
 
 -- this view will be used specifically for the join with user_current
 CREATE OR REPLACE VIEW "v_user_current_camera" AS
+SELECT * FROM "user_camera";
+
+-- This view is used ONLY for the `cameras` relationship of v_user (user list, grid...).
+-- Its permission must never reference a per-user session variable (see v_user_list_voice).
+-- The current user's own cameras are served by user_current.cameras (v_user_current_camera)
+-- and by the user_camera root field (v_user_camera).
+CREATE OR REPLACE VIEW "v_user_list_camera" AS
 SELECT * FROM "user_camera";
 
 --Maintain user.camerasCount with the count of rows in user_camera for the same (meetingId, userId)
