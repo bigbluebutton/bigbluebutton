@@ -214,6 +214,9 @@ export const elements = {
   breakoutListenToast: 'div[data-test="breakoutListenToast"]',
   breakoutEndedByModeratorLabel: 'The breakout has ended - terminated by Moderator',
   breakoutEndedAfterDurationLabel: 'The breakout has ended due to exceeding the maximum duration',
+  breakoutUserUnassignedLabel: 'You have been removed from this breakout room',
+  breakoutUserMovedLabel: 'You have been moved to another breakout room',
+  breakoutEndedCloseWindowLabel: 'Press the button to close this window.',
 
   // Chat
   chatBox: 'textarea[id="message-input"]',

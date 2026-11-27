@@ -4,6 +4,7 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.db.BreakoutRoomUserDAO
 import org.bigbluebutton.core.domain.MeetingState2x
+import org.bigbluebutton.core.models.EjectReasonCode
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 
 trait UnassignUserFromBreakoutReqMsgHdlr extends RightsManagementTrait {
@@ -25,7 +26,7 @@ trait UnassignUserFromBreakoutReqMsgHdlr extends RightsManagementTrait {
 
       roomOpt match {
         case Some((breakoutModel, room)) =>
-          BreakoutHdlrHelpers.ejectUserFromBreakoutRoom(eventBus, meetingId, room, msg.body.userId, msg.header.userId, "User unassigned from breakout room")
+          BreakoutHdlrHelpers.ejectUserFromBreakoutRoom(liveMeeting, eventBus, room, msg.body.userId, msg.header.userId, "User unassigned from breakout room", EjectReasonCode.BREAKOUT_USER_UNASSIGNED)
           BreakoutHdlrHelpers.revokeUserAccessToBreakoutRooms(liveMeeting, eventBus, breakoutModel.rooms.values, msg.body.userId)
           BreakoutRoomUserDAO.unassignUser(meetingId, msg.body.userId)
         case None =>
