@@ -288,16 +288,7 @@ RangeLoop:
 
 					operationNameLabel := common.MetricOperationName(operationName)
 
-					browserConnection.ActiveSubscriptionsMutex.Lock()
-					if browserConnection.ActiveSubscriptionsClosed {
-						// The browser connection closed while this message was handled, and its
-						// subscriptions were already removed and counted: nothing would remove this one.
-						browserConnection.ActiveSubscriptionsMutex.Unlock()
-						continue
-					}
-					// A record of this id, whatever its type, makes this message a resend.
-					_, alreadyActive := browserConnection.ActiveSubscriptions[queryId]
-					browserConnection.ActiveSubscriptions[queryId] = common.GraphQlSubscription{
+					stored, alreadyActive := storeEntry(browserConnection, common.GraphQlSubscription{
 						Id:                         queryId,
 						Message:                    fromBrowserMessage,
 						OperationName:              operationName,
@@ -310,11 +301,12 @@ RangeLoop:
 						Type:                       messageType,
 						LastReceivedDataChecksum:   lastReceivedDataChecksum,
 						LastReceivedData:           lastReceivedData,
-						FirstDataReceived:          existingSubscriptionData.FirstDataReceived,
+					})
+					if !stored {
+						// The browser connection closed while this message was handled, and its
+						// subscriptions were already removed and counted: nothing would remove this one.
+						continue
 					}
-					browserConnection.NoteActiveSubscriptionsLocked()
-					// hc.BrowserConn.Logger.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
-					browserConnection.ActiveSubscriptionsMutex.Unlock()
 
 					if messageType != common.Query && messageType != common.Mutation && config.GetConfig().Server.MaxConnectionConcurrentSubscriptions > 0 {
 						logOnTwoThirdsOfLimit(browserConnection, config.GetConfig().Server.MaxConnectionConcurrentSubscriptions)
@@ -581,6 +573,26 @@ func recordSubscriptionStart(messageType common.QueryType, operationNameLabel st
 			"operationName": operationNameLabel,
 		}).
 		Inc()
+}
+
+// storeEntry stores the entry of a subscribe, unless the browser connection has closed, and reports
+// whether it stored it and whether the id was already active. A record of the id, whatever its
+// type, makes the message a resend. A subscription keeps whether its first data arrived, read in
+// the same lock as the entry is written: the first data can arrive after the id was looked up for
+// the limit, and a value from that earlier read would start the wait for it again.
+func storeEntry(browserConnection *common.BrowserConnection, entry common.GraphQlSubscription) (stored bool, alreadyActive bool) {
+	browserConnection.ActiveSubscriptionsMutex.Lock()
+	defer browserConnection.ActiveSubscriptionsMutex.Unlock()
+	if browserConnection.ActiveSubscriptionsClosed {
+		return false, false
+	}
+	current, alreadyActive := browserConnection.ActiveSubscriptions[entry.Id]
+	if entry.Type.IsSubscription() {
+		entry.FirstDataReceived = current.FirstDataReceived
+	}
+	browserConnection.ActiveSubscriptions[entry.Id] = entry
+	browserConnection.NoteActiveSubscriptionsLocked()
+	return true, alreadyActive
 }
 
 // startFirstDataWait starts the wait for a subscription's first data each time it is forwarded

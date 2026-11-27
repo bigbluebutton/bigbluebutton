@@ -17,6 +17,7 @@ import (
 	"github.com/coder/websocket"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
+	logrustest "github.com/sirupsen/logrus/hooks/test"
 	"golang.org/x/time/rate"
 )
 
@@ -143,12 +144,33 @@ func subscribeOperation(id, operationName string) string {
 	return string(message)
 }
 
-func TestFirstDataClockStartsWhenTheSubscriptionIsSent(t *testing.T) {
-	w := startWriter(t, newBrowserConnection(false))
+// heldOutsideTheMeeting records the debug line the writer writes when it holds a subscribe of a user
+// not in the meeting, and returns how many it wrote: the writer has passed the membership check
+// for each of them.
+func heldOutsideTheMeeting(browser *common.BrowserConnection) func() int {
+	logger, hook := logrustest.NewNullLogger()
+	logger.SetLevel(logrus.DebugLevel)
+	browser.Logger = logrus.NewEntry(logger)
+	return func() int {
+		held := 0
+		for _, entry := range hook.AllEntries() {
+			if strings.HasPrefix(entry.Message, "Not sending to Hasura") {
+				held++
+			}
+		}
+		return held
+	}
+}
 
-	// Outside the meeting the subscription is kept but not sent.
+func TestFirstDataClockStartsWhenTheSubscriptionIsSent(t *testing.T) {
+	browser := newBrowserConnection(false)
+	held := heldOutsideTheMeeting(browser)
+	w := startWriter(t, browser)
+
+	// Outside the meeting the subscription is kept but not sent. The wait is for the writer to have
+	// passed the membership check, so the change below cannot reach it first.
 	w.send(subscribeOperation("1", "getUsers"))
-	w.waitUntil(t, func() bool { _, ok := w.subscription("1"); return ok })
+	w.waitUntil(t, func() bool { return held() == 1 })
 
 	// Back in the meeting, the retransmission after the reconnection sends it.
 	w.browser.Lock()
@@ -245,7 +267,9 @@ func TestRetransmissionAtTheLimitIsForwardedAndCountedAsRetransmitted(t *testing
 // inside the meeting, with no data yet, whose user leaves and comes back, waits from the last
 // resend, not from the first send.
 func TestFirstDataClockRestartsOnEveryForward(t *testing.T) {
-	w := startWriter(t, newBrowserConnection(true))
+	browser := newBrowserConnection(true)
+	held := heldOutsideTheMeeting(browser)
+	w := startWriter(t, browser)
 	setInMeeting := func(inMeeting bool) {
 		w.browser.Lock()
 		w.browser.CurrentlyInMeeting = inMeeting
@@ -259,10 +283,10 @@ func TestFirstDataClockRestartsOnEveryForward(t *testing.T) {
 	// not send it, so no wait runs while the user is out.
 	setInMeeting(false)
 	w.send(subscribeOperation("1", "getUsers"))
-	w.waitUntil(t, func() bool {
-		subscription, _ := w.subscription("1")
-		return subscription.FirstDataPendingSince.IsZero()
-	})
+	w.waitUntil(t, func() bool { return held() == 1 })
+	if subscription, _ := w.subscription("1"); !subscription.FirstDataPendingSince.IsZero() {
+		t.Fatalf("the subscription held outside the meeting waits for its first data since %v", subscription.FirstDataPendingSince)
+	}
 
 	// Back in the meeting, the next retransmission sends it again.
 	setInMeeting(true)
@@ -321,6 +345,37 @@ func TestAResentSubscriptionKeepsItsFirstDataSettled(t *testing.T) {
 	w.expectSent(t)
 
 	subscription, _ := w.subscription("1")
+	if !subscription.FirstDataReceived || !subscription.FirstDataPendingSince.IsZero() {
+		t.Errorf("the resend waits for the first data again: received %v, pending since %v", subscription.FirstDataReceived, subscription.FirstDataPendingSince)
+	}
+}
+
+// The first data of a subscription can arrive after the writer looked its id up for the limit and
+// before it stores the resend: the resend keeps it settled, so the first data is not waited for, nor
+// observed, again.
+func TestAResendKeepsTheFirstDataThatArrivedAfterTheLimitCheck(t *testing.T) {
+	browser := newBrowserConnection(true)
+	browser.ActiveSubscriptions["1"] = common.GraphQlSubscription{Id: "1", Type: common.Subscription, OperationName: "getUsers", LastSeenOnHasuraConnection: "HC1"}
+
+	// What the writer read for the limit: no first data yet.
+	browser.ActiveSubscriptionsMutex.RLock()
+	lookedUp := browser.ActiveSubscriptions["1"]
+	browser.ActiveSubscriptionsMutex.RUnlock()
+
+	// The first data arrives, as the Hasura reader records it.
+	browser.UpdateActiveSubscription("1", func(current *common.GraphQlSubscription) { current.FirstDataReceived = true })
+
+	// The resend is stored from the earlier read.
+	stored, alreadyActive := storeEntry(browser, common.GraphQlSubscription{
+		Id: "1", Type: common.Subscription, OperationName: "getUsers", LastSeenOnHasuraConnection: "HC2",
+		FirstDataReceived: lookedUp.FirstDataReceived,
+	})
+	if !stored || !alreadyActive {
+		t.Fatalf("stored %v, already active %v; want the resend stored over its entry", stored, alreadyActive)
+	}
+	startFirstDataWait(browser, "1")
+
+	subscription := browser.ActiveSubscriptions["1"]
 	if !subscription.FirstDataReceived || !subscription.FirstDataPendingSince.IsZero() {
 		t.Errorf("the resend waits for the first data again: received %v, pending since %v", subscription.FirstDataReceived, subscription.FirstDataPendingSince)
 	}
