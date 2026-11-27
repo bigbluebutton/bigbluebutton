@@ -444,20 +444,21 @@ export class GuestPolicy extends MultiUsers {
 
   // With combineGuestWaitingQueues, every waiting user is in one list, in order of arrival.
   async combinedWaitingList(): Promise<void> {
-    // one at a time, each confirmed in the queue before the next joins, so the order is known
+    // the guest first, so the order can only come from arrival, not from grouping by queue; one at a
+    // time, each confirmed in the queue before the next joins
     await this.initUserPage(this.context, {
-      fullName: 'AuthenticatedViewer',
-      shouldCloseAudioModal: false,
-      shouldCheckAllInitialSteps: false,
-    });
-    await this.userPage.hasText(e.positionInWaitingQueue, /first/, 'should put the authenticated viewer first');
-    await this.initUserPage2(this.context, {
       fullName: 'GuestViewer',
       joinParameter: 'guest=true',
       shouldCloseAudioModal: false,
       shouldCheckAllInitialSteps: false,
     });
-    await this.userPage2.hasText(e.positionInWaitingQueue, /2/, 'should put the guest viewer second');
+    await this.userPage.hasText(e.positionInWaitingQueue, /first/, 'should put the guest viewer first');
+    await this.initUserPage2(this.context, {
+      fullName: 'AuthenticatedViewer',
+      shouldCloseAudioModal: false,
+      shouldCheckAllInitialSteps: false,
+    });
+    await this.userPage2.hasText(e.positionInWaitingQueue, /2/, 'should put the authenticated viewer second');
     await this.modPage.waitAndClick(e.usersListSidebarButton);
 
     const waitingList = this.modPage.page.locator(e.waitingUsers);
@@ -468,25 +469,30 @@ export class GuestPolicy extends MultiUsers {
     await waitingList.click();
     await expect(
       this.modPage.page.locator(e.waitingUserName),
-      'should list the authenticated and the guest viewer in order of arrival',
-    ).toHaveText(['[1] AuthenticatedViewer', '[2] GuestViewer']);
+      'should list the guest and the authenticated viewer in order of arrival',
+    ).toHaveText(['[1] GuestViewer', '[2] AuthenticatedViewer']);
     await expect(this.modPage.page.locator(e.allowAllAuthenticatedWaiting)).toHaveCount(0);
     await expect(this.modPage.page.locator(e.denyAllGuestWaiting)).toHaveCount(0);
 
-    await this.modPage.fill(e.userListSearch, 'GuestViewer');
+    await this.modPage.fill(e.userListSearch, 'AuthenticatedViewer');
     await expect(
       this.modPage.page.locator(e.waitingUserName),
-      'should keep the guest viewer at its place in the queue',
-    ).toHaveText(['[2] GuestViewer']);
+      'should keep the authenticated viewer at its place in the queue',
+    ).toHaveText(['[2] AuthenticatedViewer']);
     await expect(waitingList, 'should keep counting the user the search leaves out').toHaveText(/Waiting Users\s*2$/);
     await this.modPage.waitAndClick(e.denyEveryone);
     await this.userPage.hasText(
       e.guestMessage,
       /denied/,
-      'should deny the authenticated viewer the search leaves out',
+      'should deny the guest viewer the search leaves out',
       ELEMENT_WAIT_LONGER_TIME,
     );
-    await this.userPage2.hasText(e.guestMessage, /denied/, 'should deny the guest viewer', ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage2.hasText(
+      e.guestMessage,
+      /denied/,
+      'should deny the authenticated viewer',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
     await expect(waitingList).toHaveCount(0);
   }
 
