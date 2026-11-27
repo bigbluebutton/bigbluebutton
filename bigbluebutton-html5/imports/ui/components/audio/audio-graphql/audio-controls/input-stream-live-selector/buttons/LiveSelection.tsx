@@ -90,9 +90,6 @@ interface LiveSelectionProps extends Pick<MuteToggleProps,
   openAudioSettings: (props?: { unmuteOnExit?: boolean }) => void;
   supportsTransparentListenOnly: boolean;
   showMutedAlert: boolean;
-  inputStream: string;
-  isModerator: boolean;
-  isPresenter: boolean;
 }
 
 export const LiveSelection: React.FC<LiveSelectionProps> = ({
@@ -112,9 +109,6 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
   openAudioSettings,
   supportsTransparentListenOnly,
   showMutedAlert,
-  inputStream,
-  isModerator,
-  isPresenter,
 }) => {
   const intl = useIntl();
 
@@ -355,9 +349,6 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
           noInputDevice={noInputDevice}
           openAudioSettings={openAudioSettings}
           showMutedAlert={showMutedAlert}
-          inputStream={inputStream}
-          isModerator={isModerator}
-          isPresenter={isPresenter}
         />
       )}
       <BBBMenu
@@ -377,9 +368,6 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
                   noInputDevice={noInputDevice}
                   openAudioSettings={openAudioSettings}
                   showMutedAlert={showMutedAlert}
-                  inputStream={inputStream}
-                  isModerator={isModerator}
-                  isPresenter={isPresenter}
                 />
               )
               : (

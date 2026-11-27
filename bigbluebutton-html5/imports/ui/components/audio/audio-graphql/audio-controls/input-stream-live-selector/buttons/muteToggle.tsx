@@ -14,7 +14,6 @@ import useToggleVoice from '../../../hooks/useToggleVoice';
 import {
   startPushToTalk,
   stopPushToTalk,
-  isMutedAlertEnabled,
 } from '../service';
 import {
   muteLoadingState,
@@ -53,9 +52,6 @@ export interface MuteToggleProps {
   noInputDevice?: boolean;
   openAudioSettings: (props?: { unmuteOnExit?: boolean }) => void;
   showMutedAlert: boolean;
-  inputStream: string;
-  isModerator: boolean;
-  isPresenter: boolean;
 }
 
 export const MuteToggle: React.FC<MuteToggleProps> = ({
@@ -69,9 +65,6 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
   noInputDevice = false,
   openAudioSettings,
   showMutedAlert,
-  inputStream,
-  isModerator,
-  isPresenter,
 }) => {
   useMuteSoundAlert();
 
@@ -80,7 +73,6 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
   const withShortcut = useShortcutTooltip();
   const { pushToTalkEnabled } = useSettings(SETTINGS.APPLICATION) as { pushToTalkEnabled?: boolean };
   const toggleVoice = useToggleVoice();
-  const MUTED_ALERT_ENABLED = isMutedAlertEnabled();
 
   const unmuteAudioLabel = away ? intlMessages.umuteAudioAndSetActive : intlMessages.unmuteAudio;
   const label = muted ? intl.formatMessage(unmuteAudioLabel)
@@ -173,14 +165,9 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
 
   return (
     <Styled.RelativePositioningContainer>
-      {showMutedAlert && MUTED_ALERT_ENABLED ? (
+      {showMutedAlert ? (
         <div data-debug="live-watcher" aria-live="polite">
-          <MutedAlert
-            {...{
-              muted, inputStream, isPresenter,
-            }}
-            isViewer={!isModerator}
-          />
+          <MutedAlert />
         </div>
       ) : null}
       {/* eslint-disable-next-line jsx-a11y/no-access-key */}
