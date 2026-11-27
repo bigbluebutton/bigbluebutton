@@ -22,6 +22,7 @@ export interface BBBMenuProps {
   accessKey?: string;
   minContent?: boolean;
   overrideMobileStyles?: boolean;
+  disabled?: boolean;
 }
 
 declare const BBBMenu: React.ComponentType<BBBMenuProps>;

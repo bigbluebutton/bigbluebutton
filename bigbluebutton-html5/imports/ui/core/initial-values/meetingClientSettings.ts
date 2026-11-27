@@ -873,6 +873,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       restoreOnUpdate: true,
       uploadEndpoint: '/bigbluebutton/presentation/upload',
       fileUploadConstraintsHint: false,
+      insertPagesEnabled: true,
       mirroredFromBBBCore: {
         uploadSizeMax: 30000000,
         uploadPagesMax: 200,

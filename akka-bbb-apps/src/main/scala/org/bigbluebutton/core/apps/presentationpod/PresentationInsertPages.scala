@@ -11,8 +11,11 @@ import org.bigbluebutton.core.models._
  */
 object PresentationInsertPages {
 
-  /** The name of a blank page, in its progress row, in the message to bbb-web and in the notifications. */
+  /** The file name of a blank page, in its progress row and in the message to bbb-web. */
   val BlankPageFilename = "blank.pdf"
+
+  /** The name of a blank page in the notifications: a message id, which the client translates. */
+  val BlankPageNameKey = "app.presentation.insertPages.blankPageName"
 
   val StageTransfer = "transfer"
   val StageConversion = "conversion"

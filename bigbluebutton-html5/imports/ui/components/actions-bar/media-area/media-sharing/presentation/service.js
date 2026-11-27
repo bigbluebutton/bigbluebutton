@@ -64,10 +64,14 @@ const removeFailedUpload = (presentationId) => {
 };
 
 // Resolves with the upload token and the id of the presentation the server created for it.
+// insertIntent ({ insertIntoPresentationId, insertAtPosition, insertSeenTotalPages,
+// insertNavigate }) turns the upload into an insert of pages into that presentation;
+// without it the upload is a presentation of its own.
 const requestPresentationUpload = (
   temporaryPresentationId,
   meetingId,
   filename,
+  insertIntent,
 ) => new Promise((resolve, reject) => {
   const client = apolloContextHolder.getClient();
   client.mutate({
@@ -76,6 +80,7 @@ const requestPresentationUpload = (
       podId: POD_ID,
       filename,
       uploadTemporaryId: temporaryPresentationId,
+      ...insertIntent,
     },
   });
 
@@ -135,18 +140,34 @@ const requestPresentationUploadToken = (
 ) => requestPresentationUpload(temporaryPresentationId, meetingId, filename)
   .then(({ uploadToken }) => uploadToken);
 
-const uploadAndConvertPresentation = (
+/**
+ * Uploads a file as a presentation, or as an insert of pages with insertIntent.
+ * @param {object} upload
+ * @param {string} upload.filename
+ * @param {string} upload.temporaryPresentationId
+ * @param {File} upload.file
+ * @param {boolean} upload.downloadable
+ * @param {*} upload.meetingId
+ * @param {string} upload.endpoint
+ * @param {boolean} upload.current
+ * @param {Function} [upload.onUpload] called with the state of an upload that failed
+ * @param {Function} [upload.onProgress] the progress listener of the upload request
+ * @param {object} [upload.insertIntent] see requestPresentationUpload
+ * @param {Function} [upload.onRequested] called once the token request ends
+ */
+const uploadAndConvertPresentation = ({
   filename,
   temporaryPresentationId,
   file,
   downloadable,
   meetingId,
   endpoint,
+  current,
   onUpload,
   onProgress,
-  onConversion,
-  current,
-) => {
+  insertIntent,
+  onRequested,
+}) => {
   if (!file) return Promise.resolve();
 
   const data = new FormData();
@@ -168,7 +189,16 @@ const uploadAndConvertPresentation = (
 
   let serverPresentationId = null;
 
-  return requestPresentationUpload(temporaryPresentationId, meetingId, filename)
+  const uploadRequest = requestPresentationUpload(
+    temporaryPresentationId,
+    meetingId,
+    filename,
+    insertIntent,
+  );
+  // Called once the token request ends (token, refusal or timeout), before the upload starts.
+  if (onRequested) uploadRequest.then(() => onRequested(), () => onRequested());
+
+  return uploadRequest
     .then(({ uploadToken, presentationId }) => {
       serverPresentationId = presentationId;
       return futch(endpoint.replace('upload', `${uploadToken}/upload`), opts, onProgress);
@@ -209,11 +239,17 @@ const uploadAndConvertPresentations = (
   presentationsToUpload,
   meetingId,
   uploadEndpoint,
-) => Promise.all(presentationsToUpload.map((p) => uploadAndConvertPresentation(
-  p.name,
-  p.presentationId, p.file, p.downloadable, meetingId, uploadEndpoint,
-  p.onUpload, p.onProgress, p.onConversion, p.current,
-)));
+) => Promise.all(presentationsToUpload.map((p) => uploadAndConvertPresentation({
+  filename: p.name,
+  temporaryPresentationId: p.presentationId,
+  file: p.file,
+  downloadable: p.downloadable,
+  meetingId,
+  endpoint: uploadEndpoint,
+  onUpload: p.onUpload,
+  onProgress: p.onProgress,
+  current: p.current,
+})));
 
 const removePresentations = (
   presentationsToRemove,
@@ -421,6 +457,7 @@ function handleFiledrop(files, files2, that, intl, intlMessages) {
 }
 
 export default {
+  TOKEN_TIMEOUT,
   handleSavePresentation,
   persistPresentationChanges,
   requestPresentationUploadToken,
