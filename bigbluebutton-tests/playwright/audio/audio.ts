@@ -13,6 +13,7 @@ import {
   areRemoteAudioElementsPlaying,
   connectMicrophone,
   ensureUnmuted,
+  expectAudioDeviceSelectorsToBeNamed,
   getRemoteAudioSinkIds,
   isAudioItemSelected,
   joinMutedMicrophone,
@@ -96,16 +97,16 @@ export class Audio extends MultiUsers {
     if (!this?.modPage) throw new Error('modPage not initialized');
 
     await this.modPage.waitAndClick(e.joinAudio);
-    await connectMicrophone(this.modPage);
+    await connectMicrophone(this.modPage, expectAudioDeviceSelectorsToBeNamed);
     await this.modPage.hasElement(e.unmuteMicButton, 'should join audio with microphone muted');
     await this.modPage.waitAndClick(e.audioDropdownMenu);
-    await isAudioItemSelected(this.modPage, e.defaultInputAudioDevice);
+    await isAudioItemSelected(this.modPage, e.defaultInputAudioDevice, 'Microphone');
     await this.modPage.waitAndClick(e.secondInputAudioDevice);
     await this.modPage.waitAndClick(e.unmuteMicButton);
     await this.modPage.hasElement(e.isTalking, 'should be talking');
     await this.modPage.hasElement(e.muteMicButton, 'should have the mute microphone button displayed');
     await this.modPage.waitAndClick(e.audioDropdownMenu);
-    await isAudioItemSelected(this.modPage, e.secondInputAudioDevice);
+    await isAudioItemSelected(this.modPage, e.secondInputAudioDevice, 'Microphone');
   }
 
   async changeAudioOutput() {
@@ -123,7 +124,7 @@ export class Audio extends MultiUsers {
       .not.toHaveLength(0);
 
     await this.modPage.waitAndClick(e.audioDropdownMenu);
-    await isAudioItemSelected(this.modPage, e.defaultOutputAudioDevice);
+    await isAudioItemSelected(this.modPage, e.defaultOutputAudioDevice, 'Speakers');
     const secondOutputLabel = (await this.modPage.page.locator(e.secondOutputAudioDevice).innerText()).trim();
     const secondOutputDeviceId = await this.modPage.page.evaluate(
       async (label) =>
@@ -135,7 +136,7 @@ export class Audio extends MultiUsers {
     expect(secondOutputDeviceId, `should find the "${secondOutputLabel}" output device`).toBeTruthy();
     await this.modPage.waitAndClick(e.secondOutputAudioDevice);
     await this.modPage.waitAndClick(e.audioDropdownMenu);
-    await isAudioItemSelected(this.modPage, e.secondOutputAudioDevice);
+    await isAudioItemSelected(this.modPage, e.secondOutputAudioDevice, 'Speakers');
     await expect
       .poll(() => getRemoteAudioSinkIds(this.modPage), {
         message: 'should play the remote audio on the chosen output device',
