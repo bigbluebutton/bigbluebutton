@@ -5,8 +5,6 @@ import React, {
 } from 'react';
 // @ts-ignore - it has no types
 import { diff } from '@mconf/bbb-diff';
-// @ts-ignore - it has no types
-import hark from 'hark';
 import { useReactiveVar, useMutation } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import { debounce } from '/imports/utils/debounce';
@@ -39,16 +37,9 @@ import { SET_SPEECH_LOCALE } from '/imports/ui/core/graphql/mutations/userMutati
 import { SUBMIT_TEXT } from './mutations';
 import useIsAudioConnected from '/imports/ui/components/audio/audio-graphql/hooks/useIsAudioConnected';
 import { notify } from '/imports/ui/services/notification';
+import { lastTranscriptionAt, speechRecognitionActive } from '/imports/ui/components/smart-triggers/signals';
 
 const intlMessages = defineMessages({
-  microphoneAlertMessage: {
-    id: 'app.audio.captions.speech.microphoneAlert.message',
-    description: 'Alert when WebSpeech is active but audio energy is detected without transcription',
-  },
-  microphoneAlertHelpLabel: {
-    id: 'app.audio.captions.speech.microphoneAlert.helpLabel',
-    description: 'Label for the knowledge base link in the microphone alert toast',
-  },
   onDeviceNotReady: {
     id: 'app.audio.captions.speech.onDevice.notReady',
     description: 'Toast when transcription is on but its on-device language data is not downloaded',
@@ -121,11 +112,6 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
   const restartTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
   const prevIdRef = useRef('');
   const prevTranscriptRef = useRef('');
-  const lastTranscriptionAtRef = useRef<number>(0);
-  const alertShownRef = useRef<boolean>(false);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const harkInstanceRef = useRef<any>(null);
-  const speakingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onDeviceNotifiedRef = useRef(new Set<string>());
   const [setSpeechLocaleMutation] = useMutation(SET_SPEECH_LOCALE);
   const isAudioTranscriptionEnabled = useIsAudioTranscriptionEnabled();
@@ -287,8 +273,7 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
 
     logger.debug('Transcription event', resultIndex, results, target);
 
-    lastTranscriptionAtRef.current = Date.now();
-    alertShownRef.current = false;
+    lastTranscriptionAt(Date.now());
 
     const { id } = resultRef.current;
 
@@ -495,6 +480,19 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
 
   const onDeviceStatus = useOnDeviceLanguageStatus(isOnDeviceTranscription() ? locale : '');
 
+  const transcribes = isWebSpeechApi()
+    && hasSpeechRecognitionSupport()
+    && isAudioTranscriptionEnabled
+    && locale !== ''
+    && (!isOnDeviceTranscription() || usesCloudFallback(locale) || onDeviceStatus === 'available');
+
+  useEffect(() => {
+    speechRecognitionActive(transcribes);
+    return () => {
+      speechRecognitionActive(false);
+    };
+  }, [transcribes]);
+
   // With local or auto, starts when the language pack becomes available (e.g. downloaded
   // from the transcription settings during the meeting), and tells the user when it is not
   useEffect(() => {
@@ -522,76 +520,6 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
     }
     return () => {};
   }, [onDeviceStatus, connected, muted, locale]);
-
-  useEffect(() => {
-    const MICROPHONE_ALERT_CONFIG = window.meetingClientSettings.public.app.audioCaptions.microphoneAlert;
-    const {
-      enabled,
-      interval,
-      threshold,
-      speakingThreshold,
-      duration,
-      helpLink,
-    } = MICROPHONE_ALERT_CONFIG;
-
-    if (
-      !enabled
-      || !isWebSpeechApi()
-      || !hasSpeechRecognitionSupport()
-      || !isAudioTranscriptionEnabled
-      || locale === ''
-      || muted
-      || !connected
-      || !inputStream
-    ) {
-      return () => {};
-    }
-
-    alertShownRef.current = false;
-
-    harkInstanceRef.current = hark(inputStream, { interval, threshold });
-
-    harkInstanceRef.current.on('speaking', () => {
-      if (alertShownRef.current) return;
-      if (speakingTimerRef.current) return;
-
-      const speakingStartedAt = Date.now();
-      speakingTimerRef.current = setTimeout(() => {
-        if (alertShownRef.current) return;
-        if (lastTranscriptionAtRef.current >= speakingStartedAt) return;
-        // Not transcribing at all without the on-device language pack
-        if (isOnDeviceTranscription() && !usesCloudFallback(localeRef.current)
-          && getOnDeviceLanguageStatus(localeRef.current) !== 'available') return;
-
-        alertShownRef.current = true;
-        const message = intl.formatMessage(intlMessages.microphoneAlertMessage);
-        const options: Record<string, unknown> = { autoClose: duration || false };
-        if (helpLink) {
-          options.helpLink = helpLink;
-          options.helpLabel = intl.formatMessage(intlMessages.microphoneAlertHelpLabel);
-        }
-        notify(message, 'warning', 'warning', options);
-      }, speakingThreshold);
-    });
-
-    harkInstanceRef.current.on('stopped_speaking', () => {
-      if (speakingTimerRef.current) {
-        clearTimeout(speakingTimerRef.current);
-        speakingTimerRef.current = null;
-      }
-    });
-
-    return () => {
-      if (speakingTimerRef.current) {
-        clearTimeout(speakingTimerRef.current);
-        speakingTimerRef.current = null;
-      }
-      if (harkInstanceRef.current) {
-        harkInstanceRef.current.stop();
-        harkInstanceRef.current = null;
-      }
-    };
-  }, [connected, muted, inputStream, locale, isAudioTranscriptionEnabled]);
 
   useEffect(() => {
     const track = getInputTrack(inputStream);

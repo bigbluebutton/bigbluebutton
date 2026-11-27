@@ -713,6 +713,56 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
 
     - The Talking User should not get muted
 
+## Smart triggers
+
+Contextual hints driven by in-meeting activity, configured under `public.app.smartTriggers` (every rule is on by default). A hint only suggests an action: nothing happens until the user clicks it, and clicking the hint dismisses it.
+
+### Muted alert [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-develop/bigbluebutton-tests/playwright/smart-triggers/smartTriggers.spec.ts)
+
+1. User: join audio with the microphone and mute it.
+
+2. User: talk.
+
+    - A "You are muted" tooltip appears over the microphone button.
+
+3. User: click the tooltip, then keep talking.
+
+    - "Mute alerts disabled until unmute" is shown and the tooltip does not come back.
+
+4. User: unmute, mute again and talk.
+
+    - The tooltip appears again.
+
+### No microphone signal [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-develop/bigbluebutton-tests/playwright/smart-triggers/smartTriggers.spec.ts)
+
+1. User: join audio with a microphone that sends no sound (muted on the device or in the operating system) and unmute.
+
+    - After about 6 seconds a hint says the microphone isn't picking up any sound.
+
+2. User: click "Check microphone".
+
+    - The audio settings open.
+
+### Hand still raised [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-develop/bigbluebutton-tests/playwright/smart-triggers/smartTriggers.spec.ts)
+
+1. User: join audio muted and raise the hand.
+
+2. User: unmute, talk and mute again.
+
+    - A hint asks whether the user is done speaking.
+
+3. User: click "Lower hand".
+
+    - The hand is lowered.
+
+### Speech not transcribed
+
+1. User: enable automatic transcription with a language, join audio with a microphone and unmute.
+
+2. User: talk for a few seconds while the browser transcribes nothing (for example, with another microphone selected as the browser default).
+
+    - A hint says audio is detected but nothing is being transcribed. It shows again only after something gets transcribed.
+
 ## Closed Captions / Transcription
 
 Automatic transcription is disabled by default: enable it with `public.app.audioCaptions.enabled: true` in the client settings and use a browser that supports speech recognition.

@@ -225,11 +225,6 @@ export const restoreFromAway = (
   muteAway(false, true, voiceToggle);
 };
 
-export const isMutedAlertEnabled = () => {
-  const { enabled = false } = window.meetingClientSettings.public.app.mutedAlert;
-  return enabled;
-};
-
 export default {
   SPEAKER_LEVEL_KEY,
   handleLeaveAudio,
@@ -241,5 +236,4 @@ export default {
   useSpeakerLevel,
   startPushToTalk,
   stopPushToTalk,
-  isMutedAlertEnabled,
 };

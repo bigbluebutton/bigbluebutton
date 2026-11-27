@@ -78,7 +78,7 @@ export interface App {
   preloadNextSlides: number
   warnAboutUnsavedContentOnMeetingEnd: boolean
   audioCaptions: AudioCaptions
-  mutedAlert: MutedAlert
+  smartTriggers: SmartTriggers
   appsGallery: AppsGallery
   remainingTimeThresholdInMinutes: number
   remainingTimeAlertThresholdArray: number[]
@@ -128,17 +128,7 @@ export interface AudioCaptions {
   provider: string
   speechProcessing: 'cloud' | 'local' | 'auto'
   showInSidebarNavigation: boolean
-  microphoneAlert: MicrophoneAlert
   language: Language
-}
-
-export interface MicrophoneAlert {
-  enabled: boolean
-  helpLink: string
-  threshold: number
-  speakingThreshold: number
-  duration: number
-  interval: number
 }
 
 export interface Language {
@@ -148,11 +138,37 @@ export interface Language {
   locale: string
 }
 
-export interface MutedAlert {
+export interface SmartTrigger {
   enabled: boolean
-  interval: number
-  threshold: number
-  duration: number
+}
+
+export interface CooldownSmartTrigger extends SmartTrigger {
+  cooldownMs: number
+}
+
+export interface TalkingWhileMutedSmartTrigger extends SmartTrigger {
+  speechThresholdDb: number
+  hideAfterMs: number
+}
+
+export interface NoMicSignalSmartTrigger extends CooldownSmartTrigger {
+  afterSeconds: number
+  signalFloorDb: number
+}
+
+export interface SpeechNotTranscribedSmartTrigger extends SmartTrigger {
+  speechThresholdDb: number
+  afterSpeakingSeconds: number
+  hideAfterMs: number
+  helpLink: string
+}
+
+export interface SmartTriggers {
+  enabled: boolean
+  talkingWhileMuted: TalkingWhileMutedSmartTrigger
+  noMicSignal: NoMicSignalSmartTrigger
+  handStillRaised: CooldownSmartTrigger
+  speechNotTranscribed: SpeechNotTranscribedSmartTrigger
 }
 
 export interface AppsGallery {
@@ -660,6 +676,7 @@ export interface Audio2 {
   defaultListenOnlyBridge: string
   retryThroughRelay: boolean
   allowAudioJoinCancel: boolean
+  micActivitySampleInterval: number
   audioWasmProcessing?: AudioWasmProcessingSettings
   // See: https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
   microphoneConstraints?: Record<string, unknown>

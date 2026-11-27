@@ -20,6 +20,7 @@ import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStat
 import useIsAudioConnected from '/imports/ui/components/audio/audio-graphql/hooks/useIsAudioConnected';
 import { listItemBgHover } from '/imports/ui/stylesheets/styled-components/palette';
 import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
+import { audioSettingsRequest } from '/imports/ui/components/smart-triggers/signals';
 
 const intlMessages = defineMessages({
   joinAudio: {
@@ -107,6 +108,15 @@ const AudioControls: React.FC<AudioControlsProps> = ({
     setAudioModalProps(props);
     setIsAudioModalOpen(true);
   }, []);
+
+  const audioSettingsRequestedAt = useReactiveVar(audioSettingsRequest);
+  const handledAudioSettingsRequest = React.useRef(audioSettingsRequestedAt);
+
+  useEffect(() => {
+    if (audioSettingsRequestedAt === handledAudioSettingsRequest.current) return;
+    handledAudioSettingsRequest.current = audioSettingsRequestedAt;
+    openAudioSettings();
+  }, [audioSettingsRequestedAt, openAudioSettings]);
 
   const joinButton = useMemo(() => {
     const joinAudioLabel = away ? intlMessages.joinAudioAndSetActive : intlMessages.joinAudio;
