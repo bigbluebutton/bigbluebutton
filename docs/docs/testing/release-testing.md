@@ -474,7 +474,7 @@ Webcams will be moved when mouse is released. (Note: When only one webcam is sha
 
 7. Enable `public.kurento.paginationThresholds` with a first entry of 4 users and viewer page size 3, and join with 4 users.
 
-    - The slider should go from 01 to 03, and pages should hold at most 3 webcams.
+    - The slider should go from 01 to 03, its text should say the limit is 3, and pages should hold at most 3 webcams.
     - With fewer than 4 users, the slider should go up to 03 (one less than the entry's user count) and the size set before should apply again.
 
 ### Share camera as content [(Partially automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/presentation/presentation.spec.ts)

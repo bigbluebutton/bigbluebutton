@@ -22,6 +22,19 @@ export const CAMERA_PAGE_SIZE_CLIENT_SETTINGS_OVERRIDE: ClientSettingsOverrides 
   },
 };
 
+// A pagination threshold that applies from 2 users, so a moderator and an attendee reach it.
+export const THRESHOLD_LIMIT_CLIENT_SETTINGS_OVERRIDE: ClientSettingsOverrides = {
+  public: {
+    app: { defaultSettings: { application: { paginationEnabled: true } } },
+    kurento: {
+      paginationThresholds: {
+        enabled: true,
+        thresholds: [{ users: 2, desktopPageSizes: { moderator: 3, viewer: 2 } }],
+      },
+    },
+  },
+};
+
 // More cameras than the meeting's page size, fewer than the attendees' configured 5.
 export const WEBCAM_USERS = 3;
 export const WEBCAM_GRID_DISABLED_PARAMETER = 'disabledFeatures=webcamGrid';
@@ -58,6 +71,9 @@ export class CameraPageSize extends MultiUsers {
     const slider = this.modPage.page.locator(e.cameraPageSizeSlider);
     await expect(slider, "the slider should start at the attendees' page size").toHaveValue('5');
     await expect(slider, 'the slider should end at layoutViewMaxPageSize').toHaveAttribute('max', '12');
+    await expect(slider, 'no threshold applies, so no limit is named').not.toHaveAccessibleDescription(
+      new RegExp(e.cameraPageSizeLimitText),
+    );
     await slider.focus();
     await this.modPage.page.keyboard.press('Home');
     await this.modPage.page.keyboard.press('ArrowRight');
@@ -90,5 +106,17 @@ export class CameraPageSize extends MultiUsers {
     await this.modPage.waitAndClick(e.layoutViewButton);
     await this.modPage.hasElement(e.cameraPageSizeSlider, 'should offer the camera page size without the grid');
     await this.modPage.wasRemoved(e.hideUsersWithoutCameraToggle, 'should not offer to hide users without the grid');
+  }
+
+  // With a pagination threshold in effect, the slider ends at its size and the text names it.
+  async sliderNamesThresholdLimit(): Promise<void> {
+    await this.modPage.waitAndClick(e.layoutViewButton);
+    const slider = this.modPage.page.locator(e.cameraPageSizeSlider);
+    await expect(slider, 'the slider should end at the threshold size').toHaveAttribute('max', '2', {
+      timeout: ELEMENT_WAIT_LONGER_TIME,
+    });
+    await expect(slider, 'the helper text should name the limit').toHaveAccessibleDescription(
+      new RegExp(`${e.cameraPageSizeLimitText} 2\\b`),
+    );
   }
 }

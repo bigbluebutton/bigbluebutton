@@ -497,6 +497,7 @@ export const elements = {
   startScreenshareToast: 'Screenshare has started',
   endScreenshareToast: 'Screenshare has ended',
   layoutUpdateToast: 'Layout updates applied to everyone',
+  cameraPageSizeLimitText: 'With this many participants, the limit is',
   attendeeJoinedToast: 'Attendee joined the session',
   cameraRequestSentToast: 'Camera request sent to Attendee',
   raisingHandToast: 'You have raised your hand',
