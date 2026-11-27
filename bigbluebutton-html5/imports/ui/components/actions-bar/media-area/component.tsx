@@ -48,6 +48,7 @@ const MediaArea = (props: MediaAreaProps) => {
   const openMediaArea = useShortcut('openActions');
   const withShortcut = useShortcutTooltip();
   const previousRequestedPresenter = useRef<boolean | null>(null);
+  const mediaAreaButtonRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     if (
@@ -68,6 +69,25 @@ const MediaArea = (props: MediaAreaProps) => {
     setMenuOpen(!menuOpen);
   }, [menuOpen]);
 
+  const handleCloseMenu = useCallback(() => {
+    const mediaSharingElement = document.getElementById('mediaAreaDropUp');
+    const focusedOnClose = document.activeElement;
+    const shouldRestoreFocus = focusedOnClose instanceof HTMLElement
+      && mediaSharingElement?.contains(focusedOnClose);
+    setMenuOpen(false);
+
+    if (shouldRestoreFocus) {
+      setTimeout(() => {
+        const { activeElement } = document;
+        const focusUnclaimed = !activeElement || activeElement === document.body
+          || activeElement === focusedOnClose || mediaSharingElement?.contains(activeElement);
+        if (focusUnclaimed) {
+          mediaAreaButtonRef.current?.focus();
+        }
+      }, 0);
+    }
+  }, []);
+
   if (!isConnected) {
     return null;
   }
@@ -76,6 +96,7 @@ const MediaArea = (props: MediaAreaProps) => {
     <>
       {/* eslint-disable-next-line jsx-a11y/no-access-key */}
       <Styled.HideDropdownButton
+        setRef={(element: HTMLButtonElement | null) => { mediaAreaButtonRef.current = element; }}
         hideLabel
         aria-label={intl.formatMessage(intlMessages.mediaLabel)}
         data-test="mediaAreaButton"
@@ -92,7 +113,7 @@ const MediaArea = (props: MediaAreaProps) => {
         isMobile={isMobile}
         isRTL={isRTL}
         open={menuOpen}
-        onClose={() => setMenuOpen(false)}
+        onClose={handleCloseMenu}
         intl={intl}
         amIPresenter={amIPresenter}
         amIModerator={amIModerator}

@@ -16,6 +16,7 @@ export const elements = {
   mediaAreaItem: 'div[id="media-area-dropdown-menu"] ul li',
   // what the media area button opens
   mediaAreaMenu: 'div#mediaAreaDropUp',
+  mediaAreaCloseButton: 'div#mediaAreaDropUp .bbb-media-sharing__header button',
   optionsButton: 'button[data-test="optionsButton"]',
   settings: 'li[data-test="settings"]',
   presenceToggle: 'div[data-test="presenceToggle"]',

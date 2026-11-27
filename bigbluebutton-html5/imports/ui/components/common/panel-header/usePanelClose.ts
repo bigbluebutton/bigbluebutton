@@ -22,6 +22,15 @@ const usePanelClose = (panelId: string, onBeforeClose?: (isInAuxiliaryPanel: boo
   const isMultifunctionalModeEnabled = useIsMultiFunctionalModeEnabled();
 
   const closePanel = useCallback(() => {
+    const panelElement = document.querySelector(
+      isMultifunctionalModeEnabled && isInAuxiliaryPanel
+        ? '.bbb-sidebar-content-auxiliary'
+        : '.bbb-sidebar-content',
+    );
+    const focusedOnClose = document.activeElement;
+    const shouldRestoreFocus = focusedOnClose instanceof HTMLElement
+      && panelElement?.contains(focusedOnClose);
+
     onBeforeClose?.(isMultifunctionalModeEnabled && isInAuxiliaryPanel);
 
     if (isMultifunctionalModeEnabled && isInAuxiliaryPanel) {
@@ -43,7 +52,22 @@ const usePanelClose = (panelId: string, onBeforeClose?: (isInAuxiliaryPanel: boo
         value: PANELS.NONE,
       });
     }
-  }, [layoutContextDispatch, isInAuxiliaryPanel, onBeforeClose, isMultifunctionalModeEnabled]);
+
+    if (shouldRestoreFocus) {
+      setTimeout(() => {
+        const { activeElement } = document;
+        const focusUnclaimed = !activeElement || activeElement === document.body
+          || activeElement === focusedOnClose || panelElement?.contains(activeElement);
+        if (!focusUnclaimed) return;
+
+        const panelTrigger = document.querySelector<HTMLElement>(`[data-sidebar-panel="${panelId}"]`);
+        const fallbackTrigger = document.querySelector<HTMLElement>(
+          `[data-sidebar-panel="${PANELS.APPS_GALLERY}"]`,
+        );
+        (panelTrigger || fallbackTrigger)?.focus();
+      }, 0);
+    }
+  }, [layoutContextDispatch, isInAuxiliaryPanel, onBeforeClose, isMultifunctionalModeEnabled, panelId]);
 
   return { closePanel, isInAuxiliaryPanel };
 };
