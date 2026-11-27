@@ -1,6 +1,9 @@
 import React from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
+import { BBBDivider } from '@bigbluebutton/bbb-ui-components-react/Divider';
+import { BBBToggle } from '@bigbluebutton/bbb-ui-components-react/Toggle';
 import AudioManager from '/imports/ui/services/audio-manager';
+import { isRuleEnabled } from '/imports/ui/components/smart-triggers/service';
 import BaseMenu from '../base/component';
 import SubMenusStyle from '../styles';
 import Styled from './styles';
@@ -45,6 +48,14 @@ const intlMessages = defineMessages({
   muteUnmuteLabel: {
     id: 'app.submenu.notification.muteUnmuteLabel',
     description: 'label for mute/unmute audio notifications',
+  },
+  presenterAwayLabel: {
+    id: 'app.submenu.notification.presenterAwayLabel',
+    description: 'label for sounds played to a presenter whose meeting tab is in the background',
+  },
+  presenterAwayHelper: {
+    id: 'app.submenu.notification.presenterAwayHelper',
+    description: 'explains the sounds played to a presenter whose meeting tab is in the background',
   },
 });
 
@@ -296,6 +307,19 @@ class NotificationMenu extends BaseMenu {
           ) : null}
 
         </Styled.Form>
+
+        {isRuleEnabled('presenterAway') ? (
+          <Styled.PresenterAwaySection>
+            <BBBDivider />
+            <BBBToggle
+              checked={settings.presenterAwaySound}
+              onChange={() => this.handleToggle('presenterAwaySound')}
+              label={intl.formatMessage(intlMessages.presenterAwayLabel)}
+              helperText={intl.formatMessage(intlMessages.presenterAwayHelper)}
+              slotProps={{ input: { 'data-test': 'presenterAwaySoundBtn' } }}
+            />
+          </Styled.PresenterAwaySection>
+        ) : null}
       </div>
     );
   }
