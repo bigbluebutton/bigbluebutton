@@ -155,13 +155,14 @@ export class PeerTubePlayer extends Component {
       border: 0,
       overflow: 'hidden',
     };
-    const { url } = this.props;
+    const { url, config } = this.props;
 
     return (
       <iframe
         key={url}
         style={style}
         src={this.getEmbedUrl(url)}
+        title={config && config.peertube && config.peertube.title}
         id={"peerTubeContainer"}
         allow="autoplay; fullscreen"
         sandbox="allow-same-origin allow-scripts allow-popups"
@@ -175,4 +176,3 @@ export class PeerTubePlayer extends Component {
 }
 
 export default PeerTubePlayer;
-

@@ -14,6 +14,7 @@ export interface MediaButtonProps {
   /** The main icon to be rendered in the button */
   icon?: React.ReactElement;
   tooltip?: string;
+  disabled?: boolean;
 }
 
 export const MediaButton: FunctionComponent<MediaButtonProps> = ({
@@ -24,6 +25,7 @@ export const MediaButton: FunctionComponent<MediaButtonProps> = ({
   onClick,
   icon,
   tooltip,
+  disabled,
 }) => {
   let settingsIconColor = 'inherit';
   if (color === 'active') {
@@ -37,7 +39,13 @@ export const MediaButton: FunctionComponent<MediaButtonProps> = ({
       className={`bbb-media-sharing__option bbb-media-sharing__option--${color}`}
       data-test={dataTest}
     >
-      <Styled.ButtonFrame className="bbb-media-sharing__option-button" color={color} onClick={onClick}>
+      <Styled.ButtonFrame
+        aria-label={text}
+        className="bbb-media-sharing__option-button"
+        color={color}
+        disabled={disabled}
+        onClick={onClick}
+      >
         {showSettingsIcon && (
           <Styled.SettingsContainer>
             <IconButton

@@ -54,6 +54,14 @@ const intlMessages = defineMessages({
     id: 'app.mediaSharing.modal.title',
     description: 'Media sharing modal title',
   },
+  backLabel: {
+    id: 'app.mediaSharing.modal.backLabel',
+    description: 'Accessible label for the media sharing back button',
+  },
+  closeLabel: {
+    id: 'app.mediaSharing.modal.closeLabel',
+    description: 'Accessible label for the media sharing close button',
+  },
   mediaSharingSlides: {
     id: 'app.mediaSharing.modal.slides',
     description: 'Media sharing slides button text',
@@ -339,7 +347,11 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
       return (
         <Styled.SubViewWrapper className="bbb-media-sharing__subview">
           <Styled.SubHeader className="bbb-media-sharing__subview-header">
-            <IconButton onClick={handleBackClick} size="small">
+            <IconButton
+              aria-label={intl.formatMessage(intlMessages.backLabel)}
+              onClick={handleBackClick}
+              size="small"
+            >
               <Styled.BackButtonIcon />
             </IconButton>
             <Styled.SubHeaderTitle className="bbb-media-sharing__subview-title">{subViewTitle}</Styled.SubHeaderTitle>
@@ -475,7 +487,11 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
             <>
               <Styled.HeaderContainer className="bbb-media-sharing__header">
                 <h2>{intl.formatMessage(intlMessages.mediaSharingTitle)}</h2>
-                <IconButton onClick={handleClose} size="small">
+                <IconButton
+                  aria-label={intl.formatMessage(intlMessages.closeLabel)}
+                  onClick={handleClose}
+                  size="small"
+                >
                   <CloseIcon />
                 </IconButton>
               </Styled.HeaderContainer>

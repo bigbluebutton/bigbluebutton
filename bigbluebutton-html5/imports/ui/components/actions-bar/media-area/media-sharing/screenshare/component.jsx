@@ -27,7 +27,6 @@ const propTypes = {
   isScreenBroadcasting: PropTypes.bool.isRequired,
   isScreenGloballyBroadcasting: PropTypes.bool.isRequired,
   isConnected: PropTypes.bool.isRequired,
-  screenshareDataSavingSetting: PropTypes.bool,
 };
 
 const intlMessages = defineMessages({
@@ -118,7 +117,6 @@ const ScreenshareButton = ({
   isScreenGloballyBroadcasting,
   amIPresenter = false,
   isConnected,
-  screenshareDataSavingSetting,
 }) => {
   // eslint-disable-next-line max-len
   const TROUBLESHOOTING_URLS = window.meetingClientSettings.public.media.screenshareTroubleshootingLinks;
@@ -188,8 +186,7 @@ const ScreenshareButton = ({
           ? (
             <MediaButton
               disabled={
-                (!isConnected && !isScreenBroadcasting) || !screenshareDataSavingSetting
-                || !amIPresenter || loading
+                (!isConnected && !isScreenBroadcasting) || !amIPresenter || loading
               }
               dataTest={dataTest}
               color={amIBroadcasting ? 'primary' : 'default'}
