@@ -2,11 +2,11 @@
 case presentation.conversion.breakout-current-page
 target bbb-web
 
-== step 9: bus PresentationConversionCompletedEvtMsg select $.core.body.presentation.name, $.core.body.presentation.current, $.core.body.presentation.defaultPresentation
+== step 10: bus PresentationConversionCompletedEvtMsg select $.core.body.presentation.name, $.core.body.presentation.current, $.core.body.presentation.defaultPresentation
 $.core.body.presentation.current true
 $.core.body.presentation.defaultPresentation false
 $.core.body.presentation.name "default-2.pdf"
 
-== step 10: bus PresentationPageConversionStartedSysMsg select $.core.body.presName, $.core.body.numPages
+== step 11: bus PresentationPageConversionStartedSysMsg select $.core.body.presName, $.core.body.numPages
 $.core.body.numPages 1
 $.core.body.presName "default-2.pdf"

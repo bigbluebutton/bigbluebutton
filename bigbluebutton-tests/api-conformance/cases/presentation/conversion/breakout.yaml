@@ -32,6 +32,11 @@ steps:
     capture: {presId: $.core.body.presentation.id}
   - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: MODERATOR}}
     golden: off
+  # As the meeting's first moderator, Ann is made presenter a moment after
+  # she joins; changing the page needs her to be.
+  - graphql: {as: ann, query: "query Me { user_current { presenter } }"}
+    golden: off
+    eventually: {within: 10s, every: 300ms, until: {jsonpath: {"$.data.user_current[0].presenter": "true"}}}
   - graphql:
       as: ann
       query: 'mutation SetPage($presId: String!, $pageId: String!) { presentationSetPage(presentationId: $presId, pageId: $pageId) }'
