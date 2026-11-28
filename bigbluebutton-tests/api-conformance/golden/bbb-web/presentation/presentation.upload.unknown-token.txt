@@ -1,0 +1,8 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case presentation.upload.unknown-token
+target bbb-web
+
+== step 1: route presentation-upload (POST)
+status 403
+header Content-Type text/html
+body text "403 Forbidden"

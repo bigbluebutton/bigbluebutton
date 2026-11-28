@@ -1,0 +1,15 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case presentation.upload-token.issued
+target bbb-web
+
+== step 5: graphql mutation RequestUploadToken as ann
+$.data.presentationRequestUploadToken true
+
+== step 6: bus PresentationUploadTokenSysPubMsg select $.core.body.podId, $.core.body.filename
+$.core.body.filename "two-pages.pdf"
+$.core.body.podId "DEFAULT_PRESENTATION_POD"
+
+== step 7: bus PresentationUploadTokenPassRespMsg select $.core.body.podId, $.core.body.filename, $.core.body.temporaryPresentationId
+$.core.body.filename "two-pages.pdf"
+$.core.body.podId "DEFAULT_PRESENTATION_POD"
+$.core.body.temporaryPresentationId "upload-1"

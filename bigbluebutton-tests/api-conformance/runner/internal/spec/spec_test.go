@@ -90,6 +90,34 @@ func TestExampleCases(t *testing.T) {
 	}
 }
 
+// size is read as YAML reads an integer, so the forms the schema accepts
+// all give a size.
+func TestMultipartSize(t *testing.T) {
+	data := []byte(`id: putRecordingTextTrack.x.y
+title: t
+endpoint: putRecordingTextTrack
+class: contract
+steps:
+  - call: putRecordingTextTrack
+    body:
+      multipart:
+        files:
+          - {field: a, size: 30000001}
+          - {field: b, size: 30_000_001}
+          - {field: c, size: 0}
+`)
+	cases, probs := LoadBytes("size.yaml", data, Options{FixturesDir: exampleFixtures})
+	if len(probs) != 0 || len(cases) != 1 {
+		t.Fatalf("cases %d, problems:\n%s", len(cases), dump(probs))
+	}
+	files := cases[0].Steps[0].Call.Body.Multipart.Files
+	for i, want := range []int64{30000001, 30000001, 0} {
+		if !files[i].HasSize || files[i].Size != want {
+			t.Errorf("file %d: HasSize %v, Size %d, want %d", i, files[i].HasSize, files[i].Size, want)
+		}
+	}
+}
+
 func TestBusSelect(t *testing.T) {
 	b := loadExamples(t)["create.props.selected"].Steps[1].Bus
 	if want := []string{"$.core.body.props.voiceProp", "$.core.body.props.noSuchProp"}; b == nil || !reflect.DeepEqual(b.Select, want) {

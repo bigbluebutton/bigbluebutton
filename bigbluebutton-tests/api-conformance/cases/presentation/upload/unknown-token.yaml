@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# An upload with a token bbb-web never issued is refused by nginx's check
+# with 403, before the request reaches bbb-web.
+id: presentation.upload.unknown-token
+title: An upload with an unknown token is refused
+endpoint: presentation
+class: contract
+tags: [ci]
+steps:
+  - route: presentation-upload
+    method: POST
+    pathParams: {authzToken: PresUploadToken-unknown}
+    body:
+      multipart:
+        fields: {conference: none}
+        files: [{field: fileUpload, path: presentations/two-pages.pdf, contentType: application/pdf}]
+    expect: {status: 403}

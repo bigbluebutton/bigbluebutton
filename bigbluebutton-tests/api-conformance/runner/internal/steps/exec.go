@@ -853,13 +853,13 @@ func reportForwarded(sr *report.StepResult, names []string) {
 func (x *exec) requestInfo(p *client.Prepared) *report.Request {
 	rq := &report.Request{Method: p.Method, URL: x.redact(p.URL), Headers: x.headerMap(p.Header), Chunked: p.Chunked}
 	if p.HasBody {
-		rq.Body = x.redact(clip(string(p.Body), maxRequestBody))
+		rq.Body = x.redact(clip(p.Body, maxRequestBody))
 	}
 	return rq
 }
 
 func (x *exec) responseInfo(o *observe.Observation) *report.Response {
-	return &report.Response{Status: o.Status, Format: o.Format(), Headers: x.headerMap(o.Header), Body: x.redact(clip(string(o.Body), maxResponseBody))}
+	return &report.Response{Status: o.Status, Format: o.Format(), Headers: x.headerMap(o.Header), Body: x.redact(clip(o.Body, maxResponseBody))}
 }
 
 func (x *exec) headerMap(h http.Header) map[string]string {
@@ -885,13 +885,14 @@ func (x *exec) redactResults(rs []assert.Result) []assert.Result {
 	return out
 }
 
-// clip shortens s to at most n bytes, at a character boundary.
-func clip(s string, n int) string {
+// clip shortens s to at most n bytes, at a character boundary. It takes a
+// body as bytes too, so that only what is kept is copied into a string.
+func clip[T string | []byte](s T, n int) string {
 	if len(s) <= n {
-		return s
+		return string(s)
 	}
 	for n > 0 && !utf8.RuneStart(s[n]) {
 		n--
 	}
-	return s[:n] + fmt.Sprintf("… (%d bytes more)", len(s)-n)
+	return string(s[:n]) + fmt.Sprintf("… (%d bytes more)", len(s)-n)
 }

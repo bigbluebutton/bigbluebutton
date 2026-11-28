@@ -1005,6 +1005,26 @@ The actions other cases need, with their signatures (from
 | `presentationRequestUploadToken` | `podId: String!` (DEFAULT_PRESENTATION_POD), `filename: String!, uploadTemporaryId: String!` |
 | `chatSendMessage` | `chatId: String!` (MAIN-PUBLIC-GROUP-CHAT), `chatMessageInMarkdownFormat: String!`; optional `replyToMessageId: String`, `metadata: json` |
 
+**Uploading a presentation** (`cases/presentation/upload/`) takes four
+steps:
+1. `graphql` as the presenter: `presentationRequestUploadToken`, as the
+   HTML5 client sends it.
+2. `bus` `PresentationUploadTokenSysPubMsg`, filtered on the filename:
+   capture `$.core.body.authzToken`. The client reads the same token from
+   its `pres_presentation_uploadToken` row.
+3. A CORS preflight: `route: presentation-upload` with `method: OPTIONS`
+   and the `Origin` and `Access-Control-Request-Method` headers,
+   `eventually` until 200. bbb-web learns the token from its own message
+   queue a moment after akka-apps sends it (#26788), and until then nginx's
+   check refuses it. The preflight is refused the same way, and doesn't use
+   the token up.
+4. `route: presentation-upload` with `method: POST`, `pathParams:
+   {authzToken}` and a `multipart` body: the file as `fileUpload`, the
+   internal meeting ID as `conference`, and `temporaryPresentationId`.
+
+The token isn't recorded. Bus steps `select` everything they record but
+the token, and steps whose answer holds it are `golden: off`.
+
 #### Side effects: `bus`, `fs` and `redis`
 
 These steps check what a call did outside its answer, through the target's
@@ -1142,7 +1162,7 @@ starting with `_`, which the sink keeps for itself.
 
 ```yaml
 - call: join                         # or route: + pathParams:, or url:
-  method: GET                        # GET (default), POST, PUT, DELETE, HEAD
+  method: GET                        # GET (default), POST, PUT, DELETE, HEAD, OPTIONS
   sign: sha256                       # see Signing
   params: {meetingID: "${uid}", fullName: Ann, role: moderator}
   headers: {Accept: null, X-Forwarded-For: 203.0.113.7}
@@ -1210,7 +1230,7 @@ Exactly one of:
 | `form` | `application/x-www-form-urlencoded`. |
 | `json` | Any YAML value as JSON, with its strings templated. |
 | `raw` | The string, with no Content-Type unless `contentType` sets one. |
-| `multipart` | `{fields, files: [{field, path \| content, filename, contentType}]}`; `path` is under `fixtures/`. |
+| `multipart` | `{fields, files: [{field, path \| content \| size, filename, contentType}]}`; `path` is under `fixtures/`; `size: N` sends N filler bytes, for a size no fixture should have (up to 64 MiB). |
 
 Plus `contentType` (overrides the default) and `chunked: true` (no
 Content-Length). Set Content-Type either here or in `headers`, not both.
@@ -1234,8 +1254,8 @@ Content-Length, or of its last chunk) fails its step with a `body` check,
 whatever the step expects: the server's answer is broken. Its recording
 ends with `body cut short`.
 
-**Matchers.** A plain value means "equals", compared as text, and the path
-must select exactly one node. Anything else is a map with one key:
+**Matchers.** A plain value means "equals", compared as text (a JSON
+`null` is the text `null`), and the path must select exactly one node. Anything else is a map with one key:
 
 ```yaml
 /response/returncode: SUCCESS
@@ -1246,6 +1266,7 @@ must select exactly one node. Anything else is a map with one key:
 /response/attendees/attendee: {count: 2}
 /response/message: {contains: unknown}
 /response/messageKey: {oneOf: [idNotUnique, duplicateWarning]}
+$.data.pres_presentation[0].uploadErrorMsgKey: {noneOf: [INVALID_MIME_TYPE, "null", ""]}  # there, and none of these
 $.turnServers[0].ttl: {between: [1, 604800]} # an integer, bounds included; bounds may be templates
 ```
 

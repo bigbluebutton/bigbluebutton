@@ -1,0 +1,30 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case presentation.upload.scope-mismatch
+target bbb-web
+
+== step 11: route presentation-upload (POST)
+status 403
+header Cache-Control no-cache
+header Content-Type text/plain
+body text 27 bytes, sha256 dc9813357054
+
+== step 12: bus PresentationConversionFailedErrorSysPubMsg select $.core.body.messageKey, $.core.body.presName, $.core.body.errorDetail
+$.core.body.errorDetail "Upload request refused or incomplete"
+$.core.body.messageKey "PRESENTATION_UPLOAD_FAILED"
+$.core.body.presName "other.pdf"
+
+== step 13: route presentation-upload (POST)
+status 403
+header Cache-Control no-cache
+header Content-Type text/plain
+body text 27 bytes, sha256 dc9813357054
+
+== step 14: bus PresentationConversionFailedErrorSysPubMsg select $.core.body.messageKey, $.core.body.presName, $.core.body.errorDetail
+$.core.body.errorDetail "Upload request refused or incomplete"
+$.core.body.messageKey "PRESENTATION_UPLOAD_FAILED"
+$.core.body.presName "none.pdf"
+
+== step 15: route presentation-upload (POST)
+status 403
+header Content-Type text/html
+body text "403 Forbidden"

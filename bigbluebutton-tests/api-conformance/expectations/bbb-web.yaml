@@ -36,3 +36,12 @@ expected:
   - id: presentation.slides.png-missing
     reason: "bbb-web answers a PNG that doesn't exist with 500, its body cut short: showPng renders nothing then"
     issue: https://github.com/bigbluebutton/bigbluebutton/issues/26745
+  - id: presentation.upload.chunked
+    reason: "bbb-web's checkPresentation takes a chunked upload's missing Content-Length as 0 and refuses it as too large: nginx answers 413"
+    issue: https://github.com/bigbluebutton/bigbluebutton/issues/26787
+  - id: presentation.upload.empty-file
+    reason: "for an empty file or a filename without an extension, bbb-web sends INVALID_MIME_TYPE with no type instead of the reason it works out"
+    issue: https://github.com/bigbluebutton/bigbluebutton/issues/26789
+  - id: presentation.upload.missing-file
+    reason: "for an upload without the fileUpload part, bbb-web sends INVALID_MIME_TYPE with no type instead of the reason it works out"
+    issue: https://github.com/bigbluebutton/bigbluebutton/issues/26789
