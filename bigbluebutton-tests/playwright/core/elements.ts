@@ -881,6 +881,7 @@ export const elements = {
   wbHighlight: 'div[data-shape-type="highlight"]',
   wbPollShape: 'div[data-shape-type="poll"]',
   wbDrawnLine: 'div[data-shape-type="line"]',
+  wbImageShape: 'div[data-shape-type="image"]',
   multiUsersWhiteboardOn: 'button[data-test="turnMultiUsersWhiteboardOn"]',
   multiUsersWhiteboardOff: 'button[data-test="turnMultiUsersWhiteboardOff"]',
   whiteboardViewBox: 'svg g[clip-path="url(#viewBox)"]',

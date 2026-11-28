@@ -428,6 +428,55 @@ export async function waitForSlideToSettle(testPage: Page) {
     .toBe(true);
 }
 
+// Waits until the slide fills the whiteboard canvas: every edge of the slide background on the edge of the canvas,
+// within a tolerance. On failure the message carries both boxes, the edge offsets and the tolerance.
+// The slide background is the only image shape on a whiteboard without user images. The whiteboard draws it from
+// 0.5 slide units before the slide's top-left corner to 1 unit past its bottom-right one (whiteboard/container.jsx),
+// so it overflows the fitted canvas by up to 1 unit times the zoom on each edge. The tolerance takes 1.5 units times
+// the zoom (the overflow plus the camera's fit margin) and 1px for the fractional layout of the canvas; the zoom is
+// read from the shape itself, as its width on screen over its width in slide units.
+export async function expectSlideFitsCanvas(
+  testPage: Page,
+  message = 'should fit the whole slide to the whiteboard canvas',
+) {
+  await expect
+    .poll(
+      () =>
+        testPage.page.evaluate(
+          ([canvasSelector, imageShapeSelector]) => {
+            const box = (r: DOMRect) => [r.left, r.top, r.right, r.bottom].map((v) => v.toFixed(2)).join(',');
+            const canvases = document.querySelectorAll(canvasSelector);
+            if (canvases.length !== 1) return `${canvases.length} whiteboard canvases`;
+            const shapes = canvases[0].querySelectorAll<HTMLElement>(imageShapeSelector);
+            if (shapes.length !== 1) return `${shapes.length} image shapes in the whiteboard canvas`;
+            const canvas = canvases[0].getBoundingClientRect();
+            const slide = shapes[0].getBoundingClientRect();
+            const slideUnits = parseFloat(getComputedStyle(shapes[0]).width);
+            if (!canvas.width || !canvas.height || !slide.width || !slide.height || !slideUnits) {
+              return `empty box: canvas ${box(canvas)}, slide ${box(slide)}, slide width ${slideUnits} units`;
+            }
+            const zoom = slide.width / slideUnits;
+            const tolerance = 1.5 * zoom + 1;
+            const offsets = [
+              slide.left - canvas.left,
+              slide.top - canvas.top,
+              slide.right - canvas.right,
+              slide.bottom - canvas.bottom,
+            ];
+            if (offsets.every((offset) => Math.abs(offset) <= tolerance)) return 'fits';
+            return (
+              `canvas ${box(canvas)}, slide ${box(slide)} (left,top,right,bottom); ` +
+              `edge offsets ${offsets.map((v) => v.toFixed(2)).join(',')} over a ` +
+              `tolerance of ${tolerance.toFixed(2)}px at zoom ${zoom.toFixed(4)}`
+            );
+          },
+          [e.whiteboard, e.wbImageShape],
+        ),
+      { message, timeout: ELEMENT_WAIT_LONGER_TIME },
+    )
+    .toBe('fits');
+}
+
 export async function uploadMultiplePresentations(
   testPage: Page,
   fileNames: string[],
