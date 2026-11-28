@@ -140,6 +140,16 @@ func TestHead(t *testing.T) {
 	}
 }
 
+func TestOptions(t *testing.T) {
+	_, seen := runYAML(t, header(`steps:
+  - call: ""
+    method: OPTIONS
+`))
+	if seen[0].Method != "OPTIONS" {
+		t.Errorf("method = %q, want OPTIONS", seen[0].Method)
+	}
+}
+
 func TestHeaderRemoval(t *testing.T) {
 	_, seen := runYAML(t, header(`steps:
   - call: getMeetings
@@ -177,6 +187,8 @@ func TestBodies(t *testing.T) {
         files:
           - {field: file, path: captions/sample.vtt}
           - {field: extra, content: "WEBVTT ${uid}", filename: x.vtt, contentType: text/vtt}
+          - {field: filler, size: 5}
+          - {field: none, size: 0, filename: "${uid}.bin"}
 `))
 	if res.Status != report.Pass {
 		t.Fatalf("status %s: %s", res.Status, res.Reason)
@@ -208,6 +220,10 @@ func TestBodies(t *testing.T) {
 		"WEBVTT\n\n00:00.000 --> 00:01.000\nHello\n\r\n" +
 		"--" + multipartBoundary + "\r\n" +
 		"Content-Disposition: form-data; name=\"extra\"; filename=\"x.vtt\"\r\nContent-Type: text/vtt\r\n\r\nWEBVTT uid-1\r\n" +
+		"--" + multipartBoundary + "\r\n" +
+		"Content-Disposition: form-data; name=\"filler\"; filename=\"filler\"\r\nContent-Type: application/octet-stream\r\n\r\nxxxxx\r\n" +
+		"--" + multipartBoundary + "\r\n" +
+		"Content-Disposition: form-data; name=\"none\"; filename=\"uid-1.bin\"\r\nContent-Type: application/octet-stream\r\n\r\n\r\n" +
 		"--" + multipartBoundary + "--\r\n"
 	check(5, "multipart/form-data; boundary="+multipartBoundary, wantMultipart)
 }
@@ -1276,6 +1292,23 @@ steps:
 	}
 	if strings.Count(reported, "[secret:turnSecret]") < 2 {
 		t.Errorf("the secret isn't named on both sides: %q", reported)
+	}
+}
+
+// noneOf passes a value that is none of its list, so a case can say what
+// an answer mustn't be without naming what it should; a JSON null is the
+// text null.
+func TestNoneOf(t *testing.T) {
+	for _, tt := range []struct {
+		value  string
+		status report.Status
+	}{{"UPLOADED_FILE_EMPTY", report.Pass}, {"INVALID_MIME_TYPE", report.Fail}, {"null", report.Fail}, {"", report.Fail}, {"x", report.Fail}} {
+		res, _ := runYAML(t, header(`steps:
+  - check: [{value: "`+tt.value+`", expect: {noneOf: [INVALID_MIME_TYPE, "null", "", '${urlencode("x")}']}}]
+`))
+		if res.Status != tt.status {
+			t.Errorf("%q none of the list: status %s (%s), want %s", tt.value, res.Status, res.Reason, tt.status)
+		}
 	}
 }
 

@@ -229,7 +229,7 @@ jobs:
             echo "run=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          if printf '%s\n' "$files" | grep -qE '^(bigbluebutton-tests/api-conformance/|bigbluebutton-web/|bbb-common-web/|bbb-common-message/|akka-bbb-apps/|bbb-graphql-server/|bbb-graphql-middleware/|bbb-graphql-actions/|bigbluebutton-config/|bigbluebutton-html5/private/config/settings\.yml$|bbb-libreoffice/(docker|assets)/|build/(setup|setup-inside-docker|package-names\.inc|opts-global|deb-helper|get_external_dependencies)\.sh$|build/packages-template/(bbb-web|bbb-apps-akka|bbb-graphql-server|bbb-graphql-middleware|bbb-graphql-actions|bbb-config)/|\.gitlab-ci\.yml$|\.github/workflows/automated-tests\.yml$)'; then
+          if printf '%s\n' "$files" | grep -qE '^(bigbluebutton-tests/api-conformance/|bigbluebutton-tests/presentation-conversion/(fixtures|profiles)/|bigbluebutton-tests/playwright/core/media/|bigbluebutton-web/|bbb-common-web/|bbb-common-message/|akka-bbb-apps/|bbb-graphql-server/|bbb-graphql-middleware/|bbb-graphql-actions/|bigbluebutton-config/|bigbluebutton-html5/private/config/settings\.yml$|bbb-libreoffice/(docker|assets)/|build/(setup|setup-inside-docker|package-names\.inc|opts-global|deb-helper|get_external_dependencies)\.sh$|build/packages-template/(bbb-web|bbb-apps-akka|bbb-graphql-server|bbb-graphql-middleware|bbb-graphql-actions|bbb-config)/|\.gitlab-ci\.yml$|\.github/workflows/automated-tests\.yml$)'; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
             echo "run=false" >> "$GITHUB_OUTPUT"

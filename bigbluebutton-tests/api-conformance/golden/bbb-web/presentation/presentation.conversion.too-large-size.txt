@@ -1,0 +1,8 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case presentation.conversion.too-large-size
+target bbb-web
+
+== step 4: bus PresentationUploadedFileTooLargeErrorEvtMsg select $.core.body.presentationName, $.core.body.fileSize, $.core.body.maxFileSize (document)
+$.core.body.fileSize 30000000
+$.core.body.maxFileSize 30000000
+$.core.body.presentationName "big.pdf"

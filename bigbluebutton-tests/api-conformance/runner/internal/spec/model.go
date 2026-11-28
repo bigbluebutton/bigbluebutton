@@ -219,12 +219,14 @@ type Multipart struct {
 	Files  []File
 }
 
-// File is one file part. Exactly one of Path and Content is set.
+// File is one file part. Exactly one of Path, Content and Size is set.
 type File struct {
 	Field       string
 	Path        string
 	Content     string
 	HasContent  bool
+	Size        int64 // with HasSize, the part is Size bytes of filler
+	HasSize     bool
 	Filename    string
 	ContentType string
 }
@@ -271,8 +273,8 @@ type RedirectExpect struct {
 }
 
 // Matcher compares one value. Op is eq, exists, absent, regex, type, oneOf,
-// count, contains or between (Args: the inclusive integer bounds). Arg and
-// Args may hold templates.
+// noneOf, count, contains or between (Args: the inclusive integer bounds).
+// Arg and Args may hold templates.
 type Matcher struct {
 	Op   string
 	Arg  string

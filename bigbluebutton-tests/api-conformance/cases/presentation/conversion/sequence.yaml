@@ -1,0 +1,105 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# What bbb-web tells akka-apps while it converts a PDF, and what akka-apps
+# passes on. bbb-web announces the request (which akka-apps doesn't act
+# on), says the document is supported, and starts the conversion with its
+# page count and the most time it should take: maxPageConversionTime, 60
+# seconds, a page. Each page is generated and converted; then the
+# presentation is complete, and the conversion ends. akka-apps re-publishes
+# each page's progress, the converted pages, the completed presentation and
+# the end.
+id: presentation.conversion.sequence
+title: A PDF's conversion messages, from bbb-web and from akka-apps
+endpoint: presentation
+class: contract
+tags: [ci, conversion]
+requires: [akka, bus, callbacks, presentation-conversion]
+steps:
+  # A one-page image instead of the 15-page default presentation, so that
+  # the suite's conversions stay short.
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Conversion}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}-start/fixtures/presentations/image.png" filename="start.png"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: insertDocument
+    method: POST
+    params: {meetingID: "${uid}"}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}/conversion/pdf-base14-text-3p" filename="slides.pdf"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - bus: {name: PresentationConversionEndedEventMsg, meetingId: "${intId}", within: 180s}
+    select: [$.core.body.presName]
+    expect:
+      jsonpath: {$.core.body.presName: slides.pdf}
+    capture: {presId: $.core.body.presentationId}
+  # From bbb-web (in this order, though the steps don't check it).
+  - bus: {name: PresentationConversionRequestReceivedSysMsg, meetingId: "${intId}", within: 500ms}
+    select: [$.core.body.presName, $.core.body.current, $.core.body.temporaryPresentationId, $.core.body.removable]
+    expect:
+      jsonpath: {$.core.body.presentationId: "${presId}"}
+      count: 1
+  - bus: {name: PresentationConversionUpdateSysPubMsg, meetingId: "${intId}", within: 500ms}
+    select: [$.core.body.messageKey, $.core.body.presName]
+    expect:
+      jsonpath: {$.core.body.presentationId: "${presId}"}
+      count: 1
+  - bus: {name: PresentationPageConversionStartedSysMsg, channel: to-akka-apps-redis-channel, meetingId: "${intId}", within: 500ms}
+    select: [$.core.body.presName, $.core.body.presFilenameConverted, $.core.body.numPages, $.core.body.current, $.core.body.default]
+    expect:
+      jsonpath: {$.core.body.presentationId: "${presId}"}
+      count: 1
+  - bus: {name: PresentationConversionStartedSysPubMsg, meetingId: "${intId}", within: 500ms}
+    select: [$.core.body.common.presentationName, $.core.body.common.messageKey, $.core.body.maxDuration]
+    expect:
+      jsonpath:
+        $.core.body.common.presentationId: "${presId}"
+        $.core.body.maxDuration: "180"
+      count: 1
+  - bus: {name: PresentationPageGeneratedSysPubMsg, meetingId: "${intId}", within: 500ms}
+    select: [$.core.body.messageKey, $.core.body.numberOfPages]
+    expect:
+      jsonpath: {$.core.body.presentationId: "${presId}"}
+      count: 3
+  - bus: {name: PresentationPageConvertedSysMsg, meetingId: "${intId}", within: 500ms}
+    select: [$.core.body.messageKey, $.core.body.numberOfPages]
+    expect:
+      jsonpath: {$.core.body.presentationId: "${presId}"}
+      count: 3
+  - bus: {name: PresentationConversionCompletedSysPubMsg, meetingId: "${intId}", within: 500ms}
+    select: [$.core.body.presentation.name]
+    expect:
+      jsonpath:
+        $.core.body.presentation.id: "${presId}"
+        "$.core.body.presentation.pages[*]": {count: 3}
+      count: 1
+  - bus: {name: PresentationConversionEndedSysMsg, meetingId: "${intId}", within: 500ms}
+    select: [$.core.body.presName]
+    expect:
+      jsonpath: {$.core.body.presentationId: "${presId}"}
+      count: 1
+  # From akka-apps.
+  - bus: {name: PresentationPageGeneratedEvtMsg, meetingId: "${intId}", within: 500ms}
+    select: [$.core.body.messageKey, $.core.body.numberOfPages]
+    expect:
+      jsonpath: {$.core.body.presentationId: "${presId}"}
+      count: 3
+  - bus: {name: PresentationPageConvertedEventMsg, meetingId: "${intId}", within: 500ms}
+    select: [$.core.body.messageKey, $.core.body.numberOfPages]
+    expect:
+      jsonpath: {$.core.body.presentationId: "${presId}"}
+      count: 3
+  - bus: {name: PresentationConversionCompletedEvtMsg, meetingId: "${intId}", within: 500ms}
+    select: [$.core.body.presentation.name]
+    expect:
+      jsonpath:
+        $.core.body.presentation.id: "${presId}"
+        "$.core.body.presentation.pages[*]": {count: 3}
+      count: 1
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true

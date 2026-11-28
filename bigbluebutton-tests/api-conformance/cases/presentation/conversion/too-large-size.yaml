@@ -1,0 +1,45 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A document insertDocument fetches by URL that is larger than
+# maxFileSizeUpload is reported with the limit as its size: fileSize
+# 30000000 for a 31000000-byte file, which the sink sends with its
+# Content-Length. A defect (#26794, expectations/bbb-web.yaml): this case
+# expects a size over the limit, up to the file's.
+id: presentation.conversion.too-large-size
+title: A document over maxFileSizeUpload, inserted by URL, is reported with its own size
+endpoint: presentation
+class: defect
+tags: [ci, conversion]
+requires: [akka, bus, callbacks, presentation-conversion]
+steps:
+  # A one-page image instead of the 15-page default presentation, so that
+  # the suite's conversions stay short.
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Conversion}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}-start/fixtures/presentations/image.png" filename="start.png"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: insertDocument
+    method: POST
+    params: {meetingID: "${uid}"}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}/conversion/rt-pdf-oversized-31mb-insert" filename="big.pdf"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - bus: {name: PresentationUploadedFileTooLargeErrorEvtMsg, meetingId: "${intId}", within: 60s}
+    select: [$.core.body.presentationName, $.core.body.fileSize, $.core.body.maxFileSize]
+    expect:
+      jsonpath: {$.core.body.presentationName: big.pdf}
+  - bus: {name: PresentationUploadedFileTooLargeErrorEvtMsg, meetingId: "${intId}", within: 500ms}
+    golden: off
+    expect:
+      jsonpath:
+        $.core.body.presentationName: big.pdf
+        $.core.body.fileSize: {between: [30000001, 31000000]}
+      count: 1
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true

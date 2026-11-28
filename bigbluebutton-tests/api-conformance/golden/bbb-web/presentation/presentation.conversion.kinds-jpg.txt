@@ -1,0 +1,16 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case presentation.conversion.kinds-jpg
+target bbb-web
+
+== step 5: bus PresentationConversionCompletedEvtMsg select $.core.body.presentation.name, $.core.body.presentation.filenameConverted, $.core.body.presentation.current
+$.core.body.presentation.current false
+$.core.body.presentation.filenameConverted ""
+$.core.body.presentation.name "photo.jpg"
+
+== step 6: graphql query Converted as ann
+$.data.pres_presentation[].name "photo.jpg"
+$.data.pres_presentation[].pages[].num 1
+$.data.pres_presentation[].totalPages 1
+$.data.pres_presentation[].uploadCompleted true
+$.data.pres_presentation[].uploadErrorMsgKey null
+$.data.pres_presentation[].uploadInProgress false

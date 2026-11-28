@@ -30,6 +30,7 @@ func cmdSink(args []string, stdout, stderr io.Writer) int {
 	cert := fl.String("cert", "", "the TLS certificate, for a name the server under test resolves to this host; without one, plain HTTP")
 	key := fl.String("key", "", "the certificate's key")
 	fixtures := fl.String("fixtures", "", `the fixtures directory, served under /fixtures/; "" serves none`)
+	repo := fl.String("repo", "", `the repository, for the presentation conversion suite's fixtures, served by ID under /conversion/; "" serves none`)
 	hosts := fl.String("hosts", "", "host names the runner reads it by; IP addresses, localhost and the names --cert covers always work")
 	maxMB := fl.Int("max-mb", 64, "the most the log keeps, in MiB")
 	maxAge := fl.Duration("max-age", 2*time.Hour, "how long the log keeps a request")
@@ -62,9 +63,12 @@ func cmdSink(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stderr, "bbb-conform sink: --listen-http needs --cert: without one, --listen serves plain HTTP")
 		return exitUsage
 	}
-	if *fixtures != "" {
-		if st, err := os.Stat(*fixtures); err != nil || !st.IsDir() {
-			fmt.Fprintf(stderr, "bbb-conform sink: fixtures directory %q not found\n", *fixtures)
+	for _, d := range []struct{ flag, dir string }{{"fixtures", *fixtures}, {"repo", *repo}} {
+		if d.dir == "" {
+			continue
+		}
+		if st, err := os.Stat(d.dir); err != nil || !st.IsDir() {
+			fmt.Fprintf(stderr, "bbb-conform sink: --%s directory %q not found\n", d.flag, d.dir)
 			return exitUsage
 		}
 	}
@@ -79,7 +83,7 @@ func cmdSink(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "bbb-conform sink: %v\n", err)
 		return exitUsage
 	}
-	s, err := sink.New(sink.Config{Fixtures: *fixtures, MaxBytes: *maxMB << 20, MaxAge: *maxAge, HTTPAddr: plain,
+	s, err := sink.New(sink.Config{Fixtures: *fixtures, Repo: *repo, MaxBytes: *maxMB << 20, MaxAge: *maxAge, HTTPAddr: plain,
 		Hosts: names, Token: token})
 	if err != nil {
 		fmt.Fprintf(stderr, "bbb-conform sink: %v\n", err)

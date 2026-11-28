@@ -1,0 +1,19 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case presentation.upload-token.rate-limit
+target bbb-web
+
+== step 26: graphql mutation RequestUploadToken as ann
+$.data.presentationRequestUploadToken true
+
+== step 27: bus PresentationUploadTokenFailRespMsg select $.core.body.podId, $.core.body.filename
+$.core.body.filename "refused.pdf"
+$.core.body.podId "DEFAULT_PRESENTATION_POD"
+
+== step 29: graphql query Refused as ann
+$.data.pres_presentation[].name "refused.pdf"
+$.data.pres_presentation[].uploadCompleted false
+$.data.pres_presentation[].uploadErrorMsgKey "PRESENTATION_UPLOAD_RATE_LIMIT_EXCEEDED"
+$.data.pres_presentation[].uploadInProgress false
+
+== step 30: graphql query RefusedToken as ann
+$.data.pres_presentation_uploadToken[].uploadToken ""

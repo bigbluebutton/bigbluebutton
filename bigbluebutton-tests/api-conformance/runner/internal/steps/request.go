@@ -324,6 +324,9 @@ func writeJSONString(buf *bytes.Buffer, s string) {
 
 var quoteEscaper = strings.NewReplacer("\\", "\\\\", `"`, "\\\"")
 
+// fillerByte makes up a multipart file part given by size.
+const fillerByte = 'x'
+
 func (x *exec) multipart(m *spec.Multipart) ([]byte, string, error) {
 	var buf bytes.Buffer
 	w := multipart.NewWriter(&buf)
@@ -362,6 +365,11 @@ func (x *exec) multipart(m *spec.Multipart) ([]byte, string, error) {
 			if filename == "" {
 				filename = field
 			}
+		} else if f.HasSize {
+			content = bytes.Repeat([]byte{fillerByte}, int(f.Size))
+			if filename == "" {
+				filename = field
+			}
 		} else {
 			if content, err = x.readFixture(f.Path); err != nil {
 				return nil, "", err
@@ -370,7 +378,7 @@ func (x *exec) multipart(m *spec.Multipart) ([]byte, string, error) {
 				filename = filepath.Base(f.Path)
 			}
 		}
-		if bytes.Contains(content, []byte(multipartBoundary)) {
+		if !f.HasSize && bytes.Contains(content, []byte(multipartBoundary)) {
 			return nil, "", fmt.Errorf("multipart file %s contains the boundary", field)
 		}
 		if filename, err = x.expand(filename); err != nil {

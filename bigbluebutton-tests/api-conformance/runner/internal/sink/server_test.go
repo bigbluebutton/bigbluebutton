@@ -14,6 +14,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/convfix"
 )
 
 type world struct {
@@ -422,6 +424,73 @@ func TestGeneratedOverHTTP(t *testing.T) {
 		if resp, body := w.send(t, "GET", p, ""); resp.StatusCode != 400 {
 			t.Errorf("%s: %d %q", p, resp.StatusCode, body)
 		}
+	}
+}
+
+// TestConversionFixtures serves the conversion suite's fixtures by ID from
+// a repository holding only convfix.Dirs: a manifest's own file, one in a
+// borrowed directory, and a generated one. Nothing else is served.
+func TestConversionFixtures(t *testing.T) {
+	repo := t.TempDir()
+	m := filepath.Join(repo, filepath.FromSlash(convfix.ManifestDir))
+	media := filepath.Join(repo, "bigbluebutton-tests", "playwright", "core", "media")
+	for _, d := range []string{filepath.Join(m, "synthetic"), filepath.Join(m, "variants"), filepath.Join(m, "runtime"), media} {
+		if err := os.MkdirAll(d, 0o755); err != nil {
+			t.Fatal(err)
+		}
+	}
+	write(t, filepath.Join(m, "synthetic", "pdf-a.yaml"), "id: pdf-a\nfile: pdf-a.pdf\n")
+	write(t, filepath.Join(m, "synthetic", "pdf-a.pdf"), "%PDF-a")
+	write(t, filepath.Join(m, "variants", "var-b.yaml"), "id: var-b\nfile: ../../../playwright/core/media/b.png\n")
+	write(t, filepath.Join(media, "b.png"), "png-b")
+	write(t, filepath.Join(m, "runtime", "rt-c.yaml"), "id: rt-c\ngenerate: {kind: padded-pdf, bytes: 4000}\n")
+	write(t, filepath.Join(m, "synthetic", "gone.yaml"), "id: gone\nfile: gone.pdf\n")
+	write(t, filepath.Join(m, "synthetic", "out.yaml"), "id: out\nfile: ../../../../../secret.txt\n")
+	s, err := New(Config{Repo: repo, MaxBytes: 1 << 20, MaxAge: time.Hour})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(s.Close)
+	srv := httptest.NewServer(s)
+	t.Cleanup(srv.Close)
+	get := func(p string) (int, string, string) {
+		resp, err := http.Get(srv.URL + p)
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer resp.Body.Close()
+		b, _ := io.ReadAll(resp.Body)
+		return resp.StatusCode, resp.Header.Get("Content-Type"), string(b)
+	}
+	for p, want := range map[string]string{"/k/conversion/pdf-a": "%PDF-a", "/conversion/var-b": "png-b"} {
+		if st, _, body := get(p); st != 200 || body != want {
+			t.Errorf("%s: %d %q", p, st, body)
+		}
+	}
+	if st, ct, body := get("/k/conversion/rt-c"); st != 200 || len(body) != 4000 || ct != "application/pdf" || !strings.HasPrefix(body, "%PDF-") {
+		t.Errorf("rt-c: %d %q, %d bytes", st, ct, len(body))
+	}
+	for p, want := range map[string]int{
+		"/k/conversion/missing":         404,
+		"/k/conversion/gone":            404,
+		"/k/conversion/out":             500,
+		"/k/conversion/Bad_ID":          400,
+		"/k/conversion/pdf-a?_size=10":  400,
+		"/k/conversion/pdf-a?_expand=1": 400,
+		"/conversion/../fixtures/x":     400,
+		"/k/conversion/":                400,
+	} {
+		if st, _, body := get(p); st != want {
+			t.Errorf("%s: %d %q; want %d", p, st, body, want)
+		}
+	}
+	if err := CheckKey("conversion"); err == nil {
+		t.Error("conversion was accepted as a key")
+	}
+	// A sink without --repo serves none.
+	w := startWorld(t)
+	if resp, body := w.send(t, "GET", "/conversion/pdf-a", ""); resp.StatusCode != 404 || !strings.Contains(body, "--repo") {
+		t.Errorf("no repo: %d %q", resp.StatusCode, body)
 	}
 }
 

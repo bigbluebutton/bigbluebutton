@@ -1,0 +1,55 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A PDF whose pages bbb-web can't count (pdfinfo fails on it) is refused
+# with PAGE_COUNT_FAILED: no pages, and no limit.
+id: presentation.conversion.page-count-failed
+title: A PDF whose pages can't be counted (${what}) is refused with PAGE_COUNT_FAILED
+endpoint: presentation
+class: contract
+tags: [ci, conversion, presence]
+requires: [akka, bus, presence, callbacks, presentation-conversion]
+variants:
+  - {id: header-only, vars: {what: a header and nothing else, fixture: pdf-header-only, name: header.pdf}}
+  - {id: truncated, vars: {what: cut off after 1000 bytes, fixture: pdf-truncated-1000b, name: truncated.pdf}}
+  - {id: password, vars: {what: one that needs a password to open, fixture: pdf-encrypted-user-pw, name: locked.pdf}}
+steps:
+  # A one-page image instead of the 15-page default presentation, so that
+  # the suite's conversions stay short.
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Conversion}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}-start/fixtures/presentations/image.png" filename="start.png"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  # Only the presenter sees the presentation's rows.
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: MODERATOR}}
+    golden: off
+  - call: insertDocument
+    method: POST
+    params: {meetingID: "${uid}"}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}/conversion/${fixture}" filename="${name}"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - bus: {name: PresentationPageCountErrorEvtMsg, meetingId: "${intId}", within: 60s}
+    select: [$.core.body.messageKey, $.core.body.presName, $.core.body.numberOfPages, $.core.body.maxNumberPages]
+    expect:
+      jsonpath:
+        $.core.body.presName: "${name}"
+        $.core.body.messageKey: PAGE_COUNT_FAILED
+  - graphql:
+      as: ann
+      query: >-
+        query Row($name: String!) { pres_presentation(where: {name: {_eq: $name}}) {
+        name uploadCompleted uploadErrorMsgKey uploadErrorDetailsJson totalPages } }
+      variables: {name: "${name}"}
+    eventually:
+      within: 10s
+      every: 300ms
+      until:
+        jsonpath: {"$.data.pres_presentation[0].uploadErrorMsgKey": PAGE_COUNT_FAILED}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true

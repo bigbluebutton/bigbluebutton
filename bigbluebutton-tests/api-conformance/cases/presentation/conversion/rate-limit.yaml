@@ -1,0 +1,92 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# bbb-web converts at most presentationConversionMaxRequests (20) documents
+# for a meeting in presentationConversionRateWindowSec (60 seconds),
+# counting the meeting's own first document. Of 21 more, sent at once, 19
+# convert and 2 are refused with CONVERSION_RATE_LIMIT_EXCEEDED, which
+# akka-apps stores on the presenter's row without passing it on. One
+# insertDocument's documents are handled side by side, so which two isn't
+# fixed: the case counts them.
+#
+# The window slides: each document is counted when its conversion starts
+# and forgotten 60 seconds later. The case sends the 21 right after create,
+# before anyone joins, so that all 22 start within seconds of each other
+# however long conversions take. Which is counted first doesn't change the
+# totals; that the first document counts at all is why 2 are refused.
+id: presentation.conversion.rate-limit
+title: The 21st conversion in a minute is refused with CONVERSION_RATE_LIMIT_EXCEEDED
+endpoint: presentation
+class: contract
+tags: [ci, conversion, presence]
+requires: [akka, bus, presence, callbacks, presentation-conversion]
+steps:
+  # A one-page image instead of the 15-page default presentation, so that
+  # the suite's conversions stay short.
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Conversion}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}-start/fixtures/presentations/image.png" filename="start.png"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: insertDocument
+    method: POST
+    params: {meetingID: "${uid}"}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}/fixtures/presentations/image.png" filename="r01.png"/><document url="${sinkUrl}/${uid}/fixtures/presentations/image.png" filename="r02.png"/><document url="${sinkUrl}/${uid}/fixtures/presentations/image.png" filename="r03.png"/><document url="${sinkUrl}/${uid}/fixtures/presentations/image.png" filename="r04.png"/><document url="${sinkUrl}/${uid}/fixtures/presentations/image.png" filename="r05.png"/><document url="${sinkUrl}/${uid}/fixtures/presentations/image.png" filename="r06.png"/><document url="${sinkUrl}/${uid}/fixtures/presentations/image.png" filename="r07.png"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: insertDocument
+    method: POST
+    params: {meetingID: "${uid}"}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}/fixtures/presentations/image.png" filename="r08.png"/><document url="${sinkUrl}/${uid}/fixtures/presentations/image.png" filename="r09.png"/><document url="${sinkUrl}/${uid}/fixtures/presentations/image.png" filename="r10.png"/><document url="${sinkUrl}/${uid}/fixtures/presentations/image.png" filename="r11.png"/><document url="${sinkUrl}/${uid}/fixtures/presentations/image.png" filename="r12.png"/><document url="${sinkUrl}/${uid}/fixtures/presentations/image.png" filename="r13.png"/><document url="${sinkUrl}/${uid}/fixtures/presentations/image.png" filename="r14.png"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: insertDocument
+    method: POST
+    params: {meetingID: "${uid}"}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}/fixtures/presentations/image.png" filename="r15.png"/><document url="${sinkUrl}/${uid}/fixtures/presentations/image.png" filename="r16.png"/><document url="${sinkUrl}/${uid}/fixtures/presentations/image.png" filename="r17.png"/><document url="${sinkUrl}/${uid}/fixtures/presentations/image.png" filename="r18.png"/><document url="${sinkUrl}/${uid}/fixtures/presentations/image.png" filename="r19.png"/><document url="${sinkUrl}/${uid}/fixtures/presentations/image.png" filename="r20.png"/><document url="${sinkUrl}/${uid}/fixtures/presentations/image.png" filename="r21.png"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - bus: {name: PresentationConversionFailedErrorSysPubMsg, meetingId: "${intId}", within: 30s}
+    select: [$.core.body.messageKey, $.core.body.errorDetail]
+    expect:
+      jsonpath: {$.core.body.messageKey: CONVERSION_RATE_LIMIT_EXCEEDED}
+  # Only the presenter sees the presentation's rows.
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: MODERATOR}}
+    golden: off
+  # Until the 20 conversions are done: the meeting's document and 19 more.
+  - graphql:
+      as: ann
+      query: 'query Converted { pres_presentation(where: {uploadCompleted: {_eq: true}}) { name } }'
+    golden: off
+    eventually:
+      within: 180s
+      every: 1s
+      until:
+        jsonpath: {"$.data.pres_presentation[19].name": {exists: true}}
+  - bus: {name: PresentationConversionCompletedEvtMsg, meetingId: "${intId}", within: 1s}
+    golden: off
+    expect: {count: 20}
+  - bus: {name: PresentationConversionFailedErrorSysPubMsg, meetingId: "${intId}", within: 500ms}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.messageKey: CONVERSION_RATE_LIMIT_EXCEEDED}
+      count: 2
+  - graphql:
+      as: ann
+      query: >-
+        query Refused { pres_presentation(where: {uploadErrorMsgKey: {_eq: "CONVERSION_RATE_LIMIT_EXCEEDED"}}) {
+        uploadCompleted uploadErrorMsgKey uploadErrorDetailsJson totalPages } }
+    eventually:
+      within: 10s
+      every: 300ms
+      until:
+        jsonpath: {"$.data.pres_presentation[1].uploadErrorMsgKey": CONVERSION_RATE_LIMIT_EXCEEDED}
+    expect:
+      jsonpath:
+        "$.data.pres_presentation[*]": {count: 2}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true

@@ -1,0 +1,45 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A GIF or a TIFF, which bbb-web doesn't take, is dropped before
+# conversion: nothing is said about it, to akka-apps or the presenter.
+# (svg, empty files and documents whose content doesn't match their name
+# are create's and insertDocument's cases.)
+id: presentation.conversion.dropped
+title: A ${kind} is dropped without a message
+endpoint: presentation
+class: contract
+tags: [ci, conversion]
+requires: [akka, bus, callbacks, presentation-conversion]
+variants:
+  - {id: gif, vars: {kind: GIF, fixture: img-gif-2frame, name: animation.gif}}
+  - {id: tiff, vars: {kind: TIFF, fixture: img-tiff-2page, name: scan.tiff}}
+steps:
+  # A one-page image instead of the 15-page default presentation, so that
+  # the suite's conversions stay short.
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Conversion}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}-start/fixtures/presentations/image.png" filename="start.png"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: insertDocument
+    method: POST
+    params: {meetingID: "${uid}"}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}/conversion/${fixture}" filename="${name}"/><document url="${sinkUrl}/${uid}/fixtures/presentations/two-pages.pdf" filename="control.pdf"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+  # The other document converts, so bbb-web has handled both.
+  - bus: {name: PresentationConversionCompletedEvtMsg, meetingId: "${intId}", within: 180s}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.presentation.name: control.pdf}
+  - bus: {name: PresentationConversionRequestReceivedSysMsg, meetingId: "${intId}", within: 3s}
+    expect:
+      jsonpath: {$.core.body.presName: "${name}"}
+      absent: true
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true

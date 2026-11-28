@@ -1,0 +1,62 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# With skipOfficePrecheck=false (the conversion suite's office-precheck
+# profile), bbb-web checks a .pptx before LibreOffice converts it, and
+# refuses one its pre-check flags, such as a deck whose every slide is
+# hidden, with OFFICE_DOC_CONVERSION_INVALID. akka-apps stores it on the
+# presenter's row, without passing the message on. A deck the pre-check
+# passes converts.
+id: presentation.conversion.office-precheck
+title: The Office pre-check refuses a deck with no visible slide, and passes a valid one
+endpoint: presentation
+class: contract
+tags: [ci, conversion, disruptive, presence]
+requires: [akka, bus, presence, callbacks, presentation-conversion]
+profile: office-precheck
+steps:
+  # A one-page image instead of the 15-page default presentation, so that
+  # the suite's conversions stay short.
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Conversion}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}-start/fixtures/presentations/image.png" filename="start.png"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  # Only the presenter sees the presentation's rows.
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: MODERATOR}}
+    golden: off
+  - call: insertDocument
+    method: POST
+    params: {meetingID: "${uid}"}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}/conversion/off-pptx-one-slide" filename="deck.pptx"/><document url="${sinkUrl}/${uid}/fixtures/presentations/hidden-slides.pptx" filename="hidden.pptx"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - bus: {name: PresentationConversionCompletedEvtMsg, meetingId: "${intId}", within: 180s}
+    select: [$.core.body.presentation.name]
+    expect:
+      jsonpath:
+        $.core.body.presentation.name: deck.pptx
+        "$.core.body.presentation.pages[*]": {count: 1}
+  - bus: {name: PresentationConversionFailedErrorSysPubMsg, meetingId: "${intId}", within: 60s}
+    select: [$.core.body.messageKey, $.core.body.presName, $.core.body.errorDetail]
+    expect:
+      jsonpath:
+        $.core.body.presName: hidden.pptx
+        $.core.body.messageKey: OFFICE_DOC_CONVERSION_INVALID
+  - graphql:
+      as: ann
+      query: >-
+        query Row($name: String!) { pres_presentation(where: {name: {_eq: $name}}) {
+        name uploadCompleted uploadErrorMsgKey uploadErrorDetailsJson totalPages } }
+      variables: {name: "hidden.pptx"}
+    eventually:
+      within: 10s
+      every: 300ms
+      until:
+        jsonpath: {"$.data.pres_presentation[0].uploadErrorMsgKey": OFFICE_DOC_CONVERSION_INVALID}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true

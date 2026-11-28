@@ -1,0 +1,17 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case presentation.conversion.page-count-failed-truncated
+target bbb-web
+
+== step 5: bus PresentationPageCountErrorEvtMsg select $.core.body.messageKey, $.core.body.presName, $.core.body.numberOfPages, $.core.body.maxNumberPages
+$.core.body.maxNumberPages 0
+$.core.body.messageKey "PAGE_COUNT_FAILED"
+$.core.body.numberOfPages 0
+$.core.body.presName "truncated.pdf"
+
+== step 6: graphql query Row as ann
+$.data.pres_presentation[].name "truncated.pdf"
+$.data.pres_presentation[].totalPages 0
+$.data.pres_presentation[].uploadCompleted false
+$.data.pres_presentation[].uploadErrorDetailsJson.maxNumberOfPages "0"
+$.data.pres_presentation[].uploadErrorDetailsJson.numberOfPages "0"
+$.data.pres_presentation[].uploadErrorMsgKey "PAGE_COUNT_FAILED"

@@ -58,6 +58,12 @@ case $name in
 			exit 77
 		fi
 		;;
+	clamav-scan-unreachable)
+		if running clamav; then
+			echo "$name needs ClamAV not to run, but make -C $env_dir up CLAMAV=1 started it" >&2
+			exit 77
+		fi
+		;;
 esac
 
 # One switch, or render, at a time (make reset and render take this lock

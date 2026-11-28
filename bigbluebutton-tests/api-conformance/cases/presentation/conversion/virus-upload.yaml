@@ -1,0 +1,83 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A file the presenter uploads is scanned too (the clamav-scan profile).
+# One ClamAV flags (the EICAR test file) isn't converted: akka-apps passes
+# on FILE_VIRUS, and the presenter's row, which the upload token made,
+# carries it.
+id: presentation.conversion.virus-upload
+title: An upload ClamAV flags is refused with FILE_VIRUS, on the presenter's row
+endpoint: presentation
+class: contract
+tags: [full-stack, conversion, disruptive, presence]
+requires: [akka, bus, presence, callbacks, clamav, presentation-conversion]
+profile: clamav-scan
+steps:
+  # A one-page image instead of the 15-page default presentation, so that
+  # the suite's conversions stay short.
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Upload}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}-start/fixtures/presentations/image.png" filename="start.png"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: MODERATOR}}
+    golden: off
+  # As the meeting's first moderator, Ann is made presenter a moment after
+  # she joins; the token request needs her to be.
+  - graphql: {as: ann, query: "query Me { user_current { presenter } }"}
+    golden: off
+    eventually: {within: 10s, every: 300ms, until: {jsonpath: {"$.data.user_current[0].presenter": "true"}}}
+  - graphql:
+      as: ann
+      query: 'mutation RequestUploadToken($podId: String!, $filename: String!, $tmp: String!) { presentationRequestUploadToken(podId: $podId, filename: $filename, uploadTemporaryId: $tmp) }'
+      variables: {podId: DEFAULT_PRESENTATION_POD, filename: eicar.txt, tmp: upload-1}
+    golden: off
+  - bus: {name: PresentationUploadTokenSysPubMsg, meetingId: "${intId}", within: 10s}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.filename: eicar.txt}
+    capture: {token: $.core.body.authzToken}
+  # bbb-web learns the token from its own message queue, a moment after
+  # akka-apps sends it (#26788), and until then nginx refuses it. A CORS
+  # preflight is refused the same way, and doesn't use the token up.
+  - route: presentation-upload
+    method: OPTIONS
+    headers: {Origin: "${baseUrl}", Access-Control-Request-Method: POST}
+    pathParams: {authzToken: "${token}"}
+    eventually: {within: 10s, every: 300ms, until: {status: 200}}
+    golden: off
+  # The EICAR test file: the backslash is escaped, so this file doesn't
+  # hold the string itself.
+  - route: presentation-upload
+    method: POST
+    pathParams: {authzToken: "${token}"}
+    body:
+      multipart:
+        fields: {conference: "${intId}", temporaryPresentationId: upload-1}
+        files:
+          - field: fileUpload
+            content: "X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*"
+            filename: eicar.txt
+            contentType: text/plain
+    expect: {status: 200, body: upload-success}
+  - bus: {name: PresentationUploadedFileVirusErrorEvtMsg, meetingId: "${intId}", within: 60s}
+    select: [$.core.body.messageKey, $.core.body.presentationName, $.core.body.temporaryPresentationId]
+    expect:
+      jsonpath:
+        $.core.body.temporaryPresentationId: upload-1
+        $.core.body.messageKey: FILE_VIRUS
+  - graphql:
+      as: ann
+      query: 'query Row($tmp: String!) { pres_presentation(where: {uploadTemporaryId: {_eq: $tmp}}) { name uploadCompleted uploadErrorMsgKey uploadErrorDetailsJson totalPages } }'
+      variables: {tmp: upload-1}
+    eventually:
+      within: 10s
+      every: 300ms
+      until:
+        jsonpath: {"$.data.pres_presentation[0].uploadErrorMsgKey": FILE_VIRUS}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true

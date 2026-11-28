@@ -1,0 +1,107 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# An upload's conference must be the internal ID of the meeting the token
+# was issued in. Otherwise, or without conference, bbb-web refuses it with
+# 403 "upload token scope mismatch", spends the token, and tells akka-apps
+# the upload failed (PRESENTATION_UPLOAD_FAILED). The same token with the
+# right conference is then refused too.
+id: presentation.upload.scope-mismatch
+title: An upload for another meeting, or for none, is refused and spends its token
+endpoint: presentation
+class: contract
+tags: [ci, presence]
+requires: [akka, bus, presence, callbacks]
+steps:
+  # A one-page image instead of the 15-page default presentation, so that
+  # the suite's conversions stay short.
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Upload}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}-start/fixtures/presentations/image.png" filename="start.png"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: MODERATOR}}
+    golden: off
+  # As the meeting's first moderator, Ann is made presenter a moment after
+  # she joins; the token request needs her to be.
+  - graphql: {as: ann, query: "query Me { user_current { presenter } }"}
+    golden: off
+    eventually: {within: 10s, every: 300ms, until: {jsonpath: {"$.data.user_current[0].presenter": "true"}}}
+  - graphql:
+      as: ann
+      query: 'mutation RequestUploadToken($podId: String!, $filename: String!, $tmp: String!) { presentationRequestUploadToken(podId: $podId, filename: $filename, uploadTemporaryId: $tmp) }'
+      variables: {podId: DEFAULT_PRESENTATION_POD, filename: other.pdf, tmp: upload-1}
+    golden: off
+  - graphql:
+      as: ann
+      query: 'mutation RequestUploadToken($podId: String!, $filename: String!, $tmp: String!) { presentationRequestUploadToken(podId: $podId, filename: $filename, uploadTemporaryId: $tmp) }'
+      variables: {podId: DEFAULT_PRESENTATION_POD, filename: none.pdf, tmp: upload-2}
+    golden: off
+  - bus: {name: PresentationUploadTokenSysPubMsg, meetingId: "${intId}", within: 10s}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.filename: other.pdf}
+    capture: {other: $.core.body.authzToken}
+  - bus: {name: PresentationUploadTokenSysPubMsg, meetingId: "${intId}", within: 10s}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.filename: none.pdf}
+    capture: {none: $.core.body.authzToken}
+  # bbb-web learns a token from its own message queue, a moment after
+  # akka-apps sends it (#26788), and until then nginx refuses it. A CORS
+  # preflight is refused the same way, and doesn't use a token up.
+  - route: presentation-upload
+    method: OPTIONS
+    headers: {Origin: "${baseUrl}", Access-Control-Request-Method: POST}
+    pathParams: {authzToken: "${other}"}
+    eventually: {within: 10s, every: 300ms, until: {status: 200}}
+    golden: off
+  - route: presentation-upload
+    method: OPTIONS
+    headers: {Origin: "${baseUrl}", Access-Control-Request-Method: POST}
+    pathParams: {authzToken: "${none}"}
+    eventually: {within: 10s, every: 300ms, until: {status: 200}}
+    golden: off
+  - route: presentation-upload
+    method: POST
+    pathParams: {authzToken: "${other}"}
+    body:
+      multipart:
+        fields: {conference: another-meeting, temporaryPresentationId: upload-1}
+        files: [{field: fileUpload, path: presentations/two-pages.pdf, filename: other.pdf, contentType: application/pdf}]
+    expect: {status: 403, body: upload token scope mismatch}
+  - bus: {name: PresentationConversionFailedErrorSysPubMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.messageKey, $.core.body.presName, $.core.body.errorDetail]
+    expect:
+      jsonpath: {$.core.body.presName: other.pdf}
+  - route: presentation-upload
+    method: POST
+    pathParams: {authzToken: "${none}"}
+    body:
+      multipart:
+        fields: {temporaryPresentationId: upload-2}
+        files: [{field: fileUpload, path: presentations/two-pages.pdf, filename: none.pdf, contentType: application/pdf}]
+    expect: {status: 403, body: upload token scope mismatch}
+  - bus: {name: PresentationConversionFailedErrorSysPubMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.messageKey, $.core.body.presName, $.core.body.errorDetail]
+    expect:
+      jsonpath: {$.core.body.presName: none.pdf}
+  - route: presentation-upload
+    method: POST
+    pathParams: {authzToken: "${other}"}
+    body:
+      multipart:
+        fields: {conference: "${intId}", temporaryPresentationId: upload-1}
+        files: [{field: fileUpload, path: presentations/two-pages.pdf, filename: other.pdf, contentType: application/pdf}]
+    expect: {status: 403}
+  - bus: {name: PresentationConversionStartedSysPubMsg, meetingId: "${intId}", within: 3s}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.common.presentationName: other.pdf}
+      absent: true
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true

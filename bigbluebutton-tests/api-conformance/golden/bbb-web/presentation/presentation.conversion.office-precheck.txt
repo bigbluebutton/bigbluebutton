@@ -1,0 +1,18 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case presentation.conversion.office-precheck
+target bbb-web
+
+== step 5: bus PresentationConversionCompletedEvtMsg select $.core.body.presentation.name
+$.core.body.presentation.name "deck.pptx"
+
+== step 6: bus PresentationConversionFailedErrorSysPubMsg select $.core.body.messageKey, $.core.body.presName, $.core.body.errorDetail
+$.core.body.errorDetail "OfficeToPdfConversionFailed"
+$.core.body.messageKey "OFFICE_DOC_CONVERSION_INVALID"
+$.core.body.presName "hidden.pptx"
+
+== step 7: graphql query Row as ann
+$.data.pres_presentation[].name "hidden.pptx"
+$.data.pres_presentation[].totalPages 0
+$.data.pres_presentation[].uploadCompleted false
+$.data.pres_presentation[].uploadErrorDetailsJson.OFFICE_DOC_CONVERSION_INVALID "OfficeToPdfConversionFailed"
+$.data.pres_presentation[].uploadErrorMsgKey "OFFICE_DOC_CONVERSION_INVALID"

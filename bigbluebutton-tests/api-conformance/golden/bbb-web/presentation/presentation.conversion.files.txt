@@ -1,0 +1,26 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case presentation.conversion.files
+target bbb-web
+
+== step 8: fs ${intId}/${intId}/${presId}/textfiles/slide-1.txt
+$.contents "Base-14 Helvetica text\nPage 1\n"
+$.found true
+$.path "<sha1(meetingID)>-<time>/<sha1(meetingID)>-<time>/<sha1(?)>-<time>/textfiles/slide-1.txt"
+
+== step 11: fs ${intId}/${intId}/${presId}/textfiles/slide-2.txt
+$.contents "Presentation conversion keeps this text as vector glyphs.\n\nHelvetica is one of the fourteen standard PDF fonts.\n\nIt is not embedded, so poppler substitutes a system font.\n\nEvery line on this page is a separate text object.\n\nThe next page holds nothing but a number.\n"
+$.found true
+$.path "<sha1(meetingID)>-<time>/<sha1(meetingID)>-<time>/<sha1(?)>-<time>/textfiles/slide-2.txt"
+
+== step 14: fs ${intId}/${intId}/${presId}/textfiles/slide-3.txt
+$.contents 12
+$.found true
+$.path "<sha1(meetingID)>-<time>/<sha1(meetingID)>-<time>/<sha1(?)>-<time>/textfiles/slide-3.txt"
+
+== step 15: fs ${intId}/${intId}/${presId}/page-*.pdf
+$.found false
+$.path "<sha1(meetingID)>-<time>/<sha1(meetingID)>-<time>/<sha1(?)>-<time>/page-*.pdf"
+
+== step 16: fs ${intId}/${intId}/${presId}/pngs/*
+$.found false
+$.path "<sha1(meetingID)>-<time>/<sha1(meetingID)>-<time>/<sha1(?)>-<time>/pngs/*"

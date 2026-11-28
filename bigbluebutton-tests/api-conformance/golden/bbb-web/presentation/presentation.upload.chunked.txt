@@ -1,0 +1,8 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case presentation.upload.chunked
+target bbb-web
+
+== step 8: route presentation-upload (POST) (document)
+status 413
+header Content-Type text/html
+body text "413 Request Entity Too Large"

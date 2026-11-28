@@ -1,0 +1,12 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case presentation.conversion.breakout-all-pages
+target bbb-web
+
+== step 10: bus PresentationConversionCompletedEvtMsg select $.core.body.presentation.name, $.core.body.presentation.current, $.core.body.presentation.defaultPresentation
+$.core.body.presentation.current true
+$.core.body.presentation.defaultPresentation false
+$.core.body.presentation.name "default--1.pdf"
+
+== step 11: bus PresentationPageConversionStartedSysMsg select $.core.body.presName, $.core.body.numPages
+$.core.body.numPages 2
+$.core.body.presName "default--1.pdf"

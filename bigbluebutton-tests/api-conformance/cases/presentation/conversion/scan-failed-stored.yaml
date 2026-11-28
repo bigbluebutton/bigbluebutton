@@ -1,0 +1,58 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# When bbb-web can't scan a document (here scanning is on, and no ClamAV
+# daemon runs: the clamav-scan-unreachable profile), the document isn't
+# converted, and akka-apps passes on SCAN_FAILED. For a document given to
+# create or insertDocument, the presenter's row isn't written, so the
+# presenter is never told; an upload's row is (virus-upload). A defect
+# (#26793, expectations/bbb-web.yaml): this case expects the row. The
+# meeting's own document fails its scan too.
+id: presentation.conversion.scan-failed-stored
+title: A document bbb-web can't scan is refused with SCAN_FAILED, on the presenter's row
+endpoint: presentation
+class: defect
+tags: [ci, conversion, disruptive, presence]
+requires: [akka, bus, presence, callbacks, presentation-conversion]
+profile: clamav-scan-unreachable
+steps:
+  # A one-page image instead of the 15-page default presentation, so that
+  # the suite's conversions stay short.
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Conversion}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}-start/fixtures/presentations/image.png" filename="start.png"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  # Only the presenter sees the presentation's rows.
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: MODERATOR}}
+    golden: off
+  - call: insertDocument
+    method: POST
+    params: {meetingID: "${uid}"}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}/fixtures/presentations/two-pages.pdf" filename="two.pdf"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - bus: {name: PresentationUploadedFileScanFailedErrorEvtMsg, meetingId: "${intId}", within: 60s}
+    select: [$.core.body.messageKey, $.core.body.presentationName]
+    expect:
+      jsonpath:
+        $.core.body.presentationName: two.pdf
+        $.core.body.messageKey: SCAN_FAILED
+  - graphql:
+      as: ann
+      query: 'query Row($name: String!) { pres_presentation(where: {name: {_eq: $name}}) { name uploadErrorMsgKey } }'
+      variables: {name: two.pdf}
+    golden: off
+    eventually:
+      within: 5s
+      every: 300ms
+      until:
+        jsonpath: {"$.data.pres_presentation[0].uploadErrorMsgKey": SCAN_FAILED}
+    expect:
+      jsonpath: {"$.data.pres_presentation[0].uploadErrorMsgKey": SCAN_FAILED}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true

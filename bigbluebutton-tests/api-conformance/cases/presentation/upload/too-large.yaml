@@ -1,0 +1,78 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# An upload over maxFileSizeUpload (30000000 bytes) is refused before its
+# body is read: nginx passes the request's length to bbb-web's check, which
+# finds it too large and tells akka-apps FILE_TOO_LARGE for the
+# presentation, and nginx answers 413. The request never reaches bbb-web, so the token
+# isn't used up: a smaller file with the same token goes through.
+# fileSize isn't recorded: it is the length of the whole request (#26787).
+id: presentation.upload.too-large
+title: An upload over maxFileSizeUpload is refused with 413
+endpoint: presentation
+class: contract
+tags: [ci, presence]
+requires: [akka, bus, presence, callbacks]
+steps:
+  # A one-page image instead of the 15-page default presentation, so that
+  # the suite's conversions stay short.
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Upload}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}-start/fixtures/presentations/image.png" filename="start.png"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: MODERATOR}}
+    golden: off
+  # As the meeting's first moderator, Ann is made presenter a moment after
+  # she joins; the token request needs her to be.
+  - graphql: {as: ann, query: "query Me { user_current { presenter } }"}
+    golden: off
+    eventually: {within: 10s, every: 300ms, until: {jsonpath: {"$.data.user_current[0].presenter": "true"}}}
+  - graphql:
+      as: ann
+      query: 'mutation RequestUploadToken($podId: String!, $filename: String!, $tmp: String!) { presentationRequestUploadToken(podId: $podId, filename: $filename, uploadTemporaryId: $tmp) }'
+      variables: {podId: DEFAULT_PRESENTATION_POD, filename: large.pdf, tmp: upload-1}
+    golden: off
+  - bus: {name: PresentationUploadTokenSysPubMsg, meetingId: "${intId}", within: 10s}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.filename: large.pdf}
+    capture: {token: $.core.body.authzToken}
+  # bbb-web learns the token from its own message queue, a moment after
+  # akka-apps sends it (#26788), and until then nginx refuses it. A CORS
+  # preflight is refused the same way, and doesn't use the token up.
+  - route: presentation-upload
+    method: OPTIONS
+    headers: {Origin: "${baseUrl}", Access-Control-Request-Method: POST}
+    pathParams: {authzToken: "${token}"}
+    eventually: {within: 10s, every: 300ms, until: {status: 200}}
+    golden: off
+  - route: presentation-upload
+    method: POST
+    pathParams: {authzToken: "${token}"}
+    timeout: 60s
+    body:
+      multipart:
+        fields: {conference: "${intId}", temporaryPresentationId: upload-1}
+        files: [{field: fileUpload, size: 30000001, filename: large.pdf, contentType: application/pdf}]
+    expect: {status: 413}
+  - bus: {name: PresentationUploadedFileTooLargeErrorSysPubMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.messageKey, $.core.body.presentationName, $.core.body.maxFileSize]
+    expect:
+      jsonpath:
+        $.core.body.presentationName: large.pdf
+        $.core.body.maxFileSize: 30000000
+  - route: presentation-upload
+    method: POST
+    pathParams: {authzToken: "${token}"}
+    body:
+      multipart:
+        fields: {conference: "${intId}", temporaryPresentationId: upload-1}
+        files: [{field: fileUpload, path: presentations/two-pages.pdf, contentType: application/pdf}]
+    expect: {status: 200, body: upload-success}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true

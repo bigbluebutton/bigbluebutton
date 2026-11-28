@@ -1,0 +1,54 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A document insertDocument fetches by URL that turns out larger than
+# maxFileSizeUpload (30000000 bytes) isn't converted: akka-apps passes on
+# FILE_TOO_LARGE with the limit, and stores it on the presenter's row.
+# The size it reports is #26794's (presentation.conversion.too-large-size).
+id: presentation.conversion.too-large
+title: A document over maxFileSizeUpload, inserted by URL, is refused with FILE_TOO_LARGE
+endpoint: presentation
+class: contract
+tags: [ci, conversion, presence]
+requires: [akka, bus, presence, callbacks, presentation-conversion]
+steps:
+  # A one-page image instead of the 15-page default presentation, so that
+  # the suite's conversions stay short.
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Conversion}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}-start/fixtures/presentations/image.png" filename="start.png"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  # Only the presenter sees the presentation's rows.
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: MODERATOR}}
+    golden: off
+  - call: insertDocument
+    method: POST
+    params: {meetingID: "${uid}"}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}/conversion/rt-pdf-oversized-31mb-insert" filename="big.pdf"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - bus: {name: PresentationUploadedFileTooLargeErrorEvtMsg, meetingId: "${intId}", within: 60s}
+    select: [$.core.body.messageKey, $.core.body.presentationName, $.core.body.maxFileSize]
+    expect:
+      jsonpath:
+        $.core.body.presentationName: big.pdf
+        $.core.body.messageKey: FILE_TOO_LARGE
+        $.core.body.maxFileSize: "30000000"
+  - graphql:
+      as: ann
+      query: >-
+        query Row($name: String!) { pres_presentation(where: {name: {_eq: $name}}) {
+        name uploadCompleted uploadErrorMsgKey totalPages } }
+      variables: {name: "big.pdf"}
+    eventually:
+      within: 10s
+      every: 300ms
+      until:
+        jsonpath: {"$.data.pres_presentation[0].uploadErrorMsgKey": FILE_TOO_LARGE}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true

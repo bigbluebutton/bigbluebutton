@@ -1,0 +1,109 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A breakout room starts with a copy of the parent's current presentation:
+# all of it when the rooms are made with allPages, else only the page the
+# parent is on, here page 2. The copy is named after the page (-1 for all
+# of them), is the room's only presentation and is current there.
+# captureSlides, which sends the rooms' slides back to the parent when
+# they end, changes nothing at the start.
+id: presentation.conversion.breakout
+title: A breakout room starts with ${what} of the parent's presentation (captureSlides ${capture})
+endpoint: presentation
+class: contract
+tags: [ci, conversion, presence]
+requires: [akka, bus, presence, callbacks, presentation-conversion]
+variants:
+  - {id: all-pages, vars: {what: all the pages, allPages: true, capture: false, copy: default--1.pdf}}
+  - {id: current-page, vars: {what: the current page, allPages: false, capture: false, copy: default-2.pdf}}
+  - {id: current-page-capture, vars: {what: the current page, allPages: false, capture: true, copy: default-2.pdf}}
+steps:
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Breakout parent}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}-start/fixtures/presentations/two-pages.pdf" filename="parent.pdf"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - bus: {name: PresentationConversionCompletedEvtMsg, meetingId: "${intId}", within: 180s}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.presentation.name: parent.pdf}
+    capture: {presId: $.core.body.presentation.id}
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: MODERATOR}}
+    golden: off
+  # As the meeting's first moderator, Ann is made presenter a moment after
+  # she joins; changing the page needs her to be.
+  - graphql: {as: ann, query: "query Me { user_current { presenter } }"}
+    golden: off
+    eventually: {within: 10s, every: 300ms, until: {jsonpath: {"$.data.user_current[0].presenter": "true"}}}
+  - graphql:
+      as: ann
+      query: 'mutation SetPage($presId: String!, $pageId: String!) { presentationSetPage(presentationId: $presId, pageId: $pageId) }'
+      variables: {presId: "${presId}", pageId: "${presId}/2"}
+    golden: off
+  - bus: {name: SetCurrentPageEvtMsg, meetingId: "${intId}", within: 10s}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.pageId: "${presId}/2"}
+  # Two rooms, as the client asks for them: akka-apps wants at least two.
+  - graphql:
+      as: ann
+      query: >-
+        mutation CreateBreakouts($record: Boolean!, $notes: Boolean!, $slides: Boolean!, $duration: Int!,
+        $invite: Boolean!, $lock: Boolean!, $rooms: [BreakoutRoom]!) {
+        breakoutRoomCreate(record: $record, captureNotes: $notes, captureSlides: $slides, durationInSeconds: $duration,
+        sendInviteToModerators: $invite, inheritLockSettings: $lock, rooms: $rooms) }
+      variables:
+        record: false
+        notes: false
+        slides: ${capture}
+        duration: 600
+        invite: false
+        lock: false
+        rooms:
+          - name: Room 1
+            shortName: Room 1
+            sequence: 1
+            isDefaultName: true
+            freeJoin: false
+            users: []
+            captureNotesFilename: ""
+            captureSlidesFilename: ""
+            allPages: ${allPages}
+            presId: ""
+          - name: Room 2
+            shortName: Room 2
+            sequence: 2
+            isDefaultName: true
+            freeJoin: false
+            users: []
+            captureNotesFilename: ""
+            captureSlidesFilename: ""
+            allPages: ${allPages}
+            presId: ""
+    golden: off
+  - bus: {name: BreakoutRoomStartedEvtMsg, meetingId: "${intId}", within: 15s}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.breakout.sequence: "1"}
+    capture: {roomInt: $.core.body.breakout.breakoutId}
+  - bus: {name: PresentationConversionCompletedEvtMsg, meetingId: "${roomInt}", within: 180s}
+    select:
+      - $.core.body.presentation.name
+      - $.core.body.presentation.current
+      - $.core.body.presentation.defaultPresentation
+    expect:
+      jsonpath: {$.core.body.presentation.name: "${copy}"}
+  # The pages bbb-web found in the copy.
+  - bus: {name: PresentationPageConversionStartedSysMsg, channel: to-akka-apps-redis-channel, meetingId: "${roomInt}", within: 1s}
+    select: [$.core.body.presName, $.core.body.numPages]
+    expect:
+      jsonpath: {$.core.body.presName: "${copy}"}
+  - bus: {name: PresentationConversionRequestReceivedSysMsg, meetingId: "${roomInt}", within: 1s}
+    golden: off
+    expect: {count: 1}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true

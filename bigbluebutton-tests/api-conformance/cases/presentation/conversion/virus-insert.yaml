@@ -1,0 +1,51 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# With scanUploadedPresentationFiles on (the clamav-scan profile), bbb-web
+# has ClamAV scan each document before converting it. A document it finds
+# a virus in (the EICAR test file) isn't converted: akka-apps passes on
+# FILE_VIRUS. The presenter's row isn't written (#26793,
+# presentation.conversion.scan-failed-stored).
+id: presentation.conversion.virus-insert
+title: A document ClamAV flags, inserted inline, is refused with FILE_VIRUS
+endpoint: presentation
+class: contract
+tags: [full-stack, conversion, disruptive]
+requires: [akka, bus, callbacks, clamav, presentation-conversion]
+profile: clamav-scan
+steps:
+  # A one-page image instead of the 15-page default presentation, so that
+  # the suite's conversions stay short.
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Conversion}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}-start/fixtures/presentations/image.png" filename="start.png"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  # The meeting's own document is scanned too, and converts.
+  - bus: {name: PresentationConversionCompletedEvtMsg, meetingId: "${intId}", within: 180s}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.presentation.name: start.png}
+  - call: insertDocument
+    method: POST
+    params: {meetingID: "${uid}"}
+    body: {xml: '<modules><module name="presentation"><document name="eicar.txt">WDVPIVAlQEFQWzRcUFpYNTQoUF4pN0NDKTd9JEVJQ0FSLVNUQU5EQVJELUFOVElWSVJVUy1URVNULUZJTEUhJEgrSCo=</document></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - bus: {name: PresentationUploadedFileVirusErrorEvtMsg, meetingId: "${intId}", within: 60s}
+    select: [$.core.body.messageKey, $.core.body.presentationName, $.core.body.temporaryPresentationId]
+    expect:
+      jsonpath:
+        $.core.body.presentationName: eicar.txt
+        $.core.body.messageKey: FILE_VIRUS
+  - bus: {name: PresentationConversionRequestReceivedSysMsg, meetingId: "${intId}", within: 1s}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.presName: eicar.txt}
+      absent: true
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true

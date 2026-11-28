@@ -6,15 +6,29 @@ sink`, see the main README) serves this directory: on Tier 1,
 is the same file, with the request recorded under `<key>`.
 
 - `presentations/`: documents for create's and insertDocument's bodies,
-  by URL or in base64 (create.presentation.*,
-  create.default-presentation.*, insertDocument.*, presentation.*). They
+  by URL or in base64, and for uploads (create.presentation.*,
+  create.default-presentation.*, insertDocument.*, presentation.*). Most
   are copies of the presentation conversion suite's synthetic fixtures
   (`bigbluebutton-tests/presentation-conversion/fixtures/synthetic/`), kept
   small so that a base64 body stays well under nginx's 1 MB limit:
   - `two-pages.pdf` (`pdf-text-order-poll-2p.pdf`): a PDF of two pages;
   - `image.png` (`img-png-alpha.png`): an image, which converts to one page;
   - `slides.odp` (`off-odp-one-slide.odp`): an Office document of one slide;
-  - `drawing.svg` (`img-svg-upload.svg`): a type bbb-web doesn't accept.
+  - `drawing.svg` (`img-svg-upload.svg`): a type bbb-web doesn't accept;
+  - `hidden-slides.pptx` (`off-pptx-one-slide.pptx` with its slide
+    hidden): a deck bbb-web's Office pre-check refuses, since it shows no
+    slide;
+
+  and two that suite has no counterpart for:
+  - `empty.pdf`: an empty file;
+  - `no-content.docx`: an Office package holding only its
+    `[Content_Types].xml`, which bbb-web takes for a Word document and
+    LibreOffice can't convert.
+
+  The conversion cases (presentation.conversion.*) use the conversion
+  suite's own fixtures where they can, which the sink serves by ID:
+  `${sinkUrl}/<key>/conversion/<id>` is the file its manifest `<id>.yaml`
+  names (see the main README, "The sink").
 - `plugins/`: plugin manifests for create to fetch (create.plugins.*):
   - `basic.json`, `second.json`: plain manifests;
   - `breakout.json`: one that sets `enabledForBreakoutRooms`;

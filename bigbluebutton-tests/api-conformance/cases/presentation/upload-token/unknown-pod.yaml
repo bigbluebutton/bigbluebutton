@@ -1,0 +1,46 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A token is for one of the meeting's presentation pods. For a pod the
+# meeting doesn't have, akka-apps answers the presenter with
+# PresentationUploadTokenFailRespMsg and issues no token.
+id: presentation.upload-token.unknown-pod
+title: The presenter gets no upload token for a pod the meeting doesn't have
+endpoint: presentation
+class: contract
+tags: [ci, presence]
+requires: [akka, bus, presence, callbacks]
+steps:
+  # A one-page image instead of the 15-page default presentation, so that
+  # the suite's conversions stay short.
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Upload token}
+    body: {xml: '<modules><module name="presentation"><document url="${sinkUrl}/${uid}-start/fixtures/presentations/image.png" filename="start.png"/></module></modules>'}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: MODERATOR}}
+    golden: off
+  # As the meeting's first moderator, Ann is made presenter a moment after
+  # she joins; the token request needs her to be.
+  - graphql: {as: ann, query: "query Me { user_current { presenter } }"}
+    golden: off
+    eventually: {within: 10s, every: 300ms, until: {jsonpath: {"$.data.user_current[0].presenter": "true"}}}
+  - graphql:
+      as: ann
+      query: 'mutation RequestUploadToken($podId: String!, $filename: String!, $tmp: String!) { presentationRequestUploadToken(podId: $podId, filename: $filename, uploadTemporaryId: $tmp) }'
+      variables: {podId: no-such-pod, filename: two-pages.pdf, tmp: upload-1}
+    expect:
+      jsonpath: {$.data.presentationRequestUploadToken: true}
+  - bus: {name: PresentationUploadTokenFailRespMsg, meetingId: "${intId}", within: 10s}
+    select: [$.core.body.podId, $.core.body.filename]
+    expect:
+      jsonpath: {$.core.body.podId: no-such-pod}
+  - bus: {name: PresentationUploadTokenSysPubMsg, meetingId: "${intId}", within: 1s}
+    golden: off
+    expect: {absent: true}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true

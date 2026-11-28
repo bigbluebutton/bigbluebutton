@@ -308,7 +308,9 @@ access for the first build.
   than run: bbb-web's Depends and the edits its install script makes,
   the units' command lines and environment, the GraphQL server's
   database setup, akka-apps' preinst, the data directory bbb-config
-  creates, the LibreOffice converter. `env/tier1/check-copies.sh`
+  creates, the LibreOffice converter; and the `tight-limits` and
+  `office-precheck` profiles are the presentation conversion suite's.
+  `env/tier1/check-copies.sh`
   (`make check-copies`) warns about each of those sources that changed
   since Tier 1 last followed it, from the hashes in
   `env/tier1/copies.sha256`; CI shows the warnings as annotations. Once
@@ -322,7 +324,12 @@ access for the first build.
   stack's `bbb-apps-akka.conf`) or `clientSettingsOverrideStrictValidation`,
   the one bbb-web setting akka-apps reads.
 - **ClamAV.** `make up CLAMAV=1` runs the daemon where bbb-web looks for
-  it; the `clamav-scan` profile turns scanning on.
+  it; the `clamav-scan` profile turns scanning on. While the daemon runs,
+  `make env` also sets `BBB_CLAMAV`, which gives the target the `clamav`
+  capability the scanning cases need (they are `full-stack`, so CI skips
+  them), and unsets it once the daemon stops. `clamav-scan-unreachable`
+  turns scanning on with no daemon, so every scan fails; it won't switch
+  while the daemon runs.
 - **In CI.** The `api-conformance` job of `.github/workflows/automated-tests.yml`
   starts the stack, without ClamAV, from the debs that workflow's
   `build-package` job made for the same change, so nothing is built twice.
@@ -477,6 +484,7 @@ It also serves the fixtures cases have the server fetch.
 | `--cert FILE`, `--key FILE` | None, for plain HTTP. bbb-web fetches and calls back over https only (`fetchUrlSupportedProtocols`), so give the sink a certificate for a name the server resolves to it, from a CA the server's JVM trusts. A name that resolves to a private address must also be in the server's `fetchUrlAllowedLocalHosts`. With `sinkLocalUrl`, the certificate must also name that address, as an IP subject alternative name. |
 | `--listen-http ADDR` | None. With `--cert`, also serve plain HTTP there, for cases that check the server won't call an `http://` URL (`${sinkHttpUrl}`). Both listeners record into one log. |
 | `--fixtures DIR` | None: the directory served under `fixtures/`. |
+| `--repo DIR` | None: the repository, for the presentation conversion suite's fixtures, served by ID under `conversion/`. Only its manifests' directory and the two they take files from (`bigbluebutton-tests/playwright/core/media`, `bigbluebutton-web/test/resources`) need be there, at their places in it; on Tier 1 those three are mounted, from the checkout that ran `make up`: a fixture added in another worktree is a 404 there. |
 | `--max-mb N`, `--max-age D` | 64 MiB and 2h: how much of what it recorded it keeps. Both must be positive. |
 
 **Paths.** The first segment of a request's path is its key:
@@ -486,7 +494,8 @@ It also serves the fixtures cases have the server fetch.
 | `/<key>`, `/<key>/...` | Recorded under the key; 200 with no body. |
 | `/<key>/fixtures/<path>` | Recorded; the regular file at `<path>` in the fixtures directory, or 404. |
 | `/<key>/fixtures/generated/<name>?_size=N` | Recorded; a file of exactly N bytes (up to 64 MiB) computed as it is sent: a valid one-page PDF for a `.pdf` name, a JSON document for `.json`, lines of text otherwise. A file over an upload limit needs no commit. |
-| `/fixtures/...` | The same files, not recorded. |
+| `/<key>/conversion/<id>` | Recorded; the presentation conversion suite's fixture `<id>`: the file its manifest (`bigbluebutton-tests/presentation-conversion/fixtures/*/<id>.yaml`) names, or, for a `padded-pdf` runtime fixture, a PDF of its size, generated. The sink makes no other kind. An ID no manifest has is a 404. `validate` checks the IDs cases use. |
+| `/fixtures/...`, `/conversion/<id>` | The same files, not recorded. |
 | `/_received?key=K` | The requests recorded under K, as JSON: what `sink` steps read. |
 | `/_info` | The sink's instance, the number of its last request, and where it serves plain HTTP, if it does. |
 
@@ -829,7 +838,7 @@ after 2s with a warning.
 | `endpoint` | The endpoint the case is about. |
 | `class` | `contract` (documented or relied-on behaviour), `compat` (a bbb-web quirk clients may depend on) or `defect` (asserts the *correct* behaviour that bbb-web gets wrong). |
 | `tags` | Any of `ci`, `slow`, `disruptive`, `full-stack`, `presence`, `conversion`, `serial`, `triage`. `triage` marks behaviour still to be classified as contract, compat or defect: until then each of its steps (outside teardown) must say `golden: document` or `off`, which `validate` checks. |
-| `requires` | Capabilities the target must declare, or the case is skipped: `akka`, `presence`, `recordings-fs`, `callbacks`, `presentation-conversion`, `bus`, `fs`, `redis`, `clamav`, `full-stack`, `turn`. A target var can grant one while it has a value, as `turnSecret` grants `turn`. Step types add their own: `presence` and `graphql` add `presence`; `bus`, `fs` and `redis` add themselves; `sink` adds `callbacks`; `restore` adds `recordings-fs`, which a target also has when its tap has [fixture recordings](#fixture-recordings). |
+| `requires` | Capabilities the target must declare, or the case is skipped: `akka`, `presence`, `recordings-fs`, `callbacks`, `presentation-conversion`, `bus`, `fs`, `redis`, `clamav`, `full-stack`, `turn`. A target var can grant one while it has a value, as `turnSecret` grants `turn` and `clamav` (`BBB_CLAMAV`) grants `clamav`. Step types add their own: `presence` and `graphql` add `presence`; `bus`, `fs` and `redis` add themselves; `sink` adds `callbacks`; `restore` adds `recordings-fs`, which a target also has when its tap has [fixture recordings](#fixture-recordings). |
 | `profile` | A named config overlay the target must run with, e.g. one with short timeouts. |
 | `variants` | See below. |
 | `defs` | Ignored. A place to define YAML anchors. |
@@ -1005,6 +1014,44 @@ The actions other cases need, with their signatures (from
 | `presentationRequestUploadToken` | `podId: String!` (DEFAULT_PRESENTATION_POD), `filename: String!, uploadTemporaryId: String!` |
 | `chatSendMessage` | `chatId: String!` (MAIN-PUBLIC-GROUP-CHAT), `chatMessageInMarkdownFormat: String!`; optional `replyToMessageId: String`, `metadata: json` |
 
+**Uploading a presentation** (`cases/presentation/upload/`) takes four
+steps:
+1. `graphql` as the presenter: `presentationRequestUploadToken`, as the
+   HTML5 client sends it.
+2. `bus` `PresentationUploadTokenSysPubMsg`, filtered on the filename:
+   capture `$.core.body.authzToken`. The client reads the same token from
+   its `pres_presentation_uploadToken` row.
+3. A CORS preflight: `route: presentation-upload` with `method: OPTIONS`
+   and the `Origin` and `Access-Control-Request-Method` headers,
+   `eventually` until 200. bbb-web learns the token from its own message
+   queue a moment after akka-apps sends it (#26788), and until then nginx's
+   check refuses it. The preflight is refused the same way, and doesn't use
+   the token up.
+4. `route: presentation-upload` with `method: POST`, `pathParams:
+   {authzToken}` and a `multipart` body: the file as `fileUpload`, the
+   internal meeting ID as `conference`, and `temporaryPresentationId`.
+
+The token isn't recorded. Bus steps `select` everything they record but
+the token, and steps whose answer holds it are `golden: off`.
+
+**Following a conversion** (`cases/presentation/conversion/`): the meeting
+starts from a one-page image, and `insertDocument` gives the document by
+URL, as one of the presentation conversion suite's fixtures the sink
+serves by ID (`${sinkUrl}/${uid}/conversion/<id>`). Then:
+- `bus` steps on what bbb-web sends (`…SysPubMsg`, `…SysMsg`) and what
+  akka-apps passes on (`…EvtMsg`), filtered on the document's name (the
+  `filename` it was given) or on the presentation ID captured from a first
+  one. akka-apps lists a presentation's pages in
+  the order they were converted, so a case counts them (`{count: N}` on
+  `pages[*]`) rather than recording the list;
+- a `graphql` read of `pres_presentation` as the presenter, `eventually`
+  until it shows the outcome: akka-apps writes the row a moment after it
+  passes the message on;
+- `fs` steps on the files under `<meetingId>/<meetingId>/<presentationId>/`,
+  `golden: off` for SVGs, thumbnails and page text, whose content is the
+  conversion suite's to compare (a blank page's SVG, which is the point of
+  `blank-page`, is recorded).
+
 #### Side effects: `bus`, `fs` and `redis`
 
 These steps check what a call did outside its answer, through the target's
@@ -1093,8 +1140,8 @@ A `sink` step checks what the server sent to the target's
 [sink](#the-sink-sink): a callback, or a fetch of a fixture. The case gives
 the server a URL under `${sinkUrl}` (or `${sinkHttpUrl}`, `${sinkLocalUrl}`) whose first path segment is a key,
 normally made from `${uid}`, and the step looks at the requests under that
-key. A key is one path segment: no `/`, and neither `fixtures` nor a name
-starting with `_`, which the sink keeps for itself.
+key. A key is one path segment: no `/`, and neither `fixtures`,
+`conversion` nor a name starting with `_`, which the sink keeps for itself.
 
 ```yaml
 - call: create
@@ -1142,7 +1189,7 @@ starting with `_`, which the sink keeps for itself.
 
 ```yaml
 - call: join                         # or route: + pathParams:, or url:
-  method: GET                        # GET (default), POST, PUT, DELETE, HEAD
+  method: GET                        # GET (default), POST, PUT, DELETE, HEAD, OPTIONS
   sign: sha256                       # see Signing
   params: {meetingID: "${uid}", fullName: Ann, role: moderator}
   headers: {Accept: null, X-Forwarded-For: 203.0.113.7}
@@ -1210,7 +1257,7 @@ Exactly one of:
 | `form` | `application/x-www-form-urlencoded`. |
 | `json` | Any YAML value as JSON, with its strings templated. |
 | `raw` | The string, with no Content-Type unless `contentType` sets one. |
-| `multipart` | `{fields, files: [{field, path \| content, filename, contentType}]}`; `path` is under `fixtures/`. |
+| `multipart` | `{fields, files: [{field, path \| content \| size, filename, contentType}]}`; `path` is under `fixtures/`; `size: N` sends N filler bytes, for a size no fixture should have (up to 64 MiB). |
 
 Plus `contentType` (overrides the default) and `chunked: true` (no
 Content-Length). Set Content-Type either here or in `headers`, not both.
@@ -1234,8 +1281,8 @@ Content-Length, or of its last chunk) fails its step with a `body` check,
 whatever the step expects: the server's answer is broken. Its recording
 ends with `body cut short`.
 
-**Matchers.** A plain value means "equals", compared as text, and the path
-must select exactly one node. Anything else is a map with one key:
+**Matchers.** A plain value means "equals", compared as text (a JSON
+`null` is the text `null`), and the path must select exactly one node. Anything else is a map with one key:
 
 ```yaml
 /response/returncode: SUCCESS
@@ -1246,6 +1293,7 @@ must select exactly one node. Anything else is a map with one key:
 /response/attendees/attendee: {count: 2}
 /response/message: {contains: unknown}
 /response/messageKey: {oneOf: [idNotUnique, duplicateWarning]}
+$.data.pres_presentation[0].uploadErrorMsgKey: {noneOf: [INVALID_MIME_TYPE, "null", ""]}  # there, and none of these
 $.turnServers[0].ttl: {between: [1, 604800]} # an integer, bounds included; bounds may be templates
 ```
 
