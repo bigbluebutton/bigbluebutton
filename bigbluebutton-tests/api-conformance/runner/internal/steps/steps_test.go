@@ -1295,6 +1295,23 @@ steps:
 	}
 }
 
+// noneOf passes a value that is none of its list, so a case can say what
+// an answer mustn't be without naming what it should; a JSON null is the
+// text null.
+func TestNoneOf(t *testing.T) {
+	for _, tt := range []struct {
+		value  string
+		status report.Status
+	}{{"UPLOADED_FILE_EMPTY", report.Pass}, {"INVALID_MIME_TYPE", report.Fail}, {"null", report.Fail}, {"", report.Fail}, {"x", report.Fail}} {
+		res, _ := runYAML(t, header(`steps:
+  - check: [{value: "`+tt.value+`", expect: {noneOf: [INVALID_MIME_TYPE, "null", "", '${urlencode("x")}']}}]
+`))
+		if res.Status != tt.status {
+			t.Errorf("%q none of the list: status %s (%s), want %s", tt.value, res.Status, res.Reason, tt.status)
+		}
+	}
+}
+
 func TestBetween(t *testing.T) {
 	for _, tt := range []struct {
 		value  string

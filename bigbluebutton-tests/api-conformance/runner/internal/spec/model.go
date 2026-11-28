@@ -273,8 +273,8 @@ type RedirectExpect struct {
 }
 
 // Matcher compares one value. Op is eq, exists, absent, regex, type, oneOf,
-// count, contains or between (Args: the inclusive integer bounds). Arg and
-// Args may hold templates.
+// noneOf, count, contains or between (Args: the inclusive integer bounds).
+// Arg and Args may hold templates.
 type Matcher struct {
 	Op   string
 	Arg  string

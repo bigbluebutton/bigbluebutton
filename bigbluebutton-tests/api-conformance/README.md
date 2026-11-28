@@ -1254,8 +1254,8 @@ Content-Length, or of its last chunk) fails its step with a `body` check,
 whatever the step expects: the server's answer is broken. Its recording
 ends with `body cut short`.
 
-**Matchers.** A plain value means "equals", compared as text, and the path
-must select exactly one node. Anything else is a map with one key:
+**Matchers.** A plain value means "equals", compared as text (a JSON
+`null` is the text `null`), and the path must select exactly one node. Anything else is a map with one key:
 
 ```yaml
 /response/returncode: SUCCESS
@@ -1266,6 +1266,7 @@ must select exactly one node. Anything else is a map with one key:
 /response/attendees/attendee: {count: 2}
 /response/message: {contains: unknown}
 /response/messageKey: {oneOf: [idNotUnique, duplicateWarning]}
+$.data.pres_presentation[0].uploadErrorMsgKey: {noneOf: [INVALID_MIME_TYPE, "null", ""]}  # there, and none of these
 $.turnServers[0].ttl: {between: [1, 604800]} # an integer, bounds included; bounds may be templates
 ```
 

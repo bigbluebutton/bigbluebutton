@@ -2,11 +2,11 @@
 case presentation.upload.name-unicode
 target bbb-web
 
-== step 7: route presentation-upload (POST)
+== step 8: route presentation-upload (POST)
 status 200
 header Cache-Control no-cache
 header Content-Type text/plain
 body text 14 bytes, sha256 a9c48a8d278c
 
-== step 8: bus PresentationConversionStartedSysPubMsg select $.core.body.common.presentationName
+== step 9: bus PresentationConversionStartedSysPubMsg select $.core.body.common.presentationName
 $.core.body.common.presentationName "présentation-日本.pdf"

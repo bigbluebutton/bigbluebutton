@@ -906,7 +906,7 @@ func (d *decoder) matcher(n *yaml.Node) Matcher {
 		m.Arg = d.str(v)
 	case "count":
 		_ = v.Decode(&m.N) // as YAML reads it; the schema checked it is an integer
-	case "oneOf":
+	case "oneOf", "noneOf":
 		for _, item := range v.Content {
 			m.Args = append(m.Args, d.str(item))
 		}

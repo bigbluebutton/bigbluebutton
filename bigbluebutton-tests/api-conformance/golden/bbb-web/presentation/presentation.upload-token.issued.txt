@@ -2,14 +2,14 @@
 case presentation.upload-token.issued
 target bbb-web
 
-== step 4: graphql mutation RequestUploadToken as ann
+== step 5: graphql mutation RequestUploadToken as ann
 $.data.presentationRequestUploadToken true
 
-== step 5: bus PresentationUploadTokenSysPubMsg select $.core.body.podId, $.core.body.filename
+== step 6: bus PresentationUploadTokenSysPubMsg select $.core.body.podId, $.core.body.filename
 $.core.body.filename "two-pages.pdf"
 $.core.body.podId "DEFAULT_PRESENTATION_POD"
 
-== step 6: bus PresentationUploadTokenPassRespMsg select $.core.body.podId, $.core.body.filename, $.core.body.temporaryPresentationId
+== step 7: bus PresentationUploadTokenPassRespMsg select $.core.body.podId, $.core.body.filename, $.core.body.temporaryPresentationId
 $.core.body.filename "two-pages.pdf"
 $.core.body.podId "DEFAULT_PRESENTATION_POD"
 $.core.body.temporaryPresentationId "upload-1"
