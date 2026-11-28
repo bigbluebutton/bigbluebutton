@@ -2,7 +2,7 @@
 case presentation.upload.missing-file
 target bbb-web
 
-== step 7: route presentation-upload (POST) (document)
+== step 8: route presentation-upload (POST) (document)
 status 200
 header Cache-Control no-cache
 header Content-Type text/plain

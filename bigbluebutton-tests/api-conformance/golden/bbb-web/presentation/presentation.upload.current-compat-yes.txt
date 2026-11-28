@@ -2,12 +2,12 @@
 case presentation.upload.current-compat-yes
 target bbb-web
 
-== step 7: route presentation-upload (POST)
+== step 8: route presentation-upload (POST)
 status 200
 header Cache-Control no-cache
 header Content-Type text/plain
 body text 14 bytes, sha256 a9c48a8d278c
 
-== step 8: bus PresentationConversionCompletedSysPubMsg select $.core.body.presentation.name, $.core.body.presentation.current
+== step 9: bus PresentationConversionCompletedSysPubMsg select $.core.body.presentation.name, $.core.body.presentation.current
 $.core.body.presentation.current false
 $.core.body.presentation.name "two-pages.pdf"

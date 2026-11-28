@@ -24,6 +24,11 @@ steps:
     golden: off
   - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: MODERATOR}}
     golden: off
+  # As the meeting's first moderator, Ann is made presenter a moment after
+  # she joins; the token request needs her to be.
+  - graphql: {as: ann, query: "query Me { user_current { presenter } }"}
+    golden: off
+    eventually: {within: 10s, every: 300ms, until: {jsonpath: {"$.data.user_current[0].presenter": "true"}}}
   - graphql:
       as: ann
       query: 'mutation RequestUploadToken($podId: String!, $filename: String!, $tmp: String!) { presentationRequestUploadToken(podId: $podId, filename: $filename, uploadTemporaryId: $tmp) }'
@@ -55,7 +60,8 @@ steps:
     expect:
       jsonpath: {$.core.body.temporaryPresentationId: upload-1}
       absent: true
-  # The presentation's row carries the reason the presenter's uploader shows.
+  # The presentation's row carries the reason the presenter's uploader shows:
+  # one, and not INVALID_MIME_TYPE. (The token made the row, with none.)
   - graphql:
       as: ann
       query: 'query Failed($tmp: String!) { pres_presentation(where: {uploadTemporaryId: {_eq: $tmp}}) { uploadErrorMsgKey } }'
@@ -65,9 +71,9 @@ steps:
       within: 10s
       every: 300ms
       until:
-        jsonpath: {"$.data.pres_presentation[0].uploadErrorMsgKey": {regex: '.'}}
+        jsonpath: {"$.data.pres_presentation[0].uploadErrorMsgKey": {noneOf: [INVALID_MIME_TYPE, "null", ""]}}
     expect:
-      jsonpath: {"$.data.pres_presentation[0].uploadErrorMsgKey": {regex: '.'}}
+      jsonpath: {"$.data.pres_presentation[0].uploadErrorMsgKey": {noneOf: [INVALID_MIME_TYPE, "null", ""]}}
 teardown:
   - call: end
     params: {meetingID: "${uid}"}

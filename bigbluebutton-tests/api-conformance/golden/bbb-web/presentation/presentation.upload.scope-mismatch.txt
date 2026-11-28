@@ -2,29 +2,29 @@
 case presentation.upload.scope-mismatch
 target bbb-web
 
-== step 10: route presentation-upload (POST)
+== step 11: route presentation-upload (POST)
 status 403
 header Cache-Control no-cache
 header Content-Type text/plain
 body text 27 bytes, sha256 dc9813357054
 
-== step 11: bus PresentationConversionFailedErrorSysPubMsg select $.core.body.messageKey, $.core.body.presName, $.core.body.errorDetail
+== step 12: bus PresentationConversionFailedErrorSysPubMsg select $.core.body.messageKey, $.core.body.presName, $.core.body.errorDetail
 $.core.body.errorDetail "Upload request refused or incomplete"
 $.core.body.messageKey "PRESENTATION_UPLOAD_FAILED"
 $.core.body.presName "other.pdf"
 
-== step 12: route presentation-upload (POST)
+== step 13: route presentation-upload (POST)
 status 403
 header Cache-Control no-cache
 header Content-Type text/plain
 body text 27 bytes, sha256 dc9813357054
 
-== step 13: bus PresentationConversionFailedErrorSysPubMsg select $.core.body.messageKey, $.core.body.presName, $.core.body.errorDetail
+== step 14: bus PresentationConversionFailedErrorSysPubMsg select $.core.body.messageKey, $.core.body.presName, $.core.body.errorDetail
 $.core.body.errorDetail "Upload request refused or incomplete"
 $.core.body.messageKey "PRESENTATION_UPLOAD_FAILED"
 $.core.body.presName "none.pdf"
 
-== step 14: route presentation-upload (POST)
+== step 15: route presentation-upload (POST)
 status 403
 header Content-Type text/html
 body text "403 Forbidden"

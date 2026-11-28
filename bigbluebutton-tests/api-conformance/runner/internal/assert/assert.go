@@ -257,17 +257,17 @@ func (c *checker) value(m spec.Matcher, v string) (bool, error) {
 			return v == "true" || v == "false", nil
 		}
 		return false, fmt.Errorf("unknown type %q", m.Arg)
-	case "oneOf":
+	case "oneOf", "noneOf":
 		for _, a := range m.Args {
 			want, err := c.eval(a)
 			if err != nil {
 				return false, err
 			}
 			if v == want {
-				return true, nil
+				return m.Op == "oneOf", nil
 			}
 		}
-		return false, nil
+		return m.Op == "noneOf", nil
 	case "between":
 		if len(m.Args) != 2 {
 			return false, fmt.Errorf("between needs two bounds, got %d", len(m.Args))
@@ -322,10 +322,13 @@ func describe(m spec.Matcher, c *checker) string {
 		return "containing " + strconv.Quote(ex(m.Arg))
 	case "type":
 		return "of type " + m.Arg
-	case "oneOf":
+	case "oneOf", "noneOf":
 		var parts []string
 		for _, a := range m.Args {
 			parts = append(parts, strconv.Quote(ex(a)))
+		}
+		if m.Op == "noneOf" {
+			return "none of " + strings.Join(parts, ", ")
 		}
 		return "one of " + strings.Join(parts, ", ")
 	case "between":

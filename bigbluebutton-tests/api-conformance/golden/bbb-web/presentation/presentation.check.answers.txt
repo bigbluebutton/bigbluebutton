@@ -2,29 +2,23 @@
 case presentation.check.answers
 target bbb-web
 
-== step 6: route presentation-check
+== step 7: route presentation-check
 status 200
 header Cache-Control no-cache
 header Content-Type text/plain
 body text 14 bytes, sha256 a9c48a8d278c
 
-== step 7: route presentation-check
+== step 8: route presentation-check
 status 403
 header Cache-Control no-cache
 header Content-Type text/plain
 body text 10 bytes, sha256 205419f284a8
 
-== step 8: bus PresentationUploadedFileTooLargeErrorSysPubMsg select $.core.body.messageKey, $.core.body.presentationName, $.core.body.fileSize, $.core.body.maxFileSize
+== step 9: bus PresentationUploadedFileTooLargeErrorSysPubMsg select $.core.body.messageKey, $.core.body.presentationName, $.core.body.fileSize, $.core.body.maxFileSize
 $.core.body.fileSize 30000001
 $.core.body.maxFileSize 30000000
 $.core.body.messageKey "FILE_TOO_LARGE"
 $.core.body.presentationName "two-pages.pdf"
-
-== step 9: route presentation-check
-status 403
-header Cache-Control no-cache
-header Content-Type text/plain
-body text 18 bytes, sha256 bf91a3b9b16e
 
 == step 10: route presentation-check
 status 403
@@ -33,18 +27,24 @@ header Content-Type text/plain
 body text 18 bytes, sha256 bf91a3b9b16e
 
 == step 11: route presentation-check
+status 403
+header Cache-Control no-cache
+header Content-Type text/plain
+body text 18 bytes, sha256 bf91a3b9b16e
+
+== step 12: route presentation-check
 status 200
 header Cache-Control no-cache
 header Content-Type text/plain
 body text 14 bytes, sha256 a9c48a8d278c
 
-== step 12: route presentation-check
+== step 13: route presentation-check
 status 403
 header Cache-Control no-cache
 header Content-Type text/plain
 body text 11 bytes, sha256 adf81cf5d1c6
 
-== step 13: route presentation-upload (POST)
+== step 14: route presentation-upload (POST)
 status 200
 header Cache-Control no-cache
 header Content-Type text/plain

@@ -21,6 +21,11 @@ steps:
     golden: off
   - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: MODERATOR}}
     golden: off
+  # As the meeting's first moderator, Ann is made presenter a moment after
+  # she joins; the token request needs her to be.
+  - graphql: {as: ann, query: "query Me { user_current { presenter } }"}
+    golden: off
+    eventually: {within: 10s, every: 300ms, until: {jsonpath: {"$.data.user_current[0].presenter": "true"}}}
   - graphql:
       as: ann
       query: 'mutation RequestUploadToken($podId: String!, $filename: String!, $tmp: String!) { presentationRequestUploadToken(podId: $podId, filename: $filename, uploadTemporaryId: $tmp) }'
@@ -64,3 +69,8 @@ steps:
         fields: {conference: "${intId}", temporaryPresentationId: upload-1}
         files: [{field: fileUpload, path: presentations/two-pages.pdf, contentType: application/pdf}]
     expect: {status: 403}
+# The case ends the meeting itself; this ends it if a step fails first.
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
