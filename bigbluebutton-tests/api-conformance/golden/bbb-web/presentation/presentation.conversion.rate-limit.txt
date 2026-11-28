@@ -2,11 +2,11 @@
 case presentation.conversion.rate-limit
 target bbb-web
 
-== step 8: bus PresentationConversionFailedErrorSysPubMsg select $.core.body.messageKey, $.core.body.errorDetail
+== step 6: bus PresentationConversionFailedErrorSysPubMsg select $.core.body.messageKey, $.core.body.errorDetail
 $.core.body.errorDetail "Per-meeting presentation conversion rate limit exceeded"
 $.core.body.messageKey "CONVERSION_RATE_LIMIT_EXCEEDED"
 
-== step 12: graphql query Refused as ann
+== step 11: graphql query Refused as ann
 $.data.pres_presentation[].totalPages 0
 $.data.pres_presentation[].uploadCompleted false
 $.data.pres_presentation[].uploadErrorDetailsJson.CONVERSION_RATE_LIMIT_EXCEEDED "Per-meeting presentation conversion rate limit exceeded"

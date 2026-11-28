@@ -327,8 +327,9 @@ access for the first build.
   it; the `clamav-scan` profile turns scanning on. While the daemon runs,
   `make env` also sets `BBB_CLAMAV`, which gives the target the `clamav`
   capability the scanning cases need (they are `full-stack`, so CI skips
-  them). `clamav-scan-unreachable` turns scanning on with no daemon, so
-  every scan fails; it won't switch while the daemon runs.
+  them), and unsets it once the daemon stops. `clamav-scan-unreachable`
+  turns scanning on with no daemon, so every scan fails; it won't switch
+  while the daemon runs.
 - **In CI.** The `api-conformance` job of `.github/workflows/automated-tests.yml`
   starts the stack, without ClamAV, from the debs that workflow's
   `build-package` job made for the same change, so nothing is built twice.

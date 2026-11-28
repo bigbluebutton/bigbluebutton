@@ -6,6 +6,12 @@
 # akka-apps stores on the presenter's row without passing it on. One
 # insertDocument's documents are handled side by side, so which two isn't
 # fixed: the case counts them.
+#
+# The window slides: each document is counted when its conversion starts
+# and forgotten 60 seconds later. The case sends the 21 right after create,
+# before anyone joins, so that all 22 start within seconds of each other
+# however long conversions take. Which is counted first doesn't change the
+# totals; that the first document counts at all is why 2 are refused.
 id: presentation.conversion.rate-limit
 title: The 21st conversion in a minute is refused with CONVERSION_RATE_LIMIT_EXCEEDED
 endpoint: presentation
@@ -24,13 +30,6 @@ steps:
     capture: {intId: /response/internalMeetingID}
   - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
     golden: off
-  # Only the presenter sees the presentation's rows.
-  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: MODERATOR}}
-    golden: off
-  - bus: {name: PresentationConversionCompletedEvtMsg, meetingId: "${intId}", within: 180s}
-    golden: off
-    expect:
-      jsonpath: {$.core.body.presentation.name: start.png}
   - call: insertDocument
     method: POST
     params: {meetingID: "${uid}"}
@@ -53,6 +52,9 @@ steps:
     select: [$.core.body.messageKey, $.core.body.errorDetail]
     expect:
       jsonpath: {$.core.body.messageKey: CONVERSION_RATE_LIMIT_EXCEEDED}
+  # Only the presenter sees the presentation's rows.
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: MODERATOR}}
+    golden: off
   # Until the 20 conversions are done: the meeting's document and 19 more.
   - graphql:
       as: ann
